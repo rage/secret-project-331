@@ -35,8 +35,9 @@ const Home: React.FC = () => {
                 pathname: `${basePath()}/organizations/[id]`,
                 query: { id: organization.id },
               }}
+              passHref
             >
-              <a>{organization.name}</a>
+              <a href="replace">{organization.name}</a>
             </Link>
           </div>
         ))}

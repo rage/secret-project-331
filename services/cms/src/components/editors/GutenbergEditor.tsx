@@ -39,7 +39,6 @@ import React, { useContext, useEffect, useState } from "react"
 
 import CourseContext from "../../contexts/CourseContext"
 import mediaUploadBuilder, { MediaUploadProps } from "../../services/backend/media/mediaUpload"
-import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import { modifyBlockAttributes } from "../../utils/Gutenberg/modifyBlockAttributes"
 
 interface GutenbergEditorProps {

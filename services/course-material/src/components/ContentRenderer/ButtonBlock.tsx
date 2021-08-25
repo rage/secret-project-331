@@ -6,14 +6,14 @@ import { ButtonAttributes } from "../../types/GutenbergBlockAttributes"
 import { BlockRendererProps } from "."
 
 const ButtonBlock: React.FC<BlockRendererProps<ButtonAttributes>> = ({ data }) => {
-  const innerBlocks: ButtonAttributes = data.innerBlocks[0].attributes
+  const innerBlocksAttributes = data.innerBlocks[0].attributes as ButtonAttributes
   return (
     <button
       className={css`
         ${normalWidthCenteredComponentStyles}
       `}
     >
-      {innerBlocks.text}
+      {innerBlocksAttributes.text}
     </button>
   )
 }

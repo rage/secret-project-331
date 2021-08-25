@@ -43,7 +43,7 @@ const ChapterImageWidget: React.FC<ChapterImageControlsProps> = ({ chapter, onCh
       {error && <pre>{JSON.stringify(`${error}`, undefined, 2)}</pre>}
       {chapter.chapter_image_url ? (
         <>
-          <img src={chapter.chapter_image_url} />
+          <img src={chapter.chapter_image_url} alt="What to display on the chapter." />
           <Button onClick={handleRemove} variant="outlined" disabled={!allowRemove}>
             Remove image
           </Button>

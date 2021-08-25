@@ -5,6 +5,7 @@ module.exports = {
     node: true,
   },
   extends: [
+    "plugin:jsx-a11y/recommended",
     "plugin:react-hooks/recommended",
     "eslint:recommended",
     "plugin:react/recommended",

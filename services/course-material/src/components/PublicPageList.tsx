@@ -42,8 +42,9 @@ const PublicPageList: React.FC<PublicPageListProps> = ({ courseId }) => {
               query: { courseId, path: urlWithoutSlash },
             }}
             key={page.id}
+            passHref
           >
-            <a>
+            <a href="replace">
               {page.title} ({page.url_path})
             </a>
           </Link>

@@ -46,7 +46,7 @@ export interface CourseProgressExtraProps {
   label: string
 }
 
-const ScoreBoard = ({ point = 10, label, min, max }: CourseProgressExtraProps) => {
+const ScoreBoard: React.FC<CourseProgressExtraProps> = ({ point = 10, label, min, max }) => {
   const [willAnimate, setWillAnimate] = useState(false)
 
   useLayoutEffect(() => {

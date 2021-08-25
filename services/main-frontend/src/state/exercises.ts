@@ -7,6 +7,7 @@ import {
   NormalizedCmsExerciseTask,
 } from "../shared-module/bindings"
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const exercisesAtoms = atomFamily<ExerciseWithExerciseTasks | NormalizedCmsExercise, any>({
   key: "exercises",
   default: null,
@@ -51,6 +52,7 @@ export const exerciseTaskFamilySelector = selectorFamily<
     },
   set:
     (id) =>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ({ set }, exerciseTaskSpec: any) => {
       set(exercisesAtoms(id[0]), (prev) => {
         return {

@@ -109,6 +109,7 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
         border-top: 1px solid black;
         border-bottom: 1px solid black;
       `}
+      title="Exercise type specific content"
       ref={iframeRef}
       src={url}
     />

@@ -3,8 +3,7 @@ import { useRouter } from "next/router"
 import { useState } from "react"
 import { useQuery } from "react-query"
 
-import { fetchFeedback, fetchFeedbackCount } from "../../services/backend/feedback"
-import { Feedback } from "../../shared-module/bindings"
+import { fetchFeedbackCount } from "../../services/backend/feedback"
 import FeedbackPage from "../FeedbackPage"
 
 interface Props {

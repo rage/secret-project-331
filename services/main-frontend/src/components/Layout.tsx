@@ -1,6 +1,5 @@
 import { css } from "@emotion/css"
 import Head from "next/head"
-import Link from "next/link"
 import React, { ReactNode } from "react"
 
 import { normalWidthCenteredComponentStyles } from "../shared-module/styles/componentStyles"

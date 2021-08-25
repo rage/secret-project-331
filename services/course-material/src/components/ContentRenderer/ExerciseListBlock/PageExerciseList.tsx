@@ -20,7 +20,7 @@ const PageExerciseList: React.FC<{ page: PageWithExercises }> = ({ page }) => {
         {page.exercises.map((e) => (
           <div key={e.id}>
             <Link href={`/${courseSlug}${page.url_path}#${e.id}`} passHref>
-              <a>{e.name}</a>
+              <a href="replace">{e.name}</a>
             </Link>
           </div>
         ))}

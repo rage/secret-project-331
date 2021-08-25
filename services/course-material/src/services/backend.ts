@@ -39,7 +39,7 @@ export interface Block<T> {
   isValid: boolean
   clientId: string
   attributes: T
-  innerBlocks: any[]
+  innerBlocks: Block<unknown>[]
 }
 
 export const fetchCoursePageByPath = async (courseSlug: string, path: string): Promise<Page> => {

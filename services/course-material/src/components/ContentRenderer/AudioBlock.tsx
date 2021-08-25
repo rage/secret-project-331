@@ -14,6 +14,8 @@ const AudioBlock: React.FC<BlockRendererProps<AudioAttributes>> = ({ data }) => 
         ${normalWidthCenteredComponentStyles}
       `}
     >
+      {/* Gutenberg schema has no support for captions */}
+      {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
       <audio controls>
         <source
           src={attributes.src}

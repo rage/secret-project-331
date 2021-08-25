@@ -39,6 +39,7 @@ export interface BlockRendererProps<T> {
 
 const LatexBlock = dynamic(() => import("./LatexBlock"))
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const blockToRendererMap: { [blockName: string]: any } = {
   // "core/shortcode",
   // "core/button",

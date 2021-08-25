@@ -104,10 +104,6 @@ type ButtonProps = {
    */
   buttonColor?: ButtonColor
   /**
-   * Custom styles to inject
-   */
-  buttonStyle?: any
-  /**
    * Width of the button, default 40
    */
   buttonWidth?: ButtonWidth
@@ -155,7 +151,6 @@ const Button: React.FC<ButtonProps> = (props) => {
     barColor = "black",
     Box = StyledBox,
     buttonColor = "transparent",
-    buttonStyle,
     buttonWidth = 40,
     className,
     isActive = false,
@@ -170,8 +165,6 @@ const Button: React.FC<ButtonProps> = (props) => {
     <StyledButton
       onClick={toggleButton}
       aria-label="Navigation"
-      // eslint-disable-next-line react/forbid-component-props
-      style={buttonStyle}
       {...{ buttonWidth, buttonColor, className }}
       {...rest}
     >

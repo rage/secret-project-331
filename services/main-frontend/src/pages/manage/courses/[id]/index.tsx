@@ -92,10 +92,19 @@ const ManageCoursePage: React.FC<unknown> = () => {
       <br />
       <Link href={{ pathname: "/manage/courses/[id]/pages", query: { id: course.id } }}>
         Manage pages
-      </Link>{" "}
+      </Link>
+      <br />
+      <Link
+        href={{
+          pathname: "/manage/courses/[id]/feedback",
+          query: { id: course.id },
+        }}
+      >
+        Manage feedback
+      </Link>
       <h3>All course language versions</h3>
       <CourseTranslationsList courseId={id} />
-      <Button onClick={() => setShowDuplicateForm(true)}>Create new</Button>
+      <Button onClick={() => setShowDuplicateForm(true)}>New language version</Button>
       <h3>All course instances</h3>
       <CourseInstancesList courseId={id} />
       <h3>All exercises</h3>

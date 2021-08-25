@@ -26,6 +26,8 @@ import {
 import { ExerciseService, ExerciseServiceNewOrUpdate } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
 import SpeechBalloon from "../../shared-module/components/SpeechBalloon"
+import { validNumber, validURL } from "../../shared-module/utils/validation"
+
 interface ExerciseServiceEditorProps {
   exercise_services: ExerciseService[]
   refetch()
@@ -64,28 +66,12 @@ interface ExerciseServiceCreationModelProps {
 
 type updateStatus = null | "saved" | "failed"
 
-const errorousURL = (text) => {
-  try {
-    new URL("" + text)
-    return false
-  } catch (e) {
-    return true
-  }
-}
-
-const errorousNumber = (text) => {
-  try {
-    const num = parseInt("" + text)
-    return num < 0
-  } catch (e) {
-    return true
-  }
-}
 const canSave = (service) => {
-  return !(
-    errorousNumber(service.max_reprocessing_submissions_at_once) ||
-    errorousURL(service.internal_url) ||
-    errorousURL(service.public_url)
+  return (
+    validNumber(service.max_reprocessing_submissions_at_once) &&
+    service.max_reprocessing_submissions_at_once > 0 &&
+    validURL(service.internal_url) &&
+    validURL(service.public_url)
   )
 }
 
@@ -306,7 +292,7 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
             editing={editing}
             onChange={onChange("public_url")}
             type={"text"}
-            error={errorousURL(service.public_url)}
+            error={!validURL(service.public_url)}
           />
           <ContentArea
             title={"Internal URL"}
@@ -314,7 +300,7 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
             editing={editing}
             onChange={onChange("internal_url")}
             type={"text"}
-            error={errorousURL(service.internal_url)}
+            error={!validURL(service.internal_url)}
           />
           <ContentArea
             title={"Reprocessing submissions"}
@@ -322,7 +308,7 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
             editing={editing}
             onChange={onChange("max_reprocessing_submissions_at_once")}
             type={"number"}
-            error={errorousNumber(service.max_reprocessing_submissions_at_once)}
+            error={service.max_reprocessing_submissions_at_once < 0}
           />
         </CardContent>
 
@@ -410,7 +396,7 @@ const ExerciseServiceCreationModal: React.FC<ExerciseServiceCreationModelProps> 
             editing={true}
             onChange={onChange("public_url")}
             type={"text"}
-            error={errorousURL(exercise_service.public_url)}
+            error={!validURL(exercise_service.public_url)}
           />
           <ContentArea
             title={"Internal URL"}
@@ -418,7 +404,7 @@ const ExerciseServiceCreationModal: React.FC<ExerciseServiceCreationModelProps> 
             editing={true}
             onChange={onChange("internal_url")}
             type={"text"}
-            error={errorousURL(exercise_service.internal_url)}
+            error={!validURL(exercise_service.internal_url)}
           />
           <ContentArea
             title={"Reprocessing submissions"}
@@ -426,7 +412,7 @@ const ExerciseServiceCreationModal: React.FC<ExerciseServiceCreationModelProps> 
             editing={true}
             onChange={onChange("max_reprocessing_submissions_at_once")}
             type={"number"}
-            error={errorousURL(exercise_service.max_reprocessing_submissions_at_once)}
+            error={exercise_service.max_reprocessing_submissions_at_once < 0}
           />
         </CardContent>
         <CardContent>

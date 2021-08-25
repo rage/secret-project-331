@@ -66,8 +66,6 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
   const [editing, setEditing] = useState(false)
   const [service, setService] = useState(exercise_service)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-
-  // Saving animation for the card
   const [status, setStatus] = useState<updateStatus>(null)
 
   const toggleEdit = () => {

@@ -93,6 +93,7 @@ const Home: React.FC = () => {
           height="50vh"
           className={css`
             border: 1px solid black;
+            margin-bottom: 1rem;
           `}
         />
       </div>

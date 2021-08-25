@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { Button, Dialog } from "@material-ui/core"
+import { Dialog } from "@material-ui/core"
 import React, { useState } from "react"
 import { useQuery } from "react-query"
 
@@ -10,6 +10,7 @@ import {
   postNewEmailTemplateForCourseInstance,
 } from "../../../../services/backend/course-instances"
 import { deleteEmailTemplate } from "../../../../services/backend/email-templates"
+import Button from "../../../../shared-module/components/Button"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import basePath from "../../../../shared-module/utils/base-path"
@@ -70,7 +71,9 @@ const CourseInstanceEmailTemplates: React.FC<CourseInstanceEmailTemplatesProps> 
       >
         {/* TODO: Perhaps insert some data regarding the course instance */}
         <h1>E-mail templates for course instance.</h1>
-        <Button onClick={() => setShowForm(!showForm)}>Create new e-mail</Button>
+        <Button size="medium" variant="primary" onClick={() => setShowForm(!showForm)}>
+          Create new e-mail
+        </Button>
 
         <Dialog open={showForm} onClose={() => setShowForm(!showForm)}>
           <div
@@ -78,7 +81,9 @@ const CourseInstanceEmailTemplates: React.FC<CourseInstanceEmailTemplatesProps> 
               margin: 1rem;
             `}
           >
-            <Button onClick={() => setShowForm(!showForm)}>Close</Button>
+            <Button size="medium" variant="primary" onClick={() => setShowForm(!showForm)}>
+              Close
+            </Button>
             <NewEmailTemplateForm onSubmitForm={handleCreateEmailTemplate} />
           </div>
         </Dialog>
@@ -87,7 +92,13 @@ const CourseInstanceEmailTemplates: React.FC<CourseInstanceEmailTemplatesProps> 
             return (
               <li key={template.id}>
                 {template.name} <a href={`/cms/email-templates/${template.id}/edit`}>Edit</a>{" "}
-                <Button onClick={async () => await handleOnDelete(template.id)}>Delete</Button>
+                <Button
+                  size="medium"
+                  variant="secondary"
+                  onClick={async () => await handleOnDelete(template.id)}
+                >
+                  Delete
+                </Button>
               </li>
             )
           })}

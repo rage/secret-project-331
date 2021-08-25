@@ -3,8 +3,6 @@ import Head from "next/head"
 import React, { ReactNode } from "react"
 
 import Navbar from "../shared-module/components/Navigation"
-import SimpleNav from "../shared-module/components/Navigation"
-import ComplexNav from "../shared-module/components/Navigation/ComplexNav"
 
 type LayoutProps = {
   children: ReactNode

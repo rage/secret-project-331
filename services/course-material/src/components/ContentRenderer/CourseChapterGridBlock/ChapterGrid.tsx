@@ -54,17 +54,19 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
         className={css`
           @supports (display: grid) {
             display: grid;
-            grid-gap: 100px;
+            grid-gap: 75px;
+            max-width: 1107.5px;
+
             align-content: space-around;
             /* On small screens allow the cards to be really narrow */
             grid-template-columns: 1fr;
             grid-auto-rows: 1fr;
             /*
             Automatically place the cards on the grid so that they resize based on content,
-            are all the same height, and don't get narrower than 450px.
+            are all the same height, and don't get narrower than 500px.
             */
-            @media only screen and (min-width: 450px) {
-              grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            @media only screen and (min-width: 500px) {
+              grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
               grid-auto-rows: 1fr;
             }
           }

@@ -7,7 +7,7 @@ export const breakpoints = {
 }
 
 export const defaultContainerWidth = 780
-export const wideContainerWidth = 1300
-export const cardMaxWidth = 37.5
-export const cardHeight = 35.11
+export const wideContainerWidth = 1200
+export const cardMaxWidth = 31.25
+export const cardHeight = 28.86
 export const feedbackTooltipClass = "feedback-tooltip"

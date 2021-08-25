@@ -1,10 +1,20 @@
 import TextField from "@material-ui/core/TextField"
-import React, { useState } from "react"
+import dynamic from "next/dynamic"
+import React, { useEffect, useState } from "react"
 
 import MessageChannelIFrame from "../shared-module/components/MessageChannelIFrame"
+import { normalWidthCenteredComponentStyles } from "../shared-module/styles/componentStyles"
+
+const MonacoLoading = <div>Loading editor...</div>
+const Editor = dynamic(() => import("@monaco-editor/react"), {
+  ssr: false,
+  loading: () => MonacoLoading,
+})
 
 const Home: React.FC = () => {
   const [url, setUrl] = useState<string | null>(null)
+  const [width, setWidth] = useState<string | null>(null)
+  const [combinedUrl, setCombinedUrl] = useState<string | null>(null)
   const [data, setData] = useState<string | null>(null)
   const [err, setErr] = useState<boolean>(false)
 
@@ -21,30 +31,61 @@ const Home: React.FC = () => {
     console.log("received message from iframe", message)
   }
 
-  const handleUrlChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+  useEffect(() => {
+    setCombinedUrl("")
+    if (!url || !width) return
     try {
-      const newUrl = new URL(e.target.value)
-      setUrl(newUrl.toString())
+      const newUrl = new URL(url + `?width=${width}`)
+      setCombinedUrl(newUrl.toString())
       setErr(false)
     } catch (error) {
       console.log(error)
       setErr(true)
     }
+  }, [url, width])
+
+  const handleUrlChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+    setUrl(e.target.value)
   }
 
-  const handleDataChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-    setData(e.target.value)
+  const handleWidthChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+    setWidth(e.target.value)
+  }
+
+  const handleDataChange = (e: string) => {
+    if (e) setData(e)
   }
 
   return (
     <div>
-      <p>insert URL and data</p>
-      <TextField placeholder={err ? "Invalid URL" : "URL"} onChange={handleUrlChange} error={err} />
-      <br />
-      <TextField placeholder="Public spec data" onChange={handleDataChange} multiline />
-      {url && data && (
+      <div className={normalWidthCenteredComponentStyles}>
+        <p>insert URL and data</p>
+        <TextField
+          fullWidth
+          placeholder={err ? "Invalid URL" : "URL"}
+          onChange={handleUrlChange}
+          error={err}
+        />
+        <TextField placeholder="width" fullWidth onChange={handleWidthChange} />
+        <br />
+        <Editor
+          defaultLanguage="json"
+          options={{
+            wordWrap: "on",
+            readOnly: false,
+            scrollBeyondLastLine: false,
+            roundedSelection: false,
+          }}
+          defaultValue={data || undefined}
+          onChange={(value) => handleDataChange(value)}
+          width="30vw"
+          height="50vh"
+        />
+      </div>
+      {combinedUrl && data && (
         <MessageChannelIFrame
-          url={url}
+          key={combinedUrl + data}
+          url={combinedUrl}
           onCommunicationChannelEstabilished={onChannelEstablished}
           onMessageFromIframe={onMessage}
         />

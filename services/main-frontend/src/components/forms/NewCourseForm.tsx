@@ -4,7 +4,7 @@ import { Button, TextField } from "@material-ui/core"
 import React, { useState } from "react"
 
 import { NewCourse } from "../../shared-module/bindings"
-import { formatIETFLanguageTagWithRegion } from "../../shared-module/utils/strings"
+import { normalizeIETFLanguageTag } from "../../shared-module/utils/strings"
 import { normalizePath } from "../../utils/normalizePath"
 
 const FieldContainer = styled.div`
@@ -19,27 +19,23 @@ interface NewCourseFormProps {
 const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitForm }) => {
   const [name, setName] = useState("")
   const [slug, setSlug] = useState("")
-  const [locale, setLocale] = useState("en-US")
+  const [languageCode, setLanguageCode] = useState("en-US")
   const [submitDisabled, setSubmitDisabled] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const createNewCourse = async () => {
     try {
       setSubmitDisabled(true)
-      const localeParts = locale.split(/[-_]/)
-      const formatedLocale =
-        localeParts.length == 2
-          ? formatIETFLanguageTagWithRegion(localeParts[0], undefined, localeParts[1])
-          : formatIETFLanguageTagWithRegion(localeParts[0], localeParts[1], localeParts[2])
+      const normalizedLanguageCode = normalizeIETFLanguageTag(languageCode)
       await onSubmitForm({
         name,
         slug,
         organization_id: organizationId,
-        language_code: formatedLocale,
+        language_code: normalizedLanguageCode,
       })
       setName("")
       setSlug("")
-      setLocale("en-US")
+      setLanguageCode("en-US")
       setError(null)
     } catch (e) {
       setError(e.toString())
@@ -91,8 +87,8 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
             id="outlined-required"
             label="Language code"
             variant="outlined"
-            value={locale}
-            onChange={(e) => setLocale(e.target.value)}
+            value={languageCode}
+            onChange={(e) => setLanguageCode(e.target.value)}
           />
         </FieldContainer>
       </div>

@@ -2,6 +2,17 @@ export function capitalizeFirstLetter(string: string): string {
   return string.charAt(0).toUpperCase() + string.slice(1)
 }
 
+export function normalizeIETFLanguageTag(tag: string): string {
+  const subtags = tag.split(/[-_]/)
+  if (subtags.length < 2) {
+    throw new Error("")
+  } else if (subtags.length === 2) {
+    return formatIETFLanguageTagWithRegion(subtags[0], undefined, subtags[1])
+  } else {
+    return formatIETFLanguageTagWithRegion(subtags[0], subtags[1], subtags[2])
+  }
+}
+
 type IETFLanguageTagSubtagSeparator = "-" | "_"
 
 /**

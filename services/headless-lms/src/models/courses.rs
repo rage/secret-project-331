@@ -93,7 +93,7 @@ WHERE id = $1
     Ok(courses)
 }
 
-pub async fn clone_course(
+pub async fn copy_course(
     conn: &mut PgConnection,
     course_id: Uuid,
     new_course: NewCourse,
@@ -102,7 +102,7 @@ pub async fn clone_course(
     clone_course_with_language_parent_id(conn, course, new_course, None).await
 }
 
-pub async fn clone_course_as_language_version_of_course(
+pub async fn copy_course_as_language_version_of_course(
     conn: &mut PgConnection,
     course_id: Uuid,
     new_course: NewCourse,
@@ -633,7 +633,7 @@ mod test {
         .unwrap();
 
         // Copy the course
-        let copied_course = clone_course_as_language_version_of_course(
+        let copied_course = copy_course_as_language_version_of_course(
             tx.as_mut(),
             course.id,
             NewCourse {

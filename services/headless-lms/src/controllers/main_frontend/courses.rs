@@ -463,7 +463,7 @@ pub async fn post_new_course_language_version(
         Resource::Course(*request_course_id),
     )
     .await?;
-    let copied_course = crate::models::courses::clone_course_as_language_version_of_course(
+    let copied_course = crate::models::courses::copy_course_as_language_version_of_course(
         &mut conn,
         *request_course_id,
         payload.0,

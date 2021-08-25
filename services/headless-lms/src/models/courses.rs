@@ -182,7 +182,7 @@ WHERE (course_id = $2);
     .await?;
 
     // Copy course pages. At this point, exercise ids in content will point to old course's exercises.
-    let contents: Vec<(Uuid, Value)> = sqlx::query!(
+    let contents_iter = sqlx::query!(
         "
 INSERT INTO pages (
     id,
@@ -213,8 +213,7 @@ RETURNING id,
     .fetch_all(&mut tx)
     .await?
     .into_iter()
-    .map(|record| (record.id, record.content))
-    .collect();
+    .map(|record| (record.id, record.content));
 
     // Update front_page_id of chapters now that new pages exist.
     sqlx::query!(
@@ -277,7 +276,7 @@ RETURNING id,
     .collect::<ModelResult<HashMap<String, String>>>()?;
 
     // Replace exercise ids in page contents.
-    for (page_id, content) in contents.into_iter() {
+    for (page_id, content) in contents_iter {
         if let Value::Array(mut blocks) = content {
             for block in blocks.iter_mut() {
                 if block["name"] != Value::String("moocfi/exercise".to_string()) {

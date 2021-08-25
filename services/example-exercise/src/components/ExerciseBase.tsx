@@ -44,6 +44,7 @@ const ExerciseBase: React.FC<Props> = ({
         const border = model_solutions ? `4px solid ${correct ? green : red}` : `0`
         return (
           <button
+            role="checkbox"
             className={
               interactable
                 ? css`
@@ -75,7 +76,7 @@ const ExerciseBase: React.FC<Props> = ({
                     margin-bottom: 0.5rem;
                   `
             }
-            aria-selected={selected}
+            aria-checked={selected}
             onClick={() => onClick(option.id)}
             key={option.id}
           >

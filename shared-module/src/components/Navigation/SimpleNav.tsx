@@ -2,10 +2,11 @@ import { css, cx } from "@emotion/css"
 import { faBullseye } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useRouter } from "next/router"
-import { MouseEventHandler, useContext, useState } from "react"
+import { useContext, useState } from "react"
 
 import LoginStateContext from "../../contexts/LoginStateContext"
 import { logout } from "../../services/backend/auth"
+import { runCallbackIfEnterPressed } from "../../utils/accessibility"
 import Hamburger from "../Hamburger"
 import Spinner from "../Spinner"
 
@@ -153,8 +154,7 @@ const Navigation: React.FC<NavigationProps> = ({ frontPageUrl, faqUrl }) => {
     return <Spinner variant="large">Loading...</Spinner>
   }
 
-  const submitLogout: MouseEventHandler<HTMLAnchorElement> | undefined = async (event) => {
-    event.preventDefault()
+  const submitLogout = async () => {
     await logout()
     await loginStateContext.refresh()
   }
@@ -174,7 +174,7 @@ const Navigation: React.FC<NavigationProps> = ({ frontPageUrl, faqUrl }) => {
           ></FontAwesomeIcon>
         </a>
       </h1>
-      <ul className={clicked ? cx(NavMenu) : cx(NavMenu)} role="list">
+      <ul className={clicked ? cx(NavMenu) : cx(NavMenu)}>
         <li className="container">
           <a className={cx(NavLink)} href={`${faqUrl}`} aria-label="Kurssi valikko" role="button">
             FAQ
@@ -182,9 +182,7 @@ const Navigation: React.FC<NavigationProps> = ({ frontPageUrl, faqUrl }) => {
           <ul className={clicked ? cx(ToolTip) : cx(Hide)}>
             {loginStateContext.signedIn ? (
               <li>
-                <a href="#" onClick={submitLogout}>
-                  Logout
-                </a>
+                <button onClick={submitLogout}>Logout</button>
               </li>
             ) : (
               <li>
@@ -201,7 +199,9 @@ const Navigation: React.FC<NavigationProps> = ({ frontPageUrl, faqUrl }) => {
           <div
             className={cx(MenuIcon)}
             onClick={onClickHandler}
+            onKeyDown={(e) => runCallbackIfEnterPressed(e, onClickHandler)}
             role="button"
+            tabIndex={0}
             aria-label="Avaa valikko"
           >
             <Hamburger />

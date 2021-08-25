@@ -5,7 +5,7 @@ export function capitalizeFirstLetter(string: string): string {
 export function normalizeIETFLanguageTag(tag: string): string {
   const subtags = tag.split(/[-_]/)
   if (subtags.length < 2) {
-    throw new Error("")
+    throw new Error("Language tag should follow the format aa-BB or aa-Bbbb-CC")
   } else if (subtags.length === 2) {
     return formatIETFLanguageTagWithRegion(subtags[0], undefined, subtags[1])
   } else {

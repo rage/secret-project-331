@@ -77,6 +77,7 @@ const ManageCoursePage: React.FC<unknown> = () => {
             `}
           >
             <Button onClick={() => setShowDuplicateForm(false)}>Close</Button>
+            <div>Create new language version of {course.name}</div>
             <NewCourseForm
               organizationId={course.organization_id}
               onSubmitForm={async (newCourse) => {

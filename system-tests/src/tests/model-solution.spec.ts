@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test"
 
 import expectPath from "../utils/expect"
+import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
+import waitForFunction from "../utils/waitForFunction"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -29,13 +31,20 @@ test.describe("Model solutions", () => {
     expectPath(page, "/submissions/[id]")
 
     // Wait for the frame to be visible
-    await page.waitForLoadState("networkidle")
-    if (headless) {
-      const screenshot = await page.screenshot()
-      expect(screenshot).toMatchSnapshot(`model-solutions-in-submissions.png`, { threshold: 0.3 })
-    } else {
-      console.warn("Not in headless mode, skipping screenshot model solutions in submission")
-    }
+    const frame = await waitForFunction(page, () =>
+      page.frames().find((f) => {
+        return f.url().startsWith("http://project-331.local/example-exercise/submission")
+      }),
+    )
+
+    const stableElement = await frame.waitForSelector("text=a")
+
+    await expectScreenshotsToMatchSnapshots(
+      page,
+      headless,
+      "model-solutions-in-submissions",
+      stableElement,
+    )
   })
 
   test("model-solutions are not displayed in the exercises", async ({ headless, page }) => {

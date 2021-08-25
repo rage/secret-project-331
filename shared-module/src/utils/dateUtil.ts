@@ -5,17 +5,21 @@ import { isValid, parseISO } from "date-fns"
  * @param body AxiosResponse<any>
  * @returns result
  */
-export const ISOStringToDateTime = (body: any): void => {
-  if (body === null || body === undefined || typeof body !== "object") {
+export const ISOStringToDateTime = (body: unknown): unknown => {
+  if (typeof body !== "object" || body === null || body === undefined) {
     return body
   }
 
   for (const key of Object.keys(body)) {
+    // @ts-ignore: key is from Object.keys()
     const value = body[key]
-    if (isValid(parseISO(value))) {
-      body[key] = parseISO(value)
+    const parsed = parseISO(value)
+    if (isValid(parsed)) {
+      // @ts-ignore: key is from Object.keys()
+      body[key] = parsed
     } else if (typeof value === "object") {
       ISOStringToDateTime(value)
     }
   }
+  return body
 }

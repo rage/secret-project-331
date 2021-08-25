@@ -2,10 +2,11 @@ import { css, cx } from "@emotion/css"
 import { faBullseye } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useRouter } from "next/router"
-import { MouseEventHandler, useContext, useState } from "react"
+import { useContext, useState } from "react"
 
 import LoginStateContext from "../../contexts/LoginStateContext"
 import { logout } from "../../services/backend/auth"
+import { runCallbackIfEnterPressed } from "../../utils/accessibility"
 import Hamburger from "../Hamburger"
 import Spinner from "../Spinner"
 
@@ -153,8 +154,7 @@ const Navigation: React.FC<NavigationProps> = ({ frontPageUrl, faqUrl }) => {
     return <Spinner variant="large" />
   }
 
-  const submitLogout: MouseEventHandler<HTMLAnchorElement> | undefined = async (event) => {
-    event.preventDefault()
+  const submitLogout = async () => {
     await logout()
     await loginStateContext.refresh()
   }
@@ -174,7 +174,7 @@ const Navigation: React.FC<NavigationProps> = ({ frontPageUrl, faqUrl }) => {
           ></FontAwesomeIcon>
         </a>
       </div>
-      <ul className={clicked ? cx(NavMenu) : cx(NavMenu)} role="list">
+      <ul className={clicked ? cx(NavMenu) : cx(NavMenu)}>
         <li className="container">
           {faqUrl ? (
             <a className={cx(NavLink)} href={`${faqUrl}`} aria-label="FAQ" role="button">
@@ -184,9 +184,7 @@ const Navigation: React.FC<NavigationProps> = ({ frontPageUrl, faqUrl }) => {
           <ul className={clicked ? cx(ToolTip) : cx(Hide)}>
             {loginStateContext.signedIn ? (
               <li>
-                <a href="#" onClick={submitLogout}>
-                  Logout
-                </a>
+                <button onClick={submitLogout}>Logout</button>
               </li>
             ) : (
               <li>
@@ -207,8 +205,10 @@ const Navigation: React.FC<NavigationProps> = ({ frontPageUrl, faqUrl }) => {
           <div
             className={cx(MenuIcon)}
             onClick={onClickHandler}
+            onKeyDown={(e) => runCallbackIfEnterPressed(e, onClickHandler)}
             role="button"
             aria-label="Open menu"
+            tabIndex={0}
           >
             <Hamburger />
           </div>

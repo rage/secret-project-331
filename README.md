@@ -24,6 +24,8 @@ Backend: [https://rage.github.io/secret-project-331/headless_lms_actix/index.htm
 
 Database: [https://github.com/rage/secret-project-331-db-docs#headless_lms_dev](https://github.com/rage/secret-project-331-db-docs#headless_lms_dev)
 
+Shared module storybook: [https://rage.github.io/secret-project-storybook/](https://rage.github.io/secret-project-storybook/)
+
 For other documentation, check out the docs folder.
 
 # License

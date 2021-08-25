@@ -67,14 +67,26 @@ const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, url, closedUnti
       {...(url ? { href: url } : {})}
     >
       <CardContentWrapper>
-        <div
-          className={css`
-            flex: 0 1 auto;
-            padding: 2em 2.5em 0 2.5em;
-          `}
-        >
-          <CardSVG />
-        </div>
+        {closedUntil && !url ? (
+          <div
+            className={css`
+              flex: 0 1 auto;
+              text-align: center;
+              background: #cac9c9;
+              padding: 2em;
+            `}
+            dangerouslySetInnerHTML={{ __html: closedUntil }}
+          ></div>
+        ) : (
+          <div
+            className={css`
+              flex: 0 1 auto;
+              padding: 2em 2.5em 0 2.5em;
+            `}
+          >
+            <CardSVG />
+          </div>
+        )}
         <div
           className={css`
             flex: 1 1 auto;
@@ -98,17 +110,6 @@ const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, url, closedUnti
             </div>
           </div>
         </div>
-        {closedUntil && !url ? (
-          <div
-            className={css`
-              flex: 0 1 auto;
-              text-align: center;
-              background: #cac9c9;
-              padding: 2em;
-            `}
-            dangerouslySetInnerHTML={{ __html: closedUntil }}
-          ></div>
-        ) : null}
       </CardContentWrapper>
     </CourseGridWrapper>
   )

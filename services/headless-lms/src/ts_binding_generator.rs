@@ -1,6 +1,12 @@
 #[cfg(test)]
 use crate::{
-    controllers::{auth::Login, main_frontend::exercises::ExerciseSubmissions, UploadResult},
+    controllers::{
+        auth::Login,
+        main_frontend::{
+            courses::GetFeedbackQuery, exercises::ExerciseSubmissions, feedback::MarkAsRead,
+        },
+        UploadResult,
+    },
     models::{
         chapters::{Chapter, ChapterStatus, ChapterUpdate, ChapterWithStatus, NewChapter},
         course_instance_enrollments::CourseInstanceEnrollment,
@@ -13,11 +19,13 @@ use crate::{
         exercises::{
             ActivityProgress, CourseMaterialExercise, Exercise, ExerciseStatus, GradingProgress,
         },
+        feedback::{Feedback, FeedbackBlock, FeedbackCount, NewFeedback},
         gradings::{Grading, UserPointsUpdateStrategy},
         organizations::Organization,
+        page_history::{HistoryChangeReason, PageHistory},
         pages::{
-            ExerciseWithExerciseTasks, NewPage, NormalizedCmsExercise, NormalizedCmsExerciseTask,
-            Page, PageRoutingData, PageUpdate, PageWithExercises,
+            ExerciseWithExerciseTasks, HistoryRestoreData, NewPage, NormalizedCmsExercise,
+            NormalizedCmsExerciseTask, Page, PageRoutingData, PageUpdate, PageWithExercises,
         },
         submissions::{
             NewSubmission, Submission, SubmissionCount, SubmissionCountByExercise,
@@ -25,6 +33,7 @@ use crate::{
         },
         user_exercise_states::UserProgress,
     },
+    utils::pagination::Pagination,
 };
 
 ts_rs::export! {
@@ -62,6 +71,15 @@ ts_rs::export! {
   CourseUpdate,
   Login,
   SubmissionInfo,
+  PageHistory,
+  HistoryChangeReason,
+  HistoryRestoreData,
+  Feedback,
+  MarkAsRead,
+  NewFeedback,
+  FeedbackBlock,
+  FeedbackCount,
+  GetFeedbackQuery,
   // dependencies
   VariantStatus,
   ChapterStatus,
@@ -73,6 +91,7 @@ ts_rs::export! {
   ActivityProgress,
   GradingProgress,
   UserPointsUpdateStrategy,
+  Pagination,
   // returned from the API as serde_json::Value
   ExerciseTask,
   ExerciseWithExerciseTasks,

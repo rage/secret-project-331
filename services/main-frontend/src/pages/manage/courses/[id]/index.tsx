@@ -69,6 +69,15 @@ const ManageCoursePage: React.FC<unknown> = () => {
       <Link href={{ pathname: "/manage/courses/[id]/pages", query: { id: course.id } }}>
         Manage pages
       </Link>
+      <br />
+      <Link
+        href={{
+          pathname: "/manage/courses/[id]/feedback",
+          query: { id: course.id },
+        }}
+      >
+        Manage feedback
+      </Link>
       <h3>All course instances</h3>
       <CourseInstancesList courseId={id} />
       <h3>All exercises</h3>

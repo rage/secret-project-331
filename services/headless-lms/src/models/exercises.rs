@@ -371,7 +371,7 @@ mod test {
         let chapter_id = chapters::insert(tx.as_mut(), "", course_id, 0)
             .await
             .unwrap();
-        let page_id = pages::insert(tx.as_mut(), course_id, "", "", 0)
+        let (page_id, _) = pages::insert(tx.as_mut(), course_id, "", "", 0, user_id)
             .await
             .unwrap();
         let exercise_id = super::insert(tx.as_mut(), course_id, "", page_id, chapter_id, 0)

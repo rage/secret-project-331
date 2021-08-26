@@ -3,6 +3,7 @@ import {
   Course,
   CourseInstance,
   CourseMaterialExercise,
+  NewFeedback,
   NewSubmission,
   Organization,
   Page,
@@ -38,7 +39,7 @@ export interface Block<T> {
   isValid: boolean
   clientId: string
   attributes: T
-  innerBlocks: any[]
+  innerBlocks: Block<unknown>[]
 }
 
 export const fetchCoursePageByPath = async (courseSlug: string, path: string): Promise<Page> => {
@@ -128,4 +129,11 @@ export const fetchPageUrl = async (pageId: string): Promise<string> => {
 
 export const postSubmission = async (newSubmission: NewSubmission): Promise<SubmissionResult> => {
   return (await courseMaterialClient.post(`/submissions`, newSubmission)).data
+}
+
+export const postFeedback = async (
+  courseSlug: string,
+  newFeedback: NewFeedback,
+): Promise<string> => {
+  return (await courseMaterialClient.post(`/courses/${courseSlug}/feedback`, newFeedback)).data
 }

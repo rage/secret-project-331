@@ -52,7 +52,7 @@ const StyledArrow = styled.div`
     width: 60%;
 
     @media (min-width: 600px) {
-      width: 100%;
+      width: 80%;
     }
   }
 

@@ -17,7 +17,7 @@ const Template: Story<ComponentProps> = (args: ComponentProps) => <Component {..
 export const Table: Story<ComponentProps> = Template.bind({})
 Table.args = {
   children: "NextSectionLink",
-  title: "Congratulation, you have reached the end of this section",
+  title: "Congratulation, you've reached the end of this section",
   subTitle: "Nice work",
   nextTitle: "Introduction to Calculus",
 }

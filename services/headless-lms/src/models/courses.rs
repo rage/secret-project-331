@@ -162,24 +162,28 @@ pub struct NewCourse {
 
 pub async fn insert_course(
     conn: &mut PgConnection,
+    id: Uuid,
     course: NewCourse,
+    user: Uuid,
 ) -> ModelResult<(Course, Page, CourseInstance)> {
     let mut tx = conn.begin().await?;
 
     let course = sqlx::query_as!(
         Course,
         r#"
-INSERT INTO courses(name, slug, organization_id)
-VALUES($1, $2, $3)
-RETURNING id,
-  name,
-  created_at,
-  updated_at,
-  organization_id,
-  deleted_at,
-  slug,
-  content_search_language::text
+    INSERT INTO
+      courses(id, name, slug, organization_id)
+    VALUES($1, $2, $3, $4)
+    RETURNING id,
+    name,
+    created_at,
+    updated_at,
+    organization_id,
+    deleted_at,
+    slug,
+    content_search_language::text
             "#,
+        id,
         course.name,
         course.slug,
         course.organization_id
@@ -202,7 +206,7 @@ RETURNING id,
         title: course.name.clone(),
         url_path: String::from("/"),
     };
-    let page = crate::models::pages::insert_page(&mut tx, course_front_page).await?;
+    let page = crate::models::pages::insert_page(&mut tx, course_front_page, user).await?;
 
     // Create default course instance
     let default_course_instance = crate::models::course_instances::insert(

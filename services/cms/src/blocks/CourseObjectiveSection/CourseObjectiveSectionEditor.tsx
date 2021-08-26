@@ -1,4 +1,3 @@
-import { EditAttributes } from "@material-ui/icons"
 import { InnerBlocks, RichText } from "@wordpress/block-editor"
 import { BlockEditProps, Template } from "@wordpress/blocks"
 import React from "react"

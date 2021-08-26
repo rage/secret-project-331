@@ -105,10 +105,9 @@ test("latex-block renders", async ({ headless, page }) => {
   // Click button:has-text("Save")
   await page.click('button:has-text("Save")')
 
-  // Click text=Home
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
-    page.click("text=Home"),
+    page.click('[aria-label="Front page"]'),
   ])
   // Click text=University of Helsinki, Department of Mathematics and Statistics
   await Promise.all([

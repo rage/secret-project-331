@@ -1,4 +1,3 @@
-import { css } from "@emotion/css"
 import { Paper, Tab, Tabs } from "@material-ui/core"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
@@ -6,6 +5,8 @@ import React, { useState } from "react"
 import Layout from "../../../../components/Layout"
 import FeedbackList from "../../../../components/lists/FeedbackList"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
+import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import basePath from "../../../../shared-module/utils/base-path"
 import {
   dontRenderUntilQueryParametersReady,
   SimplifiedUrlQuery,
@@ -31,23 +32,25 @@ const FeedbackPage: React.FC<FeedbackProps> = ({ query }) => {
   const [read, setRead] = useState(initialRead)
 
   return (
-    <Layout>
-      <h1>Feedback</h1>
-      <Paper square>
-        <Tabs
-          value={read}
-          onChange={(_, value) => {
-            router.replace({ query: { ...router.query, read: value } }, undefined, {
-              shallow: true,
-            })
-            setRead(value)
-          }}
-        >
-          <Tab label="Unread" value={false} />
-          <Tab label="Read" value={true} />
-        </Tabs>
-      </Paper>
-      <FeedbackList courseId={courseId} read={read} perPage={1} />
+    <Layout frontPageUrl={basePath()} navVariant={"complex"}>
+      <div className={wideWidthCenteredComponentStyles}>
+        <h3>Feedback</h3>
+        <Paper square>
+          <Tabs
+            value={read}
+            onChange={(_, value) => {
+              router.replace({ query: { ...router.query, read: value } }, undefined, {
+                shallow: true,
+              })
+              setRead(value)
+            }}
+          >
+            <Tab label="Unread" value={false} />
+            <Tab label="Read" value={true} />
+          </Tabs>
+        </Paper>
+        <FeedbackList courseId={courseId} read={read} perPage={1} />
+      </div>
     </Layout>
   )
 }

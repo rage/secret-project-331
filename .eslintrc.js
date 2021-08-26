@@ -5,6 +5,7 @@ module.exports = {
     node: true,
   },
   extends: [
+    "plugin:jsx-a11y/recommended",
     "plugin:react-hooks/recommended",
     "eslint:recommended",
     "plugin:react/recommended",
@@ -57,6 +58,16 @@ module.exports = {
             name: "@material-ui/core/Typography",
             importNames: ["default"],
             message: "Don't use Typography from @material-ui. Please use p, h1, h2, h3...",
+          },
+          {
+            name: "@material-ui/core",
+            importNames: ["Button"],
+            message: "Don't use Button from @material-ui. Please use Button from shared-module.",
+          },
+          {
+            name: "@material-ui/core/Button",
+            importNames: ["default"],
+            message: "Don't use Button from @material-ui. Please use Button from shared-module.",
           },
           {
             name: "@material-ui/styles",

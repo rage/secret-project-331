@@ -2,6 +2,7 @@ import Link from "next/link"
 import { useRouter } from "next/router"
 
 import { PageWithExercises } from "../../../shared-module/bindings"
+import ExerciseListBox from "../../../shared-module/components/ExerciseList/ExerciseBox"
 
 export interface PageExerciseListProps {
   page: PageWithExercises
@@ -12,20 +13,28 @@ const PageExerciseList: React.FC<{ page: PageWithExercises }> = ({ page }) => {
   // index.tsx and passed in with props.
   const courseSlug = useRouter().query.courseSlug
   return (
-    <div>
-      <h5>
-        <Link href={`/${courseSlug}${page.url_path}`}>{page.title}</Link>
-      </h5>
-      <div>
-        {page.exercises.map((e) => (
-          <div key={e.id}>
-            <Link href={`/${courseSlug}${page.url_path}#${e.id}`} passHref>
-              <a>{e.name}</a>
-            </Link>
-          </div>
-        ))}
-      </div>
-    </div>
+    <>
+      {page.exercises.length !== 0 ? (
+        <>
+          <ExerciseListBox
+            pageIndex={page.order_number}
+            pageTitle={page.title}
+            selected={false}
+            variant="link"
+            pageLink={`/${courseSlug}${page.url_path}`}
+          />
+          <div>
+            {page.exercises.map((e) => (
+              <div key={e.id}>
+                <Link href={`/${courseSlug}${page.url_path}#${e.id}`} passHref>
+                  <a href="replace">{e.name}</a>
+                </Link>
+              </div>
+            ))}
+          </div>{" "}
+        </>
+      ) : null}
+    </>
   )
 }
 

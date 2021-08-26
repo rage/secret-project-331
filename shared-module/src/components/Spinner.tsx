@@ -2,7 +2,7 @@ import { keyframes } from "@emotion/react"
 import styled from "@emotion/styled"
 import React from "react"
 
-import { baseTheme } from "../utils"
+import { baseTheme } from "../styles"
 
 export interface SpinnerExtraProps {
   variant: "large" | "medium" | "small"

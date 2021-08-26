@@ -3,13 +3,14 @@ import styled from "@emotion/styled"
 import React from "react"
 
 /* import { border, color, space } from "styled-system" */
-import { theme, typography } from "../utils"
+import { theme, typography } from "../styles"
 
 const HeroWrapper = styled.div`
   background: #cacaca;
   width: 100%;
   border-radius: 1px;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  padding: 7.5em 1em;
 `
 
 const TextBox = styled.div`
@@ -22,8 +23,6 @@ const TextBox = styled.div`
   justify-content: center;
 
   h1 {
-    font-size: 50px;
-    font-size: ${typography.h2};
     font-weight: 400;
     z-index: 20;
     margin-bottom: 0.8rem;

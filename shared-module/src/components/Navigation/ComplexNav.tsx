@@ -4,6 +4,7 @@ import { faBullseye } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React, { useState } from "react"
 
+import { runCallbackIfEnterPressed } from "../../utils/accessibility"
 import Button from "../Button"
 import Hamburger from "../Hamburger"
 
@@ -200,30 +201,32 @@ const StyledIcon = styled(FontAwesomeIcon)`
 
 const Navigation: React.FC = () => {
   const [clicked, setClicked] = useState(false)
-
+  const callback = () => setClicked(!clicked)
   return (
     <div className="wrapper">
       <nav className={cx(navbarItems)}>
-        <h1 className={cx(navbarLogo)}>
+        <div className={cx(navbarLogo)}>
           <a href="/" aria-label="Kotisivulle" role="button">
-            <StyledIcon icon={faBullseye} aria-hidden="true"></StyledIcon>
+            <StyledIcon icon={faBullseye} aria-label="Front page" aria-hidden="true"></StyledIcon>
           </a>
-        </h1>
+        </div>
         <div
           className={cx(menuIcon)}
-          onClick={() => setClicked(!clicked)}
+          onClick={callback}
+          onKeyDown={(e) => runCallbackIfEnterPressed(e, callback)}
+          tabIndex={0}
           role="button"
           aria-label="Avaa valikko"
         >
           <Hamburger />
         </div>
-        <ul aria-expanded="true" role="navigation">
+        <ul>
           <ol className={clicked ? cx(navMenu, active) : cx(navMenu)}>
             <li className={cx(navLinks)}>Courses</li>
             <li className={cx(navLinks)}>Modules</li>
             <li className={cx(navLinks)}>Mail Template</li>
             <li className={cx(navLinks, hide)}>
-              <a> Login Controls</a>
+              <div>Login Controls</div>
             </li>
             <li className={cx(navLinks, hide)}>
               <Button variant="primary" size="medium">
@@ -235,7 +238,7 @@ const Navigation: React.FC = () => {
 
         <ul className={cx(secondaryLink)}>
           <li>
-            <a> Login Controls</a>
+            <div>Login Controls</div>
           </li>
           <li>
             <Button variant="primary" size="medium">

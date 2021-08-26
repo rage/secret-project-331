@@ -84,6 +84,7 @@ async fn gets_organizations() {
         &mut conn,
         "org",
         "slug",
+        "descr",
         Uuid::parse_str("b1bde372-cc86-4e3a-a978-35695fdd884b").unwrap(),
     )
     .await

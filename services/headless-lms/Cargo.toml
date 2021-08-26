@@ -43,7 +43,7 @@ sqlx = { version = "0.5.1", features = [
   "offline"
 ] }
 # A library to generate and parse UUIDs.
-uuid = { version = "0.8.2", features = ["serde", "v4"] }
+uuid = { version = "0.8.2", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
 serde = { version = "1.0.123", features = ["derive"] }
 # Date and time library for Rust

@@ -23,10 +23,7 @@ test("test", async ({ headless, page }) => {
   )
 
   // Click text=Introduction to Course Material
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-course-material' }*/),
-    page.click("text=Introduction to Course Material"),
-  ])
+  await Promise.all([page.waitForNavigation(), page.click("text=Introduction to Course Material")])
 
   // Click button:has-text("Continue")
   await page.click('button:has-text("Continue")')

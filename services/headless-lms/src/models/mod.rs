@@ -17,6 +17,7 @@ pub mod exercises;
 pub mod feedback;
 pub mod gradings;
 pub mod organizations;
+pub mod page_history;
 pub mod pages;
 pub mod regrading_submissions;
 pub mod regradings;

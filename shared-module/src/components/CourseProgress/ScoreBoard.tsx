@@ -9,10 +9,9 @@ const Container = styled.div``
 const StyledSVG = styled.div`
   position: relative;
   width: 257px;
-  height: auto;
 
   @media (min-width: 600px) {
-    max-width: 320px;
+    width: 321px;
   }
 
   svg {

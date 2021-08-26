@@ -5,14 +5,17 @@ import React, { ReactNode } from "react"
 import Footer from "../shared-module/components/Footer"
 import SimpleNav from "../shared-module/components/Navigation"
 
+import ScrollIndicator from "./ScrollIndicator"
+
 type LayoutProps = {
   children: ReactNode
   frontPageUrl: string
   faqUrl: string
   title?: string
+  licenseUrl?: string
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, title, frontPageUrl, faqUrl }) => (
+const Layout: React.FC<LayoutProps> = ({ children, title, frontPageUrl, faqUrl, licenseUrl }) => (
   <>
     <Head>
       <title>{title}</title>
@@ -29,6 +32,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title, frontPageUrl, faqUrl }
       `}
     >
       <header>
+        <ScrollIndicator />
         <SimpleNav faqUrl={faqUrl} frontPageUrl={frontPageUrl} variant="simple"></SimpleNav>
       </header>
       {/* Do not touch flex */}
@@ -39,7 +43,13 @@ const Layout: React.FC<LayoutProps> = ({ children, title, frontPageUrl, faqUrl }
       >
         {children}
       </div>
-      <Footer url="www.google.com" />
+      <footer
+        className={css`
+          margin-top: 2rem;
+        `}
+      >
+        <Footer licenseUrl={licenseUrl} />
+      </footer>
     </div>
   </>
 )

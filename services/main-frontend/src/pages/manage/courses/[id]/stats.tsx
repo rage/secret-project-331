@@ -6,6 +6,7 @@ import CourseSubmissionsByDay from "../../../../components/stats/CourseSubmissio
 import CourseSubmissionsByWeekdayAndHour from "../../../../components/stats/CourseSubmissionsByWeekdayAndHour"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
 import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import basePath from "../../../../shared-module/utils/base-path"
 import { dontRenderUntilQueryParametersReady } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
@@ -13,7 +14,7 @@ const StatsPage: React.FC<unknown> = () => {
   const id = useQueryParameter("id")
 
   return (
-    <Layout>
+    <Layout frontPageUrl={basePath()} navVariant="complex">
       <div
         className={css`
           ${normalWidthCenteredComponentStyles}

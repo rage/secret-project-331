@@ -1,7 +1,10 @@
+import { css } from "@emotion/css"
 import { useRouter } from "next/router"
 
 import HistoryView from "../../../../components/HistoryView"
 import Layout from "../../../../components/Layout"
+import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import basePath from "../../../../shared-module/utils/base-path"
 
 const History: React.FC<unknown> = () => {
   const router = useRouter()
@@ -17,9 +20,15 @@ const History: React.FC<unknown> = () => {
   }
 
   return (
-    <Layout>
-      <h2>Page edit history</h2>
-      <HistoryView pageId={id} />
+    <Layout frontPageUrl={basePath()} navVariant="complex">
+      <div
+        className={css`
+          ${normalWidthCenteredComponentStyles}
+        `}
+      >
+        <h2>Page edit history</h2>
+        <HistoryView pageId={id} />
+      </div>
     </Layout>
   )
 }

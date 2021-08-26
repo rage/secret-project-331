@@ -161,7 +161,7 @@ INSERT INTO chapters (
     chapter_number,
     front_page_id,
     opens_at,
-    chapter_image,
+    chapter_image_path,
     copied_from
   )
 SELECT uuid_generate_v5($1, id::text),
@@ -170,7 +170,7 @@ SELECT uuid_generate_v5($1, id::text),
   chapter_number,
   front_page_id,
   opens_at,
-  chapter_image,
+  chapter_image_path,
   id
 FROM chapters
 WHERE (course_id = $2);
@@ -549,6 +549,7 @@ mod test {
             tx.as_mut(),
             "",
             "",
+            "",
             Uuid::parse_str("8c34e601-b5db-4b33-a588-57cb6a5b1669").unwrap(),
         )
         .await
@@ -587,6 +588,7 @@ mod test {
         // Create test data
         let organization_id = organizations::insert(
             tx.as_mut(),
+            "",
             "",
             "",
             Uuid::parse_str("8c34e601-b5db-4b33-a588-57cb6a5b1669").unwrap(),

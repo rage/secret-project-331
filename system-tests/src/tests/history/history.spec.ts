@@ -35,7 +35,7 @@ test("test", async ({ page, headless }) => {
   // Click a:has-text("CHAPTER 1The Basics")
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-history/chapter-1' }*/),
-    page.click('a:has-text("CHAPTER 1The Basics")'),
+    page.click('a:has-text("The Basics")'),
   ])
 
   // Click text=1Page One
@@ -131,11 +131,14 @@ test("test", async ({ page, headless }) => {
   // Click text=Home
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
-    page.click("text=Home"),
+    page.click('[aria-label="Front page"]'),
   ])
 
   // Click text=University of Helsinki, Department of Computer Science
-  await page.click("text=University of Helsinki, Department of Computer Science")
+  await Promise.all([
+    page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
+    await page.click("text=University of Helsinki, Department of Computer Science"),
+  ])
   expect(page.url()).toBe(
     "http://project-331.local/organizations/8bb12295-53ac-4099-9644-ac0ff5e34d92",
   )
@@ -233,7 +236,7 @@ test("test", async ({ page, headless }) => {
   // Click text=Home
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
-    page.click("text=Home"),
+    page.click('[aria-label="Front page"]'),
   ])
 
   // Click text=University of Helsinki, Department of Computer Science

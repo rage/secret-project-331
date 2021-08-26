@@ -1,4 +1,4 @@
-use super::ModelResult;
+use super::{chapters::ChapterStatus, ModelResult};
 use crate::{
     models::{
         chapters::DatabaseChapter,
@@ -103,12 +103,25 @@ pub struct NormalizedCmsExerciseTaskWithExerciseId {
     pub exercise_id: Uuid,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct PageRoutingData {
-    url_path: String,
-    title: String,
-    chapter_number: i32,
-    chapter_id: Uuid,
+    pub url_path: String,
+    pub title: String,
+    pub chapter_number: i32,
+    pub chapter_id: Uuid,
+    pub chapter_opens_at: Option<DateTime<Utc>>,
+    pub chapter_front_page_id: Option<Uuid>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+pub struct PageRoutingDataWithChapterStatus {
+    pub url_path: String,
+    pub title: String,
+    pub chapter_number: i32,
+    pub chapter_id: Uuid,
+    pub chapter_opens_at: Option<DateTime<Utc>>,
+    pub chapter_front_page_id: Option<Uuid>,
+    pub chapter_status: ChapterStatus,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
@@ -915,6 +928,34 @@ pub async fn get_next_page(
     }
 }
 
+pub async fn get_next_page_with_chapter_status(
+    next_page_data: Option<PageRoutingData>,
+) -> ModelResult<Option<PageRoutingDataWithChapterStatus>> {
+    match next_page_data {
+        Some(data) => {
+            let open = data
+                .chapter_opens_at
+                .map(|o| o <= Utc::now())
+                .unwrap_or(true);
+            let status = if open {
+                ChapterStatus::Open
+            } else {
+                ChapterStatus::Closed
+            };
+            Ok(Some(PageRoutingDataWithChapterStatus {
+                url_path: data.url_path,
+                title: data.title,
+                chapter_number: data.chapter_number,
+                chapter_id: data.chapter_id,
+                chapter_opens_at: data.chapter_opens_at,
+                chapter_front_page_id: data.chapter_front_page_id,
+                chapter_status: status,
+            }))
+        }
+        None => Ok(None),
+    }
+}
+
 async fn get_current_page_metadata(
     conn: &mut PgConnection,
     page_id: Uuid,
@@ -955,7 +996,9 @@ async fn get_next_page_by_order_number(
 SELECT p.url_path as url_path,
   p.title as title,
   c.chapter_number as chapter_number,
-  c.id as chapter_id
+  c.id as chapter_id,
+  c.opens_at as chapter_opens_at,
+  c.front_page_id as chapter_front_page_id
 FROM pages p
   LEFT JOIN chapters c ON p.chapter_id = c.id
 WHERE p.order_number = (
@@ -987,7 +1030,9 @@ async fn get_next_page_by_chapter_number(
 SELECT p.url_path as url_path,
   p.title as title,
   c.chapter_number as chapter_number,
-  c.id as chapter_id
+  c.id as chapter_id,
+  c.opens_at as chapter_opens_at,
+  c.front_page_id as chapter_front_page_id
 FROM chapters c
   INNER JOIN pages p on c.id = p.chapter_id
 WHERE c.chapter_number = (

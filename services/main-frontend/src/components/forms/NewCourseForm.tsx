@@ -1,9 +1,10 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { Button, FormControlLabel, Radio, RadioGroup, TextField } from "@material-ui/core"
+import { FormControlLabel, Radio, RadioGroup, TextField } from "@material-ui/core"
 import React, { useState } from "react"
 
 import { NewCourse } from "../../shared-module/bindings"
+import Button from "../../shared-module/components/Button"
 import { normalizeIETFLanguageTag } from "../../shared-module/utils/strings"
 import { normalizePath } from "../../utils/normalizePath"
 
@@ -133,7 +134,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
         )}
       </div>
       <div>
-        <Button disabled={submitDisabled} onClick={createNewCourse}>
+        <Button size="medium" variant="primary" onClick={createNewCourse} disabled={submitDisabled}>
           Create course
         </Button>
       </div>

@@ -2,6 +2,8 @@
 use crate::{
     controllers::ControllerResult,
     models::{courses::Course, organizations::Organization},
+    utils::file_store::FileStore,
+    ApplicationConfiguration,
 };
 use actix_web::web::ServiceConfig;
 use actix_web::web::{self, Json};
@@ -25,13 +27,19 @@ GET `/api/v0/main-frontend/organizations` - Returns a list of all organizations.
 ]
 ```
  */
-#[instrument(skip(pool))]
-async fn get_all_organizations(
+#[instrument(skip(pool, file_store, app_conf))]
+async fn get_all_organizations<T: FileStore>(
     pool: web::Data<PgPool>,
+    file_store: web::Data<T>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<Json<Vec<Organization>>> {
     let mut conn = pool.acquire().await?;
-    let courses = crate::models::organizations::all_organizations(&mut conn).await?;
-    Ok(Json(courses))
+    let organizations = crate::models::organizations::all_organizations(&mut conn)
+        .await?
+        .into_iter()
+        .map(|org| Organization::from_database_organization(&org, file_store.as_ref(), &app_conf))
+        .collect();
+    Ok(Json(organizations))
 }
 
 /**
@@ -68,9 +76,10 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
-pub fn _add_organizations_routes(cfg: &mut ServiceConfig) {
-    cfg.route("", web::get().to(get_all_organizations)).route(
-        "/{organization_id}/courses",
-        web::get().to(get_organization_courses),
-    );
+pub fn _add_organizations_routes<T: 'static + FileStore>(cfg: &mut ServiceConfig) {
+    cfg.route("", web::get().to(get_all_organizations::<T>))
+        .route(
+            "/{organization_id}/courses",
+            web::get().to(get_organization_courses),
+        );
 }

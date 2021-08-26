@@ -12,7 +12,7 @@ const BannerWrapper = styled.div`
 
 const Content = styled.div`
   padding-top: 2rem;
-  max-width: 1760px;
+  max-width: 100%;
   font-weight: 500;
   font-size: 1rem;
   line-height: 1.4;
@@ -112,7 +112,7 @@ const Banner: React.FC<BannerProps> = ({ content, variant }, props) => {
         </Text>
         <DetailTag>
           <details>
-            <summary>Hide source</summary>
+            <summary>Show source</summary>
             <ul>
               <li>
                 Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem

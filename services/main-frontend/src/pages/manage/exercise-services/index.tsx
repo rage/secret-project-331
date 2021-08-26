@@ -42,6 +42,7 @@ interface ExerciseServiceCardProps {
 
 interface ExerciseServiceCreationModelProps {
   onChange: (key: unknown) => (event: unknown) => void
+  onChangeName: (event: unknown) => void
   exercise_service: ExerciseServiceNewOrUpdate
   handleSubmit()
   handleClose()
@@ -49,6 +50,10 @@ interface ExerciseServiceCreationModelProps {
 }
 
 type updateStatus = null | "saved" | "failed"
+
+const convertToSlug = (name) => {
+  return name.toLowerCase().replaceAll(" ", "-")
+}
 
 const canSave = (service) => {
   return (
@@ -77,6 +82,14 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
     setService({
       ...service,
       [key]: event.target.type === "number" ? parseInt(event.target.value) : event.target.value,
+    })
+  }
+
+  const onChangeName = (event) => {
+    setService({
+      ...service,
+      name: event.target.value,
+      slug: convertToSlug(event.target.value),
     })
   }
 
@@ -163,7 +176,7 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
                 title={"Name"}
                 text={service.name}
                 editing={editing}
-                onChange={onChange("name")}
+                onChange={onChangeName}
                 type={"text"}
                 error={false}
               />
@@ -244,6 +257,7 @@ const ExerciseServiceCreationModal: React.FC<ExerciseServiceCreationModelProps> 
   handleClose,
   exercise_service,
   onChange,
+  onChangeName,
   handleSubmit,
 }) => {
   return (
@@ -269,7 +283,7 @@ const ExerciseServiceCreationModal: React.FC<ExerciseServiceCreationModelProps> 
             title={"Name"}
             text={exercise_service.name}
             editing={true}
-            onChange={onChange("name")}
+            onChange={onChangeName}
             type={"text"}
             error={false}
           />
@@ -339,6 +353,14 @@ const ExerciseServicePage: React.FC = () => {
     })
   }
 
+  const onChangeName = (event) => {
+    setExerciseService({
+      ...exerciseService,
+      name: event.target.value,
+      slug: convertToSlug(event.target.value),
+    })
+  }
+
   const onChangeCreationModal = (key) => (event) => {
     setExerciseService({
       ...exerciseService,
@@ -393,6 +415,7 @@ const ExerciseServicePage: React.FC = () => {
         handleClose={handleClose}
         exercise_service={exerciseService}
         onChange={onChangeCreationModal}
+        onChangeName={onChangeName}
         handleSubmit={createExerciseService}
       />
     </Layout>

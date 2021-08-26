@@ -1,14 +1,14 @@
 import { css } from "@emotion/css"
 
 import { baseTheme } from "../shared-module/styles/theme"
-import { PublicAlternative } from "../util/stateInterfaces"
+import { ModelSolutionApi, PublicAlternative } from "../util/stateInterfaces"
 interface Props {
   alternatives: PublicAlternative[]
   selectedId: string | null
   maxWidth: number | null
   onClick: (selectedId: string) => void
   interactable: boolean
-  model_solutions: string[] | null
+  model_solutions: ModelSolutionApi | null
 }
 
 const ExerciseBase: React.FC<Props> = ({
@@ -32,7 +32,8 @@ const ExerciseBase: React.FC<Props> = ({
       {alternatives.map((option) => {
         let correct = false
         if (model_solutions) {
-          correct = model_solutions.includes(option.id)
+          console.log(model_solutions)
+          correct = model_solutions.correctOptionIds.includes(option.id)
         }
         const selected = selectedId === option.id
         // Border colors

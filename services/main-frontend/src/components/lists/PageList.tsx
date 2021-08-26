@@ -56,7 +56,8 @@ const PageList: React.FC<Props> = ({ data, refetch, courseId, chapter }) => {
           .filter((page) => !page.deleted_at)
           .map((page: Page) => (
             <li key={page.id}>
-              <a href={`/cms/pages/${page.id}`}>{page.title}</a>({page.url_path})
+              <a href={`/cms/pages/${page.id}`}>{page.title}</a>({page.url_path}){" "}
+              <a href={`/manage/pages/${page.id}/history`}>history</a>
               <DeleteButton onClick={() => handleDeleteTopLevelPage(page.id, page.title)}>
                 <FontAwesomeIcon icon={faTrash} size="lg" />
               </DeleteButton>

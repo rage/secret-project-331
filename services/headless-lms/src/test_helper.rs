@@ -69,6 +69,7 @@ pub struct Data {
     pub instance: Uuid,
     pub chapter: Uuid,
     pub page: Uuid,
+    pub page_history: Uuid,
     pub exercise: Uuid,
     pub task: Uuid,
 }
@@ -96,7 +97,7 @@ pub async fn insert_data(conn: &mut PgConnection, exercise_type: &str) -> Result
     let course = models::courses::insert(&mut *conn, "", org, &random_string).await?;
     let instance = models::course_instances::insert(&mut *conn, course, None, None).await?;
     let chapter = models::chapters::insert(&mut *conn, "", course, 1).await?;
-    let page = models::pages::insert(&mut *conn, course, "", "", 0).await?;
+    let (page, page_history) = models::pages::insert(&mut *conn, course, "", "", 0, user).await?;
     let exercise = models::exercises::insert(conn, course, "", page, chapter, 0).await?;
     let exercise_task = models::exercise_tasks::insert(
         conn,
@@ -115,6 +116,7 @@ pub async fn insert_data(conn: &mut PgConnection, exercise_type: &str) -> Result
         instance: instance.id,
         org,
         page,
+        page_history,
         task: exercise_task,
         user,
     })

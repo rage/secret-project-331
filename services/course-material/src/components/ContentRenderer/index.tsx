@@ -9,14 +9,14 @@ import ButtonBlock from "./ButtonBlock"
 import CodeBlock from "./CodeBlock"
 import ColumnBlock from "./ColumnBlock"
 import ColumnsBlock from "./ColumnsBlock"
-import CourseChapterGridBlock from "./CourseChapterGrid"
+import CourseChapterGridBlock from "./CourseChapterGridBlock"
 import CourseObjectiveSectionBlock from "./CourseObjectiveSectionBlock"
 import CourseProgressBlock from "./CourseProgressBlock"
 import CustomHTMLBlock from "./CustomHTMLBlock"
 import DefaultBlock from "./DefaultBlock"
 import ExerciseBlock from "./ExerciseBlock"
 import ExerciseListBlock from "./ExerciseListBlock/index"
-import HeadingBlock from "./HeadingBlock"
+import HeadingBlock from "./Headings/HeadingBlock"
 import HeroSectionBlock from "./HeroSectionBlock"
 import ImageBlock from "./ImageBlock"
 import LandingPageHeroSectionBlock from "./LandingPageHeroSectionBlock"
@@ -39,6 +39,7 @@ export interface BlockRendererProps<T> {
 
 const LatexBlock = dynamic(() => import("./LatexBlock"))
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const blockToRendererMap: { [blockName: string]: any } = {
   // "core/shortcode",
   // "core/button",

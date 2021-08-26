@@ -35,7 +35,7 @@ pub fn add_main_frontend_routes<T: 'static + FileStore>(cfg: &mut ServiceConfig)
         .service(web::scope("/email-templates").configure(_add_email_templates_routes))
         .service(web::scope("/exercises").configure(_add_exercises_routes))
         .service(web::scope("/feedback").configure(_add_feedback_routes))
-        .service(web::scope("/organizations").configure(_add_organizations_routes))
+        .service(web::scope("/organizations").configure(_add_organizations_routes::<T>))
         .service(web::scope("/pages").configure(_add_pages_routes))
         .service(web::scope("/submissions").configure(_add_submissions_routes));
 }

@@ -1,8 +1,8 @@
-import { Button } from "@material-ui/core"
 import React, { useState } from "react"
 
 import { removeChapterImage, setChapterImage } from "../services/backend/chapters"
 import { Chapter } from "../shared-module/bindings"
+import Button from "../shared-module/components/Button"
 
 import UploadImageForm from "./forms/UploadImageForm"
 
@@ -43,8 +43,8 @@ const ChapterImageWidget: React.FC<ChapterImageControlsProps> = ({ chapter, onCh
       {error && <pre>{JSON.stringify(`${error}`, undefined, 2)}</pre>}
       {chapter.chapter_image_url ? (
         <>
-          <img src={chapter.chapter_image_url} />
-          <Button onClick={handleRemove} variant="outlined" disabled={!allowRemove}>
+          <img src={chapter.chapter_image_url} alt="What to display on the chapter." />
+          <Button size="medium" variant="secondary" onClick={handleRemove} disabled={!allowRemove}>
             Remove image
           </Button>
         </>

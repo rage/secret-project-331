@@ -1,9 +1,10 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { Button, TextField } from "@material-ui/core"
+import { TextField } from "@material-ui/core"
 import React, { useState } from "react"
 
 import { postNewCourse } from "../../services/backend/courses"
+import Button from "../../shared-module/components/Button"
 import { normalizePath } from "../../utils/normalizePath"
 
 const FieldContainer = styled.div`
@@ -65,7 +66,9 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
         </FieldContainer>
       </div>
       <div>
-        <Button onClick={createNewCourse}>Create course</Button>
+        <Button size="medium" variant="primary" onClick={createNewCourse}>
+          Create course
+        </Button>
       </div>
     </div>
   )

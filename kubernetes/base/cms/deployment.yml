@@ -36,7 +36,7 @@ spec:
             - containerPort: 3000
               name: cms
           env:
-            - name: BASE_PATH
+            - name: NEXT_PUBLIC_BASE_PATH
               value: "/cms"
           resources:
             requests:

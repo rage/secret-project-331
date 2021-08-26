@@ -151,7 +151,7 @@ const Navigation: React.FC<NavigationProps> = ({ frontPageUrl, faqUrl }) => {
   const loginStateContext = useContext(LoginStateContext)
   const router = useRouter()
   if (loginStateContext.isLoading) {
-    return <Spinner variant="large">Loading...</Spinner>
+    return <Spinner variant="large" />
   }
 
   const submitLogout = async () => {
@@ -165,28 +165,36 @@ const Navigation: React.FC<NavigationProps> = ({ frontPageUrl, faqUrl }) => {
 
   return (
     <nav className={cx(NavbarItems)}>
-      <h1 className={cx(NavbarLogo)}>
-        <a href={`${frontPageUrl}`} aria-label="Kotisivulle" role="button">
+      <div className={cx(NavbarLogo)}>
+        <a href={`${frontPageUrl}`} aria-label="Front page" role="button">
           <FontAwesomeIcon
             className={cx(StyledIcon)}
             icon={faBullseye}
             aria-hidden="true"
           ></FontAwesomeIcon>
         </a>
-      </h1>
+      </div>
       <ul className={clicked ? cx(NavMenu) : cx(NavMenu)}>
         <li className="container">
-          <a className={cx(NavLink)} href={`${faqUrl}`} aria-label="Kurssi valikko" role="button">
-            FAQ
-          </a>
+          {faqUrl ? (
+            <a className={cx(NavLink)} href={`${faqUrl}`} aria-label="FAQ" role="button">
+              FAQ
+            </a>
+          ) : null}
           <ul className={clicked ? cx(ToolTip) : cx(Hide)}>
             {loginStateContext.signedIn ? (
               <li>
-                <button onClick={submitLogout}>Logout</button>
+                <button name="logout" onClick={submitLogout}>
+                  Logout
+                </button>
               </li>
             ) : (
               <li>
-                <a href={`/login?return_to=${encodeURIComponent("/courses" + router.asPath)}`}>
+                <a
+                  href={`/login?return_to=${encodeURIComponent(
+                    process.env.NEXT_PUBLIC_BASE_PATH + router.asPath,
+                  )}`}
+                >
                   Login
                 </a>
               </li>
@@ -201,8 +209,8 @@ const Navigation: React.FC<NavigationProps> = ({ frontPageUrl, faqUrl }) => {
             onClick={onClickHandler}
             onKeyDown={(e) => runCallbackIfEnterPressed(e, onClickHandler)}
             role="button"
+            aria-label="Open menu"
             tabIndex={0}
-            aria-label="Avaa valikko"
           >
             <Hamburger />
           </div>

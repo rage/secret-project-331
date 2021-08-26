@@ -17,6 +17,8 @@ RUN npm ci
 
 COPY --chown=node . /app
 
+ENV NEXT_PUBLIC_BASE_PATH=""
+
 RUN npm run build
 
 EXPOSE 3000

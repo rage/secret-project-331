@@ -1,9 +1,10 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { Button, TextField } from "@material-ui/core"
+import { TextField } from "@material-ui/core"
 import React, { useState } from "react"
 
 import { updateCourse } from "../../services/backend/courses"
+import Button from "../../shared-module/components/Button"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;
@@ -52,7 +53,9 @@ const UpdateCourseForm: React.FC<UpdateCourseFormProps> = ({
         </FieldContainer>
       </div>
       <div>
-        <Button onClick={onUpdateCourseForm}>Update course</Button>
+        <Button size="medium" variant="primary" onClick={onUpdateCourseForm}>
+          Update course
+        </Button>
       </div>
     </div>
   )

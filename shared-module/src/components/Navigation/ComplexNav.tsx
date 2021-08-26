@@ -205,11 +205,11 @@ const Navigation: React.FC = () => {
   return (
     <div className="wrapper">
       <nav className={cx(navbarItems)}>
-        <h1 className={cx(navbarLogo)}>
+        <div className={cx(navbarLogo)}>
           <a href="/" aria-label="Kotisivulle" role="button">
-            <StyledIcon icon={faBullseye} aria-hidden="true"></StyledIcon>
+            <StyledIcon icon={faBullseye} aria-label="Front page" aria-hidden="true"></StyledIcon>
           </a>
-        </h1>
+        </div>
         <div
           className={cx(menuIcon)}
           onClick={callback}
@@ -226,7 +226,7 @@ const Navigation: React.FC = () => {
             <li className={cx(navLinks)}>Modules</li>
             <li className={cx(navLinks)}>Mail Template</li>
             <li className={cx(navLinks, hide)}>
-              <div> Login Controls</div>
+              <div>Login Controls</div>
             </li>
             <li className={cx(navLinks, hide)}>
               <Button variant="primary" size="medium">
@@ -238,7 +238,7 @@ const Navigation: React.FC = () => {
 
         <ul className={cx(secondaryLink)}>
           <li>
-            <div> Login Controls</div>
+            <div>Login Controls</div>
           </li>
           <li>
             <Button variant="primary" size="medium">

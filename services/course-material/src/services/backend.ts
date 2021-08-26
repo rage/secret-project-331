@@ -5,9 +5,8 @@ import {
   CourseMaterialExercise,
   NewFeedback,
   NewSubmission,
-  Organization,
   Page,
-  PageRoutingData,
+  PageRoutingDataWithChapterStatus,
   PageWithExercises,
   SubmissionResult,
   UserProgress,
@@ -17,11 +16,6 @@ import { courseMaterialClient } from "./courseMaterialClient"
 
 export const fetchCourses = async (): Promise<Array<Course>> => {
   const data = (await courseMaterialClient.get("/courses", { responseType: "json" })).data
-  return data
-}
-
-export const fetchOrganizations = async (): Promise<Array<Organization>> => {
-  const data = (await courseMaterialClient.get("/organizations", { responseType: "json" })).data
   return data
 }
 
@@ -111,7 +105,9 @@ export const fetchChaptersPagesWithExercises = async (
   return data
 }
 
-export const getNextPageRoutingData = async (currentPageId: string): Promise<PageRoutingData> => {
+export const getNextPageRoutingData = async (
+  currentPageId: string,
+): Promise<PageRoutingDataWithChapterStatus> => {
   return (await courseMaterialClient.get(`/pages/${currentPageId}/next-page`)).data
 }
 

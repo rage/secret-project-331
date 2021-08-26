@@ -28,22 +28,17 @@ const PagesInChapter: React.FC<{ chapterId: string }> = ({ chapterId }) => {
         <div className={normalWidthCenteredComponentStyles}>
           <div
             className={css`
-              padding: 3em 0;
+              padding: 7.5em 1em;
             `}
           >
-            <h3
+            <h4
               className={css`
-                font-style: normal;
-                font-weight: 600;
-                font-size: 2em;
-                line-height: 2.5em;
                 text-align: center;
-
                 color: #505050;
               `}
             >
               TABLE OF CONTENTS
-            </h3>
+            </h4>
 
             {data.map((page) => (
               <PagesInChapterBox

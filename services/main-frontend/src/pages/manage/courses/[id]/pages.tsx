@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { Button, Dialog } from "@material-ui/core"
+import { Dialog } from "@material-ui/core"
 import { groupBy, max } from "lodash"
 import React, { useState } from "react"
 import { useQuery } from "react-query"
@@ -9,9 +9,11 @@ import Layout from "../../../../components/Layout"
 import NewChapterForm from "../../../../components/forms/NewChapterForm"
 import PageList from "../../../../components/lists/PageList"
 import { fetchCourseStructure } from "../../../../services/backend/courses"
+import Button from "../../../../shared-module/components/Button"
 import DebugModal from "../../../../shared-module/components/DebugModal"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import basePath from "../../../../shared-module/utils/base-path"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
@@ -46,7 +48,7 @@ const CoursePages: React.FC<CoursePagesProps> = ({ query }) => {
   const maxPart = max(data.chapters.map((p) => p.chapter_number))
 
   return (
-    <Layout>
+    <Layout frontPageUrl={basePath()} navVariant="complex">
       <div
         className={css`
           ${normalWidthCenteredComponentStyles}
@@ -85,7 +87,9 @@ const CoursePages: React.FC<CoursePagesProps> = ({ query }) => {
               </div>
             ))}
 
-          <Button onClick={() => setShowForm(!showForm)}>Add new chapter</Button>
+          <Button variant="primary" size="medium" onClick={() => setShowForm(!showForm)}>
+            Add new chapter
+          </Button>
 
           <Dialog open={showForm} onClose={() => setShowForm(!showForm)}>
             <div
@@ -93,7 +97,9 @@ const CoursePages: React.FC<CoursePagesProps> = ({ query }) => {
                 margin: 1rem;
               `}
             >
-              <Button onClick={() => setShowForm(!showForm)}>Close</Button>
+              <Button variant="primary" size="medium" onClick={() => setShowForm(!showForm)}>
+                Close
+              </Button>
               <NewChapterForm
                 courseId={data.course.id}
                 onSubmitForm={handleCreateChapter}

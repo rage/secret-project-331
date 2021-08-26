@@ -9,7 +9,6 @@ const BannerWrapper = styled.div`
   background: rgba(212, 212, 217, 1);
   width: 100%;
   position: relative;
-  /*   padding: 0 2rem; */
   margin: 0 auto;
   display: block;
 

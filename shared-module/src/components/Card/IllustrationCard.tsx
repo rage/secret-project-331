@@ -1,17 +1,11 @@
 import { ThemeProvider } from "@emotion/react"
 import React from "react"
 
-/* import { border, color, space } from "styled-system" */
 import { theme } from "../../styles"
 
-export interface CardExtraProps {
-  variant: "simple" | "Illustration"
-  title: string
-  chapterNumber: number
-  url?: string
-  bg?: string
-  closedUntil?: string
-}
+import { CardExtraProps } from "."
+
+/* import { border, color, space } from "styled-system" */
 
 export type CardProps = React.ButtonHTMLAttributes<HTMLDivElement> & CardExtraProps
 

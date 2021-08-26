@@ -1,10 +1,6 @@
 //! Controllers for requests starting with `/api/v0/course-material/pages`.
-use crate::{
-    controllers::ControllerResult,
-    models::{chapters::ChapterStatus, pages::PageRoutingDataWithChapterStatus},
-};
+use crate::{controllers::ControllerResult, models::pages::PageRoutingDataWithChapterStatus};
 use actix_web::web::{self, Json, ServiceConfig};
-use chrono::Utc;
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -30,29 +26,10 @@ async fn get_next_page(
 ) -> ControllerResult<Json<Option<PageRoutingDataWithChapterStatus>>> {
     let mut conn = pool.acquire().await?;
     let next_page_data = crate::models::pages::get_next_page(&mut conn, *request_page_id).await?;
-    match next_page_data {
-        Some(data) => {
-            let open = data
-                .chapter_opens_at
-                .map(|o| o <= Utc::now())
-                .unwrap_or(true);
-            let status = if open {
-                ChapterStatus::Open
-            } else {
-                ChapterStatus::Closed
-            };
-            Ok(Json(Some(PageRoutingDataWithChapterStatus {
-                url_path: data.url_path,
-                title: data.title,
-                chapter_number: data.chapter_number,
-                chapter_id: data.chapter_id,
-                chapter_opens_at: data.chapter_opens_at,
-                chapter_front_page_id: data.chapter_front_page_id,
-                chapter_status: status,
-            })))
-        }
-        None => Ok(Json(None)),
-    }
+    let next_page_data_with_status =
+        crate::models::pages::get_next_page_with_chapter_status(next_page_data).await?;
+
+    Ok(Json(next_page_data_with_status))
 }
 
 /**

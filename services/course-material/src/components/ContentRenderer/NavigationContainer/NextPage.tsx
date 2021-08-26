@@ -1,9 +1,9 @@
 import { differenceInSeconds, formatDuration } from "date-fns"
 import { useRouter } from "next/router"
-import React, { useEffect, useState } from "react"
+import React from "react"
 import { useQuery } from "react-query"
-import sanitizeHtml from "sanitize-html"
 
+import useTime from "../../../hooks/useTime"
 import { getNextPageRoutingData } from "../../../services/backend"
 import NextSectionLink from "../../../shared-module/components/NextSectionLink"
 import GenericLoading from "../../GenericLoading"
@@ -14,19 +14,13 @@ export interface NextPageProps {
 }
 
 const NextPage: React.FC<NextPageProps> = ({ chapterId, currentPageId }) => {
-  const [now, setNow] = useState(new Date())
+  const now = useTime()
   const { isLoading, error, data } = useQuery(`pages-${currentPageId}-next-page`, () =>
     getNextPageRoutingData(currentPageId),
   )
   const router = useRouter()
 
   const courseSlug = router.query.courseSlug
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setNow(new Date())
-    }, 1000)
-    return () => clearInterval(interval)
-  }, [])
 
   if (error) {
     return <pre>{JSON.stringify(error, undefined, 2)}</pre>
@@ -95,7 +89,7 @@ const NextPage: React.FC<NextPageProps> = ({ chapterId, currentPageId }) => {
           minutes,
           seconds,
         })
-        closedUntil = sanitizeHtml(`OPENS IN ${formatted}`)
+        closedUntil = `OPENS IN ${formatted}`
       } else {
         const date = data.chapter_opens_at.toLocaleString("en", {
           year: "numeric",
@@ -106,10 +100,10 @@ const NextPage: React.FC<NextPageProps> = ({ chapterId, currentPageId }) => {
           hour: "numeric",
           minute: "numeric",
         })
-        closedUntil = sanitizeHtml(`AVAILABLE ${date} at ${time}`)
+        closedUntil = `AVAILABLE ${date} at ${time}`
       }
     } else {
-      closedUntil = "Closed"
+      closedUntil = "CLOSED!"
     }
     return (
       // Chapter exists, but next chapter not open yet.

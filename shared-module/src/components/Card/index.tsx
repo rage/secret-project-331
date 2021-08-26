@@ -14,7 +14,9 @@ export interface CardExtraProps {
   chapterNumber: number
   url?: string
   bg?: string
-  closedUntil?: string
+  open?: boolean
+  date?: string
+  time?: string
 }
 
 export type CardProps = React.ButtonHTMLAttributes<HTMLDivElement> & CardExtraProps

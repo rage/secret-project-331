@@ -102,7 +102,7 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subTitle, next
         <p>{subTitle}</p>
         <ButtonWrapper>
           <StyledLink {...(url ? { href: url } : {})}>
-            <span dangerouslySetInnerHTML={{ __html: nextTitle }} />
+            <span>{nextTitle}</span>
             <StyledArrow>
               {url ? (
                 <ArrowSVGIcon

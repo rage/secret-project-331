@@ -1,8 +1,9 @@
 import { css } from "@emotion/css"
-import React, { useEffect, useState } from "react"
+import React from "react"
 import { useQuery } from "react-query"
 
 import useQueryParameter from "../../../hooks/useQueryParameter"
+import useTime from "../../../hooks/useTime"
 import { fetchChaptersInTheCourse } from "../../../services/backend"
 import { wideWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import { cardMaxWidth } from "../../../shared-module/styles/constants"
@@ -12,18 +13,11 @@ import GenericLoading from "../../GenericLoading"
 import ChapterGridCard from "./ChapterGridCard"
 
 const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
-  const [now, setNow] = useState(new Date())
+  const now = useTime()
   const { data, error, isLoading } = useQuery(`course-${courseId}-chapters`, () =>
     fetchChaptersInTheCourse(courseId),
   )
   const courseSlug = useQueryParameter("courseSlug")
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setNow(new Date())
-    }, 1000)
-    return () => clearInterval(interval)
-  }, [])
 
   if (error) {
     return <pre>{JSON.stringify(error, undefined, 2)}</pre>

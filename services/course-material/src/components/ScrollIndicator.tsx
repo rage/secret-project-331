@@ -7,6 +7,9 @@ const ScrollIndicator: React.FC = () => {
 
   useEffect(() => {
     window.addEventListener("scroll", scrollProgress)
+    return () => {
+      window.removeEventListener("scroll", scrollProgress)
+    }
   }, [])
 
   const scrollProgress = () => {
@@ -36,8 +39,8 @@ const ScrollIndicator: React.FC = () => {
             background: #27f09d;
             width: ${scrolled};
           `}
-        />{" "}
-      </div>{" "}
+        />
+      </div>
     </div>
   )
 }

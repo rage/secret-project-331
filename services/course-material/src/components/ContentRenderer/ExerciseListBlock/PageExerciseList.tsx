@@ -13,26 +13,28 @@ const PageExerciseList: React.FC<{ page: PageWithExercises }> = ({ page }) => {
   // index.tsx and passed in with props.
   const courseSlug = useRouter().query.courseSlug
   return (
-    <div>
-      {page.order_number !== 0 ? (
-        <ExerciseListBox
-          pageIndex={page.order_number}
-          pageTitle={page.title}
-          selected={false}
-          variant="link"
-          pageLink={`/${courseSlug}${page.url_path}`}
-        />
+    <>
+      {page.exercises.length !== 0 ? (
+        <>
+          <ExerciseListBox
+            pageIndex={page.order_number}
+            pageTitle={page.title}
+            selected={false}
+            variant="link"
+            pageLink={`/${courseSlug}${page.url_path}`}
+          />
+          <div>
+            {page.exercises.map((e) => (
+              <div key={e.id}>
+                <Link href={`/${courseSlug}${page.url_path}#${e.id}`} passHref>
+                  <a href="replace">{e.name}</a>
+                </Link>
+              </div>
+            ))}
+          </div>{" "}
+        </>
       ) : null}
-      <div>
-        {page.exercises.map((e) => (
-          <div key={e.id}>
-            <Link href={`/${courseSlug}${page.url_path}#${e.id}`} passHref>
-              <a href="replace">{e.name}</a>
-            </Link>
-          </div>
-        ))}
-      </div>
-    </div>
+    </>
   )
 }
 

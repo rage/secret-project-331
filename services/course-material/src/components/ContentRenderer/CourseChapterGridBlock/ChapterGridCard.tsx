@@ -1,6 +1,5 @@
 import { differenceInSeconds, formatDuration } from "date-fns"
 import { useQuery } from "react-query"
-import sanitizeHtml from "sanitize-html"
 
 import { fetchPageUrl } from "../../../services/backend"
 import { ChapterWithStatus } from "../../../shared-module/bindings"
@@ -43,13 +42,21 @@ const ChapterGridCard: React.FC<ChapterProps> = ({ now, chapter, courseSlug, bg 
       />
     )
   } else {
-    let closedUntil
     if (chapter.opens_at) {
       const diffSeconds = differenceInSeconds(chapter.opens_at, now)
       if (diffSeconds <= 0) {
         chapter.status = "open"
-        closedUntil = "OPENS NOW!"
         // Insert confetti drop here.
+        return (
+          <Card
+            variant="simple"
+            title={chapter.name}
+            chapterNumber={chapter.chapter_number}
+            key={chapter.id}
+            open={true}
+            bg={bg}
+          />
+        )
       } else if (diffSeconds < 60 * 10) {
         const minutes = Math.floor(diffSeconds / 60)
         const seconds = diffSeconds % 60
@@ -57,7 +64,16 @@ const ChapterGridCard: React.FC<ChapterProps> = ({ now, chapter, courseSlug, bg 
           minutes,
           seconds,
         })
-        closedUntil = sanitizeHtml(`OPENS IN<br />${formatted}`)
+        return (
+          <Card
+            variant="simple"
+            title={chapter.name}
+            chapterNumber={chapter.chapter_number}
+            key={chapter.id}
+            time={formatted}
+            bg={bg}
+          />
+        )
       } else {
         const date = chapter.opens_at.toLocaleString("en", {
           year: "numeric",
@@ -65,21 +81,30 @@ const ChapterGridCard: React.FC<ChapterProps> = ({ now, chapter, courseSlug, bg 
           day: "numeric",
         })
         const time = chapter.opens_at.toLocaleString("en", { hour: "numeric", minute: "numeric" })
-        closedUntil = sanitizeHtml(`AVAILABLE<br />${date} at ${time}`)
+        return (
+          <Card
+            variant="simple"
+            title={chapter.name}
+            chapterNumber={chapter.chapter_number}
+            key={chapter.id}
+            date={date}
+            time={time}
+            bg={bg}
+          />
+        )
       }
     } else {
-      closedUntil = "Closed"
+      return (
+        <Card
+          variant="simple"
+          title={chapter.name}
+          chapterNumber={chapter.chapter_number}
+          key={chapter.id}
+          open={false}
+          bg={bg}
+        />
+      )
     }
-    return (
-      <Card
-        variant="simple"
-        title={chapter.name}
-        chapterNumber={chapter.chapter_number}
-        key={chapter.id}
-        closedUntil={closedUntil}
-        bg={bg}
-      />
-    )
   }
 }
 

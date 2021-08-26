@@ -5,6 +5,8 @@ import React from "react"
 import CardSVG from "../../img/cardNext.svg"
 import { cardHeight, cardMaxWidth } from "../../styles/constants"
 
+import { CardExtraProps } from "."
+
 const CourseGridWrapper = styled.a`
   text-decoration: none;
   display: block;
@@ -45,19 +47,35 @@ const CardContentWrapper = styled.div`
     word-break: break-all;
   }
 `
-export interface CardExtraProps {
-  variant: "simple" | "Illustration"
-  title: string
-  chapterNumber: number
-  url?: string
-  closedUntil?: string
-  bg?: string
-}
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & CardExtraProps
 
-const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, url, closedUntil, bg }) => {
+const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, url, open, bg, date, time }) => {
   // If URL defined, the chapter is open
+
+  const fetchOpensText = () => {
+    if (date && time) {
+      return (
+        <>
+          <div>AVAILABLE</div>
+          <div>
+            {date} at {time}
+          </div>
+        </>
+      )
+    } else if (time) {
+      return (
+        <>
+          <div>OPENS IN</div>
+          <div>{time}</div>
+        </>
+      )
+    } else if (open) {
+      return <span>OPENS NOW!</span>
+    } else {
+      return <span>CLOSED</span>
+    }
+  }
   return (
     <CourseGridWrapper
       className={css`
@@ -67,7 +85,7 @@ const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, url, closedUnti
       {...(url ? { href: url } : {})}
     >
       <CardContentWrapper>
-        {closedUntil && !url ? (
+        {!open && !url ? (
           <div
             className={css`
               flex: 0 1 auto;
@@ -75,8 +93,9 @@ const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, url, closedUnti
               background: #cac9c9;
               padding: 2em;
             `}
-            dangerouslySetInnerHTML={{ __html: closedUntil }}
-          ></div>
+          >
+            {fetchOpensText()}
+          </div>
         ) : (
           <div
             className={css`

@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import Head from "next/head"
 import React, { ReactNode } from "react"
 
+import Footer from "../shared-module/components/Footer"
 import Navbar from "../shared-module/components/Navigation"
 
 type LayoutProps = {
@@ -39,7 +40,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title, navVariant, frontPageU
       >
         {children}
       </div>
-      {/* <Footer url="www.google.com" /> */}
+      <Footer />
     </div>
   </>
 )

@@ -17,7 +17,7 @@ RUN npm ci
 
 COPY --chown=node . /app
 
-ENV BASE_PATH="/quizzes"
+ENV NEXT_PUBLIC_BASE_PATH="/quizzes"
 
 RUN npm run build
 

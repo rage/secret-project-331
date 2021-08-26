@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { Button, Dialog } from "@material-ui/core"
+import { Dialog } from "@material-ui/core"
 import Link from "next/link"
 import React, { useContext, useState } from "react"
 import { useQuery } from "react-query"
@@ -7,9 +7,12 @@ import { useQuery } from "react-query"
 import Layout from "../../components/Layout"
 import NewCourseForm from "../../components/forms/NewCourseForm"
 import { fetchOrganizationCourses } from "../../services/backend/organizations"
+import Button from "../../shared-module/components/Button"
 import DebugModal from "../../shared-module/components/DebugModal"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../../shared-module/hooks/useQueryParameter"
+import { wideWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
+import basePath from "../../shared-module/utils/base-path"
 import dontRenderUntilQueryParametersReady from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
@@ -31,62 +34,76 @@ const Organization: React.FC<unknown> = () => {
   }
 
   return (
-    <Layout>
-      <h1>Organization courses</h1>
+    <Layout frontPageUrl={basePath()} navVariant="simple">
+      <div className={wideWidthCenteredComponentStyles}>
+        <h1>Organization courses</h1>
 
-      <div
-        className={css`
-          margin-bottom: 1rem;
-        `}
-      >
-        {data.map((course) => (
-          <div key={course.id}>
-            <a href={`/courses/${course.slug}`}>{course.name}</a>{" "}
-            {loginStateContext.signedIn && (
-              <>
-                <Link
-                  href={{
-                    pathname: "/manage/courses/[id]",
-                    query: {
-                      id: course.id,
-                    },
-                  }}
-                >
-                  Manage
-                </Link>{" "}
-              </>
-            )}
-          </div>
-        ))}
+        <div
+          className={css`
+            margin-bottom: 1rem;
+          `}
+        >
+          {data.map((course) => (
+            <div key={course.id}>
+              <a href={`/courses/${course.slug}`}>{course.name}</a>{" "}
+              {loginStateContext.signedIn && (
+                <>
+                  <Link
+                    href={{
+                      pathname: "/manage/courses/[id]",
+                      query: {
+                        id: course.id,
+                      },
+                    }}
+                  >
+                    Manage
+                  </Link>{" "}
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <div
+          className={css`
+            margin-bottom: 1rem;
+          `}
+        >
+          {loginStateContext.signedIn && (
+            <Button
+              size="medium"
+              variant="primary"
+              onClick={() => setNewCourseFormOpen(!newCourseFormOpen)}
+            >
+              Add course
+            </Button>
+          )}
+
+          <Dialog open={newCourseFormOpen} onClose={() => setNewCourseFormOpen(!newCourseFormOpen)}>
+            <div
+              className={css`
+                margin: 1rem;
+              `}
+            >
+              <Button
+                size="medium"
+                variant="secondary"
+                onClick={() => setNewCourseFormOpen(!newCourseFormOpen)}
+              >
+                Close
+              </Button>
+              <NewCourseForm
+                organizationId={id}
+                onSubmitForm={async () => {
+                  await refetch()
+                  setNewCourseFormOpen(false)
+                }}
+              />
+            </div>
+          </Dialog>
+        </div>
+        <DebugModal data={data} />
       </div>
-
-      <div
-        className={css`
-          margin-bottom: 1rem;
-        `}
-      >
-        {loginStateContext.signedIn && (
-          <Button onClick={() => setNewCourseFormOpen(!newCourseFormOpen)}>Add course</Button>
-        )}
-
-        <Dialog open={newCourseFormOpen} onClose={() => setNewCourseFormOpen(!newCourseFormOpen)}>
-          <div
-            className={css`
-              margin: 1rem;
-            `}
-          >
-            <Button onClick={() => setNewCourseFormOpen(!newCourseFormOpen)}>Close</Button>
-            <NewCourseForm
-              organizationId={id}
-              onSubmitForm={async () => {
-                await refetch()
-                setNewCourseFormOpen(false)
-              }}
-            />
-          </div>
-        </Dialog>
-      </div>
-      <DebugModal data={data} />
     </Layout>
   )
 }

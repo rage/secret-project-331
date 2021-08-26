@@ -1,6 +1,7 @@
 import styled from "@emotion/styled"
-import { Button } from "@material-ui/core"
 import React, { createRef, useState } from "react"
+
+import Button from "../../shared-module/components/Button"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;
@@ -28,7 +29,7 @@ const UploadImageForm: React.FC<UploadImageFormProps> = ({ onSubmit }) => {
         <input accept="image" ref={fileInput} type="file" />
       </FieldContainer>
       <div>
-        <Button onClick={uploadImage} disabled={!allowSubmit} variant="outlined">
+        <Button size="medium" variant="primary" onClick={uploadImage} disabled={!allowSubmit}>
           Upload image
         </Button>
       </div>

@@ -23,6 +23,7 @@ import {
 } from "../../../services/backend/exercise-services"
 import { ExerciseService, ExerciseServiceNewOrUpdate } from "../../../shared-module/bindings"
 import Button from "../../../shared-module/components/Button"
+import basePath from "../../../shared-module/utils/base-path"
 import { validNumber, validURL } from "../../../shared-module/utils/validation"
 
 import ContentArea from "./ContentArea"
@@ -380,7 +381,7 @@ const ExerciseServicePage: React.FC = () => {
   }
 
   return (
-    <Layout>
+    <Layout navVariant={"simple"} frontPageUrl={basePath()}>
       <h1> Manage exercise services:</h1>
       <Button onClick={openModal} variant="primary" size="medium">
         Add new service

@@ -119,11 +119,14 @@ export interface CourseMaterialExercise {
   exercise_status: ExerciseStatus | null
 }
 
-export interface PageRoutingData {
+export interface PageRoutingDataWithChapterStatus {
   url_path: string
   title: string
   chapter_number: number
   chapter_id: string
+  chapter_opens_at: Date | null
+  chapter_front_page_id: string | null
+  chapter_status: ChapterStatus
 }
 
 export interface SubmissionResult {
@@ -213,6 +216,8 @@ export interface Organization {
   created_at: Date
   updated_at: Date
   name: string
+  description: string | null
+  organization_image_url: string | null
   deleted_at: Date | null
 }
 

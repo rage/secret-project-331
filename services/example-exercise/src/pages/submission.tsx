@@ -3,12 +3,12 @@ import React, { useEffect, useState } from "react"
 
 import ExerciseBase from "../components/ExerciseBase"
 import HeightTrackingContainer from "../components/HeightTrackingContainer"
-import { PublicAlternative } from "../util/stateInterfaces"
+import { ModelSolutionApi, PublicAlternative } from "../util/stateInterfaces"
 
 interface SubmissionState {
   public_spec: PublicAlternative[]
   submission_data: string
-  model_solution_spec: string[]
+  model_solution_spec: ModelSolutionApi
 }
 
 const SubmissionPage: React.FC = () => {

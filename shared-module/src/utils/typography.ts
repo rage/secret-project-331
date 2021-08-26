@@ -4,7 +4,7 @@ export const primaryFont = `"Lato", sans-serif`
 export const typography = {
   h1: "clamp(40px, 8vw, 90px)",
   h2: "clamp(32px, 6vw, 60px)",
-  h3: "clamp(26px, 4vw, 48px)",
+  h3: "clamp(30px, 4vw, 48px)",
   h4: "clamp(24px, 3vw, 34px)",
   h5: "clamp(22px, 2.4vw, 24px)",
   h6: "clamp(18px, 2vw, 20px)",

@@ -5,44 +5,58 @@ import React from "react"
 
 import CardSVG from "../../img/cardNext.svg"
 import { cardHeight, cardMaxWidth } from "../../styles/constants"
-import { theme } from "../../utils"
+import { theme, typography } from "../../utils"
 
 const CourseGridWrapper = styled.a`
   text-decoration: none;
   display: block;
   max-width: ${cardMaxWidth}em;
-  height: ${cardHeight}em;
+  height: 18em;
   border-radius: 1px;
   position: relative;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   background: red;
 
   @media (min-width: 600px) {
-    background: green;
+    height: ${cardHeight}em;
   }
 `
 const styledSVG = css`
   position: absolute;
   top: 10%;
   left: 2.5em;
+  width: 30px;
+
+  @media (min-width: 600px) {
+    width: 45px;
+  }
 `
 
 const CardTextBox = styled.div`
   position: absolute;
   bottom: 0;
   display: flex;
-  padding: 2em 2.5em;
-  height: 50%;
+  padding: 0em 2em 1rem 2rem;
+  height: auto;
   text-align: left;
-  margin-bottom: 1em;
+
+  @media (min-width: 600px) {
+    margin-bottom: 1em;
+    padding: 2em 2.5em;
+    height: 50%;
+  }
 
   div {
-    margin-bottom: 1.4em;
+    margin-bottom: 1.8em;
     text-align: left;
+
+    @media (min-width: 600px) {
+      margin-bottom: 1.4em;
+    }
   }
 
   h2 {
-    font-size: 3.125em;
+    font-size: ${typography.h3};
     font-weight: 700;
     z-index: 20;
     line-height: 1em;

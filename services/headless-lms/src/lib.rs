@@ -43,7 +43,7 @@ pub fn configure<T: 'static + FileStore>(
 ) {
     let json_config =
         web::JsonConfig::default()
-            .limit(81920)
+            .limit(1048576)
             .error_handler(|err, _req| -> actix_web::Error {
                 info!("Bad request: {}", &err);
                 let body = format!("{{\"title\": \"Bad Request\", \"message\": \"{}\"}}", &err);

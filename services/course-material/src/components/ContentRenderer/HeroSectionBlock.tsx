@@ -7,7 +7,7 @@ import { BlockRendererProps } from "."
 
 const HeroSectionBlock: React.FC<BlockRendererProps<HeroSectionProps>> = (props) => {
   return (
-    <HeroSection title={props.data.attributes.title} subTitle={props.data.attributes.subTitle} />
+    <HeroSection title={props.data.attributes.title} subtitle={props.data.attributes.subtitle} />
   )
 }
 

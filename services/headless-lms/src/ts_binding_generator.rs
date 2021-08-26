@@ -21,9 +21,10 @@ use crate::{
         feedback::{Feedback, FeedbackBlock, FeedbackCount, NewFeedback},
         gradings::{Grading, UserPointsUpdateStrategy},
         organizations::Organization,
+        page_history::{HistoryChangeReason, PageHistory},
         pages::{
-            ExerciseWithExerciseTasks, NewPage, NormalizedCmsExercise, NormalizedCmsExerciseTask,
-            Page, PageRoutingData, PageUpdate, PageWithExercises,
+            ExerciseWithExerciseTasks, HistoryRestoreData, NewPage, NormalizedCmsExercise,
+            NormalizedCmsExerciseTask, Page, PageRoutingData, PageUpdate, PageWithExercises,
         },
         submissions::{
             NewSubmission, Submission, SubmissionCount, SubmissionCountByExercise,
@@ -67,6 +68,9 @@ ts_rs::export! {
   CourseUpdate,
   Login,
   SubmissionInfo,
+  PageHistory,
+  HistoryChangeReason,
+  HistoryRestoreData,
   Feedback,
   MarkAsRead,
   NewFeedback,

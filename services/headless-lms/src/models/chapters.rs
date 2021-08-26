@@ -289,6 +289,7 @@ WHERE course_id = $1
 pub async fn insert_chapter(
     conn: &mut PgConnection,
     chapter: NewChapter,
+    user: Uuid,
 ) -> ModelResult<(DatabaseChapter, Page)> {
     let mut tx = conn.begin().await?;
 
@@ -320,7 +321,7 @@ RETURNING *;
         title: chapter.name.clone(),
         url_path: format!("/chapter-{}", chapter.chapter_number),
     };
-    let page = crate::models::pages::insert_page(&mut tx, chapter_frontpage).await?;
+    let page = crate::models::pages::insert_page(&mut tx, chapter_frontpage, user).await?;
 
     tx.commit().await?;
     Ok((chapter, page))

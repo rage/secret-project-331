@@ -241,7 +241,6 @@ export interface PageUpdate {
   url_path: string
   title: string
   chapter_id: string | null
-  front_page_of_chapter_id: string | null
 }
 
 export interface NewSubmission {
@@ -272,6 +271,22 @@ export interface SubmissionInfo {
   exercise_task: ExerciseTask
   grading: Grading | null
   submission_iframe_path: string
+}
+
+export interface PageHistory {
+  id: string
+  created_at: Date
+  title: string
+  content: unknown
+  history_change_reason: HistoryChangeReason
+  restored_from_id: string | null
+  author_user_id: string
+}
+
+export type HistoryChangeReason = "PageSaved" | "HistoryRestored"
+
+export interface HistoryRestoreData {
+  history_id: string
 }
 
 export interface Feedback {

@@ -409,7 +409,9 @@ pub struct NewCourse {
 
 pub async fn insert_course(
     conn: &mut PgConnection,
+    id: Uuid,
     course: NewCourse,
+    user: Uuid,
 ) -> ModelResult<(Course, Page, CourseInstance)> {
     let mut tx = conn.begin().await?;
 
@@ -417,10 +419,11 @@ pub async fn insert_course(
         Course,
         r#"
     INSERT INTO
-      courses(name, slug, organization_id, language_code)
-    VALUES($1, $2, $3, $4)
+      courses(id, name, slug, organization_id, language_code)
+    VALUES($1, $2, $3, $4, $5)
     RETURNING *
             "#,
+        id,
         course.name,
         course.slug,
         course.organization_id,
@@ -444,7 +447,7 @@ pub async fn insert_course(
         title: course.name.clone(),
         url_path: String::from("/"),
     };
-    let page = crate::models::pages::insert_page(&mut tx, course_front_page).await?;
+    let page = crate::models::pages::insert_page(&mut tx, course_front_page, user).await?;
 
     // Create default course instance
     let default_course_instance = crate::models::course_instances::insert(
@@ -533,6 +536,7 @@ mod test {
             exercises::{self, Exercise},
             organizations,
             pages::{self, PageUpdate},
+            users,
         },
         test_helper::Conn,
     };
@@ -589,14 +593,19 @@ mod test {
         )
         .await
         .unwrap();
+        let user_id = users::insert(tx.as_mut(), "user@example.com")
+            .await
+            .unwrap();
         let (course, _page, _instance) = courses::insert_course(
             tx.as_mut(),
+            Uuid::parse_str("86ede846-db97-4204-94c3-29cc2e71818e").unwrap(),
             NewCourse {
                 language_code: "en-US".to_string(),
                 name: "Course".to_string(),
                 organization_id,
                 slug: "course".to_string(),
             },
+            user_id,
         )
         .await
         .unwrap();
@@ -608,6 +617,7 @@ mod test {
                 front_front_page_id: None,
                 name: "Chapter".to_string(),
             },
+            user_id,
         )
         .await
         .unwrap();
@@ -652,6 +662,8 @@ mod test {
                 title: chapter_front_page.title,
                 url_path: chapter_front_page.url_path,
             },
+            user_id,
+            true,
         )
         .await
         .unwrap();

@@ -985,6 +985,8 @@
 <span id="983">983</span>
 <span id="984">984</span>
 <span id="985">985</span>
+<span id="986">986</span>
+<span id="987">987</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">chrono::Utc</span>;
@@ -1088,6 +1090,7 @@
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
         <span class="string">&quot;University of Helsinki, Department of Computer Science&quot;</span>,
         <span class="string">&quot;uh-cs&quot;</span>,
+        <span class="string">&quot;Organization for Computer Science students and the rest of the world who wish to learn the basics in Computer Science, programming and software development.&quot;</span>,
         <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;8bb12295-53ac-4099-9644-ac0ff5e34d92&quot;</span>)<span class="question-mark">?</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1152,6 +1155,7 @@
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
         <span class="string">&quot;University of Helsinki, Department of Mathematics and Statistics&quot;</span>,
         <span class="string">&quot;uh-mathstat&quot;</span>,
+        <span class="string">&quot;Organization for Mathematics and Statistics courses. This organization creates courses that do require prior experience in mathematics, such as integration and induction.&quot;</span>,
         <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;269d28b2-a517-4572-9955-3ed5cecc69bd&quot;</span>)<span class="question-mark">?</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;

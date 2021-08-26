@@ -98,6 +98,7 @@
 <span id="96">96</span>
 <span id="97">97</span>
 <span id="98">98</span>
+<span id="99">99</span>
 </pre><pre class="rust">
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -125,7 +126,8 @@
         <span class="ident">page_history</span>::{<span class="ident">HistoryChangeReason</span>, <span class="ident">PageHistory</span>},
         <span class="ident">pages</span>::{
             <span class="ident">ExerciseWithExerciseTasks</span>, <span class="ident">HistoryRestoreData</span>, <span class="ident">NewPage</span>, <span class="ident">NormalizedCmsExercise</span>,
-            <span class="ident">NormalizedCmsExerciseTask</span>, <span class="ident">Page</span>, <span class="ident">PageRoutingData</span>, <span class="ident">PageUpdate</span>, <span class="ident">PageWithExercises</span>,
+            <span class="ident">NormalizedCmsExerciseTask</span>, <span class="ident">Page</span>, <span class="ident">PageRoutingDataWithChapterStatus</span>, <span class="ident">PageUpdate</span>,
+            <span class="ident">PageWithExercises</span>,
         },
         <span class="ident">submissions</span>::{
             <span class="ident">NewSubmission</span>, <span class="ident">Submission</span>, <span class="ident">SubmissionCount</span>, <span class="ident">SubmissionCountByExercise</span>,
@@ -148,7 +150,7 @@
   <span class="ident">CourseInstance</span>,
   <span class="ident">ChapterWithStatus</span>,
   <span class="ident">CourseMaterialExercise</span>,
-  <span class="ident">PageRoutingData</span>,
+  <span class="ident">PageRoutingDataWithChapterStatus</span>,
   <span class="ident">SubmissionResult</span>,
   <span class="ident">Course</span>,
   <span class="ident">Exercise</span>,

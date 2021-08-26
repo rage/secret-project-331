@@ -365,7 +365,7 @@
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">deleted_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">chapter_image</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">chapter_image_path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">chapter_number</span>: <span class="ident">i32</span>,
     <span class="kw">pub</span> <span class="ident">front_page_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">opens_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
@@ -391,7 +391,7 @@
         <span class="ident">file_store</span>: <span class="kw-2">&amp;</span><span class="kw">impl</span> <span class="ident">FileStore</span>,
         <span class="ident">app_conf</span>: <span class="kw-2">&amp;</span><span class="ident">ApplicationConfiguration</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">chapter_image_url</span> <span class="op">=</span> <span class="ident">chapter</span>.<span class="ident">chapter_image</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">image</span><span class="op">|</span> {
+        <span class="kw">let</span> <span class="ident">chapter_image_url</span> <span class="op">=</span> <span class="ident">chapter</span>.<span class="ident">chapter_image_path</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">image</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">PathBuf::from</span>(<span class="ident">image</span>);
             <span class="ident">file_store</span>.<span class="ident">get_download_url</span>(<span class="ident">path</span>.<span class="ident">as_path</span>(), <span class="ident">app_conf</span>)
         });
@@ -566,19 +566,19 @@ RETURNING *;
     <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_chapter_image</span>(
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_chapter_image_path</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">chapter_image</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="ident">chapter_image_path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">DatabaseChapter</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">updated_chapter</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">DatabaseChapter</span>,
         <span class="string">&quot;
 UPDATE chapters
-SET chapter_image = $1
+SET chapter_image_path = $1
 WHERE id = $2
 RETURNING *;&quot;</span>,
-        <span class="ident">chapter_image</span>,
+        <span class="ident">chapter_image_path</span>,
         <span class="ident">chapter_id</span>
     )
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
@@ -613,7 +613,7 @@ SELECT id,
   name,
   course_id,
   deleted_at,
-  chapter_image,
+  chapter_image_path,
   chapter_number,
   front_page_id,
   opens_at

@@ -227,6 +227,7 @@
 <span id="225">225</span>
 <span id="226">226</span>
 <span id="227">227</span>
+<span id="228">228</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="kw">super</span><span class="ident">::ModelResult</span>;
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
@@ -434,6 +435,7 @@ WHERE id = $2;
 
         <span class="kw">let</span> <span class="ident">organization_id</span> <span class="op">=</span> <span class="ident">organizations::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="string">&quot;&quot;</span>,
             <span class="string">&quot;&quot;</span>,
             <span class="string">&quot;&quot;</span>,
             <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;8c34e601-b5db-4b33-a588-57cb6a5b1669&quot;</span>).<span class="ident">unwrap</span>(),

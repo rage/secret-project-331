@@ -69,12 +69,10 @@ pub struct NewPage {
 // Represents the subset of page fields that the user is allowed to modify.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct PageUpdate {
-    content: serde_json::Value,
-    url_path: String,
-    title: String,
-    chapter_id: Option<Uuid>,
-    /// If set, set this page to be the front page of this course part.
-    front_page_of_chapter_id: Option<Uuid>,
+    pub content: serde_json::Value,
+    pub url_path: String,
+    pub title: String,
+    pub chapter_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -377,20 +375,6 @@ RETURNING *
         content: serde_json::from_value(new_content)?,
         exercises: result_exercises,
     })?;
-
-    if let Some(front_page_of_chapter_id) = page_update.front_page_of_chapter_id {
-        let _res = sqlx::query_as!(
-            Chapter,
-            r#"
-UPDATE chapters SET front_page_id = $1 WHERE id = $2
-        "#,
-            page_id,
-            front_page_of_chapter_id
-        )
-        // this should fail if no rows returned
-        .fetch_one(&mut tx)
-        .await?;
-    }
 
     tx.commit().await?;
 

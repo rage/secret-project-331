@@ -531,7 +531,8 @@ mod test {
             courses,
             exercise_tasks::{self, ExerciseTask},
             exercises::{self, Exercise},
-            organizations, pages,
+            organizations,
+            pages::{self, PageUpdate},
         },
         test_helper::Conn,
     };
@@ -599,7 +600,7 @@ mod test {
         )
         .await
         .unwrap();
-        let (chapter, chapter_page) = chapters::insert_chapter(
+        let (chapter, chapter_front_page) = chapters::insert_chapter(
             tx.as_mut(),
             NewChapter {
                 chapter_number: 1,
@@ -614,24 +615,9 @@ mod test {
             tx.as_mut(),
             course.id,
             "Exercise",
-            chapter_page.id,
+            chapter_front_page.id,
             chapter.id,
             1,
-        )
-        .await
-        .unwrap();
-        pages::update_content(
-            tx.as_mut(),
-            chapter_page.id,
-            &[GutenbergBlock {
-                name: "moocfi/exercise".to_string(),
-                is_valid: true,
-                client_id: "b2ecb473-38cc-4df1-84f7-06709cc63e95".to_string(),
-                attributes: serde_json::json!({
-                    "id": exercise_id.to_string(),
-                }),
-                inner_blocks: vec![],
-            }],
         )
         .await
         .unwrap();
@@ -643,6 +629,29 @@ mod test {
             Value::Null,
             Value::Null,
             Value::Null,
+        )
+        .await
+        .unwrap();
+        pages::update_page(
+            tx.as_mut(),
+            chapter_front_page.id,
+            PageUpdate {
+                chapter_id: chapter_front_page.chapter_id,
+                content: serde_json::json!([
+                    {
+                        "name": "moocfi/exercise",
+                        "isValid": true,
+                        "clientId": "b2ecb473-38cc-4df1-84f7-06709cc63e95",
+                        "attributes": {
+                            "id": exercise_id,
+                            "name": "Exercise"
+                        },
+                        "innerBlocks": []
+                    }
+                ]),
+                title: chapter_front_page.title,
+                url_path: chapter_front_page.url_path,
+            },
         )
         .await
         .unwrap();
@@ -682,7 +691,7 @@ mod test {
         .fetch_one(tx.as_mut())
         .await
         .unwrap();
-        assert_eq!(copied_page.copied_from, Some(chapter_page.id));
+        assert_eq!(copied_page.copied_from, Some(chapter_front_page.id));
 
         // Assuming there's only one exercise per page in test data.
         let copied_exercise = sqlx::query_as!(

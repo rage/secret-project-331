@@ -119,16 +119,6 @@
       "nullable": [false, false, false, true, false, false, false, true, false]
     }
   },
-  "07ff6c440bb184c682c8095f73537a51399aff014e77485afa80dcde0268607f": {
-    "query": "\nUPDATE chapters SET front_page_id = $1 WHERE id = $2\n        ",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      },
-      "nullable": []
-    }
-  },
   "0866e89150cf61daef56466a2ad5ef08605158ccdc83a310e4c4bd45c5c343a2": {
     "query": "\nSELECT user_id,\n  exercise_id,\n  course_instance_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  grading_progress as \"grading_progress: _\",\n  activity_progress as \"activity_progress: _\"\nFROM user_exercise_states\nWHERE user_id = $1\n  AND exercise_id = $2\n  AND course_instance_id = $3\n      ",
     "describe": {

@@ -66,7 +66,7 @@ const ScoreBoard: React.FC<CourseProgressExtraProps> = ({ point = 10, label, min
   })
   return (
     <Container>
-      <h3>{label}</h3>
+      <h4>{label}</h4>
       <StyledSVG>
         <svg xmlns="http://www.w3.org/2000/svg" width="497" height="497" viewBox="0 0 497 497">
           <g id="Group_11" transform="translate(-712 -7629)">

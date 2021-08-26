@@ -2,31 +2,26 @@ import styled from "@emotion/styled"
 import { useLayoutEffect, useState } from "react"
 import { useSpring } from "react-spring"
 
-import { respond } from "../../utils/respond"
+import { headingFont } from "../../utils"
 
-const Container = styled.div`
-  span {
-    position: absolute;
-    top: 50%;
-    left: 56%;
-    display: block;
-    font-size: 1.4rem;
-    line-height: 1;
-    opacity: 0.7;
-  }
-`
+const Container = styled.div``
 
 const StyledSVG = styled.div`
   position: relative;
-  max-width: 320px;
+  width: 257px;
+  height: auto;
+
+  @media (min-width: 600px) {
+    max-width: 320px;
+  }
 
   svg {
     margin: 0rem auto;
-    width: 20rem;
+    width: 16rem;
 
-    ${respond.mobile`
-  width: 15rem;
-  `}
+    @media (min-width: 600px) {
+      width: 20rem;
+    }
   }
 
   p {
@@ -37,6 +32,14 @@ const StyledSVG = styled.div`
     font-size: 3rem;
     font-weight: 400;
     opacity: 0.9;
+    font-family: ${headingFont};
+
+    @media (min-width: 600px) {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 3rem;
+    }
   }
 `
 export interface CourseProgressExtraProps {
@@ -49,6 +52,8 @@ export interface CourseProgressExtraProps {
 const ScoreBoard = ({ point = 10, label, min, max }: CourseProgressExtraProps) => {
   const [willAnimate, setWillAnimate] = useState(false)
 
+  const minimum = min ? min : 0
+  const maximum = max ? max : 0
   useLayoutEffect(() => {
     const onScroll = () => {
       const scrollPosition = window.scrollY + window.innerHeight
@@ -103,7 +108,7 @@ const ScoreBoard = ({ point = 10, label, min, max }: CourseProgressExtraProps) =
         </svg>
         <p>
           {/* {props.number.interpolate((number: string) => `${Math.floor(number)}/${max}`)} */}
-          {min + "/" + max}
+          {minimum + "/" + maximum}
         </p>
       </StyledSVG>
     </Container>

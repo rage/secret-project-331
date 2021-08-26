@@ -91,8 +91,6 @@ const StyledMOOCfi = styled(MOOCfi)`
   }
 `
 
-const icon = css``
-
 export interface FooterExtraProps {
   url: string
 }
@@ -116,8 +114,8 @@ const Footer: React.FC<FooterProps> = () => {
             grid-gap: 1em;
           `}
         >
-          <StyledMOOCfi alt="MOOC.fi" className={cx(icon)} />
-          <UHLogo alt="University of Helsinki" className={cx(icon)} />
+          <StyledMOOCfi alt="MOOC.fi" />
+          <UHLogo alt="University of Helsinki" />
         </div>
         <Text>
           <h3>WHO WE ARE</h3>

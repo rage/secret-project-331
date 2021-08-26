@@ -102,7 +102,7 @@ export interface BannerExtraProps {
 
 export type BannerProps = React.HTMLAttributes<HTMLDivElement> & BannerExtraProps
 
-const Banner: React.FC<BannerProps> = ({ content, variant }, props) => {
+const Banner: React.FC<BannerProps> = (props) => {
   return (
     <BannerWrapper {...props}>
       <Content>

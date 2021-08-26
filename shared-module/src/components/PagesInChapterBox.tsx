@@ -2,19 +2,12 @@ import styled from "@emotion/styled"
 import React from "react"
 
 import ArrowSVGIcon from "../img/arrow.svg"
+import { headingFont } from "../utils"
 
 const Wrapper = styled.aside`
   border-radius: 10px;
   position: relative;
   width: 100%;
-
-  h2 {
-    text-align: center;
-    color: #3b4754;
-    text-transform: uppercase;
-    font-size: 1.6rem;
-    margin-bottom: 2rem;
-  }
 `
 const Link = styled.a`
   color: #1c3b40;
@@ -22,33 +15,10 @@ const Link = styled.a`
 `
 
 const PageNumberBox = styled.div`
-  @media (min-width: 1px) {
-    width: 40px;
-    height: 40px;
-    position: relative;
-    vertical-align: middle;
-    display: inline-block;
-  }
-
-  div {
-    width: 100%;
-    height: 100%;
-    z-index: 2;
-    text-align: center;
-    display: flex;
-    align-content: center;
-    padding-top: 7px;
-  }
-
-  p {
-    width: 100%;
-    height: 100%;
-    text-align: center;
-    z-index: 3;
-    color: #333;
-    font-size: 16px;
-    margin-bottom: 0;
-  }
+  position: relative;
+  display: inline-block;
+  font-family: ${headingFont};
+  margin: 0 1rem;
 `
 /* const StyledArrow = styled(Arrow)`
   display: absolute;
@@ -80,7 +50,7 @@ const ChapterParts = styled.div`
     background-color: #d8d8d8;
   }
 
-  img {
+  svg {
     position: absolute;
     right: 30px;
     top: 30%;
@@ -88,8 +58,7 @@ const ChapterParts = styled.div`
 
   span {
     vertical-align: top;
-    /* marginLeft: "1em", */
-    font-size: 18px;
+    font-size: clamp(16px, 1vw, 18px);
     display: inline-block;
     width: 80%;
     margin: 0.4em 0 0.4em 0.2em;
@@ -123,9 +92,7 @@ const PagesInChapterBox: React.FC<PagesInChapterBoxProps> = (props) => {
         <Link href={`${props.url}`}>
           <ChapterParts {...props}>
             <PageNumberBox>
-              <div>
-                <p>{props.chapterIndex}</p>
-              </div>
+              <span>{props.chapterIndex}</span>
             </PageNumberBox>
             <span>{props.chapterTitle}</span>
             <ArrowSVGIcon alt="next icon" width="20" />

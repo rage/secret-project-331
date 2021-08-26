@@ -1181,14 +1181,18 @@ pub async fn get_page_search_results_for_phrase(
 
     // Last word of the search term needed so that the sql statement can change it to a prefix match.
     // Allows the last word to not be fully typed.
-    let last_word_option = page_search_request
+    let last_word = if let Some(last) = page_search_request
         .query
         .trim()
         .split_ascii_whitespace()
-        .last();
+        .last()
+    {
+        last
+    } else {
+        return Ok(Vec::new());
+    };
 
-    let res = if let Some(last_word) = last_word_option {
-        sqlx::query_as!(
+    let res =   sqlx::query_as!(
             PageSearchResult,
             "
 -- common table expression for the search term tsquery so that we don't have to repeat it many times
@@ -1243,11 +1247,7 @@ LIMIT 50;
             last_word
         )
         .fetch_all(conn)
-        .await?
-    } else {
-        // If last word not found the search query is empty and we can return an empty vec
-        Vec::new()
-    };
+        .await?;
 
     Ok(add_course_url_prefix_to_search_results(res, &course))
 }
@@ -1264,14 +1264,18 @@ pub async fn get_page_search_results_for_words(
 
     // Last word of the search term needed so that the sql statement can change it to a prefix match.
     // Allows the last word to not be fully typed.
-    let last_word_option = page_search_request
+    let last_word = if let Some(last) = page_search_request
         .query
         .trim()
         .split_ascii_whitespace()
-        .last();
+        .last()
+    {
+        last
+    } else {
+        return Ok(Vec::new());
+    };
 
-    let res = if let Some(last_word) = last_word_option {
-        sqlx::query_as!(
+    let res = sqlx::query_as!(
             PageSearchResult,
             "
 -- common table expression for the search term tsquery so that we don't have to repeat it many times
@@ -1327,11 +1331,7 @@ LIMIT 50;
             last_word
         )
         .fetch_all(conn)
-        .await?
-    } else {
-        // If last word not found the search query is empty and we can return an empty vec
-        Vec::new()
-    };
+        .await?;
 
     Ok(add_course_url_prefix_to_search_results(res, &course))
 }

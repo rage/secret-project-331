@@ -1,13 +1,14 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { Button, Dialog, Paper, TextField } from "@material-ui/core"
+import { Dialog, Paper, TextField } from "@material-ui/core"
 import Link from "next/link"
-import { useEffect, useMemo, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import sanitizeHtml from "sanitize-html"
 import { useDebounce } from "use-debounce"
 
 import { searchPagesWithPhrase, searchPagesWithWords } from "../services/backend"
 import { PageSearchResult } from "../shared-module/bindings"
+import Button from "../shared-module/components/Button"
 import DebugModal from "../shared-module/components/DebugModal"
 
 export interface SearchDialogProps {
@@ -82,7 +83,9 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId }) => {
 
   return (
     <>
-      <Button onClick={() => openModal()}>Search</Button>
+      <Button size="medium" variant="secondary" onClick={() => openModal()}>
+        Search
+      </Button>
       <Dialog maxWidth="xl" open={open} onClose={closeModal}>
         <Paper
           className={css`
@@ -99,7 +102,9 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId }) => {
               `}
             />
             <DebugModal data={{ phraseSearchResults, wordSearchResults, combinedResults }} />
-            <Button onClick={closeModal}>Close</Button>
+            <Button size="medium" variant="secondary" onClick={closeModal}>
+              Close
+            </Button>
           </HeaderBar>
           <div
             className={css`
@@ -126,8 +131,9 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId }) => {
                   return null
                 }
                 return (
-                  <Link href={result.url_path} key={result.id}>
+                  <Link href={result.url_path} key={result.id} passHref>
                     <a
+                      href="replace"
                       className={css`
                         text-decoration: none;
                         color: unset;
@@ -144,6 +150,7 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId }) => {
                     >
                       <h2
                         className={css`
+                          font-size: 1.5rem;
                           b {
                             text-decoration: underline;
                           }

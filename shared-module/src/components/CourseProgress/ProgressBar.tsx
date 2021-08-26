@@ -62,6 +62,7 @@ const Label = styled.div`
     font-size: 1.2em;
     font-weight: 400;
     font-family: ${headingFont};
+    opacity: 0.9;
   }
 
   span:last-child {

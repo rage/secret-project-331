@@ -1,33 +1,39 @@
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { Fragment } from "react"
 
 import UHLogo from "../img/UHLogo.svg"
 import MOOCfi from "../img/moocfi.svg"
+import { headingFont } from "../utils"
 
 import Banner from "./Banner/Banner"
 
 const Wrapper = styled.div`
   display: grid;
   background: #f1f1f1;
-  grid-template-columns: 0.5fr 1fr 0.5fr;
-  padding: 4.5rem;
+  grid-template-rows: 1fr;
+  padding: 1.5rem;
   color: #231f20;
   position: relative;
-  @media (max-width: 37.5em) {
-    grid-template-columns: 1fr;
-    grid-gap: 2em;
-    padding: 1rem;
+  gap: 40px;
+
+  @media (min-width: 600px) {
+    grid-template-columns: 0.5fr 1fr 0.5fr;
+    padding: 4.5rem;
+    gap: 20px;
   }
 
   h3 {
     margin-bottom: 1rem;
+    opacity: 0.8;
+    line-height: 1;
   }
 
   div:first-of-type {
-    img {
-      display: inline-block;
-      margin: 0 8px;
+    margin-right: 0;
+
+    @media (min-width: 600px) {
+      margin-right: 50px;
     }
   }
 
@@ -46,7 +52,12 @@ const StyledLink = styled.a`
   font-size: 1.2rem;
   opacity: 0.7;
   transition: opacity 0.2s ease-in;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
+  font-family: ${headingFont};
+
+  @media (min-width: 600px) {
+    margin-bottom: 10px;
+  }
 
   :hover {
     text-decoration: none;
@@ -54,11 +65,19 @@ const StyledLink = styled.a`
   }
 `
 const Text = styled.div`
-  width: 70%;
+  width: 100%;
+
+  @media (min-width: 600px) {
+    width: 90%;
+  }
   span {
     font-size: 16px;
-    padding-right: 10rem;
+    padding-right: 0;
     opacity: 0.7;
+
+    @media (min-width: 600px) {
+      padding-right: 8rem;
+    }
   }
 `
 const Links = styled.div`
@@ -66,6 +85,13 @@ const Links = styled.div`
   flex-direction: column;
   justify-content: end;
 `
+const StyledMOOCfi = styled(MOOCfi)`
+  svg {
+    width: 20px;
+  }
+`
+
+const icon = css``
 
 export interface FooterExtraProps {
   url: string
@@ -90,8 +116,8 @@ const Footer: React.FC<FooterProps> = () => {
             grid-gap: 1em;
           `}
         >
-          <MOOCfi alt="MOOC.fi" />
-          <UHLogo alt="University of Helsinki" />
+          <StyledMOOCfi alt="MOOC.fi" className={cx(icon)} />
+          <UHLogo alt="University of Helsinki" className={cx(icon)} />
         </div>
         <Text>
           <h3>WHO WE ARE</h3>

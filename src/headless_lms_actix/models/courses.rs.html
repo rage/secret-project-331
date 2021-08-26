@@ -231,6 +231,9 @@
 <span id="229">229</span>
 <span id="230">230</span>
 <span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">course_instances::CourseInstance</span>, <span class="ident">ModelResult</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -354,7 +357,9 @@ RETURNING id
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert_course</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">id</span>: <span class="ident">Uuid</span>,
     <span class="ident">course</span>: <span class="ident">NewCourse</span>,
+    <span class="ident">user</span>: <span class="ident">Uuid</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span>(<span class="ident">Course</span>, <span class="ident">Page</span>, <span class="ident">CourseInstance</span>)<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -362,10 +367,11 @@ RETURNING id
         <span class="ident">Course</span>,
         <span class="string">r#&quot;
     INSERT INTO
-      courses(name, slug, organization_id)
-    VALUES($1, $2, $3)
+      courses(id, name, slug, organization_id)
+    VALUES($1, $2, $3, $4)
     RETURNING *
             &quot;#</span>,
+        <span class="ident">id</span>,
         <span class="ident">course</span>.<span class="ident">name</span>,
         <span class="ident">course</span>.<span class="ident">slug</span>,
         <span class="ident">course</span>.<span class="ident">organization_id</span>
@@ -388,7 +394,7 @@ RETURNING id
         <span class="ident">title</span>: <span class="ident">course</span>.<span class="ident">name</span>.<span class="ident">clone</span>(),
         <span class="ident">url_path</span>: <span class="ident">String::from</span>(<span class="string">&quot;/&quot;</span>),
     };
-    <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::models::pages::insert_page</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="ident">course_front_page</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::models::pages::insert_page</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="ident">course_front_page</span>, <span class="ident">user</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// Create default course instance</span>
     <span class="kw">let</span> <span class="ident">default_course_instance</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::models::course_instances::insert</span>(

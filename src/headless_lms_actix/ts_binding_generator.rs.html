@@ -94,6 +94,10 @@
 <span id="92">92</span>
 <span id="93">93</span>
 <span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
 </pre><pre class="rust">
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -118,9 +122,10 @@
         <span class="ident">feedback</span>::{<span class="ident">Feedback</span>, <span class="ident">FeedbackBlock</span>, <span class="ident">FeedbackCount</span>, <span class="ident">NewFeedback</span>},
         <span class="ident">gradings</span>::{<span class="ident">Grading</span>, <span class="ident">UserPointsUpdateStrategy</span>},
         <span class="ident">organizations::Organization</span>,
+        <span class="ident">page_history</span>::{<span class="ident">HistoryChangeReason</span>, <span class="ident">PageHistory</span>},
         <span class="ident">pages</span>::{
-            <span class="ident">ExerciseWithExerciseTasks</span>, <span class="ident">NewPage</span>, <span class="ident">NormalizedCmsExercise</span>, <span class="ident">NormalizedCmsExerciseTask</span>,
-            <span class="ident">Page</span>, <span class="ident">PageRoutingData</span>, <span class="ident">PageUpdate</span>, <span class="ident">PageWithExercises</span>,
+            <span class="ident">ExerciseWithExerciseTasks</span>, <span class="ident">HistoryRestoreData</span>, <span class="ident">NewPage</span>, <span class="ident">NormalizedCmsExercise</span>,
+            <span class="ident">NormalizedCmsExerciseTask</span>, <span class="ident">Page</span>, <span class="ident">PageRoutingData</span>, <span class="ident">PageUpdate</span>, <span class="ident">PageWithExercises</span>,
         },
         <span class="ident">submissions</span>::{
             <span class="ident">NewSubmission</span>, <span class="ident">Submission</span>, <span class="ident">SubmissionCount</span>, <span class="ident">SubmissionCountByExercise</span>,
@@ -164,6 +169,9 @@
   <span class="ident">CourseUpdate</span>,
   <span class="ident">Login</span>,
   <span class="ident">SubmissionInfo</span>,
+  <span class="ident">PageHistory</span>,
+  <span class="ident">HistoryChangeReason</span>,
+  <span class="ident">HistoryRestoreData</span>,
   <span class="ident">Feedback</span>,
   <span class="ident">MarkAsRead</span>,
   <span class="ident">NewFeedback</span>,

@@ -342,6 +342,7 @@
 <span id="340">340</span>
 <span id="341">341</span>
 <span id="342">342</span>
+<span id="343">343</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">pages::Page</span>, <span class="ident">ModelResult</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">models::pages::NewPage</span>, <span class="ident">utils::document_schema_processor::GutenbergBlock</span>};
@@ -630,6 +631,7 @@ WHERE course_id = $1
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert_chapter</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">chapter</span>: <span class="ident">NewChapter</span>,
+    <span class="ident">user</span>: <span class="ident">Uuid</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span>(<span class="ident">DatabaseChapter</span>, <span class="ident">Page</span>)<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -661,7 +663,7 @@ RETURNING *;
         <span class="ident">title</span>: <span class="ident">chapter</span>.<span class="ident">name</span>.<span class="ident">clone</span>(),
         <span class="ident">url_path</span>: <span class="macro">format!</span>(<span class="string">&quot;/chapter-{}&quot;</span>, <span class="ident">chapter</span>.<span class="ident">chapter_number</span>),
     };
-    <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::models::pages::insert_page</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="ident">chapter_frontpage</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::models::pages::insert_page</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="ident">chapter_frontpage</span>, <span class="ident">user</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>((<span class="ident">chapter</span>, <span class="ident">page</span>))

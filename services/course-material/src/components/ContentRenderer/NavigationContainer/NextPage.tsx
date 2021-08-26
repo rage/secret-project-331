@@ -35,7 +35,7 @@ const NextPage: React.FC<NextPageProps> = ({ chapterId, currentPageId }) => {
     return (
       <NextSectionLink
         title="Congratulations!"
-        subTitle="You've reached the end of the course material!"
+        subtitle="You've reached the end of the course material!"
         nextTitle={"Back to main page"}
         url={"/courses/" + courseSlug}
       />
@@ -46,7 +46,7 @@ const NextPage: React.FC<NextPageProps> = ({ chapterId, currentPageId }) => {
     return (
       <NextSectionLink
         title="Start studying..."
-        subTitle="Proceed to the first topic"
+        subtitle="Proceed to the first topic"
         nextTitle={data.title}
         url={"/courses/" + courseSlug + data.url_path}
       />
@@ -57,8 +57,8 @@ const NextPage: React.FC<NextPageProps> = ({ chapterId, currentPageId }) => {
       // End of chapter NextSectionLink
       return (
         <NextSectionLink
-          title="Impressive! You’ve reach the end of this chapter."
-          subTitle="Proceed to the next chapter"
+          title="Impressive! You've reached the end of this chapter."
+          subtitle="Proceed to the next chapter"
           nextTitle={data.title}
           url={"/courses/" + courseSlug + data.url_path}
         />
@@ -67,8 +67,8 @@ const NextPage: React.FC<NextPageProps> = ({ chapterId, currentPageId }) => {
       // End of page NextSectionLink
       return (
         <NextSectionLink
-          title="You’ve reach the end of this topic."
-          subTitle="Proceed to the next topic"
+          title="You've reached the end of this topic."
+          subtitle="Proceed to the next topic"
           nextTitle={data.title}
           url={"/courses/" + courseSlug + data.url_path}
         />
@@ -108,8 +108,8 @@ const NextPage: React.FC<NextPageProps> = ({ chapterId, currentPageId }) => {
     return (
       // Chapter exists, but next chapter not open yet.
       <NextSectionLink
-        title="Impressive! You’ve reach the end of this chapter."
-        subTitle="Please wait until the next chapter opens"
+        title="Impressive! You've reached the end of this chapter."
+        subtitle="Please wait until the next chapter opens"
         nextTitle={closedUntil}
       />
     )

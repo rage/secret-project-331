@@ -1,10 +1,9 @@
 import { css } from "@emotion/css"
 import { DiffEditor } from "@monaco-editor/react"
-import { useRouter } from "next/router"
 import React, { useState } from "react"
 import { useQuery } from "react-query"
 
-import { fetchHistoryForPage, restorePage } from "../services/backend/pages"
+import { fetchHistoryForPage } from "../services/backend/pages"
 import { PageHistory } from "../shared-module/bindings"
 
 import HistoryList from "./lists/HistoryList"

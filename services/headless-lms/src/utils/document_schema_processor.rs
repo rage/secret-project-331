@@ -66,7 +66,7 @@ impl GutenbergBlock {
             "moocfi/hero-section",
             serde_json::json!({
                 "title": title.to_string(),
-                "subTitle": sub_title.to_string()
+                "subtitle": sub_title.to_string()
             }),
         )
     }

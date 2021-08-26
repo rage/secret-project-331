@@ -7,6 +7,8 @@ import {
   NewSubmission,
   Page,
   PageRoutingDataWithChapterStatus,
+  PageSearchRequest,
+  PageSearchResult,
   PageWithExercises,
   SubmissionResult,
   UserProgress,
@@ -125,6 +127,24 @@ export const fetchPageUrl = async (pageId: string): Promise<string> => {
 
 export const postSubmission = async (newSubmission: NewSubmission): Promise<SubmissionResult> => {
   return (await courseMaterialClient.post(`/submissions`, newSubmission)).data
+}
+
+export const searchPagesWithPhrase = async (
+  searchRequest: PageSearchRequest,
+  courseId: string,
+): Promise<PageSearchResult[]> => {
+  return (
+    await courseMaterialClient.post(`/courses/${courseId}/search-pages-with-phrase`, searchRequest)
+  ).data
+}
+
+export const searchPagesWithWords = async (
+  searchRequest: PageSearchRequest,
+  courseId: string,
+): Promise<PageSearchResult[]> => {
+  return (
+    await courseMaterialClient.post(`/courses/${courseId}/search-pages-with-words`, searchRequest)
+  ).data
 }
 
 export const postFeedback = async (

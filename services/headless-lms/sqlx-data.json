@@ -42,6 +42,67 @@
       "nullable": [false]
     }
   },
+  "04645a53e341f79dfc672f29d9478696a68544d6a81c7dc8d95be4f62e2658b8": {
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  course_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number\nFROM pages\nWHERE chapter_id = $1\n  AND deleted_at IS NULL;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "chapter_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "url_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 8,
+          "name": "content",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false, true, false, false, true, false, false]
+    }
+  },
   "054314b5158a6e88f7dd504aad96ca35c0efd3f4bca8d874071bd40415927b8e": {
     "query": "\nSELECT user_id,\n  to_jsonb(array_agg(to_jsonb(uue) - 'email' - 'user_id')) AS points_for_each_chapter\nFROM (\n    SELECT u.email,\n      u.id AS user_id,\n      c.chapter_number,\n      SUM(ues.score_given) AS points_for_chapter\n    FROM user_exercise_states ues\n      JOIN users u ON u.id = ues.user_id\n      JOIN exercises e ON e.id = ues.exercise_id\n      JOIN chapters c on e.chapter_id = c.id\n    WHERE ues.course_instance_id = $1\n      AND ues.deleted_at IS NULL\n      AND c.deleted_at IS NULL\n      AND u.deleted_at IS NULL\n      AND e.deleted_at IS NULL\n    GROUP BY u.email,\n      u.id,\n      c.chapter_number\n  ) as uue\nGROUP BY user_id\n\n",
     "describe": {
@@ -187,6 +248,113 @@
         "Left": ["Uuid", "Uuid", "Uuid"]
       },
       "nullable": [false, false, false, false, false, true, true, false, false]
+    }
+  },
+  "0b0fa131d6c80a574ffef7b180d6e3eb695611446b3abf82398739bf693b5ecc": {
+    "query": "\nUPDATE pages\nSET content = $2,\n  url_path = $3,\n  title = $4,\n  chapter_id = $5\nWHERE id = $1\nRETURNING id,\n  created_at,\n  updated_at,\n  course_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "chapter_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "url_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 8,
+          "name": "content",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Jsonb", "Varchar", "Varchar", "Uuid"]
+      },
+      "nullable": [false, false, false, false, true, false, false, true, false, false]
+    }
+  },
+  "0eb1973f9ce1c28fdf44969a8691da1e88b58501a1eff1e236eed1310dfe2464": {
+    "query": "\n-- common table expression for the search term tsquery so that we don't have to repeat it many times\nWITH cte as (\n    -- Converts the search term to a phrase search with phraseto_tsquery but appends ':*' to the last word so that it\n    -- becomes a prefix match. This way the search will also contain results when the last word in the search term\n    -- is only partially typed. Note that if to_tsquery($4) decides to stem the word, the replacement will be skipped.\n    SELECT ts_rewrite(\n        phraseto_tsquery($2::regconfig, $3),\n        to_tsquery($4),\n        to_tsquery($4 || ':*')\n    ) as query\n)\nSELECT id,\n    ts_rank(\n    content_search,\n    (\n        SELECT query\n        from cte\n    )\n    ) as rank,\n    ts_headline(\n    $2::regconfig,\n    title,\n    (\n        SELECT query\n        from cte\n    )\n    ) as title_headline,\n    ts_headline(\n    $2::regconfig,\n    content_search_original_text,\n    (\n        SELECT query\n        from cte\n    )\n    ) as content_headline,\n    url_path\nFROM pages\nWHERE course_id = $1\n    AND deleted_at IS NULL\n    AND content_search @@ (\n    SELECT query\n    from cte\n    )\nORDER BY rank DESC\nLIMIT 50;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "rank",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 2,
+          "name": "title_headline",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 3,
+          "name": "content_headline",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 4,
+          "name": "url_path",
+          "type_info": "Varchar"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          {
+            "Custom": {
+              "name": "regconfig",
+              "kind": "Simple"
+            }
+          },
+          "Text",
+          "Text"
+        ]
+      },
+      "nullable": [false, null, null, null, false]
     }
   },
   "0f8ebb278dc89487e24c2b9729baa1c012e2242bfa7b984ec77b1df0a84a6a7a": {
@@ -786,67 +954,6 @@
       "nullable": [false, false, false, false, false, false, false, false, false]
     }
   },
-  "216274644eb91791c11037c6ce36bed38f64b1e3be53585ddce293db048a3513": {
-    "query": "\nUPDATE pages\nSET\n    content = $2,\n    url_path = $3,\n    title = $4,\n    chapter_id = $5\nWHERE id = $1\nRETURNING *\n            ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 4,
-          "name": "content",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 5,
-          "name": "url_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 6,
-          "name": "title",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 7,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 8,
-          "name": "chapter_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 9,
-          "name": "order_number",
-          "type_info": "Int4"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Jsonb", "Varchar", "Varchar", "Uuid"]
-      },
-      "nullable": [false, false, false, false, false, false, false, true, true, false]
-    }
-  },
   "2279c575464d39a9a4fa338b3d839de39e68c2453dd51b544f6459ab0f72b238": {
     "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_id,\n  starts_at,\n  ends_at,\n  name,\n  description,\n  variant_status as \"variant_status: VariantStatus\"\nFROM course_instances\nWHERE course_id = $1\n  AND deleted_at IS NULL;\n        ",
     "describe": {
@@ -984,67 +1091,6 @@
         "Left": ["Uuid", "Jsonb", "Uuid", "Uuid", "Uuid", "Uuid"]
       },
       "nullable": [false, false, false, true, false, false, false, true, true, true, false, false]
-    }
-  },
-  "2435b3f81b4db4a7dcc1a040f0f69d0e804f1ed1d5ef53b1306d64e40f23d019": {
-    "query": "\nSELECT *\nFROM pages\nWHERE chapter_id = $1\n  AND deleted_at IS NULL\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 4,
-          "name": "content",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 5,
-          "name": "url_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 6,
-          "name": "title",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 7,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 8,
-          "name": "chapter_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 9,
-          "name": "order_number",
-          "type_info": "Int4"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, false, false, false, false, false, true, true, false]
     }
   },
   "24ddc7ca96ee217a658068a76c26fbf24a3c89ecf4f6bba29b498fb959c95779": {
@@ -1225,6 +1271,67 @@
       "nullable": []
     }
   },
+  "275d3f93d584c5c015d7bb090e12ee2891e1257c28a1049a5a741389c695c602": {
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  course_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number\nFROM pages\nWHERE id = $1;\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "chapter_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "url_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 8,
+          "name": "content",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false, true, false, false, true, false, false]
+    }
+  },
   "2abaee65f94d36fb9360d9eb3232dcb45b7aa9badbc06563c2e9fc1e2c53e357": {
     "query": "\n  INSERT INTO page_history (\n    page_id,\n    title,\n    content,\n    history_change_reason,\n    author_user_id,\n    restored_from_id\n  )\nVALUES ($1, $2, $3, $4, $5, $6)\nRETURNING id\n",
     "describe": {
@@ -1380,113 +1487,6 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, false, true, false, true, false, false, false, false]
-    }
-  },
-  "30742ffe2fe330d87178cd8ef3ded27340c2215ee81a4d1c7cacc05d2e5d6716": {
-    "query": "\nSELECT *\nFROM courses\nWHERE slug = $1\n  AND deleted_at IS NULL\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "organization_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 6,
-          "name": "slug",
-          "type_info": "Varchar"
-        }
-      ],
-      "parameters": {
-        "Left": ["Text"]
-      },
-      "nullable": [false, false, false, false, false, true, false]
-    }
-  },
-  "3112b033a77d157f59f47880f2e44143c4cf49017c96939a4b1b01622b8ae788": {
-    "query": "\n  INSERT INTO\n    pages(course_id, content, url_path, title, order_number, chapter_id)\n  VALUES($1, $2, $3, $4, $5, $6)\n  RETURNING *\n          ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 4,
-          "name": "content",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 5,
-          "name": "url_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 6,
-          "name": "title",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 7,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 8,
-          "name": "chapter_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 9,
-          "name": "order_number",
-          "type_info": "Int4"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Jsonb", "Varchar", "Varchar", "Int4", "Uuid"]
-      },
-      "nullable": [false, false, false, false, false, false, false, true, true, false]
     }
   },
   "350d3d019cdabf32d9a3a8dbe862beff94d30edfbb31e5831072bb5d01997520": {
@@ -1710,67 +1710,6 @@
       "nullable": [true]
     }
   },
-  "3fe37166761219fc5d832aff78c2ae81f963c9b1fa42ac8519e80bc436c54200": {
-    "query": "SELECT * FROM pages WHERE course_id = $1 AND deleted_at IS NULL;",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 4,
-          "name": "content",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 5,
-          "name": "url_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 6,
-          "name": "title",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 7,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 8,
-          "name": "chapter_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 9,
-          "name": "order_number",
-          "type_info": "Int4"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, false, false, false, false, false, true, true, false]
-    }
-  },
   "40ee92fefa0c26c98e690f9a50b69cae49ae3ec5577ca4fb497816b875e4f921": {
     "query": "\nINSERT INTO block_feedback(feedback_id, block_id, block_text)\nVALUES ($1, $2, $3)\n",
     "describe": {
@@ -1842,6 +1781,67 @@
       "nullable": [false, false, false, false, false, false, true, true, true, true]
     }
   },
+  "43ae3ea1dba7ba3ebfe0108cd568fa4a7215260a0e1ecf4f9fe4b09490055d4b": {
+    "query": "\nUPDATE pages\nSET deleted_at = now()\nWHERE id = $1\nRETURNING id,\n  created_at,\n  updated_at,\n  course_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number\n          ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "chapter_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "url_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 8,
+          "name": "content",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false, true, false, false, true, false, false]
+    }
+  },
   "43bd86b52b6834f11c68bbe73feef8a34f444934be89ac77bdf9bfe6d3f0f910": {
     "query": "\nUPDATE chapters\nSET chapter_image_path = $1\nWHERE id = $2\nRETURNING *;",
     "describe": {
@@ -1901,52 +1901,6 @@
         "Left": ["Varchar", "Uuid"]
       },
       "nullable": [false, false, false, false, false, false, true, true, true, true]
-    }
-  },
-  "45a3380b45f6c12e86e8ed31d0e2c7490f2487c08d6cedc711cecabc0fbf6af7": {
-    "query": "\nUPDATE courses\n    SET deleted_at = now()\nWHERE\n    id = $1\nRETURNING *\n    ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "organization_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 6,
-          "name": "slug",
-          "type_info": "Varchar"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, false, false, false, true, false]
     }
   },
   "4b1ff5bd633537d7159368dc3d07a0cdedaffffe39bddca03731fd3c6f04687b": {
@@ -2067,6 +2021,67 @@
       "nullable": []
     }
   },
+  "53e47e56c97789a1f57b1faf4d610830f24779c26721e7b4ab96e41bd5653bda": {
+    "query": "\nSELECT pages.id,\n  pages.created_at,\n  pages.updated_at,\n  pages.course_id,\n  pages.chapter_id,\n  pages.url_path,\n  pages.title,\n  pages.deleted_at,\n  pages.content,\n  pages.order_number\nFROM pages\n  JOIN courses ON (pages.course_id = courses.id)\nWHERE courses.slug = $1\n  AND url_path = $2\n  AND courses.deleted_at IS NULL\n  AND pages.deleted_at IS NULL;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "chapter_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "url_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 8,
+          "name": "content",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Text", "Text"]
+      },
+      "nullable": [false, false, false, false, true, false, false, true, false, false]
+    }
+  },
   "576035aeb9e877869815eabed2f331073438c344f65a06022c74c23592c51dd6": {
     "query": "\nSELECT opens_at\nFROM chapters\nWHERE id = $1\n",
     "describe": {
@@ -2083,8 +2098,8 @@
       "nullable": [true]
     }
   },
-  "59560f932987006723205109989ebf808850875e7c312e4aa592953a6a1620d6": {
-    "query": "\nSELECT *\nFROM pages\nWHERE id = $1\n",
+  "5bd1420faa6d8b8cbe8c66bb6a23f8f4b575437837e33233cc6657702d360979": {
+    "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text\nFROM courses\nWHERE deleted_at IS NULL;\n",
     "describe": {
       "columns": [
         {
@@ -2094,115 +2109,44 @@
         },
         {
           "ordinal": 1,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
           "name": "created_at",
           "type_info": "Timestamptz"
         },
         {
-          "ordinal": 2,
+          "ordinal": 3,
           "name": "updated_at",
           "type_info": "Timestamptz"
         },
         {
-          "ordinal": 3,
-          "name": "course_id",
+          "ordinal": 4,
+          "name": "organization_id",
           "type_info": "Uuid"
         },
         {
-          "ordinal": 4,
-          "name": "content",
-          "type_info": "Jsonb"
-        },
-        {
           "ordinal": 5,
-          "name": "url_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 6,
-          "name": "title",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 7,
           "name": "deleted_at",
           "type_info": "Timestamptz"
         },
         {
-          "ordinal": 8,
-          "name": "chapter_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 9,
-          "name": "order_number",
-          "type_info": "Int4"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, false, false, false, false, false, true, true, false]
-    }
-  },
-  "5dab5d2b5b6c50c979d750577afcaad172f3292daeba48bfe0ac1c208351b414": {
-    "query": "SELECT * FROM pages WHERE chapter_id = $1 AND deleted_at IS NULL;",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 4,
-          "name": "content",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 5,
-          "name": "url_path",
-          "type_info": "Varchar"
-        },
-        {
           "ordinal": 6,
-          "name": "title",
+          "name": "slug",
           "type_info": "Varchar"
         },
         {
           "ordinal": 7,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 8,
-          "name": "chapter_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 9,
-          "name": "order_number",
-          "type_info": "Int4"
+          "name": "content_search_language",
+          "type_info": "Text"
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": []
       },
-      "nullable": [false, false, false, false, false, false, false, true, true, false]
+      "nullable": [false, false, false, false, false, true, false, null]
     }
   },
   "5e92276cd35f5b56591706b2e6b9e5229aba70df37b21a2654298bf9a0caf783": {
@@ -2339,6 +2283,80 @@
       "nullable": [false, false, false, false, true, true]
     }
   },
+  "62c8f42868c240f1743b7387f7aeb6b21dd5c53cd379536f888f2764924d6d51": {
+    "query": "\nINSERT INTO pages(\n    course_id,\n    content,\n    url_path,\n    title,\n    order_number,\n    chapter_id,\n    content_search_language\n  )\nVALUES($1, $2, $3, $4, $5, $6, $7::regconfig)\nRETURNING id,\n  created_at,\n  updated_at,\n  course_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number\n          ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "chapter_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "url_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 8,
+          "name": "content",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Jsonb",
+          "Varchar",
+          "Varchar",
+          "Int4",
+          "Uuid",
+          {
+            "Custom": {
+              "name": "regconfig",
+              "kind": "Simple"
+            }
+          }
+        ]
+      },
+      "nullable": [false, false, false, false, true, false, false, true, false, false]
+    }
+  },
   "6452399d7421bdd1ea2cc99b432783f3aa24444c1e1dfbd51d76d33869584073": {
     "query": "\n  UPDATE exercise_tasks\n  SET deleted_at = now()\n  WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1)\n          ",
     "describe": {
@@ -2347,6 +2365,108 @@
         "Left": ["Uuid"]
       },
       "nullable": []
+    }
+  },
+  "659ef019a3cfef6f551f833dc430bab2f6efdf650ea60bac2db9043c2752f8b1": {
+    "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text\nFROM courses\nWHERE id = $1;\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "organization_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "slug",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "content_search_language",
+          "type_info": "Text"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false, false, true, false, null]
+    }
+  },
+  "65b5d552e04b27d97d4cb0ad5a49696c0a775d93fd0eaf5184b6b3af223b0fdc": {
+    "query": "\nUPDATE courses\nSET deleted_at = now()\nWHERE id = $1\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "organization_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "slug",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "content_search_language",
+          "type_info": "Text"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false, false, true, false, null]
     }
   },
   "678a1a79a8b5767c8d622268b1b0a06e92e8bc61124e367e83752b9064e82cac": {
@@ -2464,6 +2584,57 @@
         "Left": ["Uuid", "Uuid", "Uuid", "Uuid"]
       },
       "nullable": []
+    }
+  },
+  "701ef0d241d13eabb67f961011b1b6dd6447d5ac716a3c78217765880d4d2fed": {
+    "query": "\nUPDATE courses\nSET name = $1\nWHERE id = $2\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "organization_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "slug",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "content_search_language",
+          "type_info": "Text"
+        }
+      ],
+      "parameters": {
+        "Left": ["Varchar", "Uuid"]
+      },
+      "nullable": [false, false, false, false, false, true, false, null]
     }
   },
   "710ccb21f84c2c1777024e07f260afd8d6e826c2e48de101ec721f2f58d2ea12": {
@@ -2728,110 +2899,8 @@
       "nullable": [false]
     }
   },
-  "7f1cb8b1bbc4ed001fa4fc6dcbbc90e30e0d509e64de0d75461ae1c82a285268": {
-    "query": "UPDATE chapters SET opens_at = $1 WHERE id = $2",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Timestamptz", "Uuid"]
-      },
-      "nullable": []
-    }
-  },
-  "80687e3c73c81c8048da59d2839fee7d0b79afe50d7289b4395cd8ec57c4c8d6": {
-    "query": "SELECT * FROM pages WHERE id = $1;",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 4,
-          "name": "content",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 5,
-          "name": "url_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 6,
-          "name": "title",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 7,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 8,
-          "name": "chapter_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 9,
-          "name": "order_number",
-          "type_info": "Int4"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, false, false, false, false, false, true, true, false]
-    }
-  },
-  "80e3a4c941c63178fdaead8c722861bc347edfd225b71c28bdebbe64efbb42f8": {
-    "query": "\nINSERT INTO exercise_tasks(id, exercise_id, exercise_type, assignment, public_spec, private_spec, model_solution_spec)\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nON CONFLICT (id) DO UPDATE\nSET exercise_id=$2, exercise_type=$3, assignment=$4, public_spec=$5, private_spec=$6, deleted_at=NULL\nRETURNING id, exercise_type, assignment, private_spec;\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "exercise_type",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "assignment",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 3,
-          "name": "private_spec",
-          "type_info": "Jsonb"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid", "Varchar", "Jsonb", "Jsonb", "Jsonb", "Jsonb"]
-      },
-      "nullable": [false, false, false, true]
-    }
-  },
-  "8325e1b18c07ff6234f3328ccdedce0f62d782501e98ee4598d473453836ff59": {
-    "query": "SELECT * FROM courses WHERE id = $1;",
+  "7f035c6d52117a8e40afaa1ecca3c0087117214dd848a0918659fc6a5e2c128d": {
+    "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text\nFROM courses\nWHERE organization_id = $1\n  AND deleted_at IS NULL;\n        ",
     "describe": {
       "columns": [
         {
@@ -2868,12 +2937,58 @@
           "ordinal": 6,
           "name": "slug",
           "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "content_search_language",
+          "type_info": "Text"
         }
       ],
       "parameters": {
         "Left": ["Uuid"]
       },
-      "nullable": [false, false, false, false, false, true, false]
+      "nullable": [false, false, false, false, false, true, false, null]
+    }
+  },
+  "7f1cb8b1bbc4ed001fa4fc6dcbbc90e30e0d509e64de0d75461ae1c82a285268": {
+    "query": "UPDATE chapters SET opens_at = $1 WHERE id = $2",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Timestamptz", "Uuid"]
+      },
+      "nullable": []
+    }
+  },
+  "80e3a4c941c63178fdaead8c722861bc347edfd225b71c28bdebbe64efbb42f8": {
+    "query": "\nINSERT INTO exercise_tasks(id, exercise_id, exercise_type, assignment, public_spec, private_spec, model_solution_spec)\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nON CONFLICT (id) DO UPDATE\nSET exercise_id=$2, exercise_type=$3, assignment=$4, public_spec=$5, private_spec=$6, deleted_at=NULL\nRETURNING id, exercise_type, assignment, private_spec;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "exercise_type",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "assignment",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 3,
+          "name": "private_spec",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Varchar", "Jsonb", "Jsonb", "Jsonb", "Jsonb"]
+      },
+      "nullable": [false, false, false, true]
     }
   },
   "8355f2e2500598d1b6fb129f1c7876b2415df0f4235a164a98b0414f8445c84b": {
@@ -3077,6 +3192,52 @@
       "nullable": [false, false, false, false, false, true, true, false, false]
     }
   },
+  "87848a65cafd33187ebbc6ed99b0a6eaaff44a09d3efb17759ee3604fc39f49c": {
+    "query": "\n-- common table expression for the search term tsquery so that we don't have to repeat it many times\nWITH cte as (\n    -- Converts the search term to a word search with ands between the words with plainto_tsquery but appends ':*' to the\n    -- last word so that it  becomes a prefix match. This way the search will also contain results when the last word in\n    -- the search term is only partially typed. Note that if to_tsquery($4) decides to stem the word, the replacement\n    -- will be skipped.\n    SELECT ts_rewrite(\n        plainto_tsquery($2::regconfig, $3),\n        to_tsquery($4),\n        to_tsquery($4 || ':*')\n    ) as query\n)\nSELECT id,\n    ts_rank(\n    content_search,\n    (\n        SELECT query\n        from cte\n    )\n    ) as rank,\n    ts_headline(\n    $2::regconfig,\n    title,\n    (\n        SELECT query\n        from cte\n    )\n    ) as title_headline,\n    ts_headline(\n    $2::regconfig,\n    content_search_original_text,\n    (\n        SELECT query\n        from cte\n    )\n    ) as content_headline,\n    url_path\nFROM pages\nWHERE course_id = $1\n    AND deleted_at IS NULL\n    AND content_search @@ (\n    SELECT query\n    from cte\n    )\nORDER BY rank DESC\nLIMIT 50;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "rank",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 2,
+          "name": "title_headline",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 3,
+          "name": "content_headline",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 4,
+          "name": "url_path",
+          "type_info": "Varchar"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          {
+            "Custom": {
+              "name": "regconfig",
+              "kind": "Simple"
+            }
+          },
+          "Text",
+          "Text"
+        ]
+      },
+      "nullable": [false, null, null, null, false]
+    }
+  },
   "88890869dabe25130451185ec231260f8cdc6121649923e7209346dded7d0014": {
     "query": "SELECT organization_id FROM courses WHERE id = $1",
     "describe": {
@@ -3128,6 +3289,67 @@
         "Left": ["Uuid", "Varchar"]
       },
       "nullable": [false]
+    }
+  },
+  "8e2bba0afa206e70e5203c0736688fc4fc5beda06886c1d1c555f1fe39224051": {
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  course_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number\nFROM pages\nWHERE id = $1;\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "chapter_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "url_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 8,
+          "name": "content",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false, true, false, false, true, false, false]
     }
   },
   "902398ca29a18eb7bce969348d7d90eb0b3cb8a95cbdd228f89df0eaa7cf5eff": {
@@ -3820,52 +4042,6 @@
       "nullable": [false, false, false, true, false, true, true, true, true, false]
     }
   },
-  "b7c1d6419ba5258f9768f21c871f7e20ec929aeb83445e8a09a5cbd4e9425def": {
-    "query": "SELECT * FROM courses WHERE deleted_at IS NULL;",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "organization_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 6,
-          "name": "slug",
-          "type_info": "Varchar"
-        }
-      ],
-      "parameters": {
-        "Left": []
-      },
-      "nullable": [false, false, false, false, false, true, false]
-    }
-  },
   "b9159ddd17dc391f0bd7b726633dff02d1530aa2b0b270b4947d749442850451": {
     "query": "UPDATE chapters SET front_page_id = $1 WHERE id = $2",
     "describe": {
@@ -3890,52 +4066,6 @@
         "Left": ["Varchar"]
       },
       "nullable": [false]
-    }
-  },
-  "c1a41f61331e83562da62a9ec828d2489eedd1f6e03b6fb8865faa71ddec8f27": {
-    "query": "SELECT * FROM courses WHERE organization_id = $1 AND deleted_at IS NULL;",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "organization_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 6,
-          "name": "slug",
-          "type_info": "Varchar"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, false, false, false, true, false]
     }
   },
   "c2342a617190439d369a3ae3764d9941e40a7dd6f428fe5b49cd50fa33af471d": {
@@ -4132,8 +4262,8 @@
       "nullable": [null, null, null]
     }
   },
-  "cd77e9c666eedf778257a2adede300821c26ef4b6f8fb0011eea940fd3fe2a6b": {
-    "query": "\n  UPDATE pages\n  SET\n    deleted_at = now()\n  WHERE id = $1\n  RETURNING *\n          ",
+  "c8cba49645299bcfd09dc59aa60fbb482559697dbab470a301eb66a68d85e8ed": {
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  course_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number\nFROM pages\nWHERE chapter_id = $1\n  AND deleted_at IS NULL\n        ",
     "describe": {
       "columns": [
         {
@@ -4158,8 +4288,8 @@
         },
         {
           "ordinal": 4,
-          "name": "content",
-          "type_info": "Jsonb"
+          "name": "chapter_id",
+          "type_info": "Uuid"
         },
         {
           "ordinal": 5,
@@ -4178,8 +4308,8 @@
         },
         {
           "ordinal": 8,
-          "name": "chapter_id",
-          "type_info": "Uuid"
+          "name": "content",
+          "type_info": "Jsonb"
         },
         {
           "ordinal": 9,
@@ -4190,7 +4320,7 @@
       "parameters": {
         "Left": ["Uuid"]
       },
-      "nullable": [false, false, false, false, false, false, false, true, true, false]
+      "nullable": [false, false, false, false, true, false, false, true, false, false]
     }
   },
   "cf1c81b073e3d9f2a1772e3ce72336ca4500ac2b059673ce1f062189e0bd4dee": {
@@ -4453,52 +4583,6 @@
       "nullable": [false, false, false, true, false, false, false, true, true, true, false, false]
     }
   },
-  "d7340527a3cb9d66bb8c2c60a58d37ed8cb4eaa8a1a4efdcb29713328066141b": {
-    "query": "\n    INSERT INTO\n      courses(id, name, slug, organization_id)\n    VALUES($1, $2, $3, $4)\n    RETURNING *\n            ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "organization_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 6,
-          "name": "slug",
-          "type_info": "Varchar"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Varchar", "Varchar", "Uuid"]
-      },
-      "nullable": [false, false, false, false, false, true, false]
-    }
-  },
   "d741c2e76aa58f5fe945e4a96f0f598d29b7fd6e2552b3afdc183ec445938c40": {
     "query": "SELECT course_id from gradings where id = $1",
     "describe": {
@@ -4583,6 +4667,57 @@
       "nullable": [false, false, false, true, false, true, true, true, true, false]
     }
   },
+  "d9ad1b210dbdee5359902e5b2630eb04e06f8520f09b0a8ae3f6738339ebfafd": {
+    "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text\nFROM courses\nWHERE slug = $1\n  AND deleted_at IS NULL\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "organization_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "slug",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "content_search_language",
+          "type_info": "Text"
+        }
+      ],
+      "parameters": {
+        "Left": ["Text"]
+      },
+      "nullable": [false, false, false, false, false, true, false, null]
+    }
+  },
   "d9d230419fb264ebddeaa022bc8ac0061d8caa8bf83e3a5742a140bd056f3005": {
     "query": "\nupdate email_deliveries\nset sent = FALSE,\n  error = $1\nwhere id = $2;\n    ",
     "describe": {
@@ -4593,8 +4728,8 @@
       "nullable": []
     }
   },
-  "da896f936aafd16dba8e38e8e97b7907310051fa453acf242dccab1776995e48": {
-    "query": "SELECT pages.* FROM pages\n        JOIN courses ON (pages.course_id = courses.id)\n        WHERE courses.slug = $1\n        AND url_path = $2\n        AND courses.deleted_at IS NULL\n        AND pages.deleted_at IS NULL;",
+  "daf0fcf55ba01cbadc64eb1bdf32641707cffabe7e500cfbf10058e67463ecb5": {
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  course_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number\nFROM pages\nWHERE course_id = $1\n  AND deleted_at IS NULL;\n        ",
     "describe": {
       "columns": [
         {
@@ -4619,8 +4754,8 @@
         },
         {
           "ordinal": 4,
-          "name": "content",
-          "type_info": "Jsonb"
+          "name": "chapter_id",
+          "type_info": "Uuid"
         },
         {
           "ordinal": 5,
@@ -4639,8 +4774,8 @@
         },
         {
           "ordinal": 8,
-          "name": "chapter_id",
-          "type_info": "Uuid"
+          "name": "content",
+          "type_info": "Jsonb"
         },
         {
           "ordinal": 9,
@@ -4649,9 +4784,9 @@
         }
       ],
       "parameters": {
-        "Left": ["Text", "Text"]
+        "Left": ["Uuid"]
       },
-      "nullable": [false, false, false, false, false, false, false, true, true, false]
+      "nullable": [false, false, false, false, true, false, false, true, false, false]
     }
   },
   "db64bea6f7dc10dd47f4c41c5efa78c95cf5b6d97fcfcefda66847c20861ac56": {
@@ -4821,67 +4956,6 @@
         "Left": ["Uuid"]
       },
       "nullable": []
-    }
-  },
-  "e16e22ef55075527f4ade3f3aed1f0f43df016e3dcf58cda91cbee270d7ae0cf": {
-    "query": "\nSELECT p.*\nFROM pages p\nWHERE p.chapter_id = $1\n  AND p.deleted_at IS NULL\n  AND p.id NOT IN (\n    SELECT front_page_id\n    FROM chapters c\n    WHERE c.front_page_id = p.id\n  );\n    ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 4,
-          "name": "content",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 5,
-          "name": "url_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 6,
-          "name": "title",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 7,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 8,
-          "name": "chapter_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 9,
-          "name": "order_number",
-          "type_info": "Int4"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, false, false, false, false, false, true, true, false]
     }
   },
   "e2fe96906db5d05fa1a8b0aabc25e9027c386b349f11d4c26bcf7db1864af6cf": {
@@ -5109,6 +5183,57 @@
       "nullable": [false, false, false, false, true, false, true, false, false, false, false]
     }
   },
+  "ed1bdc98b34ff18090caaa263447fdb9412e5e3a29f81c53928c05269bce7d2f": {
+    "query": "\n    INSERT INTO\n      courses(id, name, slug, organization_id)\n    VALUES($1, $2, $3, $4)\n    RETURNING id,\n    name,\n    created_at,\n    updated_at,\n    organization_id,\n    deleted_at,\n    slug,\n    content_search_language::text\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "organization_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "slug",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "content_search_language",
+          "type_info": "Text"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Varchar", "Varchar", "Uuid"]
+      },
+      "nullable": [false, false, false, false, false, true, false, null]
+    }
+  },
   "f2a546b8283eeeca75a1ff205d1a2e836b1c40dff0b0ac8bb47e1639138484e7": {
     "query": "\nSELECT feedback.id,\n  feedback.user_id,\n  feedback.course_id,\n  feedback.feedback_given,\n  feedback.marked_as_read,\n  feedback.created_at,\n  array_agg(block_feedback.block_id) filter (where block_feedback.block_id IS NOT NULL) AS \"block_ids: Vec<Uuid>\",\n  array_agg(block_feedback.block_text) filter (where block_feedback.block_id IS NOT NULL) AS \"block_texts: Vec<Option<String>>\"\nFROM feedback\n  LEFT JOIN block_feedback ON block_feedback.feedback_id = feedback.id\nWHERE course_id = $1\n  AND feedback.marked_as_read = $2\n  AND feedback.deleted_at IS NULL\n  AND block_feedback.deleted_at IS NULL\nGROUP BY feedback.id,\n  feedback.user_id,\n  feedback.course_id,\n  feedback.feedback_given,\n  feedback.marked_as_read,\n  feedback.created_at\nLIMIT $3\nOFFSET $4\n",
     "describe": {
@@ -5247,52 +5372,6 @@
         ]
       },
       "nullable": [false]
-    }
-  },
-  "f5021b2234666978c47226d099346da7f0eaaa920874cbccff14bfd79c2282a9": {
-    "query": "\nUPDATE courses\n    SET name = $1\nWHERE\n    id = $2\n    RETURNING *\n    ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "organization_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 6,
-          "name": "slug",
-          "type_info": "Varchar"
-        }
-      ],
-      "parameters": {
-        "Left": ["Varchar", "Uuid"]
-      },
-      "nullable": [false, false, false, false, false, true, false]
     }
   },
   "f782efea0a82ee30ae7f4f3df2af17005177e1ba08ebf88d8443e88afb97627a": {
@@ -5673,6 +5752,67 @@
         "Left": ["Uuid"]
       },
       "nullable": []
+    }
+  },
+  "ff4503933c433160b5a5eaab5275a8e7a442bb50b27521b8b1387ad05989be9b": {
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  course_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number\nFROM pages p\nWHERE p.chapter_id = $1\n  AND p.deleted_at IS NULL\n  AND p.id NOT IN (\n    SELECT front_page_id\n    FROM chapters c\n    WHERE c.front_page_id = p.id\n  );\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "chapter_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "url_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 8,
+          "name": "content",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false, true, false, false, true, false, false]
     }
   }
 }

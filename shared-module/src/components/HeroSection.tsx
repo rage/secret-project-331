@@ -38,21 +38,21 @@ const TextBox = styled.div`
   }
 `
 export interface HeroSectionProps {
-  subTitle: string
+  subtitle: string
   title: string
   bg?: string
 }
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & HeroSectionProps
 
-const HeroSection: React.FC<CardProps> = ({ title, subTitle }) => {
+const HeroSection: React.FC<CardProps> = ({ title, subtitle }) => {
   return (
     <ThemeProvider theme={theme}>
       <>
         <HeroWrapper>
           <TextBox>
             <h1>{title}</h1>
-            <span>{subTitle}</span>
+            <span>{subtitle}</span>
           </TextBox>
         </HeroWrapper>
       </>

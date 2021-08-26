@@ -5,7 +5,7 @@ import HeroSectionSave from "./HeroSectionSave"
 
 export interface HeroSectionAttributes {
   title: string
-  subTitle: string
+  subtitle: string
 }
 
 const HeroSectionConfiguration: BlockConfiguration<HeroSectionAttributes> = {
@@ -19,7 +19,7 @@ const HeroSectionConfiguration: BlockConfiguration<HeroSectionAttributes> = {
       selector: "h2",
       default: "Hero section title...",
     },
-    subTitle: {
+    subtitle: {
       type: "string",
       source: "html",
       selector: "h3",

@@ -19,10 +19,11 @@ pub struct DatabaseChapter {
     pub name: String,
     pub course_id: Uuid,
     pub deleted_at: Option<DateTime<Utc>>,
-    pub chapter_image: Option<String>,
+    pub chapter_image_path: Option<String>,
     pub chapter_number: i32,
     pub front_page_id: Option<Uuid>,
     pub opens_at: Option<DateTime<Utc>>,
+    pub copied_from: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -37,6 +38,7 @@ pub struct Chapter {
     pub chapter_number: i32,
     pub front_page_id: Option<Uuid>,
     pub opens_at: Option<DateTime<Utc>>,
+    pub copied_from: Option<Uuid>,
 }
 
 impl Chapter {
@@ -45,7 +47,7 @@ impl Chapter {
         file_store: &impl FileStore,
         app_conf: &ApplicationConfiguration,
     ) -> Self {
-        let chapter_image_url = chapter.chapter_image.as_ref().map(|image| {
+        let chapter_image_url = chapter.chapter_image_path.as_ref().map(|image| {
             let path = PathBuf::from(image);
             file_store.get_download_url(path.as_path(), app_conf)
         });
@@ -60,6 +62,7 @@ impl Chapter {
             chapter_number: chapter.chapter_number,
             front_page_id: chapter.front_page_id,
             opens_at: chapter.opens_at,
+            copied_from: chapter.copied_from,
         }
     }
 }
@@ -220,19 +223,19 @@ RETURNING *;
     Ok(res)
 }
 
-pub async fn update_chapter_image(
+pub async fn update_chapter_image_path(
     conn: &mut PgConnection,
     chapter_id: Uuid,
-    chapter_image: Option<String>,
+    chapter_image_path: Option<String>,
 ) -> ModelResult<DatabaseChapter> {
     let updated_chapter = sqlx::query_as!(
         DatabaseChapter,
         "
 UPDATE chapters
-SET chapter_image = $1
+SET chapter_image_path = $1
 WHERE id = $2
 RETURNING *;",
-        chapter_image,
+        chapter_image_path,
         chapter_id
     )
     .fetch_one(conn)
@@ -267,10 +270,11 @@ SELECT id,
   name,
   course_id,
   deleted_at,
-  chapter_image,
+  chapter_image_path,
   chapter_number,
   front_page_id,
-  opens_at
+  opens_at,
+  copied_from
 FROM chapters
 WHERE course_id = $1
   AND deleted_at IS NULL;

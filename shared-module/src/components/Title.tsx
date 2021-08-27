@@ -1,7 +1,7 @@
 import styled from "@emotion/styled"
 import React from "react"
 
-import { baseTheme, fontWeights, typography } from "../utils"
+import { baseTheme, fontWeights, typography } from "../styles"
 
 export interface HeadingExtraProps {
   variant: "large" | "medium" | "small"

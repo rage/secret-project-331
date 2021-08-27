@@ -50,6 +50,16 @@ impl Conn {
 /// Wrapper to ensure the transaction isn't committed
 pub struct Tx<'a>(Transaction<'a, Postgres>);
 
+impl Tx<'_> {
+    pub async fn begin(&mut self) -> Tx<'_> {
+        Tx(self.0.begin().await.unwrap())
+    }
+
+    pub async fn rollback(self) {
+        self.0.rollback().await.unwrap()
+    }
+}
+
 impl<'a> AsRef<Transaction<'a, Postgres>> for Tx<'a> {
     fn as_ref(&self) -> &Transaction<'a, Postgres> {
         &self.0
@@ -90,10 +100,11 @@ pub async fn insert_data(conn: &mut PgConnection, exercise_type: &str) -> Result
         &mut *conn,
         "",
         &random_string,
+        "",
         Uuid::parse_str("8c34e601-b5db-4b33-a588-57cb6a5b1669")?,
     )
     .await?;
-    let course = models::courses::insert(&mut *conn, "", org, &random_string).await?;
+    let course = models::courses::insert(&mut *conn, "", org, &random_string, "en-US").await?;
     let instance = models::course_instances::insert(&mut *conn, course, None, None).await?;
     let chapter = models::chapters::insert(&mut *conn, "", course, 1).await?;
     let (page, page_history) = models::pages::insert(&mut *conn, course, "", "", 0, user).await?;

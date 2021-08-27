@@ -1,7 +1,7 @@
 import { Meta, Story } from "@storybook/react"
 import React from "react"
 
-import ListCourseProgress from "../src/components/ListCourseProgress"
+import ListCourseProgress from "../src/components/ExerciseList/ExerciseBox"
 
 export default {
   title: "Components/ListCourseProgress",
@@ -17,7 +17,8 @@ const Template: Story<ComponentProps> = (args: ComponentProps) => <Component {..
 export const Simple: Story<ComponentProps> = Template.bind({})
 Simple.args = {
   children: "ListCourseProgress",
-  chapterIndex: "I",
-  chapterTitle: "Introduction to everything",
+  pageIndex: 1,
+  pageTitle: "Introduction to everything",
   selected: true,
+  pageLink: "/",
 }

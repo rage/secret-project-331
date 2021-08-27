@@ -16,4 +16,5 @@ if [ -f "./services/course-material/src/types/GutenbergBlockAttributes.guard.ts"
   run_command rm ./services/course-material/src/types/GutenbergBlockAttributes.guard.ts
 fi
 
-npm run generate-guards-gutenberg
+run_command npx ts-auto-guard --export-all --paths services/course-material/src/types/GutenbergBlockAttributes.ts --project services/course-material/tsconfig.json
+run_command npx eslint --fix services/course-material/src/types/GutenbergBlockAttributes.ts services/course-material/src/types/GutenbergBlockAttributes.guard.ts

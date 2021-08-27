@@ -1,7 +1,7 @@
 import { keyframes } from "@emotion/react"
 import styled from "@emotion/styled"
 
-import { headingFont } from "../../utils"
+import { headingFont } from "../../styles"
 
 import CourseProgressExtraProps from "./index"
 

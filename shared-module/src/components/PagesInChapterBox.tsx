@@ -2,7 +2,7 @@ import styled from "@emotion/styled"
 import React from "react"
 
 import ArrowSVGIcon from "../img/arrow.svg"
-import { headingFont } from "../utils"
+import { headingFont } from "../styles"
 
 const Wrapper = styled.aside`
   border-radius: 10px;

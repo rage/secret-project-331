@@ -1,4 +1,4 @@
-import { css, cx } from "@emotion/css"
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { Fragment } from "react"
 
@@ -33,15 +33,7 @@ const Wrapper = styled.div`
     margin-right: 0;
 
     @media (min-width: 600px) {
-      margin-right: 50px;
-    }
-  }
-
-  svg {
-    transition: fill 0.2s ease-in;
-
-    :hover {
-      fill: #fe9677;
+      padding-right: 20px;
     }
   }
 `
@@ -66,9 +58,11 @@ const StyledLink = styled.a`
 `
 const Text = styled.div`
   width: 100%;
+  padding: 0;
 
   @media (min-width: 600px) {
-    width: 90%;
+    width: 100%;
+    padding: 0 2rem 0 2rem;
   }
   span {
     font-size: 16px;
@@ -76,7 +70,7 @@ const Text = styled.div`
     opacity: 0.7;
 
     @media (min-width: 600px) {
-      padding-right: 8rem;
+      /* padding: 0 rem; */
     }
   }
 `
@@ -84,11 +78,6 @@ const Links = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: end;
-`
-const StyledMOOCfi = styled(MOOCfi)`
-  svg {
-    width: 20px;
-  }
 `
 
 export interface FooterExtraProps {
@@ -114,7 +103,7 @@ const Footer: React.FC<FooterProps> = () => {
             grid-gap: 1em;
           `}
         >
-          <StyledMOOCfi alt="MOOC.fi" />
+          <MOOCfi alt="MOOC.fi" />
           <UHLogo alt="University of Helsinki" />
         </div>
         <Text>

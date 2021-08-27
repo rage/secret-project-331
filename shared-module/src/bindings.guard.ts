@@ -75,7 +75,8 @@ export function isChapter(obj: any, _argumentName?: string): obj is Chapter {
     (obj.chapter_image_url === null || typeof obj.chapter_image_url === "string") &&
     typeof obj.chapter_number === "number" &&
     (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
-    (obj.opens_at === null || obj.opens_at instanceof Date)
+    (obj.opens_at === null || obj.opens_at instanceof Date) &&
+    (obj.copied_from === null || typeof obj.copied_from === "string")
   )
 }
 
@@ -117,7 +118,8 @@ export function isPage(obj: any, _argumentName?: string): obj is Page {
     typeof obj.url_path === "string" &&
     typeof obj.title === "string" &&
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    typeof obj.order_number === "number"
+    typeof obj.order_number === "number" &&
+    (obj.copied_from === null || typeof obj.copied_from === "string")
   )
 }
 
@@ -251,6 +253,10 @@ export function isCourse(obj: any, _argumentName?: string): obj is Course {
     typeof obj.name === "string" &&
     typeof obj.organization_id === "string" &&
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    typeof obj.language_code === "string" &&
+    (obj.copied_from === null || typeof obj.copied_from === "string") &&
+    (obj.language_version_of_course_id === null ||
+      typeof obj.language_version_of_course_id === "string") &&
     (obj.content_search_language === null || typeof obj.content_search_language === "string")
   )
 }
@@ -268,7 +274,8 @@ export function isExercise(obj: any, _argumentName?: string): obj is Exercise {
     (obj.deadline === null || obj.deadline instanceof Date) &&
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
     typeof obj.score_maximum === "number" &&
-    typeof obj.order_number === "number"
+    typeof obj.order_number === "number" &&
+    (obj.copied_from === null || typeof obj.copied_from === "string")
   )
 }
 
@@ -402,8 +409,7 @@ export function isPageUpdate(obj: any, _argumentName?: string): obj is PageUpdat
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.url_path === "string" &&
     typeof obj.title === "string" &&
-    (obj.chapter_id === null || typeof obj.chapter_id === "string") &&
-    (obj.front_page_of_chapter_id === null || typeof obj.front_page_of_chapter_id === "string")
+    (obj.chapter_id === null || typeof obj.chapter_id === "string")
   )
 }
 
@@ -420,7 +426,8 @@ export function isNewCourse(obj: any, _argumentName?: string): obj is NewCourse 
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.name === "string" &&
     typeof obj.slug === "string" &&
-    typeof obj.organization_id === "string"
+    typeof obj.organization_id === "string" &&
+    typeof obj.language_code === "string"
   )
 }
 
@@ -671,7 +678,8 @@ export function isExerciseTask(obj: any, _argumentName?: string): obj is Exercis
     typeof obj.exercise_id === "string" &&
     typeof obj.exercise_type === "string" &&
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    (obj.spec_file_id === null || typeof obj.spec_file_id === "string")
+    (obj.spec_file_id === null || typeof obj.spec_file_id === "string") &&
+    (obj.copied_from === null || typeof obj.copied_from === "string")
   )
 }
 

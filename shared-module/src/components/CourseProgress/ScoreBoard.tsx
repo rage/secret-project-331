@@ -4,8 +4,6 @@ import { useSpring } from "react-spring"
 
 import { headingFont } from "../../utils"
 
-const Container = styled.div``
-
 const StyledSVG = styled.div`
   position: relative;
   width: 257px;
@@ -70,7 +68,7 @@ const ScoreBoard = ({ point = 10, label, min, max }: CourseProgressExtraProps) =
     config: { duration: 1000 },
   })
   return (
-    <Container>
+    <>
       <h1>{label}</h1>
       <StyledSVG>
         <svg xmlns="http://www.w3.org/2000/svg" width="497" height="auto" viewBox="0 0 497 497">
@@ -110,7 +108,7 @@ const ScoreBoard = ({ point = 10, label, min, max }: CourseProgressExtraProps) =
           {minimum + "/" + maximum}
         </p>
       </StyledSVG>
-    </Container>
+    </>
   )
 }
 

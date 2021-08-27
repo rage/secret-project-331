@@ -15,7 +15,7 @@ const CourseGridWrapper = styled.a`
   border-radius: 1px;
   position: relative;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  background: red;
+  background: #48cfad;
 
   @media (min-width: 600px) {
     height: ${cardHeight}em;

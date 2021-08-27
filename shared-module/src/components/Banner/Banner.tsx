@@ -85,21 +85,21 @@ const Banner: React.FC<BannerProps> = ({ content, variant, linkHref }, props) =>
     return <ReadOnlyBanner {...props}>{content}</ReadOnlyBanner>
   }
   return (
-      <BannerWrapper {...props}>
-        <Content>
-          <Text>
-            <div>{content}</div>
-            {variant === "link" && (
-              <a href={linkHref}>
-                <div>Click link</div>
-                <span>
-                  <Next alt="next icon" width="12px" />
-                </span>
-              </a>
-            )}
-          </Text>
-        </Content>
-      </BannerWrapper>
+    <BannerWrapper {...props}>
+      <Content>
+        <Text>
+          <div>{content}</div>
+          {variant === "link" && (
+            <a href={linkHref}>
+              <div>Click link</div>
+              <span>
+                <Next alt="next icon" width="12px" />
+              </span>
+            </a>
+          )}
+        </Text>
+      </Content>
+    </BannerWrapper>
   )
 }
 

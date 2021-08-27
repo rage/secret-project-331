@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import React, { Fragment } from "react"
+import React from "react"
 
 import UHLogo from "../img/UHLogo.svg"
 import MOOCfi from "../img/moocfi.svg"
@@ -76,7 +76,11 @@ export type FooterProps = React.HTMLAttributes<HTMLDivElement> & FooterExtraProp
 
 const Footer: React.FC<FooterProps> = ({ licenseUrl }) => {
   return (
-    <Fragment>
+    <footer
+      className={css`
+        margin-top: 2rem;
+      `}
+    >
       <Banner
         variant="readOnly"
         content="Secret project is a system developed by the MOOC centre of Univeristy of Helsinki that enables teachers in all institutions to create online courses for free."
@@ -96,7 +100,7 @@ const Footer: React.FC<FooterProps> = ({ licenseUrl }) => {
           <UHLogo alt="University of Helsinki" />
         </div>
         <Text>
-          <h6>WHO WE ARE</h6>
+          <h1>WHO WE ARE</h1>
           <span>
             MOOC center is responsible for creating custom online courses for univeristy of
             Helsinki. Its responsible for all the higlhy popular courses that have been available in
@@ -104,14 +108,14 @@ const Footer: React.FC<FooterProps> = ({ licenseUrl }) => {
           </span>
         </Text>
         <Links>
-          <h6>RESOURCES</h6>
+          <h1>RESOURCES</h1>
           <StyledLink href={basePath() + "/privacy"}>Privacy</StyledLink>
           <StyledLink href={basePath() + "/accessibility"}>Accessibility</StyledLink>
           <StyledLink href={basePath() + "/creators"}>Creators</StyledLink>
           {licenseUrl ? <StyledLink href={licenseUrl}>License</StyledLink> : null}
         </Links>
       </Wrapper>
-    </Fragment>
+    </footer>
   )
 }
 

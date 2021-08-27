@@ -75,11 +75,20 @@ test.describe("Model solutions", () => {
     // Wait for the frame to be visible
     await page.waitForLoadState("networkidle")
 
-    if (headless) {
-      const screenshot = await page.screenshot()
-      expect(screenshot).toMatchSnapshot(`model-solutions-in-exercises.png`, { threshold: 0.3 })
-    } else {
-      console.warn("Not in headless mode, skipping screenshot model solutions in exercises")
-    }
+    // Wait for the frame to be visible
+    const frame = await waitForFunction(page, () =>
+      page.frames().find((f) => {
+        return f.url().startsWith("http://project-331.local/example-exercise/exercise")
+      }),
+    )
+
+    const stableElement = await frame.waitForSelector("text=a")
+
+    await expectScreenshotsToMatchSnapshots(
+      page,
+      headless,
+      "model-solutions-in-exercises",
+      stableElement,
+    )
   })
 })

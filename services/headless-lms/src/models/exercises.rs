@@ -349,6 +349,7 @@ mod test {
             tx.as_mut(),
             "",
             "",
+            "",
             Uuid::parse_str("8c34e601-b5db-4b33-a588-57cb6a5b1669").unwrap(),
         )
         .await
@@ -371,7 +372,7 @@ mod test {
         let chapter_id = chapters::insert(tx.as_mut(), "", course_id, 0)
             .await
             .unwrap();
-        let page_id = pages::insert(tx.as_mut(), course_id, "", "", 0)
+        let (page_id, _) = pages::insert(tx.as_mut(), course_id, "", "", 0, user_id)
             .await
             .unwrap();
         let exercise_id = super::insert(tx.as_mut(), course_id, "", page_id, chapter_id, 0)

@@ -3,13 +3,14 @@ import styled from "@emotion/styled"
 import React from "react"
 
 /* import { border, color, space } from "styled-system" */
-import { theme, typography } from "../utils"
+import { theme, typography } from "../styles"
 
 const HeroWrapper = styled.div`
   background: #cacaca;
   width: 100%;
   border-radius: 1px;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  padding: 7.5em 1em;
 `
 
 const TextBox = styled.div`
@@ -22,8 +23,6 @@ const TextBox = styled.div`
   justify-content: center;
 
   h1 {
-    font-size: 50px;
-    font-size: ${typography.h2};
     font-weight: 400;
     z-index: 20;
     margin-bottom: 0.5rem;
@@ -43,21 +42,21 @@ const TextBox = styled.div`
   }
 `
 export interface HeroSectionProps {
-  subTitle: string
+  subtitle: string
   title: string
   bg?: string
 }
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & HeroSectionProps
 
-const HeroSection: React.FC<CardProps> = ({ title, subTitle }) => {
+const HeroSection: React.FC<CardProps> = ({ title, subtitle }) => {
   return (
     <ThemeProvider theme={theme}>
       <>
         <HeroWrapper>
           <TextBox>
             <h1>{title}</h1>
-            <span>{subTitle}</span>
+            <span>{subtitle}</span>
           </TextBox>
         </HeroWrapper>
       </>

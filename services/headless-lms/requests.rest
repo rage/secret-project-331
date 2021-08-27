@@ -181,3 +181,12 @@ GET http://project-331.local/api/v0/course-material/course-instances/d86cf910-4d
 ###
 GET http://project-331.local/api/v0/course-material/chapters/0bfe657d-7db6-4bae-84dd-9964bac2b55b/pages-exclude-mainfrontpage
 
+
+################
+
+POST http://project-331.local/api/v0/course-material/courses/682473a6-d12b-47c8-9f71-1073d3bcbdf9/search HTTP/1.1
+Content-Type: application/json
+
+{
+  "query": "Everything"
+}

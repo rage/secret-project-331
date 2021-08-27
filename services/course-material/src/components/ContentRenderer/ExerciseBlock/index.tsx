@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import { Button } from "@material-ui/core"
 import HelpIcon from "@material-ui/icons/Help"
 import { useContext, useState } from "react"
 import { useQuery, useQueryClient } from "react-query"
@@ -8,6 +7,7 @@ import ContentRenderer, { BlockRendererProps } from ".."
 import CoursePageContext from "../../../contexts/CoursePageContext"
 import { Block, fetchExerciseById, postSubmission } from "../../../services/backend"
 import { SubmissionResult } from "../../../shared-module/bindings"
+import Button from "../../../shared-module/components/Button"
 import DebugModal from "../../../shared-module/components/DebugModal"
 import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import { defaultContainerWidth } from "../../../shared-module/styles/constants"
@@ -118,6 +118,8 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
         `}
       >
         <Button
+          size="medium"
+          variant="primary"
           disabled={submitting || !courseInstanceId}
           onClick={async () => {
             if (!courseInstanceId) {
@@ -149,8 +151,6 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
               setSubmitting(false)
             }
           }}
-          color="primary"
-          variant="contained"
         >
           Submit
         </Button>

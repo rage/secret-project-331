@@ -75,30 +75,31 @@ const Text = styled.div`
 export interface BannerExtraProps {
   variant: "text" | "link" | "readOnly"
   content: string
+  linkHref?: string
 }
 
 export type BannerProps = React.HTMLAttributes<HTMLDivElement> & BannerExtraProps
 
-const Banner: React.FC<BannerProps> = ({ content, variant }, props) => {
+const Banner: React.FC<BannerProps> = ({ content, variant, linkHref }, props) => {
   if (variant === "readOnly") {
     return <ReadOnlyBanner {...props}>{content}</ReadOnlyBanner>
   }
   return (
-    <BannerWrapper {...props}>
-      <Content>
-        <Text>
-          <div>{content}</div>
-          {variant === "link" && (
-            <a>
-              <div>Click link</div>
-              <span>
-                <Next alt="next icon" width="12px" />
-              </span>
-            </a>
-          )}
-        </Text>
-      </Content>
-    </BannerWrapper>
+      <BannerWrapper {...props}>
+        <Content>
+          <Text>
+            <div>{content}</div>
+            {variant === "link" && (
+              <a href={linkHref}>
+                <div>Click link</div>
+                <span>
+                  <Next alt="next icon" width="12px" />
+                </span>
+              </a>
+            )}
+          </Text>
+        </Content>
+      </BannerWrapper>
   )
 }
 

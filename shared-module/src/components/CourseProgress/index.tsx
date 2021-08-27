@@ -1,7 +1,7 @@
 import { ThemeProvider } from "@emotion/react"
 import React from "react"
 
-import { theme } from "../../utils"
+import { theme } from "../../styles"
 
 import ProgressBar from "./ProgressBar"
 import ScoreBoard from "./ScoreBoard"

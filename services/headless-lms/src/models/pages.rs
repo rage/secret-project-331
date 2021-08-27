@@ -1,4 +1,4 @@
-use super::ModelResult;
+use super::{chapters::ChapterStatus, courses::Course, ModelResult};
 use crate::{
     models::{
         chapters::DatabaseChapter,
@@ -6,11 +6,12 @@ use crate::{
         exercise_services::{get_internal_public_spec_url, get_model_solution_url},
         exercise_tasks::ExerciseTask,
         exercises::Exercise,
+        page_history::HistoryChangeReason,
         ModelError,
     },
     utils::document_schema_processor::{
-        contains_blocks_not_allowed_in_top_level_pages, denormalize, normalize_from_json,
-        GutenbergBlock, NormalizedDocument,
+        self, contains_blocks_not_allowed_in_top_level_pages, denormalize, normalize_from_json,
+        NormalizedDocument,
     },
 };
 
@@ -68,12 +69,12 @@ pub struct NewPage {
 // Represents the subset of page fields that the user is allowed to modify.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct PageUpdate {
-    content: serde_json::Value,
-    url_path: String,
-    title: String,
-    chapter_id: Option<Uuid>,
+    pub content: serde_json::Value,
+    pub url_path: String,
+    pub title: String,
+    pub chapter_id: Option<Uuid>,
     /// If set, set this page to be the front page of this course part.
-    front_page_of_chapter_id: Option<Uuid>,
+    pub front_page_of_chapter_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -103,12 +104,25 @@ pub struct NormalizedCmsExerciseTaskWithExerciseId {
     pub exercise_id: Uuid,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct PageRoutingData {
-    url_path: String,
-    title: String,
-    chapter_number: i32,
-    chapter_id: Uuid,
+    pub url_path: String,
+    pub title: String,
+    pub chapter_number: i32,
+    pub chapter_id: Uuid,
+    pub chapter_opens_at: Option<DateTime<Utc>>,
+    pub chapter_front_page_id: Option<Uuid>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+pub struct PageRoutingDataWithChapterStatus {
+    pub url_path: String,
+    pub title: String,
+    pub chapter_number: i32,
+    pub chapter_id: Uuid,
+    pub chapter_opens_at: Option<DateTime<Utc>>,
+    pub chapter_front_page_id: Option<Uuid>,
+    pub chapter_status: ChapterStatus,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
@@ -118,6 +132,20 @@ pub struct PageMetadata {
     chapter_id: Option<Uuid>,
     chapter_number: Option<i32>,
     course_id: Uuid,
+}
+
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
+pub struct PageSearchResult {
+    id: Uuid,
+    title_headline: Option<String>,
+    rank: Option<f32>,
+    content_headline: Option<String>,
+    url_path: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
+pub struct PageSearchRequest {
+    query: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
@@ -134,14 +162,21 @@ pub struct ExerciseWithExerciseTasks {
     score_maximum: i32,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, TS)]
+pub struct HistoryRestoreData {
+    pub history_id: Uuid,
+}
+
 pub async fn insert(
     conn: &mut PgConnection,
     course_id: Uuid,
     url_path: &str,
     title: &str,
     order_number: i32,
-) -> ModelResult<Uuid> {
-    let res = sqlx::query!(
+    author: Uuid,
+) -> ModelResult<(Uuid, Uuid)> {
+    let mut tx = conn.begin().await?;
+    let page_res = sqlx::query!(
         "
 INSERT INTO pages (
     course_id,
@@ -159,9 +194,20 @@ RETURNING id
         title,
         order_number
     )
-    .fetch_one(conn)
+    .fetch_one(&mut tx)
     .await?;
-    Ok(res.id)
+    let history_id = crate::models::page_history::insert(
+        &mut tx,
+        page_res.id,
+        title,
+        &serde_json::Value::Array(vec![]),
+        HistoryChangeReason::PageSaved,
+        author,
+        None,
+    )
+    .await?;
+    tx.commit().await?;
+    Ok((page_res.id, history_id))
 }
 
 pub async fn set_chapter(
@@ -172,25 +218,6 @@ pub async fn set_chapter(
     sqlx::query!(
         "UPDATE pages SET chapter_id = $1 WHERE id = $2",
         chapter_id,
-        page_id
-    )
-    .execute(conn)
-    .await?;
-    Ok(())
-}
-
-pub async fn update_content(
-    conn: &mut PgConnection,
-    page_id: Uuid,
-    content: &[GutenbergBlock],
-) -> ModelResult<()> {
-    sqlx::query!(
-        "
-UPDATE pages
-SET content = $1
-WHERE id = $2
-",
-        serde_json::to_value(content).unwrap(),
         page_id
     )
     .execute(conn)
@@ -209,7 +236,21 @@ pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uui
 pub async fn course_pages(conn: &mut PgConnection, course_id: Uuid) -> ModelResult<Vec<Page>> {
     let pages = sqlx::query_as!(
         Page,
-        "SELECT * FROM pages WHERE course_id = $1 AND deleted_at IS NULL;",
+        "
+SELECT id,
+  created_at,
+  updated_at,
+  course_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number
+FROM pages
+WHERE course_id = $1
+  AND deleted_at IS NULL;
+        ",
         course_id
     )
     .fetch_all(conn)
@@ -220,7 +261,21 @@ pub async fn course_pages(conn: &mut PgConnection, course_id: Uuid) -> ModelResu
 pub async fn chapter_pages(conn: &mut PgConnection, chapter_id: Uuid) -> ModelResult<Vec<Page>> {
     let pages = sqlx::query_as!(
         Page,
-        "SELECT * FROM pages WHERE chapter_id = $1 AND deleted_at IS NULL;",
+        "
+SELECT id,
+  created_at,
+  updated_at,
+  course_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number
+FROM pages
+WHERE chapter_id = $1
+  AND deleted_at IS NULL;
+        ",
         chapter_id
     )
     .fetch_all(conn)
@@ -229,9 +284,26 @@ pub async fn chapter_pages(conn: &mut PgConnection, chapter_id: Uuid) -> ModelRe
 }
 
 pub async fn get_page(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<Page> {
-    let pages = sqlx::query_as!(Page, "SELECT * FROM pages WHERE id = $1;", page_id)
-        .fetch_one(conn)
-        .await?;
+    let pages = sqlx::query_as!(
+        Page,
+        "
+SELECT id,
+  created_at,
+  updated_at,
+  course_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number
+FROM pages
+WHERE id = $1;
+",
+        page_id
+    )
+    .fetch_one(conn)
+    .await?;
     Ok(pages)
 }
 
@@ -242,12 +314,24 @@ pub async fn get_page_by_path(
 ) -> ModelResult<Page> {
     let page = sqlx::query_as!(
         Page,
-        "SELECT pages.* FROM pages
-        JOIN courses ON (pages.course_id = courses.id)
-        WHERE courses.slug = $1
-        AND url_path = $2
-        AND courses.deleted_at IS NULL
-        AND pages.deleted_at IS NULL;",
+        "
+SELECT pages.id,
+  pages.created_at,
+  pages.updated_at,
+  pages.course_id,
+  pages.chapter_id,
+  pages.url_path,
+  pages.title,
+  pages.deleted_at,
+  pages.content,
+  pages.order_number
+FROM pages
+  JOIN courses ON (pages.course_id = courses.id)
+WHERE courses.slug = $1
+  AND url_path = $2
+  AND courses.deleted_at IS NULL
+  AND pages.deleted_at IS NULL;
+        ",
         course_slug,
         url_path
     )
@@ -257,13 +341,34 @@ pub async fn get_page_by_path(
 }
 
 pub async fn get_page_with_exercises(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<Page> {
-    let mut page = sqlx::query_as!(Page, "SELECT * FROM pages WHERE id = $1;", page_id)
-        .fetch_one(&mut *conn)
-        .await?;
+    let mut page = sqlx::query_as!(
+        Page,
+        "
+SELECT id,
+  created_at,
+  updated_at,
+  course_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number
+FROM pages
+WHERE id = $1;
+    ",
+        page_id
+    )
+    .fetch_one(&mut *conn)
+    .await?;
 
     let exercises: Vec<Exercise> = sqlx::query_as!(
         Exercise,
-        "SELECT * FROM exercises WHERE page_id = $1;",
+        "
+SELECT *
+FROM exercises
+WHERE page_id = $1
+",
         page_id
     )
     .fetch_all(&mut *conn)
@@ -271,7 +376,20 @@ pub async fn get_page_with_exercises(conn: &mut PgConnection, page_id: Uuid) -> 
 
     let exercise_tasks: Vec<NormalizedCmsExerciseTaskWithExerciseId> = sqlx::query_as!(
         NormalizedCmsExerciseTaskWithExerciseId,
-        "SELECT id, exercise_type, assignment, public_spec, private_spec, exercise_id FROM exercise_tasks WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1);",
+        "
+SELECT id,
+  exercise_type,
+  assignment,
+  public_spec,
+  private_spec,
+  exercise_id
+FROM exercise_tasks
+WHERE exercise_id IN (
+    SELECT id
+    FROM exercises
+    WHERE page_id = $1
+  )
+",
         page_id
     )
     .fetch_all(&mut *conn)
@@ -326,13 +444,16 @@ pub async fn get_page_with_exercises(conn: &mut PgConnection, page_id: Uuid) -> 
     Ok(page)
 }
 
-// This has 3 stages: updating page, updating exercises, updating exercise tasks.
-// This is currently implemented with multiple sql queries, but it could be optimized
-// with data-modifying common table expressions if necessary.
+/// This has 3 stages: updating page, updating exercises, updating exercise tasks.
+/// This is currently implemented with multiple sql queries, but it could be optimized
+/// with data-modifying common table expressions if necessary.
+/// Regenerates exercise ids unless retain_exercise_ids is set to true.
 pub async fn update_page(
     conn: &mut PgConnection,
     page_id: Uuid,
     page_update: PageUpdate,
+    author: Uuid,
+    retain_exercise_ids: bool,
 ) -> ModelResult<Page> {
     let normalized_document = normalize_from_json(page_update.content)?;
 
@@ -352,13 +473,21 @@ pub async fn update_page(
         Page,
         r#"
 UPDATE pages
-SET
-    content = $2,
-    url_path = $3,
-    title = $4,
-    chapter_id = $5
+SET content = $2,
+  url_path = $3,
+  title = $4,
+  chapter_id = $5
 WHERE id = $1
-RETURNING *
+RETURNING id,
+  created_at,
+  updated_at,
+  course_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number
             "#,
         page_id,
         content_as_json,
@@ -370,18 +499,33 @@ RETURNING *
     .await?;
 
     let (result_exercises, new_content) =
-        upsert_exercises_and_exercise_tasks(&exercises, &page, &mut tx).await?;
+        upsert_exercises_and_exercise_tasks(&exercises, &page, &mut tx, retain_exercise_ids)
+            .await?;
 
     let denormalized_content = denormalize(NormalizedDocument {
         content: serde_json::from_value(new_content)?,
         exercises: result_exercises,
     })?;
+    let history_content = serde_json::to_value(&denormalized_content)?;
+    crate::models::page_history::insert(
+        &mut tx,
+        page_id,
+        &page_update.title,
+        &history_content,
+        HistoryChangeReason::PageSaved,
+        author,
+        None,
+    )
+    .await?;
 
     if let Some(front_page_of_chapter_id) = page_update.front_page_of_chapter_id {
         let _res = sqlx::query_as!(
-            Chapter,
+            DatabaseChapter,
             r#"
-UPDATE chapters SET front_page_id = $1 WHERE id = $2
+UPDATE chapters
+SET front_page_id = $1
+WHERE id = $2
+RETURNING *
         "#,
             page_id,
             front_page_of_chapter_id
@@ -407,6 +551,7 @@ UPDATE chapters SET front_page_id = $1 WHERE id = $2
     })
 }
 
+#[derive(Debug)]
 struct ExerciseTaskIdAndSpec {
     id: Uuid,
     private_spec: Option<serde_json::Value>,
@@ -415,10 +560,13 @@ struct ExerciseTaskIdAndSpec {
 }
 
 /// Used by page inserts and page updates. The logic can be shared since the allowed inputs are the same.
+/// Regenerates exercise ids unless retain_exercise_ids is set to true.
+/// Updates the page but does not create a new history entry.
 async fn upsert_exercises_and_exercise_tasks(
     exercises: &[NormalizedCmsExercise],
     page: &Page,
     conn: &mut PgConnection,
+    retain_exercise_ids: bool,
 ) -> ModelResult<(Vec<NormalizedCmsExercise>, serde_json::Value)> {
     // All related exercises and items should be deleted if not included in the update
     // We accomplish this by deleting everyting first in the transaction and then
@@ -494,10 +642,11 @@ WHERE page_id = $1
     let mut changed_ids: HashMap<Uuid, Uuid> = HashMap::new();
     for exercise_update in exercises.iter() {
         let mut exercise_exercise_tasks: Vec<NormalizedCmsExerciseTask> = Vec::new();
-        let safe_for_db_exercise_id = if existing_exercise_ids
+
+        let exercise_exists = existing_exercise_ids
             .iter()
-            .any(|o| o.id == exercise_update.id)
-        {
+            .any(|o| o.id == exercise_update.id);
+        let safe_for_db_exercise_id = if retain_exercise_ids || exercise_exists {
             exercise_update.id
         } else {
             let new_uuid = Uuid::new_v4();
@@ -541,6 +690,7 @@ RETURNING *;
                 .find(|o| o.id == task_update.id);
             let safe_for_db_exercise_task_id = match existing_exercise_task {
                 Some(_) => task_update.id,
+                _ if retain_exercise_ids => task_update.id,
                 None => {
                     // No need to add this to changed ids because exercise task ids
                     // are not supposed to appear in the content json.
@@ -604,8 +754,9 @@ RETURNING id, exercise_type, assignment, private_spec;
         new_content,
         page.id
     )
-    .execute(conn)
+    .execute(&mut *conn)
     .await?;
+
     Ok((result_exercises, new_content))
 }
 
@@ -635,9 +786,11 @@ async fn fetch_derived_spec(
                 .send()
                 .await?;
             if !res.status().is_success() {
-                return Err(ModelError::Generic(
-                    "Failed to generate spec for exercise.".to_string(),
-                ));
+                let error = res.text().await.unwrap_or_default();
+                return Err(ModelError::Generic(format!(
+                    "Failed to generate spec for exercise: {}.",
+                    error,
+                )));
             }
             Some(res.json::<serde_json::Value>().await?)
         }
@@ -658,7 +811,11 @@ fn update_ids_in_content(
     Ok(serde_json::from_str(&content_str)?)
 }
 
-pub async fn insert_page(conn: &mut PgConnection, new_page: NewPage) -> ModelResult<Page> {
+pub async fn insert_page(
+    conn: &mut PgConnection,
+    new_page: NewPage,
+    author: Uuid,
+) -> ModelResult<Page> {
     let normalized_document = normalize_from_json(new_page.content)?;
 
     if new_page.chapter_id.is_none()
@@ -679,31 +836,61 @@ pub async fn insert_page(conn: &mut PgConnection, new_page: NewPage) -> ModelRes
     // For sharing the transaction between functions
     // let transaction_holder = RefCell::new(transaction);
 
+    let course = crate::models::courses::get_course(&mut tx, new_page.course_id).await?;
+
     let page = sqlx::query_as!(
         Page,
         r#"
-  INSERT INTO
-    pages(course_id, content, url_path, title, order_number, chapter_id)
-  VALUES($1, $2, $3, $4, $5, $6)
-  RETURNING *
+INSERT INTO pages(
+    course_id,
+    content,
+    url_path,
+    title,
+    order_number,
+    chapter_id,
+    content_search_language
+  )
+VALUES($1, $2, $3, $4, $5, $6, $7::regconfig)
+RETURNING id,
+  created_at,
+  updated_at,
+  course_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number
           "#,
         new_page.course_id,
         content_as_json,
         new_page.url_path.trim(),
         new_page.title.trim(),
         next_order_number,
-        new_page.chapter_id
+        new_page.chapter_id,
+        course.content_search_language as _
     )
     .fetch_one(&mut tx)
     .await?;
 
     let (result_exercises, new_content) =
-        upsert_exercises_and_exercise_tasks(&exercises, &page, &mut tx).await?;
+        upsert_exercises_and_exercise_tasks(&exercises, &page, &mut tx, false).await?;
 
     let denormalized_content = denormalize(NormalizedDocument {
         content: serde_json::from_value(new_content)?,
         exercises: result_exercises,
     })?;
+    let history_content = serde_json::to_value(&denormalized_content)?;
+    crate::models::page_history::insert(
+        &mut tx,
+        page.id,
+        &new_page.title,
+        &history_content,
+        HistoryChangeReason::PageSaved,
+        author,
+        None,
+    )
+    .await?;
 
     if let Some(front_page_of_chapter_id) = new_page.front_page_of_chapter_id {
         let _res = sqlx::query_as!(
@@ -745,11 +932,19 @@ pub async fn delete_page_and_exercises(
     let page = sqlx::query_as!(
         Page,
         r#"
-  UPDATE pages
-  SET
-    deleted_at = now()
-  WHERE id = $1
-  RETURNING *
+UPDATE pages
+SET deleted_at = now()
+WHERE id = $1
+RETURNING id,
+  created_at,
+  updated_at,
+  course_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number
           "#,
         page_id,
     )
@@ -789,7 +984,16 @@ pub async fn get_chapters_pages_with_exercises(
     let chapter_pages = sqlx::query_as!(
         Page,
         r#"
-SELECT *
+SELECT id,
+  created_at,
+  updated_at,
+  course_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number
 FROM pages
 WHERE chapter_id = $1
   AND deleted_at IS NULL
@@ -864,6 +1068,34 @@ pub async fn get_next_page(
     }
 }
 
+pub async fn get_next_page_with_chapter_status(
+    next_page_data: Option<PageRoutingData>,
+) -> ModelResult<Option<PageRoutingDataWithChapterStatus>> {
+    match next_page_data {
+        Some(data) => {
+            let open = data
+                .chapter_opens_at
+                .map(|o| o <= Utc::now())
+                .unwrap_or(true);
+            let status = if open {
+                ChapterStatus::Open
+            } else {
+                ChapterStatus::Closed
+            };
+            Ok(Some(PageRoutingDataWithChapterStatus {
+                url_path: data.url_path,
+                title: data.title,
+                chapter_number: data.chapter_number,
+                chapter_id: data.chapter_id,
+                chapter_opens_at: data.chapter_opens_at,
+                chapter_front_page_id: data.chapter_front_page_id,
+                chapter_status: status,
+            }))
+        }
+        None => Ok(None),
+    }
+}
+
 async fn get_current_page_metadata(
     conn: &mut PgConnection,
     page_id: Uuid,
@@ -904,7 +1136,9 @@ async fn get_next_page_by_order_number(
 SELECT p.url_path as url_path,
   p.title as title,
   c.chapter_number as chapter_number,
-  c.id as chapter_id
+  c.id as chapter_id,
+  c.opens_at as chapter_opens_at,
+  c.front_page_id as chapter_front_page_id
 FROM pages p
   LEFT JOIN chapters c ON p.chapter_id = c.id
 WHERE p.order_number = (
@@ -936,7 +1170,9 @@ async fn get_next_page_by_chapter_number(
 SELECT p.url_path as url_path,
   p.title as title,
   c.chapter_number as chapter_number,
-  c.id as chapter_id
+  c.id as chapter_id,
+  c.opens_at as chapter_opens_at,
+  c.front_page_id as chapter_front_page_id
 FROM chapters c
   INNER JOIN pages p on c.id = p.chapter_id
 WHERE c.chapter_number = (
@@ -1010,7 +1246,16 @@ pub async fn get_chapters_pages_exclude_main_frontpage(
     let pages = sqlx::query_as!(
         Page,
         "
-SELECT p.*
+SELECT id,
+  created_at,
+  updated_at,
+  course_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number
 FROM pages p
 WHERE p.chapter_id = $1
   AND p.deleted_at IS NULL
@@ -1026,4 +1271,252 @@ WHERE p.chapter_id = $1
     .await?;
 
     Ok(pages)
+}
+
+/**
+Returns search results for a phrase i.e. looks for matches where the words come up right after each other
+*/
+pub async fn get_page_search_results_for_phrase(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    page_search_request: &PageSearchRequest,
+) -> ModelResult<Vec<PageSearchResult>> {
+    let course = crate::models::courses::get_course(&mut *conn, course_id).await?;
+
+    // Last word of the search term needed so that the sql statement can change it to a prefix match.
+    // Allows the last word to not be fully typed.
+    let last_word = if let Some(last) = page_search_request
+        .query
+        .trim()
+        .split_ascii_whitespace()
+        .last()
+    {
+        last
+    } else {
+        return Ok(Vec::new());
+    };
+
+    let res =   sqlx::query_as!(
+            PageSearchResult,
+            "
+-- common table expression for the search term tsquery so that we don't have to repeat it many times
+WITH cte as (
+    -- Converts the search term to a phrase search with phraseto_tsquery but appends ':*' to the last word so that it
+    -- becomes a prefix match. This way the search will also contain results when the last word in the search term
+    -- is only partially typed. Note that if to_tsquery($4) decides to stem the word, the replacement will be skipped.
+    SELECT ts_rewrite(
+        phraseto_tsquery($2::regconfig, $3),
+        to_tsquery($4),
+        to_tsquery($4 || ':*')
+    ) as query
+)
+SELECT id,
+    ts_rank(
+    content_search,
+    (
+        SELECT query
+        from cte
+    )
+    ) as rank,
+    ts_headline(
+    $2::regconfig,
+    title,
+    (
+        SELECT query
+        from cte
+    )
+    ) as title_headline,
+    ts_headline(
+    $2::regconfig,
+    content_search_original_text,
+    (
+        SELECT query
+        from cte
+    )
+    ) as content_headline,
+    url_path
+FROM pages
+WHERE course_id = $1
+    AND deleted_at IS NULL
+    AND content_search @@ (
+    SELECT query
+    from cte
+    )
+ORDER BY rank DESC
+LIMIT 50;
+        ",
+            course_id,
+            course.content_search_language as _,
+            page_search_request.query,
+            last_word
+        )
+        .fetch_all(conn)
+        .await?;
+
+    Ok(add_course_url_prefix_to_search_results(res, &course))
+}
+
+/**
+Returns search results for the given words. The words can appear in the source document in any order.
+*/
+pub async fn get_page_search_results_for_words(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    page_search_request: &PageSearchRequest,
+) -> ModelResult<Vec<PageSearchResult>> {
+    let course = crate::models::courses::get_course(&mut *conn, course_id).await?;
+
+    // Last word of the search term needed so that the sql statement can change it to a prefix match.
+    // Allows the last word to not be fully typed.
+    let last_word = if let Some(last) = page_search_request
+        .query
+        .trim()
+        .split_ascii_whitespace()
+        .last()
+    {
+        last
+    } else {
+        return Ok(Vec::new());
+    };
+
+    let res = sqlx::query_as!(
+            PageSearchResult,
+            "
+-- common table expression for the search term tsquery so that we don't have to repeat it many times
+WITH cte as (
+    -- Converts the search term to a word search with ands between the words with plainto_tsquery but appends ':*' to the
+    -- last word so that it  becomes a prefix match. This way the search will also contain results when the last word in
+    -- the search term is only partially typed. Note that if to_tsquery($4) decides to stem the word, the replacement
+    -- will be skipped.
+    SELECT ts_rewrite(
+        plainto_tsquery($2::regconfig, $3),
+        to_tsquery($4),
+        to_tsquery($4 || ':*')
+    ) as query
+)
+SELECT id,
+    ts_rank(
+    content_search,
+    (
+        SELECT query
+        from cte
+    )
+    ) as rank,
+    ts_headline(
+    $2::regconfig,
+    title,
+    (
+        SELECT query
+        from cte
+    )
+    ) as title_headline,
+    ts_headline(
+    $2::regconfig,
+    content_search_original_text,
+    (
+        SELECT query
+        from cte
+    )
+    ) as content_headline,
+    url_path
+FROM pages
+WHERE course_id = $1
+    AND deleted_at IS NULL
+    AND content_search @@ (
+    SELECT query
+    from cte
+    )
+ORDER BY rank DESC
+LIMIT 50;
+        ",
+            course_id,
+            course.content_search_language as _,
+            page_search_request.query,
+            last_word
+        )
+        .fetch_all(conn)
+        .await?;
+
+    Ok(add_course_url_prefix_to_search_results(res, &course))
+}
+
+fn add_course_url_prefix_to_search_results(
+    search_results: Vec<PageSearchResult>,
+    course: &Course,
+) -> Vec<PageSearchResult> {
+    search_results
+        .into_iter()
+        .map(|mut sr| {
+            let optional_slash = if sr.url_path.starts_with('/') {
+                ""
+            } else {
+                "/"
+            };
+            sr.url_path = format!("/{}{}{}", course.slug, optional_slash, sr.url_path);
+            sr
+        })
+        .collect()
+}
+
+/// Restore page contents and exercises to a previous revision
+pub async fn restore(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+    history_id: Uuid,
+    author: Uuid,
+) -> ModelResult<Uuid> {
+    let mut tx = conn.begin().await?;
+
+    // fetch old content
+    let page = get_page(&mut tx, page_id).await?;
+    let content_to_restore = sqlx::query!(
+        "
+SELECT title, content
+FROM page_history
+WHERE id = $1
+",
+        history_id
+    )
+    .fetch_one(&mut tx)
+    .await?;
+    let NormalizedDocument { content, exercises } =
+        normalize_from_json(content_to_restore.content)?;
+
+    // restore page content
+    let page_content = serde_json::to_value(&content)?;
+    sqlx::query!(
+        "
+UPDATE pages
+SET content = $1
+WHERE id = $2
+",
+        page_content,
+        page_id,
+    )
+    .execute(&mut tx)
+    .await?;
+
+    // restore exercises
+    let (updated_exercises, updated_content) =
+        upsert_exercises_and_exercise_tasks(&exercises, &page, &mut tx, false).await?;
+
+    // create new history entry
+    let updated_content = serde_json::from_value(updated_content)?;
+    let blocks = document_schema_processor::denormalize(NormalizedDocument {
+        content: updated_content,
+        exercises: updated_exercises,
+    })?;
+    let history_content = serde_json::to_value(&blocks)?;
+    let history_id = crate::models::page_history::insert(
+        &mut tx,
+        page_id,
+        &content_to_restore.title,
+        &history_content,
+        HistoryChangeReason::HistoryRestored,
+        author,
+        Some(history_id),
+    )
+    .await?;
+    tx.commit().await?;
+    Ok(history_id)
 }

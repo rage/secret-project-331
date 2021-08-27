@@ -24,8 +24,7 @@ const FeedbackDialog: React.FC<Props> = ({
   const [feedback, setFeedback] = useState("")
   const [error, setError] = useState<string | null>(null)
 
-  async function submit(event: any) {
-    event.preventDefault()
+  async function submit() {
     setError("")
 
     if (feedback.length === 0) {

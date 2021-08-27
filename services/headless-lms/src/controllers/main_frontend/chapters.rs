@@ -65,7 +65,7 @@ async fn post_new_chapter<T: FileStore>(
     .await?;
     let new_chapter = payload.0;
     let (database_chapter, ..) =
-        crate::models::chapters::insert_chapter(&mut conn, new_chapter).await?;
+        crate::models::chapters::insert_chapter(&mut conn, new_chapter, user.id).await?;
     Ok(Json(Chapter::from_database_chapter(
         &database_chapter,
         file_store.as_ref(),
@@ -230,13 +230,16 @@ async fn set_chapter_image<T: FileStore>(
             .await?
             .to_string_lossy()
             .to_string();
-    let updated_chapter =
-        crate::models::chapters::update_chapter_image(&mut conn, chapter.id, Some(chapter_image))
-            .await?;
+    let updated_chapter = crate::models::chapters::update_chapter_image_path(
+        &mut conn,
+        chapter.id,
+        Some(chapter_image),
+    )
+    .await?;
 
     // Remove old image if one exists.
-    if let Some(old_image) = chapter.chapter_image {
-        let file = PathBuf::from_str(&old_image).map_err(|original_error| {
+    if let Some(old_image_path) = chapter.chapter_image_path {
+        let file = PathBuf::from_str(&old_image_path).map_err(|original_error| {
             ControllerError::InternalServerError(original_error.to_string())
         })?;
         file_store.delete(&file).await.map_err(|original_error| {
@@ -276,12 +279,12 @@ async fn remove_chapter_image<T: FileStore>(
         Resource::Course(chapter.course_id),
     )
     .await?;
-    if let Some(chapter_image) = chapter.chapter_image {
-        let file = PathBuf::from_str(&chapter_image).map_err(|original_error| {
+    if let Some(chapter_image_path) = chapter.chapter_image_path {
+        let file = PathBuf::from_str(&chapter_image_path).map_err(|original_error| {
             ControllerError::InternalServerError(original_error.to_string())
         })?;
         let _res =
-            crate::models::chapters::update_chapter_image(&mut conn, chapter.id, None).await?;
+            crate::models::chapters::update_chapter_image_path(&mut conn, chapter.id, None).await?;
         file_store.delete(&file).await.map_err(|original_error| {
             ControllerError::InternalServerError(original_error.to_string())
         })?;

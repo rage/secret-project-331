@@ -82,11 +82,11 @@ export interface CourseProgressExtraProps {
   label: string
 }
 
-const ProgresssBar = ({
+const ProgresssBar: React.FC<CourseProgressExtraProps> = ({
   n = 20,
   exercisesDone = 10,
   exercisesTotal = 30,
-}: CourseProgressExtraProps) => {
+}) => {
   const exerciseScaled = (exercisesDone / exercisesTotal) * 100
   return (
     <div>

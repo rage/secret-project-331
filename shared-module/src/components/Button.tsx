@@ -3,7 +3,7 @@ import styled from "@emotion/styled"
 import React from "react"
 import { border, color, space } from "styled-system"
 
-import { fontWeights, headingFont, theme, typography } from "../utils"
+import { fontWeights, headingFont, theme, typography } from "../styles"
 
 export interface ButtonExtraProps {
   variant: "primary" | "secondary" | "tertiary"

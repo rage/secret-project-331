@@ -2,11 +2,12 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { faTrash } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Button, Dialog } from "@material-ui/core"
+import { Dialog } from "@material-ui/core"
 import React, { useState } from "react"
 
 import { deletePage } from "../../services/backend/pages"
 import { Chapter, Page } from "../../shared-module/bindings"
+import Button from "../../shared-module/components/Button"
 import NewPageForm from "../forms/NewPageForm"
 
 const DeleteButton = styled.button`
@@ -55,14 +56,17 @@ const PageList: React.FC<Props> = ({ data, refetch, courseId, chapter }) => {
           .filter((page) => !page.deleted_at)
           .map((page: Page) => (
             <li key={page.id}>
-              <a href={`/cms/pages/${page.id}`}>{page.title}</a>({page.url_path})
+              <a href={`/cms/pages/${page.id}`}>{page.title}</a>({page.url_path}){" "}
+              <a href={`/manage/pages/${page.id}/history`}>history</a>
               <DeleteButton onClick={() => handleDeleteTopLevelPage(page.id, page.title)}>
                 <FontAwesomeIcon icon={faTrash} size="lg" />
               </DeleteButton>
             </li>
           ))}
       </ul>
-      <Button onClick={() => setShowNewPageForm(!showNewPageForm)}>New page</Button>
+      <Button size="medium" variant="primary" onClick={() => setShowNewPageForm(!showNewPageForm)}>
+        New page
+      </Button>
 
       <Dialog open={showNewPageForm} onClose={() => setShowNewPageForm(!showNewPageForm)}>
         <div
@@ -70,7 +74,13 @@ const PageList: React.FC<Props> = ({ data, refetch, courseId, chapter }) => {
             margin: 1rem;
           `}
         >
-          <Button onClick={() => setShowNewPageForm(!showNewPageForm)}>Close</Button>
+          <Button
+            size="medium"
+            variant="secondary"
+            onClick={() => setShowNewPageForm(!showNewPageForm)}
+          >
+            Close
+          </Button>
           <NewPageForm
             chapterId={chapter?.id}
             courseId={courseId}

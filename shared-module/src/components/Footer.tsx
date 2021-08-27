@@ -4,7 +4,8 @@ import React, { Fragment } from "react"
 
 import UHLogo from "../img/UHLogo.svg"
 import MOOCfi from "../img/moocfi.svg"
-import { headingFont } from "../utils"
+import { headingFont } from "../styles"
+import basePath from "../utils/base-path"
 
 import Banner from "./Banner/Banner"
 
@@ -81,12 +82,12 @@ const Links = styled.div`
 `
 
 export interface FooterExtraProps {
-  url: string
+  licenseUrl?: string
 }
 
 export type FooterProps = React.HTMLAttributes<HTMLDivElement> & FooterExtraProps
 
-const Footer: React.FC<FooterProps> = () => {
+const Footer: React.FC<FooterProps> = ({ licenseUrl }) => {
   return (
     <Fragment>
       <Banner
@@ -101,13 +102,14 @@ const Footer: React.FC<FooterProps> = () => {
             grid-template-columns: 1fr 1fr;
             align-content: space-between;
             grid-gap: 1em;
+            place-self: center;
           `}
         >
           <MOOCfi alt="MOOC.fi" />
           <UHLogo alt="University of Helsinki" />
         </div>
         <Text>
-          <h3>WHO WE ARE</h3>
+          <h6>WHO WE ARE</h6>
           <span>
             MOOC center is responsible for creating custom online courses for univeristy of
             Helsinki. Its responsible for all the higlhy popular courses that have been available in
@@ -115,10 +117,11 @@ const Footer: React.FC<FooterProps> = () => {
           </span>
         </Text>
         <Links>
-          <h3>RESOURCES</h3>
-          <StyledLink href="/faq">Privacy</StyledLink>
-          <StyledLink href="/creators">Accessibility</StyledLink>
-          <StyledLink href="/license">License?</StyledLink>
+          <h6>RESOURCES</h6>
+          <StyledLink href={basePath() + "/privacy"}>Privacy</StyledLink>
+          <StyledLink href={basePath() + "/accessibility"}>Accessibility</StyledLink>
+          <StyledLink href={basePath() + "/creators"}>Creators</StyledLink>
+          {licenseUrl ? <StyledLink href={licenseUrl}>License</StyledLink> : null}
         </Links>
       </Wrapper>
     </Fragment>

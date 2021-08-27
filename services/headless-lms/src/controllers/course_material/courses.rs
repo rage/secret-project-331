@@ -5,8 +5,9 @@ use crate::{
     models::{
         chapters::{ChapterStatus, ChapterWithStatus},
         feedback,
+        pages::PageSearchRequest,
     },
-    models::{course_instances::CourseInstance, courses},
+    models::{course_instances::CourseInstance, courses, pages::PageSearchResult},
     models::{feedback::NewFeedback, pages::Page},
 };
 use actix_web::web::{self, Json, ServiceConfig};
@@ -221,6 +222,144 @@ async fn get_chapters(
 }
 
 /**
+POST `/api/v0/course-material/courses/:course_id/search-pages-with-phrase` - Returns a list of pages given a search query.
+
+Provided words are supposed to appear right after each other in the source document.
+
+# Example
+
+Request:
+
+```http
+POST /api/v0/course-material/courses/1a68e8b0-d151-4c0e-9307-bb154e9d2be1/search-pages-with-phrase HTTP/1.1
+Content-Type: application/json
+
+{
+  "query": "Everything"
+}
+```
+
+Response:
+
+```json
+[
+  {
+    "id": "c89bd5b3-5f2b-4326-834a-db9f20bdaf1b",
+    "title": "Introduction to everything",
+    "rank": 0.6079271,
+    "ts_headline": null,
+    "url_path": "/"
+  },
+  {
+    "id": "1d744426-27da-4821-80ab-7fd1fcd727f8",
+    "title": "Welcome to Introduction to Everything",
+    "rank": 0.6079271,
+    "ts_headline": null,
+    "url_path": "/"
+  },
+  {
+    "id": "1c75eabe-8e19-456d-b107-f8e87b395c76",
+    "title": "Chapter One",
+    "rank": 0.24317084,
+    "ts_headline": "<b>Everything</b> is a big topic",
+    "url_path": "/chapter-1"
+  },
+  {
+    "id": "c2060330-cea0-46ad-94f9-9be9858adab5",
+    "title": "In the second chapter...",
+    "rank": 0.24317084,
+    "ts_headline": "<b>Everything</b> is a big topic.",
+    "url_path": "/chapter-2"
+  }
+]
+```
+*/
+#[instrument(skip(pool))]
+async fn search_pages_with_phrase(
+    request_course_id: web::Path<Uuid>,
+    payload: web::Json<PageSearchRequest>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<Json<Vec<PageSearchResult>>> {
+    let mut conn = pool.acquire().await?;
+    let res = crate::models::pages::get_page_search_results_for_phrase(
+        &mut conn,
+        *request_course_id,
+        &*payload,
+    )
+    .await?;
+    Ok(Json(res))
+}
+
+/**
+POST `/api/v0/course-material/courses/:course_id/search-pages-with-words` - Returns a list of pages given a search query.
+
+Provided words can appear in any order in the source document.
+
+# Example
+
+Request:
+
+```http
+POST /api/v0/course-material/courses/1a68e8b0-d151-4c0e-9307-bb154e9d2be1/search-pages-with-words HTTP/1.1
+Content-Type: application/json
+
+{
+  "query": "Everything"
+}
+```
+
+Response:
+
+```json
+[
+  {
+    "id": "c89bd5b3-5f2b-4326-834a-db9f20bdaf1b",
+    "title": "Introduction to everything",
+    "rank": 0.6079271,
+    "ts_headline": null,
+    "url_path": "/"
+  },
+  {
+    "id": "1d744426-27da-4821-80ab-7fd1fcd727f8",
+    "title": "Welcome to Introduction to Everything",
+    "rank": 0.6079271,
+    "ts_headline": null,
+    "url_path": "/"
+  },
+  {
+    "id": "1c75eabe-8e19-456d-b107-f8e87b395c76",
+    "title": "Chapter One",
+    "rank": 0.24317084,
+    "ts_headline": "<b>Everything</b> is a big topic",
+    "url_path": "/chapter-1"
+  },
+  {
+    "id": "c2060330-cea0-46ad-94f9-9be9858adab5",
+    "title": "In the second chapter...",
+    "rank": 0.24317084,
+    "ts_headline": "<b>Everything</b> is a big topic.",
+    "url_path": "/chapter-2"
+  }
+]
+```
+*/
+#[instrument(skip(pool))]
+async fn search_pages_with_words(
+    request_course_id: web::Path<Uuid>,
+    payload: web::Json<PageSearchRequest>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<Json<Vec<PageSearchResult>>> {
+    let mut conn = pool.acquire().await?;
+    let res = crate::models::pages::get_page_search_results_for_words(
+        &mut conn,
+        *request_course_id,
+        &*payload,
+    )
+    .await?;
+    Ok(Json(res))
+}
+
+/**
 POST `/api/v0/course-material/courses/:course_slug/feedback` - Creates new feedback.
 */
 pub async fn feedback(
@@ -276,6 +415,14 @@ pub fn _add_courses_routes(cfg: &mut ServiceConfig) {
     .route(
         "/{course_id}/current-instance",
         web::get().to(get_current_course_instance),
+    )
+    .route(
+        "/{course_id}/search-pages-with-phrase",
+        web::post().to(search_pages_with_phrase),
+    )
+    .route(
+        "/{course_id}/search-pages-with-words",
+        web::post().to(search_pages_with_words),
     )
     .route("/{course_id}/feedback", web::post().to(feedback));
 }

@@ -1,11 +1,12 @@
-import { css, cx } from "@emotion/css"
-import { ThemeProvider } from "@emotion/react"
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
 import CardSVG from "../../img/cardNext.svg"
 import { cardHeight, cardMaxWidth } from "../../styles/constants"
-import { theme, typography } from "../../utils"
+import { theme, typography } from "../../styles"
+
+import { CardExtraProps } from "."
 
 const CourseGridWrapper = styled.a`
   text-decoration: none;
@@ -32,9 +33,7 @@ const styledSVG = css`
   }
 `
 
-const CardTextBox = styled.div`
-  position: absolute;
-  bottom: 0;
+const CardContentWrapper = styled.div`
   display: flex;
   padding: 0em 2em 1rem 2rem;
   height: auto;
@@ -63,17 +62,6 @@ const CardTextBox = styled.div`
     color: rgba(40, 40, 40, 0.8);
   }
 
-  div:first-of-type {
-    position: relative;
-  }
-
-  div:last-of-type {
-    position: relative;
-    font-size: 0.75em;
-    font-weight: 500;
-    padding-top: 1em;
-  }
-
   span {
     color: #333;
     font-size: 1.2em;
@@ -83,51 +71,94 @@ const CardTextBox = styled.div`
     width: 50%;
     line-height: 3em;
   }
+  @media (max-width: 37.5em) {
+    word-break: break-all;
+  }
 `
-export interface CardExtraProps {
-  variant: "simple" | "Illustration"
-  title: string
-  chapter: number
-  url?: string
-  bg?: string
-}
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & CardExtraProps
 
-const SimpleCard: React.FC<CardProps> = ({ title, chapter, url }) => {
+const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, url, open, bg, date, time }) => {
   // If URL defined, the chapter is open
-  if (url) {
-    return (
-      <ThemeProvider theme={theme}>
+
+  const fetchOpensText = () => {
+    if (date && time) {
+      return (
         <>
-          <CourseGridWrapper href={`${url}`}>
-            <CardSVG className={cx(styledSVG)} />
-            <CardTextBox>
-              <div>
-                <span>{`CHAPTER ${chapter}`}</span>
-                <h2>{title}</h2>
-              </div>
-            </CardTextBox>
-          </CourseGridWrapper>
+          <div>AVAILABLE</div>
+          <div>
+            {date} at {time}
+          </div>
         </>
-      </ThemeProvider>
-    )
+      )
+    } else if (time) {
+      return (
+        <>
+          <div>OPENS IN</div>
+          <div>{time}</div>
+        </>
+      )
+    } else if (open) {
+      return <span>OPENS NOW!</span>
+    } else {
+      return <span>CLOSED</span>
+    }
   }
-  // Closed / Opens at
   return (
-    <ThemeProvider theme={theme}>
-      <>
-        <CourseGridWrapper>
-          <CardSVG className={cx(styledSVG)} />
-          <CardTextBox>
-            <div>
-              <span>{`CHAPTER ${chapter}`}</span>
+    <CourseGridWrapper
+      className={css`
+        background: ${bg};
+      `}
+      // Pass href={url} if url defined
+      {...(url ? { href: url } : {})}
+    >
+      <CardContentWrapper>
+        {!open && !url ? (
+          <div
+            className={css`
+              flex: 0 1 auto;
+              text-align: center;
+              background: #cac9c9;
+              padding: 2em;
+            `}
+          >
+            {fetchOpensText()}
+          </div>
+        ) : (
+          <div
+            className={css`
+              flex: 0 1 auto;
+              padding: 2em 2.5em 0 2.5em;
+            `}
+          >
+            <CardSVG />
+          </div>
+        )}
+        <div
+          className={css`
+            flex: 1 1 auto;
+            padding: 0em 2.5em 2em 2.5em;
+          `}
+        >
+          <div
+            className={css`
+              display: flex;
+              flex-direction: column;
+              height: 100%;
+            `}
+          >
+            <div
+              className={css`
+                margin-top: auto;
+              `}
+            >
+              <span>{`CHAPTER ${chapterNumber}`}</span>
               <h2>{title}</h2>
             </div>
-          </CardTextBox>
-        </CourseGridWrapper>
-      </>
-    </ThemeProvider>
+          </div>
+        </div>
+      </CardContentWrapper>
+    </CourseGridWrapper>
   )
 }
 

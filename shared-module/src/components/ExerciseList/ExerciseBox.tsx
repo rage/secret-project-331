@@ -1,12 +1,9 @@
 import styled from "@emotion/styled"
 import React from "react"
 
-import CircularProgressBar from "./CircularProgressBar"
+import CircularProgressBar from "../CircularProgressBar"
 
 const Wrapper = styled.aside`
-  padding: 0 0 4em 0;
-  margin-top: 3em;
-  margin-bottom: 1em;
   border-radius: 10px;
   position: relative;
   width: 100%;
@@ -59,7 +56,7 @@ const ImageBox = styled.div`
   right: 0;
 ` */
 
-const ChapterParts = styled.div`
+const PageParts = styled.div`
   position: relative;
   margin-left: 0em;
   padding: 0.6em 1em;
@@ -72,7 +69,7 @@ const ChapterParts = styled.div`
   display: flex;
   align-items: center;
 
-  ${({ selected }: ChapterBoxExtraProps) =>
+  ${({ selected }: ExerciseListBoxExtraProps) =>
     selected &&
     `
     background-color: #f1f1f1;
@@ -106,33 +103,34 @@ const chooseChapterValue = {
   4: "V",
 } */
 
-export interface ChapterBoxExtraProps {
+export interface ExerciseListBoxExtraProps {
   variant: "text" | "link" | "readOnly"
   selected: boolean
-  chapterIndex: string
-  chapterTitle: string
+  pageIndex: number
+  pageTitle: string
+  pageLink: string
 }
 
-export type ChapterBoxProps = React.HTMLAttributes<HTMLDivElement> & ChapterBoxExtraProps
+export type ExerciseListBox = React.HTMLAttributes<HTMLDivElement> & ExerciseListBoxExtraProps
 
-const ChapterBox: React.FC<ChapterBoxProps> = (props) => {
+const ExerciseListBox: React.FC<ExerciseListBox> = (props) => {
   return (
     <Wrapper>
       <>
-        <Link href="/">
-          <ChapterParts {...props}>
+        <Link href={props.pageLink}>
+          <PageParts {...props}>
             <ImageBox>
               <div>
-                <p>{props.chapterIndex}</p>
+                <p>{props.pageIndex}</p>
               </div>
             </ImageBox>
-            <span>{props.chapterTitle}</span>
+            <span>{props.pageTitle}</span>
             <CircularProgressBar point={54} className="progress" />
-          </ChapterParts>
+          </PageParts>
         </Link>
       </>
     </Wrapper>
   )
 }
 
-export default ChapterBox
+export default ExerciseListBox

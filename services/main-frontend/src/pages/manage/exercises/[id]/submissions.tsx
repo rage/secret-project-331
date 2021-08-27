@@ -6,6 +6,8 @@ import Layout from "../../../../components/Layout"
 import { fetchExerciseSubmissions } from "../../../../services/backend/exercises"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
+import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import basePath from "../../../../shared-module/utils/base-path"
 import { dontRenderUntilQueryParametersReady } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
@@ -24,39 +26,41 @@ const SubmissionsPage: React.FC = () => {
   }
 
   return (
-    <Layout>
-      <h2>Submissions</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Link</th>
-            <th>Submission time</th>
-            <th>Student</th>
-            <th>Course instance</th>
-            <th>Exercise task</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.data.map((x) => (
-            <tr key={x.id}>
-              <td>
-                <Link
-                  href={{
-                    pathname: "/submissions/[id]",
-                    query: { id: x.id },
-                  }}
-                >
-                  link
-                </Link>
-              </td>
-              <td>{x.created_at.toISOString()}</td>
-              <td>{x.user_id}</td>
-              <td>{x.course_instance_id}</td>
-              <td>{x.exercise_task_id}</td>
+    <Layout frontPageUrl={basePath()} navVariant="complex">
+      <div className={wideWidthCenteredComponentStyles}>
+        <h4>Submissions</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Link</th>
+              <th>Submission time</th>
+              <th>Student</th>
+              <th>Course instance</th>
+              <th>Exercise task</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {data.data.map((x) => (
+              <tr key={x.id}>
+                <td>
+                  <Link
+                    href={{
+                      pathname: "/submissions/[id]",
+                      query: { id: x.id },
+                    }}
+                  >
+                    link
+                  </Link>
+                </td>
+                <td>{x.created_at.toISOString()}</td>
+                <td>{x.user_id}</td>
+                <td>{x.course_instance_id}</td>
+                <td>{x.exercise_task_id}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </Layout>
   )
 }

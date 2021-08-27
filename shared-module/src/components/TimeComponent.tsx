@@ -3,8 +3,9 @@ import { IconButton } from "@material-ui/core"
 import InfoIcon from "@material-ui/icons/Info"
 import React, { useState } from "react"
 
-import SpeechBalloon from "../../../shared-module/components/SpeechBalloon"
-import { dateToString } from "../../../shared-module/utils/time"
+import { dateToString } from "../utils/time"
+
+import SpeechBalloon from "./SpeechBalloon"
 
 interface TimeComponentProps {
   name: string
@@ -18,10 +19,13 @@ const TimeComponent: React.FC<TimeComponentProps> = ({ name, date, right }) => {
   return (
     <span
       className={
-        right &&
-        css`
-          float: right;
-        `
+        right
+          ? css`
+              float: right;
+            `
+          : css`
+              /* empty */
+            `
       }
     >
       <span

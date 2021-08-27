@@ -23,11 +23,11 @@ import {
 } from "../../../services/backend/exercise-services"
 import { ExerciseService, ExerciseServiceNewOrUpdate } from "../../../shared-module/bindings"
 import Button from "../../../shared-module/components/Button"
+import TimeComponent from "../../../shared-module/components/TimeComponent"
 import basePath from "../../../shared-module/utils/base-path"
 import { validNumber, validURL } from "../../../shared-module/utils/validation"
 
 import ContentArea from "./ContentArea"
-import TimeComponent from "./TimeComponent"
 
 interface ExerciseServiceEditorProps {
   exercise_services: ExerciseService[]

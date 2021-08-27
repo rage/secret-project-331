@@ -1,0 +1,6 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+( cd services/cms && npm run extract-gutenberg-types )
+npm run generate-guards-gutenberg

@@ -4,6 +4,7 @@ import React from "react"
 
 import UHLogo from "../img/UHLogo.svg"
 import MOOCfi from "../img/moocfi.svg"
+import { typography } from "../styles"
 import basePath from "../utils/base-path"
 
 import Banner from "./Banner/Banner"
@@ -79,6 +80,10 @@ const Footer: React.FC<FooterProps> = ({ licenseUrl }) => {
     <footer
       className={css`
         margin-top: 2rem;
+
+        h1 {
+          font-size: ${typography.h6};
+        }
       `}
     >
       <Banner

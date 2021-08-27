@@ -343,6 +343,10 @@
 <span id="341">341</span>
 <span id="342">342</span>
 <span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">pages::Page</span>, <span class="ident">ModelResult</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">models::pages::NewPage</span>, <span class="ident">utils::document_schema_processor::GutenbergBlock</span>};
@@ -369,6 +373,7 @@
     <span class="kw">pub</span> <span class="ident">chapter_number</span>: <span class="ident">i32</span>,
     <span class="kw">pub</span> <span class="ident">front_page_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">opens_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">copied_from</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">TS</span>)]</span>
@@ -383,6 +388,7 @@
     <span class="kw">pub</span> <span class="ident">chapter_number</span>: <span class="ident">i32</span>,
     <span class="kw">pub</span> <span class="ident">front_page_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">opens_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">copied_from</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Chapter</span> {
@@ -406,6 +412,7 @@
             <span class="ident">chapter_number</span>: <span class="ident">chapter</span>.<span class="ident">chapter_number</span>,
             <span class="ident">front_page_id</span>: <span class="ident">chapter</span>.<span class="ident">front_page_id</span>,
             <span class="ident">opens_at</span>: <span class="ident">chapter</span>.<span class="ident">opens_at</span>,
+            <span class="ident">copied_from</span>: <span class="ident">chapter</span>.<span class="ident">copied_from</span>,
         }
     }
 }
@@ -616,7 +623,8 @@ SELECT id,
   chapter_image_path,
   chapter_number,
   front_page_id,
-  opens_at
+  opens_at,
+  copied_from
 FROM chapters
 WHERE course_id = $1
   AND deleted_at IS NULL;

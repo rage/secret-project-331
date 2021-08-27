@@ -1134,6 +1134,7 @@
         <span class="ident">name</span>: <span class="string">&quot;Introduction to Computer Science&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">slug</span>: <span class="string">&quot;introduction-to-computer-science&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">organization_id</span>: <span class="ident">uh_cs</span>,
+        <span class="ident">language_code</span>: <span class="string">&quot;en-US&quot;</span>.<span class="ident">to_string</span>(),
     };
     <span class="kw">let</span> (<span class="ident">cs_course</span>, <span class="ident">_cs_front_page</span>, <span class="ident">_cs_default_course_instance</span>) <span class="op">=</span> <span class="ident">courses::insert_course</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
@@ -1163,6 +1164,7 @@
         <span class="ident">name</span>: <span class="string">&quot;Introduction to Statistics&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">slug</span>: <span class="string">&quot;introduction-to-statistics&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">organization_id</span>: <span class="ident">uh_mathstat</span>,
+        <span class="ident">language_code</span>: <span class="string">&quot;en-US&quot;</span>.<span class="ident">to_string</span>(),
     };
     <span class="kw">let</span> (<span class="ident">statistics_course</span>, <span class="ident">_statistics_front_page</span>, <span class="ident">_statistics_default_course_instance</span>) <span class="op">=</span>
         <span class="ident">courses::insert_course</span>(
@@ -1210,6 +1212,7 @@
         <span class="ident">name</span>: <span class="ident">course_name</span>.<span class="ident">to_string</span>(),
         <span class="ident">organization_id</span>: <span class="ident">org</span>,
         <span class="ident">slug</span>: <span class="ident">course_slug</span>.<span class="ident">to_string</span>(),
+        <span class="ident">language_code</span>: <span class="string">&quot;en-US&quot;</span>.<span class="ident">to_string</span>(),
     };
     <span class="kw">let</span> (<span class="ident">course</span>, <span class="ident">_front_page</span>, <span class="ident">_default_instance</span>) <span class="op">=</span>
         <span class="ident">courses::insert_course</span>(<span class="ident">conn</span>, <span class="ident">course_id</span>, <span class="ident">new_course</span>, <span class="ident">admin</span>).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1660,6 +1663,7 @@
         <span class="ident">name</span>: <span class="string">&quot;Introduction to Course Material&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">organization_id</span>: <span class="ident">org</span>,
         <span class="ident">slug</span>: <span class="string">&quot;introduction-to-course-material&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">language_code</span>: <span class="string">&quot;en-US&quot;</span>.<span class="ident">to_string</span>(),
     };
     <span class="kw">let</span> (<span class="ident">course</span>, <span class="ident">front_page</span>, <span class="ident">_default_instance</span>) <span class="op">=</span> <span class="ident">courses::insert_course</span>(
         <span class="ident">conn</span>,
@@ -1676,7 +1680,6 @@
             <span class="ident">title</span>: <span class="string">&quot;Introduction to Course Material&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">url_path</span>: <span class="string">&quot;/&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">chapter_id</span>: <span class="prelude-val">None</span>,
-            <span class="ident">front_page_of_chapter_id</span>: <span class="prelude-val">None</span>,
             <span class="ident">content</span>: <span class="ident">serde_json::to_value</span>(<span class="kw-2">&amp;</span>[
                 <span class="ident">GutenbergBlock::landing_page_hero_section</span>(<span class="string">&quot;Welcome to Introduction to Course Material&quot;</span>, <span class="string">&quot;In this course you&#39;ll learn the basics of UI/UX design. At the end of course you should be able to create your own design system.&quot;</span>)
                 .<span class="ident">with_id</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;6ad81525-0010-451f-85e5-4832e3e364a8&quot;</span>)<span class="question-mark">?</span>),
@@ -1712,7 +1715,6 @@
         <span class="ident">PageUpdate</span> {
             <span class="ident">title</span>: <span class="string">&quot;User Interface&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">url_path</span>: <span class="string">&quot;/chapter-1&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">front_page_of_chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">chapter_1</span>.<span class="ident">id</span>),
             <span class="ident">chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">chapter_1</span>.<span class="ident">id</span>),
             <span class="ident">content</span>: <span class="ident">serde_json::to_value</span>(<span class="kw-2">&amp;</span>[
                 <span class="ident">GutenbergBlock::hero_section</span>(<span class="string">&quot;User Interface&quot;</span>, <span class="string">&quot;In the industrial design field of human–computer interaction, a user interface is the space where interactions between humans and machines occur.&quot;</span>)
@@ -1818,7 +1820,6 @@
             <span class="ident">url_path</span>: <span class="string">&quot;/chapter-2&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">title</span>: <span class="string">&quot;User Experience&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">chapter_2</span>.<span class="ident">id</span>),
-            <span class="ident">front_page_of_chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">chapter_2</span>.<span class="ident">id</span>),
             <span class="ident">content</span>: <span class="ident">serde_json::to_value</span>(<span class="kw-2">&amp;</span>[
                 <span class="ident">GutenbergBlock::hero_section</span>(<span class="string">&quot;User Experience&quot;</span>, <span class="string">&quot;The user experience is how a user interacts with and experiences a product, system or service. It includes a person&#39;s perceptions of utility, ease of use, and efficiency.&quot;</span>)
                     .<span class="ident">with_id</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;c5c623f9-c7ca-4f8e-b04b-e91cecef217a&quot;</span>)<span class="question-mark">?</span>),
@@ -1903,7 +1904,6 @@
             <span class="ident">chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">chapter_id</span>),
             <span class="ident">url_path</span>: <span class="ident">url_path</span>.<span class="ident">to_string</span>(),
             <span class="ident">title</span>: <span class="ident">title</span>.<span class="ident">to_string</span>(),
-            <span class="ident">front_page_of_chapter_id</span>: <span class="prelude-val">None</span>,
             <span class="ident">content</span>: <span class="ident">serde_json::to_value</span>(<span class="ident">content</span>).<span class="ident">unwrap</span>(),
         },
         <span class="ident">author</span>,

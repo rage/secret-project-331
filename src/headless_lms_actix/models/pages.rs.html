@@ -1516,12 +1516,6 @@
 <span id="1514">1514</span>
 <span id="1515">1515</span>
 <span id="1516">1516</span>
-<span id="1517">1517</span>
-<span id="1518">1518</span>
-<span id="1519">1519</span>
-<span id="1520">1520</span>
-<span id="1521">1521</span>
-<span id="1522">1522</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">chapters::ChapterStatus</span>, <span class="ident">courses::Course</span>, <span class="ident">ModelResult</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -1562,6 +1556,7 @@
     <span class="comment">// should always be a Vec&lt;GutenbergBlock&gt;, but is more convenient to keep as Value for sqlx</span>
     <span class="kw">pub</span> <span class="ident">content</span>: <span class="ident">serde_json::Value</span>,
     <span class="kw">pub</span> <span class="ident">order_number</span>: <span class="ident">i32</span>,
+    <span class="kw">pub</span> <span class="ident">copied_from</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">TS</span>)]</span>
@@ -1598,8 +1593,6 @@
     <span class="kw">pub</span> <span class="ident">url_path</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">title</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">chapter_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// If set, set this page to be the front page of this course part.</span>
-    <span class="kw">pub</span> <span class="ident">front_page_of_chapter_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">TS</span>)]</span>
@@ -1771,7 +1764,8 @@ SELECT id,
   title,
   deleted_at,
   content,
-  order_number
+  order_number,
+  copied_from
 FROM pages
 WHERE course_id = $1
   AND deleted_at IS NULL;
@@ -1796,7 +1790,8 @@ SELECT id,
   title,
   deleted_at,
   content,
-  order_number
+  order_number,
+  copied_from
 FROM pages
 WHERE chapter_id = $1
   AND deleted_at IS NULL;
@@ -1821,7 +1816,8 @@ SELECT id,
   title,
   deleted_at,
   content,
-  order_number
+  order_number,
+  copied_from
 FROM pages
 WHERE id = $1;
 &quot;</span>,
@@ -1849,7 +1845,8 @@ SELECT pages.id,
   pages.title,
   pages.deleted_at,
   pages.content,
-  pages.order_number
+  pages.order_number,
+  pages.copied_from
 FROM pages
   JOIN courses ON (pages.course_id = courses.id)
 WHERE courses.slug = $1
@@ -1878,7 +1875,8 @@ SELECT id,
   title,
   deleted_at,
   content,
-  order_number
+  order_number,
+  copied_from
 FROM pages
 WHERE id = $1;
     &quot;</span>,
@@ -2012,7 +2010,8 @@ RETURNING id,
   title,
   deleted_at,
   content,
-  order_number
+  order_number,
+  copied_from
             &quot;#</span>,
         <span class="ident">page_id</span>,
         <span class="ident">content_as_json</span>,
@@ -2043,23 +2042,6 @@ RETURNING id,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">front_page_of_chapter_id</span>) <span class="op">=</span> <span class="ident">page_update</span>.<span class="ident">front_page_of_chapter_id</span> {
-        <span class="kw">let</span> <span class="ident">_res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-            <span class="ident">DatabaseChapter</span>,
-            <span class="string">r#&quot;
-UPDATE chapters
-SET front_page_id = $1
-WHERE id = $2
-RETURNING *
-        &quot;#</span>,
-            <span class="ident">page_id</span>,
-            <span class="ident">front_page_of_chapter_id</span>
-        )
-        <span class="comment">// this should fail if no rows returned</span>
-        .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>;
-    }
-
     <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="prelude-val">Ok</span>(<span class="ident">Page</span> {
@@ -2073,6 +2055,7 @@ RETURNING *
         <span class="ident">url_path</span>: <span class="ident">page</span>.<span class="ident">url_path</span>,
         <span class="ident">order_number</span>: <span class="ident">page</span>.<span class="ident">order_number</span>,
         <span class="ident">chapter_id</span>: <span class="ident">page</span>.<span class="ident">chapter_id</span>,
+        <span class="ident">copied_from</span>: <span class="ident">page</span>.<span class="ident">copied_from</span>,
     })
 }
 
@@ -2385,7 +2368,8 @@ RETURNING id,
   title,
   deleted_at,
   content,
-  order_number
+  order_number,
+  copied_from
           &quot;#</span>,
         <span class="ident">new_page</span>.<span class="ident">course_id</span>,
         <span class="ident">content_as_json</span>,
@@ -2446,6 +2430,7 @@ RETURNING *;
         <span class="ident">url_path</span>: <span class="ident">page</span>.<span class="ident">url_path</span>,
         <span class="ident">order_number</span>: <span class="ident">page</span>.<span class="ident">order_number</span>,
         <span class="ident">chapter_id</span>: <span class="ident">page</span>.<span class="ident">chapter_id</span>,
+        <span class="ident">copied_from</span>: <span class="ident">page</span>.<span class="ident">copied_from</span>,
     })
 }
 
@@ -2469,7 +2454,8 @@ RETURNING id,
   title,
   deleted_at,
   content,
-  order_number
+  order_number,
+  copied_from
           &quot;#</span>,
         <span class="ident">page_id</span>,
     )
@@ -2518,7 +2504,8 @@ SELECT id,
   title,
   deleted_at,
   content,
-  order_number
+  order_number,
+  copied_from
 FROM pages
 WHERE chapter_id = $1
   AND deleted_at IS NULL
@@ -2780,7 +2767,8 @@ SELECT id,
   title,
   deleted_at,
   content,
-  order_number
+  order_number,
+  copied_from
 FROM pages p
 WHERE p.chapter_id = $1
   AND p.deleted_at IS NULL

@@ -87,19 +87,19 @@ const ButtonWrapper = styled.div`
 
 export interface NextSectionLinkExtraProps {
   title: string
-  subTitle: string
+  subtitle: string
   nextTitle: string
   url?: string
 }
 
 export type NextSectionLinkProps = React.HTMLAttributes<HTMLDivElement> & NextSectionLinkExtraProps
 
-const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subTitle, nextTitle, url }) => {
+const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subtitle, nextTitle, url }) => {
   return (
     <SectionWrapper>
       <Fragment>
         <h4>{title}</h4>
-        <p>{subTitle}</p>
+        <p>{subtitle}</p>
         <ButtonWrapper>
           <StyledLink {...(url ? { href: url } : {})}>
             <span>{nextTitle}</span>

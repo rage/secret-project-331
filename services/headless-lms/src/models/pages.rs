@@ -1,4 +1,4 @@
-use super::{chapters::ChapterStatus, ModelResult};
+use super::{chapters::ChapterStatus, courses::Course, ModelResult};
 use crate::{
     models::{
         chapters::DatabaseChapter,
@@ -133,6 +133,20 @@ pub struct PageMetadata {
     course_id: Uuid,
 }
 
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
+pub struct PageSearchResult {
+    id: Uuid,
+    title_headline: Option<String>,
+    rank: Option<f32>,
+    content_headline: Option<String>,
+    url_path: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
+pub struct PageSearchRequest {
+    query: String,
+}
+
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
 pub struct ExerciseWithExerciseTasks {
     id: Uuid,
@@ -221,7 +235,22 @@ pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uui
 pub async fn course_pages(conn: &mut PgConnection, course_id: Uuid) -> ModelResult<Vec<Page>> {
     let pages = sqlx::query_as!(
         Page,
-        "SELECT * FROM pages WHERE course_id = $1 AND deleted_at IS NULL;",
+        "
+SELECT id,
+  created_at,
+  updated_at,
+  course_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number,
+  copied_from
+FROM pages
+WHERE course_id = $1
+  AND deleted_at IS NULL;
+        ",
         course_id
     )
     .fetch_all(conn)
@@ -232,7 +261,22 @@ pub async fn course_pages(conn: &mut PgConnection, course_id: Uuid) -> ModelResu
 pub async fn chapter_pages(conn: &mut PgConnection, chapter_id: Uuid) -> ModelResult<Vec<Page>> {
     let pages = sqlx::query_as!(
         Page,
-        "SELECT * FROM pages WHERE chapter_id = $1 AND deleted_at IS NULL;",
+        "
+SELECT id,
+  created_at,
+  updated_at,
+  course_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number,
+  copied_from
+FROM pages
+WHERE chapter_id = $1
+  AND deleted_at IS NULL;
+        ",
         chapter_id
     )
     .fetch_all(conn)
@@ -241,9 +285,27 @@ pub async fn chapter_pages(conn: &mut PgConnection, chapter_id: Uuid) -> ModelRe
 }
 
 pub async fn get_page(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<Page> {
-    let pages = sqlx::query_as!(Page, "SELECT * FROM pages WHERE id = $1;", page_id)
-        .fetch_one(conn)
-        .await?;
+    let pages = sqlx::query_as!(
+        Page,
+        "
+SELECT id,
+  created_at,
+  updated_at,
+  course_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number,
+  copied_from
+FROM pages
+WHERE id = $1;
+",
+        page_id
+    )
+    .fetch_one(conn)
+    .await?;
     Ok(pages)
 }
 
@@ -254,12 +316,25 @@ pub async fn get_page_by_path(
 ) -> ModelResult<Page> {
     let page = sqlx::query_as!(
         Page,
-        "SELECT pages.* FROM pages
-        JOIN courses ON (pages.course_id = courses.id)
-        WHERE courses.slug = $1
-        AND url_path = $2
-        AND courses.deleted_at IS NULL
-        AND pages.deleted_at IS NULL;",
+        "
+SELECT pages.id,
+  pages.created_at,
+  pages.updated_at,
+  pages.course_id,
+  pages.chapter_id,
+  pages.url_path,
+  pages.title,
+  pages.deleted_at,
+  pages.content,
+  pages.order_number,
+  pages.copied_from
+FROM pages
+  JOIN courses ON (pages.course_id = courses.id)
+WHERE courses.slug = $1
+  AND url_path = $2
+  AND courses.deleted_at IS NULL
+  AND pages.deleted_at IS NULL;
+        ",
         course_slug,
         url_path
     )
@@ -272,10 +347,20 @@ pub async fn get_page_with_exercises(conn: &mut PgConnection, page_id: Uuid) -> 
     let mut page = sqlx::query_as!(
         Page,
         "
-SELECT *
+SELECT id,
+  created_at,
+  updated_at,
+  course_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number,
+  copied_from
 FROM pages
-WHERE id = $1
-",
+WHERE id = $1;
+    ",
         page_id
     )
     .fetch_one(&mut *conn)
@@ -392,13 +477,22 @@ pub async fn update_page(
         Page,
         r#"
 UPDATE pages
-SET
-    content = $2,
-    url_path = $3,
-    title = $4,
-    chapter_id = $5
+SET content = $2,
+  url_path = $3,
+  title = $4,
+  chapter_id = $5
 WHERE id = $1
-RETURNING *
+RETURNING id,
+  created_at,
+  updated_at,
+  course_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number,
+  copied_from
             "#,
         page_id,
         content_as_json,
@@ -731,20 +825,40 @@ pub async fn insert_page(
     // For sharing the transaction between functions
     // let transaction_holder = RefCell::new(transaction);
 
+    let course = crate::models::courses::get_course(&mut tx, new_page.course_id).await?;
+
     let page = sqlx::query_as!(
         Page,
         r#"
-  INSERT INTO
-    pages(course_id, content, url_path, title, order_number, chapter_id)
-  VALUES($1, $2, $3, $4, $5, $6)
-  RETURNING *
+INSERT INTO pages(
+    course_id,
+    content,
+    url_path,
+    title,
+    order_number,
+    chapter_id,
+    content_search_language
+  )
+VALUES($1, $2, $3, $4, $5, $6, $7::regconfig)
+RETURNING id,
+  created_at,
+  updated_at,
+  course_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number,
+  copied_from
           "#,
         new_page.course_id,
         content_as_json,
         new_page.url_path.trim(),
         new_page.title.trim(),
         next_order_number,
-        new_page.chapter_id
+        new_page.chapter_id,
+        course.content_search_language as _
     )
     .fetch_one(&mut tx)
     .await?;
@@ -809,11 +923,20 @@ pub async fn delete_page_and_exercises(
     let page = sqlx::query_as!(
         Page,
         r#"
-  UPDATE pages
-  SET
-    deleted_at = now()
-  WHERE id = $1
-  RETURNING *
+UPDATE pages
+SET deleted_at = now()
+WHERE id = $1
+RETURNING id,
+  created_at,
+  updated_at,
+  course_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number,
+  copied_from
           "#,
         page_id,
     )
@@ -853,7 +976,17 @@ pub async fn get_chapters_pages_with_exercises(
     let chapter_pages = sqlx::query_as!(
         Page,
         r#"
-SELECT *
+SELECT id,
+  created_at,
+  updated_at,
+  course_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number,
+  copied_from
 FROM pages
 WHERE chapter_id = $1
   AND deleted_at IS NULL
@@ -1106,7 +1239,17 @@ pub async fn get_chapters_pages_exclude_main_frontpage(
     let pages = sqlx::query_as!(
         Page,
         "
-SELECT p.*
+SELECT id,
+  created_at,
+  updated_at,
+  course_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number,
+  copied_from
 FROM pages p
 WHERE p.chapter_id = $1
   AND p.deleted_at IS NULL
@@ -1122,6 +1265,191 @@ WHERE p.chapter_id = $1
     .await?;
 
     Ok(pages)
+}
+
+/**
+Returns search results for a phrase i.e. looks for matches where the words come up right after each other
+*/
+pub async fn get_page_search_results_for_phrase(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    page_search_request: &PageSearchRequest,
+) -> ModelResult<Vec<PageSearchResult>> {
+    let course = crate::models::courses::get_course(&mut *conn, course_id).await?;
+
+    // Last word of the search term needed so that the sql statement can change it to a prefix match.
+    // Allows the last word to not be fully typed.
+    let last_word = if let Some(last) = page_search_request
+        .query
+        .trim()
+        .split_ascii_whitespace()
+        .last()
+    {
+        last
+    } else {
+        return Ok(Vec::new());
+    };
+
+    let res =   sqlx::query_as!(
+            PageSearchResult,
+            "
+-- common table expression for the search term tsquery so that we don't have to repeat it many times
+WITH cte as (
+    -- Converts the search term to a phrase search with phraseto_tsquery but appends ':*' to the last word so that it
+    -- becomes a prefix match. This way the search will also contain results when the last word in the search term
+    -- is only partially typed. Note that if to_tsquery($4) decides to stem the word, the replacement will be skipped.
+    SELECT ts_rewrite(
+        phraseto_tsquery($2::regconfig, $3),
+        to_tsquery($4),
+        to_tsquery($4 || ':*')
+    ) as query
+)
+SELECT id,
+    ts_rank(
+    content_search,
+    (
+        SELECT query
+        from cte
+    )
+    ) as rank,
+    ts_headline(
+    $2::regconfig,
+    title,
+    (
+        SELECT query
+        from cte
+    )
+    ) as title_headline,
+    ts_headline(
+    $2::regconfig,
+    content_search_original_text,
+    (
+        SELECT query
+        from cte
+    )
+    ) as content_headline,
+    url_path
+FROM pages
+WHERE course_id = $1
+    AND deleted_at IS NULL
+    AND content_search @@ (
+    SELECT query
+    from cte
+    )
+ORDER BY rank DESC
+LIMIT 50;
+        ",
+            course_id,
+            course.content_search_language as _,
+            page_search_request.query,
+            last_word
+        )
+        .fetch_all(conn)
+        .await?;
+
+    Ok(add_course_url_prefix_to_search_results(res, &course))
+}
+
+/**
+Returns search results for the given words. The words can appear in the source document in any order.
+*/
+pub async fn get_page_search_results_for_words(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    page_search_request: &PageSearchRequest,
+) -> ModelResult<Vec<PageSearchResult>> {
+    let course = crate::models::courses::get_course(&mut *conn, course_id).await?;
+
+    // Last word of the search term needed so that the sql statement can change it to a prefix match.
+    // Allows the last word to not be fully typed.
+    let last_word = if let Some(last) = page_search_request
+        .query
+        .trim()
+        .split_ascii_whitespace()
+        .last()
+    {
+        last
+    } else {
+        return Ok(Vec::new());
+    };
+
+    let res = sqlx::query_as!(
+            PageSearchResult,
+            "
+-- common table expression for the search term tsquery so that we don't have to repeat it many times
+WITH cte as (
+    -- Converts the search term to a word search with ands between the words with plainto_tsquery but appends ':*' to the
+    -- last word so that it  becomes a prefix match. This way the search will also contain results when the last word in
+    -- the search term is only partially typed. Note that if to_tsquery($4) decides to stem the word, the replacement
+    -- will be skipped.
+    SELECT ts_rewrite(
+        plainto_tsquery($2::regconfig, $3),
+        to_tsquery($4),
+        to_tsquery($4 || ':*')
+    ) as query
+)
+SELECT id,
+    ts_rank(
+    content_search,
+    (
+        SELECT query
+        from cte
+    )
+    ) as rank,
+    ts_headline(
+    $2::regconfig,
+    title,
+    (
+        SELECT query
+        from cte
+    )
+    ) as title_headline,
+    ts_headline(
+    $2::regconfig,
+    content_search_original_text,
+    (
+        SELECT query
+        from cte
+    )
+    ) as content_headline,
+    url_path
+FROM pages
+WHERE course_id = $1
+    AND deleted_at IS NULL
+    AND content_search @@ (
+    SELECT query
+    from cte
+    )
+ORDER BY rank DESC
+LIMIT 50;
+        ",
+            course_id,
+            course.content_search_language as _,
+            page_search_request.query,
+            last_word
+        )
+        .fetch_all(conn)
+        .await?;
+
+    Ok(add_course_url_prefix_to_search_results(res, &course))
+}
+
+fn add_course_url_prefix_to_search_results(
+    search_results: Vec<PageSearchResult>,
+    course: &Course,
+) -> Vec<PageSearchResult> {
+    search_results
+        .into_iter()
+        .map(|mut sr| {
+            let optional_slash = if sr.url_path.starts_with('/') {
+                ""
+            } else {
+                "/"
+            };
+            sr.url_path = format!("/{}{}{}", course.slug, optional_slash, sr.url_path);
+            sr
+        })
+        .collect()
 }
 
 /// Restore page contents and exercises to a previous revision

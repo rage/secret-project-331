@@ -34,6 +34,7 @@ pub struct Course {
     pub language_code: String,
     pub copied_from: Option<Uuid>,
     pub language_version_of_course_id: Option<Uuid>,
+    pub content_search_language: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -67,9 +68,26 @@ RETURNING id
 }
 
 pub async fn all_courses(conn: &mut PgConnection) -> ModelResult<Vec<Course>> {
-    let courses = sqlx::query_as!(Course, r#"SELECT * FROM courses WHERE deleted_at IS NULL;"#)
-        .fetch_all(conn)
-        .await?;
+    let courses = sqlx::query_as!(
+        Course,
+        r#"
+SELECT id,
+  name,
+  created_at,
+  updated_at,
+  organization_id,
+  deleted_at,
+  slug,
+  content_search_language::text,
+  language_code,
+  copied_from,
+  language_version_of_course_id
+FROM courses
+WHERE deleted_at IS NULL;
+"#
+    )
+    .fetch_all(conn)
+    .await?;
     Ok(courses)
 }
 
@@ -81,7 +99,17 @@ pub async fn get_all_language_versions_of_course(
     let courses = sqlx::query_as!(
         Course,
         "
-SELECT *
+SELECT id,
+  name,
+  created_at,
+  updated_at,
+  organization_id,
+  deleted_at,
+  slug,
+  content_search_language::text,
+  language_code,
+  copied_from,
+  language_version_of_course_id
 FROM courses
 WHERE id = $1
   OR language_version_of_course_id = $1;
@@ -134,16 +162,28 @@ INSERT INTO courses (
     name,
     organization_id,
     slug,
+    content_search_language,
     language_code,
     copied_from,
     language_version_of_course_id
   )
-VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING *;
+VALUES ($1, $2, $3, $4::regconfig, $5, $6, $7)
+RETURNING id,
+  name,
+  created_at,
+  updated_at,
+  organization_id,
+  deleted_at,
+  slug,
+  content_search_language::text,
+  language_code,
+  copied_from,
+  language_version_of_course_id;
     ",
         new_course.name,
         new_course.organization_id,
         new_course.slug,
+        parent_course.content_search_language as _,
         new_course.language_code,
         parent_course.id,
         language_version_of_course_id,
@@ -192,7 +232,8 @@ INSERT INTO pages (
     title,
     chapter_id,
     order_number,
-    copied_from
+    copied_from,
+    content_search_language
   )
 SELECT uuid_generate_v5($1, id::text),
   $1,
@@ -201,7 +242,8 @@ SELECT uuid_generate_v5($1, id::text),
   title,
   uuid_generate_v5($1, chapter_id::text),
   order_number,
-  id
+  id,
+  content_search_language
 FROM pages
 WHERE (course_id = $2)
 RETURNING id,
@@ -350,9 +392,27 @@ WHERE exercise_id IN (
 }
 
 pub async fn get_course(conn: &mut PgConnection, course_id: Uuid) -> ModelResult<Course> {
-    let course = sqlx::query_as!(Course, r#"SELECT * FROM courses WHERE id = $1;"#, course_id)
-        .fetch_one(conn)
-        .await?;
+    let course = sqlx::query_as!(
+        Course,
+        r#"
+SELECT id,
+  name,
+  created_at,
+  updated_at,
+  organization_id,
+  deleted_at,
+  slug,
+  content_search_language::text,
+  language_code,
+  copied_from,
+  language_version_of_course_id
+FROM courses
+WHERE id = $1;
+    "#,
+        course_id
+    )
+    .fetch_one(conn)
+    .await?;
     Ok(course)
 }
 
@@ -390,7 +450,22 @@ pub async fn organization_courses(
 ) -> ModelResult<Vec<Course>> {
     let courses = sqlx::query_as!(
         Course,
-        r#"SELECT * FROM courses WHERE organization_id = $1 AND deleted_at IS NULL;"#,
+        r#"
+SELECT id,
+  name,
+  created_at,
+  updated_at,
+  organization_id,
+  deleted_at,
+  slug,
+  content_search_language::text,
+  language_code,
+  copied_from,
+  language_version_of_course_id
+FROM courses
+WHERE organization_id = $1
+  AND deleted_at IS NULL;
+        "#,
         organization_id
     )
     .fetch_all(conn)
@@ -418,10 +493,19 @@ pub async fn insert_course(
     let course = sqlx::query_as!(
         Course,
         r#"
-    INSERT INTO
-      courses(id, name, slug, organization_id, language_code)
-    VALUES($1, $2, $3, $4, $5)
-    RETURNING *
+INSERT INTO courses(id, name, slug, organization_id, language_code)
+VALUES($1, $2, $3, $4, $5)
+RETURNING id,
+  name,
+  created_at,
+  updated_at,
+  organization_id,
+  deleted_at,
+  slug,
+  content_search_language::text,
+  language_code,
+  copied_from,
+  language_version_of_course_id;
             "#,
         id,
         course.name,
@@ -477,10 +561,19 @@ pub async fn update_course(
         Course,
         r#"
 UPDATE courses
-    SET name = $1
-WHERE
-    id = $2
-    RETURNING *
+SET name = $1
+WHERE id = $2
+RETURNING id,
+  name,
+  created_at,
+  updated_at,
+  organization_id,
+  deleted_at,
+  slug,
+  content_search_language::text,
+  language_code,
+  copied_from,
+  language_version_of_course_id
     "#,
         course_update.name,
         course_id
@@ -495,10 +588,19 @@ pub async fn delete_course(conn: &mut PgConnection, course_id: Uuid) -> ModelRes
         Course,
         r#"
 UPDATE courses
-    SET deleted_at = now()
-WHERE
-    id = $1
-RETURNING *
+SET deleted_at = now()
+WHERE id = $1
+RETURNING id,
+  name,
+  created_at,
+  updated_at,
+  organization_id,
+  deleted_at,
+  slug,
+  content_search_language::text,
+  language_code,
+  copied_from,
+  language_version_of_course_id
     "#,
         course_id
     )
@@ -511,7 +613,17 @@ pub async fn get_course_by_slug(conn: &mut PgConnection, course_slug: &str) -> M
     let course = sqlx::query_as!(
         Course,
         "
-SELECT *
+SELECT id,
+  name,
+  created_at,
+  updated_at,
+  organization_id,
+  deleted_at,
+  slug,
+  content_search_language::text,
+  language_code,
+  copied_from,
+  language_version_of_course_id
 FROM courses
 WHERE slug = $1
   AND deleted_at IS NULL
@@ -699,7 +811,20 @@ mod test {
         // Assuming there's only one page per chapter in test data.
         let copied_page = sqlx::query_as!(
             Page,
-            "SELECT * FROM pages WHERE chapter_id = $1;",
+            "
+SELECT id,
+  created_at,
+  updated_at,
+  course_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number,
+  copied_from
+FROM pages
+WHERE chapter_id = $1;",
             copied_chapter.id
         )
         .fetch_one(tx.as_mut())

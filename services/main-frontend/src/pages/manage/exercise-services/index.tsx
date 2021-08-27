@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { Box, Card, CardContent, CardHeader, IconButton, Modal } from "@material-ui/core"
+import { Box, Card, CardContent, CardHeader, Container, IconButton, Modal } from "@material-ui/core"
 import Dialog from "@material-ui/core/Dialog"
 import DialogActions from "@material-ui/core/DialogActions"
 import DialogContent from "@material-ui/core/DialogContent"
@@ -52,7 +52,7 @@ interface ExerciseServiceCreationModelProps {
 type updateStatus = null | "saved" | "failed"
 
 const convertToSlug = (name) => {
-  return name.toLowerCase().replaceAll(" ", "-")
+  return name.toLowerCase().trim().replaceAll(" ", "-")
 }
 
 const canSave = (service) => {
@@ -403,21 +403,23 @@ const ExerciseServicePage: React.FC = () => {
   }
 
   return (
-    <Layout navVariant={"simple"} frontPageUrl={basePath()}>
-      <h1> Manage exercise services:</h1>
-      <Button onClick={openModal} variant="primary" size="medium">
-        Add new service
-      </Button>
-      <br />
-      <ExerciseServiceContainer exercise_services={data} refetch={refetch} />
-      <ExerciseServiceCreationModal
-        open={open}
-        handleClose={handleClose}
-        exercise_service={exerciseService}
-        onChange={onChangeCreationModal}
-        onChangeName={onChangeName}
-        handleSubmit={createExerciseService}
-      />
+    <Layout navVariant={"simple"} frontPageUrl={basePath() + "/../.."}>
+      <Container maxWidth="md">
+        <h2> Manage exercise services:</h2>
+        <Button onClick={openModal} variant="primary" size="medium">
+          Add new service
+        </Button>
+        <br />
+        <ExerciseServiceContainer exercise_services={data} refetch={refetch} />
+        <ExerciseServiceCreationModal
+          open={open}
+          handleClose={handleClose}
+          exercise_service={exerciseService}
+          onChange={onChangeCreationModal}
+          onChangeName={onChangeName}
+          handleSubmit={createExerciseService}
+        />
+      </Container>
     </Layout>
   )
 }

@@ -35,7 +35,7 @@ const TimeComponent: React.FC<TimeComponentProps> = ({ name, date, right }) => {
             className={css`
               position: absolute;
               top: -68px;
-              left: 109px;
+              left: ${109 + (right ? 1 : -3)}px;
             `}
           >
             <p> {dateToString(date, true)} </p>

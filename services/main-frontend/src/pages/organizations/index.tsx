@@ -37,8 +37,7 @@ const Home: React.FC = () => {
               text-decoration: underline;
             `}
           >
-            {" "}
-            Manage exercise services{" "}
+            Manage exercise services
           </p>
         </Link>
       </Container>

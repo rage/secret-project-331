@@ -10,9 +10,7 @@
     "eslint:ci": "eslint .",
     "prepare": "husky install",
     "lint:css": "stylelint '**/*.tsx'",
-    "postinstall": "ts-node  -O \"{\\\"module\\\":\\\"commonjs\\\"}\" shared-module/setup-shared-module.ts",
-    "generate-guards-shared-module": "ts-auto-guard --export-all --paths shared-module/src/bindings.ts --project shared-module/tsconfig.json",
-    "generate-guards-gutenberg": "ts-auto-guard --export-all --paths services/course-material/src/types/GutenbergBlockAttributes.ts --project services/course-material/tsconfig.json"
+    "postinstall": "ts-node  -O \"{\\\"module\\\":\\\"commonjs\\\"}\" shared-module/setup-shared-module.ts"
   },
   "repository": {
     "type": "git",

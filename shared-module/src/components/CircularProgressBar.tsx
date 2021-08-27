@@ -1,7 +1,7 @@
 import styled from "@emotion/styled"
 import React from "react"
 
-import { baseTheme, headingFont } from "../utils"
+import { baseTheme, headingFont } from "../styles"
 
 export interface ExtraProps {
   variant?: "large" | "medium" | "small"

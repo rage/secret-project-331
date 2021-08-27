@@ -4,7 +4,7 @@ import React from "react"
 
 import CardSVG from "../../img/cardNext.svg"
 import { cardHeight, cardMaxWidth } from "../../styles/constants"
-import { theme, typography } from "../../styles"
+import { typography } from "../../styles"
 
 import { CardExtraProps } from "."
 

@@ -1,11 +1,18 @@
+use std::collections::HashMap;
+
 use super::{course_instances::CourseInstance, ModelResult};
 use crate::{
-    models::{course_instances::VariantStatus, pages::NewPage},
+    models::{
+        course_instances::{self, VariantStatus},
+        pages::NewPage,
+        ModelError,
+    },
     utils::{document_schema_processor::GutenbergBlock, file_store::FileStore},
     ApplicationConfiguration,
 };
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use sqlx::{Acquire, PgConnection};
 use ts_rs::TS;
 use uuid::Uuid;
@@ -24,6 +31,9 @@ pub struct Course {
     pub name: String,
     pub organization_id: Uuid,
     pub deleted_at: Option<DateTime<Utc>>,
+    pub language_code: String,
+    pub copied_from: Option<Uuid>,
+    pub language_version_of_course_id: Option<Uuid>,
     pub content_search_language: Option<String>,
 }
 
@@ -39,16 +49,18 @@ pub async fn insert(
     name: &str,
     organization_id: Uuid,
     slug: &str,
+    language_code: &str,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO courses (name, organization_id, slug)
-VALUES ($1, $2, $3)
+INSERT INTO courses (name, organization_id, slug, language_code)
+VALUES ($1, $2, $3, $4)
 RETURNING id
 ",
         name,
         organization_id,
         slug,
+        language_code,
     )
     .fetch_one(conn)
     .await?;
@@ -66,7 +78,10 @@ SELECT id,
   organization_id,
   deleted_at,
   slug,
-  content_search_language::text
+  content_search_language::text,
+  language_code,
+  copied_from,
+  language_version_of_course_id
 FROM courses
 WHERE deleted_at IS NULL;
 "#
@@ -74,6 +89,306 @@ WHERE deleted_at IS NULL;
     .fetch_all(conn)
     .await?;
     Ok(courses)
+}
+
+pub async fn get_all_language_versions_of_course(
+    conn: &mut PgConnection,
+    course: Course,
+) -> ModelResult<Vec<Course>> {
+    let parent_id = course.language_version_of_course_id.unwrap_or(course.id);
+    let courses = sqlx::query_as!(
+        Course,
+        "
+SELECT id,
+  name,
+  created_at,
+  updated_at,
+  organization_id,
+  deleted_at,
+  slug,
+  content_search_language::text,
+  language_code,
+  copied_from,
+  language_version_of_course_id
+FROM courses
+WHERE id = $1
+  OR language_version_of_course_id = $1;
+        ",
+        parent_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(courses)
+}
+
+pub async fn copy_course(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    new_course: NewCourse,
+) -> ModelResult<Course> {
+    let course = get_course(conn, course_id).await?;
+    clone_course_with_language_parent_id(conn, course, new_course, None).await
+}
+
+pub async fn copy_course_as_language_version_of_course(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    new_course: NewCourse,
+) -> ModelResult<Course> {
+    let course = get_course(conn, course_id).await?;
+    let language_version_of_course_id = course.language_version_of_course_id.unwrap_or(course.id);
+    clone_course_with_language_parent_id(
+        conn,
+        course,
+        new_course,
+        Some(language_version_of_course_id),
+    )
+    .await
+}
+
+async fn clone_course_with_language_parent_id(
+    conn: &mut PgConnection,
+    parent_course: Course,
+    new_course: NewCourse,
+    language_version_of_course_id: Option<Uuid>,
+) -> ModelResult<Course> {
+    let mut tx = conn.begin().await?;
+
+    // Create new course.
+    let copied_course = sqlx::query_as!(
+        Course,
+        "
+INSERT INTO courses (
+    name,
+    organization_id,
+    slug,
+    content_search_language,
+    language_code,
+    copied_from,
+    language_version_of_course_id
+  )
+VALUES ($1, $2, $3, $4::regconfig, $5, $6, $7)
+RETURNING id,
+  name,
+  created_at,
+  updated_at,
+  organization_id,
+  deleted_at,
+  slug,
+  content_search_language::text,
+  language_code,
+  copied_from,
+  language_version_of_course_id;
+    ",
+        new_course.name,
+        new_course.organization_id,
+        new_course.slug,
+        parent_course.content_search_language as _,
+        new_course.language_code,
+        parent_course.id,
+        language_version_of_course_id,
+    )
+    .fetch_one(&mut tx)
+    .await?;
+
+    // Copy course chapters. At this point, front_page_id will point to old course's page.
+    sqlx::query!(
+        "
+INSERT INTO chapters (
+    id,
+    name,
+    course_id,
+    chapter_number,
+    front_page_id,
+    opens_at,
+    chapter_image_path,
+    copied_from
+  )
+SELECT uuid_generate_v5($1, id::text),
+  name,
+  $1,
+  chapter_number,
+  front_page_id,
+  opens_at,
+  chapter_image_path,
+  id
+FROM chapters
+WHERE (course_id = $2);
+    ",
+        copied_course.id,
+        parent_course.id
+    )
+    .execute(&mut tx)
+    .await?;
+
+    // Copy course pages. At this point, exercise ids in content will point to old course's exercises.
+    let contents_iter = sqlx::query!(
+        "
+INSERT INTO pages (
+    id,
+    course_id,
+    content,
+    url_path,
+    title,
+    chapter_id,
+    order_number,
+    copied_from,
+    content_search_language
+  )
+SELECT uuid_generate_v5($1, id::text),
+  $1,
+  content,
+  url_path,
+  title,
+  uuid_generate_v5($1, chapter_id::text),
+  order_number,
+  id,
+  content_search_language
+FROM pages
+WHERE (course_id = $2)
+RETURNING id,
+  content;
+    ",
+        copied_course.id,
+        parent_course.id
+    )
+    .fetch_all(&mut tx)
+    .await?
+    .into_iter()
+    .map(|record| (record.id, record.content));
+
+    // Update front_page_id of chapters now that new pages exist.
+    sqlx::query!(
+        "
+UPDATE chapters
+SET front_page_id = uuid_generate_v5(course_id, front_page_id::text)
+WHERE course_id = $1
+    AND front_page_id IS NOT NULL;
+        ",
+        copied_course.id,
+    )
+    .execute(&mut tx)
+    .await?;
+
+    // Copy course exercises
+    let old_to_new_exercise_ids = sqlx::query!(
+        "
+INSERT INTO exercises (
+    id,
+    course_id,
+    name,
+    deadline,
+    page_id,
+    score_maximum,
+    order_number,
+    chapter_id,
+    copied_from
+  )
+SELECT uuid_generate_v5($1, id::text),
+  $1,
+  name,
+  deadline,
+  uuid_generate_v5($1, page_id::text),
+  score_maximum,
+  order_number,
+  chapter_id,
+  id
+FROM exercises
+WHERE course_id = $2
+RETURNING id,
+  copied_from;
+    ",
+        copied_course.id,
+        parent_course.id
+    )
+    .fetch_all(&mut tx)
+    .await?
+    .into_iter()
+    .map(|record| {
+        Ok((
+            record
+                .copied_from
+                .ok_or_else(|| {
+                    ModelError::Generic("Query failed to return valid data.".to_string())
+                })?
+                .to_string(),
+            record.id.to_string(),
+        ))
+    })
+    .collect::<ModelResult<HashMap<String, String>>>()?;
+
+    // Replace exercise ids in page contents.
+    for (page_id, content) in contents_iter {
+        if let Value::Array(mut blocks) = content {
+            for block in blocks.iter_mut() {
+                if block["name"] != Value::String("moocfi/exercise".to_string()) {
+                    continue;
+                }
+                if let Value::String(old_id) = &block["attributes"]["id"] {
+                    let new_id = old_to_new_exercise_ids
+                        .get(old_id)
+                        .ok_or_else(|| {
+                            ModelError::Generic("Invalid exercise id in content.".to_string())
+                        })?
+                        .to_string();
+                    block["attributes"]["id"] = Value::String(new_id);
+                }
+            }
+            sqlx::query!(
+                "
+UPDATE pages
+SET content = $1
+WHERE id = $2;
+                ",
+                Value::Array(blocks),
+                page_id,
+            )
+            .execute(&mut tx)
+            .await?;
+        }
+    }
+
+    // Copy exercise tasks
+    sqlx::query!(
+        "
+INSERT INTO exercise_tasks (
+    id,
+    exercise_id,
+    exercise_type,
+    assignment,
+    private_spec,
+    spec_file_id,
+    public_spec,
+    model_solution_spec,
+    copied_from
+  )
+SELECT uuid_generate_v5($1, id::text),
+  uuid_generate_v5($1, exercise_id::text),
+  exercise_type,
+  assignment,
+  private_spec,
+  spec_file_id,
+  public_spec,
+  model_solution_spec,
+  id
+FROM exercise_tasks
+WHERE exercise_id IN (
+    SELECT id
+    FROM exercises
+    WHERE course_id = $2
+  );
+    ",
+        copied_course.id,
+        parent_course.id,
+    )
+    .execute(&mut tx)
+    .await?;
+
+    // Create default instance for copied course.
+    course_instances::insert(&mut tx, copied_course.id, None, Some(VariantStatus::Draft)).await?;
+
+    tx.commit().await?;
+    Ok(copied_course)
 }
 
 pub async fn get_course(conn: &mut PgConnection, course_id: Uuid) -> ModelResult<Course> {
@@ -87,7 +402,10 @@ SELECT id,
   organization_id,
   deleted_at,
   slug,
-  content_search_language::text
+  content_search_language::text,
+  language_code,
+  copied_from,
+  language_version_of_course_id
 FROM courses
 WHERE id = $1;
     "#,
@@ -140,7 +458,10 @@ SELECT id,
   organization_id,
   deleted_at,
   slug,
-  content_search_language::text
+  content_search_language::text,
+  language_code,
+  copied_from,
+  language_version_of_course_id
 FROM courses
 WHERE organization_id = $1
   AND deleted_at IS NULL;
@@ -158,6 +479,7 @@ pub struct NewCourse {
     pub name: String,
     pub slug: String,
     pub organization_id: Uuid,
+    pub language_code: String,
 }
 
 pub async fn insert_course(
@@ -171,22 +493,25 @@ pub async fn insert_course(
     let course = sqlx::query_as!(
         Course,
         r#"
-    INSERT INTO
-      courses(id, name, slug, organization_id)
-    VALUES($1, $2, $3, $4)
-    RETURNING id,
-    name,
-    created_at,
-    updated_at,
-    organization_id,
-    deleted_at,
-    slug,
-    content_search_language::text
+INSERT INTO courses(id, name, slug, organization_id, language_code)
+VALUES($1, $2, $3, $4, $5)
+RETURNING id,
+  name,
+  created_at,
+  updated_at,
+  organization_id,
+  deleted_at,
+  slug,
+  content_search_language::text,
+  language_code,
+  copied_from,
+  language_version_of_course_id;
             "#,
         id,
         course.name,
         course.slug,
-        course.organization_id
+        course.organization_id,
+        course.language_code,
     )
     .fetch_one(&mut tx)
     .await?;
@@ -245,7 +570,10 @@ RETURNING id,
   organization_id,
   deleted_at,
   slug,
-  content_search_language::text
+  content_search_language::text,
+  language_code,
+  copied_from,
+  language_version_of_course_id
     "#,
         course_update.name,
         course_id
@@ -269,7 +597,10 @@ RETURNING id,
   organization_id,
   deleted_at,
   slug,
-  content_search_language::text
+  content_search_language::text,
+  language_code,
+  copied_from,
+  language_version_of_course_id
     "#,
         course_id
     )
@@ -289,7 +620,10 @@ SELECT id,
   organization_id,
   deleted_at,
   slug,
-  content_search_language::text
+  content_search_language::text,
+  language_code,
+  copied_from,
+  language_version_of_course_id
 FROM courses
 WHERE slug = $1
   AND deleted_at IS NULL
@@ -299,4 +633,229 @@ WHERE slug = $1
     .fetch_one(conn)
     .await?;
     Ok(course)
+}
+
+#[cfg(test)]
+mod test {
+    use serde_json::Value;
+
+    use super::*;
+    use crate::{
+        models::{
+            chapters::{self, DatabaseChapter, NewChapter},
+            courses,
+            exercise_tasks::{self, ExerciseTask},
+            exercises::{self, Exercise},
+            organizations,
+            pages::{self, PageUpdate},
+            users,
+        },
+        test_helper::Conn,
+    };
+
+    #[tokio::test]
+    async fn validates_language_code_when_adding_a_course() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        let organization_id = organizations::insert(
+            tx.as_mut(),
+            "",
+            "",
+            "",
+            Uuid::parse_str("8c34e601-b5db-4b33-a588-57cb6a5b1669").unwrap(),
+        )
+        .await
+        .unwrap();
+
+        // Valid language code allows course creation.
+        let mut tx2 = tx.begin().await;
+        let course_id = courses::insert(tx2.as_mut(), "", organization_id, "course", "en-US").await;
+        assert!(course_id.is_ok());
+        tx2.rollback().await;
+
+        // Empty language code is not allowed.
+        let mut tx2 = tx.begin().await;
+        let course_id = courses::insert(tx2.as_mut(), "", organization_id, "course", "").await;
+        assert!(course_id.is_err());
+        tx2.rollback().await;
+
+        // Wrong case language code is not allowed.
+        let mut tx2 = tx.begin().await;
+        let course_id = courses::insert(tx2.as_mut(), "", organization_id, "course", "en-us").await;
+        assert!(course_id.is_err());
+        tx2.rollback().await;
+
+        // Underscore in locale is not allowed.
+        let mut tx2 = tx.begin().await;
+        let course_id = courses::insert(tx2.as_mut(), "", organization_id, "course", "en_US").await;
+        assert!(course_id.is_err());
+        tx2.rollback().await;
+    }
+
+    #[tokio::test]
+    async fn copies_course() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+
+        // Create test data
+        let organization_id = organizations::insert(
+            tx.as_mut(),
+            "",
+            "",
+            "",
+            Uuid::parse_str("8c34e601-b5db-4b33-a588-57cb6a5b1669").unwrap(),
+        )
+        .await
+        .unwrap();
+        let user_id = users::insert(tx.as_mut(), "user@example.com")
+            .await
+            .unwrap();
+        let (course, _page, _instance) = courses::insert_course(
+            tx.as_mut(),
+            Uuid::parse_str("86ede846-db97-4204-94c3-29cc2e71818e").unwrap(),
+            NewCourse {
+                language_code: "en-US".to_string(),
+                name: "Course".to_string(),
+                organization_id,
+                slug: "course".to_string(),
+            },
+            user_id,
+        )
+        .await
+        .unwrap();
+        let (chapter, chapter_front_page) = chapters::insert_chapter(
+            tx.as_mut(),
+            NewChapter {
+                chapter_number: 1,
+                course_id: course.id,
+                front_front_page_id: None,
+                name: "Chapter".to_string(),
+            },
+            user_id,
+        )
+        .await
+        .unwrap();
+        let exercise_id = exercises::insert(
+            tx.as_mut(),
+            course.id,
+            "Exercise",
+            chapter_front_page.id,
+            chapter.id,
+            1,
+        )
+        .await
+        .unwrap();
+        let exercise_task_id = exercise_tasks::insert(
+            tx.as_mut(),
+            exercise_id,
+            "Exercise",
+            vec![],
+            Value::Null,
+            Value::Null,
+            Value::Null,
+        )
+        .await
+        .unwrap();
+        pages::update_page(
+            tx.as_mut(),
+            chapter_front_page.id,
+            PageUpdate {
+                chapter_id: chapter_front_page.chapter_id,
+                content: serde_json::json!([
+                    {
+                        "name": "moocfi/exercise",
+                        "isValid": true,
+                        "clientId": "b2ecb473-38cc-4df1-84f7-06709cc63e95",
+                        "attributes": {
+                            "id": exercise_id,
+                            "name": "Exercise"
+                        },
+                        "innerBlocks": []
+                    }
+                ]),
+                title: chapter_front_page.title,
+                url_path: chapter_front_page.url_path,
+            },
+            user_id,
+            true,
+        )
+        .await
+        .unwrap();
+
+        // Copy the course
+        let copied_course = copy_course_as_language_version_of_course(
+            tx.as_mut(),
+            course.id,
+            NewCourse {
+                language_code: "fi-FI".to_string(),
+                name: "Kurssi".to_string(),
+                organization_id,
+                slug: "kurssi".to_string(),
+            },
+        )
+        .await
+        .unwrap();
+        assert_eq!(copied_course.copied_from, Some(course.id));
+
+        // Assuming there's only one chapter per course in test data.
+        let copied_chapter = sqlx::query_as!(
+            DatabaseChapter,
+            "SELECT * FROM chapters WHERE course_id = $1;",
+            copied_course.id,
+        )
+        .fetch_one(tx.as_mut())
+        .await
+        .unwrap();
+        assert_eq!(copied_chapter.copied_from, Some(chapter.id));
+
+        // Assuming there's only one page per chapter in test data.
+        let copied_page = sqlx::query_as!(
+            Page,
+            "
+SELECT id,
+  created_at,
+  updated_at,
+  course_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number,
+  copied_from
+FROM pages
+WHERE chapter_id = $1;",
+            copied_chapter.id
+        )
+        .fetch_one(tx.as_mut())
+        .await
+        .unwrap();
+        assert_eq!(copied_page.copied_from, Some(chapter_front_page.id));
+
+        // Assuming there's only one exercise per page in test data.
+        let copied_exercise = sqlx::query_as!(
+            Exercise,
+            "SELECT * FROM exercises WHERE page_id = $1;",
+            copied_page.id
+        )
+        .fetch_one(tx.as_mut())
+        .await
+        .unwrap();
+        assert_eq!(copied_exercise.copied_from, Some(exercise_id));
+        assert_eq!(
+            copied_page.content[0]["attributes"]["id"],
+            Value::String(copied_exercise.id.to_string())
+        );
+
+        // Assuming there's only one exercise task per exercise in test data.
+        let copied_exercise_task = sqlx::query_as!(
+            ExerciseTask,
+            "SELECT * FROM exercise_tasks WHERE exercise_id = $1;",
+            copied_exercise.id
+        )
+        .fetch_one(tx.as_mut())
+        .await
+        .unwrap();
+        assert_eq!(copied_exercise_task.copied_from, Some(exercise_task_id));
+    }
 }

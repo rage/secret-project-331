@@ -29,6 +29,7 @@ pub struct ExerciseTask {
     pub private_spec: Option<serde_json::Value>,
     pub spec_file_id: Option<Uuid>,
     pub model_solution_spec: Option<serde_json::Value>,
+    pub copied_from: Option<Uuid>,
 }
 
 pub async fn insert(
@@ -109,4 +110,22 @@ pub async fn get_exercise_task_by_id(
     .fetch_one(conn)
     .await?;
     Ok(exercise_task)
+}
+
+pub async fn get_exercise_tasks_by_exercise_id(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+) -> ModelResult<Vec<ExerciseTask>> {
+    let exercise_tasks = sqlx::query_as!(
+        ExerciseTask,
+        "
+SELECT *
+FROM exercise_tasks
+WHERE exercise_id = $1
+  AND deleted_at IS NULL;",
+        exercise_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(exercise_tasks)
 }

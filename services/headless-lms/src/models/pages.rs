@@ -37,6 +37,7 @@ pub struct Page {
     // should always be a Vec<GutenbergBlock>, but is more convenient to keep as Value for sqlx
     pub content: serde_json::Value,
     pub order_number: i32,
+    pub copied_from: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -73,8 +74,6 @@ pub struct PageUpdate {
     pub url_path: String,
     pub title: String,
     pub chapter_id: Option<Uuid>,
-    /// If set, set this page to be the front page of this course part.
-    pub front_page_of_chapter_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -246,7 +245,8 @@ SELECT id,
   title,
   deleted_at,
   content,
-  order_number
+  order_number,
+  copied_from
 FROM pages
 WHERE course_id = $1
   AND deleted_at IS NULL;
@@ -271,7 +271,8 @@ SELECT id,
   title,
   deleted_at,
   content,
-  order_number
+  order_number,
+  copied_from
 FROM pages
 WHERE chapter_id = $1
   AND deleted_at IS NULL;
@@ -296,7 +297,8 @@ SELECT id,
   title,
   deleted_at,
   content,
-  order_number
+  order_number,
+  copied_from
 FROM pages
 WHERE id = $1;
 ",
@@ -324,7 +326,8 @@ SELECT pages.id,
   pages.title,
   pages.deleted_at,
   pages.content,
-  pages.order_number
+  pages.order_number,
+  pages.copied_from
 FROM pages
   JOIN courses ON (pages.course_id = courses.id)
 WHERE courses.slug = $1
@@ -353,7 +356,8 @@ SELECT id,
   title,
   deleted_at,
   content,
-  order_number
+  order_number,
+  copied_from
 FROM pages
 WHERE id = $1;
     ",
@@ -487,7 +491,8 @@ RETURNING id,
   title,
   deleted_at,
   content,
-  order_number
+  order_number,
+  copied_from
             "#,
         page_id,
         content_as_json,
@@ -518,23 +523,6 @@ RETURNING id,
     )
     .await?;
 
-    if let Some(front_page_of_chapter_id) = page_update.front_page_of_chapter_id {
-        let _res = sqlx::query_as!(
-            DatabaseChapter,
-            r#"
-UPDATE chapters
-SET front_page_id = $1
-WHERE id = $2
-RETURNING *
-        "#,
-            page_id,
-            front_page_of_chapter_id
-        )
-        // this should fail if no rows returned
-        .fetch_one(&mut tx)
-        .await?;
-    }
-
     tx.commit().await?;
 
     Ok(Page {
@@ -548,6 +536,7 @@ RETURNING *
         url_path: page.url_path,
         order_number: page.order_number,
         chapter_id: page.chapter_id,
+        copied_from: page.copied_from,
     })
 }
 
@@ -860,7 +849,8 @@ RETURNING id,
   title,
   deleted_at,
   content,
-  order_number
+  order_number,
+  copied_from
           "#,
         new_page.course_id,
         content_as_json,
@@ -921,6 +911,7 @@ RETURNING *;
         url_path: page.url_path,
         order_number: page.order_number,
         chapter_id: page.chapter_id,
+        copied_from: page.copied_from,
     })
 }
 
@@ -944,7 +935,8 @@ RETURNING id,
   title,
   deleted_at,
   content,
-  order_number
+  order_number,
+  copied_from
           "#,
         page_id,
     )
@@ -993,7 +985,8 @@ SELECT id,
   title,
   deleted_at,
   content,
-  order_number
+  order_number,
+  copied_from
 FROM pages
 WHERE chapter_id = $1
   AND deleted_at IS NULL
@@ -1255,7 +1248,8 @@ SELECT id,
   title,
   deleted_at,
   content,
-  order_number
+  order_number,
+  copied_from
 FROM pages p
 WHERE p.chapter_id = $1
   AND p.deleted_at IS NULL

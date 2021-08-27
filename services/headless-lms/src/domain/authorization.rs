@@ -101,6 +101,7 @@ pub enum Resource {
     AnyCourse,
     Role,
     User,
+    PlaygroundExample,
 }
 
 /// Can user_id action the resource?
@@ -156,7 +157,9 @@ pub async fn authorize(
             Some(crate::models::submissions::get_course_id(conn, id).await?),
             None,
         ),
-        Resource::Role | Resource::User | Resource::AnyCourse => (None, None),
+        Resource::Role | Resource::User | Resource::AnyCourse | Resource::PlaygroundExample => {
+            (None, None)
+        }
     };
 
     // check course role

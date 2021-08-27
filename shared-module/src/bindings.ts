@@ -429,3 +429,21 @@ export interface NormalizedCmsExerciseTask {
   assignment: unknown
   private_spec: unknown | null
 }
+
+export interface PlaygroundExample {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  name: string
+  url: string
+  width: number
+  data: unknown
+}
+
+export interface PlaygroundExampleData {
+  name: string
+  url: string
+  width: number
+  data: unknown
+}

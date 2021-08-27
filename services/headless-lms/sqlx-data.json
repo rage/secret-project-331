@@ -2900,6 +2900,57 @@
       "nullable": [null]
     }
   },
+  "852c661dc5d790fe5e36b64b99e111792f2986f9aab321006ad8c8841757e243": {
+    "query": "\nUPDATE playground_examples\nSET deleted_at = now()\nWHERE id = $1\nRETURNING *;\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 5,
+          "name": "url",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "width",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 7,
+          "name": "data",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, true, false, false, false, false]
+    }
+  },
   "8618ce42d70d235789ef5dc2bf23051fa7964b770cbd4cfa95022fa219f5dddf": {
     "query": "\nINSERT INTO courses (name, organization_id, slug)\nVALUES ($1, $2, $3)\nRETURNING id\n",
     "describe": {
@@ -3551,6 +3602,57 @@
         "Left": ["Uuid"]
       },
       "nullable": []
+    }
+  },
+  "a8898fa49012e0559379cee341366ae0a1baaaefab5af6d3d6db003b013d7839": {
+    "query": "\nSELECT *\nfrom playground_examples\nWHERE deleted_at IS NULL;\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 5,
+          "name": "url",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "width",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 7,
+          "name": "data",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": []
+      },
+      "nullable": [false, false, false, true, false, false, false, false]
     }
   },
   "a89142eebe3548b14c3a9f146864601f9ce78fa1d24dd5cf4958302343605b60": {
@@ -4238,6 +4340,57 @@
         "Left": ["Varchar", "Int4"]
       },
       "nullable": [false, false, false, true, true, false]
+    }
+  },
+  "d101cc0886070c6860311a987612cdd615eea9f3b02fdcf50711ed4e1b2b44bc": {
+    "query": "\nINSERT INTO playground_examples (name, url, width, data)\nVALUES ($1, $2, $3, $4)\nRETURNING *;\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 5,
+          "name": "url",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "width",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 7,
+          "name": "data",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": ["Varchar", "Varchar", "Int4", "Jsonb"]
+      },
+      "nullable": [false, false, false, true, false, false, false, false]
     }
   },
   "d13e367302b3873770dbcd15736161dd89130c0d06620cb5d337b1f7c9f230e8": {

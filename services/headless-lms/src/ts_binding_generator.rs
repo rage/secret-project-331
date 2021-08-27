@@ -17,6 +17,7 @@ use crate::{
         exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
         exercises::{
             ActivityProgress, CourseMaterialExercise, Exercise, ExerciseStatus, GradingProgress,
+            PlaygroundExample, PlaygroundExampleData,
         },
         feedback::{Feedback, FeedbackBlock, FeedbackCount, NewFeedback},
         gradings::{Grading, UserPointsUpdateStrategy},
@@ -93,6 +94,7 @@ ts_rs::export! {
   ExerciseTask,
   ExerciseWithExerciseTasks,
   NormalizedCmsExercise,
-  NormalizedCmsExerciseTask
+  NormalizedCmsExerciseTask,
+  PlaygroundExample,PlaygroundExampleData
     => "../../shared-module/src/bindings.ts"
 }

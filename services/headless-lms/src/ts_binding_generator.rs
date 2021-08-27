@@ -25,7 +25,8 @@ use crate::{
         page_history::{HistoryChangeReason, PageHistory},
         pages::{
             ExerciseWithExerciseTasks, HistoryRestoreData, NewPage, NormalizedCmsExercise,
-            NormalizedCmsExerciseTask, Page, PageRoutingData, PageUpdate, PageWithExercises,
+            NormalizedCmsExerciseTask, Page, PageRoutingDataWithChapterStatus, PageSearchRequest,
+            PageSearchResult, PageUpdate, PageWithExercises,
         },
         submissions::{
             NewSubmission, Submission, SubmissionCount, SubmissionCountByExercise,
@@ -48,7 +49,7 @@ ts_rs::export! {
   CourseInstance,
   ChapterWithStatus,
   CourseMaterialExercise,
-  PageRoutingData,
+  PageRoutingDataWithChapterStatus,
   SubmissionResult,
   Course,
   Exercise,
@@ -69,6 +70,8 @@ ts_rs::export! {
   CourseUpdate,
   Login,
   SubmissionInfo,
+  PageSearchResult,
+  PageSearchRequest,
   PageHistory,
   HistoryChangeReason,
   HistoryRestoreData,

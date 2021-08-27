@@ -2,7 +2,7 @@ import { ThemeProvider } from "@emotion/react"
 import styled from "@emotion/styled"
 import React from "react"
 
-import { theme, typography } from "../utils"
+import { theme } from "../styles"
 
 /* import { border, color, space } from "styled-system" */
 
@@ -11,6 +11,7 @@ const HeroWrapper = styled.div`
   width: 100%;
   border-radius: 1px;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  padding: 7.5em 1em;
 `
 
 const TextBox = styled.div`
@@ -23,13 +24,9 @@ const TextBox = styled.div`
   justify-content: center;
 
   h2 {
-    font-size: 50px;
-    font-size: ${typography.h2};
     font-weight: 400;
     z-index: 20;
-    margin-bottom: 0.8rem;
-    margin-top: 1.5rem;
-    line-height: 110px;
+    margin-bottom: 2em;
   }
 
   span {

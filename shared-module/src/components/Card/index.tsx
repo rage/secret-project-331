@@ -1,7 +1,7 @@
 import { ThemeProvider } from "@emotion/react"
 import React from "react"
 
-import { theme } from "../../utils"
+import { theme } from "../../styles"
 
 import IllustrationCard from "./IllustrationCard"
 import SimpleCard from "./SimpleCard"
@@ -11,9 +11,12 @@ import SimpleCard from "./SimpleCard"
 export interface CardExtraProps {
   variant: "simple" | "Illustration"
   title: string
-  chapter: number
+  chapterNumber: number
   url?: string
   bg?: string
+  open?: boolean
+  date?: string
+  time?: string
 }
 
 export type CardProps = React.ButtonHTMLAttributes<HTMLDivElement> & CardExtraProps

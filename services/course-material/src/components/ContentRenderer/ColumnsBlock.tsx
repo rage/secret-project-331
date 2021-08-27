@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 
-import { respond } from "../../shared-module/utils/respond"
+import { respond } from "../../shared-module/styles/respond"
 import { ColumnsAttributes } from "../../types/GutenbergBlockAttributes"
 
 import DefaultBlock from "./DefaultBlock"

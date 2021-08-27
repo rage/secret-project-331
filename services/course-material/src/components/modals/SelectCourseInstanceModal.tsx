@@ -73,7 +73,7 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({ o
         `}
       >
         {submitError && <pre>{JSON.stringify(submitError, undefined, 2)}</pre>}
-        <h1>Select course version to continue.</h1>
+        <h4>Select course version to continue.</h4>
         <SelectCourseInstanceForm
           courseInstances={courseInstances}
           onSubmitForm={handleSubmitAndClose}

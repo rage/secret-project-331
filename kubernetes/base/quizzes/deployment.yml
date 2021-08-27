@@ -36,7 +36,7 @@ spec:
             - containerPort: 3004
               name: http
           env:
-            - name: BASE_PATH
+            - name: NEXT_PUBLIC_BASE_PATH
               value: "/quizzes"
           resources:
             requests:

@@ -100,6 +100,7 @@ async fn main() -> Result<()> {
         &mut conn,
         "University of Helsinki, Department of Computer Science",
         "uh-cs",
+        "Organization for Computer Science students and the rest of the world who wish to learn the basics in Computer Science, programming and software development.",
         Uuid::parse_str("8bb12295-53ac-4099-9644-ac0ff5e34d92")?,
     )
     .await?;
@@ -143,6 +144,7 @@ async fn main() -> Result<()> {
         name: "Introduction to Computer Science".to_string(),
         slug: "introduction-to-computer-science".to_string(),
         organization_id: uh_cs,
+        language_code: "en-US".to_string(),
     };
     let (cs_course, _cs_front_page, _cs_default_course_instance) = courses::insert_course(
         &mut conn,
@@ -164,6 +166,7 @@ async fn main() -> Result<()> {
         &mut conn,
         "University of Helsinki, Department of Mathematics and Statistics",
         "uh-mathstat",
+        "Organization for Mathematics and Statistics courses. This organization creates courses that do require prior experience in mathematics, such as integration and induction.",
         Uuid::parse_str("269d28b2-a517-4572-9955-3ed5cecc69bd")?,
     )
     .await?;
@@ -171,6 +174,7 @@ async fn main() -> Result<()> {
         name: "Introduction to Statistics".to_string(),
         slug: "introduction-to-statistics".to_string(),
         organization_id: uh_mathstat,
+        language_code: "en-US".to_string(),
     };
     let (statistics_course, _statistics_front_page, _statistics_default_course_instance) =
         courses::insert_course(
@@ -218,6 +222,7 @@ async fn seed_sample_course(
         name: course_name.to_string(),
         organization_id: org,
         slug: course_slug.to_string(),
+        language_code: "en-US".to_string(),
     };
     let (course, _front_page, _default_instance) =
         courses::insert_course(conn, course_id, new_course, admin).await?;
@@ -668,6 +673,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         name: "Introduction to Course Material".to_string(),
         organization_id: org,
         slug: "introduction-to-course-material".to_string(),
+        language_code: "en-US".to_string(),
     };
     let (course, front_page, _default_instance) = courses::insert_course(
         conn,
@@ -684,7 +690,6 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
             title: "Introduction to Course Material".to_string(),
             url_path: "/".to_string(),
             chapter_id: None,
-            front_page_of_chapter_id: None,
             content: serde_json::to_value(&[
                 GutenbergBlock::landing_page_hero_section("Welcome to Introduction to Course Material", "In this course you'll learn the basics of UI/UX design. At the end of course you should be able to create your own design system.")
                 .with_id(Uuid::parse_str("6ad81525-0010-451f-85e5-4832e3e364a8")?),
@@ -720,7 +725,6 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         PageUpdate {
             title: "User Interface".to_string(),
             url_path: "/chapter-1".to_string(),
-            front_page_of_chapter_id: Some(chapter_1.id),
             chapter_id: Some(chapter_1.id),
             content: serde_json::to_value(&[
                 GutenbergBlock::hero_section("User Interface", "In the industrial design field of human–computer interaction, a user interface is the space where interactions between humans and machines occur.")
@@ -792,7 +796,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
                 serde_json::json!( {
-                  "content": "Sed quis fermentum mi. Integer commodo turpis a fermentum tristique. Integer convallis, nunc sed scelerisque varius, mi tellus molestie metus, eu ultrices justo tellus non arcu. Cras euismod, lectus eu scelerisque mattis, odio ex ornare ipsum, a dapibus nulla leo maximus orci. Etiam laoreet venenatis lorem, vitae iaculis mauris. Nullam lobortis, tortor eget ullamcorper lobortis, tellus odio tincidunt dolor, vitae gravida nibh turpis ac sem. Integer non sodales eros.",
+                  "content": "Sed quis fermentum mi. Integer commodo turpis a fermentum tristique. Integer convallis, nunc sed scelerisque varius, mi tellus molestie metus, eu ultrices banana justo tellus non arcu. Cras euismod, cat lectus eu scelerisque mattis, odio ex ornare ipsum, a dapibus nulla leo maximus orci. Etiam laoreet venenatis lorem, vitae iaculis mauris. Nullam lobortis, tortor eget ullamcorper lobortis, tellus odio tincidunt dolor, vitae gravida nibh turpis ac sem. Integer non sodales eros.",
                   "dropCap": false
                 }),
             )
@@ -826,7 +830,6 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
             url_path: "/chapter-2".to_string(),
             title: "User Experience".to_string(),
             chapter_id: Some(chapter_2.id),
-            front_page_of_chapter_id: Some(chapter_2.id),
             content: serde_json::to_value(&[
                 GutenbergBlock::hero_section("User Experience", "The user experience is how a user interacts with and experiences a product, system or service. It includes a person's perceptions of utility, ease of use, and efficiency.")
                     .with_id(Uuid::parse_str("c5c623f9-c7ca-4f8e-b04b-e91cecef217a")?),
@@ -873,7 +876,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
                 serde_json::json!({
-                  "content": "Vestibulum a scelerisque ante. Fusce interdum eros elit, posuere mattis sapien tristique id. Integer commodo mi orci, sit amet tempor libero vulputate in. Ut id gravida quam. Proin massa dolor, posuere nec metus eu, dignissim viverra nulla. Vestibulum quis neque bibendum, hendrerit diam et, fermentum diam. Sed risus nibh, suscipit in neque nec, bibendum interdum nibh. Aliquam ut enim a mi ultricies finibus. Nam tristique felis ac risus interdum molestie. Nulla venenatis, augue sed porttitor ultrices, lacus ante sollicitudin dui, vel vehicula ex enim ac mi.",
+                  "content": "Vestibulum a scelerisque ante. Fusce interdum eros elit, posuere mattis sapien tristique id. Integer commodo mi orci, sit amet tempor libero vulputate in. Ut id gravida quam. Proin massa dolor, posuere nec metus eu, dignissim viverra nulla. Vestibulum quis neque bibendum, hendrerit diam et, fermentum diam. Sed risus nibh, suscipit in neque nec, bibendum interdum nibh. Aliquam ut banana cat enim a mi ultricies finibus. Nam tristique felis ac risus interdum molestie. Nulla venenatis, augue sed porttitor ultrices, lacus ante sollicitudin dui, vel vehicula ex enim ac mi.",
                   "dropCap": false
                 }),
             )
@@ -911,7 +914,6 @@ async fn create_page(
             chapter_id: Some(chapter_id),
             url_path: url_path.to_string(),
             title: title.to_string(),
-            front_page_of_chapter_id: None,
             content: serde_json::to_value(content).unwrap(),
         },
         author,

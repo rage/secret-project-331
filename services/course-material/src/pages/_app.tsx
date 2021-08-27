@@ -7,7 +7,7 @@ import { ReactQueryDevtools } from "react-query/devtools"
 import { LoginStateContextProvider } from "../shared-module/contexts/LoginStateContext"
 import { queryClient } from "../shared-module/services/appQueryClient"
 import GlobalStyles from "../shared-module/styles/GlobalStyles"
-import muiTheme from "../shared-module/utils/muiTheme"
+import muiTheme from "../shared-module/styles/muiTheme"
 
 const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
   React.useEffect(() => {

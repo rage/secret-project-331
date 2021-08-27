@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import React from "react"
 import { useQuery } from "react-query"
 
@@ -20,14 +21,24 @@ const ExerciseList: React.FC<{ chapterId: string }> = ({ chapterId }) => {
   }
 
   return (
-    <>
-      <h3>List of all chapters exercises in every page</h3>
+    <div
+      className={css`
+        padding: 0em 1em 5em 1em;
+      `}
+    >
+      <h4
+        className={css`
+          text-align: center;
+        `}
+      >
+        EXERCISES IN THIS CHAPTER
+      </h4>
       {data.map((page) => (
         <div key={page.id}>
           <PageExerciseList page={page} />
         </div>
       ))}
-    </>
+    </div>
   )
 }
 

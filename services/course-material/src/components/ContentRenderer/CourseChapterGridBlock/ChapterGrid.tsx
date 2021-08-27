@@ -1,29 +1,23 @@
 import { css } from "@emotion/css"
-import React, { useEffect, useState } from "react"
+import React from "react"
 import { useQuery } from "react-query"
 
 import useQueryParameter from "../../../hooks/useQueryParameter"
+import useTime from "../../../hooks/useTime"
 import { fetchChaptersInTheCourse } from "../../../services/backend"
 import { wideWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import { cardMaxWidth } from "../../../shared-module/styles/constants"
 import dontRenderUntilQueryParametersReady from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import GenericLoading from "../../GenericLoading"
 
-import ChapterGridChapter from "./ChapterGridChapter"
+import ChapterGridCard from "./ChapterGridCard"
 
 const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
-  const [now, setNow] = useState(new Date())
+  const now = useTime()
   const { data, error, isLoading } = useQuery(`course-${courseId}-chapters`, () =>
     fetchChaptersInTheCourse(courseId),
   )
   const courseSlug = useQueryParameter("courseSlug")
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setNow(new Date())
-    }, 1000)
-    return () => clearInterval(interval)
-  }, [])
 
   if (error) {
     return <pre>{JSON.stringify(error, undefined, 2)}</pre>
@@ -34,15 +28,18 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
   }
 
   return (
-    <div className={wideWidthCenteredComponentStyles}>
+    <div
+      className={css`
+        ${wideWidthCenteredComponentStyles}
+        padding: 7.5em 1em;
+      `}
+    >
       <h2
         className={css`
           font-style: normal;
           font-weight: bold;
-          font-size: 76px;
-          line-height: 76px;
           text-align: center;
-          padding-bottom: 1em;
+          padding-bottom: 2em;
         `}
       >
         Course Overview
@@ -51,17 +48,20 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
         className={css`
           @supports (display: grid) {
             display: grid;
-            grid-gap: 100px;
+            grid-gap: 75px;
+            max-width: 1075px;
+            margin: 0 auto;
+
             align-content: space-around;
             /* On small screens allow the cards to be really narrow */
             grid-template-columns: 1fr;
             grid-auto-rows: 1fr;
             /*
             Automatically place the cards on the grid so that they resize based on content,
-            are all the same height, and don't get narrower than 450px.
+            are all the same height, and don't get narrower than 500px.
             */
-            @media only screen and (min-width: 450px) {
-              grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            @media only screen and (min-width: 500px) {
+              grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
               grid-auto-rows: 1fr;
             }
           }
@@ -84,7 +84,7 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
                 `}
                 key={chapter.id}
               >
-                <ChapterGridChapter now={now} chapter={chapter} courseSlug={courseSlug} />
+                <ChapterGridCard bg="yellow" now={now} chapter={chapter} courseSlug={courseSlug} />
               </div>
             )
           })}

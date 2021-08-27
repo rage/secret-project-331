@@ -1,8 +1,9 @@
 import styled from "@emotion/styled"
-import { Button, FormControlLabel, Radio, RadioGroup } from "@material-ui/core"
+import { FormControlLabel, Radio, RadioGroup } from "@material-ui/core"
 import React, { useState } from "react"
 
 import { CourseInstance } from "../../shared-module/bindings"
+import Button from "../../shared-module/components/Button"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;
@@ -37,7 +38,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ courseInstances, onSubmit
         </RadioGroup>
       </FieldContainer>
       <div>
-        <Button onClick={enrollOnCourse} disabled={!instance}>
+        <Button size="medium" variant="primary" onClick={enrollOnCourse} disabled={!instance}>
           Continue
         </Button>
       </div>

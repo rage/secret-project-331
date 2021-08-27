@@ -1,7 +1,9 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { Button, TextField } from "@material-ui/core"
+import { TextField } from "@material-ui/core"
 import React, { useState } from "react"
+
+import Button from "../../shared-module/components/Button"
 
 const StyledTextField = styled(TextField)`
   margin: 0.3rem;
@@ -43,7 +45,9 @@ const NewEmailTemplateForm: React.FC<NewEmailTemplateForm> = ({ onSubmitForm }) 
         </FieldContainer>
       </div>
       <div>
-        <StyledButton onClick={() => onSubmitForm(name)}>Create e-mail template</StyledButton>
+        <StyledButton size="medium" variant="primary" onClick={() => onSubmitForm(name)}>
+          Create e-mail template
+        </StyledButton>
       </div>
     </div>
   )

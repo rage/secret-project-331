@@ -18,6 +18,17 @@ run_command sed -i '1s;^;// ###########################################\n// ## T
 
 run_command npm run eslint:format-bindings
 
+# Go back from headless-lms to the root directory
+run_command cd ../..
+
+if [ -f "./shared-module/src/bindings.guard.ts" ]; then
+  run_command rm ./shared-module/src/bindings.guard.ts
+fi
+
+run_command npx ts-auto-guard --export-all --paths ./shared-module/src/bindings.ts --project shared-module/tsconfig.json
+run_command npx eslint --fix shared-module/src/bindings.ts shared-module/src/bindings.guard.ts
+
+
 # Post-update for shared module
 
 run_command npm run postinstall

@@ -1,8 +1,10 @@
 import { css } from "@emotion/css"
-import { Button, Dialog, Paper } from "@material-ui/core"
+import { Dialog, Paper } from "@material-ui/core"
 import { BlockInstance, serialize } from "@wordpress/blocks"
 import dynamic from "next/dynamic"
 import { useState } from "react"
+
+import Button from "../shared-module/components/Button"
 
 export interface SerializeGutenbergModalProps {
   content: BlockInstance[]
@@ -20,7 +22,9 @@ const SerializeGutenbergModal: React.FC<SerializeGutenbergModalProps> = ({ conte
 
   return (
     <>
-      <Button onClick={() => setSerialized(serialize(content))}>Serialize to HTML</Button>
+      <Button size="medium" variant="primary" onClick={() => setSerialized(serialize(content))}>
+        Serialize to HTML
+      </Button>
       <Dialog maxWidth="xl" open={serialized !== null} onClose={() => setSerialized(null)}>
         <Paper
           className={css`

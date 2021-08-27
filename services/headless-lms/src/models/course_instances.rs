@@ -206,14 +206,15 @@ mod test {
             tx.as_mut(),
             "",
             "",
+            "",
             Uuid::parse_str("8c34e601-b5db-4b33-a588-57cb6a5b1669").unwrap(),
         )
         .await
         .unwrap();
-        let course_1_id = courses::insert(tx.as_mut(), "", organization_id, "course-1")
+        let course_1_id = courses::insert(tx.as_mut(), "", organization_id, "course-1", "en-US")
             .await
             .unwrap();
-        let course_2_id = courses::insert(tx.as_mut(), "", organization_id, "course-2")
+        let course_2_id = courses::insert(tx.as_mut(), "", organization_id, "course-2", "en-US")
             .await
             .unwrap();
 

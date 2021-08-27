@@ -1,9 +1,10 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { Button, TextField } from "@material-ui/core"
+import { TextField } from "@material-ui/core"
 import React, { useState } from "react"
 
 import { postNewPage } from "../../services/backend/pages"
+import Button from "../../shared-module/components/Button"
 import { normalizePath } from "../../utils/normalizePath"
 
 const PathFieldWithPrefixElement = styled.div`
@@ -90,7 +91,9 @@ const NewPageForm: React.FC<NewPageFormProps> = ({
         </FieldContainer>
       </div>
       <div>
-        <Button onClick={createNewPage}>Create page</Button>
+        <Button variant="primary" size="medium" onClick={createNewPage}>
+          Create page
+        </Button>
       </div>
     </div>
   )

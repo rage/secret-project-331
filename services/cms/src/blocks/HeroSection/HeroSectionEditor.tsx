@@ -11,7 +11,7 @@ const HeroSectionEditor: React.FC<BlockEditProps<HeroSectionAttributes>> = ({
   attributes,
   setAttributes,
 }) => {
-  const { title, subTitle } = attributes
+  const { title, subtitle } = attributes
   return (
     <BlockWrapper id={clientId}>
       <RichText
@@ -24,8 +24,8 @@ const HeroSectionEditor: React.FC<BlockEditProps<HeroSectionAttributes>> = ({
       <RichText
         className="has-text-align-center wp-block-heading"
         tagName="h3"
-        value={subTitle}
-        onChange={(value: string) => setAttributes({ subTitle: value })}
+        value={subtitle}
+        onChange={(value: string) => setAttributes({ subtitle: value })}
         placeholder={"Hero section subtitle"}
       />
     </BlockWrapper>

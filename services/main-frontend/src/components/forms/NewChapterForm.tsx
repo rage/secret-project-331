@@ -1,9 +1,10 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { Button, TextField } from "@material-ui/core"
+import { TextField } from "@material-ui/core"
 import React, { useState } from "react"
 
 import { postNewChapter } from "../../services/backend/chapters"
+import Button from "../../shared-module/components/Button"
 
 const StyledTextField = styled(TextField)`
   margin: 0.3rem;
@@ -78,7 +79,9 @@ const NewChapterForm: React.FC<NewChapterFormProps> = ({
         </FieldContainer>
       </div>
       <div>
-        <StyledButton onClick={createNewChapter}>Create chapter</StyledButton>
+        <StyledButton variant="primary" size="medium" onClick={createNewChapter}>
+          Create chapter
+        </StyledButton>
       </div>
     </div>
   )

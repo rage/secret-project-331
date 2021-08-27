@@ -29,6 +29,7 @@ pub struct Exercise {
     pub deleted_at: Option<DateTime<Utc>>,
     pub score_maximum: i32,
     pub order_number: i32,
+    pub copied_from: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, TS)]
@@ -159,6 +160,25 @@ WHERE course_id = $1
   AND deleted_at IS NULL
 "#,
         course_id
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+    Ok(exercises)
+}
+
+pub async fn get_exercises_by_page_id(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+) -> ModelResult<Vec<Exercise>> {
+    let exercises = sqlx::query_as!(
+        Exercise,
+        r#"
+SELECT *
+FROM exercises
+WHERE page_id = $1
+  AND deleted_at IS NULL
+"#,
+        page_id,
     )
     .fetch_all(&mut *conn)
     .await?;
@@ -354,7 +374,7 @@ mod test {
         )
         .await
         .unwrap();
-        let course_id = courses::insert(tx.as_mut(), "", organization_id, "")
+        let course_id = courses::insert(tx.as_mut(), "", organization_id, "", "en-US")
             .await
             .unwrap();
         let course_instance = course_instances::insert(tx.as_mut(), course_id, None, None)

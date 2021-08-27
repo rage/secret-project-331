@@ -6,7 +6,7 @@ CREATE TABLE playground_examples (
   deleted_at TIMESTAMP WITH TIME ZONE,
   name varchar(255) not null,
   url varchar(255) not null,
-  width varchar(255) not null,
+  width INTEGER not null,
   data jsonb not null,
   UNIQUE (data, name, width, url)
 );

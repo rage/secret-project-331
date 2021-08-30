@@ -17,6 +17,7 @@ export default async function expectScreenshotsToMatchSnapshots(
   snapshotName: string,
   waitForThisToBeVisibleAndStable: string | ElementHandle | (string | ElementHandle)[],
   toMatchSnapshotOptions: ToMatchSnapshotOptions = { threshold: 0.3 },
+  beforeScreenshot?: () => Promise<void>,
 ): Promise<void> {
   if (!headless && !process.env.PWDEBUG) {
     console.warn("Not in headless mode, skipping screenshot model solutions in exercises")
@@ -27,13 +28,21 @@ export default async function expectScreenshotsToMatchSnapshots(
 
   const elementHandle = await waitToBeVisible(waitForThisToBeVisibleAndStable, page)
 
-  await snapshotWithViewPort(page, snapshotName, "mobile", toMatchSnapshotOptions, elementHandle)
+  await snapshotWithViewPort(
+    page,
+    snapshotName,
+    "mobile",
+    toMatchSnapshotOptions,
+    elementHandle,
+    beforeScreenshot,
+  )
   await snapshotWithViewPort(
     page,
     snapshotName,
     "small-desktop",
     toMatchSnapshotOptions,
     elementHandle,
+    beforeScreenshot,
   )
 
   await page.setViewportSize(originalViewPort)
@@ -45,21 +54,39 @@ async function snapshotWithViewPort(
   viewPortName: keyof typeof viewPorts,
   toMatchSnapshotOptions: ToMatchSnapshotOptions,
   waitForThisToBeStable: ElementHandle | ElementHandle[],
+  beforeScreenshot?: () => Promise<void>,
 ) {
-  await page.setViewportSize(viewPorts[viewPortName])
-  if (Array.isArray(waitForThisToBeStable)) {
-    for (const element of waitForThisToBeStable) {
-      await element.waitForElementState("stable")
+  // typing caret sometimes blinks and fails screenshot tests
+  const style = await page.addStyleTag({
+    content: `
+    html, body {
+      caret-color: rgba(0,0,0,0) !important;
     }
-  } else if (waitForThisToBeStable) {
-    await waitForThisToBeStable.waitForElementState("stable")
+  `,
+  })
+  await page.setViewportSize(viewPorts[viewPortName])
+  await waitToBeStable(waitForThisToBeStable)
+  if (beforeScreenshot) {
+    await page.waitForTimeout(100)
+    await beforeScreenshot()
+    await page.waitForTimeout(100)
+    await waitToBeStable(waitForThisToBeStable)
   }
+
   const screenshot = await page.screenshot()
   const screenshotName = `${snapshotName}-${viewPortName}.png`
   expect(screenshot).toMatchSnapshot(screenshotName, toMatchSnapshotOptions)
   // we do a accessibility check for every screenshot because the places we screenshot tend to also be important
   // for accessibility
   await accessibilityCheck(page, screenshotName)
+  // show the typing caret again
+  await style.evaluate((handle) => {
+    if (handle instanceof Element) {
+      handle.remove()
+    } else {
+      console.error("Could not remove the style that hides the typing caret.")
+    }
+  })
 }
 
 async function waitToBeVisible(
@@ -79,4 +106,16 @@ async function waitToBeVisible(
     elementHandle = waitForThisToBeVisibleAndStable
   }
   return elementHandle
+}
+
+async function waitToBeStable(
+  waitForThisToBeStable: ElementHandle | ElementHandle[],
+): Promise<void> {
+  if (Array.isArray(waitForThisToBeStable)) {
+    for (const element of waitForThisToBeStable) {
+      await element.waitForElementState("stable")
+    }
+  } else if (waitForThisToBeStable) {
+    await waitForThisToBeStable.waitForElementState("stable")
+  }
 }

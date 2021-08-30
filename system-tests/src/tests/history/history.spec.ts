@@ -1,5 +1,4 @@
 import { expect, Page, test } from "@playwright/test"
-import { env } from "process"
 
 import expectPath from "../../utils/expect"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
@@ -156,17 +155,34 @@ test("test", async ({ page, headless }) => {
     page.click("text=New title!(/chapter-1/page-1) history >> :nth-match(a, 2)"),
   ])
 
-  await expectScreenshotsToMatchSnapshots(page, headless, "history-view-p1", "text=core/paragraph")
+  const stableElement = await page.waitForSelector("text=core/paragraph")
+
+  await expectScreenshotsToMatchSnapshots(
+    page,
+    headless,
+    "history-view-p1",
+    stableElement,
+    { threshold: 0.3 },
+    async () => {
+      await replaceIdsAndTimesFromHistoryView(page)
+    },
+  )
 
   // Click [aria-label="Go to page 4"]
   await page.click('[aria-label="Go to page 4"]')
   expectPath(page, "/manage/pages/[id]/history?page=4")
 
+  const stableElement2 = await page.waitForSelector("text=core/paragraph")
+
   await expectScreenshotsToMatchSnapshots(
     page,
     headless,
     "history-view-p4-before-compare",
-    "text=core/paragraph",
+    stableElement2,
+    { threshold: 0.3 },
+    async () => {
+      await replaceIdsAndTimesFromHistoryView(page)
+    },
   )
 
   await page.waitForTimeout(100)
@@ -211,7 +227,11 @@ test("test", async ({ page, headless }) => {
     page,
     headless,
     "history-view-after-restore",
-    "text=Best exercise",
+    "text=private_spec",
+    { threshold: 0.3 },
+    async () => {
+      await replaceIdsAndTimesFromHistoryView(page)
+    },
   )
 
   // Click text=Home
@@ -263,6 +283,17 @@ async function replaceIdsAndTimesFromHistoryView(page: Page) {
       } else if (div.children.length === 0 && div.textContent.includes("Restored from")) {
         div.innerHTML =
           "Restored from xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx by xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx on day month year hh:mm:ss timezone"
+      }
+    }
+    const uuidRegex2 = new RegExp(
+      "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}",
+    )
+    const spans = document.querySelectorAll(".monaco-diff-editor span")
+    for (const span of spans) {
+      if (span.children.length === 0 && uuidRegex2.test(span.textContent)) {
+        span.innerHTML = "x"
+      } else if (span.textContent.length < 3) {
+        span.innerHTML = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
       }
     }
   })

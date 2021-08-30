@@ -38,6 +38,26 @@ async fn insert_playground_example(
 }
 
 #[instrument(skip(pool))]
+async fn update_playground_example(
+    pool: web::Data<PgPool>,
+    payload: web::Json<PlaygroundExample>,
+    user: AuthUser,
+) -> ControllerResult<Json<PlaygroundExample>> {
+    let mut conn = pool.acquire().await?;
+    let example = payload.0;
+    authorize(
+        &mut conn,
+        Action::Edit,
+        user.id,
+        Resource::PlaygroundExample,
+    )
+    .await?;
+    let res =
+        crate::models::playground_examples::update_playground_example(&mut conn, example).await?;
+    Ok(Json(res))
+}
+
+#[instrument(skip(pool))]
 async fn delete_playground_example(
     pool: web::Data<PgPool>,
     request_playground_example_id: web::Path<Uuid>,
@@ -67,5 +87,6 @@ We add the routes by calling the route method instead of using the route annotat
 pub fn _add_playground_examples_routes(cfg: &mut ServiceConfig) {
     cfg.route("", web::get().to(get_playground_examples))
         .route("", web::post().to(insert_playground_example))
+        .route("", web::put().to(update_playground_example))
         .route("/{id}", web::delete().to(delete_playground_example));
 }

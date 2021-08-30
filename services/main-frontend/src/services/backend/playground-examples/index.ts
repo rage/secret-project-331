@@ -11,6 +11,12 @@ export const savePlaygroundExample = async (
   return (await mainFrontendClient.post(`/playground_examples`, data)).data
 }
 
+export const updatePlaygroundExample = async (
+  data: PlaygroundExample,
+): Promise<PlaygroundExample> => {
+  return (await mainFrontendClient.put(`/playground_examples`, data)).data
+}
+
 export const deletePlaygroundExample = async (id: string): Promise<PlaygroundExample> => {
   return (
     await mainFrontendClient.delete(`/playground_examples/${id}`, {

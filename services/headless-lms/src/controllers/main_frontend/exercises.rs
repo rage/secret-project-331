@@ -2,10 +2,7 @@
 use crate::{
     controllers::ControllerResult,
     domain::authorization::{authorize, Action, AuthUser, Resource},
-    models::{
-        exercises::{PlaygroundExample, PlaygroundExampleData},
-        submissions::Submission,
-    },
+    models::submissions::Submission,
     utils::pagination::Pagination,
 };
 use actix_web::web::{self, Json, ServiceConfig};
@@ -81,52 +78,6 @@ async fn get_exercise_submissions(
     }))
 }
 
-#[instrument(skip(pool))]
-async fn get_playground_examples(
-    pool: web::Data<PgPool>,
-) -> ControllerResult<Json<Vec<PlaygroundExample>>> {
-    let mut conn = pool.acquire().await?;
-    let res = crate::models::exercises::get_all_playground_examples(&mut conn).await?;
-    Ok(Json(res))
-}
-
-#[instrument(skip(pool))]
-async fn insert_playground_example(
-    pool: web::Data<PgPool>,
-    payload: web::Json<PlaygroundExampleData>,
-    user: AuthUser,
-) -> ControllerResult<Json<PlaygroundExample>> {
-    let mut conn = pool.acquire().await?;
-    let new_example = payload.0;
-    authorize(
-        &mut conn,
-        Action::Edit,
-        user.id,
-        Resource::PlaygroundExample,
-    )
-    .await?;
-    let res = crate::models::exercises::insert_playground_example(&mut conn, new_example).await?;
-    Ok(Json(res))
-}
-
-#[instrument(skip(pool))]
-async fn delete_playground_example(
-    pool: web::Data<PgPool>,
-    request_playground_example_id: web::Path<Uuid>,
-    user: AuthUser,
-) -> ControllerResult<Json<PlaygroundExample>> {
-    let mut conn = pool.acquire().await?;
-    let example_id = *request_playground_example_id;
-    authorize(
-        &mut conn,
-        Action::Edit,
-        user.id,
-        Resource::PlaygroundExample,
-    )
-    .await?;
-    let res = crate::models::exercises::delete_playground_example(&mut conn, example_id).await?;
-    Ok(Json(res))
-}
 /**
 Add a route for each controller in this module.
 
@@ -138,17 +89,5 @@ pub fn _add_exercises_routes(cfg: &mut ServiceConfig) {
     cfg.route(
         "/{exercise_id}/submissions",
         web::get().to(get_exercise_submissions),
-    )
-    .route(
-        "/playground-examples",
-        web::get().to(get_playground_examples),
-    )
-    .route(
-        "/playground-examples",
-        web::post().to(insert_playground_example),
-    )
-    .route(
-        "/playground-examples/{id}",
-        web::delete().to(delete_playground_example),
     );
 }

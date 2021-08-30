@@ -2816,6 +2816,57 @@
       "nullable": []
     }
   },
+  "6f5ab6a5fb0636d714701ea1c4d6c01ca9b3a54efc33322c8bf81d98d356d8e6": {
+    "query": "\nSELECT *\nfrom playground_examples\nWHERE deleted_at IS NULL;\n  ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 5,
+          "name": "url",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "width",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 7,
+          "name": "data",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": []
+      },
+      "nullable": [false, false, false, true, false, false, false, false]
+    }
+  },
   "710ccb21f84c2c1777024e07f260afd8d6e826c2e48de101ec721f2f58d2ea12": {
     "query": "\nINSERT INTO regrading_submissions (\n    regrading_id,\n    submission_id,\n    grading_before_regrading\n  )\nVALUES ($1, $2, $3)\nRETURNING id\n",
     "describe": {
@@ -3253,57 +3304,6 @@
         "Left": ["Uuid"]
       },
       "nullable": [null]
-    }
-  },
-  "852c661dc5d790fe5e36b64b99e111792f2986f9aab321006ad8c8841757e243": {
-    "query": "\nUPDATE playground_examples\nSET deleted_at = now()\nWHERE id = $1\nRETURNING *;\n    ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 5,
-          "name": "url",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 6,
-          "name": "width",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 7,
-          "name": "data",
-          "type_info": "Jsonb"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, false, true, false, false, false, false]
     }
   },
   "85627304819016a8f3adf783ef95c81a1e7ed1b362e12b9429f20598432ba7e4": {
@@ -4375,57 +4375,6 @@
       "nullable": []
     }
   },
-  "a8898fa49012e0559379cee341366ae0a1baaaefab5af6d3d6db003b013d7839": {
-    "query": "\nSELECT *\nfrom playground_examples\nWHERE deleted_at IS NULL;\n    ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 5,
-          "name": "url",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 6,
-          "name": "width",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 7,
-          "name": "data",
-          "type_info": "Jsonb"
-        }
-      ],
-      "parameters": {
-        "Left": []
-      },
-      "nullable": [false, false, false, true, false, false, false, false]
-    }
-  },
   "a89142eebe3548b14c3a9f146864601f9ce78fa1d24dd5cf4958302343605b60": {
     "query": "\nSELECT title, content\nFROM page_history\nWHERE id = $1\n",
     "describe": {
@@ -4730,6 +4679,57 @@
         "Left": ["Varchar", "Int4", "Uuid"]
       },
       "nullable": [false, false, false, false, false, false, true, true, true, true, true]
+    }
+  },
+  "b39dda257f5f1f2db1905fdb6616a93c5d587d89c51ca1c1ca67152d7677de65": {
+    "query": "\nUPDATE playground_examples\nSET deleted_at = now()\nWHERE id = $1\nRETURNING *;\n  ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 5,
+          "name": "url",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "width",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 7,
+          "name": "data",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, true, false, false, false, false]
     }
   },
   "b4f5a52e896eba983c4002aa6c4ad7b6560079a8b7573c43315562e8bd3fb03b": {
@@ -5300,57 +5300,6 @@
       "nullable": [false, false, false, false, true, false, false, true, false, false, true]
     }
   },
-  "d101cc0886070c6860311a987612cdd615eea9f3b02fdcf50711ed4e1b2b44bc": {
-    "query": "\nINSERT INTO playground_examples (name, url, width, data)\nVALUES ($1, $2, $3, $4)\nRETURNING *;\n    ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 5,
-          "name": "url",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 6,
-          "name": "width",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 7,
-          "name": "data",
-          "type_info": "Jsonb"
-        }
-      ],
-      "parameters": {
-        "Left": ["Varchar", "Varchar", "Int4", "Jsonb"]
-      },
-      "nullable": [false, false, false, true, false, false, false, false]
-    }
-  },
   "d13e367302b3873770dbcd15736161dd89130c0d06620cb5d337b1f7c9f230e8": {
     "query": "UPDATE pages SET chapter_id = $1 WHERE id = $2",
     "describe": {
@@ -5471,6 +5420,57 @@
         "Left": ["Uuid", "Uuid"]
       },
       "nullable": [false, false, false, true, false, false, false, true, true, true, false, false]
+    }
+  },
+  "d67631e6ddcdf17214fc75f0c9f760507d1fdce3c948f1524b5668403e197de3": {
+    "query": "\nINSERT INTO playground_examples (name, url, width, data)\nVALUES ($1, $2, $3, $4)\nRETURNING *;\n  ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 5,
+          "name": "url",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "width",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 7,
+          "name": "data",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": ["Varchar", "Varchar", "Int4", "Jsonb"]
+      },
+      "nullable": [false, false, false, true, false, false, false, false]
     }
   },
   "d741c2e76aa58f5fe945e4a96f0f598d29b7fd6e2552b3afdc183ec445938c40": {

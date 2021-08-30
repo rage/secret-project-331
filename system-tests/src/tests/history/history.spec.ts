@@ -1,7 +1,7 @@
 import { expect, Page, test } from "@playwright/test"
-import { env } from "process"
 
 import expectPath from "../../utils/expect"
+import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 import waitForFunction from "../../utils/waitForFunction"
 
 test.use({
@@ -45,12 +45,7 @@ test("test", async ({ page, headless }) => {
   ])
   await page.waitForLoadState("networkidle")
 
-  if (headless && !env.PWDEBUG) {
-    const screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(`initial-page.png`, { threshold: 0.3 })
-  } else {
-    console.warn("Not in headless mode, skipping screenshot comparison")
-  }
+  await expectScreenshotsToMatchSnapshots(page, headless, "initial-page", null)
 
   // Go to http://project-331.local/
   page.goto("http://project-331.local/")
@@ -160,28 +155,36 @@ test("test", async ({ page, headless }) => {
     page.click("text=New title!(/chapter-1/page-1) history >> :nth-match(a, 2)"),
   ])
 
-  await page.waitForSelector("text=core/paragraph")
+  const stableElement = await page.waitForSelector("text=core/paragraph")
 
-  if (headless && !env.PWDEBUG) {
-    await replaceIdsAndTimesFromHistoryView(page)
-    const screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(`history-view-p1.png`, { threshold: 0.3 })
-  } else {
-    console.warn("Not in headless mode, skipping screenshot comparison")
-  }
+  await expectScreenshotsToMatchSnapshots(
+    page,
+    headless,
+    "history-view-p1",
+    stableElement,
+    { threshold: 0.3 },
+    async () => {
+      await replaceIdsAndTimesFromHistoryView(page)
+    },
+  )
 
   // Click [aria-label="Go to page 4"]
   await page.click('[aria-label="Go to page 4"]')
   expectPath(page, "/manage/pages/[id]/history?page=4")
 
-  await page.waitForSelector("text=core/paragraph")
-  if (headless && !env.PWDEBUG) {
-    await replaceIdsAndTimesFromHistoryView(page)
-    const screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(`history-view-p4-before-compare.png`, { threshold: 0.3 })
-  } else {
-    console.warn("Not in headless mode, skipping screenshot comparison")
-  }
+  const stableElement2 = await page.waitForSelector("text=core/paragraph")
+
+  await expectScreenshotsToMatchSnapshots(
+    page,
+    headless,
+    "history-view-p4-before-compare",
+    stableElement2,
+    { threshold: 0.3 },
+    async () => {
+      await replaceIdsAndTimesFromHistoryView(page)
+    },
+  )
+
   await page.waitForTimeout(100)
 
   // Click text=Compare
@@ -202,18 +205,14 @@ test("test", async ({ page, headless }) => {
   )
 
   await page.waitForSelector("text=Best exercise")
-  // wait for the diff to show up
-  await page.waitForSelector(".line-delete")
-  await page.waitForSelector(".line-insert")
-  await page.waitForSelector(".insert-sign")
-  await page.waitForSelector(".delete-sign")
-  if (headless && !env.PWDEBUG) {
-    await replaceIdsAndTimesFromHistoryView(page)
-    const screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(`history-view-p4-after-compare.png`, { threshold: 0.3 })
-  } else {
-    console.warn("Not in headless mode, skipping screenshot comparison")
-  }
+
+  await expectScreenshotsToMatchSnapshots(
+    page,
+    headless,
+    "history-view-p4-after-compare",
+    // wait for the diff to show up
+    [".line-delete", ".line-insert", ".insert-sign", ".delete-sign"],
+  )
 
   // Click text=Restore
   await Promise.all([
@@ -224,14 +223,16 @@ test("test", async ({ page, headless }) => {
   await page.waitForSelector("[aria-label='page 1'][aria-current='true']")
   await page.waitForTimeout(100)
 
-  await page.waitForSelector("text=Best exercise")
-  if (headless && !env.PWDEBUG) {
-    await replaceIdsAndTimesFromHistoryView(page)
-    const screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(`history-view-after-restore.png`, { threshold: 0.3 })
-  } else {
-    console.warn("Not in headless mode, skipping screenshot comparison")
-  }
+  await expectScreenshotsToMatchSnapshots(
+    page,
+    headless,
+    "history-view-after-restore",
+    "text=private_spec",
+    { threshold: 0.3 },
+    async () => {
+      await replaceIdsAndTimesFromHistoryView(page)
+    },
+  )
 
   // Click text=Home
   await Promise.all([
@@ -264,12 +265,7 @@ test("test", async ({ page, headless }) => {
   ])
 
   await page.waitForLoadState("networkidle")
-  if (headless && !env.PWDEBUG) {
-    const screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(`page-after-restore.png`, { threshold: 0.3 })
-  } else {
-    console.warn("Not in headless mode, skipping screenshot comparison")
-  }
+  await expectScreenshotsToMatchSnapshots(page, headless, "page-after-restore", null)
 })
 
 async function replaceIdsAndTimesFromHistoryView(page: Page) {
@@ -287,6 +283,17 @@ async function replaceIdsAndTimesFromHistoryView(page: Page) {
       } else if (div.children.length === 0 && div.textContent.includes("Restored from")) {
         div.innerHTML =
           "Restored from xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx by xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx on day month year hh:mm:ss timezone"
+      }
+    }
+    const uuidRegex2 = new RegExp(
+      "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}",
+    )
+    const spans = document.querySelectorAll(".monaco-diff-editor span")
+    for (const span of spans) {
+      if (span.children.length === 0 && uuidRegex2.test(span.textContent)) {
+        span.innerHTML = "x"
+      } else if (span.textContent.length < 3) {
+        span.innerHTML = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
       }
     }
   })

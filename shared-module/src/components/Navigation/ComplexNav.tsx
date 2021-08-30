@@ -220,21 +220,20 @@ const Navigation: React.FC = () => {
         >
           <Hamburger />
         </div>
-        <ul>
-          <ol className={clicked ? cx(navMenu, active) : cx(navMenu)}>
-            <li className={cx(navLinks)}>Courses</li>
-            <li className={cx(navLinks)}>Modules</li>
-            <li className={cx(navLinks)}>Mail Template</li>
-            <li className={cx(navLinks, hide)}>
-              <div>Login Controls</div>
-            </li>
-            <li className={cx(navLinks, hide)}>
-              <Button variant="primary" size="medium">
-                Translate
-              </Button>
-            </li>
-          </ol>
-        </ul>
+
+        <ol className={clicked ? cx(navMenu, active) : cx(navMenu)}>
+          <li className={cx(navLinks)}>Courses</li>
+          <li className={cx(navLinks)}>Modules</li>
+          <li className={cx(navLinks)}>Mail Template</li>
+          <li className={cx(navLinks, hide)}>
+            <div>Login Controls</div>
+          </li>
+          <li className={cx(navLinks, hide)}>
+            <Button variant="primary" size="medium">
+              Translate
+            </Button>
+          </li>
+        </ol>
 
         <ul className={cx(secondaryLink)}>
           <li>

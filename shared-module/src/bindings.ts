@@ -146,8 +146,8 @@ export interface Course {
   deleted_at: Date | null
   language_code: string
   copied_from: string | null
-  language_version_of_course_id: string | null
   content_search_language: string | null
+  course_language_group_id: string
 }
 
 export interface Exercise {

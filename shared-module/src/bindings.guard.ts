@@ -255,9 +255,8 @@ export function isCourse(obj: any, _argumentName?: string): obj is Course {
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
     typeof obj.language_code === "string" &&
     (obj.copied_from === null || typeof obj.copied_from === "string") &&
-    (obj.language_version_of_course_id === null ||
-      typeof obj.language_version_of_course_id === "string") &&
-    (obj.content_search_language === null || typeof obj.content_search_language === "string")
+    (obj.content_search_language === null || typeof obj.content_search_language === "string") &&
+    typeof obj.course_language_group_id === "string"
   )
 }
 

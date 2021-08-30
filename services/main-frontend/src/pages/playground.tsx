@@ -5,11 +5,12 @@ import dynamic from "next/dynamic"
 import React, { useEffect, useState } from "react"
 import { useQuery } from "react-query"
 
+import Layout from "../components/Layout"
 import {
   deletePlaygroundExample,
   fetchPlaygroundExamples,
   savePlaygroundExample,
-} from "../services/backend/exercises"
+} from "../services/backend/playground-examples"
 import { PlaygroundExample } from "../shared-module/bindings"
 import Button from "../shared-module/components/Button"
 import MessageChannelIFrame from "../shared-module/components/MessageChannelIFrame"
@@ -123,25 +124,27 @@ const Home: React.FC = () => {
   }
 
   return (
-    <div>
+    <Layout frontPageUrl="/" navVariant="simple">
       <div className={normalWidthCenteredComponentStyles}>
         <h1>Insert URL, width and data</h1>
-        <h2>List of examples</h2>
         {data.length > 0 && (
-          <Select
-            onChange={handleExampleChange}
-            defaultValue={data[0].name}
-            fullWidth
-            className={css`
-              margin-bottom: 1rem;
-            `}
-          >
-            {data.map((example) => (
-              <MenuItem key={JSON.stringify(example)} value={JSON.stringify(example)}>
-                {example.name}
-              </MenuItem>
-            ))}
-          </Select>
+          <div>
+            <h2>List of examples</h2>
+            <Select
+              onChange={handleExampleChange}
+              defaultValue={data[0].name}
+              fullWidth
+              className={css`
+                margin-bottom: 1rem;
+              `}
+            >
+              {data.map((example) => (
+                <MenuItem key={JSON.stringify(example)} value={JSON.stringify(example)}>
+                  {example.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </div>
         )}
         <TextField
           defaultValue={url}
@@ -184,6 +187,7 @@ const Home: React.FC = () => {
             roundedSelection: false,
             formatOnType: true,
             formatOnPaste: true,
+            tabSize: 2,
           }}
           value={playgroundData}
           defaultValue={playgroundData || undefined}
@@ -193,6 +197,7 @@ const Home: React.FC = () => {
           className={css`
             border: 1px solid black;
             margin-bottom: 1rem;
+            width: 100%;
           `}
         />
         {url && width && playgroundData && exampleName && (
@@ -201,14 +206,21 @@ const Home: React.FC = () => {
             size="medium"
             onClick={handleExampleSave}
             className={css`
-              margin-bottom: 1rem;
+              padding: 1rem;
             `}
           >
             Save example
           </Button>
         )}
         {exampleId && (
-          <Button onClick={handleExampleDeletion} variant="primary" size="medium">
+          <Button
+            onClick={handleExampleDeletion}
+            variant="primary"
+            size="medium"
+            className={css`
+              padding: 1rem;
+            `}
+          >
             Delete example
           </Button>
         )}
@@ -221,7 +233,7 @@ const Home: React.FC = () => {
           onMessageFromIframe={onMessage}
         />
       )}
-    </div>
+    </Layout>
   )
 }
 

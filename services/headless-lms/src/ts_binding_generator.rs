@@ -17,7 +17,6 @@ use crate::{
         exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
         exercises::{
             ActivityProgress, CourseMaterialExercise, Exercise, ExerciseStatus, GradingProgress,
-            PlaygroundExample, PlaygroundExampleData,
         },
         feedback::{Feedback, FeedbackBlock, FeedbackCount, NewFeedback},
         gradings::{Grading, UserPointsUpdateStrategy},
@@ -28,6 +27,7 @@ use crate::{
             NormalizedCmsExerciseTask, Page, PageRoutingDataWithChapterStatus, PageSearchRequest,
             PageSearchResult, PageUpdate, PageWithExercises,
         },
+        playground_examples::{PlaygroundExample, PlaygroundExampleData},
         submissions::{
             NewSubmission, Submission, SubmissionCount, SubmissionCountByExercise,
             SubmissionCountByWeekAndHour, SubmissionInfo, SubmissionResult,

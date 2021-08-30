@@ -85,7 +85,7 @@ const Home: React.FC = () => {
     const example: PlaygroundExample = JSON.parse(event.target.value) as PlaygroundExample
     setExampleUrl(example.url)
     setExampleWidth(example.width)
-    setExampleData(example.data as any)
+    setExampleData(JSON.stringify(example.data as any))
     setExampleName(example.name)
     setSelectedExample(example)
   }
@@ -97,7 +97,7 @@ const Home: React.FC = () => {
         name: exampleName,
         url: exampleUrl,
         width: exampleWidth,
-        data: exampleData,
+        data: JSON.parse(exampleData),
       })
       refetch()
       setProcessing(false)
@@ -122,7 +122,7 @@ const Home: React.FC = () => {
         name: exampleName,
         url: exampleUrl,
         width: exampleWidth,
-        data: exampleData,
+        data: JSON.parse(exampleData),
       })
       setSelectedExample(res)
       refetch()

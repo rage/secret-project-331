@@ -71,6 +71,34 @@ RETURNING *;
     })
 }
 
+pub async fn update_playground_example(
+    conn: &mut PgConnection,
+    data: PlaygroundExample,
+) -> ModelResult<PlaygroundExample> {
+    let res = sqlx::query_as!(
+        PlaygroundExample,
+        "
+UPDATE playground_examples
+SET updated_at = now(),
+  name = $1,
+  url = $2,
+  width = $3,
+  data = $4
+WHERE id = $5
+RETURNING *;
+    ",
+        data.name,
+        data.url,
+        data.width,
+        data.data,
+        data.id
+    )
+    .fetch_one(&mut *conn)
+    .await?;
+
+    Ok(res)
+}
+
 pub async fn delete_playground_example(
     conn: &mut PgConnection,
     id: Uuid,
@@ -164,5 +192,49 @@ mod test {
         let fetched_data = get_all_playground_examples(tx.as_mut()).await.unwrap();
 
         assert_eq!(fetched_data.len(), 0);
+    }
+
+    #[tokio::test]
+    async fn insert_and_update_playground_example() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+
+        let inserted_data = insert_playground_example(
+            tx.as_mut(),
+            PlaygroundExampleData {
+                name: "test".to_string(),
+                url: "https:\\test.com".to_string(),
+                width: 500,
+                data: serde_json::json!({"data":"test"}),
+            },
+        )
+        .await
+        .unwrap();
+
+        assert!(inserted_data.name == "test".to_string());
+        assert!(inserted_data.url == "https:\\test.com".to_string());
+        assert!(inserted_data.width == 500);
+        assert!(inserted_data.data == serde_json::json!({"data":"test"}));
+
+        let updated_data = PlaygroundExample {
+            name: "updated name".to_string(),
+            url: "https:\\updated-url.com".to_string(),
+            width: 600,
+            data: serde_json::json!({"data": "updated data"}),
+            ..inserted_data
+        };
+
+        let res = update_playground_example(tx.as_mut(), updated_data)
+            .await
+            .unwrap();
+
+        assert!(res.name == "updated name".to_string());
+        assert!(res.url == "https:\\updated-url.com".to_string());
+        assert!(res.width == 600);
+        assert!(res.data == serde_json::json!({"data":"updated data"}));
+
+        let fetched_data = get_all_playground_examples(tx.as_mut()).await.unwrap();
+
+        assert_eq!(fetched_data.len(), 1);
     }
 }

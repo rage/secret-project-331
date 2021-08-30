@@ -38,6 +38,7 @@
     "prettier": "^2.3.2",
     "stylelint": "^13.13.1",
     "stylelint-config-recommended": "^5.0.0",
+    "ts-auto-guard": "^1.0.0-alpha.26",
     "ts-node": "^10.1.0",
     "typescript": "^4.3.5"
   },

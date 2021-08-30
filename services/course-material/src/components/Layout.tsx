@@ -36,20 +36,14 @@ const Layout: React.FC<LayoutProps> = ({ children, title, frontPageUrl, faqUrl, 
         <SimpleNav faqUrl={faqUrl} frontPageUrl={frontPageUrl} variant="simple"></SimpleNav>
       </header>
       {/* Do not touch flex */}
-      <div
+      <main
         className={css`
           flex: 1;
         `}
       >
         {children}
-      </div>
-      <footer
-        className={css`
-          margin-top: 2rem;
-        `}
-      >
-        <Footer licenseUrl={licenseUrl} />
-      </footer>
+      </main>
+      <Footer licenseUrl={licenseUrl} />
     </div>
   </>
 )

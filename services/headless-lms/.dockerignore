@@ -3,3 +3,5 @@ target
 uploads
 requests.rest
 dbdoc
+# We only want translations from shared module, and those can be explicitly allowed
+shared-module

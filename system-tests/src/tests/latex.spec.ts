@@ -1,6 +1,7 @@
-import { expect, test } from "@playwright/test"
+import { test } from "@playwright/test"
 
 import expectPath from "../utils/expect"
+import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -125,13 +126,8 @@ test("latex-block renders", async ({ headless, page }) => {
   // Click text=Chapter 1: first page
   await Promise.all([page.waitForNavigation(), page.click("text=first page")])
   expectPath(page, "/courses/latex-course/chapter-1")
-  await page.waitForSelector("text=Inline latex")
-  await page.waitForSelector("text=Wubba Lubba Dub Dub")
-  // Compare to working image
-  if (headless) {
-    const screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(`latex.png`, { threshold: 0.3 })
-  } else {
-    console.warn("Not in headless mode, skipping screenshot comparison")
-  }
+  await expectScreenshotsToMatchSnapshots(page, headless, "latex", [
+    "text=Inline latex",
+    "text=Wubba Lubba Dub Dub",
+  ])
 })

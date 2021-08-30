@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { Box, Card, CardContent, CardHeader, Container, IconButton, Modal } from "@material-ui/core"
+import { Box, Card, CardContent, CardHeader, IconButton, Modal } from "@material-ui/core"
 import Dialog from "@material-ui/core/Dialog"
 import DialogActions from "@material-ui/core/DialogActions"
 import DialogContent from "@material-ui/core/DialogContent"
@@ -24,6 +24,7 @@ import {
 import { ExerciseService, ExerciseServiceNewOrUpdate } from "../../../shared-module/bindings"
 import Button from "../../../shared-module/components/Button"
 import TimeComponent from "../../../shared-module/components/TimeComponent"
+import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import basePath from "../../../shared-module/utils/base-path"
 import { validNumber, validURL } from "../../../shared-module/utils/validation"
 
@@ -404,7 +405,7 @@ const ExerciseServicePage: React.FC = () => {
 
   return (
     <Layout navVariant={"simple"} frontPageUrl={basePath() + "/../.."}>
-      <Container maxWidth="md">
+      <div className={normalWidthCenteredComponentStyles}>
         <h2> Manage exercise services:</h2>
         <Button onClick={openModal} variant="primary" size="medium">
           Add new service
@@ -419,7 +420,7 @@ const ExerciseServicePage: React.FC = () => {
           onChangeName={onChangeName}
           handleSubmit={createExerciseService}
         />
-      </Container>
+      </div>
     </Layout>
   )
 }

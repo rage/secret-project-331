@@ -423,7 +423,7 @@ mod test {
             tx.as_mut(),
             &exercise_services::ExerciseServiceNewOrUpdate {
                 name: "".to_string(),
-                slug: "test-exercise-1".to_string(),
+                slug: "test-exercise-3".to_string(),
                 public_url: "".to_string(),
                 internal_url: Some(mockito::server_url()),
                 max_reprocessing_submissions_at_once: 1,

@@ -8,6 +8,7 @@ import DebugModal from "../shared-module/components/DebugModal"
 import ContentRenderer from "./ContentRenderer"
 import NavigationContainer from "./ContentRenderer/NavigationContainer"
 import FeedbackHandler from "./FeedbackHandler"
+import SearchDialog from "./SearchDialog"
 import SelectCourseInstanceModal from "./modals/SelectCourseInstanceModal"
 
 interface Props {
@@ -19,6 +20,8 @@ const Page: React.FC<Props> = ({ courseSlug, onRefresh }) => {
   const pageContext = useContext(CoursePageContext)
   const pageDispatch = useContext(CoursePageDispatch)
 
+  const courseId = pageContext?.pageData?.course_id
+
   return (
     <>
       <div
@@ -26,6 +29,7 @@ const Page: React.FC<Props> = ({ courseSlug, onRefresh }) => {
           text-align: right;
         `}
       >
+        {courseId && <SearchDialog courseId={courseId} />}
         <DebugModal
           data={pageContext}
           updateDataOnClose={(payload) => {

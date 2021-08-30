@@ -17,6 +17,7 @@ export interface Chapter {
   chapter_number: number
   front_page_id: string | null
   opens_at: Date | null
+  copied_from: string | null
 }
 
 export interface EmailTemplate {
@@ -49,6 +50,7 @@ export interface Page {
   deleted_at: Date | null
   content: unknown
   order_number: number
+  copied_from: string | null
 }
 
 export interface UploadResult {
@@ -162,6 +164,10 @@ export interface Course {
   name: string
   organization_id: string
   deleted_at: Date | null
+  language_code: string
+  copied_from: string | null
+  language_version_of_course_id: string | null
+  content_search_language: string | null
 }
 
 export interface Exercise {
@@ -176,6 +182,7 @@ export interface Exercise {
   deleted_at: Date | null
   score_maximum: number
   order_number: number
+  copied_from: string | null
 }
 
 export interface ExerciseServiceInfoApi {
@@ -260,7 +267,6 @@ export interface PageUpdate {
   url_path: string
   title: string
   chapter_id: string | null
-  front_page_of_chapter_id: string | null
 }
 
 export interface NewSubmission {
@@ -273,6 +279,7 @@ export interface NewCourse {
   name: string
   slug: string
   organization_id: string
+  language_code: string
 }
 
 export interface CourseUpdate {
@@ -290,6 +297,18 @@ export interface SubmissionInfo {
   exercise_task: ExerciseTask
   grading: Grading | null
   submission_iframe_path: string
+}
+
+export interface PageSearchResult {
+  id: string
+  title_headline: string | null
+  rank: number | null
+  content_headline: string | null
+  url_path: string
+}
+
+export interface PageSearchRequest {
+  query: string
 }
 
 export interface PageHistory {
@@ -426,6 +445,7 @@ export interface ExerciseTask {
   private_spec: unknown | null
   spec_file_id: string | null
   model_solution_spec: unknown | null
+  copied_from: string | null
 }
 
 export interface ExerciseWithExerciseTasks {

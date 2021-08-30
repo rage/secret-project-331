@@ -13,7 +13,7 @@ const Home: React.FC = () => {
     <Layout frontPageUrl={basePath()} navVariant="simple">
       <OrganizationsList />
 
-      {/* Temporal view for the exercise services */}
+      {/* Temporary view for the exercise services */}
       <h1
         className={css`
           text-align: center;

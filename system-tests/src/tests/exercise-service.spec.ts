@@ -56,7 +56,7 @@ test("can add and delete exercise service", async ({ page, headless }) => {
   await page.click('button:has-text("Create")')
   await page.waitForSelector("text=New exercise service")
 
-  expectScreenshotsToMatchSnapshots(
+  await expectScreenshotsToMatchSnapshots(
     page,
     headless,
     "exercise-service-page",

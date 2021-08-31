@@ -3,7 +3,7 @@ import { Alert, Grow, MenuItem, Select, SelectChangeEvent } from "@material-ui/c
 import TextField from "@material-ui/core/TextField"
 import dynamic from "next/dynamic"
 import React, { useEffect, useState } from "react"
-import { useQuery } from "react-query"
+import { useMutation, useQuery } from "react-query"
 
 import Layout from "../components/Layout"
 import {
@@ -29,15 +29,46 @@ const Home: React.FC = () => {
   const [exampleData, setExampleData] = useState<string | null>(null)
   const [exampleName, setExampleName] = useState<string | null>(null)
   const [combinedUrl, setCombinedUrl] = useState<string | null>(null)
-  const [err, setErr] = useState<boolean>(false)
+  const [invalidUrl, setInvalidUrl] = useState<boolean>(false)
   const [selectedExample, setSelectedExample] = useState<PlaygroundExample | null>(null)
-  const [processing, setProcessing] = useState<boolean>(false)
-  const [showAlert, setShowAlert] = useState<boolean>(false)
-  const [success, setSuccess] = useState<boolean>(true)
-  const [message, setMessage] = useState<string | null>(null)
+  const [msg, setMsg] = useState<string>("")
   const { isLoading, error, data, refetch } = useQuery("playground-examples", () =>
     fetchPlaygroundExamples(),
   )
+  const saveMutation = useMutation(savePlaygroundExample, {
+    onSuccess: () => {
+      setMsg("Example saved succesfully")
+      refetch()
+      setTimeout(() => saveMutation.reset(), 5000)
+    },
+    onError: () => {
+      setMsg("Something went wrong, couldn't save example")
+      setTimeout(() => saveMutation.reset(), 5000)
+    },
+  })
+  const updateMutation = useMutation(updatePlaygroundExample, {
+    onSuccess: () => {
+      setMsg("Example updated succesfully")
+      refetch()
+      setTimeout(() => updateMutation.reset(), 5000)
+    },
+    onError: () => {
+      setMsg("Something went wrong, couldn't update example")
+      setTimeout(() => updateMutation.reset(), 5000)
+    },
+  })
+  const deleteMutation = useMutation(deletePlaygroundExample, {
+    onSuccess: () => {
+      setMsg("Example deleted succesfully")
+      refetch()
+      setSelectedExample(null)
+      setTimeout(() => deleteMutation.reset(), 5000)
+    },
+    onError: () => {
+      setMsg("Something went wrong, couldn't delete example")
+      setTimeout(() => deleteMutation.reset(), 5000)
+    },
+  })
 
   const onChannelEstablished = (port: MessagePort) => {
     console.log("channel established", port)
@@ -58,10 +89,10 @@ const Home: React.FC = () => {
     try {
       const newUrl = new URL(exampleUrl + `?width=${exampleWidth}`)
       setCombinedUrl(newUrl.toString())
-      setErr(false)
+      setInvalidUrl(false)
     } catch (error) {
       console.log(error)
-      setErr(true)
+      setInvalidUrl(true)
     }
   }, [exampleUrl, exampleWidth])
 
@@ -85,83 +116,32 @@ const Home: React.FC = () => {
     const example: PlaygroundExample = JSON.parse(event.target.value) as PlaygroundExample
     setExampleUrl(example.url)
     setExampleWidth(example.width)
-    setExampleData(JSON.stringify(example.data as any))
+    setExampleData(JSON.stringify(example.data as any, undefined, 2))
     setExampleName(example.name)
     setSelectedExample(example)
   }
 
   const handleExampleSave = async () => {
-    try {
-      setProcessing(true)
-      await savePlaygroundExample({
-        name: exampleName,
-        url: exampleUrl,
-        width: exampleWidth,
-        data: JSON.parse(exampleData),
-      })
-      refetch()
-      setProcessing(false)
-      setShowAlert(true)
-      setSuccess(true)
-      setMessage("Example saved succesfully")
-      setTimeout(() => setShowAlert(false), 5000)
-    } catch (error) {
-      console.error(error)
-      setShowAlert(true)
-      setSuccess(false)
-      setMessage("Something went wrong, couldn't save example")
-      setTimeout(() => setShowAlert(false), 5000)
-    }
+    saveMutation.mutate({
+      name: exampleName,
+      url: exampleUrl,
+      width: exampleWidth,
+      data: JSON.parse(exampleData),
+    })
   }
 
   const handleExampleUpdate = async () => {
-    try {
-      setProcessing(true)
-      const res = await updatePlaygroundExample({
-        ...selectedExample,
-        name: exampleName,
-        url: exampleUrl,
-        width: exampleWidth,
-        data: JSON.parse(exampleData),
-      })
-      setSelectedExample(res)
-      refetch()
-      setProcessing(false)
-      setShowAlert(true)
-      setSuccess(true)
-      setMessage("Example updated succesfully")
-      setTimeout(() => setShowAlert(false), 5000)
-    } catch (error) {
-      console.error(error)
-      setShowAlert(true)
-      setSuccess(false)
-      setMessage("Something went wrong, couldn't update example")
-      setTimeout(() => setShowAlert(false), 5000)
-    }
+    updateMutation.mutate({
+      ...selectedExample,
+      name: exampleName,
+      url: exampleUrl,
+      width: exampleWidth,
+      data: JSON.parse(exampleData),
+    })
   }
 
   const handleExampleDeletion = async () => {
-    try {
-      setProcessing(true)
-      await deletePlaygroundExample(selectedExample.id)
-      refetch()
-      setSelectedExample(null)
-      setExampleUrl(null)
-      setExampleWidth(null)
-      setExampleData(null)
-      setExampleName(null)
-      setProcessing(false)
-      setShowAlert(true)
-      setSuccess(true)
-      setMessage("Example deleted succesfully")
-      setTimeout(() => setShowAlert(false), 5000)
-    } catch (error) {
-      console.error(error)
-      setShowAlert(true)
-      setSuccess(false)
-      setMessage("Something went wrong, couldn't delete example")
-      setTimeout(() => setShowAlert(false), 5000)
-    }
+    deleteMutation.mutate(selectedExample.id)
   }
 
   if (isLoading || !data) {
@@ -175,14 +155,29 @@ const Home: React.FC = () => {
   return (
     <Layout frontPageUrl="/" navVariant="simple">
       <div className={normalWidthCenteredComponentStyles}>
-        <Grow in={showAlert} timeout={2}>
-          <Alert severity={success ? "success" : "error"}>
+        <Grow
+          in={
+            saveMutation.isError ||
+            saveMutation.isSuccess ||
+            updateMutation.isError ||
+            updateMutation.isSuccess ||
+            deleteMutation.isError ||
+            deleteMutation.isSuccess
+          }
+        >
+          <Alert
+            severity={
+              saveMutation.isSuccess || updateMutation.isSuccess || deleteMutation.isSuccess
+                ? "success"
+                : "error"
+            }
+          >
             <div
               className={css`
                 font-size: 150%;
               `}
             >
-              {message}
+              {msg}
             </div>
           </Alert>
         </Grow>
@@ -209,9 +204,9 @@ const Home: React.FC = () => {
         <TextField
           value={exampleUrl}
           fullWidth
-          placeholder={err ? "Invalid URL" : "URL"}
+          placeholder={invalidUrl ? "Invalid URL" : "URL"}
           onChange={handleUrlChange}
-          error={err}
+          error={invalidUrl}
           className={css`
             margin-bottom: 1rem !important;
           `}
@@ -264,7 +259,7 @@ const Home: React.FC = () => {
             className={css`
               margin-right: 1rem;
             `}
-            disabled={processing}
+            disabled={saveMutation.isLoading}
           >
             Save example
           </Button>
@@ -275,7 +270,7 @@ const Home: React.FC = () => {
               onClick={handleExampleUpdate}
               variant="primary"
               size="medium"
-              disabled={processing}
+              disabled={updateMutation.isLoading}
             >
               Update example
             </Button>
@@ -283,10 +278,10 @@ const Home: React.FC = () => {
               onClick={handleExampleDeletion}
               variant="primary"
               size="medium"
+              disabled={deleteMutation.isLoading}
               className={css`
                 margin-left: 1rem;
               `}
-              disabled={processing}
             >
               Delete example
             </Button>

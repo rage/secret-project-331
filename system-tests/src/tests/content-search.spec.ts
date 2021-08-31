@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test"
 
+import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
+
 test.use({
   storageState: "src/states/teacher@example.com.json",
 })
@@ -47,12 +49,13 @@ test("test", async ({ page, headless }) => {
   // Fill [placeholder="Search..."]
   await page.fill('[placeholder="Search..."]', "ma")
   await page.waitForSelector("text=Human-machine interface")
-  if (headless) {
-    const screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(`search-content-with-short-prefix.png`, { threshold: 0.3 })
-  } else {
-    console.warn("Not in headless mode, skipping screenshot comparison")
-  }
+
+  await expectScreenshotsToMatchSnapshots(
+    page,
+    headless,
+    "search-content-with-short-prefix",
+    "text=Human-machine interface",
+  )
 
   // Click text=Human-machine interface
   await Promise.all([page.waitForNavigation(), await page.click("text=Human-machine interface")])
@@ -71,15 +74,12 @@ test("test", async ({ page, headless }) => {
   await page.fill('[placeholder="Search..."]', "welcome course")
   await page.waitForSelector("text=Introduction to Course Material")
 
-  if (headless) {
-    const screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(
-      `search-content-with-two-words-not-just-after-each-other.png`,
-      { threshold: 0.3 },
-    )
-  } else {
-    console.warn("Not in headless mode, skipping screenshot comparison")
-  }
+  await expectScreenshotsToMatchSnapshots(
+    page,
+    headless,
+    "search-content-with-two-words-not-just-after-each-other",
+    "text=Introduction to Course Material",
+  )
 
   // phrases should be ranked higher than word matches
   // For example if the search word is banana cat the text banana cat should be
@@ -87,13 +87,10 @@ test("test", async ({ page, headless }) => {
   await page.fill('[placeholder="Search..."]', "banana cat")
   await page.waitForSelector("text=banana cat enim")
 
-  if (headless) {
-    const screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(
-      `search-continuous-phrases-ranked-higher-than-word-matches.png`,
-      { threshold: 0.3 },
-    )
-  } else {
-    console.warn("Not in headless mode, skipping screenshot comparison")
-  }
+  await expectScreenshotsToMatchSnapshots(
+    page,
+    headless,
+    "search-continuous-phrases-ranked-higher-than-word-matches",
+    "text=banana cat enim",
+  )
 })

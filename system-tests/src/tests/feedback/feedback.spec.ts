@@ -4,6 +4,7 @@ import { feedbackTooltipClass } from "../../shared-module/styles/constants"
 import expectPath from "../../utils/expect"
 import { login } from "../../utils/login"
 import { logout } from "../../utils/logout"
+import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
 test.use({
   storageState: "src/states/user@example.com.json",
@@ -43,13 +44,12 @@ test("test", async ({ headless, page }) => {
   )
 
   // Feedback tooltip
-  await page.waitForSelector(`.${feedbackTooltipClass}`)
-  if (headless) {
-    const screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(`feedback-tooltip.png`, { threshold: 0.3 })
-  } else {
-    console.warn("Not in headless mode, skipping screenshot comparison")
-  }
+  await expectScreenshotsToMatchSnapshots(
+    page,
+    headless,
+    "feedback-tooltip",
+    `.${feedbackTooltipClass}`,
+  )
 
   // Click :nth-match(:text("Give feedback"), 2)
   await page.click(':nth-match(:text("Give feedback"), 2)')
@@ -64,12 +64,12 @@ test("test", async ({ headless, page }) => {
   )
 
   // Feedback input box
-  if (headless) {
-    const screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(`feedback-input.png`, { threshold: 0.3 })
-  } else {
-    console.warn("Not in headless mode, skipping screenshot comparison")
-  }
+  await expectScreenshotsToMatchSnapshots(
+    page,
+    headless,
+    "feedback-input",
+    `text=I found this pretty confusing`,
+  )
 
   // Click text=Submit
   await page.click('text="Submit"')
@@ -109,24 +109,16 @@ test("test", async ({ headless, page }) => {
   })
 
   // Unread feedback view
-  if (headless) {
-    const screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(`feedback-unread.png`, { threshold: 0.3 })
-  } else {
-    console.warn("Not in headless mode, skipping screenshot comparison")
-  }
+  await expectScreenshotsToMatchSnapshots(
+    page,
+    headless,
+    "feedback-unread",
+    `text=Sent by xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`,
+  )
 
   // Click text=Mark as read
   await page.click("text=Mark as read")
-  await page.waitForSelector("text=No feedback")
-
-  // Empty feedback view
-  if (headless) {
-    const screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(`feedback-empty.png`, { threshold: 0.3 })
-  } else {
-    console.warn("Not in headless mode, skipping screenshot comparison")
-  }
+  await expectScreenshotsToMatchSnapshots(page, headless, "feedback-empty", `text=No feedback`)
 
   // Click :nth-match(:text("Read"), 2)
   await page.click(':nth-match(:text("Read"), 2)')

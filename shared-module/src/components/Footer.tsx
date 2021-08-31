@@ -93,7 +93,6 @@ const Footer: React.FC<FooterProps> = ({ licenseUrl }) => {
       <Wrapper>
         <div
           className={css`
-            margin: 0 auto;
             display: grid;
             grid-template-columns: 1fr 1fr;
             align-content: space-between;

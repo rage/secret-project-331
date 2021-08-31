@@ -61,7 +61,6 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
         url_path: data.url_path,
         content: removeUnsupportedBlockType(content),
         chapter_id: data.chapter_id,
-        front_page_of_chapter_id: null,
       })
       setError(null)
       setContent(res.content as BlockInstance[])

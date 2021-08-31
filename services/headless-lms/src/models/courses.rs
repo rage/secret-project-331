@@ -49,19 +49,21 @@ pub async fn insert(
     conn: &mut PgConnection,
     name: &str,
     organization_id: Uuid,
+    course_language_group_id: Uuid,
     slug: &str,
     language_code: &str,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO courses (name, organization_id, slug, language_code)
-VALUES ($1, $2, $3, $4)
+INSERT INTO courses (name, organization_id, slug, language_code, course_language_group_id)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING id
 ",
         name,
         organization_id,
         slug,
         language_code,
+        course_language_group_id,
     )
     .fetch_one(conn)
     .await?;
@@ -666,28 +668,66 @@ mod test {
         )
         .await
         .unwrap();
+        let course_language_group_id = course_language_groups::insert_with_id(
+            tx.as_mut(),
+            Uuid::parse_str("281384b3-bbc9-4da5-b93e-4c122784a724").unwrap(),
+        )
+        .await
+        .unwrap();
 
         // Valid language code allows course creation.
         let mut tx2 = tx.begin().await;
-        let course_id = courses::insert(tx2.as_mut(), "", organization_id, "course", "en-US").await;
+        let course_id = courses::insert(
+            tx2.as_mut(),
+            "",
+            organization_id,
+            course_language_group_id,
+            "course",
+            "en-US",
+        )
+        .await;
         assert!(course_id.is_ok());
         tx2.rollback().await;
 
         // Empty language code is not allowed.
         let mut tx2 = tx.begin().await;
-        let course_id = courses::insert(tx2.as_mut(), "", organization_id, "course", "").await;
+        let course_id = courses::insert(
+            tx2.as_mut(),
+            "",
+            organization_id,
+            course_language_group_id,
+            "course",
+            "",
+        )
+        .await;
         assert!(course_id.is_err());
         tx2.rollback().await;
 
         // Wrong case language code is not allowed.
         let mut tx2 = tx.begin().await;
-        let course_id = courses::insert(tx2.as_mut(), "", organization_id, "course", "en-us").await;
+        let course_id = courses::insert(
+            tx2.as_mut(),
+            "",
+            organization_id,
+            course_language_group_id,
+            "course",
+            "en-us",
+        )
+        .await;
         assert!(course_id.is_err());
         tx2.rollback().await;
 
         // Underscore in locale is not allowed.
         let mut tx2 = tx.begin().await;
-        let course_id = courses::insert(tx2.as_mut(), "", organization_id, "course", "en_US").await;
+        let course_id = courses::insert(
+            tx2.as_mut(),
+            "",
+            organization_id,
+            course_language_group_id,
+            "course",
+            "en_US",
+        )
+        .await;
         assert!(course_id.is_err());
         tx2.rollback().await;
     }

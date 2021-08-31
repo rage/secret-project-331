@@ -193,7 +193,7 @@ WHERE id = $2;
 mod test {
     use super::*;
     use crate::{
-        models::{courses, organizations},
+        models::{course_language_groups, courses, organizations},
         test_helper::Conn,
     };
 
@@ -211,12 +211,32 @@ mod test {
         )
         .await
         .unwrap();
-        let course_1_id = courses::insert(tx.as_mut(), "", organization_id, "course-1", "en-US")
-            .await
-            .unwrap();
-        let course_2_id = courses::insert(tx.as_mut(), "", organization_id, "course-2", "en-US")
-            .await
-            .unwrap();
+        let course_language_group_id = course_language_groups::insert_with_id(
+            tx.as_mut(),
+            Uuid::parse_str("281384b3-bbc9-4da5-b93e-4c122784a724").unwrap(),
+        )
+        .await
+        .unwrap();
+        let course_1_id = courses::insert(
+            tx.as_mut(),
+            "",
+            organization_id,
+            course_language_group_id,
+            "course-1",
+            "en-US",
+        )
+        .await
+        .unwrap();
+        let course_2_id = courses::insert(
+            tx.as_mut(),
+            "",
+            organization_id,
+            course_language_group_id,
+            "course-2",
+            "en-US",
+        )
+        .await
+        .unwrap();
 
         let _course_1_instance_1 = insert(tx.as_mut(), course_1_id, None, None).await.unwrap();
         let course_2_instance_1 = insert(tx.as_mut(), course_2_id, None, None).await;

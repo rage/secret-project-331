@@ -346,8 +346,8 @@ mod test {
     use super::*;
     use crate::{
         models::{
-            chapters, course_instance_enrollments, course_instances, courses, exercise_tasks,
-            organizations, pages, users,
+            chapters, course_instance_enrollments, course_instances, course_language_groups,
+            courses, exercise_tasks, organizations, pages, users,
         },
         test_helper::Conn,
         utils::document_schema_processor::GutenbergBlock,
@@ -374,9 +374,22 @@ mod test {
         )
         .await
         .unwrap();
-        let course_id = courses::insert(tx.as_mut(), "", organization_id, "", "en-US")
-            .await
-            .unwrap();
+        let course_language_group_id = course_language_groups::insert_with_id(
+            tx.as_mut(),
+            Uuid::parse_str("281384b3-bbc9-4da5-b93e-4c122784a724").unwrap(),
+        )
+        .await
+        .unwrap();
+        let course_id = courses::insert(
+            tx.as_mut(),
+            "",
+            organization_id,
+            course_language_group_id,
+            "",
+            "en-US",
+        )
+        .await
+        .unwrap();
         let course_instance = course_instances::insert(tx.as_mut(), course_id, None, None)
             .await
             .unwrap();

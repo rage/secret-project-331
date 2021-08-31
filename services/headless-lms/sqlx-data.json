@@ -2453,22 +2453,6 @@
       "nullable": [false, false, false, false, false, true, false, null, false, true, false]
     }
   },
-  "53689fa260293e77ba82c680882d301a5f9695e76e0c7223762f5f21351b70cf": {
-    "query": "\nINSERT INTO courses (name, organization_id, slug, language_code)\nVALUES ($1, $2, $3, $4)\nRETURNING id\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Varchar", "Uuid", "Varchar", "Varchar"]
-      },
-      "nullable": [false]
-    }
-  },
   "53e26910f60193f83389cea5ba2197fb520a0733034ed9fb423dd1f1edccdc90": {
     "query": "\nINSERT INTO exercises (\n    id,\n    course_id,\n    name,\n    deadline,\n    page_id,\n    score_maximum,\n    order_number,\n    chapter_id,\n    copied_from\n  )\nSELECT uuid_generate_v5($1, id::text),\n  $1,\n  name,\n  deadline,\n  uuid_generate_v5($1, page_id::text),\n  score_maximum,\n  order_number,\n  chapter_id,\n  id\nFROM exercises\nWHERE course_id = $2\nRETURNING id,\n  copied_from;\n    ",
     "describe": {
@@ -3964,6 +3948,22 @@
       ],
       "parameters": {
         "Left": ["Uuid", "Uuid", "Uuid", "Uuid", "Uuid", "Jsonb"]
+      },
+      "nullable": [false]
+    }
+  },
+  "923729ea7a2ab65e188244a178494d5311199d1be502c9ac5a6c30235b3ab446": {
+    "query": "\nINSERT INTO courses (name, organization_id, slug, language_code, course_language_group_id)\nVALUES ($1, $2, $3, $4, $5)\nRETURNING id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Varchar", "Uuid", "Varchar", "Varchar", "Uuid"]
       },
       "nullable": [false]
     }

@@ -33,13 +33,13 @@ const Layout: React.FC<LayoutProps> = ({ children, title, navVariant, frontPageU
         <Navbar faqUrl={faqUrl} frontPageUrl={frontPageUrl} variant={navVariant}></Navbar>
       </header>
       {/* Do not touch flex */}
-      <div
+      <main
         className={css`
           flex: 1;
         `}
       >
         {children}
-      </div>
+      </main>
       <Footer />
     </div>
   </>

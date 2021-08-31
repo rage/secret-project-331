@@ -3140,6 +3140,62 @@
       "nullable": [false, false]
     }
   },
+  "814b64d8d02dc308fe81f4d5608f698d8dfb5ea72049fd321754feb1c1104626": {
+    "query": "\nUPDATE exercise_services\n    SET deleted_at = now()\nWHERE id = $1\n    RETURNING *\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 5,
+          "name": "slug",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "public_url",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "internal_url",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 8,
+          "name": "max_reprocessing_submissions_at_once",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, true, false, false, false, true, false]
+    }
+  },
   "8355f2e2500598d1b6fb129f1c7876b2415df0f4235a164a98b0414f8445c84b": {
     "query": "\nSELECT id,\n  regrading_started_at,\n  regrading_completed_at,\n  total_grading_progress AS \"total_grading_progress: _\"\nFROM regradings\nWHERE id = $1\n",
     "describe": {
@@ -3471,7 +3527,7 @@
       "parameters": {
         "Left": ["Uuid", "Uuid"]
       },
-      "nullable": [false, false, false, true, true, false, true, true, true, false]
+      "nullable": [null, null]
     }
   },
   "8c711ea858481edd56e9dc186e9c256e5109f373b8a8c602cecba26cf75740c7": {
@@ -3480,8 +3536,8 @@
       "columns": [
         {
           "ordinal": 0,
-          "name": "count",
-          "type_info": "Int8"
+          "name": "id",
+          "type_info": "Uuid"
         }
       ],
       "parameters": {
@@ -3703,8 +3759,8 @@
         },
         {
           "ordinal": 5,
-          "name": "url_path",
-          "type_info": "Varchar"
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 6,
@@ -4989,6 +5045,62 @@
       "nullable": [null, null, null]
     }
   },
+  "ccdcf7ce3537744686b4a00dc74692d8c5b333e058fcf54fed5891ec2c527d60": {
+    "query": "\nUPDATE exercise_services\n    SET name=$1, slug=$2, public_url=$3, internal_url=$4, max_reprocessing_submissions_at_once=$5\nWHERE id=$6\n    RETURNING *\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 5,
+          "name": "slug",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "public_url",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "internal_url",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 8,
+          "name": "max_reprocessing_submissions_at_once",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Varchar", "Varchar", "Varchar", "Varchar", "Int4", "Uuid"]
+      },
+      "nullable": [false, false, false, true, false, false, false, true, false]
+    }
+  },
   "cf131a7d7d503b62ff64dee20becfe2d237381dc90158c1b411f6107823c0d9e": {
     "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  language_version_of_course_id\nFROM courses\nWHERE deleted_at IS NULL;\n",
     "describe": {
@@ -5022,16 +5134,6 @@
           "ordinal": 5,
           "name": "deleted_at",
           "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 6,
-          "name": "slug",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 7,
-          "name": "content_search_language",
-          "type_info": "Text"
         },
         {
           "ordinal": 6,

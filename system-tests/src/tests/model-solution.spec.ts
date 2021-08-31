@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test"
+import { test } from "@playwright/test"
 
 import expectPath from "../utils/expect"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"

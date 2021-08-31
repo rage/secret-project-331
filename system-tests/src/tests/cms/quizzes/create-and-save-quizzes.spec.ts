@@ -250,7 +250,10 @@ test.describe("quizzes tests", () => {
     await page.goto("http://project-331.local/")
 
     // Click text=University of Helsinki, Department of Computer Science
-    await page.click("text=University of Helsinki, Department of Computer Science")
+    await Promise.all([
+      page.waitForNavigation(),
+      await page.click("text=University of Helsinki, Department of Computer Science"),
+    ])
     expect(page.url()).toBe(
       "http://project-331.local/organizations/8bb12295-53ac-4099-9644-ac0ff5e34d92",
     )

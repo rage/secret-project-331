@@ -8,6 +8,9 @@ use crate::{
     models::playground_examples::{PlaygroundExample, PlaygroundExampleData},
 };
 
+/**
+GET `/api/v0/main-frontend/playground_examples` - Returns all playground examples that are not deleted.
+*/
 #[instrument(skip(pool))]
 async fn get_playground_examples(
     pool: web::Data<PgPool>,
@@ -17,6 +20,9 @@ async fn get_playground_examples(
     Ok(Json(res))
 }
 
+/**
+POST `/api/v0/main-frontend/playground_examples` - Saves a playground example.
+*/
 #[instrument(skip(pool))]
 async fn insert_playground_example(
     pool: web::Data<PgPool>,
@@ -37,6 +43,9 @@ async fn insert_playground_example(
     Ok(Json(res))
 }
 
+/**
+PUT `/api/v0/main-frontend/playground_examples` - Updates existing playground example.
+*/
 #[instrument(skip(pool))]
 async fn update_playground_example(
     pool: web::Data<PgPool>,
@@ -57,6 +66,9 @@ async fn update_playground_example(
     Ok(Json(res))
 }
 
+/**
+DELETE `/api/v0/main-frontend/playground_examples` - Deletes a playground example if exists.
+*/
 #[instrument(skip(pool))]
 async fn delete_playground_example(
     pool: web::Data<PgPool>,

@@ -1,10 +1,11 @@
 import { css } from "@emotion/css"
 import { DiffEditor } from "@monaco-editor/react"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useQuery } from "react-query"
 
 import { fetchHistoryForPage } from "../services/backend/pages"
 import { PageHistory } from "../shared-module/bindings"
+import replaceUuidsWithPlaceholdersInText from "../shared-module/utils/testing/replaceUuidsWithPlaceholders"
 
 import HistoryList from "./lists/HistoryList"
 
@@ -31,6 +32,19 @@ const HistoryView: React.FC<Props> = ({ pageId }) => {
     setSelectedRevision(initial)
     return history[0]
   })
+
+  useEffect(() => {
+    const callback = () => {
+      if (currentRevision) {
+        setCurrentRevision(replaceUuidsWithPlaceholdersInText(currentRevision))
+      }
+      if (selectedRevision) {
+        setSelectedRevision(replaceUuidsWithPlaceholdersInText(selectedRevision))
+      }
+    }
+    window.addEventListener("testing-mode-replace-content-for-screenshot", callback)
+    return () => window.removeEventListener("testing-mode-replace-content-for-screenshot", callback)
+  }, [currentRevision, selectedRevision])
 
   if (error) {
     return (

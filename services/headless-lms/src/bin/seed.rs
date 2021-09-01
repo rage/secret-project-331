@@ -239,19 +239,19 @@ async fn main() -> Result<()> {
               {
                 "id": "3ee47b02-ba13-46a7-957e-fd4f21fc290b",
                 "courseId": "5209f752-9db9-4daf-a7bc-64e21987b719",
-                "body": "quiz.body",
+                "body": "Etsi IANAn  protocol assignment -sivulta \"Service Names and Transport Protocol Port Numbers\" vastaukset seuraaviin kysymyksiin:.",
                 //"2021-09-01T10:59:13.946Z"
                 "deadline": Utc.ymd(2121, 9, 1).and_hms(23, 59, 59).to_string(),
                 "open": Utc.ymd(2021, 9, 1).and_hms(23, 59, 59).to_string(),
                 "part": 1,
                 "section": 1,
-                "title": "quiz.title",
+                "title": "Porttinumeroista",
                 "tries": 1,
                 "triesLimited": false,
                 "items": [
                     {
                         "id": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
-                        "body": "item.body",
+                        "body": "Mihin sovelluskerroksen protokollaan/palveluun liittyy porttinumero 37",
                         "direction": "row",
                         "maxLabel": null,
                         "maxValue": null,
@@ -262,30 +262,44 @@ async fn main() -> Result<()> {
                         "multi": true,
                         "order": 1,
                         "quizId": "3ee47b02-ba13-46a7-957e-fd4f21fc290b",
-                        "title": "item.title",
+                        "title": "Sovelluskerroksen porttinumeroista",
                         "type": "multiple-choice",
                         "options": [
                             {
                                 "id": "8d17a216-9655-4558-adfb-cf66fb3e08ba",
-                                "body": "option1.body",
+                                "body": "time",
                                 "order": 1,
-                                "title": "option1.title",
+                                "title": null,
                                 "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
                             },
                             {
                                 "id": "11e0f3ac-fe21-4524-93e6-27efd4a92595",
-                                "body": "option2.body",
+                                "body": "name",
                                 "order": 2,
-                                "title": "option2.title",
+                                "title": null,
                                 "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
                             },
                             {
                                 "id": "e0033168-9f92-4d71-9c23-7698de9ea3b0",
-                                "body": "option3.body",
+                                "body": "ftp",
                                 "order": 3,
-                                "title": "option3.title",
+                                "title": null,
                                 "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
-                            }
+                            },
+                            {
+                                "id": "2931180f-827f-468c-a616-a8df6e94f717",
+                                "body": "smtp",
+                                "order": 4,
+                                "title": null,
+                                "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                            },
+                            {
+                                "id": "9f5a09d7-c03f-44dd-85db-38065600c2c3",
+                                "body": "dsp",
+                                "order": 5,
+                                "title": null,
+                                "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                            },
                         ]
                     }
                 ]

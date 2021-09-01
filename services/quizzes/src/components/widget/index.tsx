@@ -1,6 +1,7 @@
 import { PublicQuiz } from "../../types/types"
 import HeightTrackingContainer from "../HeightTrackingComponent"
 
+import MultipleChoice from "./MultipleChoice"
 import Unsupported from "./Unsupported"
 
 interface WidgetProps {
@@ -20,7 +21,7 @@ type QuizItemType =
 const componentsByTypeNames = (typeName: QuizItemType) => {
   const mapTypeToComponent = {
     essay: Unsupported,
-    "multiple-choice": Unsupported,
+    "multiple-choice": MultipleChoice,
     scale: Unsupported,
     checkbox: Unsupported,
     open: Unsupported,
@@ -33,7 +34,6 @@ const componentsByTypeNames = (typeName: QuizItemType) => {
 }
 
 const Widget: React.FC<WidgetProps> = ({ quiz, port }) => {
-  console.log(quiz)
   return (
     <div>
       <HeightTrackingContainer port={port}>

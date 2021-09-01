@@ -43,7 +43,7 @@ const HistoryView: React.FC<Props> = ({ pageId }) => {
       }
     }
     window.addEventListener("testing-mode-replace-content-for-screenshot", callback)
-    return () => window.removeEventListener("testing-mode-screenshot", callback)
+    return () => window.removeEventListener("testing-mode-replace-content-for-screenshot", callback)
   }, [currentRevision, selectedRevision])
 
   if (error) {

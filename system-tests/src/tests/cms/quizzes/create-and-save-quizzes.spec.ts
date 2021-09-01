@@ -145,9 +145,7 @@ test.describe("quizzes tests", () => {
     // Click text=grant_only_when_fully_complete
     await frame.click("text=grant_only_when_fully_complete")
 
-    // Click [aria-label="Choose date, selected date is <CURRENT_DATE>"]
-    const date = format(new Date(), "MMM dd, yyyy")
-    await frame.click(`[aria-label="Choose date, selected date is ${date}"]`)
+    await frame.click(`button:right-of([placeholder="dd-mm-yyyy, hh:mm:ss"])`)
 
     // Click text=10
     await frame.click("text=10")

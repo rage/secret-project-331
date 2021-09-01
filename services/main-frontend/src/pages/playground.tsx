@@ -116,6 +116,7 @@ const Home: React.FC = () => {
     const example: PlaygroundExample = JSON.parse(event.target.value) as PlaygroundExample
     setExampleUrl(example.url)
     setExampleWidth(example.width)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setExampleData(JSON.stringify(example.data as any, undefined, 2))
     setExampleName(example.name)
     setSelectedExample(example)
@@ -181,7 +182,7 @@ const Home: React.FC = () => {
             </div>
           </Alert>
         </Grow>
-        <h2>Insert URL, width and data</h2>
+        <h2>Playground for exercise IFrames</h2>
         {data.length > 0 && (
           <div>
             <h4>List of examples</h4>
@@ -202,9 +203,10 @@ const Home: React.FC = () => {
           </div>
         )}
         <TextField
-          value={exampleUrl}
+          value={exampleUrl || ""}
           fullWidth
           placeholder={invalidUrl ? "Invalid URL" : "URL"}
+          label="URL"
           onChange={handleUrlChange}
           error={invalidUrl}
           className={css`
@@ -212,8 +214,9 @@ const Home: React.FC = () => {
           `}
         />
         <TextField
-          value={exampleWidth}
-          placeholder="width"
+          value={exampleWidth || ""}
+          placeholder="Width"
+          label="Width"
           fullWidth
           onChange={handleWidthChange}
           className={css`
@@ -221,8 +224,9 @@ const Home: React.FC = () => {
           `}
         />
         <TextField
-          value={exampleName}
-          placeholder="example name"
+          value={exampleName || ""}
+          placeholder="Example name"
+          label="Example name"
           fullWidth
           onChange={handleNameChange}
           className={css`
@@ -243,7 +247,6 @@ const Home: React.FC = () => {
           }}
           value={exampleData}
           onChange={(value) => handleDataChange(value)}
-          width="30vw"
           height="50vh"
           className={css`
             border: 1px solid black;

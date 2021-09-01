@@ -345,8 +345,10 @@ mod test {
     use super::*;
     use crate::{
         models::{
-            chapters, course_instance_enrollments, course_instances, course_language_groups,
-            courses, exercise_tasks, organizations, pages, users,
+            chapters,
+            course_instance_enrollments::{self, NewCourseInstanceEnrollment},
+            course_instances, course_language_groups, courses, exercise_tasks, organizations,
+            pages, users,
         },
         test_helper::Conn,
         utils::document_schema_processor::GutenbergBlock,
@@ -392,9 +394,16 @@ mod test {
         let course_instance = course_instances::insert(tx.as_mut(), course_id, None, None)
             .await
             .unwrap();
-        course_instance_enrollments::insert(tx.as_mut(), user_id, course_id, course_instance.id)
-            .await
-            .unwrap();
+        course_instance_enrollments::insert_enrollment_and_set_as_current(
+            tx.as_mut(),
+            NewCourseInstanceEnrollment {
+                course_id,
+                course_instance_id: course_instance.id,
+                user_id,
+            },
+        )
+        .await
+        .unwrap();
         let chapter_id = chapters::insert(tx.as_mut(), "", course_id, 0)
             .await
             .unwrap();

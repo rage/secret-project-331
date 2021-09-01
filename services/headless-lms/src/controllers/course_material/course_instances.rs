@@ -8,7 +8,7 @@ use crate::{
     },
 };
 use actix_web::web::{self, Json, ServiceConfig};
-use sqlx::{Acquire, PgPool};
+use sqlx::PgPool;
 use uuid::Uuid;
 
 /**
@@ -62,27 +62,22 @@ async fn add_user_enrollment(
     user: AuthUser,
 ) -> ControllerResult<Json<CourseInstanceEnrollment>> {
     let mut conn = pool.acquire().await?;
-    let mut tx = conn.begin().await?;
 
-    let instance =
-        crate::models::course_instances::get_course_instance(&mut tx, *request_course_instance_id)
-            .await?;
-    let enrollment = crate::models::course_instance_enrollments::insert_enrollment(
-        &mut tx,
-        NewCourseInstanceEnrollment {
-            course_id: instance.course_id,
-            course_instance_id: instance.id,
-            user_id: user.id,
-        },
+    let instance = crate::models::course_instances::get_course_instance(
+        &mut conn,
+        *request_course_instance_id,
     )
     .await?;
-    let _settings =
-        crate::models::user_course_settings::upsert_user_course_settings_for_enrollment(
-            &mut tx,
-            &enrollment,
+    let enrollment =
+        crate::models::course_instance_enrollments::insert_enrollment_and_set_as_current(
+            &mut conn,
+            NewCourseInstanceEnrollment {
+                course_id: instance.course_id,
+                course_instance_id: instance.id,
+                user_id: user.id,
+            },
         )
         .await?;
-    tx.commit().await?;
 
     Ok(Json(enrollment))
 }

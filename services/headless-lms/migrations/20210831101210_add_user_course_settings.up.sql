@@ -18,6 +18,8 @@ CREATE TABLE user_course_settings (
   ) REFERENCES course_instance_enrollments (user_id, course_id, course_instance_id),
   FOREIGN KEY (current_course_id, course_language_group_id) REFERENCES courses (id, course_language_group_id)
 );
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON user_course_settings FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 COMMENT ON TABLE user_course_settings IS 'User setting for a language version group of courses.';
 COMMENT ON COLUMN user_course_settings.user_id IS 'The user that these settings should be applied for.';
 COMMENT ON COLUMN user_course_settings.course_language_group_id IS 'Group of courses that these settings are used for.';

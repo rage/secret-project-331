@@ -5,6 +5,8 @@ CREATE TABLE course_language_groups (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE
 );
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON course_language_groups FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 COMMENT ON TABLE course_language_groups IS 'Group of courses that have the same content but in different languages.';
 COMMENT ON COLUMN course_language_groups.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN course_language_groups.created_at IS 'Timestamp when the record was created.';

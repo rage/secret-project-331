@@ -1,7 +1,7 @@
 use super::ModelResult;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::PgConnection;
+use sqlx::{Acquire, PgConnection};
 use ts_rs::TS;
 use uuid::Uuid;
 
@@ -59,5 +59,22 @@ RETURNING *;
     )
     .fetch_one(conn)
     .await?;
+    Ok(enrollment)
+}
+
+pub async fn insert_enrollment_and_set_as_current(
+    conn: &mut PgConnection,
+    new_enrollment: NewCourseInstanceEnrollment,
+) -> ModelResult<CourseInstanceEnrollment> {
+    let mut tx = conn.begin().await?;
+
+    let enrollment = insert_enrollment(&mut tx, new_enrollment).await?;
+    crate::models::user_course_settings::upsert_user_course_settings_for_enrollment(
+        &mut tx,
+        &enrollment,
+    )
+    .await?;
+    tx.commit().await?;
+
     Ok(enrollment)
 }

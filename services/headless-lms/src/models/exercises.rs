@@ -206,11 +206,10 @@ pub async fn get_course_material_exercise(
         // user is logged in, see if they're enrolled on the course
         current_course_instance_id = sqlx::query!(
             r#"
-SELECT course_instance_id AS id
-FROM course_instance_enrollments
-WHERE course_id = $1
+SELECT current_course_instance_id AS id
+FROM user_course_settings
+WHERE current_course_id = $1
   AND user_id = $2
-  AND current = TRUE
   AND deleted_at IS NULL
 "#,
             exercise.course_id,
@@ -393,15 +392,9 @@ mod test {
         let course_instance = course_instances::insert(tx.as_mut(), course_id, None, None)
             .await
             .unwrap();
-        course_instance_enrollments::insert(
-            tx.as_mut(),
-            user_id,
-            course_id,
-            course_instance.id,
-            true,
-        )
-        .await
-        .unwrap();
+        course_instance_enrollments::insert(tx.as_mut(), user_id, course_id, course_instance.id)
+            .await
+            .unwrap();
         let chapter_id = chapters::insert(tx.as_mut(), "", course_id, 0)
             .await
             .unwrap();

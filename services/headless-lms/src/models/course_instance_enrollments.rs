@@ -10,7 +10,6 @@ pub struct CourseInstanceEnrollment {
     pub user_id: Uuid,
     pub course_id: Uuid,
     pub course_instance_id: Uuid,
-    pub current: bool,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
@@ -21,17 +20,15 @@ pub async fn insert(
     user_id: Uuid,
     course_id: Uuid,
     course_instance_id: Uuid,
-    current: bool,
 ) -> ModelResult<()> {
     sqlx::query!(
         "
-INSERT INTO course_instance_enrollments (user_id, course_id, course_instance_id, current)
-VALUES ($1, $2, $3, $4)
+INSERT INTO course_instance_enrollments (user_id, course_id, course_instance_id)
+VALUES ($1, $2, $3)
 ",
         user_id,
         course_id,
         course_instance_id,
-        current
     )
     .execute(conn)
     .await?;
@@ -43,7 +40,6 @@ pub struct NewCourseInstanceEnrollment {
     pub user_id: Uuid,
     pub course_id: Uuid,
     pub course_instance_id: Uuid,
-    pub current: bool,
 }
 
 pub async fn insert_enrollment(
@@ -53,14 +49,13 @@ pub async fn insert_enrollment(
     let enrollment = sqlx::query_as!(
         CourseInstanceEnrollment,
         "
-INSERT INTO course_instance_enrollments (user_id, course_id, course_instance_id, current)
-VALUES ($1, $2, $3, $4)
+INSERT INTO course_instance_enrollments (user_id, course_id, course_instance_id)
+VALUES ($1, $2, $3)
 RETURNING *;
 ",
         enrollment.user_id,
         enrollment.course_id,
         enrollment.course_instance_id,
-        enrollment.current
     )
     .fetch_one(conn)
     .await?;

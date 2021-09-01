@@ -111,13 +111,11 @@ SELECT i.id,
   i.name,
   i.description,
   i.variant_status AS "variant_status: VariantStatus"
-FROM course_instances i
-  JOIN course_instance_enrollments e ON i.id = e.course_instance_id
-WHERE e.user_id = $1
-  AND e.course_id = $2
-  AND e.current = 't'
-  AND e.deleted_at IS NULL
-  AND i.deleted_at IS NULL;
+FROM user_course_settings ucs
+  JOIN course_instances i ON (ucs.current_course_instance_id = i.id)
+WHERE ucs.user_id = $1
+  AND ucs.current_course_id = $2
+  AND ucs.deleted_at IS NULL;
     "#,
         user_id,
         course_id,

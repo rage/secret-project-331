@@ -107,8 +107,6 @@ lettre = "0.10.0-rc.3"
 regex = "1.5.4"
 # Single assignment cells and lazy values.
 once_cell = "1.8.0"
-# Tools for finding and manipulating differences between files
-diffy = "0.2"
 # An LCS based slice and string diffing implementation.
 diff = "0.1"
 

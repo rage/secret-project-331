@@ -5,7 +5,7 @@ use crate::{
     models::{
         chapters::{ChapterStatus, ChapterWithStatus},
         feedback,
-        proposed_edits::{self, NewProposedEdit},
+        proposed_edits::{self, NewProposedPageEdits},
     },
     models::{course_instances::CourseInstance, courses},
     models::{feedback::NewFeedback, pages::Page},
@@ -261,7 +261,7 @@ POST `/api/v0/course-material/courses/:course_slug/edit` - Creates a new edit pr
 */
 async fn propose_edit(
     course_slug: web::Path<String>,
-    new_proposal: web::Json<NewProposedEdit>,
+    edits: web::Json<NewProposedPageEdits>,
     pool: web::Data<PgPool>,
     user: Option<AuthUser>,
 ) -> ControllerResult<String> {
@@ -271,9 +271,7 @@ async fn propose_edit(
         &mut conn,
         course.id,
         user.map(|u| u.id),
-        new_proposal.block_id,
-        &new_proposal.original_text,
-        &new_proposal.changed_text,
+        &edits.into_inner(),
     )
     .await?;
     Ok(id.to_string())

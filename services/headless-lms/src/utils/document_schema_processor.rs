@@ -1,31 +1,28 @@
 use crate::models::pages::NormalizedCmsExercise;
 use crate::models::pages::NormalizedCmsExerciseTask;
 use anyhow::{anyhow, Result};
-use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use serde_json::Map;
 use serde_json::Value;
 use uuid::Uuid;
 
-static DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES: Lazy<Vec<String>> = Lazy::new(|| {
-    vec![
-        "moocfi/exercise".to_string(),
-        "moocfi/exercise-task".to_string(),
-        "moocfi/exercises-in-chapter".to_string(),
-        "moocfi/pages-in-chapter".to_string(),
-        "moocfi/exercises-in-chapter".to_string(),
-        "moocfi/chapter-progress".to_string(),
-    ]
-});
+static DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES: &[&str] = &[
+    "moocfi/exercise",
+    "moocfi/exercise-task",
+    "moocfi/exercises-in-chapter",
+    "moocfi/pages-in-chapter",
+    "moocfi/exercises-in-chapter",
+    "moocfi/chapter-progress",
+];
 
 use crate::attributes;
 #[macro_export]
 macro_rules! attributes {
     () => {{
-        Map::<String, Value>::new()
+        Map::<String, serde_json::Value>::new()
     }};
     ($($name: tt: $value: expr),+ $(,)*) => {{
-        let mut map = serde_json::Map::<String, Value>::new();
+        let mut map = serde_json::Map::<String, serde_json::Value>::new();
         $(map.insert($name.into(), serde_json::json!($value));)*
         map
     }};
@@ -241,7 +238,7 @@ pub fn normalize_from_json(input: serde_json::Value) -> Result<NormalizedDocumen
 pub fn contains_blocks_not_allowed_in_top_level_pages(input: &[GutenbergBlock]) -> bool {
     let res = input
         .iter()
-        .any(|block| DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES.contains(&block.name));
+        .any(|block| DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES.contains(&block.name.as_str()));
     res
 }
 

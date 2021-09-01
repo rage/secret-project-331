@@ -101,4 +101,15 @@ mod test {
             "I decided to rewrite this paragraph!"
         );
     }
+
+    #[test]
+    fn same_edit_applied_twice() {
+        let ancestor = "This is the original, uneditd text.";
+        let incoming = "This is the original, unedited text.";
+        let current = "This is the original, unedited text.";
+        assert_eq!(
+            merge(ancestor, incoming, current).unwrap(),
+            "This is the original, unediteed text."
+        );
+    }
 }

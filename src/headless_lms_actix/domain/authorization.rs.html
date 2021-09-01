@@ -199,6 +199,9 @@
 <span id="197">197</span>
 <span id="198">198</span>
 <span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">controllers::ControllerError</span>,
@@ -303,6 +306,7 @@
     <span class="ident">AnyCourse</span>,
     <span class="ident">Role</span>,
     <span class="ident">User</span>,
+    <span class="ident">PlaygroundExample</span>,
 }
 
 <span class="doccomment">/// Can user_id action the resource?</span>
@@ -358,7 +362,9 @@
             <span class="prelude-val">Some</span>(<span class="kw">crate</span><span class="ident">::models::submissions::get_course_id</span>(<span class="ident">conn</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>),
             <span class="prelude-val">None</span>,
         ),
-        <span class="ident">Resource::Role</span> <span class="op">|</span> <span class="ident">Resource::User</span> <span class="op">|</span> <span class="ident">Resource::AnyCourse</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>),
+        <span class="ident">Resource::Role</span> <span class="op">|</span> <span class="ident">Resource::User</span> <span class="op">|</span> <span class="ident">Resource::AnyCourse</span> <span class="op">|</span> <span class="ident">Resource::PlaygroundExample</span> <span class="op">=</span><span class="op">&gt;</span> {
+            (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>)
+        }
     };
 
     <span class="comment">// check course role</span>

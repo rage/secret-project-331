@@ -3,16 +3,17 @@ use chrono::Utc;
 use headless_lms_actix::models::chapters::NewChapter;
 use headless_lms_actix::models::courses::NewCourse;
 use headless_lms_actix::models::exercises::GradingProgress;
-use headless_lms_actix::models::feedback;
 use headless_lms_actix::models::feedback::{FeedbackBlock, NewFeedback};
 use headless_lms_actix::models::gradings;
 use headless_lms_actix::models::pages::{NewPage, PageUpdate};
+use headless_lms_actix::models::playground_examples::PlaygroundExampleData;
 use headless_lms_actix::models::submissions::GradingResult;
 use headless_lms_actix::models::{
     chapters, course_instances, course_instances::VariantStatus, courses, exercise_services,
     exercises, organizations, pages, roles, roles::UserRole, submissions, user_exercise_states,
     users,
 };
+use headless_lms_actix::models::{feedback, playground_examples};
 use headless_lms_actix::setup_tracing;
 use headless_lms_actix::utils::document_schema_processor::GutenbergBlock;
 use serde_json::Value;
@@ -201,6 +202,30 @@ async fn main() -> Result<()> {
         Some(uh_cs),
         Some(cs_intro),
         UserRole::Assistant,
+    )
+    .await?;
+
+    playground_examples::insert_playground_example(
+        &mut conn,
+        PlaygroundExampleData {
+            name: "Example exercise".to_string(),
+            url: "http://project-331.local/example-exercise/exercise".to_string(),
+            width: 500,
+            data: serde_json::json!([
+              {
+                "id": "cbf2f43c-dc89-4de5-9b23-688a76b838cd",
+                "name": "a"
+              },
+              {
+                "id": "f6386ed9-9bfa-46cf-82b9-77646a9721c6",
+                "name": "b"
+              },
+              {
+                "id": "c988be91-caf7-4196-8cf6-18e1ae113a69",
+                "name": "c"
+              }
+            ]),
+        },
     )
     .await?;
 

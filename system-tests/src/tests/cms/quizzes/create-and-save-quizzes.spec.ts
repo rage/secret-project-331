@@ -1,5 +1,4 @@
 import { expect, test } from "@playwright/test"
-import { format } from "date-fns"
 
 import expectPath from "../../../utils/expect"
 import waitForFunction from "../../../utils/waitForFunction"

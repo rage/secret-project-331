@@ -128,7 +128,7 @@ pub async fn copy_course(
     new_course: NewCourse,
 ) -> ModelResult<Course> {
     let course = get_course(conn, course_id).await?;
-    clone_course_with_language_parent_id(conn, course, new_course, false).await
+    copy_course_internal(conn, course, new_course, false).await
 }
 
 pub async fn copy_course_as_language_version_of_course(
@@ -137,10 +137,10 @@ pub async fn copy_course_as_language_version_of_course(
     new_course: NewCourse,
 ) -> ModelResult<Course> {
     let course = get_course(conn, course_id).await?;
-    clone_course_with_language_parent_id(conn, course, new_course, false).await
+    copy_course_internal(conn, course, new_course, true).await
 }
 
-async fn clone_course_with_language_parent_id(
+async fn copy_course_internal(
     conn: &mut PgConnection,
     parent_course: Course,
     new_course: NewCourse,

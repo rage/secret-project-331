@@ -17,6 +17,11 @@ import {
 
 import { courseMaterialClient } from "./courseMaterialClient"
 
+export const fetchCourseById = async (courseId: string): Promise<Course> => {
+  const response = await courseMaterialClient.get(`/courses/${courseId}`, { responseType: "json" })
+  return response.data
+}
+
 export const fetchCourses = async (): Promise<Array<Course>> => {
   const data = (await courseMaterialClient.get("/courses", { responseType: "json" })).data
   return data

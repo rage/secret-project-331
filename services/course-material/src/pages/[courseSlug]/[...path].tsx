@@ -48,8 +48,8 @@ const PagePage: React.FC = () => {
         type: "setData",
         payload: {
           pageData: pageDataQuery.data,
-          instance: instanceQuery.data,
-          settings: settingsQuery.data,
+          instance: instanceQuery.data ?? null,
+          settings: settingsQuery.data ?? null,
         },
       })
     } else {

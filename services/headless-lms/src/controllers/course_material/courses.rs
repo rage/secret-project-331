@@ -4,6 +4,7 @@ use crate::{
     domain::authorization::AuthUser,
     models::{
         chapters::{ChapterStatus, ChapterWithStatus},
+        courses::Course,
         feedback,
         pages::PageSearchRequest,
         user_course_settings::UserCourseSettings,
@@ -15,6 +16,20 @@ use actix_web::web::{self, Json, ServiceConfig};
 use chrono::Utc;
 use sqlx::PgPool;
 use uuid::Uuid;
+
+/**
+GET `/api/v0/main-frontend/courses/:course_id` - Get course.
+*/
+#[instrument(skip(pool))]
+async fn get_course(
+    request_course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<Json<Course>> {
+    let mut conn = pool.acquire().await?;
+    let course = crate::models::courses::get_course(&mut conn, *request_course_id).await?;
+    Ok(Json(course))
+}
 
 /**
 GET `/:course_slug/page-by-path/...` - Returns a course page by path
@@ -425,7 +440,8 @@ The name starts with an underline in order to appear before other functions in t
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
 pub fn _add_courses_routes(cfg: &mut ServiceConfig) {
-    cfg.route("/{course_id}/chapters", web::get().to(get_chapters))
+    cfg.route("/{course_id}", web::get().to(get_course))
+        .route("/{course_id}/chapters", web::get().to(get_chapters))
         .route(
             "/{course_id}/course-instances",
             web::get().to(get_course_instances),

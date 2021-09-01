@@ -37,6 +37,9 @@ const TextWrapper = styled.div`
     color: #333;
     outline: 0;
     background: rgba(0, 0, 0, 0.1);
+    @media (min-width: 600px) {
+      padding: 1rem 1rem 1rem 2rem;
+    }
   }
 
   details summary::-webkit-details-marker {
@@ -55,7 +58,7 @@ const TextWrapper = styled.div`
     line-height: 0;
     margin-top: 0.75rem;
     top: 14px;
-    right: 2%;
+    right: 4%;
     font-weight: 200;
     transform-origin: center;
     transition: all 200ms linear;
@@ -70,13 +73,18 @@ const TextWrapper = styled.div`
   }
 
   ul {
-    padding: 0 0 0 0.6rem;
+    padding: 14px;
+    margin: 0;
+
+    @media (min-width: 600px) {
+      background: #f9f9f9;
+      padding: 25px 35px 30px 35px;
+    }
   }
 
   ul li {
     font-size: 1.1rem;
     margin: 0 0 0.2rem;
-    padding-left: 8px;
     line-height: 1.7;
     list-style: none;
   }

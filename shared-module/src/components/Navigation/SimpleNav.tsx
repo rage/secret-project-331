@@ -1,7 +1,6 @@
 import { css, cx } from "@emotion/css"
 import { faBullseye } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { useRouter } from "next/router"
 import { useContext, useState } from "react"
 
 import LoginStateContext from "../../contexts/LoginStateContext"
@@ -146,10 +145,10 @@ const Hide = css`
   display: none;
 `
 
-const Navigation: React.FC<NavigationProps> = ({ frontPageUrl, faqUrl }) => {
+const Navigation: React.FC<NavigationProps> = ({ frontPageUrl, faqUrl, returnToPath }) => {
   const [clicked, setClicked] = useState(false)
   const loginStateContext = useContext(LoginStateContext)
-  const router = useRouter()
+
   if (loginStateContext.isLoading) {
     return <Spinner variant="large" />
   }
@@ -190,13 +189,7 @@ const Navigation: React.FC<NavigationProps> = ({ frontPageUrl, faqUrl }) => {
               </li>
             ) : (
               <li>
-                <a
-                  href={`/login?return_to=${encodeURIComponent(
-                    process.env.NEXT_PUBLIC_BASE_PATH + router.asPath,
-                  )}`}
-                >
-                  Login
-                </a>
+                <a href={returnToPath}>Login</a>
               </li>
             )}
             {/* <li>Authors</li>

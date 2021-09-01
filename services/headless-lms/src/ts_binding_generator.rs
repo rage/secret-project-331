@@ -31,6 +31,7 @@ use crate::{
             NewSubmission, Submission, SubmissionCount, SubmissionCountByExercise,
             SubmissionCountByWeekAndHour, SubmissionInfo, SubmissionResult,
         },
+        user_course_settings::UserCourseSettings,
         user_exercise_states::UserProgress,
     },
     utils::pagination::Pagination,
@@ -96,6 +97,7 @@ ts_rs::export! {
   ExerciseTask,
   ExerciseWithExerciseTasks,
   NormalizedCmsExercise,
-  NormalizedCmsExerciseTask
+  NormalizedCmsExerciseTask,
+  UserCourseSettings
     => "../../shared-module/src/bindings.ts"
 }

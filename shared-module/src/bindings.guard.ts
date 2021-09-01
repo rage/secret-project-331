@@ -58,6 +58,7 @@ import {
   SubmissionInfo,
   SubmissionResult,
   UploadResult,
+  UserCourseSettings,
   UserPointsUpdateStrategy,
   UserProgress,
   VariantStatus,
@@ -166,7 +167,6 @@ export function isCourseInstanceEnrollment(
     typeof obj.user_id === "string" &&
     typeof obj.course_id === "string" &&
     typeof obj.course_instance_id === "string" &&
-    typeof obj.current === "boolean" &&
     obj.created_at instanceof Date &&
     obj.updated_at instanceof Date &&
     (obj.deleted_at === null || obj.deleted_at instanceof Date)
@@ -724,5 +724,18 @@ export function isNormalizedCmsExerciseTask(
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
     typeof obj.exercise_type === "string"
+  )
+}
+
+export function isUserCourseSettings(obj: any, _argumentName?: string): obj is UserCourseSettings {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.user_id === "string" &&
+    typeof obj.course_language_group_id === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    typeof obj.current_course_id === "string" &&
+    typeof obj.current_course_instance_id === "string"
   )
 }

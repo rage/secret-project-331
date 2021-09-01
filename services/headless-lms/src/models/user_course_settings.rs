@@ -1,11 +1,12 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
+use ts_rs::TS;
 use uuid::Uuid;
 
 use super::{course_instance_enrollments::CourseInstanceEnrollment, ModelResult};
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct UserCourseSettings {
     pub user_id: Uuid,
     pub course_language_group_id: Uuid,
@@ -69,6 +70,32 @@ WHERE user_id = $1
         course_language_group_id
     )
     .fetch_one(conn)
+    .await?;
+    Ok(user_course_settings)
+}
+
+pub async fn get_user_course_settings_by_course_id(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<Option<UserCourseSettings>> {
+    let user_course_settings = sqlx::query_as!(
+        UserCourseSettings,
+        "
+SELECT ucs.*
+FROM courses c
+  JOIN user_course_settings ucs ON (
+    ucs.course_language_group_id = c.course_language_group_id
+  )
+WHERE c.id = $1
+  AND ucs.user_id = $2
+  AND c.deleted_at IS NULL
+  AND ucs.deleted_at IS NULL;
+        ",
+        course_id,
+        user_id,
+    )
+    .fetch_optional(conn)
     .await?;
     Ok(user_course_settings)
 }

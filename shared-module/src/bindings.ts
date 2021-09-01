@@ -82,7 +82,6 @@ export interface CourseInstanceEnrollment {
   user_id: string
   course_id: string
   course_instance_id: string
-  current: boolean
   created_at: Date
   updated_at: Date
   deleted_at: Date | null
@@ -453,4 +452,14 @@ export interface NormalizedCmsExerciseTask {
   exercise_type: string
   assignment: unknown
   private_spec: unknown | null
+}
+
+export interface UserCourseSettings {
+  user_id: string
+  course_language_group_id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  current_course_id: string
+  current_course_instance_id: string
 }

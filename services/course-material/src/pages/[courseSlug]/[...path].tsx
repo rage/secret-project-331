@@ -9,7 +9,11 @@ import CoursePageContext, {
 } from "../../contexts/CoursePageContext"
 import useQueryParameter from "../../hooks/useQueryParameter"
 import coursePageStateReducer from "../../reducers/coursePageStateReducer"
-import { fetchCourseInstance, fetchCoursePageByPath } from "../../services/backend"
+import {
+  fetchCourseInstance,
+  fetchCoursePageByPath,
+  fetchUserCourseSettings,
+} from "../../services/backend"
 import useStateQuery from "../../shared-module/hooks/useStateQuery"
 import dontRenderUntilQueryParametersReady from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
@@ -27,14 +31,26 @@ const PagePage: React.FC = () => {
     ["course-instance", pageDataQuery.data?.course_id],
     (courseId) => fetchCourseInstance(courseId),
   )
+  const settingsQuery = useStateQuery(
+    ["user-course-settings", pageDataQuery.data?.course_id],
+    (courseId) => fetchUserCourseSettings(courseId),
+  )
 
   useEffect(() => {
     if (pageDataQuery.state === "error") {
       pageStateDispatch({ type: "setError", payload: pageDataQuery.error })
-    } else if (pageDataQuery.state === "ready" && instanceQuery.state === "ready") {
+    } else if (
+      pageDataQuery.state === "ready" &&
+      instanceQuery.state === "ready" &&
+      settingsQuery.state === "ready"
+    ) {
       pageStateDispatch({
         type: "setData",
-        payload: { pageData: pageDataQuery.data, instance: instanceQuery.data ?? null },
+        payload: {
+          pageData: pageDataQuery.data,
+          instance: instanceQuery.data,
+          settings: settingsQuery.data,
+        },
       })
     } else {
       pageStateDispatch({ type: "setLoading" })
@@ -45,6 +61,8 @@ const PagePage: React.FC = () => {
     pageDataQuery.data,
     pageDataQuery.error,
     pageDataQuery.state,
+    settingsQuery.data,
+    settingsQuery.state,
   ])
 
   useEffect(() => {
@@ -68,7 +86,8 @@ const PagePage: React.FC = () => {
   const handleRefresh = useCallback(async () => {
     await pageDataQuery.refetch()
     await instanceQuery.refetch()
-  }, [instanceQuery, pageDataQuery])
+    await settingsQuery.refetch()
+  }, [instanceQuery, pageDataQuery, settingsQuery])
 
   if (pageDataQuery.state === "error") {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

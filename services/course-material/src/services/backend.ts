@@ -11,6 +11,7 @@ import {
   PageSearchResult,
   PageWithExercises,
   SubmissionResult,
+  UserCourseSettings,
   UserProgress,
 } from "../shared-module/bindings"
 
@@ -119,6 +120,13 @@ export const fetchChaptersPagesExcludeFrontpage = async (chapterId: string): Pro
 
 export const fetchChaptersInTheCourse = async (courseId: string): Promise<ChapterWithStatus[]> => {
   return (await courseMaterialClient.get(`/courses/${courseId}/chapters`)).data
+}
+
+export const fetchUserCourseSettings = async (
+  courseId: string,
+): Promise<UserCourseSettings | null> => {
+  const response = await courseMaterialClient.get(`/courses/${courseId}/user-settings`)
+  return response.data
 }
 
 export const fetchPageUrl = async (pageId: string): Promise<string> => {

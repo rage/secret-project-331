@@ -6,6 +6,7 @@ use crate::{
         chapters::{ChapterStatus, ChapterWithStatus},
         feedback,
         pages::PageSearchRequest,
+        user_course_settings::UserCourseSettings,
     },
     models::{course_instances::CourseInstance, courses, pages::PageSearchResult},
     models::{feedback::NewFeedback, pages::Page},
@@ -222,6 +223,28 @@ async fn get_chapters(
 }
 
 /**
+GET `/api/v0/course-material/courses/:course_id/user-settings` - Returns user settings for the current course.
+*/
+async fn get_user_course_settings(
+    pool: web::Data<PgPool>,
+    request_course_id: web::Path<Uuid>,
+    user: Option<AuthUser>,
+) -> ControllerResult<Json<Option<UserCourseSettings>>> {
+    let mut conn = pool.acquire().await?;
+    if let Some(user) = user {
+        let settings = crate::models::user_course_settings::get_user_course_settings_by_course_id(
+            &mut conn,
+            user.id,
+            *request_course_id,
+        )
+        .await?;
+        Ok(Json(settings))
+    } else {
+        Ok(Json(None))
+    }
+}
+
+/**
 POST `/api/v0/course-material/courses/:course_id/search-pages-with-phrase` - Returns a list of pages given a search query.
 
 Provided words are supposed to appear right after each other in the source document.
@@ -402,27 +425,31 @@ The name starts with an underline in order to appear before other functions in t
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
 pub fn _add_courses_routes(cfg: &mut ServiceConfig) {
-    cfg.route(
-        "/{course_id}/page-by-path/{url_path:.*}",
-        web::get().to(get_course_page_by_path),
-    )
-    .route("/{course_id}/pages", web::get().to(get_course_pages))
-    .route("/{course_id}/chapters", web::get().to(get_chapters))
-    .route(
-        "/{course_id}/course-instances",
-        web::get().to(get_course_instances),
-    )
-    .route(
-        "/{course_id}/current-instance",
-        web::get().to(get_current_course_instance),
-    )
-    .route(
-        "/{course_id}/search-pages-with-phrase",
-        web::post().to(search_pages_with_phrase),
-    )
-    .route(
-        "/{course_id}/search-pages-with-words",
-        web::post().to(search_pages_with_words),
-    )
-    .route("/{course_id}/feedback", web::post().to(feedback));
+    cfg.route("/{course_id}/chapters", web::get().to(get_chapters))
+        .route(
+            "/{course_id}/course-instances",
+            web::get().to(get_course_instances),
+        )
+        .route(
+            "/{course_id}/current-instance",
+            web::get().to(get_current_course_instance),
+        )
+        .route("/{course_id}/feedback", web::post().to(feedback))
+        .route(
+            "/{course_id}/page-by-path/{url_path:.*}",
+            web::get().to(get_course_page_by_path),
+        )
+        .route("/{course_id}/pages", web::get().to(get_course_pages))
+        .route(
+            "/{course_id}/search-pages-with-phrase",
+            web::post().to(search_pages_with_phrase),
+        )
+        .route(
+            "/{course_id}/search-pages-with-words",
+            web::post().to(search_pages_with_words),
+        )
+        .route(
+            "/{course_id}/user-settings",
+            web::get().to(get_user_course_settings),
+        );
 }

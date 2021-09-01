@@ -1,22 +1,18 @@
 import { Meta, Story } from "@storybook/react"
 import React from "react"
 
-import HeroSection from "../src/components/HeroSection"
+import ErrorBanner from "../src/components/ErrorBanner"
 
 export default {
-  title: "Components/HeroSection",
-  component: HeroSection,
+  title: "Components/ErrorBanner",
+  component: ErrorBanner,
 } as Meta
 
-const Component = HeroSection
+const Component = ErrorBanner
 
 type ComponentProps = React.ComponentProps<typeof Component>
 
 const Template: Story<ComponentProps> = (args: ComponentProps) => <Component {...args} />
 
 export const Primary: Story<ComponentProps> = Template.bind({})
-Primary.args = {
-  children: "HeroSection",
-  title: "Introduction to Calculus",
-  subTitle: "Everything you need to know",
-}
+Primary.args = {}

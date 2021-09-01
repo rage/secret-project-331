@@ -3,6 +3,7 @@ import styled from "@emotion/styled"
 import React from "react"
 
 import CardSVG from "../../img/cardNext.svg"
+import { typography } from "../../styles"
 import { cardHeight, cardMaxWidth } from "../../styles/constants"
 
 import { CardExtraProps } from "."
@@ -15,7 +16,9 @@ const CourseGridWrapper = styled.a`
   border-radius: 1px;
   position: relative;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  @media (max-width: 37.5em) {
+  background: #48cfad;
+
+  @media (max-width: 600px) {
     height: ${cardHeight * 0.75}em;
   }
 `
@@ -23,11 +26,11 @@ const CourseGridWrapper = styled.a`
 const CardContentWrapper = styled.div`
   display: flex;
   height: 100%;
+  text-align: left;
   flex-direction: column;
-  margin-bottom: 1em;
 
   h2 {
-    font-size: 3.125em;
+    font-size: ${typography.h3};
     font-weight: 700;
     z-index: 20;
     line-height: 1em;
@@ -124,7 +127,7 @@ const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, url, open, bg, 
                 margin-top: auto;
               `}
             >
-              <span>{`CHAPTER ${chapterNumber}`}</span>
+              <span>{`CHAPTER ${chapterNumber ?? ""}`}</span>
               <h2>{title}</h2>
             </div>
           </div>

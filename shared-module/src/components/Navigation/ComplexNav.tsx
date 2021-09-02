@@ -42,6 +42,7 @@ const navbarItems = css`
   font-size: 1rem;
   border-bottom: 2px solid #333;
   position: relative;
+  padding: 0em 4em;
 
   h1 {
     margin-bottom: 0;

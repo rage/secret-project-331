@@ -37,7 +37,8 @@
 // Gutenberg editor sidebar styling
 .editor__sidebar {
   position: fixed;
-  top: 0;
+  // Height of the complex navbar
+  top: 90px;
   right: 0;
   bottom: 0;
   width: $sidebar-width;

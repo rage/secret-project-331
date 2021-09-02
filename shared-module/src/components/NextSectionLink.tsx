@@ -35,36 +35,48 @@ const StyledArrow = styled.div`
   right: 0;
   width: auto;
   height: 100%;
-  padding: 1.2rem 1.6rem;
+  padding: 1rem 1rem;
   background: #cacaca;
   cursor: pointer;
   display: flex;
-  #svg-icon {
-    display: block;
-    margin: 0 auto;
-    height: 100%;
+  justify-content: center;
+  align-items: center;
+
+  @media (min-width: 600px) {
+    padding: 1rem 1.6rem;
+    width: auto;
   }
+
+  svg {
+    width: 60%;
+
+    @media (min-width: 600px) {
+      width: 80%;
+    }
+  }
+
   &:hover {
     .arrow {
       fill: #fe9677;
     }
   }
-  /*   &.arrow {
-    transition: fill 0.2s ease-in;
-    fill: rgb(22, 179, 199);
-  } */
 `
 
 const StyledLink = styled.a`
   position: relative;
   color: #c4c4c4;
   text-decoration: none;
-  padding: 1.4rem 1.4rem;
+  padding: 1.2rem 1.2rem;
   margin: 1rem 0;
   display: flex;
-  min-width: 90%;
+  min-width: 100%;
   background-color: #333;
   transition: background-color 0.2s;
+
+  @media (min-width: 600px) {
+    padding: 1.4rem 1.4rem;
+    background-color: #333;
+  }
 
   &:hover {
     text-decoration: none;
@@ -76,6 +88,11 @@ const StyledLink = styled.a`
     font-size: ${typography.h6};
     color: white !important;
     line-height: 1.3;
+    width: 68%;
+
+    @media (min-width: 600px) {
+      width: 100%;
+    }
   }
 `
 

@@ -4,7 +4,7 @@ import React from "react"
 
 import UHLogo from "../img/UHLogo.svg"
 import MOOCfi from "../img/moocfi.svg"
-import { typography } from "../styles"
+import { headingFont, typography } from "../styles"
 import basePath from "../utils/base-path"
 
 import Banner from "./Banner/Banner"
@@ -12,32 +12,29 @@ import Banner from "./Banner/Banner"
 const Wrapper = styled.div`
   display: grid;
   background: #f1f1f1;
-  grid-template-columns: 0.5fr 1fr 0.5fr;
-  padding: 4.5rem;
+  grid-template-rows: 1fr;
+  padding: 1.5rem;
   color: #231f20;
   position: relative;
-  @media (max-width: 37.5em) {
-    grid-template-columns: 1fr;
-    grid-gap: 2em;
-    padding: 1rem;
+  gap: 40px;
+
+  @media (min-width: 600px) {
+    grid-template-columns: 0.5fr 1fr 0.5fr;
+    padding: 4.5rem;
+    gap: 20px;
   }
 
   h3 {
     margin-bottom: 1rem;
+    opacity: 0.8;
+    line-height: 1;
   }
 
   div:first-of-type {
-    img {
-      display: inline-block;
-      margin: 0 8px;
-    }
-  }
+    margin-right: 0;
 
-  svg {
-    transition: fill 0.2s ease-in;
-
-    :hover {
-      fill: #fe9677;
+    @media (min-width: 600px) {
+      padding-right: 20px;
     }
   }
 `
@@ -48,7 +45,12 @@ const StyledLink = styled.a`
   font-size: 1.2rem;
   opacity: 0.7;
   transition: opacity 0.2s ease-in;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
+  font-family: ${headingFont};
+
+  @media (min-width: 600px) {
+    margin-bottom: 10px;
+  }
 
   :hover {
     text-decoration: none;
@@ -56,11 +58,21 @@ const StyledLink = styled.a`
   }
 `
 const Text = styled.div`
-  width: 70%;
+  width: 100%;
+  padding: 0;
+
+  @media (min-width: 600px) {
+    width: 100%;
+    padding: 0 2rem 0 2rem;
+  }
   span {
     font-size: 16px;
-    padding-right: 10rem;
+    padding-right: 0;
     opacity: 0.7;
+
+    @media (min-width: 600px) {
+      /* padding: 0 rem; */
+    }
   }
 `
 const Links = styled.div`
@@ -93,7 +105,6 @@ const Footer: React.FC<FooterProps> = ({ licenseUrl }) => {
       <Wrapper>
         <div
           className={css`
-            margin: 0 auto;
             display: grid;
             grid-template-columns: 1fr 1fr;
             align-content: space-between;

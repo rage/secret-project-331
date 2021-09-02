@@ -46,7 +46,7 @@ const TimeComponent: React.FC<TimeComponentProps> = ({ name, date, right }) => {
           </SpeechBalloon>
         )}
         <strong>{name}</strong>
-        {dateToString(date, false)}
+        <span id="time-component-date">{dateToString(date, false)}</span>
       </span>
       <IconButton
         onMouseEnter={() => setVisible(true)}

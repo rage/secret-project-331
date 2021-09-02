@@ -1,4 +1,4 @@
-import { test } from "@playwright/test"
+import { Page, test } from "@playwright/test"
 
 import expectPath from "../utils/expect"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
@@ -6,6 +6,15 @@ import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
+
+const replaceTimeComponentDates = async (page: Page) => {
+  await page.evaluate(() => {
+    const components = document.querySelectorAll("#time-component-date")
+    for (const comp of components) {
+      comp.innerHTML = "yyyy-MM-dd HH:mm"
+    }
+  })
+}
 
 test("can add and delete exercise service", async ({ page, headless }) => {
   // Go to http://project-331.local/
@@ -61,5 +70,9 @@ test("can add and delete exercise service", async ({ page, headless }) => {
     headless,
     "exercise-service-page",
     "text=New exercise service",
+    { threshold: 0.3 },
+    async () => {
+      await replaceTimeComponentDates(page)
+    },
   )
 })

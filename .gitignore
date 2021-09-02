@@ -128,3 +128,6 @@ dist
 
 # Playwright
 system-tests/src/states/
+
+# vagrant
+.vagrant

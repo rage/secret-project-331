@@ -48,7 +48,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots(page, headless, "initial-page", null)
 
   // Go to http://project-331.local/
-  page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/")
 
   // Click text=University of Helsinki, Department of Computer Science
   await Promise.all([

@@ -1,3 +1,4 @@
+import Link from "next/link"
 import React from "react"
 import { useQuery } from "react-query"
 
@@ -25,10 +26,16 @@ const UserOnWrongCourseNotification: React.FC<UserOnWrongCourseNotificationProps
   }
 
   return (
-    <Banner
-      variant="readOnly"
-      content={`Looks like you're already doing this course in a different language. Before you can answer any exercises, click here to return to ${data.name} or change your active language in the settings.`}
-    />
+    <Banner variant="readOnly">
+      <>
+        Looks like you&apos;re already on a different language version of this course. Before
+        answering any exercises, please return to{" "}
+        <Link passHref href={{ pathname: "/[courseSlug]", query: { courseSlug: data.slug } }}>
+          {data.name}
+        </Link>{" "}
+        or change your active language in the settings.
+      </>
+    </Banner>
   )
 }
 

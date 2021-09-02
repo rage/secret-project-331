@@ -17,22 +17,6 @@ const Content = styled.div`
   display: grid;
   grid-template-columns: 1fr;
   gap: 2rem;
-
-  a {
-    text-decoration: none;
-    max-width: 100%;
-    cursor: pointer;
-    display: flex;
-    height: 1rem;
-    line-height: 1rem;
-    margin-top: 1rem;
-
-    span {
-      display: flex;
-      align-items: center;
-      margin-left: 0.5rem;
-    }
-  }
 `
 const Text = styled.div`
   text-align: center;

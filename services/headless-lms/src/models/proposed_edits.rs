@@ -127,7 +127,6 @@ RETURNING block_id,
         url_path: page.url_path,
         title: page.title,
         chapter_id: page.chapter_id,
-        front_page_of_chapter_id: None,
     };
     crate::models::pages::update_page(&mut tx, page.id, page_update, author, true).await?;
 
@@ -317,7 +316,6 @@ mod test {
             url_path: "".to_string(),
             title: "".to_string(),
             chapter_id: Some(data.chapter),
-            front_page_of_chapter_id: None,
         };
         crate::models::pages::update_page(conn, data.page, page_update, data.user, true)
             .await

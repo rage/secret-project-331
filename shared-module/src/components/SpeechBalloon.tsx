@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import React from "react"
 
-import { baseTheme } from "../utils"
+import { baseTheme } from "../styles"
 import { runCallbackIfEnterPressed } from "../utils/accessibility"
 
 export interface SpeechBalloonProps {

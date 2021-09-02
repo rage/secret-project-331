@@ -85,7 +85,7 @@ impl GutenbergBlock {
             "moocfi/hero-section",
             attributes! {
                 "title": title.to_string(),
-                "subTitle": sub_title.to_string()
+                "subtitle": sub_title.to_string()
             },
         )
     }
@@ -124,8 +124,7 @@ impl GutenbergBlock {
                                 "core/heading",
                                 attributes! {
                                     "textAlign": "center",
-                                    "content": "",
-                                    "level": 3,
+                                    "level": 4,
                                     "content": "Objective #1"
                                 },
                             ),
@@ -133,7 +132,6 @@ impl GutenbergBlock {
                                 "core/paragraph",
                                 attributes! {
                                     "align": "center",
-                                    "content": "",
                                     "dropCap": false,
                                     "content": "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit..."
                                 },
@@ -148,8 +146,7 @@ impl GutenbergBlock {
                                 "core/heading",
                                 attributes! {
                                     "textAlign": "center",
-                                    "content": "",
-                                    "level": 3,
+                                    "level": 4,
                                     "content": "Objective #2"
                                 },
                             ),
@@ -157,7 +154,6 @@ impl GutenbergBlock {
                                 "core/paragraph",
                                 attributes! {
                                     "align": "center",
-                                    "content": "",
                                     "dropCap": false,
                                     "content": "There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain..."
                                 },
@@ -172,8 +168,7 @@ impl GutenbergBlock {
                                 "core/heading",
                                 attributes! {
                                     "textAlign": "center",
-                                    "content": "",
-                                    "level": 3,
+                                    "level": 4,
                                     "content": "Objective #3"
                                 },
                             ),
@@ -181,7 +176,6 @@ impl GutenbergBlock {
                                 "core/paragraph",
                                 attributes! {
                                     "align": "center",
-                                    "content": "",
                                     "dropCap": false,
                                     "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas a tempor risus. Morbi at sapien."
                                 },

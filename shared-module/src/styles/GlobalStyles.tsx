@@ -1,8 +1,8 @@
 import { css, injectGlobal } from "@emotion/css"
 
-import { headingFont, monospaceFont, primaryFont } from "../utils"
-
 import cssReset from "./cssReset"
+
+import { headingFont, monospaceFont, primaryFont, typography } from "."
 
 import "@fontsource/josefin-sans"
 import "@fontsource/lato"
@@ -22,6 +22,24 @@ const globalCss = css`
   h5,
   h6 {
     font-family: ${headingFont};
+  }
+  h1 {
+    font-size: ${typography.h3};
+  }
+  h2 {
+    font-size: ${typography.h4};
+  }
+  h3 {
+    font-size: ${typography.h5};
+  }
+  h4 {
+    font-size: ${typography.h6};
+  }
+  h5 {
+    font-size: ${typography.h6};
+  }
+  h6 {
+    font-size: ${typography.h6};
   }
   pre,
   tt {

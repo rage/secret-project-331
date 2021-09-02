@@ -19,6 +19,7 @@ pub mod gradings;
 pub mod organizations;
 pub mod page_history;
 pub mod pages;
+pub mod playground_examples;
 pub mod proposed_edits;
 pub mod regrading_submissions;
 pub mod regradings;

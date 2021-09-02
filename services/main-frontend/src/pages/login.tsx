@@ -5,6 +5,8 @@ import Layout from "../components/Layout"
 import LoginStateContext from "../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../shared-module/hooks/useQueryParameter"
 import { login } from "../shared-module/services/backend/auth"
+import { wideWidthCenteredComponentStyles } from "../shared-module/styles/componentStyles"
+import basePath from "../shared-module/utils/base-path"
 import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 
 const Login: React.FC = () => {
@@ -41,26 +43,28 @@ const Login: React.FC = () => {
   }
 
   return (
-    <Layout>
-      <form onSubmit={submitForm}>
-        <h1>Log in</h1>
-        <p>Email</p>
-        <input
-          type="text"
-          name="email"
-          value={email}
-          onChange={(ev) => setEmail(ev.target.value)}
-        />
-        <p>Password</p>
-        <input
-          type="password"
-          name="password"
-          value={password}
-          onChange={(ev) => setPassword(ev.target.value)}
-        />
-        <button name="login">Submit</button>
-      </form>
-      {notification && <p>{notification}</p>}
+    <Layout frontPageUrl={basePath()} navVariant="simple">
+      <div className={wideWidthCenteredComponentStyles}>
+        <form onSubmit={submitForm}>
+          <h1>Log in</h1>
+          <p>Email</p>
+          <input
+            type="text"
+            name="email"
+            value={email}
+            onChange={(ev) => setEmail(ev.target.value)}
+          />
+          <p>Password</p>
+          <input
+            type="password"
+            name="password"
+            value={password}
+            onChange={(ev) => setPassword(ev.target.value)}
+          />
+          <button name="login">Submit</button>
+        </form>
+        {notification && <p>{notification}</p>}
+      </div>
     </Layout>
   )
 }

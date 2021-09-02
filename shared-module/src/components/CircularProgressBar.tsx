@@ -1,7 +1,7 @@
 import styled from "@emotion/styled"
 import React from "react"
 
-import { baseTheme } from "../utils"
+import { baseTheme, headingFont } from "../styles"
 
 export interface ExtraProps {
   variant?: "large" | "medium" | "small"
@@ -47,6 +47,7 @@ const CircleBox = styled.div`
     top: 16px;
     left: 18px;
     font-size: 12px;
+    font-family: ${headingFont};
   }
 `
 

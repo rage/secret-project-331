@@ -1,7 +1,7 @@
 import { expect, Page, test } from "@playwright/test"
-import { env } from "process"
 
 import expectPath from "../../utils/expect"
+import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 import waitForFunction from "../../utils/waitForFunction"
 
 test.use({
@@ -15,7 +15,7 @@ test("test", async ({ page, headless }) => {
   // Click text=University of Helsinki, Department of Computer Science
   await Promise.all([
     page.waitForNavigation(),
-    page.click("text=University of Helsinki, Department of Computer Science"),
+    await page.click("text=University of Helsinki, Department of Computer Science"),
   ])
   expect(page.url()).toBe(
     "http://project-331.local/organizations/8bb12295-53ac-4099-9644-ac0ff5e34d92",
@@ -35,7 +35,7 @@ test("test", async ({ page, headless }) => {
   // Click a:has-text("CHAPTER 1The Basics")
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-history/chapter-1' }*/),
-    page.click('a:has-text("CHAPTER 1The Basics")'),
+    page.click('a:has-text("The Basics")'),
   ])
 
   // Click text=1Page One
@@ -45,12 +45,7 @@ test("test", async ({ page, headless }) => {
   ])
   await page.waitForLoadState("networkidle")
 
-  if (headless && !env.PWDEBUG) {
-    const screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(`initial-page.png`, { threshold: 0.3 })
-  } else {
-    console.warn("Not in headless mode, skipping screenshot comparison")
-  }
+  await expectScreenshotsToMatchSnapshots(page, headless, "initial-page", null)
 
   // Go to http://project-331.local/
   page.goto("http://project-331.local/")
@@ -131,11 +126,14 @@ test("test", async ({ page, headless }) => {
   // Click text=Home
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
-    page.click("text=Home"),
+    page.click('[aria-label="Front page"]'),
   ])
 
   // Click text=University of Helsinki, Department of Computer Science
-  await page.click("text=University of Helsinki, Department of Computer Science")
+  await Promise.all([
+    page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
+    await page.click("text=University of Helsinki, Department of Computer Science"),
+  ])
   expect(page.url()).toBe(
     "http://project-331.local/organizations/8bb12295-53ac-4099-9644-ac0ff5e34d92",
   )
@@ -157,28 +155,36 @@ test("test", async ({ page, headless }) => {
     page.click("text=New title!(/chapter-1/page-1) history >> :nth-match(a, 2)"),
   ])
 
-  await page.waitForSelector("text=core/paragraph")
+  const stableElement = await page.waitForSelector("text=core/paragraph")
 
-  if (headless && !env.PWDEBUG) {
-    await replaceIdsAndTimesFromHistoryView(page)
-    const screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(`history-view-p1.png`, { threshold: 0.3 })
-  } else {
-    console.warn("Not in headless mode, skipping screenshot comparison")
-  }
+  await expectScreenshotsToMatchSnapshots(
+    page,
+    headless,
+    "history-view-p1",
+    stableElement,
+    { threshold: 0.3 },
+    async () => {
+      await replaceIdsAndTimesFromHistoryView(page)
+    },
+  )
 
   // Click [aria-label="Go to page 4"]
   await page.click('[aria-label="Go to page 4"]')
   expectPath(page, "/manage/pages/[id]/history?page=4")
 
-  await page.waitForSelector("text=core/paragraph")
-  if (headless && !env.PWDEBUG) {
-    await replaceIdsAndTimesFromHistoryView(page)
-    const screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(`history-view-p4-before-compare.png`, { threshold: 0.3 })
-  } else {
-    console.warn("Not in headless mode, skipping screenshot comparison")
-  }
+  const stableElement2 = await page.waitForSelector("text=core/paragraph")
+
+  await expectScreenshotsToMatchSnapshots(
+    page,
+    headless,
+    "history-view-p4-before-compare",
+    stableElement2,
+    { threshold: 0.3 },
+    async () => {
+      await replaceIdsAndTimesFromHistoryView(page)
+    },
+  )
+
   await page.waitForTimeout(100)
 
   // Click text=Compare
@@ -199,18 +205,14 @@ test("test", async ({ page, headless }) => {
   )
 
   await page.waitForSelector("text=Best exercise")
-  // wait for the diff to show up
-  await page.waitForSelector(".line-delete")
-  await page.waitForSelector(".line-insert")
-  await page.waitForSelector(".insert-sign")
-  await page.waitForSelector(".delete-sign")
-  if (headless && !env.PWDEBUG) {
-    await replaceIdsAndTimesFromHistoryView(page)
-    const screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(`history-view-p4-after-compare.png`, { threshold: 0.3 })
-  } else {
-    console.warn("Not in headless mode, skipping screenshot comparison")
-  }
+
+  await expectScreenshotsToMatchSnapshots(
+    page,
+    headless,
+    "history-view-p4-after-compare",
+    // wait for the diff to show up
+    [".line-delete", ".line-insert", ".insert-sign", ".delete-sign"],
+  )
 
   // Click text=Restore
   await Promise.all([
@@ -221,19 +223,21 @@ test("test", async ({ page, headless }) => {
   await page.waitForSelector("[aria-label='page 1'][aria-current='true']")
   await page.waitForTimeout(100)
 
-  await page.waitForSelector("text=Best exercise")
-  if (headless && !env.PWDEBUG) {
-    await replaceIdsAndTimesFromHistoryView(page)
-    const screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(`history-view-after-restore.png`, { threshold: 0.3 })
-  } else {
-    console.warn("Not in headless mode, skipping screenshot comparison")
-  }
+  await expectScreenshotsToMatchSnapshots(
+    page,
+    headless,
+    "history-view-after-restore",
+    "text=Best exercise",
+    { threshold: 0.3 },
+    async () => {
+      await replaceIdsAndTimesFromHistoryView(page)
+    },
+  )
 
   // Click text=Home
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
-    page.click("text=Home"),
+    page.click('[aria-label="Front page"]'),
   ])
 
   // Click text=University of Helsinki, Department of Computer Science
@@ -261,12 +265,7 @@ test("test", async ({ page, headless }) => {
   ])
 
   await page.waitForLoadState("networkidle")
-  if (headless && !env.PWDEBUG) {
-    const screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(`page-after-restore.png`, { threshold: 0.3 })
-  } else {
-    console.warn("Not in headless mode, skipping screenshot comparison")
-  }
+  await expectScreenshotsToMatchSnapshots(page, headless, "page-after-restore", null)
 })
 
 async function replaceIdsAndTimesFromHistoryView(page: Page) {
@@ -287,4 +286,7 @@ async function replaceIdsAndTimesFromHistoryView(page: Page) {
       }
     }
   })
+  // application is listening for this event and puts placeholders for uuids
+  await page.dispatchEvent("body", "testing-mode-replace-content-for-screenshot")
+  await page.waitForTimeout(100)
 }

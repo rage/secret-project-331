@@ -3,10 +3,10 @@ import styled from "@emotion/styled"
 import React from "react"
 import { border, color, space } from "styled-system"
 
-import { fontWeights, headingFont, theme, typography } from "../utils"
+import { fontWeights, headingFont, theme, typography } from "../styles"
 
 export interface ButtonExtraProps {
-  variant: "primary" | "secondary"
+  variant: "primary" | "secondary" | "tertiary"
   size: "medium" | "large"
 }
 
@@ -66,6 +66,7 @@ const PrimaryButton = styled(BaseButton)`
   &:active {
     color: ${theme.primary.hoverText};
     background-color: ${theme.primary.hoverBg};
+    border-color: ${theme.primary.hoverBorder};
   }
 
   ,
@@ -88,8 +89,32 @@ const SecondaryButton = styled(BaseButton)`
 
   ,
   &:active {
-    color: ${theme.secondary.activeBg};
-    background-color: ${theme.secondary.activeBg};
+    color: ${theme.secondary.hoverText};
+    background-color: ${theme.secondary.hoverBg};
+  }
+
+  ,
+  &:disabled {
+    color: ${theme.secondary.disabledText};
+    background-color: ${theme.secondary.disabledBg};
+    border-color: ${theme.secondary.disabledBorder};
+  }
+`
+
+const TertiaryButton = styled(BaseButton)`
+  font-size: ${typography.paragraph};
+  color: ${theme.secondary.text};
+  background-color: #333;
+
+  &:hover {
+    color: #333;
+    background-color: #fff;
+  }
+
+  ,
+  &:active {
+    color: #333;
+    background-color: #fff;
   }
 
   ,
@@ -113,8 +138,10 @@ const Button: React.FC<ButtonProps> = (props) => {
     <ThemeProvider theme={theme}>
       {props.variant === "primary" ? (
         <PrimaryButton {...props}></PrimaryButton>
+      ) : props.variant === "secondary" ? (
+        <SecondaryButton title="button" {...props}></SecondaryButton>
       ) : (
-        <SecondaryButton title="button" {...props} />
+        <TertiaryButton title="button" {...props} />
       )}
     </ThemeProvider>
   )

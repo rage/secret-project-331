@@ -6,7 +6,8 @@ import SimpleNav from "./SimpleNav"
 export interface NavigationProps {
   variant: "simple" | "complex"
   frontPageUrl: string
-  faqUrl: string
+  faqUrl?: string
+  returnToPath?: string
 }
 
 /*export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & ButtonExtraProps*/

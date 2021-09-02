@@ -6,6 +6,8 @@ import SubmissionIFrame from "../../components/SubmissionIFrame"
 import { fetchSubmissionInfo } from "../../services/backend/submissions"
 import DebugModal from "../../shared-module/components/DebugModal"
 import useQueryParameter from "../../shared-module/hooks/useQueryParameter"
+import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
+import basePath from "../../shared-module/utils/base-path"
 import dontRenderUntilQueryParametersReady from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
 
 const Submission: React.FC = () => {
@@ -35,16 +37,18 @@ const Submission: React.FC = () => {
   }
 
   return (
-    <Layout>
-      <h1>Submission {data.submission.id}</h1>
-      {grading}
-      <SubmissionIFrame
-        url={`${data.submission_iframe_path}?width=700`} // todo: move constants to shared module?
-        public_spec={data.exercise_task.public_spec}
-        submission={data.submission}
-        model_solution_spec={data.exercise_task.model_solution_spec}
-      />
-      <DebugModal data={data} />
+    <Layout frontPageUrl={basePath()} navVariant="complex">
+      <div className={normalWidthCenteredComponentStyles}>
+        <h1>Submission {data.submission.id}</h1>
+        {grading}
+        <SubmissionIFrame
+          url={`${data.submission_iframe_path}?width=700`} // todo: move constants to shared module?
+          public_spec={data.exercise_task.public_spec}
+          submission={data.submission}
+          model_solution_spec={data.exercise_task.model_solution_spec}
+        />
+        <DebugModal data={data} />
+      </div>
     </Layout>
   )
 }

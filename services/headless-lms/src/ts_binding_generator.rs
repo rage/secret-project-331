@@ -24,8 +24,10 @@ use crate::{
         page_history::{HistoryChangeReason, PageHistory},
         pages::{
             ExerciseWithExerciseTasks, HistoryRestoreData, NewPage, NormalizedCmsExercise,
-            NormalizedCmsExerciseTask, Page, PageRoutingData, PageUpdate, PageWithExercises,
+            NormalizedCmsExerciseTask, Page, PageRoutingDataWithChapterStatus, PageSearchRequest,
+            PageSearchResult, PageUpdate, PageWithExercises,
         },
+        playground_examples::{PlaygroundExample, PlaygroundExampleData},
         submissions::{
             NewSubmission, Submission, SubmissionCount, SubmissionCountByExercise,
             SubmissionCountByWeekAndHour, SubmissionInfo, SubmissionResult,
@@ -47,7 +49,7 @@ ts_rs::export! {
   CourseInstance,
   ChapterWithStatus,
   CourseMaterialExercise,
-  PageRoutingData,
+  PageRoutingDataWithChapterStatus,
   SubmissionResult,
   Course,
   Exercise,
@@ -68,6 +70,8 @@ ts_rs::export! {
   CourseUpdate,
   Login,
   SubmissionInfo,
+  PageSearchResult,
+  PageSearchRequest,
   PageHistory,
   HistoryChangeReason,
   HistoryRestoreData,
@@ -93,6 +97,7 @@ ts_rs::export! {
   ExerciseTask,
   ExerciseWithExerciseTasks,
   NormalizedCmsExercise,
-  NormalizedCmsExerciseTask
+  NormalizedCmsExerciseTask,
+  PlaygroundExample,PlaygroundExampleData
     => "../../shared-module/src/bindings.ts"
 }

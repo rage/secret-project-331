@@ -227,7 +227,7 @@ test("test", async ({ page, headless }) => {
     page,
     headless,
     "history-view-after-restore",
-    "text=private_spec",
+    "text=Best exercise",
     { threshold: 0.3 },
     async () => {
       await replaceIdsAndTimesFromHistoryView(page)
@@ -285,16 +285,8 @@ async function replaceIdsAndTimesFromHistoryView(page: Page) {
           "Restored from xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx by xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx on day month year hh:mm:ss timezone"
       }
     }
-    const uuidRegex2 = new RegExp(
-      "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}",
-    )
-    const spans = document.querySelectorAll(".monaco-diff-editor span")
-    for (const span of spans) {
-      if (span.children.length === 0 && uuidRegex2.test(span.textContent)) {
-        span.innerHTML = "x"
-      } else if (span.textContent.length < 3) {
-        span.innerHTML = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-      }
-    }
   })
+  // application is listening for this event and puts placeholders for uuids
+  await page.dispatchEvent("body", "testing-mode-replace-content-for-screenshot")
+  await page.waitForTimeout(100)
 }

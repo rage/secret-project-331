@@ -24,7 +24,7 @@ const Wrapper = styled.div`
     gap: 20px;
   }
 
-  h3 {
+  h1 {
     margin-bottom: 1rem;
     opacity: 0.8;
     line-height: 1;

@@ -46,6 +46,8 @@
   height: auto;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
+  z-index: 9001;
+  background-color: white;
 
   // Temporarily disable the sidebar on mobile
   // Do we want to support advanced content editing with a mobile phone?

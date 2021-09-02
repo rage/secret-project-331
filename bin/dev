@@ -7,5 +7,7 @@ ensure_program_in_path "kubectl"
 ensure_program_in_path "minikube"
 ensure_program_in_path "kustomize"
 
+enforce_inotify_watches_limit_sufficient
+
 run_command skaffold dev --force --port-forward "$@"
 

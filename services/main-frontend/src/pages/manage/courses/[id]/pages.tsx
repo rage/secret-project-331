@@ -48,7 +48,7 @@ const CoursePages: React.FC<CoursePagesProps> = ({ query }) => {
   const maxPart = max(data.chapters.map((p) => p.chapter_number))
 
   return (
-    <Layout frontPageUrl={basePath()} navVariant="complex">
+    <Layout navVariant="complex">
       <div
         className={css`
           ${normalWidthCenteredComponentStyles}

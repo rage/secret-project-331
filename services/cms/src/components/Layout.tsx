@@ -5,13 +5,15 @@ import React, { ReactNode } from "react"
 
 import Footer from "../shared-module/components/Footer"
 import Navbar from "../shared-module/components/Navigation"
+import basePath from "../shared-module/utils/base-path"
 
 type LayoutProps = {
   children: ReactNode
-  frontPageUrl: string
-  navVariant: "simple" | "complex"
+  frontPageUrl?: string
+  navVariant?: "simple" | "complex"
   faqUrl?: string
   title?: string
+  licenseUrl?: string
   returnToPath?: string
 }
 
@@ -21,6 +23,7 @@ const Layout: React.FC<LayoutProps> = ({
   navVariant,
   frontPageUrl,
   faqUrl,
+  licenseUrl,
   returnToPath,
 }) => {
   const router = useRouter()
@@ -46,8 +49,8 @@ const Layout: React.FC<LayoutProps> = ({
         <header>
           <Navbar
             faqUrl={faqUrl}
-            frontPageUrl={frontPageUrl}
-            variant={navVariant}
+            frontPageUrl={frontPageUrl ?? basePath()}
+            variant={navVariant ?? "complex"}
             // Return to path can be override per page
             returnToPath={returnToPath ?? returnPath}
           ></Navbar>
@@ -60,7 +63,7 @@ const Layout: React.FC<LayoutProps> = ({
         >
           {children}
         </div>
-        <Footer />
+        <Footer licenseUrl={licenseUrl} />
       </div>
     </>
   )

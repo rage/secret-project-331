@@ -37,7 +37,7 @@ const Submission: React.FC = () => {
   }
 
   return (
-    <Layout frontPageUrl={basePath()} navVariant="complex">
+    <Layout navVariant="complex">
       <div className={normalWidthCenteredComponentStyles}>
         <h1>Submission {data.submission.id}</h1>
         {grading}

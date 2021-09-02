@@ -43,7 +43,7 @@ const Login: React.FC = () => {
   }
 
   return (
-    <Layout frontPageUrl={basePath()} navVariant="simple">
+    <Layout>
       <div className={wideWidthCenteredComponentStyles}>
         <form onSubmit={submitForm}>
           <h1>Log in</h1>

@@ -5,13 +5,15 @@ import React, { ReactNode } from "react"
 
 import Footer from "../shared-module/components/Footer"
 import Navbar from "../shared-module/components/Navigation"
+import basePath from "../shared-module/utils/base-path"
 
 import ScrollIndicator from "./ScrollIndicator"
 
 type LayoutProps = {
   children: ReactNode
-  frontPageUrl: string
-  faqUrl: string
+  frontPageUrl?: string
+  navVariant?: "simple" | "complex"
+  faqUrl?: string
   title?: string
   licenseUrl?: string
   returnToPath?: string
@@ -20,6 +22,7 @@ type LayoutProps = {
 const Layout: React.FC<LayoutProps> = ({
   children,
   title,
+  navVariant,
   frontPageUrl,
   faqUrl,
   licenseUrl,
@@ -49,8 +52,8 @@ const Layout: React.FC<LayoutProps> = ({
           <ScrollIndicator />
           <Navbar
             faqUrl={faqUrl}
-            frontPageUrl={frontPageUrl}
-            variant="simple"
+            frontPageUrl={frontPageUrl ?? basePath()}
+            variant={navVariant ?? "simple"}
             // Return to path can be override per page
             returnToPath={returnToPath ?? returnPath}
           ></Navbar>
@@ -74,4 +77,5 @@ const Layout: React.FC<LayoutProps> = ({
     </>
   )
 }
+
 export default Layout

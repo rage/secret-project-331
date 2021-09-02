@@ -1,4 +1,3 @@
-import { useRouter } from "next/router"
 import React, { useCallback, useEffect, useReducer } from "react"
 
 import Layout from "../../components/Layout"
@@ -19,7 +18,6 @@ import { tryToScrollToSelector } from "../../utils/dom"
 const PagePage: React.FC = () => {
   const courseSlug = useQueryParameter("courseSlug")
   const path = `/${useQueryParameter("path")}`
-  const router = useRouter()
 
   const [pageState, pageStateDispatch] = useReducer(coursePageStateReducer, defaultCoursePageState)
   const pageDataQuery = useStateQuery(["course-page", courseSlug, path], (_courseSlug, _path) =>
@@ -88,9 +86,6 @@ const PagePage: React.FC = () => {
           faqUrl={"/courses/" + courseSlug + "/faq"}
           frontPageUrl={"/courses/" + courseSlug}
           title={pageDataQuery.data?.title}
-          returnToPath={`/login?return_to=${encodeURIComponent(
-            process.env.NEXT_PUBLIC_BASE_PATH + router.asPath,
-          )}`}
         >
           <Page courseSlug={courseSlug} onRefresh={handleRefresh} />
         </Layout>

@@ -20,7 +20,7 @@ const History: React.FC<unknown> = () => {
   }
 
   return (
-    <Layout frontPageUrl={basePath()} navVariant="complex">
+    <Layout navVariant="complex">
       <div
         className={css`
           ${normalWidthCenteredComponentStyles}

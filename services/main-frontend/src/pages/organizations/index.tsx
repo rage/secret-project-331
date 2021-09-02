@@ -5,7 +5,7 @@ import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
 const Home: React.FC = () => {
   return (
-    <Layout frontPageUrl={basePath()} navVariant="simple">
+    <Layout>
       <OrganizationsList />
     </Layout>
   )

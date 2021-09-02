@@ -42,7 +42,8 @@ const Organization: React.FC<unknown> = () => {
   }
 
   return (
-    <Layout frontPageUrl={basePath()} navVariant="simple">
+    // Removing frontPageUrl for some unsolved reason returns to organization front page rather than root
+    <Layout frontPageUrl="/">
       <div className={wideWidthCenteredComponentStyles}>
         <h1>Organization courses</h1>
 

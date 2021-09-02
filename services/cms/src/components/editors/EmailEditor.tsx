@@ -49,7 +49,10 @@ const EmailEditor: React.FC<EmailEditorProps> = ({ data, handleSave }) => {
       setName(res.name)
       setError(null)
       setSubject(res.subject ?? "")
-    } catch (e) {
+    } catch (e: unknown) {
+      if (!(e instanceof Error)) {
+        throw e
+      }
       setError(e.toString())
     } finally {
       setSaving(false)

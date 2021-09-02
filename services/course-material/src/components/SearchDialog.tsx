@@ -62,9 +62,15 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId }) => {
         ])
         setPhraseSearchResults(pagesWithPhrase)
         setWordSearchResults(pagesWithWords)
-      } catch (e) {
-        if (e?.response?.data) {
-          setError(JSON.stringify(e.response.data, undefined, 2))
+      } catch (e: unknown) {
+        if (!(e instanceof Error)) {
+          throw e
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if ((e as any)?.response?.data) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          setError(JSON.stringify((e as any).response.data, undefined, 2))
         } else {
           setError(e.toString())
         }

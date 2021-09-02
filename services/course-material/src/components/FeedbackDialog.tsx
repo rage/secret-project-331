@@ -54,9 +54,11 @@ const FeedbackDialog: React.FC<Props> = ({
         feedback_given: feedback,
         related_blocks: relatedBlocks,
       })
-    } catch (e) {
+    } catch (e: unknown) {
       console.error(e)
-      setError(e.toString())
+      if (e instanceof Error) {
+        setError(e.toString())
+      }
       return
     }
     setFeedback("")

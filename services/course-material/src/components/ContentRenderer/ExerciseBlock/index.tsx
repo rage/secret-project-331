@@ -143,10 +143,14 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                 newData.exercise_status.score_given = scoreGiven
                 queryClient.setQueryData(queryUniqueKey, newData)
               }
-            } catch (e) {
+            } catch (e: unknown) {
               console.error(e)
               setSubmissionResponse(null)
-              setSubmissionError(e)
+              if (e instanceof Error) {
+                setSubmissionError(e.toString())
+              } else {
+                setSubmissionError("Submission failed")
+              }
             } finally {
               setSubmitting(false)
             }

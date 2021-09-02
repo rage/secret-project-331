@@ -47,8 +47,10 @@ export async function uploadMedia({
           title: "Add title",
           url: uploadedMedia.url,
         }
-      } catch (error) {
-        onError(`${file.name}: ${error?.data?.detail || "Upload failed"}`)
+      } catch (error: unknown) {
+        // @ts-ignore: null checked
+        const detail = error?.data?.detail
+        onError(`${file.name}: ${detail || "Upload failed"}`)
       } finally {
         // Upload has either succeeded or failed so we can remove the placeholder that is being used as a upload indicator.
         const url = mediaItems[i]?.url
@@ -72,7 +74,10 @@ function validateFileAndBroadcastErrors(
 ): boolean {
   try {
     validateFile(file, allowedTypes, maxSize)
-  } catch (e) {
+  } catch (e: unknown) {
+    if (!(e instanceof Error)) {
+      throw e
+    }
     onError(e.message)
     return false
   }

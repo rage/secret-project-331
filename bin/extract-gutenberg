@@ -17,4 +17,5 @@ if [ -f "./services/course-material/src/types/GutenbergBlockAttributes.guard.ts"
 fi
 
 run_command npx ts-auto-guard --export-all --paths services/course-material/src/types/GutenbergBlockAttributes.ts --project services/course-material/tsconfig.json
+run_command sed -i '1s;^;/* eslint-disable @typescript-eslint/no-explicit-any */\n/* eslint-disable @typescript-eslint/explicit-module-boundary-types */\n\n;' services/course-material/src/types/GutenbergBlockAttributes.guard.ts
 run_command npx eslint --fix services/course-material/src/types/GutenbergBlockAttributes.ts services/course-material/src/types/GutenbergBlockAttributes.guard.ts

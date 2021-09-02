@@ -81,7 +81,7 @@ tracing = "0.1"
 # Utilities for implementing and composing `tracing` subscribers.
 tracing-subscriber = "0.2"
 # Structured logging middleware for actix-web.
-tracing-actix-web = "=0.4.0-beta.9"
+tracing-actix-web = "=0.4.0-beta.11"
 # Utilities for enriching errors with `tracing`.
 tracing-error = "0.1"
 # Provides compatibility between `tracing` and the `log` crate.
@@ -96,7 +96,7 @@ ts-rs = { git = "https://github.com/Heliozoa/ts-rs", branch = "ext", features = 
 ] }
 # restricting the transitive dependencies of actix-web during beta.
 # HTTP primitives for the Actix ecosystem .
-actix-http = "=3.0.0-beta.8"
+actix-http = "=3.0.0-beta.9"
 # Service trait and combinators for representing asynchronous request/response operations.
 actix-service = "2.0"
 # Fast CSV parsing with support for serde.

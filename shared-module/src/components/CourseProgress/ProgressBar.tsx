@@ -1,6 +1,8 @@
 import { keyframes } from "@emotion/react"
 import styled from "@emotion/styled"
 
+import { headingFont } from "../../styles"
+
 import CourseProgressExtraProps from "./index"
 
 const load = keyframes`
@@ -17,17 +19,26 @@ const LinearProgress = styled.div`
   position: relative;
   padding: 0 5px;
   display: flex;
-  height: 40px;
-  width: 500px;
+  height: 30px;
+  width: 290px;
+
+  @media (min-width: 600px) {
+    height: 40px;
+    width: 500px;
+  }
 
   div {
     animation: ${load} 3s normal forwards;
     border-radius: 100px;
-    height: 30px;
+    height: 20px;
     width: 0;
     background: #f4649f;
     display: flex;
     justify-content: end;
+
+    @media (min-width: 600px) {
+      height: 30px;
+    }
 
     span {
       display: block;
@@ -50,6 +61,8 @@ const Label = styled.div`
     justify-self: start;
     font-size: 1.2em;
     font-weight: 400;
+    font-family: ${headingFont};
+    opacity: 0.9;
   }
 
   span:last-child {

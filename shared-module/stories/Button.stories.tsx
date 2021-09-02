@@ -18,12 +18,18 @@ export const Primary: Story<ComponentProps> = Template.bind({})
 Primary.args = {
   children: "Button",
   variant: "primary",
-  size: "medium",
+  size: "large",
 }
 
 export const Secondary: Story<ComponentProps> = Template.bind({})
 Secondary.args = {
   children: "Button",
   variant: "secondary",
+  size: "large",
+}
+export const Tertiary: Story<ComponentProps> = Template.bind({})
+Tertiary.args = {
+  children: "Button",
+  variant: "tertiary",
   size: "large",
 }

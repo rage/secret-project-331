@@ -51,6 +51,8 @@ import {
   PageUpdate,
   PageWithExercises,
   Pagination,
+  PlaygroundExample,
+  PlaygroundExampleData,
   Submission,
   SubmissionCount,
   SubmissionCountByExercise,
@@ -737,5 +739,30 @@ export function isUserCourseSettings(obj: any, _argumentName?: string): obj is U
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
     typeof obj.current_course_id === "string" &&
     typeof obj.current_course_instance_id === "string"
+  )
+}
+
+export function isPlaygroundExample(obj: any, _argumentName?: string): obj is PlaygroundExample {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    typeof obj.name === "string" &&
+    typeof obj.url === "string" &&
+    typeof obj.width === "number"
+  )
+}
+
+export function isPlaygroundExampleData(
+  obj: any,
+  _argumentName?: string,
+): obj is PlaygroundExampleData {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.name === "string" &&
+    typeof obj.url === "string" &&
+    typeof obj.width === "number"
   )
 }

@@ -27,6 +27,7 @@ use crate::{
             NormalizedCmsExerciseTask, Page, PageRoutingDataWithChapterStatus, PageSearchRequest,
             PageSearchResult, PageUpdate, PageWithExercises,
         },
+        playground_examples::{PlaygroundExample, PlaygroundExampleData},
         submissions::{
             NewSubmission, Submission, SubmissionCount, SubmissionCountByExercise,
             SubmissionCountByWeekAndHour, SubmissionInfo, SubmissionResult,
@@ -98,6 +99,7 @@ ts_rs::export! {
   ExerciseWithExerciseTasks,
   NormalizedCmsExercise,
   NormalizedCmsExerciseTask,
-  UserCourseSettings
+  UserCourseSettings,
+  PlaygroundExample,PlaygroundExampleData
     => "../../shared-module/src/bindings.ts"
 }

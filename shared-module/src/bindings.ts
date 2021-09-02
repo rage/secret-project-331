@@ -463,3 +463,21 @@ export interface UserCourseSettings {
   current_course_id: string
   current_course_instance_id: string
 }
+
+export interface PlaygroundExample {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  name: string
+  url: string
+  width: number
+  data: unknown
+}
+
+export interface PlaygroundExampleData {
+  name: string
+  url: string
+  width: number
+  data: unknown
+}

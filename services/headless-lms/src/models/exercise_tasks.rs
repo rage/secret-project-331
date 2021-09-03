@@ -1,7 +1,4 @@
-use super::{
-    exercise_tasks, exercises::Exercise, submissions, user_course_settings, user_exercise_states,
-    ModelError, ModelResult,
-};
+use super::{exercise_tasks, submissions, user_exercise_states, ModelResult};
 use crate::utils::{document_schema_processor::GutenbergBlock, pagination::Pagination};
 use chrono::{DateTime, Utc};
 use once_cell::sync::Lazy;
@@ -131,6 +128,59 @@ pub async fn get_exercise_task_by_id(
     Ok(exercise_task)
 }
 
+pub async fn get_or_select_user_exercise_task_for_course_instance(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+    course_instance_id: Uuid,
+) -> ModelResult<CourseMaterialExerciseTask> {
+    let user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
+        conn,
+        user_id,
+        exercise_id,
+        course_instance_id,
+    )
+    .await?;
+    if let Some(selected_exercise_task_id) = user_exercise_state.selected_exercise_task_id {
+        let exercise_task =
+            exercise_tasks::get_exercise_task_by_id(conn, selected_exercise_task_id).await?;
+        Ok(exercise_task.into())
+    } else {
+        let exercise_task = get_random_exercise_task(conn, exercise_id).await?;
+        user_exercise_states::upsert_selected_exercise_task_id(
+            conn,
+            user_id,
+            exercise_id,
+            course_instance_id,
+            Some(exercise_task.id),
+        )
+        .await?;
+        Ok(exercise_task)
+    }
+}
+
+pub async fn get_user_exercise_task_by_some_previous_submission(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+) -> ModelResult<Option<ExerciseTask>> {
+    let submissions = submissions::get_user_exercise_submissions(
+        conn,
+        &user_id,
+        &exercise_id,
+        &SINGLE_ITEM_PAGINATION,
+    )
+    .await?;
+    match submissions.first() {
+        Some(submission) => {
+            let exercise_task =
+                exercise_tasks::get_exercise_task_by_id(conn, submission.exercise_task_id).await?;
+            Ok(Some(exercise_task))
+        }
+        None => Ok(None),
+    }
+}
+
 pub async fn get_exercise_tasks_by_exercise_id(
     conn: &mut PgConnection,
     exercise_id: Uuid,
@@ -147,71 +197,4 @@ WHERE exercise_id = $1
     .fetch_all(conn)
     .await?;
     Ok(exercise_tasks)
-}
-
-pub async fn get_or_select_exercise_task_for_user(
-    conn: &mut PgConnection,
-    user_id: Uuid,
-    exercise: &Exercise,
-) -> ModelResult<CourseMaterialExerciseTask> {
-    let user_course_settings = user_course_settings::get_user_course_settings_by_course_id(
-        conn,
-        user_id,
-        exercise.course_id,
-    )
-    .await?;
-
-    let selected_exercise_task = match user_course_settings {
-        Some(settings) if settings.current_course_id == exercise.course_id => {
-            // User is enrolled on an instance of the given course. Select their task or decide one now.
-            let user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
-                conn,
-                user_id,
-                exercise.id,
-                settings.current_course_instance_id,
-            )
-            .await?;
-            if let Some(selected_exercise_task_id) = user_exercise_state.selected_exercise_task_id {
-                let exercise_task =
-                    exercise_tasks::get_exercise_task_by_id(conn, selected_exercise_task_id)
-                        .await?;
-                Ok(exercise_task.into())
-            } else {
-                let exercise_task = get_random_exercise_task(conn, exercise.id).await?;
-                user_exercise_states::upsert_selected_exercise_task_id(
-                    conn,
-                    user_id,
-                    exercise.id,
-                    settings.current_course_instance_id,
-                    Some(exercise_task.id),
-                )
-                .await?;
-                Ok(exercise_task)
-            }
-        }
-        Some(_) => {
-            // User is enrolled on a different language version of the course. Select their task
-            // based on submissions or show random one if there isn't any.
-            let submissions =
-                submissions::exercise_submissions(conn, &exercise.id, &SINGLE_ITEM_PAGINATION)
-                    .await?;
-            match submissions.first() {
-                Some(submission) => {
-                    let exercise_task =
-                        exercise_tasks::get_exercise_task_by_id(conn, submission.exercise_task_id)
-                            .await?;
-                    Ok(exercise_task.into())
-                }
-                None => Ok(get_random_exercise_task(conn, exercise.id).await?),
-            }
-        }
-        None => {
-            // user is not enrolled on the course, return error
-            Err(ModelError::PreconditionFailed(
-                "User must be enrolled to the course".to_string(),
-            ))
-        }
-    }?;
-
-    Ok(selected_exercise_task)
 }

@@ -208,16 +208,45 @@ pub async fn get_course_material_exercise(
             exercise.course_id,
         )
         .await?;
-        if let Some(settings) = user_course_settings {
-            current_course_instance_id = Some(settings.current_course_instance_id);
-            exercise_tasks::get_or_select_exercise_task_for_user(conn, user_id, &exercise).await
-        } else {
-            // user is not enrolled on the course, return error
-            Err(ModelError::PreconditionFailed(
-                "User must be enrolled to the course".to_string(),
-            ))
+        match user_course_settings {
+            Some(settings) if settings.current_course_id == exercise.course_id => {
+                // User is enrolled on an instance of the given course.
+                current_course_instance_id = Some(settings.current_course_instance_id);
+                exercise_tasks::get_or_select_user_exercise_task_for_course_instance(
+                    conn,
+                    user_id,
+                    exercise_id,
+                    settings.current_course_instance_id,
+                )
+                .await
+            }
+            Some(_) => {
+                // User is enrolled on a different language version of the course. Select their task
+                // based on submissions or show random one if there isn't any.
+                // NB! This is no deterministic so maybe instead use latest instance by_created_at?
+                // Current course instance is also not set so user won't see their answer anyway.
+                let exercise_task =
+                    exercise_tasks::get_user_exercise_task_by_some_previous_submission(
+                        conn,
+                        user_id,
+                        exercise_id,
+                    )
+                    .await?;
+                if let Some(task) = exercise_task {
+                    Ok(task.into())
+                } else {
+                    exercise_tasks::get_random_exercise_task(conn, exercise_id).await
+                }
+            }
+            None => {
+                // user is not enrolled on any course version, return error
+                Err(ModelError::PreconditionFailed(
+                    "User must be enrolled to the course".to_string(),
+                ))
+            }
         }
     } else {
+        // No signed in user. Show random exercise.
         exercise_tasks::get_random_exercise_task(conn, exercise_id).await
     }?;
 

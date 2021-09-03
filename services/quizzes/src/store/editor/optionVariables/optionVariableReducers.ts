@@ -1,7 +1,7 @@
 import produce from "immer"
 import { createReducer } from "typesafe-actions"
 
-import { action, OptionVariables } from "../../../types/types"
+import { action, QuizItemOptionVariables } from "../../../types/types"
 import {
   createdNewOption,
   createdNewQuiz,
@@ -12,7 +12,7 @@ import {
 import { setOptionEditing } from "./optionVariableActions"
 
 export const optionVariableReducers = createReducer<
-  { [optionId: string]: OptionVariables },
+  { [optionId: string]: QuizItemOptionVariables },
   action
 >({})
   .handleAction(initializedEditor, (state, action) => {

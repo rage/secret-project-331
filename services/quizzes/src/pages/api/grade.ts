@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 
-import { Answer, Item, ItemAnswer, Quiz, UserQuizState } from "../../types/types"
+import { Quiz, QuizAnswer, QuizItem, QuizItemAnswer, UserQuizState } from "../../types/types"
 
 export default (req: NextApiRequest, res: NextApiResponse): void => {
   if (req.method !== "POST") {
@@ -11,7 +11,7 @@ export default (req: NextApiRequest, res: NextApiResponse): void => {
 }
 
 const handlePost = (req: NextApiRequest, res: NextApiResponse) => {
-  const quizAnswer: Answer = req.body
+  const quizAnswer: QuizAnswer = req.body
 
   try {
     asssesAnswer(quizAnswer, quizAnswer.quiz)
@@ -23,7 +23,7 @@ const handlePost = (req: NextApiRequest, res: NextApiResponse) => {
   }
 }
 
-function gradeAnswer(quizAnswer: Answer, userQuizState: UserQuizState, quiz: Quiz) {
+function gradeAnswer(quizAnswer: QuizAnswer, userQuizState: UserQuizState, quiz: Quiz) {
   if (quizAnswer.status !== "confirmed") {
     return
   }
@@ -39,7 +39,7 @@ function gradeAnswer(quizAnswer: Answer, userQuizState: UserQuizState, quiz: Qui
   userQuizState.pointsAwarded = points > pointsAwarded ? points : pointsAwarded
 }
 
-function asssesAnswer(quizAnswer: Answer, quiz: Quiz) {
+function asssesAnswer(quizAnswer: QuizAnswer, quiz: Quiz) {
   const quizItemAnswers = quizAnswer.itemAnswers
   const quizItems = quiz.items
   if (!quizItemAnswers || quizItemAnswers.length === 0) {
@@ -87,7 +87,7 @@ function asssesAnswer(quizAnswer: Answer, quiz: Quiz) {
 }
 
 function assessUserQuizStatus(
-  quizAnswer: Answer,
+  quizAnswer: QuizAnswer,
   userQuizState: UserQuizState,
   quiz: Quiz,
   update: boolean,
@@ -117,7 +117,7 @@ function removeNonPrintingCharacters(string: string): string {
   return string.replace(nonPrintingCharRegex, "")
 }
 
-function assessOpenQuiz(quizItemAnswer: ItemAnswer, quizItem: Item) {
+function assessOpenQuiz(quizItemAnswer: QuizItemAnswer, quizItem: QuizItem) {
   const textData = removeNonPrintingCharacters(quizItemAnswer.textData).replace(/\0/g, "").trim()
   if (!textData) {
     throw new Error("no answer provided")
@@ -127,7 +127,7 @@ function assessOpenQuiz(quizItemAnswer: ItemAnswer, quizItem: Item) {
   quizItemAnswer.correct = validator.test(textData) ? true : false
 }
 
-function assesMultipleChoiceQuizzes(quizItemAnswer: ItemAnswer, quizItem: Item) {
+function assesMultipleChoiceQuizzes(quizItemAnswer: QuizItemAnswer, quizItem: QuizItem) {
   const quizOptionAnswers = quizItemAnswer.optionAnswers
   const quizOptions = quizItem.options
   if (!quizOptionAnswers || quizOptionAnswers.length === 0) {

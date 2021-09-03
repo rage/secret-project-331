@@ -1,3 +1,3 @@
 -- Add down migration script here
-ALTER TABLE exercise_services DROP CONSTRAINT exercise_services_slug_key;
-CREATE UNIQUE INDEX exercise_services_slug_key ON exercise_services (id, slug);
+DROP INDEX exercise_services_unique_slug;
+ALTER TABLE exercise_services ADD CONSTRAINT exercise_services_slug_key UNIQUE (slug);

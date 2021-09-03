@@ -19,7 +19,7 @@ const Wrapper = styled.div`
   position: relative;
   gap: 40px;
 
-  ${respondToOrLarger.sm} {
+  ${respondToOrLarger.md} {
     grid-template-columns: 0.5fr 1fr 0.5fr;
     padding: 4.5rem;
     gap: 20px;
@@ -34,7 +34,7 @@ const Wrapper = styled.div`
   div:first-of-type {
     margin-right: 0;
 
-    ${respondToOrLarger.sm} {
+    ${respondToOrLarger.md} {
       padding-right: 20px;
     }
   }
@@ -49,7 +49,7 @@ const StyledLink = styled.a`
   margin-bottom: 5px;
   font-family: ${headingFont};
 
-  ${respondToOrLarger.sm} {
+  ${respondToOrLarger.md} {
     margin-bottom: 10px;
   }
 
@@ -62,7 +62,7 @@ const Text = styled.div`
   width: 100%;
   padding: 0;
 
-  ${respondToOrLarger.sm} {
+  ${respondToOrLarger.md} {
     padding: 0 2rem 0 2rem;
   }
   span {

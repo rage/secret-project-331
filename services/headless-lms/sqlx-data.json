@@ -1,5 +1,101 @@
 {
   "db": "PostgreSQL",
+  "027626435d03f952c7ed3358d933a9d90cefba469ed6073592d5c664f52926a9": {
+    "query": "\nUPDATE user_exercise_states\nSET score_given = $4, grading_progress = $5, activity_progress = $6\nWHERE user_id = $1\nAND exercise_id = $2\nAND course_instance_id = $3\nRETURNING user_id,\n  exercise_id,\n  course_instance_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  grading_progress as \"grading_progress: _\",\n  activity_progress as \"activity_progress: _\",\n  selected_exercise_task_id;\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "course_instance_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 3,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 5,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "score_given",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 7,
+          "name": "grading_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "grading_progress",
+              "kind": {
+                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 8,
+          "name": "activity_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "activity_progress",
+              "kind": {
+                "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 9,
+          "name": "selected_exercise_task_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Float4",
+          {
+            "Custom": {
+              "name": "grading_progress",
+              "kind": {
+                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+              }
+            }
+          },
+          {
+            "Custom": {
+              "name": "activity_progress",
+              "kind": {
+                "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
+              }
+            }
+          }
+        ]
+      },
+      "nullable": [false, false, false, false, false, true, true, false, false, true]
+    }
+  },
   "02ff83f40b183e7295450f84a7327cf545fa5f357451097c7afb35db5a4b6f2a": {
     "query": "\nSELECT counts.*, exercises.name exercise_name\n    FROM (\n        SELECT exercise_id, count(*)::integer count\n        FROM submissions\n        WHERE course_id = $1\n        GROUP BY exercise_id\n    ) counts\n    JOIN exercises ON (counts.exercise_id = exercises.id);\n          ",
     "describe": {
@@ -249,76 +345,6 @@
         "Left": ["Varchar", "Varchar", "Varchar", "Varchar", "Int4"]
       },
       "nullable": [false, false, false, true, false, false, false, true, false]
-    }
-  },
-  "0866e89150cf61daef56466a2ad5ef08605158ccdc83a310e4c4bd45c5c343a2": {
-    "query": "\nSELECT user_id,\n  exercise_id,\n  course_instance_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  grading_progress as \"grading_progress: _\",\n  activity_progress as \"activity_progress: _\"\nFROM user_exercise_states\nWHERE user_id = $1\n  AND exercise_id = $2\n  AND course_instance_id = $3\n      ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "user_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "exercise_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 2,
-          "name": "course_instance_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 3,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 5,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 6,
-          "name": "score_given",
-          "type_info": "Float4"
-        },
-        {
-          "ordinal": 7,
-          "name": "grading_progress: _",
-          "type_info": {
-            "Custom": {
-              "name": "grading_progress",
-              "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 8,
-          "name": "activity_progress: _",
-          "type_info": {
-            "Custom": {
-              "name": "activity_progress",
-              "kind": {
-                "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
-              }
-            }
-          }
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid"]
-      },
-      "nullable": [false, false, false, false, false, true, true, false, false]
     }
   },
   "0aa90bad79fc4d263e02e15994f2d8048714db6ef0e1a0c603b0a8426db95c8e": {
@@ -724,42 +750,6 @@
         "Left": ["Uuid"]
       },
       "nullable": [null, null]
-    }
-  },
-  "13baaaa4365e9ec8bfafe2504080eafdc369bd22e4444cd8035647fcd31d0fe5": {
-    "query": "\nSELECT id,\n  exercise_id,\n  exercise_type,\n  assignment,\n  public_spec\nFROM exercise_tasks\nWHERE id = $1\n                ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "exercise_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 2,
-          "name": "exercise_type",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 3,
-          "name": "assignment",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 4,
-          "name": "public_spec",
-          "type_info": "Jsonb"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, false, false, true]
     }
   },
   "154577d6eb687de28cba5811dbfeb0660cfc10e838577fe8a94c3b7dc6cc41e9": {
@@ -2035,38 +2025,6 @@
       "nullable": [false, false, false, false, false, true, false, null, false, true, false]
     }
   },
-  "3e925fb3e5a135d876037e1424238f4c88a4d9a76a739e16c2c6d8d17151cd06": {
-    "query": "\nSELECT selected_exercise_task_id AS \"id!\"\nFROM user_exercise_states\nWHERE user_id = $1\n  AND selected_exercise_task_id IS NOT NULL\n  AND exercise_id = $2\n  AND course_instance_id = $3\n  AND deleted_at IS NULL\n            ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id!",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid"]
-      },
-      "nullable": [true]
-    }
-  },
-  "406a00d2487c01245b573c3cc369edc7d114f7c09b491b26527f8803a5a99f34": {
-    "query": "\nSELECT current_course_instance_id AS id\nFROM user_course_settings\nWHERE current_course_id = $1\n  AND user_id = $2\n  AND deleted_at IS NULL\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      },
-      "nullable": [false]
-    }
-  },
   "40ee92fefa0c26c98e690f9a50b69cae49ae3ec5577ca4fb497816b875e4f921": {
     "query": "\nINSERT INTO block_feedback(feedback_id, block_id, block_text)\nVALUES ($1, $2, $3)\n",
     "describe": {
@@ -2610,6 +2568,81 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, false, true, false, false, true, false, false, true]
+    }
+  },
+  "56203ce6bd11ecc4dbb4fc242c8ade003a445b49f4c03957ecca1cc3acea2a00": {
+    "query": "\nSELECT user_id,\n  exercise_id,\n  course_instance_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  grading_progress as \"grading_progress: _\",\n  activity_progress as \"activity_progress: _\",\n  selected_exercise_task_id\nFROM user_exercise_states\nWHERE user_id = $1\n  AND exercise_id = $2\n  AND course_instance_id = $3\n      ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "course_instance_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 3,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 5,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "score_given",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 7,
+          "name": "grading_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "grading_progress",
+              "kind": {
+                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 8,
+          "name": "activity_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "activity_progress",
+              "kind": {
+                "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 9,
+          "name": "selected_exercise_task_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid"]
+      },
+      "nullable": [false, false, false, false, false, true, true, false, false, true]
     }
   },
   "576035aeb9e877869815eabed2f331073438c344f65a06022c74c23592c51dd6": {
@@ -3708,76 +3741,6 @@
       "nullable": [false, false, false, false, true, false, false, true, false, false, true]
     }
   },
-  "86a8fa9857c9a237b24dc8385ff04f259a1ee04fe343b0dd0072946a3340762f": {
-    "query": "\nINSERT INTO user_exercise_states (user_id, exercise_id, course_instance_id)\nVALUES ($1, $2, $3)\nON CONFLICT (user_id, exercise_id, course_instance_id) DO NOTHING\nRETURNING user_id,\n  exercise_id,\n  course_instance_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  grading_progress as \"grading_progress: _\",\n  activity_progress as \"activity_progress: _\";\n  ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "user_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "exercise_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 2,
-          "name": "course_instance_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 3,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 5,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 6,
-          "name": "score_given",
-          "type_info": "Float4"
-        },
-        {
-          "ordinal": 7,
-          "name": "grading_progress: _",
-          "type_info": {
-            "Custom": {
-              "name": "grading_progress",
-              "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 8,
-          "name": "activity_progress: _",
-          "type_info": {
-            "Custom": {
-              "name": "activity_progress",
-              "kind": {
-                "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
-              }
-            }
-          }
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid"]
-      },
-      "nullable": [false, false, false, false, false, true, true, false, false]
-    }
-  },
   "87848a65cafd33187ebbc6ed99b0a6eaaff44a09d3efb17759ee3604fc39f49c": {
     "query": "\n-- common table expression for the search term tsquery so that we don't have to repeat it many times\nWITH cte as (\n    -- Converts the search term to a word search with ands between the words with plainto_tsquery but appends ':*' to the\n    -- last word so that it  becomes a prefix match. This way the search will also contain results when the last word in\n    -- the search term is only partially typed. Note that if to_tsquery($4) decides to stem the word, the replacement\n    -- will be skipped.\n    SELECT ts_rewrite(\n        plainto_tsquery($2::regconfig, $3),\n        to_tsquery($4),\n        to_tsquery($4 || ':*')\n    ) as query\n)\nSELECT id,\n    ts_rank(\n    content_search,\n    (\n        SELECT query\n        from cte\n    )\n    ) as rank,\n    ts_headline(\n    $2::regconfig,\n    title,\n    (\n        SELECT query\n        from cte\n    )\n    ) as title_headline,\n    ts_headline(\n    $2::regconfig,\n    content_search_original_text,\n    (\n        SELECT query\n        from cte\n    )\n    ) as content_headline,\n    url_path\nFROM pages\nWHERE course_id = $1\n    AND deleted_at IS NULL\n    AND content_search @@ (\n    SELECT query\n    from cte\n    )\nORDER BY rank DESC\nLIMIT 50;\n        ",
     "describe": {
@@ -4175,97 +4138,6 @@
         "Left": ["Uuid", "Varchar", "Varchar", "Varchar", "Varchar", "Varchar", "Varchar"]
       },
       "nullable": [false, false, false, false, false, false, false, false, false]
-    }
-  },
-  "95dd409bd722442fe75d3b3aba428f811687752e1df10dc30ad7a1ce0250e76d": {
-    "query": "\nUPDATE user_exercise_states\nSET score_given = $4, grading_progress = $5, activity_progress = $6\nWHERE user_id = $1\nAND exercise_id = $2\nAND course_instance_id = $3\nRETURNING user_id,\n  exercise_id,\n  course_instance_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  grading_progress as \"grading_progress: _\",\n  activity_progress as \"activity_progress: _\"\n    ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "user_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "exercise_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 2,
-          "name": "course_instance_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 3,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 5,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 6,
-          "name": "score_given",
-          "type_info": "Float4"
-        },
-        {
-          "ordinal": 7,
-          "name": "grading_progress: _",
-          "type_info": {
-            "Custom": {
-              "name": "grading_progress",
-              "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 8,
-          "name": "activity_progress: _",
-          "type_info": {
-            "Custom": {
-              "name": "activity_progress",
-              "kind": {
-                "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
-              }
-            }
-          }
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Uuid",
-          "Uuid",
-          "Uuid",
-          "Float4",
-          {
-            "Custom": {
-              "name": "grading_progress",
-              "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
-              }
-            }
-          },
-          {
-            "Custom": {
-              "name": "activity_progress",
-              "kind": {
-                "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
-              }
-            }
-          }
-        ]
-      },
-      "nullable": [false, false, false, false, false, true, true, false, false]
     }
   },
   "974f0fff32d5d42aa0aa4d4f9e52ebe1b69c95cc677bdb0fce4f8bfd7b519639": {
@@ -6212,6 +6084,81 @@
         "Left": ["Uuid", "Uuid", "Varchar", "Int4", "Uuid", "Uuid"]
       },
       "nullable": [false, false, false, false, true, false, true, false, false, false, false, true]
+    }
+  },
+  "ef32f85a8e2c845acffd9d5bcd8971578e3250fea6568963bc83855257e6b540": {
+    "query": "\nINSERT INTO user_exercise_states (user_id, exercise_id, course_instance_id)\nVALUES ($1, $2, $3)\nON CONFLICT (user_id, exercise_id, course_instance_id) DO NOTHING\nRETURNING user_id,\n  exercise_id,\n  course_instance_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  grading_progress as \"grading_progress: _\",\n  activity_progress as \"activity_progress: _\",\n  selected_exercise_task_id;\n  ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "course_instance_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 3,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 5,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "score_given",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 7,
+          "name": "grading_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "grading_progress",
+              "kind": {
+                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 8,
+          "name": "activity_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "activity_progress",
+              "kind": {
+                "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 9,
+          "name": "selected_exercise_task_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid"]
+      },
+      "nullable": [false, false, false, false, false, true, true, false, false, true]
     }
   },
   "f2a546b8283eeeca75a1ff205d1a2e836b1c40dff0b0ac8bb47e1639138484e7": {

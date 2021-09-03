@@ -1,3 +1,4 @@
+use anyhow::Result;
 use serde::{
     de::{self, MapAccess, Visitor},
     Deserialize, Deserializer,
@@ -17,6 +18,11 @@ pub struct Pagination {
 }
 
 impl Pagination {
+    pub fn new(page: i64, limit: i64) -> Result<Self> {
+        // TODO: Actually validate values
+        Ok(Pagination { page, limit })
+    }
+
     /// Guaranteed to be positive.
     pub fn page(&self) -> i64 {
         self.page

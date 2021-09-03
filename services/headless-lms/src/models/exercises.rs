@@ -1,4 +1,4 @@
-use super::ModelResult;
+use super::{exercise_tasks, user_course_settings, ModelResult};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
@@ -6,8 +6,7 @@ use ts_rs::TS;
 use uuid::Uuid;
 
 use crate::models::{
-    exercise_service_info::get_course_material_service_info_by_exercise_type,
-    exercise_tasks::get_random_exercise_task, ModelError,
+    exercise_service_info::get_course_material_service_info_by_exercise_type, ModelError,
 };
 
 use super::{
@@ -201,99 +200,26 @@ pub async fn get_course_material_exercise(
     let exercise = get_by_id(conn, exercise_id).await?;
 
     let mut current_course_instance_id: Option<Uuid> = None;
-    // if the user is logged in, take the previously selected task or select a new one
+
     let selected_exercise_task = if let Some(user_id) = user_id {
-        // user is logged in, see if they're enrolled on the course
-        current_course_instance_id = sqlx::query!(
-            r#"
-SELECT current_course_instance_id AS id
-FROM user_course_settings
-WHERE current_course_id = $1
-  AND user_id = $2
-  AND deleted_at IS NULL
-"#,
+        let user_course_settings = user_course_settings::get_user_course_settings_by_course_id(
+            conn,
+            user_id,
             exercise.course_id,
-            user_id
         )
-        .fetch_optional(&mut *conn)
-        .await?
-        .map(|r| r.id);
-
-        if let Some(current_course_instance_id) = current_course_instance_id {
-            // user is enrolled on an instance of the given course, see if a task has already been selected
-            let selected_exercise_task_id: Option<Uuid> = sqlx::query!(
-                r#"
-SELECT selected_exercise_task_id AS "id!"
-FROM user_exercise_states
-WHERE user_id = $1
-  AND selected_exercise_task_id IS NOT NULL
-  AND exercise_id = $2
-  AND course_instance_id = $3
-  AND deleted_at IS NULL
-            "#,
-                user_id,
-                exercise.id,
-                current_course_instance_id
-            )
-            .fetch_optional(&mut *conn)
-            .await?
-            .map(|r| r.id);
-
-            if let Some(selected_exercise_task_id) = selected_exercise_task_id {
-                // a task has previously been selected, return it
-                sqlx::query_as!(
-                    CourseMaterialExerciseTask,
-                    "
-SELECT id,
-  exercise_id,
-  exercise_type,
-  assignment,
-  public_spec
-FROM exercise_tasks
-WHERE id = $1
-                ",
-                    selected_exercise_task_id
-                )
-                .fetch_one(&mut *conn)
-                .await?
-            } else {
-                // no task has been selected
-                // Exercise task contains the actual assignment and activity
-                // What exercise task to give for the student depends on the
-                // exercise -- for now we'll give a random exercise task to the student
-                // this could be changed by creating a policy in the exercise.
-                let selected_exercise_task = get_random_exercise_task(conn, exercise_id).await?;
-                sqlx::query!(
-                    "
-INSERT INTO user_exercise_states (
-    user_id,
-    exercise_id,
-    course_instance_id,
-    selected_exercise_task_id
-  )
-VALUES ($1, $2, $3, $4) ON CONFLICT (user_id, exercise_id, course_instance_id) DO
-UPDATE
-SET selected_exercise_task_id = $4
-",
-                    user_id,
-                    exercise_id,
-                    current_course_instance_id,
-                    selected_exercise_task.id,
-                )
-                .execute(&mut *conn)
-                .await?;
-                selected_exercise_task
-            }
+        .await?;
+        if let Some(settings) = user_course_settings {
+            current_course_instance_id = Some(settings.current_course_instance_id);
+            exercise_tasks::get_or_select_exercise_task_for_user(conn, user_id, &exercise).await
         } else {
             // user is not enrolled on the course, return error
-            return Err(ModelError::PreconditionFailed(
+            Err(ModelError::PreconditionFailed(
                 "User must be enrolled to the course".to_string(),
-            ));
+            ))
         }
     } else {
-        // user is not logged in, get a random task
-        get_random_exercise_task(conn, exercise_id).await?
-    };
+        exercise_tasks::get_random_exercise_task(conn, exercise_id).await
+    }?;
 
     let current_exercise_task_service_info = get_course_material_service_info_by_exercise_type(
         conn,

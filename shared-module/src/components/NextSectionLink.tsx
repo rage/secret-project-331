@@ -4,6 +4,7 @@ import React, { Fragment } from "react"
 import ArrowSVGIcon from "../img/arrow.svg"
 import LockIcon from "../img/lock.svg"
 import { typography } from "../styles"
+import { respondToOrLarger } from "../styles/respond"
 
 const SectionWrapper = styled.div`
   margin-top: 3rem;
@@ -42,7 +43,7 @@ const StyledArrow = styled.div`
   justify-content: center;
   align-items: center;
 
-  @media (min-width: 600px) {
+  ${respondToOrLarger.sm} {
     padding: 1rem 1.6rem;
     width: auto;
   }
@@ -50,7 +51,7 @@ const StyledArrow = styled.div`
   svg {
     width: 60%;
 
-    @media (min-width: 600px) {
+    ${respondToOrLarger.sm} {
       width: 80%;
     }
   }
@@ -73,7 +74,7 @@ const StyledLink = styled.a`
   background-color: #333;
   transition: background-color 0.2s;
 
-  @media (min-width: 600px) {
+  ${respondToOrLarger.sm} {
     padding: 1.4rem 1.4rem;
     background-color: #333;
   }
@@ -90,7 +91,7 @@ const StyledLink = styled.a`
     line-height: 1.3;
     width: 68%;
 
-    @media (min-width: 600px) {
+    ${respondToOrLarger.sm} {
       width: 100%;
     }
   }

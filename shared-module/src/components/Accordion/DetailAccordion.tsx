@@ -2,6 +2,8 @@ import { css, cx, keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
+import { respondToOrLarger } from "../../styles/respond"
+
 const openAnimation = keyframes`
 0% { opacity: 0; }
 100% { opacity: 1; }
@@ -37,7 +39,7 @@ const TextWrapper = styled.div`
     color: #333;
     outline: 0;
     background: rgba(0, 0, 0, 0.1);
-    @media (min-width: 600px) {
+    ${respondToOrLarger.sm} {
       padding: 1rem 1rem 1rem 2rem;
     }
   }
@@ -76,7 +78,7 @@ const TextWrapper = styled.div`
     padding: 14px;
     margin: 0;
 
-    @media (min-width: 600px) {
+    ${respondToOrLarger.sm} {
       background: #f9f9f9;
       padding: 25px 35px 30px 35px;
     }

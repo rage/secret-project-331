@@ -7,6 +7,7 @@ import { fetchOrganizations } from "../../services/backend/organizations"
 import DebugModal from "../../shared-module/components/DebugModal"
 import UHNoBG from "../../shared-module/img/uh_without_background.svg"
 import { wideWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
+import { respondToOrLarger } from "../../shared-module/styles/respond"
 import basePath from "../../shared-module/utils/base-path"
 
 const OrganizationsList: React.FC = () => {
@@ -70,7 +71,7 @@ const OrganizationsList: React.FC = () => {
                     cursor: pointer;
                     background-color: rgb(216, 216, 216);
                   }
-                  @media (min-width: 600px) {
+                  ${respondToOrLarger.lg} {
                     flex-direction: row;
                   }
                 `}
@@ -82,7 +83,7 @@ const OrganizationsList: React.FC = () => {
                     align-items: center;
                     width: 100%;
                     padding: 1em 1em;
-                    @media (min-width: 600px) {
+                    ${respondToOrLarger.lg} {
                       width: 20%;
                     }
                   `}

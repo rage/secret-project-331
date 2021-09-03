@@ -4,6 +4,7 @@ import React from "react"
 
 /* import { border, color, space } from "styled-system" */
 import { theme, typography } from "../styles"
+import { respondToOrLarger } from "../styles/respond"
 
 const HeroWrapper = styled.div`
   background: #cacaca;
@@ -36,7 +37,7 @@ const TextBox = styled.div`
     opacity: 0.8;
     z-index: 20;
 
-    @media (min-width: 600px) {
+    ${respondToOrLarger.sm} {
       font-size: ${typography.h5};
     }
   }

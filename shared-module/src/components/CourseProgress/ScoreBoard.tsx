@@ -3,12 +3,13 @@ import { useLayoutEffect, useState } from "react"
 import { useSpring } from "react-spring"
 
 import { headingFont } from "../../styles"
+import { respondToOrLarger } from "../../styles/respond"
 
 const StyledSVG = styled.div`
   position: relative;
   width: 257px;
 
-  @media (min-width: 600px) {
+  ${respondToOrLarger.sm} {
     width: 321px;
   }
 
@@ -16,7 +17,7 @@ const StyledSVG = styled.div`
     margin: 0rem auto;
     width: 16rem;
 
-    @media (min-width: 600px) {
+    ${respondToOrLarger.sm} {
       width: 20rem;
     }
   }
@@ -31,7 +32,7 @@ const StyledSVG = styled.div`
     opacity: 0.9;
     font-family: ${headingFont};
 
-    @media (min-width: 600px) {
+    ${respondToOrLarger.sm} {
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);

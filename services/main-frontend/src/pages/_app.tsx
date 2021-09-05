@@ -1,5 +1,6 @@
 import { ThemeProvider } from "@material-ui/core/styles"
 import type { AppProps } from "next/app"
+import { useRouter } from "next/router"
 import React from "react"
 import { QueryClientProvider } from "react-query"
 import { ReactQueryDevtools } from "react-query/devtools"
@@ -11,6 +12,8 @@ import GlobalStyles from "../shared-module/styles/GlobalStyles"
 import muiTheme from "../shared-module/styles/muiTheme"
 
 const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
+  const router = useRouter()
+  const locale = router.locale
   React.useEffect(() => {
     // Remove the server-side injected CSS.
     const jssStyles = document.querySelector("#jss-server-side")
@@ -18,6 +21,10 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
       jssStyles.parentElement?.removeChild(jssStyles)
     }
   }, [])
+
+  console.group("-----------------------------------")
+  console.log(JSON.stringify(pageProps))
+  console.groupEnd()
 
   return (
     <QueryClientProvider client={queryClient}>

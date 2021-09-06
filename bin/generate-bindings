@@ -26,6 +26,7 @@ if [ -f "./shared-module/src/bindings.guard.ts" ]; then
 fi
 
 run_command npx ts-auto-guard --export-all --paths ./shared-module/src/bindings.ts --project shared-module/tsconfig.json
+run_command sed -i '1s;^;/* eslint-disable @typescript-eslint/no-explicit-any */\n/* eslint-disable @typescript-eslint/explicit-module-boundary-types */\n\n;' shared-module/src/bindings.guard.ts
 run_command npx eslint --fix shared-module/src/bindings.ts shared-module/src/bindings.guard.ts
 
 

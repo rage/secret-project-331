@@ -24,3 +24,16 @@ function ensure_program_in_path() {
       exit 1
   fi
 }
+
+function enforce_inotify_watches_limit_sufficient() {
+  if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    INOTIFY_WATCHES=$(cat /proc/sys/fs/inotify/max_user_watches)
+    MIN_INOTIFY_WATCHES=500000
+    if [ "$MIN_INOTIFY_WATCHES" -gt "$INOTIFY_WATCHES" ]; then
+      echo "You need to increase your inotify watches limit. The limit need to be at least $MIN_INOTIFY_WATCHES and your current limit is $INOTIFY_WATCHES. Aborting."
+      echo ""
+      echo "See https://github.com/guard/listen/blob/master/README.md#increasing-the-amount-of-inotify-watchers for instructions."
+      exit 255
+    fi
+  fi
+}

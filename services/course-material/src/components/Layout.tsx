@@ -66,14 +66,14 @@ const Layout: React.FC<LayoutProps> = ({
         >
           {children}
         </div>
-        <footer
-          className={css`
-            margin-top: 2rem;
-          `}
-        >
-          <Footer licenseUrl={licenseUrl} />
-        </footer>
       </div>
+      <footer
+        className={css`
+          margin-top: 2rem;
+        `}
+      >
+        <Footer licenseUrl={licenseUrl} />
+      </footer>
     </>
   )
 }

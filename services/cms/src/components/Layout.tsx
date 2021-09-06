@@ -72,8 +72,8 @@ const Layout: React.FC<LayoutProps> = ({
         >
           {children}
         </div>
-        <Footer licenseUrl={licenseUrl} />
       </div>
+      <Footer licenseUrl={licenseUrl} />
     </>
   )
 }

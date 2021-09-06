@@ -481,3 +481,9 @@ export interface PlaygroundExampleData {
   width: number
   data: unknown
 }
+
+export interface CoursePageWithUserData {
+  page: Page
+  instance: CourseInstance | null
+  settings: UserCourseSettings | null
+}

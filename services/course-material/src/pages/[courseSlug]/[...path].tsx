@@ -1,5 +1,6 @@
 import { useRouter } from "next/router"
 import React, { useCallback, useEffect, useReducer } from "react"
+import { useQuery } from "react-query"
 
 import Layout from "../../components/Layout"
 import Page from "../../components/Page"
@@ -10,12 +11,7 @@ import CoursePageContext, {
 } from "../../contexts/CoursePageContext"
 import useQueryParameter from "../../hooks/useQueryParameter"
 import coursePageStateReducer from "../../reducers/coursePageStateReducer"
-import {
-  fetchCourseInstance,
-  fetchCoursePageByPath,
-  fetchUserCourseSettings,
-} from "../../services/backend"
-import useStateQuery from "../../shared-module/hooks/useStateQuery"
+import { fetchCoursePageByPath } from "../../services/backend"
 import dontRenderUntilQueryParametersReady from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { tryToScrollToSelector } from "../../utils/dom"
@@ -26,46 +22,26 @@ const PagePage: React.FC = () => {
   const router = useRouter()
 
   const [pageState, pageStateDispatch] = useReducer(coursePageStateReducer, defaultCoursePageState)
-  const pageDataQuery = useStateQuery(["course-page", courseSlug, path], (_courseSlug, _path) =>
-    fetchCoursePageByPath(_courseSlug, _path),
-  )
-  const instanceQuery = useStateQuery(
-    ["course-instance", pageDataQuery.data?.course_id],
-    (courseId) => fetchCourseInstance(courseId),
-  )
-  const settingsQuery = useStateQuery(
-    ["user-course-settings", pageDataQuery.data?.course_id],
-    (courseId) => fetchUserCourseSettings(courseId),
+  const { error, data, isLoading, refetch } = useQuery(`course-page-${courseSlug}-${path}`, () =>
+    fetchCoursePageByPath(courseSlug, path),
   )
 
   useEffect(() => {
-    if (pageDataQuery.state === "error") {
-      pageStateDispatch({ type: "setError", payload: pageDataQuery.error })
-    } else if (
-      pageDataQuery.state === "ready" &&
-      instanceQuery.state === "ready" &&
-      settingsQuery.state === "ready"
-    ) {
+    if (error) {
+      pageStateDispatch({ type: "setError", payload: error })
+    } else if (!isLoading && data) {
       pageStateDispatch({
         type: "setData",
         payload: {
-          pageData: pageDataQuery.data,
-          instance: instanceQuery.data ?? null,
-          settings: settingsQuery.data ?? null,
+          pageData: data.page,
+          instance: data.instance ?? null,
+          settings: data.settings ?? null,
         },
       })
     } else {
       pageStateDispatch({ type: "setLoading" })
     }
-  }, [
-    instanceQuery.data,
-    instanceQuery.state,
-    pageDataQuery.data,
-    pageDataQuery.error,
-    pageDataQuery.state,
-    settingsQuery.data,
-    settingsQuery.state,
-  ])
+  }, [data, error, isLoading])
 
   useEffect(() => {
     if (typeof window != "undefined" && window.location.hash) {
@@ -86,17 +62,15 @@ const PagePage: React.FC = () => {
   }, [path])
 
   const handleRefresh = useCallback(async () => {
-    await pageDataQuery.refetch()
-    await instanceQuery.refetch()
-    await settingsQuery.refetch()
-  }, [instanceQuery, pageDataQuery, settingsQuery])
+    await refetch()
+  }, [refetch])
 
-  if (pageDataQuery.state === "error") {
+  if (error) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if ((pageDataQuery.error as any)?.response?.status === 404) {
+    if ((error as any)?.response?.status === 404) {
       return <PageNotFound path={path} courseId={courseSlug} />
     }
-    return <pre>{JSON.stringify(pageDataQuery.error, undefined, 2)}</pre>
+    return <pre>{JSON.stringify(error, undefined, 2)}</pre>
   }
 
   return (
@@ -106,7 +80,7 @@ const PagePage: React.FC = () => {
           //  Not a good idea, but works for now.
           faqUrl={"/courses/" + courseSlug + "/faq"}
           frontPageUrl={"/courses/" + courseSlug}
-          title={pageDataQuery.data?.title}
+          title={data?.page.title}
           returnToPath={`/login?return_to=${encodeURIComponent(
             process.env.NEXT_PUBLIC_BASE_PATH + router.asPath,
           )}`}

@@ -3,6 +3,7 @@ import {
   Course,
   CourseInstance,
   CourseMaterialExercise,
+  CoursePageWithUserData,
   NewFeedback,
   NewSubmission,
   Page,
@@ -44,7 +45,10 @@ export interface Block<T> {
   innerBlocks: Block<unknown>[]
 }
 
-export const fetchCoursePageByPath = async (courseSlug: string, path: string): Promise<Page> => {
+export const fetchCoursePageByPath = async (
+  courseSlug: string,
+  path: string,
+): Promise<CoursePageWithUserData> => {
   const data = (
     await courseMaterialClient.get(`/courses/${courseSlug}/page-by-path${path}`, {
       responseType: "json",

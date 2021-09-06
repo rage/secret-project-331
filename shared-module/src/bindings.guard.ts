@@ -14,6 +14,7 @@ import {
   CourseMaterialExercise,
   CourseMaterialExerciseServiceInfo,
   CourseMaterialExerciseTask,
+  CoursePageWithUserData,
   CourseStructure,
   CourseUpdate,
   EmailTemplate,
@@ -764,5 +765,17 @@ export function isPlaygroundExampleData(
     typeof obj.name === "string" &&
     typeof obj.url === "string" &&
     typeof obj.width === "number"
+  )
+}
+
+export function isCoursePageWithUserData(
+  obj: any,
+  _argumentName?: string,
+): obj is CoursePageWithUserData {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (isPage(obj.page) as boolean) &&
+    (obj.instance === null || (isCourseInstance(obj.instance) as boolean)) &&
+    (obj.settings === null || (isUserCourseSettings(obj.settings) as boolean))
   )
 }

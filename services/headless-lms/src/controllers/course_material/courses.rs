@@ -4,17 +4,20 @@ use crate::{
     domain::authorization::AuthUser,
     models::{
         chapters::{ChapterStatus, ChapterWithStatus},
+        course_instances,
         courses::Course,
         feedback,
         pages::PageSearchRequest,
-        user_course_settings::UserCourseSettings,
+        user_course_settings::{self, UserCourseSettings},
     },
     models::{course_instances::CourseInstance, courses, pages::PageSearchResult},
     models::{feedback::NewFeedback, pages::Page},
 };
 use actix_web::web::{self, Json, ServiceConfig};
 use chrono::Utc;
+use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
+use ts_rs::TS;
 use uuid::Uuid;
 
 /**
@@ -29,6 +32,13 @@ async fn get_course(
     let mut conn = pool.acquire().await?;
     let course = crate::models::courses::get_course(&mut conn, *request_course_id).await?;
     Ok(Json(course))
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+pub struct CoursePageWithUserData {
+    pub page: Page,
+    pub instance: Option<CourseInstance>,
+    pub settings: Option<UserCourseSettings>,
 }
 
 /**
@@ -56,7 +66,8 @@ GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//par
 async fn get_course_page_by_path(
     params: web::Path<(String, String)>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<Json<Page>> {
+    user: Option<AuthUser>,
+) -> ControllerResult<Json<CoursePageWithUserData>> {
     let mut conn = pool.acquire().await?;
     let (course_slug, raw_page_path) = params.into_inner();
     let path = if raw_page_path.starts_with('/') {
@@ -75,7 +86,25 @@ async fn get_course_page_by_path(
         }
     }
 
-    Ok(Json(page))
+    let mut instance: Option<CourseInstance> = None;
+    let mut settings: Option<UserCourseSettings> = None;
+    if let Some(user) = user {
+        instance =
+            course_instances::current_course_instance_of_user(&mut conn, user.id, page.course_id)
+                .await?;
+        settings = user_course_settings::get_user_course_settings_by_course_id(
+            &mut conn,
+            user.id,
+            page.course_id,
+        )
+        .await?;
+    };
+
+    Ok(Json(CoursePageWithUserData {
+        page,
+        instance,
+        settings,
+    }))
 }
 
 /**

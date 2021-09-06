@@ -2,6 +2,7 @@
 use crate::{
     controllers::{
         auth::Login,
+        course_material::courses::CoursePageWithUserData,
         main_frontend::{
             courses::GetFeedbackQuery, exercises::ExerciseSubmissions, feedback::MarkAsRead,
         },
@@ -100,6 +101,7 @@ ts_rs::export! {
   NormalizedCmsExercise,
   NormalizedCmsExerciseTask,
   UserCourseSettings,
-  PlaygroundExample,PlaygroundExampleData
+  PlaygroundExample,PlaygroundExampleData,
+  CoursePageWithUserData
     => "../../shared-module/src/bindings.ts"
 }

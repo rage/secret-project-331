@@ -2,6 +2,7 @@ import { css, cx, keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
+import { baseTheme } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
 
 const openAnimation = keyframes`
@@ -20,7 +21,7 @@ const TextWrapper = styled.div`
 
   details[open] summary ~ * {
     animation: ${openAnimation} 0.3s ease-in-out;
-    color: #333;
+    color: ${baseTheme.colors.grey[800]};
   }
 
   details[open] > div {
@@ -36,7 +37,7 @@ const TextWrapper = styled.div`
     font-size: 1.3rem;
     font-weight: medium;
     list-style: none;
-    color: #333;
+    color: ${baseTheme.colors.grey[800]};
     outline: 0;
     background: rgba(0, 0, 0, 0.1);
     ${respondToOrLarger.sm} {

@@ -1,6 +1,7 @@
 import styled from "@emotion/styled"
 import React from "react"
 
+import { baseTheme } from "../../styles"
 import CircularProgressBar from "../CircularProgressBar"
 
 const Wrapper = styled.aside`
@@ -46,7 +47,7 @@ const ImageBox = styled.div`
     height: 100%;
     text-align: center;
     z-index: 3;
-    color: #333;
+    color: ${baseTheme.colors.grey[800]};
     font-size: 16px;
     margin-bottom: 0;
   }
@@ -61,7 +62,7 @@ const PageParts = styled.div`
   margin-left: 0em;
   padding: 0.6em 1em;
   list-style-type: none;
-  color: #333;
+  color: ${baseTheme.colors.grey[800]};
   text-decoration: none;
   border-radius: 2px;
   margin-bottom: 0.4em;

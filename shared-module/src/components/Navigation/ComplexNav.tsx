@@ -4,6 +4,7 @@ import { faBullseye } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React, { useState } from "react"
 
+import { baseTheme } from "../../styles"
 import { runCallbackIfEnterPressed } from "../../utils/accessibility"
 import Button from "../Button"
 import Hamburger from "../Hamburger"
@@ -59,7 +60,7 @@ const navbarItems = css`
 `
 
 const navbarLogo = css`
-  color: #fff;
+  color: ${baseTheme.colors.grey[800]};
   display: flex;
   justify-self: start;
   margin: 0;
@@ -109,7 +110,7 @@ const navMenu = css`
   }
 `
 const navLinks = css`
-  color: #333;
+  color: ${baseTheme.colors.grey[800]};
   font-weight: 600;
   text-decoration: none;
   display: inline-block;
@@ -126,7 +127,7 @@ const navLinks = css`
     height: 2px;
     bottom: 0;
     left: 0;
-    background-color: #333;
+    background-color: ${baseTheme.colors.grey[800]};
     transform-origin: bottom right;
     transition: transform 0.4s cubic-bezier(0.86, 0, 0.07, 1);
 
@@ -137,7 +138,7 @@ const navLinks = css`
 
   &:hover {
     text-decoration: none;
-    color: #333;
+    color: ${baseTheme.colors.grey[800]};
 
     &:after {
       transform: scaleX(1);
@@ -147,7 +148,7 @@ const navLinks = css`
     @media (max-width: 960px) {
       animation: ${swingHorizontal} 1s ease;
       animation-iteration-count: 1;
-      color: #333;
+      color: ${baseTheme.colors.grey[800]};
     }
   }
 
@@ -156,7 +157,7 @@ const navLinks = css`
     padding: 2rem;
     width: 100%;
     display: table;
-    color: #333;
+    color: ${baseTheme.colors.grey[800]};
     font-weight: 500;
     font-size: 1.2rem;
     margin: 0;
@@ -197,7 +198,7 @@ const secondaryLink = css`
 
 const StyledIcon = styled(FontAwesomeIcon)`
   font-size: 1.8rem;
-  color: #333;
+  color: ${baseTheme.colors.grey[800]};
 `
 
 const Navigation: React.FC = () => {

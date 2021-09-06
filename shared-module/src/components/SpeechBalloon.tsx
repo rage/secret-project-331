@@ -12,7 +12,7 @@ export interface SpeechBalloonProps {
 const SQUARE_SIZE = "1rem"
 
 const SpeechBalloon: React.FC<SpeechBalloonProps> = ({ children, className, onClick }) => {
-  const bg = baseTheme.colors.neutral[300]
+  const bg = baseTheme.colors.grey[300]
 
   const outerCss = css`
     display: flex;

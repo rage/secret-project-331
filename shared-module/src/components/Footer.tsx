@@ -4,7 +4,7 @@ import React from "react"
 
 import UHLogo from "../img/UHLogo.svg"
 import MOOCfi from "../img/moocfi.svg"
-import { headingFont, typography } from "../styles"
+import { baseTheme, headingFont, typography } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
 import basePath from "../utils/base-path"
 
@@ -42,7 +42,7 @@ const Wrapper = styled.div`
 
 const StyledLink = styled.a`
   text-decoration: none;
-  color: #333;
+  color: ${baseTheme.colors.grey[800]};
   font-size: 1.2rem;
   opacity: 0.7;
   transition: opacity 0.2s ease-in;

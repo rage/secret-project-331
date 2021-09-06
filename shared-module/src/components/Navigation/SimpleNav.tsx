@@ -5,6 +5,7 @@ import { useContext, useState } from "react"
 
 import LoginStateContext from "../../contexts/LoginStateContext"
 import { logout } from "../../services/backend/auth"
+import { baseTheme } from "../../styles"
 import { runCallbackIfEnterPressed } from "../../utils/accessibility"
 import Hamburger from "../Hamburger"
 import Spinner from "../Spinner"
@@ -13,7 +14,7 @@ import { NavigationProps } from "."
 
 const StyledIcon = css`
   font-size: 1.8rem;
-  color: #333;
+  color: ${baseTheme.colors.grey[800]};
 `
 const NavbarItems = css`
   background: #f9f9f9;
@@ -23,7 +24,7 @@ const NavbarItems = css`
   align-items: center;
   font-size: 1rem;
   padding: 0 4rem;
-  border-bottom: 2px solid #333;
+  border-bottom: 2px solid ${baseTheme.colors.grey[800]};
 
   h1 {
     width: 165px;
@@ -31,7 +32,7 @@ const NavbarItems = css`
   }
 `
 const NavbarLogo = css`
-  color: #fff;
+  color: ${baseTheme.colors.grey[800]};
   display: flex;
   justify-self: start;
   cursor: pointer;
@@ -48,7 +49,7 @@ const NavMenu = css`
   justify-content: end;
 `
 const NavLink = css`
-  color: #333;
+  color: ${baseTheme.colors.grey[800]};
   font-weight: 600;
   text-decoration: none;
   display: inline-block;
@@ -65,7 +66,7 @@ const NavLink = css`
     height: 2px;
     bottom: 0;
     left: 0;
-    background-color: #333;
+    background-color: ${baseTheme.colors.grey[800]};
     transform-origin: bottom right;
     transition: transform 0.4s cubic-bezier(0.86, 0, 0.07, 1);
   }
@@ -84,7 +85,7 @@ const MenuIcon = css`
   display: flex;
 `
 const ToolTip = css`
-  background: #fff;
+  background: ${baseTheme.colors.neutral[100]};
   border-color: #cacaca;
   top: 100px;
   right: 20px;
@@ -109,7 +110,7 @@ const ToolTip = css`
     position: absolute;
     pointer-events: none;
     border-color: rgba(0, 151, 167, 0);
-    border-bottom-color: #fff;
+    border-bottom-color: ${baseTheme.colors.neutral[100]};
     border-width: 12px;
     margin-left: -12px;
   }
@@ -135,7 +136,7 @@ const ToolTip = css`
     }
 
     Button:hover {
-      color: #333;
+      color: ${baseTheme.colors.grey[800]};
       background-color: none;
     }
   }

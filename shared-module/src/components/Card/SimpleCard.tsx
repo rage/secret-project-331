@@ -3,7 +3,7 @@ import styled from "@emotion/styled"
 import React from "react"
 
 import CardSVG from "../../img/cardNext.svg"
-import { typography } from "../../styles"
+import { baseTheme, typography } from "../../styles"
 import { cardHeight, cardMaxWidth } from "../../styles/constants"
 
 import { CardExtraProps } from "."
@@ -38,7 +38,7 @@ const CardContentWrapper = styled.div`
   }
 
   span {
-    color: #333;
+    color: ${baseTheme.colors.grey[800]};
     font-size: 1.2em;
     opacity: 0.8;
     z-index: 20;

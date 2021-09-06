@@ -3,7 +3,7 @@ import React, { Fragment } from "react"
 
 import ArrowSVGIcon from "../img/arrow.svg"
 import LockIcon from "../img/lock.svg"
-import { typography } from "../styles"
+import { baseTheme, typography } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
 
 const SectionWrapper = styled.div`
@@ -13,7 +13,7 @@ const SectionWrapper = styled.div`
 
   p {
     font-size: 1rem;
-    color: #333;
+    color: ${baseTheme.colors.grey[800]};
     margin: 0;
     padding: 0;
     display: flex;
@@ -71,18 +71,18 @@ const StyledLink = styled.a`
   margin: 1rem 0;
   display: flex;
   min-width: 100%;
-  background-color: #333;
+  background-color: ${baseTheme.colors.grey[800]};
   transition: background-color 0.2s;
 
   ${respondToOrLarger.sm} {
     padding: 1.4rem 1.4rem;
-    background-color: #333;
+    background-color: ${baseTheme.colors.grey[800]};
   }
 
   &:hover {
     text-decoration: none;
     color: white;
-    background-color: #333;
+    background-color: ${baseTheme.colors.grey[800]};
   }
 
   span {

@@ -3,7 +3,7 @@ import styled from "@emotion/styled"
 import React from "react"
 import { border, color, space } from "styled-system"
 
-import { fontWeights, headingFont, theme, typography } from "../styles"
+import { baseTheme, fontWeights, headingFont, theme, typography } from "../styles"
 
 export interface ButtonExtraProps {
   variant: "primary" | "secondary" | "tertiary"
@@ -104,17 +104,17 @@ const SecondaryButton = styled(BaseButton)`
 const TertiaryButton = styled(BaseButton)`
   font-size: ${typography.paragraph};
   color: ${theme.secondary.text};
-  background-color: #333;
+  background-color: ${baseTheme.colors.grey[800]};
 
   &:hover {
-    color: #333;
-    background-color: #fff;
+    color: ${baseTheme.colors.grey[800]};
+    background-color: ${baseTheme.colors.neutral[100]};
   }
 
   ,
   &:active {
-    color: #333;
-    background-color: #fff;
+    color: ${baseTheme.colors.grey[800]};
+    background-color: ${baseTheme.colors.neutral[100]};
   }
 
   ,

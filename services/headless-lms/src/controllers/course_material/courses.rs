@@ -6,7 +6,7 @@ use crate::{
         chapters::{ChapterStatus, ChapterWithStatus},
         feedback,
         pages::PageSearchRequest,
-        proposed_edits::{self, NewProposedPageEdits},
+        proposed_page_edits::{self, NewProposedPageEdits},
     },
     models::{course_instances::CourseInstance, courses, pages::PageSearchResult},
     models::{feedback::NewFeedback, pages::Page},
@@ -406,7 +406,7 @@ async fn propose_edit(
 ) -> ControllerResult<String> {
     let mut conn = pool.acquire().await?;
     let course = courses::get_course_by_slug(&mut conn, course_slug.as_str()).await?;
-    let id = proposed_edits::insert(
+    let id = proposed_page_edits::insert(
         &mut conn,
         course.id,
         user.map(|u| u.id),

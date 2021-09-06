@@ -3,6 +3,7 @@ import { useRouter } from "next/router"
 import React, { useState } from "react"
 
 import Layout from "../../../../components/Layout"
+import EditProposalList from "../../../../components/lists/EditProposalList"
 import FeedbackList from "../../../../components/lists/FeedbackList"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
@@ -22,13 +23,28 @@ const FeedbackPage: React.FC<FeedbackProps> = ({ query }) => {
 
   const courseId = query.id
 
-  let initialRead
+  let initialView: "feedback" | "fix"
+  if (router.query.view === "feedback") {
+    initialView = "feedback"
+  } else if (router.query.view === "fix") {
+    initialView = "fix"
+  } else {
+    router.replace({ query: { ...router.query, view: "feedback" } }, undefined, {
+      shallow: true,
+    })
+    initialView = "feedback"
+  }
+
+  let initialRead: boolean
   if (router.query.read) {
     initialRead = router.query.read === "true"
   } else {
-    router.replace({ query: { ...router.query, read: false } }, undefined, { shallow: true })
+    router.replace({ query: { ...router.query, read: false } }, undefined, {
+      shallow: true,
+    })
     initialRead = false
   }
+  const [view, setView] = useState<"feedback" | "fix">(initialView)
   const [read, setRead] = useState(initialRead)
 
   return (
@@ -36,6 +52,18 @@ const FeedbackPage: React.FC<FeedbackProps> = ({ query }) => {
       <div className={wideWidthCenteredComponentStyles}>
         <h3>Feedback</h3>
         <Paper square>
+          <Tabs
+            value={view}
+            onChange={(_, value) => {
+              router.replace({ query: { ...router.query, view: value } }, undefined, {
+                shallow: true,
+              })
+              setView(value)
+            }}
+          >
+            <Tab label="Quick fixes" value={"fix"} />
+            <Tab label="Written feedback" value={"feedback"} />
+          </Tabs>
           <Tabs
             value={read}
             onChange={(_, value) => {
@@ -49,7 +77,8 @@ const FeedbackPage: React.FC<FeedbackProps> = ({ query }) => {
             <Tab label="Read" value={true} />
           </Tabs>
         </Paper>
-        <FeedbackList courseId={courseId} read={read} perPage={1} />
+        {view === "feedback" && <FeedbackList courseId={courseId} read={read} perPage={1} />}
+        {view === "fix" && <EditProposalList courseId={courseId} read={read} perPage={1} />}
       </div>
     </Layout>
   )

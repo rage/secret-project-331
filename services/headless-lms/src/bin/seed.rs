@@ -5,9 +5,10 @@ use headless_lms_actix::models::chapters::NewChapter;
 use headless_lms_actix::models::courses::NewCourse;
 use headless_lms_actix::models::exercises::GradingProgress;
 use headless_lms_actix::models::feedback::{FeedbackBlock, NewFeedback};
-use headless_lms_actix::models::gradings;
 use headless_lms_actix::models::pages::{NewPage, PageUpdate};
 use headless_lms_actix::models::playground_examples::PlaygroundExampleData;
+use headless_lms_actix::models::proposed_block_edits::NewProposedBlockEdits;
+use headless_lms_actix::models::proposed_page_edits::NewProposedPageEdits;
 use headless_lms_actix::models::submissions::GradingResult;
 use headless_lms_actix::models::{
     chapters, course_instances, course_instances::VariantStatus, courses, exercise_services,
@@ -15,6 +16,7 @@ use headless_lms_actix::models::{
     users,
 };
 use headless_lms_actix::models::{feedback, playground_examples};
+use headless_lms_actix::models::{gradings, proposed_page_edits};
 use headless_lms_actix::setup_tracing;
 use headless_lms_actix::utils::document_schema_processor::GutenbergBlock;
 use serde_json::Value;
@@ -326,7 +328,7 @@ async fn seed_sample_course(
     let spec_c1p1e1t1_1 = Uuid::new_v5(&course_id, b"5f6b7850-5034-4cef-9dcf-e3fd4831067f");
     let spec_c1p1e1t1_2 = Uuid::new_v5(&course_id, b"c713bbfc-86bf-4877-bd39-53afaf4444b5");
     let spec_c1p1e1t1_3 = Uuid::new_v5(&course_id, b"4027d508-4fad-422e-bb7f-15c613a02cc6");
-    create_page(
+    let page_c1_1 = create_page(
         conn,
         course.id,
         "/chapter-1/page-1",
@@ -665,6 +667,36 @@ async fn seed_sample_course(
         },
     )
     .await?;
+
+    // edit proposals
+    let edits = NewProposedPageEdits {
+        page_id: page_c1_1,
+        block_edits: vec![NewProposedBlockEdits {
+            block_id: block_id_4,
+            block_attribute: "content".to_string(),
+            original_text: "So bg, that we need many paragraphs.".to_string(),
+            changed_text: "So bg, that we need many, many paragraphs.".to_string(),
+        }],
+    };
+    proposed_page_edits::insert(conn, course.id, Some(student), &edits).await?;
+    let edits = NewProposedPageEdits {
+        page_id: page_c1_1,
+        block_edits: vec![
+            NewProposedBlockEdits {
+                block_id: block_id_1,
+                block_attribute: "content".to_string(),
+                original_text: "Everything is a big topic.".to_string(),
+                changed_text: "Everything is a very big topic.".to_string(),
+            },
+            NewProposedBlockEdits {
+                block_id: block_id_5,
+                block_attribute: "content".to_string(),
+                original_text: "Like this.".to_string(),
+                changed_text: "Like this!".to_string(),
+            },
+        ],
+    };
+    proposed_page_edits::insert(conn, course.id, Some(student), &edits).await?;
 
     Ok(course.id)
 }

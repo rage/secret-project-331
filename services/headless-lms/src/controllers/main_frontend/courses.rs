@@ -673,6 +673,39 @@ pub async fn get_feedback_count(
 }
 
 /**
+GET `/api/v0/main-frontend/courses/:id/edit-proposals?read=true` - Returns feedback for the given course.
+*/
+#[instrument(skip(pool))]
+pub async fn get_feedback(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    read: web::Query<GetFeedbackQuery>,
+) -> ControllerResult<Json<Vec<Feedback>>> {
+    let mut conn = pool.acquire().await?;
+    let course_id = course_id.into_inner();
+
+    let feedback =
+        feedback::get_feedback_for_course(&mut conn, course_id, read.read, &read.pagination)
+            .await?;
+    Ok(Json(feedback))
+}
+
+/**
+GET `/api/v0/main-frontend/courses/:id/feedback-count` - Returns the amount of feedback for the given course.
+*/
+#[instrument(skip(pool))]
+pub async fn get_feedback_count(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<Json<FeedbackCount>> {
+    let mut conn = pool.acquire().await?;
+    let course_id = course_id.into_inner();
+
+    let feedback_count = feedback::get_feedback_count_for_course(&mut conn, course_id).await?;
+    Ok(Json(feedback_count))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -720,6 +753,11 @@ pub fn _add_courses_routes<T: 'static + FileStore>(cfg: &mut ServiceConfig) {
         .route("/{course_id}/feedback", web::get().to(get_feedback))
         .route(
             "/{course_id}/feedback-count",
+            web::get().to(get_feedback_count),
+        )
+        .route("/{course_id}/edit-proposals", web::get().to(get_feedback))
+        .route(
+            "/{course_id}/edit-proposal-count",
             web::get().to(get_feedback_count),
         );
 }

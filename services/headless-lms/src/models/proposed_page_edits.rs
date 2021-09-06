@@ -1,16 +1,17 @@
-use std::collections::{hash_map::Entry, HashMap};
-
 use crate::{
     domain::merge_edits,
-    models::{pages::PageUpdate, ModelError, ModelResult},
+    models::{ModelError, ModelResult},
     utils::{document_schema_processor::GutenbergBlock, pagination::Pagination},
 };
 use anyhow::Context;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{Connection, PgConnection};
+use std::collections::{hash_map::Entry, HashMap};
 use ts_rs::TS;
 use uuid::Uuid;
+
+use super::proposed_block_edits::{NewProposedBlockEdits, ProposalStatus};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
 pub struct NewProposedPageEdits {
@@ -19,11 +20,23 @@ pub struct NewProposedPageEdits {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
-pub struct NewProposedBlockEdits {
-    pub block_id: Uuid,
-    pub block_attribute: String,
-    pub original_text: String,
-    pub changed_text: String,
+pub struct Proposal {
+    page_proposal_id: Uuid,
+    block_proposal_id: Uuid,
+    user_id: Option<Uuid>,
+    block_id: Uuid,
+    original_text: String,
+    changed_text: String,
+    status: ProposalStatus,
+    created_at: DateTime<Utc>,
+    accept_preview: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
+pub struct ProposalCount {
+    pending: i64,
+    accepted: i64,
+    rejected: i64,
 }
 
 pub async fn insert(
@@ -53,12 +66,12 @@ RETURNING id
         sqlx::query!(
             "
 INSERT INTO proposed_block_edits (
-    proposal_id,
-    block_id,
-    block_attribute,
-    original_text,
-    changed_text
-  )
+  proposal_id,
+  block_id,
+  block_attribute,
+  original_text,
+  changed_text
+)
 VALUES ($1, $2, $3, $4, $5)
 ",
             page_res.id,
@@ -74,114 +87,6 @@ VALUES ($1, $2, $3, $4, $5)
     Ok(page_res.id)
 }
 
-pub async fn accept_block_edits(
-    conn: &mut PgConnection,
-    page_id: Uuid,
-    block_proposal_ids: &[Uuid],
-    author: Uuid,
-) -> ModelResult<()> {
-    if block_proposal_ids.is_empty() {
-        return Err(ModelError::Generic(
-            "No block proposals to accept".to_string(),
-        ));
-    }
-
-    let mut tx = conn.begin().await?;
-    let page = crate::models::pages::get_page(&mut tx, page_id).await?;
-    let mut blocks = page.blocks_cloned()?;
-    for block_proposal_id in block_proposal_ids {
-        let res = sqlx::query!(
-            "
-UPDATE proposed_block_edits
-SET status = 'accepted'
-WHERE id = $1
-RETURNING block_id,
-  block_attribute,
-  original_text,
-  changed_text
-",
-            block_proposal_id
-        )
-        .fetch_one(&mut tx)
-        .await?;
-        let block = blocks
-            .iter_mut()
-            .find(|b| b.client_id == res.block_id)
-            .context("Failed to find block for edit proposal")?;
-        let current_content = block
-            .attributes
-            .get_mut("content")
-            .ok_or_else(|| anyhow::anyhow!("Edited block has no content"))?;
-        let current_str = current_content
-            .as_str()
-            .ok_or_else(|| anyhow::anyhow!("No content on edited block"))?;
-        let merge = merge_edits::merge(&res.original_text, &res.changed_text, current_str)
-            .ok_or_else(|| anyhow::anyhow!("Failed to merge edit proposal"))?;
-        *current_content = serde_json::json!(merge);
-    }
-
-    let updated_content = serde_json::to_value(&blocks)?;
-
-    let page_update = PageUpdate {
-        content: updated_content,
-        url_path: page.url_path,
-        title: page.title,
-        chapter_id: page.chapter_id,
-    };
-    crate::models::pages::update_page(&mut tx, page.id, page_update, author, true).await?;
-
-    tx.commit().await?;
-    Ok(())
-}
-
-pub async fn reject_block_edits(
-    conn: &mut PgConnection,
-    block_proposal_ids: &[Uuid],
-) -> ModelResult<()> {
-    if block_proposal_ids.is_empty() {
-        return Err(ModelError::Generic(
-            "No block proposals to accept".to_string(),
-        ));
-    }
-
-    let mut tx = conn.begin().await?;
-    for block_proposal_id in block_proposal_ids {
-        sqlx::query!(
-            "
-UPDATE proposed_block_edits
-SET status = 'rejected'
-WHERE id = $1
-    ",
-            block_proposal_id
-        )
-        .execute(&mut tx)
-        .await?;
-    }
-    tx.commit().await?;
-    Ok(())
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS, sqlx::Type)]
-#[sqlx(type_name = "proposal_status", rename_all = "lowercase")]
-pub enum ProposalStatus {
-    Pending,
-    Accepted,
-    Rejected,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
-pub struct Proposal {
-    page_proposal_id: Uuid,
-    block_proposal_id: Uuid,
-    user_id: Option<Uuid>,
-    block_id: Uuid,
-    original_text: String,
-    changed_text: String,
-    status: ProposalStatus,
-    created_at: DateTime<Utc>,
-    accept_preview: Option<String>,
-}
-
 pub async fn get_proposals_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -190,14 +95,14 @@ pub async fn get_proposals_for_course(
     let res = sqlx::query!(
         r#"
 SELECT proposed_page_edits.id AS page_proposal_id,
-  proposed_block_edits.id AS block_proposal_id,
-  page_id,
-  user_id,
-  block_id,
-  original_text,
-  changed_text,
-  status as "status: ProposalStatus",
-  proposed_page_edits.created_at
+proposed_block_edits.id AS block_proposal_id,
+page_id,
+user_id,
+block_id,
+original_text,
+changed_text,
+status as "status: ProposalStatus",
+proposed_page_edits.created_at
 FROM proposed_page_edits
 JOIN proposed_block_edits ON proposed_page_edits.id = proposed_block_edits.proposal_id
 WHERE course_id = $1
@@ -250,13 +155,6 @@ OFFSET $3
     Ok(proposals)
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
-pub struct ProposalCount {
-    pending: i64,
-    accepted: i64,
-    rejected: i64,
-}
-
 pub async fn get_proposal_count_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -264,20 +162,20 @@ pub async fn get_proposal_count_for_course(
     let res = sqlx::query!(
         "
 SELECT COUNT(*) filter (
-    where status = 'pending'
-  ) AS pending,
-  COUNT(*) filter (
-    where status = 'accepted'
-  ) AS accepted,
-  COUNT(*) filter (
-    where status = 'rejected'
-  ) AS rejected
+  where status = 'pending'
+) AS pending,
+COUNT(*) filter (
+  where status = 'accepted'
+) AS accepted,
+COUNT(*) filter (
+  where status = 'rejected'
+) AS rejected
 FROM proposed_page_edits
 JOIN proposed_block_edits ON proposed_page_edits.id = proposed_block_edits.proposal_id
 WHERE proposed_page_edits.course_id = $1
 AND proposed_page_edits.deleted_at IS NULL
 AND proposed_block_edits.deleted_at IS NULL
-  ",
+",
         course_id,
     )
     .fetch_one(conn)
@@ -295,6 +193,7 @@ mod test {
     use super::*;
     use crate::{
         attributes,
+        models::{pages::PageUpdate, proposed_block_edits::*},
         test_helper::{insert_data, Conn, Data},
         utils::document_schema_processor::GutenbergBlock,
     };

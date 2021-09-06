@@ -9,6 +9,7 @@ import { Block, fetchExerciseById, postSubmission } from "../../../services/back
 import { SubmissionResult } from "../../../shared-module/bindings"
 import Button from "../../../shared-module/components/Button"
 import DebugModal from "../../../shared-module/components/DebugModal"
+import LoginStateContext from "../../../shared-module/contexts/LoginStateContext"
 import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import { defaultContainerWidth } from "../../../shared-module/styles/constants"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
@@ -23,18 +24,27 @@ interface ExerciseBlockAttributes {
 // Special care taken here to ensure exercise content can have full width of
 // the page.
 const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (props) => {
+  const loginState = useContext(LoginStateContext)
+  const coursePageContext = useContext(CoursePageContext)
+  const showExercise = loginState.signedIn ? !!coursePageContext.instance : true
+
   const id = props.data.attributes.id
   const queryUniqueKey = `exercise-${id}`
-  const { isLoading, error, data } = useQuery(queryUniqueKey, () => fetchExerciseById(id))
+  const { isLoading, error, data } = useQuery(queryUniqueKey, () => fetchExerciseById(id), {
+    enabled: showExercise,
+  })
   const [answer, setAnswer] = useState<unknown>(null)
   const [submitting, setSubmitting] = useState(false)
-  const coursePageContext = useContext(CoursePageContext)
   const [submissionResponse, setSubmissionResponse] = useState<SubmissionResult | null>(null)
-  const [submissionError, setSubmissionError] = useState<string | null>(null)
+  const [submissionError, setSubmissionError] = useState<unknown | null>(null)
   const queryClient = useQueryClient()
 
   if (error) {
     return <pre>{JSON.stringify(error, undefined, 2)}</pre>
+  }
+
+  if (!showExercise) {
+    return <div>Please select a course instance before anwering this exercise.</div>
   }
 
   if (isLoading || !data) {

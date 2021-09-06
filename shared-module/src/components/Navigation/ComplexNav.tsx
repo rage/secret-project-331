@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React, { useState } from "react"
 
 import { baseTheme } from "../../styles"
+import { respondToOrLarger } from "../../styles/respond"
 import { runCallbackIfEnterPressed } from "../../utils/accessibility"
 import Button from "../Button"
 import Hamburger from "../Hamburger"
@@ -36,26 +37,26 @@ const swingHorizontal = keyframes`
 `
 
 const navbarItems = css`
-  height: 90px;
+  position: relative;
   display: flex;
-  justify-content: space-between;
+  height: 90px;
   align-items: center;
   font-size: 1rem;
-  border-bottom: 2px solid #333;
-  position: relative;
+
   padding: 0em 4em;
+  background: ${baseTheme.colors.neutral[100]};
+  border-bottom: 2px solid #333;
+  z-index: 10000;
 
   h1 {
     margin-bottom: 0;
   }
 
-  @media (max-width: 960px) {
-    top: 0;
-    width: 100%;
-    z-index: 2;
-    position: relative;
-    display: flex;
-    justify-content: flex-end;
+  justify-content: flex-end;
+  top: 0;
+  ${respondToOrLarger.lg} {
+    justify-content: space-between;
+    top: auto;
   }
 `
 
@@ -64,60 +65,68 @@ const navbarLogo = css`
   display: flex;
   justify-self: start;
   margin: 0;
-  /* margin-left: 20px; */
   cursor: pointer;
+  padding-left: 10px;
 
-  @media (max-width: 960px) {
-    position: absolute;
-    top: 0;
-    left: 0;
-    padding-left: 10px;
-    transform: translate(50%, 100%);
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(50%, 100%);
+  ${respondToOrLarger.lg} {
+    position: static;
+    top: auto;
+    left: auto;
+    transform: none;
   }
 `
 
 const active = css`
-  @media (max-width: 960px) {
-    left: 0;
-    opacity: 1;
-    transition: all 0.5s ease;
+  left: 0;
+  opacity: 1;
+  transition: all 0.5s ease;
+  ${respondToOrLarger.lg} {
+    left: auto;
+    transition: all;
   }
 `
 
 const navMenu = css`
-  display: inline-block;
-  grid-gap: 10px;
-  list-style: none;
+  display: flex;
+  flex-direction: column;
+  grid-gap: 0;
+  width: 100%;
+  height: auto;
+  position: absolute;
+  top: 90px;
+  left: -100%;
   text-align: center;
   align-items: center;
-  /*   width: 100vw; */
-  justify-content: end;
+  margin-top: 0;
+  transition: all 0.5s ease;
+  padding-left: 0;
+  z-index: 99;
+  overflow-y: hidden;
 
-  @media (max-width: 960px) {
-    display: flex;
-    flex-direction: column;
-    grid-gap: 0;
-    width: 100%;
-    height: auto;
-    position: absolute;
-    top: 105px;
-    left: -100%;
-    opacity: 1;
-    transition: all 0.5s ease;
-    padding-left: 0;
-    z-index: 99;
-    overflow-y: hidden;
+  justify-content: end;
+  background: ${baseTheme.colors.neutral[100]};
+
+  ${respondToOrLarger.lg} {
+    display: inline-block;
+    grid-gap: 10px;
+    list-style: none;
+    margin-top: 1em;
+    position: static;
+    top: auto;
+    left: auto;
   }
 `
 const navLinks = css`
   color: ${baseTheme.colors.grey[800]};
-  font-weight: 600;
   text-decoration: none;
-  display: inline-block;
   position: relative;
-  font-size: 1rem;
   line-height: 1.5rem;
-  margin: 0 0.8rem;
+  font-size: 1rem;
+  text-align: center;
 
   &:after {
     content: "";
@@ -131,8 +140,9 @@ const navLinks = css`
     transform-origin: bottom right;
     transition: transform 0.4s cubic-bezier(0.86, 0, 0.07, 1);
 
-    @media (max-width: 960px) {
-      display: none;
+    display: none;
+    ${respondToOrLarger.lg} {
+      display: inline-block;
     }
   }
 
@@ -144,55 +154,61 @@ const navLinks = css`
       transform: scaleX(1);
       transform-origin: bottom left;
     }
-
-    @media (max-width: 960px) {
-      animation: ${swingHorizontal} 1s ease;
-      animation-iteration-count: 1;
-      color: ${baseTheme.colors.grey[800]};
+    animation: ${swingHorizontal} 1s ease;
+    animation-iteration-count: 1;
+    ${respondToOrLarger.lg} {
+      animation: none 0 ease 0 1 normal none running;
     }
   }
 
-  @media (max-width: 960px) {
-    text-align: center;
-    padding: 2rem;
-    width: 100%;
-    display: table;
-    color: ${baseTheme.colors.grey[800]};
-    font-weight: 500;
-    font-size: 1.2rem;
-    margin: 0;
-    border-bottom: 2px solid #f1f1f1;
+  font-weight: 500;
+  margin: 0;
+  width: 100%;
+  padding: 2rem;
+  display: table;
+  border-bottom: 2px solid #f1f1f1;
+  ${respondToOrLarger.lg} {
+    font-weight: 600;
+    margin: 0 0.8rem;
+    width: auto;
+    padding: 0;
+    display: inline-block;
+    border-bottom: 0;
   }
 `
 const menuIcon = css`
-  width: auto;
-  height: 15px;
-  display: none;
+  font-size: 1.8rem;
   z-index: 999;
+  cursor: pointer;
+  height: auto;
 
-  @media (max-width: 960px) {
-    display: block;
-    height: auto;
-    position: absolute;
-    top: 2px;
-    right: -20px;
-    transform: translate(-100%, 25%);
-    font-size: 1.8rem;
-    cursor: pointer;
+  display: block;
+  transform: translate(-100%, 25%);
+  position: absolute;
+  top: 2px;
+  right: -20px;
+  ${respondToOrLarger.lg} {
+    display: none;
+    height: 15px;
+    position: static;
+    top: auto;
+    right: auto;
+    transform: none;
   }
 `
 const hide = css`
-  display: none;
+  ${respondToOrLarger.lg} {
+    display: none;
+  }
 `
 const secondaryLink = css`
-  display: flex;
+  display: none;
   grid-gap: 10px;
   list-style: none;
   text-align: center;
   align-items: center;
-
-  @media (max-width: 960px) {
-    display: none;
+  ${respondToOrLarger.lg} {
+    display: flex;
   }
 `
 

@@ -354,7 +354,7 @@ test.describe("quizzes tests", () => {
     await frame.fill("text=title *title * >> textarea", "multiple choice test")
 
     // Click .sc-fcmMJX .MuiButton-root
-    await frame.click(".sc-fcmMJX .MuiButton-root")
+    await frame.click("button[title='add option']")
 
     // Click .MuiButton-root.MuiButton-outlined
     await frame.click(".MuiButton-root.MuiButton-outlined")
@@ -378,12 +378,10 @@ test.describe("quizzes tests", () => {
     )
 
     // Click .sc-GvhzO div:nth-child(2) .MuiButton-root
-    await frame.click(".sc-GvhzO div:nth-child(2) .MuiButton-root")
+    await frame.click("button[title='add option']")
 
     // Click .MuiButton-root.MuiButton-outlined.MuiButton-outlinedPrimary.MuiButton-sizeMedium.MuiButton-outlinedSizeMedium.MuiButtonBase-root.sc-hOPeYd
-    await frame.click(
-      ".MuiButton-root.MuiButton-outlined.MuiButton-outlinedPrimary.MuiButton-sizeMedium.MuiButton-outlinedSizeMedium.MuiButtonBase-root.sc-hOPeYd",
-    )
+    await frame.click(".MuiButton-root.MuiButton-outlined >> nth=1")
 
     // Click text=Option title *Option title * >> textarea
     await page.evaluate(() => window.scrollTo(0, 800))

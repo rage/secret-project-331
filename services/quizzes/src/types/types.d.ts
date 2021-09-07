@@ -193,7 +193,7 @@ export interface PublicQuizItemOption {
   id: string
   quizItemId?: string
   order: number
-  title: string
+  title: string | null
   body: string | null
 }
 

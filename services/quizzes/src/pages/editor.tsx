@@ -6,7 +6,6 @@ import { v4 } from "uuid"
 import StatelessEditor from "../components/StatelessEditor"
 import { normalizedQuiz } from "../schemas"
 import { initializedEditor } from "../store/editor/editorActions"
-import {} from "../store/editorStore"
 import { StoreState, useTypedSelector } from "../store/store"
 import { Entities, Quiz } from "../types/types"
 

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import { v4 } from "uuid"
 
 import Widget, { State } from "../components/widget"
-import { PublicQuiz, QuizItemOptionAnswer } from "../types/types"
+import { PublicQuiz } from "../types/types"
 
 const ExercisePage: React.FC = () => {
   const [port, setPort] = useState<MessagePort | null>(null)
@@ -59,6 +59,7 @@ const ExercisePage: React.FC = () => {
   if (!quiz) {
     return <>Waiting for data...</>
   }
+
   const quiz_answer_id = v4()
   const state: State = {
     quiz: quiz,
@@ -77,16 +78,7 @@ const ExercisePage: React.FC = () => {
           correct: false,
           intData: null,
           textData: null,
-          optionAnswers: qi.options.map((qio) => {
-            const optionAnswer: QuizItemOptionAnswer = {
-              id: v4(),
-              createdAt: Date.now().toString(),
-              updatedAt: Date.now().toString(),
-              quizItemAnswerId: "",
-              quizOptionId: qio.id,
-            }
-            return optionAnswer
-          }),
+          optionAnswers: [],
         }
       }),
     },

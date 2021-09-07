@@ -2,18 +2,51 @@ import { TypedUseSelectorHook, useSelector } from "react-redux"
 import { combineReducers, createStore } from "redux"
 import { composeWithDevTools } from "redux-devtools-extension"
 
-import { editorReducer, EditorStoreState } from "./editorStore"
-import { widgetReducer, WidgetStoreState } from "./widgetStore"
+import {
+  NormalizedQuiz,
+  NormalizedQuizItem,
+  NormalizedQuizItemOption,
+  QuizItemOptionVariables,
+  QuizItemVariables,
+  QuizVariables,
+} from "../types/types"
 
-const combinedReducer = combineReducers({ widget: widgetReducer, editor: editorReducer })
+import { itemVariableReducers } from "./editor/itemVariables/itemVariableReducers"
+import { itemReducer } from "./editor/items/itemReducer"
+import { optionVariableReducers } from "./editor/optionVariables/optionVariableReducers"
+import { optionReducer } from "./editor/options/optionReducer"
+import { quizReducer } from "./editor/quiz/quizReducer"
+import { quizVariableReducers } from "./editor/quizVariables/quizVariableReducers"
+import { resultReducer } from "./editor/result/resultReducer"
 
-export interface StoreState {
-  editor: EditorStoreState
-  widget: WidgetStoreState
+const editorReducer = combineReducers({
+  quizzes: quizReducer,
+  items: itemReducer,
+  options: optionReducer,
+  quizId: resultReducer,
+  itemVariables: itemVariableReducers,
+  optionVariables: optionVariableReducers,
+  quizVariables: quizVariableReducers,
+})
+
+const reducer = combineReducers({
+  editor: editorReducer,
+})
+
+const store = createStore(reducer, composeWithDevTools())
+
+export interface storeState {
+  editor: {
+    quizzes: { [quizId: string]: NormalizedQuiz }
+    items: { [itemId: string]: NormalizedQuizItem }
+    options: { [optionId: string]: NormalizedQuizItemOption }
+    quizId: string
+    itemVariables: { [itemId: string]: QuizItemVariables }
+    optionVariables: { [optionId: string]: QuizItemOptionVariables }
+    quizVariables: { [quizId: string]: QuizVariables }
+  }
 }
 
-export const useTypedSelector: TypedUseSelectorHook<StoreState> = useSelector
-
-const store = createStore(combinedReducer, composeWithDevTools())
+export const useTypedSelector: TypedUseSelectorHook<storeState> = useSelector
 
 export default store

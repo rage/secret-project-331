@@ -26,7 +26,7 @@ interface ExerciseBlockAttributes {
 const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (props) => {
   const loginState = useContext(LoginStateContext)
   const coursePageContext = useContext(CoursePageContext)
-  const showExercise = loginState.signedIn ? !!coursePageContext.instance : true
+  const showExercise = loginState.signedIn ? !!coursePageContext.settings : true
 
   const id = props.data.attributes.id
   const queryUniqueKey = `exercise-${id}`

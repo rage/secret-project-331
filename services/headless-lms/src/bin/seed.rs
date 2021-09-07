@@ -139,6 +139,17 @@ async fn main() -> Result<()> {
         student,
     )
     .await?;
+    seed_sample_course(
+        &mut conn,
+        uh_cs,
+        Uuid::parse_str("639f4d25-9376-49b5-bcca-7cba18c38565")?,
+        "Introduction to localizing",
+        "introduction-to-localizing",
+        admin,
+        teacher,
+        student,
+    )
+    .await?;
 
     let _cs_design = seed_cs_course_material(&mut conn, uh_cs, admin).await?;
     let new_course = NewCourse {

@@ -35,7 +35,7 @@ const reducer = combineReducers({
 
 const store = createStore(reducer, composeWithDevTools())
 
-export interface storeState {
+export interface StoreState {
   editor: {
     quizzes: { [quizId: string]: NormalizedQuiz }
     items: { [itemId: string]: NormalizedQuizItem }
@@ -47,6 +47,6 @@ export interface storeState {
   }
 }
 
-export const useTypedSelector: TypedUseSelectorHook<storeState> = useSelector
+export const useTypedSelector: TypedUseSelectorHook<StoreState> = useSelector
 
 export default store

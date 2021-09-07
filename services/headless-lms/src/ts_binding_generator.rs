@@ -2,7 +2,6 @@
 use crate::{
     controllers::{
         auth::Login,
-        course_material::courses::CoursePageWithUserData,
         main_frontend::{
             courses::GetFeedbackQuery, exercises::ExerciseSubmissions, feedback::MarkAsRead,
         },
@@ -24,9 +23,10 @@ use crate::{
         organizations::Organization,
         page_history::{HistoryChangeReason, PageHistory},
         pages::{
-            ExerciseWithExerciseTasks, HistoryRestoreData, NewPage, NormalizedCmsExercise,
-            NormalizedCmsExerciseTask, Page, PageRoutingDataWithChapterStatus, PageSearchRequest,
-            PageSearchResult, PageUpdate, PageWithExercises,
+            CoursePageWithUserData, ExerciseWithExerciseTasks, HistoryRestoreData, NewPage,
+            NormalizedCmsExercise, NormalizedCmsExerciseTask, Page,
+            PageRoutingDataWithChapterStatus, PageSearchRequest, PageSearchResult, PageUpdate,
+            PageWithExercises,
         },
         playground_examples::{PlaygroundExample, PlaygroundExampleData},
         submissions::{

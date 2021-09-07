@@ -19,7 +19,12 @@ pub struct Pagination {
 
 impl Pagination {
     pub fn new(page: i64, limit: i64) -> Result<Self> {
-        // TODO: Actually validate values
+        if page <= 0 {
+            return Err(anyhow::anyhow!("Page must be a positive value."));
+        }
+        if limit <= 0 {
+            return Err(anyhow::anyhow!("Limit must be a positive value."));
+        }
         Ok(Pagination { page, limit })
     }
 

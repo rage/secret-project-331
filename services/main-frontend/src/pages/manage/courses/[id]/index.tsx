@@ -8,7 +8,7 @@ import Layout from "../../../../components/Layout"
 import NewCourseForm from "../../../../components/forms/NewCourseForm"
 import UpdateCourseForm from "../../../../components/forms/UpdateCourseForm"
 import CourseInstancesList from "../../../../components/lists/CourseInstancesList"
-import CourseTranslationsList from "../../../../components/lists/CourseTranslationsList"
+import CourseLanguageVersionsList from "../../../../components/lists/CourseLanguageVersionsList"
 import ExerciseList from "../../../../components/lists/ExerciseList"
 import {
   deleteCourse,
@@ -120,7 +120,7 @@ const ManageCoursePage: React.FC<unknown> = () => {
           Manage feedback
         </Link>
         <h3>All course language versions</h3>
-        <CourseTranslationsList courseId={id} />
+        <CourseLanguageVersionsList courseId={id} />
         <Button size="medium" variant="primary" onClick={() => setShowDuplicateForm(true)}>
           New language version
         </Button>

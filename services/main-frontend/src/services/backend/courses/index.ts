@@ -27,7 +27,7 @@ export const deleteCourse = async (courseId: string): Promise<Course> => {
   return response.data
 }
 
-export const fetchCourseTranslations = async (courseId: string): Promise<Array<Course>> => {
+export const fetchCourseLanguageVersions = async (courseId: string): Promise<Array<Course>> => {
   const response = await mainFrontendClient.get(`/courses/${courseId}/language-versions`, {
     responseType: "json",
   })

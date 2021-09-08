@@ -1,7 +1,7 @@
 import React from "react"
 
+import CircularProgress from "./CircularProgress"
 import ProgressBar from "./ProgressBar"
-import ScoreBoard from "./ScoreBoard"
 
 export interface CourseProgressExtraProps {
   variant: "circle" | "bar"
@@ -18,7 +18,9 @@ export interface CourseProgressExtraProps {
 export type CourseProgressProps = React.HTMLAttributes<HTMLDivElement> & CourseProgressExtraProps
 
 const CoureProgress: React.FC<CourseProgressProps> = (props) => {
-  return <>{props.variant === "circle" ? <ScoreBoard {...props} /> : <ProgressBar {...props} />}</>
+  return (
+    <>{props.variant === "circle" ? <CircularProgress {...props} /> : <ProgressBar {...props} />}</>
+  )
 }
 
 export default CoureProgress

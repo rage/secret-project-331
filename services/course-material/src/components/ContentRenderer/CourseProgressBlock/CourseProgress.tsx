@@ -3,7 +3,7 @@ import React from "react"
 import { useQuery } from "react-query"
 
 import { fetchUserCourseProgress } from "../../../services/backend"
-import ScoreBoard from "../../../shared-module/components/CourseProgress/ScoreBoard"
+import CircularProgress from "../../../shared-module/components/CourseProgress/CircularProgress"
 import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import GenericLoading from "../../GenericLoading"
 
@@ -34,7 +34,7 @@ const CourseProgress: React.FC<CourseProgressProps> = ({ courseInstanceId }) => 
           padding: 2em 0;
         `}
       >
-        <ScoreBoard
+        <CircularProgress
           max={data.score_maximum}
           min={data.score_given}
           point={50}

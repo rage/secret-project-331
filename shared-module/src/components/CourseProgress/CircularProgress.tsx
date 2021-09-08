@@ -36,7 +36,7 @@ export interface CourseProgressExtraProps {
   label: string
 }
 
-const ScoreBoard: React.FC<CourseProgressExtraProps> = ({ point = 10, label, min, max }) => {
+const CircularProgress: React.FC<CourseProgressExtraProps> = ({ point = 10, label, min, max }) => {
   const [willAnimate, setWillAnimate] = useState(false)
 
   const minimum = min ?? 0
@@ -95,4 +95,4 @@ const ScoreBoard: React.FC<CourseProgressExtraProps> = ({ point = 10, label, min
   )
 }
 
-export default ScoreBoard
+export default CircularProgress

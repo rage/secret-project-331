@@ -1,8 +1,7 @@
-import { ThemeProvider } from "@emotion/react"
 import styled from "@emotion/styled"
 import React from "react"
 
-import { baseTheme, theme } from "../styles"
+import { baseTheme } from "../styles"
 
 /* import { border, color, space } from "styled-system" */
 
@@ -52,7 +51,7 @@ export type CardProps = React.HTMLAttributes<HTMLDivElement> & CourseObjectiveSe
 
 const CourseObjectiveSection: React.FC<CardProps> = ({ title, children }) => {
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <>
         <HeroWrapper>
           <TextBox>
@@ -61,7 +60,7 @@ const CourseObjectiveSection: React.FC<CardProps> = ({ title, children }) => {
           </TextBox>
         </HeroWrapper>
       </>
-    </ThemeProvider>
+    </>
   )
 }
 

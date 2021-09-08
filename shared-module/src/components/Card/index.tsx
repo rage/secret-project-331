@@ -23,13 +23,13 @@ export type CardProps = React.ButtonHTMLAttributes<HTMLDivElement> & CardExtraPr
 
 const Card: React.FC<CardProps> = (props) => {
   return (
-    <ThemeProvider theme={theme}>
+    <>
       {props.variant === "simple" ? (
         <SimpleCard {...props}></SimpleCard>
       ) : (
         <IllustrationCard {...props} />
       )}
-    </ThemeProvider>
+    </>
   )
 }
 

@@ -7,14 +7,10 @@ import { respondToOrLarger } from "../../styles/respond"
 
 const StyledSVG = styled.div`
   position: relative;
-  width: 257px;
-
-  ${respondToOrLarger.sm} {
-    width: 321px;
-  }
-
+  width: 100%;
+  text-align: center;
   svg {
-    margin: 0rem auto;
+    margin: 0 auto;
     width: 16rem;
 
     ${respondToOrLarger.sm} {
@@ -31,13 +27,6 @@ const StyledSVG = styled.div`
     font-weight: 400;
     opacity: 0.9;
     font-family: ${headingFont};
-
-    ${respondToOrLarger.sm} {
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 3rem;
-    }
   }
 `
 export interface CourseProgressExtraProps {
@@ -50,8 +39,8 @@ export interface CourseProgressExtraProps {
 const ScoreBoard: React.FC<CourseProgressExtraProps> = ({ point = 10, label, min, max }) => {
   const [willAnimate, setWillAnimate] = useState(false)
 
-  const minimum = min ? min : 0
-  const maximum = max ? max : 0
+  const minimum = min ?? 0
+  const maximum = max ?? 0
   useLayoutEffect(() => {
     const onScroll = () => {
       const scrollPosition = window.scrollY + window.innerHeight

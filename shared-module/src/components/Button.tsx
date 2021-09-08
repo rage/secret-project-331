@@ -1,4 +1,3 @@
-import { ThemeProvider } from "@emotion/react"
 import styled from "@emotion/styled"
 import React from "react"
 import { border, color, space } from "styled-system"
@@ -135,7 +134,7 @@ Link */
 
 const Button: React.FC<ButtonProps> = (props) => {
   return (
-    <ThemeProvider theme={theme}>
+    <>
       {props.variant === "primary" ? (
         <PrimaryButton {...props}></PrimaryButton>
       ) : props.variant === "secondary" ? (
@@ -143,7 +142,7 @@ const Button: React.FC<ButtonProps> = (props) => {
       ) : (
         <TertiaryButton title="button" {...props} />
       )}
-    </ThemeProvider>
+    </>
   )
 }
 

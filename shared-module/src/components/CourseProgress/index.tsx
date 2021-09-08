@@ -1,7 +1,4 @@
-import { ThemeProvider } from "@emotion/react"
 import React from "react"
-
-import { theme } from "../../styles"
 
 import ProgressBar from "./ProgressBar"
 import ScoreBoard from "./ScoreBoard"
@@ -21,15 +18,7 @@ export interface CourseProgressExtraProps {
 export type CourseProgressProps = React.HTMLAttributes<HTMLDivElement> & CourseProgressExtraProps
 
 const CoureProgress: React.FC<CourseProgressProps> = (props) => {
-  return (
-    <ThemeProvider theme={theme}>
-      {props.variant === "circle" ? (
-        <ScoreBoard {...props}></ScoreBoard>
-      ) : (
-        <ProgressBar {...props} />
-      )}
-    </ThemeProvider>
-  )
+  return <>{props.variant === "circle" ? <ScoreBoard {...props} /> : <ProgressBar {...props} />}</>
 }
 
 export default CoureProgress

@@ -1,8 +1,7 @@
-import { ThemeProvider } from "@emotion/react"
 import styled from "@emotion/styled"
 import React from "react"
 
-import { baseTheme, theme } from "../styles"
+import { baseTheme } from "../styles"
 
 import Button from "./Button"
 
@@ -60,19 +59,15 @@ export type CardProps = React.HTMLAttributes<HTMLDivElement> & LandingPageHeroSe
 
 const LandingPageHeroSection: React.FC<CardProps> = ({ title, children }) => {
   return (
-    <ThemeProvider theme={theme}>
-      <>
-        <HeroWrapper>
-          <TextBox>
-            <h1>{title}</h1>
-            {children}
-            <Button variant="primary" size="large">
-              Start course
-            </Button>
-          </TextBox>
-        </HeroWrapper>
-      </>
-    </ThemeProvider>
+    <HeroWrapper>
+      <TextBox>
+        <h1>{title}</h1>
+        {children}
+        <Button variant="primary" size="large">
+          Start course
+        </Button>
+      </TextBox>
+    </HeroWrapper>
   )
 }
 

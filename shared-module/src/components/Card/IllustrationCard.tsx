@@ -11,9 +11,9 @@ export type CardProps = React.ButtonHTMLAttributes<HTMLDivElement> & CardExtraPr
 
 const IllustrationCard: React.FC<CardProps> = () => {
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <div></div>
-    </ThemeProvider>
+    </>
   )
 }
 

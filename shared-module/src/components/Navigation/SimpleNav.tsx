@@ -1,14 +1,12 @@
 import { css, cx } from "@emotion/css"
 import { faBullseye } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { useContext, useState } from "react"
+import { useState } from "react"
 
-import LoginStateContext from "../../contexts/LoginStateContext"
-import { logout } from "../../services/backend/auth"
 import { baseTheme } from "../../styles"
 import { runCallbackIfEnterPressed } from "../../utils/accessibility"
 import Hamburger from "../Hamburger"
-import Spinner from "../Spinner"
+import LoginControls from "../LoginControls"
 
 import { NavigationProps } from "."
 
@@ -148,16 +146,6 @@ const Hide = css`
 
 const Navigation: React.FC<NavigationProps> = ({ frontPageUrl, faqUrl, returnToPath }) => {
   const [clicked, setClicked] = useState(false)
-  const loginStateContext = useContext(LoginStateContext)
-
-  if (loginStateContext.isLoading) {
-    return <Spinner variant="large" />
-  }
-
-  const submitLogout = async () => {
-    await logout()
-    await loginStateContext.refresh()
-  }
 
   const onClickHandler = () => {
     setClicked(!clicked)
@@ -182,19 +170,7 @@ const Navigation: React.FC<NavigationProps> = ({ frontPageUrl, faqUrl, returnToP
             </a>
           ) : null}
           <ul className={clicked ? cx(ToolTip) : cx(Hide)}>
-            {loginStateContext.signedIn ? (
-              <li>
-                <button name="logout" onClick={submitLogout}>
-                  Logout
-                </button>
-              </li>
-            ) : (
-              <li>
-                <a href={returnToPath}>Login</a>
-              </li>
-            )}
-            {/* <li>Authors</li>
-            <li>License</li> */}
+            <LoginControls returnToPath={returnToPath} />
           </ul>
         </li>
         <li>

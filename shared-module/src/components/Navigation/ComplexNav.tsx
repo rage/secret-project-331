@@ -9,6 +9,9 @@ import { respondToOrLarger } from "../../styles/respond"
 import { runCallbackIfEnterPressed } from "../../utils/accessibility"
 import Button from "../Button"
 import Hamburger from "../Hamburger"
+import LoginControls from "../LoginControls"
+
+import { NavigationProps } from "."
 
 const swingHorizontal = keyframes`
 15% {
@@ -115,6 +118,7 @@ const navMenu = css`
     grid-gap: 10px;
     list-style: none;
     margin-top: 1em;
+    width: auto;
     position: static;
     top: auto;
     left: auto;
@@ -217,7 +221,7 @@ const StyledIcon = styled(FontAwesomeIcon)`
   color: ${baseTheme.colors.grey[800]};
 `
 
-const Navigation: React.FC = () => {
+const Navigation: React.FC<NavigationProps> = ({ returnToPath }) => {
   const [clicked, setClicked] = useState(false)
   const callback = () => setClicked(!clicked)
   return (
@@ -243,9 +247,7 @@ const Navigation: React.FC = () => {
           <li className={cx(navLinks)}>Courses</li>
           <li className={cx(navLinks)}>Modules</li>
           <li className={cx(navLinks)}>Mail Template</li>
-          <li className={cx(navLinks, hide)}>
-            <div>Login Controls</div>
-          </li>
+          <LoginControls styles={[navLinks, hide]} returnToPath={returnToPath} />
           <li className={cx(navLinks, hide)}>
             <Button variant="primary" size="medium">
               Translate
@@ -253,16 +255,14 @@ const Navigation: React.FC = () => {
           </li>
         </ol>
 
-        <ul className={cx(secondaryLink)}>
-          <li>
-            <div>Login Controls</div>
-          </li>
-          <li>
+        <div className={cx(secondaryLink)}>
+          <LoginControls styles={[secondaryLink]} returnToPath={returnToPath} />
+          <div>
             <Button variant="primary" size="medium">
               Translate
             </Button>
-          </li>
-        </ul>
+          </div>
+        </div>
       </nav>
     </div>
   )

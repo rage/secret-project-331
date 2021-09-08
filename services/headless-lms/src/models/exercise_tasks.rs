@@ -1,15 +1,11 @@
-use super::{exercise_tasks, submissions, user_exercise_states, ModelResult};
-use crate::utils::{document_schema_processor::GutenbergBlock, pagination::Pagination};
+use super::{exercise_tasks, user_exercise_states, ModelResult};
+use crate::utils::document_schema_processor::GutenbergBlock;
 use chrono::{DateTime, Utc};
-use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use sqlx::{FromRow, PgConnection};
 use ts_rs::TS;
 use uuid::Uuid;
-
-static SINGLE_ITEM_PAGINATION: Lazy<Pagination> =
-    Lazy::new(|| Pagination::new(1, 1).expect("Pagination should be valid."));
 
 #[derive(Debug, Serialize, Deserialize, TS)]
 pub struct CourseMaterialExerciseTask {
@@ -128,6 +124,33 @@ pub async fn get_exercise_task_by_id(
     Ok(exercise_task)
 }
 
+pub async fn get_existing_user_exercise_task_for_course_instance(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+    course_instance_id: Uuid,
+) -> ModelResult<Option<CourseMaterialExerciseTask>> {
+    let user_exercise_state = user_exercise_states::get_user_exercise_state_if_exits(
+        conn,
+        user_id,
+        exercise_id,
+        course_instance_id,
+    )
+    .await?;
+    let exercise_task = if let Some(user_exercise_state) = user_exercise_state {
+        if let Some(selected_exercise_task_id) = user_exercise_state.selected_exercise_task_id {
+            let exercise_task =
+                exercise_tasks::get_exercise_task_by_id(conn, selected_exercise_task_id).await?;
+            Some(exercise_task.into())
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+    Ok(exercise_task)
+}
+
 pub async fn get_or_select_user_exercise_task_for_course_instance(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -156,28 +179,6 @@ pub async fn get_or_select_user_exercise_task_for_course_instance(
         )
         .await?;
         Ok(exercise_task)
-    }
-}
-
-pub async fn get_user_exercise_task_by_some_previous_submission(
-    conn: &mut PgConnection,
-    user_id: Uuid,
-    exercise_id: Uuid,
-) -> ModelResult<Option<ExerciseTask>> {
-    let submissions = submissions::get_user_exercise_submissions(
-        conn,
-        &user_id,
-        &exercise_id,
-        &SINGLE_ITEM_PAGINATION,
-    )
-    .await?;
-    match submissions.first() {
-        Some(submission) => {
-            let exercise_task =
-                exercise_tasks::get_exercise_task_by_id(conn, submission.exercise_task_id).await?;
-            Ok(Some(exercise_task))
-        }
-        None => Ok(None),
     }
 }
 

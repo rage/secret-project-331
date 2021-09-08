@@ -125,6 +125,40 @@ WHERE ucs.user_id = $1
     Ok(course_instance_enrollment)
 }
 
+pub async fn course_instance_by_users_latest_enrollment(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<Option<CourseInstance>> {
+    let course_instance = sqlx::query_as!(
+        CourseInstance,
+        r#"
+SELECT i.id,
+  i.created_at,
+  i.updated_at,
+  i.deleted_at,
+  i.course_id,
+  i.starts_at,
+  i.ends_at,
+  i.name,
+  i.description,
+  i.variant_status AS "variant_status: VariantStatus"
+FROM course_instances i
+  JOIN course_instance_enrollments ie ON (i.id = ie.course_id)
+WHERE i.course_id = $1
+  AND i.deleted_at IS NULL
+  AND ie.user_id = $2
+  AND ie.deleted_at IS NULL
+ORDER BY ie.created_at DESC;
+    "#,
+        course_id,
+        user_id,
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(course_instance)
+}
+
 pub async fn get_all_course_instances(conn: &mut PgConnection) -> ModelResult<Vec<CourseInstance>> {
     let course_instances = sqlx::query_as!(
         CourseInstance,

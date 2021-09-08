@@ -1,4 +1,8 @@
-use super::{exercise_tasks, user_course_settings, ModelResult};
+use super::{
+    course_instances,
+    exercise_tasks::{self, get_existing_user_exercise_task_for_course_instance},
+    user_course_settings, ModelResult,
+};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
@@ -199,9 +203,7 @@ pub async fn get_course_material_exercise(
 ) -> ModelResult<CourseMaterialExercise> {
     let exercise = get_by_id(conn, exercise_id).await?;
 
-    let mut current_course_instance_id: Option<Uuid> = None;
-
-    let selected_exercise_task = if let Some(user_id) = user_id {
+    let (selected_exercise_task, current_course_instance_id) = if let Some(user_id) = user_id {
         let user_course_settings = user_course_settings::get_user_course_settings_by_course_id(
             conn,
             user_id,
@@ -211,44 +213,58 @@ pub async fn get_course_material_exercise(
         match user_course_settings {
             Some(settings) if settings.current_course_id == exercise.course_id => {
                 // User is enrolled on an instance of the given course.
-                current_course_instance_id = Some(settings.current_course_instance_id);
-                exercise_tasks::get_or_select_user_exercise_task_for_course_instance(
+                let task = exercise_tasks::get_or_select_user_exercise_task_for_course_instance(
                     conn,
                     user_id,
                     exercise_id,
                     settings.current_course_instance_id,
                 )
-                .await
+                .await?;
+                Ok((task, Some(settings.current_course_id)))
             }
             Some(_) => {
-                // User is enrolled on a different language version of the course. Select their task
-                // based on submissions or show random one if there isn't any.
-                // NB! This is no deterministic so maybe instead use latest instance by_created_at?
-                // Current course instance is also not set so user won't see their answer anyway.
-                let exercise_task =
-                    exercise_tasks::get_user_exercise_task_by_some_previous_submission(
+                // User is enrolled on a different language version of the course. Show exercise
+                // task based on their latest enrollment or a random one.
+                let latest_instance = course_instances::course_instance_by_users_latest_enrollment(
+                    conn,
+                    user_id,
+                    exercise.course_id,
+                )
+                .await?;
+                if let Some(instance) = latest_instance {
+                    let exercise_task = get_existing_user_exercise_task_for_course_instance(
                         conn,
                         user_id,
-                        exercise_id,
+                        exercise.id,
+                        instance.id,
                     )
                     .await?;
-                if let Some(task) = exercise_task {
-                    Ok(task.into())
+                    if let Some(exercise_task) = exercise_task {
+                        Ok((exercise_task, Some(instance.id)))
+                    } else {
+                        let random_task =
+                            exercise_tasks::get_random_exercise_task(conn, exercise_id).await?;
+                        Ok((random_task, None))
+                    }
                 } else {
-                    exercise_tasks::get_random_exercise_task(conn, exercise_id).await
+                    let random_task =
+                        exercise_tasks::get_random_exercise_task(conn, exercise_id).await?;
+                    Ok((random_task, None))
                 }
             }
             None => {
-                // user is not enrolled on any course version, return error
+                // User is not enrolled on any course version. This is not a valid scenario because
+                // tasks are based on a specific instance.
                 Err(ModelError::PreconditionFailed(
                     "User must be enrolled to the course".to_string(),
                 ))
             }
-        }
+        }?
     } else {
         // No signed in user. Show random exercise.
-        exercise_tasks::get_random_exercise_task(conn, exercise_id).await
-    }?;
+        let random_task = exercise_tasks::get_random_exercise_task(conn, exercise_id).await?;
+        (random_task, None)
+    };
 
     let current_exercise_task_service_info = get_course_material_service_info_by_exercise_type(
         conn,

@@ -1,6 +1,6 @@
 import { css, cx, keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faBullseye } from "@fortawesome/free-solid-svg-icons"
+import { faBullseye, faSearch } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React, { useState } from "react"
 
@@ -228,7 +228,7 @@ const Navigation: React.FC<NavigationProps> = ({ returnToPath }) => {
     <div className="wrapper">
       <nav className={cx(navbarItems)}>
         <div className={cx(navbarLogo)}>
-          <a href="/" aria-label="Kotisivulle" role="button">
+          <a href="/" aria-label="Home page" role="button">
             <StyledIcon icon={faBullseye} aria-label="Front page" aria-hidden="true"></StyledIcon>
           </a>
         </div>
@@ -238,7 +238,7 @@ const Navigation: React.FC<NavigationProps> = ({ returnToPath }) => {
           onKeyDown={(e) => runCallbackIfEnterPressed(e, callback)}
           tabIndex={0}
           role="button"
-          aria-label="Avaa valikko"
+          aria-label="Open menu"
         >
           <Hamburger />
         </div>
@@ -253,9 +253,15 @@ const Navigation: React.FC<NavigationProps> = ({ returnToPath }) => {
               Translate
             </Button>
           </li>
+          <li className={cx(navLinks, hide)}>
+            <StyledIcon icon={faSearch} aria-label="Search page" />
+          </li>
         </ol>
 
         <div className={cx(secondaryLink)}>
+          <div className={cx(secondaryLink)}>
+            <StyledIcon icon={faSearch} aria-label="Search page" />
+          </div>
           <LoginControls styles={[secondaryLink]} returnToPath={returnToPath} />
           <div>
             <Button variant="primary" size="medium">

@@ -1,5 +1,5 @@
 import { css, cx } from "@emotion/css"
-import { faBullseye } from "@fortawesome/free-solid-svg-icons"
+import { faBullseye, faSearch } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useState } from "react"
 
@@ -158,17 +158,19 @@ const Navigation: React.FC<NavigationProps> = ({ frontPageUrl, faqUrl, returnToP
           <FontAwesomeIcon
             className={cx(StyledIcon)}
             icon={faBullseye}
+            aria-label="Home page"
             aria-hidden="true"
           ></FontAwesomeIcon>
         </a>
       </div>
       <ul className={clicked ? cx(NavMenu) : cx(NavMenu)}>
         <li className="container">
-          {faqUrl ? (
+          {faqUrl && (
             <a className={cx(NavLink)} href={`${faqUrl}`} aria-label="FAQ" role="button">
               FAQ
             </a>
-          ) : null}
+          )}
+          <FontAwesomeIcon className={cx(StyledIcon)} icon={faSearch} aria-label="Search page" />
           <ul className={clicked ? cx(ToolTip) : cx(Hide)}>
             <LoginControls returnToPath={returnToPath} />
           </ul>

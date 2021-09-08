@@ -89,7 +89,7 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId }) => {
 
   return (
     <>
-      <Button size="medium" variant="secondary" onClick={() => openModal()}>
+      <Button size="medium" variant="secondary" onClick={openModal}>
         Search
       </Button>
       <Dialog maxWidth="xl" open={open} onClose={closeModal}>

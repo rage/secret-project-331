@@ -27,6 +27,7 @@ import PreformatterBlock from "./PreformatterBlock"
 import PullquoteBlock from "./PullquoteBlock"
 import QuoteBlock from "./QuoteBlock"
 import SeparatorBlock from "./Separator"
+import SpacerBlock from "./SpacerBlock"
 import TableBlock from "./TableBlock"
 import VerseBlock from "./VerseBlock"
 export interface ContentRendererProps {
@@ -51,7 +52,7 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   // "core/rss",
   "core/separator": SeparatorBlock,
   // "core/block",
-  // "core/spacer",
+  "core/spacer": SpacerBlock,
   // "core/text-columns",
   "core/audio": AudioBlock,
   "core/paragraph": ParagraphBlock,

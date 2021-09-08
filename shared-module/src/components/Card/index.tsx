@@ -1,7 +1,4 @@
-import { ThemeProvider } from "@emotion/react"
 import React from "react"
-
-import { theme } from "../../styles"
 
 import IllustrationCard from "./IllustrationCard"
 import SimpleCard from "./SimpleCard"

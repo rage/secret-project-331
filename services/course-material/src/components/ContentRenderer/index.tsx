@@ -26,9 +26,9 @@ import ParagraphBlock from "./ParagraphBlock"
 import PreformatterBlock from "./PreformatterBlock"
 import PullquoteBlock from "./PullquoteBlock"
 import QuoteBlock from "./QuoteBlock"
+import SeparatorBlock from "./Separator"
 import TableBlock from "./TableBlock"
 import VerseBlock from "./VerseBlock"
-
 export interface ContentRendererProps {
   data: Block<unknown>[]
 }
@@ -49,7 +49,7 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   // "core/file",
   // "core/group",
   // "core/rss",
-  // "core/separator",
+  "core/separator": SeparatorBlock,
   // "core/block",
   // "core/spacer",
   // "core/text-columns",

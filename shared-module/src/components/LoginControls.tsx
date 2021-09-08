@@ -1,4 +1,4 @@
-import { ClassNamesArg, css, cx } from "@emotion/css"
+import { ClassNamesArg, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { faUser as profileIcon } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -6,7 +6,6 @@ import React, { useContext } from "react"
 
 import LoginStateContext from "../contexts/LoginStateContext"
 import { logout } from "../services/backend/auth"
-import { respondToOrLarger } from "../styles/respond"
 
 import Button from "./Button"
 import Spinner from "./Spinner"

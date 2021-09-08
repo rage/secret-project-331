@@ -5,6 +5,7 @@ import React from "react"
 import CardSVG from "../../img/cardNext.svg"
 import { baseTheme, typography } from "../../styles"
 import { cardHeight, cardMaxWidth } from "../../styles/constants"
+import { respondToOrLarger } from "../../styles/respond"
 
 import { CardExtraProps } from "."
 
@@ -12,14 +13,14 @@ const CourseGridWrapper = styled.a`
   text-decoration: none;
   display: block;
   max-width: ${cardMaxWidth}em;
-  height: ${cardHeight}em;
+  height: ${cardHeight * 0.75}em;
   border-radius: 1px;
   position: relative;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   background: #48cfad;
 
-  @media (max-width: 600px) {
-    height: ${cardHeight * 0.75}em;
+  ${respondToOrLarger.sm} {
+    height: ${cardHeight}em;
   }
 `
 
@@ -28,6 +29,7 @@ const CardContentWrapper = styled.div`
   height: 100%;
   text-align: left;
   flex-direction: column;
+  word-break: break-all;
 
   h2 {
     font-size: ${typography.h3};
@@ -46,8 +48,8 @@ const CardContentWrapper = styled.div`
     width: 50%;
     line-height: 3em;
   }
-  @media (max-width: 37.5em) {
-    word-break: break-all;
+  ${respondToOrLarger.lg} {
+    word-break: normal;
   }
 `
 
@@ -94,7 +96,7 @@ const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, url, open, bg, 
               flex: 0 1 auto;
               text-align: center;
               background: #cac9c9;
-              padding: 2em;
+              padding: 2rem;
             `}
           >
             {fetchOpensText()}
@@ -103,7 +105,7 @@ const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, url, open, bg, 
           <div
             className={css`
               flex: 0 1 auto;
-              padding: 2em 2.5em 0 2.5em;
+              padding: 2rem 2.5rem 0 2.5rem;
             `}
           >
             <CardSVG />
@@ -112,7 +114,7 @@ const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, url, open, bg, 
         <div
           className={css`
             flex: 1 1 auto;
-            padding: 0em 2.5em 2em 2.5em;
+            padding: 0em 2.5rem 2rem 2.5rem;
           `}
         >
           <div

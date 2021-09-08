@@ -24,13 +24,11 @@ const Link = styled.a`
 `
 
 const ImageBox = styled.div`
-  @media (min-width: 1px) {
-    width: 40px;
-    height: 40px;
-    position: relative;
-    vertical-align: middle;
-    display: inline-block;
-  }
+  width: 40px;
+  height: 40px;
+  position: relative;
+  vertical-align: middle;
+  display: inline-block;
 
   div {
     width: 100%;

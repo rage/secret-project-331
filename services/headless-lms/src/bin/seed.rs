@@ -82,6 +82,12 @@ async fn main() -> Result<()> {
         Uuid::parse_str("90643204-7656-4570-bdd9-aad5d297f9ce")?,
     )
     .await?;
+    let language_teacher = users::insert_with_id(
+        &mut conn,
+        "language.teacher@example.com",
+        Uuid::parse_str("0fd8bd2d-cb4e-4035-b7db-89e798fe4df0")?,
+    )
+    .await?;
     let assistant = users::insert_with_id(
         &mut conn,
         "assistant@example.com",
@@ -139,7 +145,7 @@ async fn main() -> Result<()> {
         student,
     )
     .await?;
-    seed_sample_course(
+    let introduction_to_localizing = seed_sample_course(
         &mut conn,
         uh_cs,
         Uuid::parse_str("639f4d25-9376-49b5-bcca-7cba18c38565")?,
@@ -148,6 +154,14 @@ async fn main() -> Result<()> {
         admin,
         teacher,
         student,
+    )
+    .await?;
+    roles::insert(
+        &mut conn,
+        language_teacher,
+        None,
+        Some(introduction_to_localizing),
+        UserRole::Teacher,
     )
     .await?;
 

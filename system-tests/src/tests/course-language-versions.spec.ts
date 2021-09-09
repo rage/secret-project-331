@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 test.use({
-  storageState: "src/states/admin@example.com.json",
+  storageState: "src/states/language.teacher@example.com.json",
 })
 
 test("test", async ({ page, headless }) => {
@@ -36,9 +36,6 @@ test("test", async ({ page, headless }) => {
 
   // Fill input[type="text"]
   await page.fill('input[type="text"]', "Johdatus lokalisointiin")
-
-  // Fill :nth-match(input[name="mui-913296558"], 2)
-  // await page.fill(':nth-match(input[type="radio"], 2)', "fi-FI")
 
   // Click :nth-match(input[name="mui-913296558"], 2)
   await page.click(':nth-match(input[type="radio"], 2)')
@@ -91,10 +88,6 @@ test("test", async ({ page, headless }) => {
     "wrong-course-banner",
     "text=Looks like you're already on a different language version",
   )
-  // Click [id="__next"] div >> :nth-match(div:has-text("Looks like you're already on a different language version of this course. Before"), 2)
-  // await page.click(
-  //   '[id="__next"] div >> :nth-match(div:has-text("Looks like you\'re already on a different language version of this course. Before"), 2)',
-  // )
 
   // Click text=Johdatus lokalisointiin
   await page.click("text=Johdatus lokalisointiin")

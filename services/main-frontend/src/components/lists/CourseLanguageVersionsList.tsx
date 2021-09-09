@@ -4,12 +4,14 @@ import { useQuery } from "react-query"
 
 import { fetchCourseLanguageVersions } from "../../services/backend/courses"
 
+export const formatQueryKey = (courseId: string): string => `course-${courseId}-language-versions`
+
 export interface CourseTranslationsListProps {
   courseId: string
 }
 
 const CourseLanguageVersionsList: React.FC<CourseTranslationsListProps> = ({ courseId }) => {
-  const { isLoading, error, data } = useQuery(`course-${courseId}-language-versions`, () =>
+  const { isLoading, error, data } = useQuery(formatQueryKey(courseId), () =>
     fetchCourseLanguageVersions(courseId),
   )
 

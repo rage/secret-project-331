@@ -73,6 +73,7 @@ const OrganizationsList: React.FC = () => {
                   }
                   ${respondToOrLarger.lg} {
                     flex-direction: row;
+                    max-height: 15rem;
                   }
                 `}
               >
@@ -85,6 +86,7 @@ const OrganizationsList: React.FC = () => {
                     padding: 1em 1em;
                     ${respondToOrLarger.lg} {
                       width: 20%;
+                      height: 10rem;
                     }
                   `}
                 >

@@ -202,6 +202,7 @@ export interface QuizAnswer {
   createdAt: string
   updatedAt: string
   quizId: string
+  status: "confirmed" | "open" | "locked"
   itemAnswers: QuizItemAnswer[]
 }
 
@@ -213,6 +214,7 @@ export interface QuizItemAnswer {
   intData: number | null
   createdAt: string
   updatedAt: string
+  correct: boolean
   // Only contains an id of a selected option
   optionAnswers: string[] | null
 }

@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next"
 
-import { PublicItem, PublicQuiz, PublicQuizItemOption, Quiz } from "../../types/types"
+import { PublicQuiz, PublicQuizItem, PublicQuizItemOption, Quiz } from "../../types/types"
 
 export default (req: NextApiRequest, res: NextApiResponse): void => {
   if (req.method !== "POST") {
@@ -25,7 +25,7 @@ function handlePost(req: NextApiRequest, res: NextApiResponse) {
     tries: quiz.tries,
     triesLimited: quiz.triesLimited,
     items: quiz.items.map((i) => {
-      const pi: PublicItem = {
+      const pi: PublicQuizItem = {
         id: i.id,
         body: i.body,
         direction: i.direction,

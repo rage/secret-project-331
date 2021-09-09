@@ -68,6 +68,7 @@ const ExercisePage: React.FC = () => {
       quizId: quiz.id,
       createdAt: Date.now().toString(),
       updatedAt: Date.now().toString(),
+      status: "open",
       itemAnswers: quiz.items.map((qi) => {
         return {
           id: v4(),

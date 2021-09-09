@@ -2,7 +2,19 @@ import type { NextApiRequest, NextApiResponse } from "next"
 
 import { Quiz, QuizAnswer, QuizItem, QuizItemAnswer, UserQuizState } from "../../types/types"
 
-export default (req: NextApiRequest, res: NextApiResponse): void => {
+interface QuizzesGradingRequest {
+  // Quiz that students has answered
+  quiz: Quiz
+  // Students answer
+  quizAnswer: QuizAnswer
+  // Object to track user and quiz relation
+  userQuizState: UserQuizState
+}
+
+export default (
+  req: NextApiRequest,
+  res: NextApiResponse<UserQuizState | { message: string }>,
+): void => {
   if (req.method !== "POST") {
     return res.status(404).json({ message: "Not found" })
   }
@@ -11,12 +23,13 @@ export default (req: NextApiRequest, res: NextApiResponse): void => {
 }
 
 const handlePost = (req: NextApiRequest, res: NextApiResponse) => {
-  const quizAnswer: QuizAnswer = req.body
+  const gradingRedquest: QuizzesGradingRequest = req.body
+  const { quiz, quizAnswer, userQuizState } = gradingRedquest
 
   try {
-    asssesAnswer(quizAnswer, quizAnswer.quiz)
-    assessUserQuizStatus(quizAnswer, quizAnswer.userQuizState, quizAnswer.quiz, true)
-    gradeAnswer(quizAnswer, quizAnswer.userQuizState, quizAnswer.quiz)
+    asssesAnswer(quizAnswer, quiz)
+    assessUserQuizStatus(quizAnswer, userQuizState, quiz, true)
+    gradeAnswer(quizAnswer, userQuizState, quiz)
     return res.status(200).json(quizAnswer)
   } catch (err) {
     return res.status(400).json(err)
@@ -118,7 +131,11 @@ function removeNonPrintingCharacters(string: string): string {
 }
 
 function assessOpenQuiz(quizItemAnswer: QuizItemAnswer, quizItem: QuizItem) {
-  const textData = removeNonPrintingCharacters(quizItemAnswer.textData).replace(/\0/g, "").trim()
+  const textData = removeNonPrintingCharacters(
+    quizItemAnswer.textData ? quizItemAnswer.textData : "",
+  )
+    .replace(/\0/g, "")
+    .trim()
   if (!textData) {
     throw new Error("no answer provided")
   }
@@ -136,11 +153,11 @@ function assesMultipleChoiceQuizzes(quizItemAnswer: QuizItemAnswer, quizItem: Qu
   const correctOptionIds = quizOptions
     .filter((quizOption) => quizOption.correct === true)
     .map((quizOption) => quizOption.id)
-  const selectedCorrectOptions = quizOptionAnswers.filter((quizOptionAnswer) =>
-    correctOptionIds.includes(quizOptionAnswer.quizOptionId),
+  const selectedCorrectOptions = quizOptionAnswers.filter((quizOptionAnswerId) =>
+    correctOptionIds.includes(quizOptionAnswerId),
   )
-  const allSelectedOptionsAreCorrect = quizOptionAnswers.every((quizOptionAnswer) =>
-    correctOptionIds.includes(quizOptionAnswer.quizOptionId),
+  const allSelectedOptionsAreCorrect = quizOptionAnswers.every((quizOptionAnswerId) =>
+    correctOptionIds.includes(quizOptionAnswerId),
   )
   quizItemAnswer.correct = quizItem.multi
     ? correctOptionIds.length === selectedCorrectOptions.length && allSelectedOptionsAreCorrect

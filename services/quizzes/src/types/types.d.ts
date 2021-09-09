@@ -211,18 +211,10 @@ export interface QuizItemAnswer {
   quizItemId: string
   textData: string | null
   intData: number | null
-  correct: boolean
   createdAt: string
   updatedAt: string
-  optionAnswers: QuizItemOptionAnswer[]
-}
-
-export interface QuizItemOptionAnswer {
-  id: string
-  quizItemAnswerId: string
-  quizOptionId: string
-  createdAt: string
-  updatedAt: string
+  // Only contains an id of a selected option
+  optionAnswers: string[] | null
 }
 
 export interface UserQuizState {

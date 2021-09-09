@@ -78,7 +78,7 @@ const ExercisePage: React.FC = () => {
           correct: false,
           intData: null,
           textData: null,
-          optionAnswers: [],
+          optionAnswers: null,
         }
       }),
     },

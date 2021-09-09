@@ -9,7 +9,7 @@ export const useSendQuizAnswerOnChange = (port: MessagePort, state: State): void
     }
     const message = {
       message: "current-state",
-      data: { data: state },
+      data: state.quiz_answer,
     }
     console.info("Sending current data", JSON.stringify(message))
     port.postMessage(message)

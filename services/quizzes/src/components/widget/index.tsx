@@ -1,4 +1,4 @@
-import { useEffect, useReducer } from "react"
+import { useReducer } from "react"
 
 import { useSendQuizAnswerOnChange } from "../../hooks/useSendQuizAnswerOnChange"
 import { PublicQuiz, PublicQuizItem, QuizAnswer, QuizItemAnswer } from "../../types/types"

@@ -24,7 +24,9 @@ import {
   EmailTemplateNew,
   EmailTemplateUpdate,
   Exercise,
+  ExerciseService,
   ExerciseServiceInfoApi,
+  ExerciseServiceNewOrUpdate,
   ExerciseStatus,
   ExerciseSubmissions,
   ExerciseTask,
@@ -246,6 +248,35 @@ export function isSubmissionResult(obj: any, _argumentName?: string): obj is Sub
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     (isSubmission(obj.submission) as boolean) &&
     (isGrading(obj.grading) as boolean)
+  )
+}
+
+export function isExerciseService(obj: any, _argumentName?: string): obj is ExerciseService {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    typeof obj.name === "string" &&
+    typeof obj.slug === "string" &&
+    typeof obj.public_url === "string" &&
+    (obj.internal_url === null || typeof obj.internal_url === "string") &&
+    typeof obj.max_reprocessing_submissions_at_once === "number"
+  )
+}
+
+export function isExerciseServiceNewOrUpdate(
+  obj: any,
+  _argumentName?: string,
+): obj is ExerciseServiceNewOrUpdate {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.name === "string" &&
+    typeof obj.slug === "string" &&
+    typeof obj.public_url === "string" &&
+    (obj.internal_url === null || typeof obj.internal_url === "string") &&
+    typeof obj.max_reprocessing_submissions_at_once === "number"
   )
 }
 

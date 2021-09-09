@@ -144,7 +144,7 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
                 flex: 1;
                 justify-content: center;
                 ${quizItemAnswerState?.optionAnswers.map((qioa) => qioa.id).includes(qo.id) &&
-                "background-color: 2px solid #4caf50; /* Green */"}
+                "border: 2px solid #4caf50; /* Green */"}
               `}
             >
               {qo.title || qo.body}

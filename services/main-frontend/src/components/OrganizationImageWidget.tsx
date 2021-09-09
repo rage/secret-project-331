@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import React, { useState } from "react"
 
 import { removeOrganizationImage, setOrganizationImage } from "../services/backend/organizations"
@@ -47,6 +48,10 @@ const OrganizationImageWidget: React.FC<OrganizationImageControlsProps> = ({
       {organization.organization_image_url ? (
         <>
           <img
+            className={css`
+              max-width: 20rem;
+              max-height: 20rem;
+            `}
             src={organization.organization_image_url}
             alt="What to display on the organization."
           />

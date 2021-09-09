@@ -97,7 +97,6 @@ const OrganizationsList: React.FC = () => {
                         margin: 0 auto;
                         display: block;
                         max-height: 10rem;
-                        max-width: 10rem;
                       `}
                       src={organization.organization_image_url}
                     />

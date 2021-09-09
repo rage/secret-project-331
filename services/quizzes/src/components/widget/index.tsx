@@ -82,7 +82,7 @@ const Widget: React.FC<WidgetProps> = ({ port, initialState }) => {
     }
     const message = {
       message: "current-state",
-      data: { quiz_answer: state },
+      data: { data: state },
     }
     console.info("Sending current data", JSON.stringify(message))
     port.postMessage(message)

@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["_add_exercise_service_routes","Add a route for each controller in this module."],["add_exercise_service",""],["delete_exercise_service",""],["get_exercise_service_by_id",""],["get_exercise_services",""],["update_exercise_service",""]]});

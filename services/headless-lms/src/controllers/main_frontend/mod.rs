@@ -9,6 +9,7 @@ pub mod chapters;
 pub mod course_instances;
 pub mod courses;
 pub mod email_templates;
+pub mod exercise_services;
 pub mod exercises;
 pub mod feedback;
 pub mod organizations;
@@ -23,9 +24,10 @@ use crate::utils::file_store::FileStore;
 use self::{
     chapters::_add_chapters_routes, course_instances::_add_course_instances_routes,
     courses::_add_courses_routes, email_templates::_add_email_templates_routes,
-    exercises::_add_exercises_routes, feedback::_add_feedback_routes,
-    organizations::_add_organizations_routes, pages::_add_pages_routes,
-    playground_examples::_add_playground_examples_routes, submissions::_add_submissions_routes,
+    exercise_services::_add_exercise_service_routes, exercises::_add_exercises_routes,
+    feedback::_add_feedback_routes, organizations::_add_organizations_routes,
+    pages::_add_pages_routes, playground_examples::_add_playground_examples_routes,
+    submissions::_add_submissions_routes,
 };
 
 /// Add controllers from all the submodules.
@@ -39,5 +41,6 @@ pub fn add_main_frontend_routes<T: 'static + FileStore>(cfg: &mut ServiceConfig)
         .service(web::scope("/organizations").configure(_add_organizations_routes::<T>))
         .service(web::scope("/pages").configure(_add_pages_routes))
         .service(web::scope("/submissions").configure(_add_submissions_routes))
+        .service(web::scope("/exercise-services").configure(_add_exercise_service_routes))
         .service(web::scope("/playground_examples").configure(_add_playground_examples_routes));
 }

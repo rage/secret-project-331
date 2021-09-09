@@ -1,5 +1,5 @@
 import { css, cx } from "@emotion/css"
-import { faBullseye, faSearch } from "@fortawesome/free-solid-svg-icons"
+import { faBullseye } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useState } from "react"
 
@@ -144,7 +144,12 @@ const Hide = css`
   display: none;
 `
 
-const Navigation: React.FC<NavigationProps> = ({ frontPageUrl, faqUrl, returnToPath }) => {
+const Navigation: React.FC<NavigationProps> = ({
+  frontPageUrl,
+  faqUrl,
+  returnToPath,
+  children,
+}) => {
   const [clicked, setClicked] = useState(false)
 
   const onClickHandler = () => {
@@ -170,7 +175,7 @@ const Navigation: React.FC<NavigationProps> = ({ frontPageUrl, faqUrl, returnToP
               FAQ
             </a>
           )}
-          <FontAwesomeIcon className={cx(StyledIcon)} icon={faSearch} aria-label="Search page" />
+          {children}
           <ul className={clicked ? cx(ToolTip) : cx(Hide)}>
             <LoginControls returnToPath={returnToPath} />
           </ul>

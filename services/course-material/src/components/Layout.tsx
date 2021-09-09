@@ -1,13 +1,15 @@
 import { css } from "@emotion/css"
 import Head from "next/head"
 import { useRouter } from "next/router"
-import React, { ReactNode } from "react"
+import React, { ReactNode, useContext } from "react"
 
+import CoursePageContext from "../contexts/CoursePageContext"
 import Footer from "../shared-module/components/Footer"
 import Navbar from "../shared-module/components/Navigation"
 import basePath from "../shared-module/utils/base-path"
 
 import ScrollIndicator from "./ScrollIndicator"
+import SearchDialog from "./SearchDialog"
 
 type LayoutProps = {
   children: ReactNode
@@ -32,6 +34,9 @@ const Layout: React.FC<LayoutProps> = ({
   const returnPath = `/login?return_to=${encodeURIComponent(
     process.env.NEXT_PUBLIC_BASE_PATH + router.asPath,
   )}`
+  const pageContext = useContext(CoursePageContext)
+
+  const courseId = pageContext?.pageData?.course_id
   return (
     <>
       <Head>
@@ -56,7 +61,9 @@ const Layout: React.FC<LayoutProps> = ({
             variant={navVariant ?? "simple"}
             // Return to path can be override per page
             returnToPath={returnToPath ?? returnPath}
-          ></Navbar>
+          >
+            {courseId && <SearchDialog courseId={courseId} />}
+          </Navbar>
         </header>
         {/* Do not touch flex */}
         <div

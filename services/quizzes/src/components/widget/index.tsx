@@ -1,5 +1,6 @@
 import { useEffect, useReducer } from "react"
 
+import { useSendQuizAnswerOnChange } from "../../hooks/useSendQuizAnswerOnChange"
 import { PublicQuiz, PublicQuizItem, QuizAnswer, QuizItemAnswer } from "../../types/types"
 import HeightTrackingContainer from "../HeightTrackingComponent"
 
@@ -76,17 +77,7 @@ function reducer(state: State, action: Action): State {
 const Widget: React.FC<WidgetProps> = ({ port, initialState }) => {
   const [state, dispatch] = useReducer(reducer, initialState)
 
-  useEffect(() => {
-    if (!port) {
-      return
-    }
-    const message = {
-      message: "current-state",
-      data: { data: state },
-    }
-    console.info("Sending current data", JSON.stringify(message))
-    port.postMessage(message)
-  }, [port, state])
+  useSendQuizAnswerOnChange(port, state)
 
   return (
     <HeightTrackingContainer port={port}>

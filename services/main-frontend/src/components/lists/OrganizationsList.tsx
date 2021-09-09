@@ -88,13 +88,25 @@ const OrganizationsList: React.FC = () => {
                     }
                   `}
                 >
-                  {/* <img src={organization.organization_image_url} /> */}
-                  <UHNoBG
-                    className={css`
-                      margin: 0 auto;
-                      display: block;
-                    `}
-                  />
+                  {organization.organization_image_url ? (
+                    <img
+                      alt={organization.name}
+                      className={css`
+                        margin: 0 auto;
+                        display: block;
+                        max-height: 10rem;
+                        max-width: 10rem;
+                      `}
+                      src={organization.organization_image_url}
+                    />
+                  ) : (
+                    <UHNoBG
+                      className={css`
+                        margin: 0 auto;
+                        display: block;
+                      `}
+                    />
+                  )}
                 </div>
                 <div
                   className={css`

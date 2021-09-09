@@ -342,6 +342,29 @@ export interface GetFeedbackQuery {
   limit?: number
 }
 
+export interface PageProposal {
+  id: string
+  page_id: string
+  user_id: string | null
+  pending: boolean
+  created_at: Date
+  block_proposals: BlockProposal[]
+}
+
+export interface BlockProposal {
+  id: string
+  block_id: string
+  current_text: string
+  changed_text: string
+  status: ProposalStatus
+  accept_preview: string | null
+}
+
+export interface ProposalCount {
+  pending: number
+  handled: number
+}
+
 export type VariantStatus = "Draft" | "Upcoming" | "Active" | "Ended"
 
 export type ChapterStatus = "open" | "closed"
@@ -412,6 +435,8 @@ export interface Pagination {
   page?: number
   limit?: number
 }
+
+export type ProposalStatus = "Pending" | "Accepted" | "Rejected"
 
 export interface ExerciseTask {
   id: string

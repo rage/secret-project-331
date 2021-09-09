@@ -4,6 +4,7 @@
  */
 import {
   ActivityProgress,
+  BlockProposal,
   Chapter,
   ChapterStatus,
   ChapterUpdate,
@@ -45,6 +46,7 @@ import {
   Organization,
   Page,
   PageHistory,
+  PageProposal,
   PageRoutingDataWithChapterStatus,
   PageSearchRequest,
   PageSearchResult,
@@ -53,6 +55,8 @@ import {
   Pagination,
   PlaygroundExample,
   PlaygroundExampleData,
+  ProposalCount,
+  ProposalStatus,
   Submission,
   SubmissionCount,
   SubmissionCountByExercise,
@@ -558,6 +562,39 @@ export function isGetFeedbackQuery(obj: any, _argumentName?: string): obj is Get
   )
 }
 
+export function isPageProposal(obj: any, _argumentName?: string): obj is PageProposal {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.page_id === "string" &&
+    (obj.user_id === null || typeof obj.user_id === "string") &&
+    typeof obj.pending === "boolean" &&
+    obj.created_at instanceof Date &&
+    Array.isArray(obj.block_proposals) &&
+    obj.block_proposals.every((e: any) => isBlockProposal(e) as boolean)
+  )
+}
+
+export function isBlockProposal(obj: any, _argumentName?: string): obj is BlockProposal {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.block_id === "string" &&
+    typeof obj.current_text === "string" &&
+    typeof obj.changed_text === "string" &&
+    (isProposalStatus(obj.status) as boolean) &&
+    (obj.accept_preview === null || typeof obj.accept_preview === "string")
+  )
+}
+
+export function isProposalCount(obj: any, _argumentName?: string): obj is ProposalCount {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.pending === "number" &&
+    typeof obj.handled === "number"
+  )
+}
+
 export function isVariantStatus(obj: any, _argumentName?: string): obj is VariantStatus {
   return obj === "Draft" || obj === "Upcoming" || obj === "Active" || obj === "Ended"
 }
@@ -669,6 +706,10 @@ export function isPagination(obj: any, _argumentName?: string): obj is Paginatio
     (typeof obj.page === "undefined" || typeof obj.page === "number") &&
     (typeof obj.limit === "undefined" || typeof obj.limit === "number")
   )
+}
+
+export function isProposalStatus(obj: any, _argumentName?: string): obj is ProposalStatus {
+  return obj === "Pending" || obj === "Accepted" || obj === "Rejected"
 }
 
 export function isExerciseTask(obj: any, _argumentName?: string): obj is ExerciseTask {

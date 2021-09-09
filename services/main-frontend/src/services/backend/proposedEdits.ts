@@ -1,35 +1,19 @@
-import { Feedback, FeedbackCount, GetFeedbackQuery } from "../../shared-module/bindings"
+import { PageProposal, ProposalCount } from "../../shared-module/bindings"
 import { mainFrontendClient } from "../mainFrontendClient"
 
 export const fetchEditProposals = async (
   courseId: string,
-  read: boolean,
   page?: number,
   limit?: number,
-): Promise<Feedback[]> => {
-  const params: GetFeedbackQuery = { read }
-  params.page = page
-  params.limit = limit
-  console.log(page)
-  console.log(limit)
-
-  const response = await mainFrontendClient.get(`/courses/${courseId}/feedback`, {
-    params,
+): Promise<PageProposal[]> => {
+  const response = await mainFrontendClient.get(`/courses/${courseId}/edit-proposals`, {
+    params: { page, limit },
     responseType: "json",
   })
   return response.data
 }
 
-export const fetchEditProposalCount = async (courseId: string): Promise<FeedbackCount> => {
-  const response = await mainFrontendClient.get(`/courses/${courseId}/feedback-count`)
+export const fetchEditProposalCount = async (courseId: string): Promise<ProposalCount> => {
+  const response = await mainFrontendClient.get(`/courses/${courseId}/edit-proposal-count`)
   return response.data
-}
-
-export const markAsRead = async (feedbackId: string, read: boolean): Promise<void> => {
-  const data = {
-    read: read,
-  }
-  await mainFrontendClient.post(`/feedback/${feedbackId}`, data, {
-    headers: { "Content-Type": "application/json" },
-  })
 }

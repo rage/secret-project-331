@@ -29,23 +29,23 @@ const FeedbackPage: React.FC<FeedbackProps> = ({ query }) => {
   } else if (router.query.view === "fix") {
     initialView = "fix"
   } else {
-    router.replace({ query: { ...router.query, view: "feedback" } }, undefined, {
+    router.replace({ query: { ...router.query, view: "fix" } }, undefined, {
       shallow: true,
     })
-    initialView = "feedback"
+    initialView = "fix"
   }
 
-  let initialRead: boolean
-  if (router.query.read) {
-    initialRead = router.query.read === "true"
+  let initialPending: boolean
+  if (router.query.pending) {
+    initialPending = router.query.pending === "true"
   } else {
-    router.replace({ query: { ...router.query, read: false } }, undefined, {
+    router.replace({ query: { ...router.query, pending: true } }, undefined, {
       shallow: true,
     })
-    initialRead = false
+    initialPending = true
   }
   const [view, setView] = useState<"feedback" | "fix">(initialView)
-  const [read, setRead] = useState(initialRead)
+  const [pending, setPending] = useState(initialPending)
 
   return (
     <Layout frontPageUrl={basePath()} navVariant={"complex"}>
@@ -65,20 +65,20 @@ const FeedbackPage: React.FC<FeedbackProps> = ({ query }) => {
             <Tab label="Written feedback" value={"feedback"} />
           </Tabs>
           <Tabs
-            value={read}
+            value={pending}
             onChange={(_, value) => {
-              router.replace({ query: { ...router.query, read: value } }, undefined, {
+              router.replace({ query: { ...router.query, pending: value } }, undefined, {
                 shallow: true,
               })
-              setRead(value)
+              setPending(value)
             }}
           >
-            <Tab label="Unread" value={false} />
-            <Tab label="Read" value={true} />
+            <Tab label="Pending" value={true} />
+            <Tab label="Old" value={false} />
           </Tabs>
         </Paper>
-        {view === "feedback" && <FeedbackList courseId={courseId} read={read} perPage={1} />}
-        {view === "fix" && <EditProposalList courseId={courseId} read={read} perPage={1} />}
+        {view === "feedback" && <FeedbackList courseId={courseId} pending={pending} perPage={1} />}
+        {view === "fix" && <EditProposalList courseId={courseId} pending={pending} perPage={1} />}
       </div>
     </Layout>
   )

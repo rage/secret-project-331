@@ -28,6 +28,8 @@ use crate::{
             PageSearchResult, PageUpdate, PageWithExercises,
         },
         playground_examples::{PlaygroundExample, PlaygroundExampleData},
+        proposed_block_edits::{BlockProposal, ProposalStatus},
+        proposed_page_edits::{PageProposal, ProposalCount},
         submissions::{
             NewSubmission, Submission, SubmissionCount, SubmissionCountByExercise,
             SubmissionCountByWeekAndHour, SubmissionInfo, SubmissionResult,
@@ -81,6 +83,9 @@ ts_rs::export! {
   FeedbackBlock,
   FeedbackCount,
   GetFeedbackQuery,
+  PageProposal,
+  BlockProposal,
+  ProposalCount,
   // dependencies
   VariantStatus,
   ChapterStatus,
@@ -93,6 +98,7 @@ ts_rs::export! {
   GradingProgress,
   UserPointsUpdateStrategy,
   Pagination,
+  ProposalStatus,
   // returned from the API as serde_json::Value
   ExerciseTask,
   ExerciseWithExerciseTasks,

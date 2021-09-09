@@ -820,6 +820,29 @@
       "nullable": [false]
     }
   },
+  "1aafb5cc9aca5edc7cbe9d5018abd31d4bc7c3ff89448f1231a07de3072c3011": {
+    "query": "\nSELECT status AS \"status: ProposalStatus\"\nFROM proposed_block_edits\nWHERE proposal_id = $1\nAND deleted_at IS NULL\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "status: ProposalStatus",
+          "type_info": {
+            "Custom": {
+              "name": "proposal_status",
+              "kind": {
+                "Enum": ["pending", "accepted", "rejected"]
+              }
+            }
+          }
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false]
+    }
+  },
   "1cabcb883f5fbf43f12a8ce0e79f7137d51f29388fdc3f4993575f7bf8298070": {
     "query": "\nUPDATE gradings\n  SET\n    grading_progress = $2,\n    unscaled_score_given = $3,\n    unscaled_score_maximum = $4,\n    feedback_text = $5,\n    feedback_json = $6,\n    grading_completed_at = $7,\n    score_given = $8\nWHERE id = $1\nRETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_task_id, grading_priority, score_given, grading_progress as \"grading_progress: _\", user_points_update_strategy as \"user_points_update_strategy: _\", unscaled_score_given, unscaled_score_maximum, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted_at\n        ",
     "describe": {
@@ -2495,67 +2518,14 @@
       "nullable": [false, false, false, false, true, false, true, false, false, false, false, true]
     }
   },
-  "5d06c4923da2d149218c65dd2236f675f1e950d035e697cadf0cb1ef4b1eb656": {
-    "query": "\nSELECT proposed_page_edits.id AS page_proposal_id,\nproposed_block_edits.id AS block_proposal_id,\npage_id,\nuser_id,\nblock_id,\noriginal_text,\nchanged_text,\nstatus as \"status: ProposalStatus\",\nproposed_page_edits.created_at\nFROM proposed_page_edits\nJOIN proposed_block_edits ON proposed_page_edits.id = proposed_block_edits.proposal_id\nWHERE course_id = $1\nAND proposed_page_edits.deleted_at IS NULL\nAND proposed_block_edits.deleted_at IS NULL\nORDER BY proposed_page_edits.created_at DESC, proposed_block_edits.id\nLIMIT $2\nOFFSET $3\n",
+  "5bf296199f464130717be2910f6d241261334a31a65e9a6911d6e795d1435d8f": {
+    "query": "\nUPDATE proposed_page_edits\nSET pending = $1\nWHERE id = $2\n",
     "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "page_proposal_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "block_proposal_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 2,
-          "name": "page_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 3,
-          "name": "user_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 4,
-          "name": "block_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "original_text",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 6,
-          "name": "changed_text",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 7,
-          "name": "status: ProposalStatus",
-          "type_info": {
-            "Custom": {
-              "name": "proposal_status",
-              "kind": {
-                "Enum": ["pending", "accepted", "rejected"]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 8,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        }
-      ],
+      "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Int8", "Int8"]
+        "Left": ["Bool", "Uuid"]
       },
-      "nullable": [false, false, false, true, false, false, false, false, false]
+      "nullable": []
     }
   },
   "5e92276cd35f5b56591706b2e6b9e5229aba70df37b21a2654298bf9a0caf783": {
@@ -3270,6 +3240,74 @@
       "nullable": [false, false]
     }
   },
+  "80fadd6dc0106a63a201ce3ac7edfb7cc7ef8095d58013238ac8167b309ec96a": {
+    "query": "\nSELECT proposed_page_edits.id AS page_proposal_id,\n  proposed_block_edits.id AS block_proposal_id,\n  page_id,\n  user_id,\n  block_id,\n  original_text,\n  changed_text,\n  proposed_page_edits.pending,\n  proposed_block_edits.status as \"block_proposal_status: ProposalStatus\",\n  proposed_page_edits.created_at\nFROM (\n    SELECT id,\n      page_id,\n      user_id,\n      pending,\n      created_at\n    FROM proposed_page_edits\n    WHERE course_id = $1\n      AND deleted_at IS NULL\n    LIMIT $2 OFFSET $3\n  ) proposed_page_edits\n  LEFT JOIN proposed_block_edits ON proposed_page_edits.id = proposed_block_edits.proposal_id\nWHERE proposed_block_edits.deleted_at IS NULL\nORDER BY created_at DESC,\n  proposed_page_edits.id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "page_proposal_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "block_proposal_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "page_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 3,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "block_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "original_text",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 6,
+          "name": "changed_text",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 7,
+          "name": "pending",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 8,
+          "name": "block_proposal_status: ProposalStatus",
+          "type_info": {
+            "Custom": {
+              "name": "proposal_status",
+              "kind": {
+                "Enum": ["pending", "accepted", "rejected"]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 9,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Int8", "Int8"]
+      },
+      "nullable": [false, false, false, true, false, false, false, false, false, false]
+    }
+  },
   "8355f2e2500598d1b6fb129f1c7876b2415df0f4235a164a98b0414f8445c84b": {
     "query": "\nSELECT id,\n  regrading_started_at,\n  regrading_completed_at,\n  total_grading_progress AS \"total_grading_progress: _\"\nFROM regradings\nWHERE id = $1\n",
     "describe": {
@@ -3879,32 +3917,6 @@
         ]
       },
       "nullable": [false, false, false, false, false, true, false, null, false, true, true]
-    }
-  },
-  "93cacdb5cfbe9bc77c2665b63cdcf803984844d073336b9c78b21d28da761c12": {
-    "query": "\nSELECT COUNT(*) filter (\n  where status = 'pending'\n) AS pending,\nCOUNT(*) filter (\n  where status = 'accepted'\n) AS accepted,\nCOUNT(*) filter (\n  where status = 'rejected'\n) AS rejected\nFROM proposed_page_edits\nJOIN proposed_block_edits ON proposed_page_edits.id = proposed_block_edits.proposal_id\nWHERE proposed_page_edits.course_id = $1\nAND proposed_page_edits.deleted_at IS NULL\nAND proposed_block_edits.deleted_at IS NULL\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "pending",
-          "type_info": "Int8"
-        },
-        {
-          "ordinal": 1,
-          "name": "accepted",
-          "type_info": "Int8"
-        },
-        {
-          "ordinal": 2,
-          "name": "rejected",
-          "type_info": "Int8"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [null, null, null]
     }
   },
   "94ded885c93e670d138c1774ec664d7d08779da4e61afa196858e3fb71864f47": {
@@ -4939,6 +4951,27 @@
         "Left": ["Varchar"]
       },
       "nullable": [false]
+    }
+  },
+  "c00028f92949b3e8d712a87d620c60b033e48b43583ed796d2e73d219df2931b": {
+    "query": "\nSELECT COUNT(*) filter (\n  where proposed_page_edits.pending = true\n) AS pending,\nCOUNT(*) filter (\n  where proposed_page_edits.pending = false\n) AS handled\nFROM proposed_page_edits\nWHERE proposed_page_edits.course_id = $1\nAND proposed_page_edits.deleted_at IS NULL\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "pending",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 1,
+          "name": "handled",
+          "type_info": "Int8"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [null, null]
     }
   },
   "c2342a617190439d369a3ae3764d9941e40a7dd6f428fe5b49cd50fa33af471d": {

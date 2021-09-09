@@ -5,6 +5,7 @@ CREATE TABLE proposed_page_edits (
   course_id UUID NOT NULL REFERENCES courses,
   page_id UUID NOT NULL REFERENCES pages,
   user_id UUID REFERENCES users,
+  pending BOOLEAN NOT NULL DEFAULT TRUE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   deleted_at TIMESTAMPTZ

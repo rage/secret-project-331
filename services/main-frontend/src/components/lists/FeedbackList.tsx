@@ -8,11 +8,11 @@ import FeedbackPage from "../FeedbackPage"
 
 interface Props {
   courseId: string
-  read: boolean
+  pending: boolean
   perPage: number
 }
 
-const FeedbackList: React.FC<Props> = ({ courseId, read, perPage }) => {
+const FeedbackList: React.FC<Props> = ({ courseId, pending, perPage }) => {
   const router = useRouter()
 
   let initialPage: number
@@ -39,7 +39,7 @@ const FeedbackList: React.FC<Props> = ({ courseId, read, perPage }) => {
   if (isLoading || !data) {
     return <div>Loading feedback...</div>
   }
-  const pageCount = Math.floor((read ? data.read : data.unread) / perPage)
+  const pageCount = Math.floor((pending ? data.unread : data.read) / perPage)
   if (pageCount < 1) {
     return <div>No feedback</div>
   }
@@ -52,7 +52,7 @@ const FeedbackList: React.FC<Props> = ({ courseId, read, perPage }) => {
       <FeedbackPage
         courseId={courseId}
         page={page}
-        read={read}
+        read={!pending}
         limit={perPage}
         onChange={refetch}
       />

@@ -18,34 +18,38 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState("")
   const uncheckedReturnTo = useQueryParameter("return_to")
 
-  async function submitForm(event) {
-    event.preventDefault()
-    try {
-      await login(email, password).then((result) => {
-        console.log(result)
-      })
-    } catch (e) {
-      console.log("failed to login: ", e)
-      if (e.response.status === 401) {
-        setNotification("Incorrect email or password")
-      } else {
-        setNotification("Failed to authenticate")
-      }
-      setTimeout(() => {
-        setNotification(null)
-      }, 3000)
-      return null
-    }
-
-    await loginStateContext.refresh()
-    const returnTo = validateRouteOrDefault(uncheckedReturnTo, "/")
-    router.push(returnTo)
-  }
-
   return (
     <Layout frontPageUrl={basePath()} navVariant="simple">
       <div className={wideWidthCenteredComponentStyles}>
-        <form onSubmit={submitForm}>
+        <form
+          onSubmit={async (event) => {
+            event.preventDefault()
+            try {
+              await login(email, password).then((result) => {
+                console.log(result)
+              })
+            } catch (e) {
+              if (!(e instanceof Error)) {
+                throw e
+              }
+              console.log("failed to login: ", e)
+              // @ts-ignore: null checked
+              if (e?.response?.status === 401) {
+                setNotification("Incorrect email or password")
+              } else {
+                setNotification("Failed to authenticate")
+              }
+              setTimeout(() => {
+                setNotification(null)
+              }, 3000)
+              return null
+            }
+
+            await loginStateContext.refresh()
+            const returnTo = validateRouteOrDefault(uncheckedReturnTo, "/")
+            router.push(returnTo)
+          }}
+        >
           <h1>Log in</h1>
           <p>Email</p>
           <input

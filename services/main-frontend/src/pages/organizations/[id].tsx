@@ -12,16 +12,20 @@ import { NewCourse } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
 import DebugModal from "../../shared-module/components/DebugModal"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
-import useQueryParameter from "../../shared-module/hooks/useQueryParameter"
 import { wideWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import basePath from "../../shared-module/utils/base-path"
-import dontRenderUntilQueryParametersReady from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import dontRenderUntilQueryParametersReady, {
+  SimplifiedUrlQuery,
+} from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
-const Organization: React.FC<unknown> = () => {
-  const id = useQueryParameter("id")
-  const { isLoading, error, data, refetch } = useQuery(`organization-courses`, () =>
-    fetchOrganizationCourses(id),
+interface OrganizationPageProps {
+  query: SimplifiedUrlQuery<"id">
+}
+
+const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
+  const { isLoading, error, data, refetch } = useQuery(`organization-${query.id}-courses`, () =>
+    fetchOrganizationCourses(query.id),
   )
   const loginStateContext = useContext(LoginStateContext)
 
@@ -100,7 +104,7 @@ const Organization: React.FC<unknown> = () => {
               >
                 Close
               </Button>
-              <NewCourseForm organizationId={id} onSubmitForm={handleSubmitNewCourse} />
+              <NewCourseForm organizationId={query.id} onSubmitForm={handleSubmitNewCourse} />
             </div>
           </Dialog>
         </div>

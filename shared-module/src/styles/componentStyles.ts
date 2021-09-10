@@ -7,13 +7,21 @@ import { defaultContainerWidth, wideContainerWidth } from "./constants"
 // of the page.
 export const normalWidthCenteredComponentStyles = css`
   width: 100%;
-  max-width: ${defaultContainerWidth}px;
+  max-width: ${defaultContainerWidth}rem;
   margin-left: auto;
   margin-right: auto;
 `
 
+export const courseMaterialCenteredComponentStyles = css`
+  width: 100%;
+  max-width: ${defaultContainerWidth}rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 1.25em 2.375em;
+`
+
 export const wideWidthCenteredComponentStyles = css`
-  max-width: ${wideContainerWidth}px;
+  max-width: ${wideContainerWidth}rem;
   margin-left: auto;
   margin-right: auto;
 `

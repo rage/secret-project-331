@@ -5,8 +5,6 @@ import { baseTheme } from "../styles"
 
 import Button from "./Button"
 
-/* import { border, color, space } from "styled-system" */
-
 const HeroWrapper = styled.div`
   background: ${baseTheme.colors.neutral[100]};
   width: 100%;

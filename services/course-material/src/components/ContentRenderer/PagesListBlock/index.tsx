@@ -2,7 +2,7 @@ import React, { useContext } from "react"
 
 import { BlockRendererProps } from ".."
 import CoursePageContext from "../../../contexts/CoursePageContext"
-import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
+import { courseMaterialCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import GenericLoading from "../../GenericLoading"
 
@@ -22,7 +22,7 @@ const PagesListBlock: React.FC<BlockRendererProps<unknown>> = () => {
   }
 
   return (
-    <div className={normalWidthCenteredComponentStyles}>
+    <div className={courseMaterialCenteredComponentStyles}>
       <PagesInChapter chapterId={chapterId} />
     </div>
   )

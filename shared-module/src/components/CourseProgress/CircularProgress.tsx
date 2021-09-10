@@ -59,7 +59,7 @@ const CircularProgress: React.FC<CourseProgressExtraProps> = ({ point = 10, labe
   })
   return (
     <>
-      <h1>{label}</h1>
+      <h2>{label}</h2>
       <StyledSVG>
         <svg xmlns="http://www.w3.org/2000/svg" width="497" height="497" viewBox="0 0 497 497">
           <g id="Group_11" transform="translate(-712 -7629)">

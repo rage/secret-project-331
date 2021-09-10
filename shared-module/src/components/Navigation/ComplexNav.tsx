@@ -1,6 +1,6 @@
 import { css, cx, keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faBullseye, faSearch } from "@fortawesome/free-solid-svg-icons"
+import { faBullseye } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React, { useState } from "react"
 
@@ -253,15 +253,9 @@ const Navigation: React.FC<NavigationProps> = ({ returnToPath }) => {
               Translate
             </Button>
           </li>
-          <li className={cx(navLinks, hide)}>
-            <StyledIcon icon={faSearch} aria-label="Search page" />
-          </li>
         </ol>
 
         <div className={cx(secondaryLink)}>
-          <div className={cx(secondaryLink)}>
-            <StyledIcon icon={faSearch} aria-label="Search page" />
-          </div>
           <LoginControls styles={[secondaryLink]} returnToPath={returnToPath} />
           <div>
             <Button variant="primary" size="medium">

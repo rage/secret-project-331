@@ -82,7 +82,6 @@ export interface CourseInstanceEnrollment {
   user_id: string
   course_id: string
   course_instance_id: string
-  current: boolean
   created_at: Date
   updated_at: Date
   deleted_at: Date | null
@@ -166,8 +165,8 @@ export interface Course {
   deleted_at: Date | null
   language_code: string
   copied_from: string | null
-  language_version_of_course_id: string | null
   content_search_language: string | null
+  course_language_group_id: string
 }
 
 export interface Exercise {
@@ -475,6 +474,16 @@ export interface NormalizedCmsExerciseTask {
   private_spec: unknown | null
 }
 
+export interface UserCourseSettings {
+  user_id: string
+  course_language_group_id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  current_course_id: string
+  current_course_instance_id: string
+}
+
 export interface PlaygroundExample {
   id: string
   created_at: Date
@@ -491,4 +500,10 @@ export interface PlaygroundExampleData {
   url: string
   width: number
   data: unknown
+}
+
+export interface CoursePageWithUserData {
+  page: Page
+  instance: CourseInstance | null
+  settings: UserCourseSettings | null
 }

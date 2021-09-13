@@ -62,21 +62,23 @@ async fn add_user_enrollment(
     user: AuthUser,
 ) -> ControllerResult<Json<CourseInstanceEnrollment>> {
     let mut conn = pool.acquire().await?;
+
     let instance = crate::models::course_instances::get_course_instance(
         &mut conn,
         *request_course_instance_id,
     )
     .await?;
-    let enrollment = crate::models::course_instance_enrollments::insert_enrollment(
-        &mut conn,
-        NewCourseInstanceEnrollment {
-            course_id: instance.course_id,
-            course_instance_id: instance.id,
-            current: true,
-            user_id: user.id,
-        },
-    )
-    .await?;
+    let enrollment =
+        crate::models::course_instance_enrollments::insert_enrollment_and_set_as_current(
+            &mut conn,
+            NewCourseInstanceEnrollment {
+                course_id: instance.course_id,
+                course_instance_id: instance.id,
+                user_id: user.id,
+            },
+        )
+        .await?;
+
     Ok(Json(enrollment))
 }
 

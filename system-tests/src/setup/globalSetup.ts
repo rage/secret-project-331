@@ -9,6 +9,7 @@ async function globalSetup(): Promise<void> {
   const page = await browser.newPage()
   await login("admin@example.com", "admin", page)
   await login("teacher@example.com", "teacher", page)
+  await login("language.teacher@example.com", "language.teacher", page)
   await login("user@example.com", "user", page)
   await login("assistant@example.com", "assistant", page)
 }

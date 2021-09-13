@@ -6,7 +6,10 @@ use std::env;
 use tokio::sync::Mutex;
 use uuid::Uuid;
 
-use crate::{models, setup_tracing};
+use crate::{
+    models::{self, course_language_groups},
+    setup_tracing,
+};
 
 // tried storing PgPool here but that caused strange errors
 static DB_URL: Mutex<Option<String>> = Mutex::const_new(None);
@@ -76,6 +79,7 @@ pub struct Data {
     pub user: Uuid,
     pub org: Uuid,
     pub course: Uuid,
+    pub course_language_group: Uuid,
     pub instance: Uuid,
     pub chapter: Uuid,
     pub page: Uuid,
@@ -104,7 +108,13 @@ pub async fn insert_data(conn: &mut PgConnection, exercise_type: &str) -> Result
         Uuid::parse_str("8c34e601-b5db-4b33-a588-57cb6a5b1669")?,
     )
     .await?;
-    let course = models::courses::insert(&mut *conn, "", org, &random_string, "en-US").await?;
+    let clg_id = course_language_groups::insert_with_id(
+        &mut *conn,
+        Uuid::parse_str("281384b3-bbc9-4da5-b93e-4c122784a724").unwrap(),
+    )
+    .await?;
+    let course =
+        models::courses::insert(&mut *conn, "", org, clg_id, &random_string, "en-US").await?;
     let instance = models::course_instances::insert(&mut *conn, course, None, None).await?;
     let chapter = models::chapters::insert(&mut *conn, "", course, 1).await?;
     let (page, page_history) = models::pages::insert(&mut *conn, course, "", "", 0, user).await?;
@@ -122,6 +132,7 @@ pub async fn insert_data(conn: &mut PgConnection, exercise_type: &str) -> Result
     Ok(Data {
         chapter,
         course,
+        course_language_group: clg_id,
         exercise,
         instance: instance.id,
         org,

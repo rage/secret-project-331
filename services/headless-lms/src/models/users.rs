@@ -118,6 +118,13 @@ pub async fn authenticate_test_user(
                 .map_err(|o| ModelError::Generic(o.to_string()))?,
         )
         .await?
+    } else if email == "language.teacher@example.com" && password == "language.teacher" {
+        crate::models::users::get_by_id(
+            conn,
+            Uuid::parse_str("0fd8bd2d-cb4e-4035-b7db-89e798fe4df0")
+                .map_err(|o| ModelError::Generic(o.to_string()))?,
+        )
+        .await?
     } else if email == "user@example.com" && password == "user" {
         crate::models::users::get_by_id(
             conn,

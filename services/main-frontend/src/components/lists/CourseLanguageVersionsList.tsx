@@ -2,15 +2,17 @@ import Link from "next/link"
 import React from "react"
 import { useQuery } from "react-query"
 
-import { fetchCourseTranslations } from "../../services/backend/courses"
+import { fetchCourseLanguageVersions } from "../../services/backend/courses"
+
+export const formatQueryKey = (courseId: string): string => `course-${courseId}-language-versions`
 
 export interface CourseTranslationsListProps {
   courseId: string
 }
 
-const CourseTranslationsList: React.FC<CourseTranslationsListProps> = ({ courseId }) => {
-  const { isLoading, error, data } = useQuery(`course-${courseId}-translations`, () =>
-    fetchCourseTranslations(courseId),
+const CourseLanguageVersionsList: React.FC<CourseTranslationsListProps> = ({ courseId }) => {
+  const { isLoading, error, data } = useQuery(formatQueryKey(courseId), () =>
+    fetchCourseLanguageVersions(courseId),
   )
 
   if (error) {
@@ -40,4 +42,4 @@ const CourseTranslationsList: React.FC<CourseTranslationsListProps> = ({ courseI
   )
 }
 
-export default CourseTranslationsList
+export default CourseLanguageVersionsList

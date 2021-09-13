@@ -6,6 +6,7 @@ Each submodule corresponds to a database table.
 pub mod chapters;
 pub mod course_instance_enrollments;
 pub mod course_instances;
+pub mod course_language_groups;
 pub mod courses;
 pub mod email_deliveries;
 pub mod email_templates;
@@ -24,6 +25,7 @@ pub mod regrading_submissions;
 pub mod regradings;
 pub mod roles;
 pub mod submissions;
+pub mod user_course_settings;
 pub mod user_exercise_states;
 pub mod users;
 

@@ -7,6 +7,7 @@ export const defaultCoursePageState: CoursePageState = {
   error: null,
   instance: null,
   pageData: null,
+  settings: null,
 }
 
 const CoursePageContext = React.createContext<CoursePageState>(defaultCoursePageState)

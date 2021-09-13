@@ -3,6 +3,7 @@ import {
   Course,
   CourseInstance,
   CourseMaterialExercise,
+  CoursePageWithUserData,
   NewFeedback,
   NewSubmission,
   Page,
@@ -11,10 +12,16 @@ import {
   PageSearchResult,
   PageWithExercises,
   SubmissionResult,
+  UserCourseSettings,
   UserProgress,
 } from "../shared-module/bindings"
 
 import { courseMaterialClient } from "./courseMaterialClient"
+
+export const fetchCourseById = async (courseId: string): Promise<Course> => {
+  const response = await courseMaterialClient.get(`/courses/${courseId}`, { responseType: "json" })
+  return response.data
+}
 
 export const fetchCourses = async (): Promise<Array<Course>> => {
   const data = (await courseMaterialClient.get("/courses", { responseType: "json" })).data
@@ -38,7 +45,10 @@ export interface Block<T> {
   innerBlocks: Block<unknown>[]
 }
 
-export const fetchCoursePageByPath = async (courseSlug: string, path: string): Promise<Page> => {
+export const fetchCoursePageByPath = async (
+  courseSlug: string,
+  path: string,
+): Promise<CoursePageWithUserData> => {
   const data = (
     await courseMaterialClient.get(`/courses/${courseSlug}/page-by-path${path}`, {
       responseType: "json",
@@ -119,6 +129,13 @@ export const fetchChaptersPagesExcludeFrontpage = async (chapterId: string): Pro
 
 export const fetchChaptersInTheCourse = async (courseId: string): Promise<ChapterWithStatus[]> => {
   return (await courseMaterialClient.get(`/courses/${courseId}/chapters`)).data
+}
+
+export const fetchUserCourseSettings = async (
+  courseId: string,
+): Promise<UserCourseSettings | null> => {
+  const response = await courseMaterialClient.get(`/courses/${courseId}/user-settings`)
+  return response.data
 }
 
 export const fetchPageUrl = async (pageId: string): Promise<string> => {

@@ -244,6 +244,33 @@ OFFSET $3;
     Ok(submissions)
 }
 
+pub async fn get_user_exercise_submissions(
+    conn: &mut PgConnection,
+    user_id: &Uuid,
+    exercise_id: &Uuid,
+    pagination: &Pagination,
+) -> ModelResult<Vec<Submission>> {
+    let submissions = sqlx::query_as!(
+        Submission,
+        r#"
+SELECT *
+FROM submissions
+WHERE exercise_id = $1
+  AND user_id = $2
+  AND deleted_at IS NULL
+LIMIT $3
+OFFSET $4;
+        "#,
+        exercise_id,
+        user_id,
+        pagination.limit(),
+        pagination.offset(),
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(submissions)
+}
+
 pub async fn insert_submission(
     conn: &mut PgConnection,
     new_submission: NewSubmission,

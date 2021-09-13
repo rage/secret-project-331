@@ -4,6 +4,7 @@ use super::{course_instances::CourseInstance, ModelResult};
 use crate::{
     models::{
         course_instances::{self, VariantStatus},
+        course_language_groups,
         pages::NewPage,
         ModelError,
     },
@@ -33,8 +34,8 @@ pub struct Course {
     pub deleted_at: Option<DateTime<Utc>>,
     pub language_code: String,
     pub copied_from: Option<Uuid>,
-    pub language_version_of_course_id: Option<Uuid>,
     pub content_search_language: Option<String>,
+    pub course_language_group_id: Uuid,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -48,19 +49,21 @@ pub async fn insert(
     conn: &mut PgConnection,
     name: &str,
     organization_id: Uuid,
+    course_language_group_id: Uuid,
     slug: &str,
     language_code: &str,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO courses (name, organization_id, slug, language_code)
-VALUES ($1, $2, $3, $4)
+INSERT INTO courses (name, organization_id, slug, language_code, course_language_group_id)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING id
 ",
         name,
         organization_id,
         slug,
         language_code,
+        course_language_group_id,
     )
     .fetch_one(conn)
     .await?;
@@ -81,7 +84,7 @@ SELECT id,
   content_search_language::text,
   language_code,
   copied_from,
-  language_version_of_course_id
+  course_language_group_id
 FROM courses
 WHERE deleted_at IS NULL;
 "#
@@ -95,7 +98,6 @@ pub async fn get_all_language_versions_of_course(
     conn: &mut PgConnection,
     course: Course,
 ) -> ModelResult<Vec<Course>> {
-    let parent_id = course.language_version_of_course_id.unwrap_or(course.id);
     let courses = sqlx::query_as!(
         Course,
         "
@@ -109,12 +111,11 @@ SELECT id,
   content_search_language::text,
   language_code,
   copied_from,
-  language_version_of_course_id
+  course_language_group_id
 FROM courses
-WHERE id = $1
-  OR language_version_of_course_id = $1;
+WHERE course_language_group_id = $1;
         ",
-        parent_id
+        course.course_language_group_id,
     )
     .fetch_all(conn)
     .await?;
@@ -127,7 +128,7 @@ pub async fn copy_course(
     new_course: NewCourse,
 ) -> ModelResult<Course> {
     let course = get_course(conn, course_id).await?;
-    clone_course_with_language_parent_id(conn, course, new_course, None).await
+    copy_course_internal(conn, course, new_course, false).await
 }
 
 pub async fn copy_course_as_language_version_of_course(
@@ -136,23 +137,22 @@ pub async fn copy_course_as_language_version_of_course(
     new_course: NewCourse,
 ) -> ModelResult<Course> {
     let course = get_course(conn, course_id).await?;
-    let language_version_of_course_id = course.language_version_of_course_id.unwrap_or(course.id);
-    clone_course_with_language_parent_id(
-        conn,
-        course,
-        new_course,
-        Some(language_version_of_course_id),
-    )
-    .await
+    copy_course_internal(conn, course, new_course, true).await
 }
 
-async fn clone_course_with_language_parent_id(
+async fn copy_course_internal(
     conn: &mut PgConnection,
     parent_course: Course,
     new_course: NewCourse,
-    language_version_of_course_id: Option<Uuid>,
+    same_language_group: bool,
 ) -> ModelResult<Course> {
     let mut tx = conn.begin().await?;
+
+    let course_language_group_id = if same_language_group {
+        parent_course.course_language_group_id
+    } else {
+        course_language_groups::insert(&mut tx).await?
+    };
 
     // Create new course.
     let copied_course = sqlx::query_as!(
@@ -165,7 +165,7 @@ INSERT INTO courses (
     content_search_language,
     language_code,
     copied_from,
-    language_version_of_course_id
+    course_language_group_id
   )
 VALUES ($1, $2, $3, $4::regconfig, $5, $6, $7)
 RETURNING id,
@@ -178,7 +178,7 @@ RETURNING id,
   content_search_language::text,
   language_code,
   copied_from,
-  language_version_of_course_id;
+  course_language_group_id;
     ",
         new_course.name,
         new_course.organization_id,
@@ -186,7 +186,7 @@ RETURNING id,
         parent_course.content_search_language as _,
         new_course.language_code,
         parent_course.id,
-        language_version_of_course_id,
+        course_language_group_id,
     )
     .fetch_one(&mut tx)
     .await?;
@@ -405,7 +405,7 @@ SELECT id,
   content_search_language::text,
   language_code,
   copied_from,
-  language_version_of_course_id
+  course_language_group_id
 FROM courses
 WHERE id = $1;
     "#,
@@ -461,7 +461,7 @@ SELECT id,
   content_search_language::text,
   language_code,
   copied_from,
-  language_version_of_course_id
+  course_language_group_id
 FROM courses
 WHERE organization_id = $1
   AND deleted_at IS NULL;
@@ -490,11 +490,12 @@ pub async fn insert_course(
 ) -> ModelResult<(Course, Page, CourseInstance)> {
     let mut tx = conn.begin().await?;
 
+    let course_language_group_id = course_language_groups::insert(&mut tx).await?;
     let course = sqlx::query_as!(
         Course,
         r#"
-INSERT INTO courses(id, name, slug, organization_id, language_code)
-VALUES($1, $2, $3, $4, $5)
+INSERT INTO courses(id, name, slug, organization_id, language_code, course_language_group_id)
+VALUES($1, $2, $3, $4, $5, $6)
 RETURNING id,
   name,
   created_at,
@@ -505,13 +506,14 @@ RETURNING id,
   content_search_language::text,
   language_code,
   copied_from,
-  language_version_of_course_id;
+  course_language_group_id;
             "#,
         id,
         course.name,
         course.slug,
         course.organization_id,
         course.language_code,
+        course_language_group_id
     )
     .fetch_one(&mut tx)
     .await?;
@@ -573,7 +575,7 @@ RETURNING id,
   content_search_language::text,
   language_code,
   copied_from,
-  language_version_of_course_id
+  course_language_group_id
     "#,
         course_update.name,
         course_id
@@ -600,7 +602,7 @@ RETURNING id,
   content_search_language::text,
   language_code,
   copied_from,
-  language_version_of_course_id
+  course_language_group_id
     "#,
         course_id
     )
@@ -623,7 +625,7 @@ SELECT id,
   content_search_language::text,
   language_code,
   copied_from,
-  language_version_of_course_id
+  course_language_group_id
 FROM courses
 WHERE slug = $1
   AND deleted_at IS NULL
@@ -666,28 +668,66 @@ mod test {
         )
         .await
         .unwrap();
+        let course_language_group_id = course_language_groups::insert_with_id(
+            tx.as_mut(),
+            Uuid::parse_str("281384b3-bbc9-4da5-b93e-4c122784a724").unwrap(),
+        )
+        .await
+        .unwrap();
 
         // Valid language code allows course creation.
         let mut tx2 = tx.begin().await;
-        let course_id = courses::insert(tx2.as_mut(), "", organization_id, "course", "en-US").await;
+        let course_id = courses::insert(
+            tx2.as_mut(),
+            "",
+            organization_id,
+            course_language_group_id,
+            "course",
+            "en-US",
+        )
+        .await;
         assert!(course_id.is_ok());
         tx2.rollback().await;
 
         // Empty language code is not allowed.
         let mut tx2 = tx.begin().await;
-        let course_id = courses::insert(tx2.as_mut(), "", organization_id, "course", "").await;
+        let course_id = courses::insert(
+            tx2.as_mut(),
+            "",
+            organization_id,
+            course_language_group_id,
+            "course",
+            "",
+        )
+        .await;
         assert!(course_id.is_err());
         tx2.rollback().await;
 
         // Wrong case language code is not allowed.
         let mut tx2 = tx.begin().await;
-        let course_id = courses::insert(tx2.as_mut(), "", organization_id, "course", "en-us").await;
+        let course_id = courses::insert(
+            tx2.as_mut(),
+            "",
+            organization_id,
+            course_language_group_id,
+            "course",
+            "en-us",
+        )
+        .await;
         assert!(course_id.is_err());
         tx2.rollback().await;
 
         // Underscore in locale is not allowed.
         let mut tx2 = tx.begin().await;
-        let course_id = courses::insert(tx2.as_mut(), "", organization_id, "course", "en_US").await;
+        let course_id = courses::insert(
+            tx2.as_mut(),
+            "",
+            organization_id,
+            course_language_group_id,
+            "course",
+            "en_US",
+        )
+        .await;
         assert!(course_id.is_err());
         tx2.rollback().await;
     }

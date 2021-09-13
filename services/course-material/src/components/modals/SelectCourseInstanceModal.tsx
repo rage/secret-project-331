@@ -36,7 +36,9 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({ o
   useEffect(() => {
     const signedIn = !!loginState.signedIn
     const shouldChooseInstance =
-      coursePageState.state === "ready" && coursePageState.instance === null
+      coursePageState.state === "ready" &&
+      coursePageState.instance === null &&
+      coursePageState.settings === null
     setOpen(signedIn && shouldChooseInstance)
   }, [loginState, coursePageState])
 

@@ -1,4 +1,4 @@
-use super::ModelResult;
+use super::{exercise_tasks, user_exercise_states, ModelResult};
 use crate::utils::document_schema_processor::GutenbergBlock;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -14,6 +14,18 @@ pub struct CourseMaterialExerciseTask {
     pub exercise_type: String,
     pub assignment: serde_json::Value,
     pub public_spec: Option<serde_json::Value>,
+}
+
+impl From<ExerciseTask> for CourseMaterialExerciseTask {
+    fn from(exercise_task: ExerciseTask) -> Self {
+        CourseMaterialExerciseTask {
+            id: exercise_task.id,
+            assignment: exercise_task.assignment,
+            exercise_id: exercise_task.exercise_id,
+            exercise_type: exercise_task.exercise_type,
+            public_spec: exercise_task.public_spec,
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
@@ -110,6 +122,64 @@ pub async fn get_exercise_task_by_id(
     .fetch_one(conn)
     .await?;
     Ok(exercise_task)
+}
+
+pub async fn get_existing_user_exercise_task_for_course_instance(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+    course_instance_id: Uuid,
+) -> ModelResult<Option<CourseMaterialExerciseTask>> {
+    let user_exercise_state = user_exercise_states::get_user_exercise_state_if_exits(
+        conn,
+        user_id,
+        exercise_id,
+        course_instance_id,
+    )
+    .await?;
+    let exercise_task = if let Some(user_exercise_state) = user_exercise_state {
+        if let Some(selected_exercise_task_id) = user_exercise_state.selected_exercise_task_id {
+            let exercise_task =
+                exercise_tasks::get_exercise_task_by_id(conn, selected_exercise_task_id).await?;
+            Some(exercise_task.into())
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+    Ok(exercise_task)
+}
+
+pub async fn get_or_select_user_exercise_task_for_course_instance(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+    course_instance_id: Uuid,
+) -> ModelResult<CourseMaterialExerciseTask> {
+    let user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
+        conn,
+        user_id,
+        exercise_id,
+        course_instance_id,
+    )
+    .await?;
+    if let Some(selected_exercise_task_id) = user_exercise_state.selected_exercise_task_id {
+        let exercise_task =
+            exercise_tasks::get_exercise_task_by_id(conn, selected_exercise_task_id).await?;
+        Ok(exercise_task.into())
+    } else {
+        let exercise_task = get_random_exercise_task(conn, exercise_id).await?;
+        user_exercise_states::upsert_selected_exercise_task_id(
+            conn,
+            user_id,
+            exercise_id,
+            course_instance_id,
+            Some(exercise_task.id),
+        )
+        .await?;
+        Ok(exercise_task)
+    }
 }
 
 pub async fn get_exercise_tasks_by_exercise_id(

@@ -92,6 +92,8 @@
 <span id="90">90</span>
 <span id="91">91</span>
 <span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/course-instances`.</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -157,21 +159,23 @@ Response:
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">CourseInstanceEnrollment</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+
     <span class="kw">let</span> <span class="ident">instance</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::models::course_instances::get_course_instance</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
         <span class="kw-2">*</span><span class="ident">request_course_instance_id</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">enrollment</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::models::course_instance_enrollments::insert_enrollment</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="ident">NewCourseInstanceEnrollment</span> {
-            <span class="ident">course_id</span>: <span class="ident">instance</span>.<span class="ident">course_id</span>,
-            <span class="ident">course_instance_id</span>: <span class="ident">instance</span>.<span class="ident">id</span>,
-            <span class="ident">current</span>: <span class="bool-val">true</span>,
-            <span class="ident">user_id</span>: <span class="ident">user</span>.<span class="ident">id</span>,
-        },
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">enrollment</span> <span class="op">=</span>
+        <span class="kw">crate</span><span class="ident">::models::course_instance_enrollments::insert_enrollment_and_set_as_current</span>(
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+            <span class="ident">NewCourseInstanceEnrollment</span> {
+                <span class="ident">course_id</span>: <span class="ident">instance</span>.<span class="ident">course_id</span>,
+                <span class="ident">course_instance_id</span>: <span class="ident">instance</span>.<span class="ident">id</span>,
+                <span class="ident">user_id</span>: <span class="ident">user</span>.<span class="ident">id</span>,
+            },
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+
     <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">enrollment</span>))
 }
 

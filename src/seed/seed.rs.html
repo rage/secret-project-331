@@ -1019,6 +1019,31 @@
 <span id="1017">1017</span>
 <span id="1018">1018</span>
 <span id="1019">1019</span>
+<span id="1020">1020</span>
+<span id="1021">1021</span>
+<span id="1022">1022</span>
+<span id="1023">1023</span>
+<span id="1024">1024</span>
+<span id="1025">1025</span>
+<span id="1026">1026</span>
+<span id="1027">1027</span>
+<span id="1028">1028</span>
+<span id="1029">1029</span>
+<span id="1030">1030</span>
+<span id="1031">1031</span>
+<span id="1032">1032</span>
+<span id="1033">1033</span>
+<span id="1034">1034</span>
+<span id="1035">1035</span>
+<span id="1036">1036</span>
+<span id="1037">1037</span>
+<span id="1038">1038</span>
+<span id="1039">1039</span>
+<span id="1040">1040</span>
+<span id="1041">1041</span>
+<span id="1042">1042</span>
+<span id="1043">1043</span>
+<span id="1044">1044</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">chrono::Utc</span>;
@@ -1111,6 +1136,12 @@
         <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;90643204-7656-4570-bdd9-aad5d297f9ce&quot;</span>)<span class="question-mark">?</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">language_teacher</span> <span class="op">=</span> <span class="ident">users::insert_with_id</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+        <span class="string">&quot;language.teacher@example.com&quot;</span>,
+        <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;0fd8bd2d-cb4e-4035-b7db-89e798fe4df0&quot;</span>)<span class="question-mark">?</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">assistant</span> <span class="op">=</span> <span class="ident">users::insert_with_id</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
         <span class="string">&quot;assistant@example.com&quot;</span>,
@@ -1166,6 +1197,25 @@
         <span class="ident">admin</span>,
         <span class="ident">teacher</span>,
         <span class="ident">student</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">introduction_to_localizing</span> <span class="op">=</span> <span class="ident">seed_sample_course</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+        <span class="ident">uh_cs</span>,
+        <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;639f4d25-9376-49b5-bcca-7cba18c38565&quot;</span>)<span class="question-mark">?</span>,
+        <span class="string">&quot;Introduction to localizing&quot;</span>,
+        <span class="string">&quot;introduction-to-localizing&quot;</span>,
+        <span class="ident">admin</span>,
+        <span class="ident">teacher</span>,
+        <span class="ident">student</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">roles::insert</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+        <span class="ident">language_teacher</span>,
+        <span class="prelude-val">None</span>,
+        <span class="prelude-val">Some</span>(<span class="ident">introduction_to_localizing</span>),
+        <span class="ident">UserRole::Teacher</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 

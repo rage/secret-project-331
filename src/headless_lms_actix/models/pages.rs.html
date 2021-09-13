@@ -1516,9 +1516,69 @@
 <span id="1514">1514</span>
 <span id="1515">1515</span>
 <span id="1516">1516</span>
+<span id="1517">1517</span>
+<span id="1518">1518</span>
+<span id="1519">1519</span>
+<span id="1520">1520</span>
+<span id="1521">1521</span>
+<span id="1522">1522</span>
+<span id="1523">1523</span>
+<span id="1524">1524</span>
+<span id="1525">1525</span>
+<span id="1526">1526</span>
+<span id="1527">1527</span>
+<span id="1528">1528</span>
+<span id="1529">1529</span>
+<span id="1530">1530</span>
+<span id="1531">1531</span>
+<span id="1532">1532</span>
+<span id="1533">1533</span>
+<span id="1534">1534</span>
+<span id="1535">1535</span>
+<span id="1536">1536</span>
+<span id="1537">1537</span>
+<span id="1538">1538</span>
+<span id="1539">1539</span>
+<span id="1540">1540</span>
+<span id="1541">1541</span>
+<span id="1542">1542</span>
+<span id="1543">1543</span>
+<span id="1544">1544</span>
+<span id="1545">1545</span>
+<span id="1546">1546</span>
+<span id="1547">1547</span>
+<span id="1548">1548</span>
+<span id="1549">1549</span>
+<span id="1550">1550</span>
+<span id="1551">1551</span>
+<span id="1552">1552</span>
+<span id="1553">1553</span>
+<span id="1554">1554</span>
+<span id="1555">1555</span>
+<span id="1556">1556</span>
+<span id="1557">1557</span>
+<span id="1558">1558</span>
+<span id="1559">1559</span>
+<span id="1560">1560</span>
+<span id="1561">1561</span>
+<span id="1562">1562</span>
+<span id="1563">1563</span>
+<span id="1564">1564</span>
+<span id="1565">1565</span>
+<span id="1566">1566</span>
+<span id="1567">1567</span>
+<span id="1568">1568</span>
+<span id="1569">1569</span>
 </pre><pre class="rust">
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">chapters::ChapterStatus</span>, <span class="ident">courses::Course</span>, <span class="ident">ModelResult</span>};
+<span class="kw">use</span> <span class="kw">super</span>::{
+    <span class="ident">chapters</span>::{<span class="self">self</span>, <span class="ident">ChapterStatus</span>},
+    <span class="ident">course_instances</span>::{<span class="self">self</span>, <span class="ident">CourseInstance</span>},
+    <span class="ident">courses::Course</span>,
+    <span class="ident">user_course_settings</span>::{<span class="self">self</span>, <span class="ident">UserCourseSettings</span>},
+    <span class="ident">ModelResult</span>,
+};
 <span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">domain::authorization::AuthUser</span>,
     <span class="ident">models</span>::{
         <span class="ident">chapters::DatabaseChapter</span>,
         <span class="ident">exercise_service_info</span>,
@@ -1557,6 +1617,13 @@
     <span class="kw">pub</span> <span class="ident">content</span>: <span class="ident">serde_json::Value</span>,
     <span class="kw">pub</span> <span class="ident">order_number</span>: <span class="ident">i32</span>,
     <span class="kw">pub</span> <span class="ident">copied_from</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">TS</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CoursePageWithUserData</span> {
+    <span class="kw">pub</span> <span class="ident">page</span>: <span class="ident">Page</span>,
+    <span class="kw">pub</span> <span class="ident">instance</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CourseInstance</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">settings</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UserCourseSettings</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">TS</span>)]</span>
@@ -1860,6 +1927,45 @@ WHERE courses.slug = $1
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">page</span>)
+}
+
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_page_with_user_data_by_path</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">user</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AuthUser</span><span class="op">&gt;</span>,
+    <span class="ident">course_slug</span>: <span class="ident">String</span>,
+    <span class="ident">url_path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CoursePageWithUserData</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="ident">get_page_by_path</span>(<span class="ident">conn</span>, <span class="ident">course_slug</span>, <span class="ident">url_path</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">chapter_id</span>) <span class="op">=</span> <span class="ident">page</span>.<span class="ident">chapter_id</span> {
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">chapters::is_open</span>(<span class="ident">conn</span>, <span class="ident">chapter_id</span>).<span class="kw">await</span><span class="question-mark">?</span> {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ModelError::PreconditionFailed</span>(
+                <span class="string">&quot;Chapter is not open yet&quot;</span>.<span class="ident">to_string</span>(),
+            ));
+        }
+    }
+
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">user</span>) <span class="op">=</span> <span class="ident">user</span> {
+        <span class="kw">let</span> <span class="ident">instance</span> <span class="op">=</span>
+            <span class="ident">course_instances::current_course_instance_of_user</span>(<span class="ident">conn</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">page</span>.<span class="ident">course_id</span>)
+                .<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">user_course_settings::get_user_course_settings_by_course_id</span>(
+            <span class="ident">conn</span>,
+            <span class="ident">user</span>.<span class="ident">id</span>,
+            <span class="ident">page</span>.<span class="ident">course_id</span>,
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(<span class="ident">CoursePageWithUserData</span> {
+            <span class="ident">page</span>,
+            <span class="ident">instance</span>,
+            <span class="ident">settings</span>,
+        })
+    } <span class="kw">else</span> {
+        <span class="prelude-val">Ok</span>(<span class="ident">CoursePageWithUserData</span> {
+            <span class="ident">page</span>,
+            <span class="ident">instance</span>: <span class="prelude-val">None</span>,
+            <span class="ident">settings</span>: <span class="prelude-val">None</span>,
+        })
+    }
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_page_with_exercises</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">page_id</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span> {

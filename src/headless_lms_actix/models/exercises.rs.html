@@ -444,22 +444,12 @@
 <span id="442">442</span>
 <span id="443">443</span>
 <span id="444">444</span>
-<span id="445">445</span>
-<span id="446">446</span>
-<span id="447">447</span>
-<span id="448">448</span>
-<span id="449">449</span>
-<span id="450">450</span>
-<span id="451">451</span>
-<span id="452">452</span>
-<span id="453">453</span>
-<span id="454">454</span>
-<span id="455">455</span>
-<span id="456">456</span>
-<span id="457">457</span>
-<span id="458">458</span>
 </pre><pre class="rust">
-<span class="kw">use</span> <span class="kw">super</span><span class="ident">::ModelResult</span>;
+<span class="kw">use</span> <span class="kw">super</span>::{
+    <span class="ident">course_instances</span>,
+    <span class="ident">exercise_tasks</span>::{<span class="self">self</span>, <span class="ident">get_existing_user_exercise_task_for_course_instance</span>},
+    <span class="ident">user_course_settings</span>, <span class="ident">ModelResult</span>,
+};
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">sqlx::PgConnection</span>;
@@ -467,8 +457,7 @@
 <span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::models</span>::{
-    <span class="ident">exercise_service_info::get_course_material_service_info_by_exercise_type</span>,
-    <span class="ident">exercise_tasks::get_random_exercise_task</span>, <span class="ident">ModelError</span>,
+    <span class="ident">exercise_service_info::get_course_material_service_info_by_exercise_type</span>, <span class="ident">ModelError</span>,
 };
 
 <span class="kw">use</span> <span class="kw">super</span>::{
@@ -661,100 +650,67 @@ WHERE page_id = $1
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CourseMaterialExercise</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">get_by_id</span>(<span class="ident">conn</span>, <span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_course_instance_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-    <span class="comment">// if the user is logged in, take the previously selected task or select a new one</span>
-    <span class="kw">let</span> <span class="ident">selected_exercise_task</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">user_id</span>) <span class="op">=</span> <span class="ident">user_id</span> {
-        <span class="comment">// user is logged in, see if they&#39;re enrolled on the course</span>
-        <span class="ident">current_course_instance_id</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
-            <span class="string">r#&quot;
-SELECT course_instance_id AS id
-FROM course_instance_enrollments
-WHERE course_id = $1
-  AND user_id = $2
-  AND current = TRUE
-  AND deleted_at IS NULL
-&quot;#</span>,
+    <span class="kw">let</span> (<span class="ident">selected_exercise_task</span>, <span class="ident">current_course_instance_id</span>) <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">user_id</span>) <span class="op">=</span> <span class="ident">user_id</span> {
+        <span class="kw">let</span> <span class="ident">user_course_settings</span> <span class="op">=</span> <span class="ident">user_course_settings::get_user_course_settings_by_course_id</span>(
+            <span class="ident">conn</span>,
+            <span class="ident">user_id</span>,
             <span class="ident">exercise</span>.<span class="ident">course_id</span>,
-            <span class="ident">user_id</span>
         )
-        .<span class="ident">fetch_optional</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">id</span>);
-
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">current_course_instance_id</span>) <span class="op">=</span> <span class="ident">current_course_instance_id</span> {
-            <span class="comment">// user is enrolled on an instance of the given course, see if a task has already been selected</span>
-            <span class="kw">let</span> <span class="ident">selected_exercise_task_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
-                <span class="string">r#&quot;
-SELECT selected_exercise_task_id AS &quot;id!&quot;
-FROM user_exercise_states
-WHERE user_id = $1
-  AND selected_exercise_task_id IS NOT NULL
-  AND exercise_id = $2
-  AND course_instance_id = $3
-  AND deleted_at IS NULL
-            &quot;#</span>,
-                <span class="ident">user_id</span>,
-                <span class="ident">exercise</span>.<span class="ident">id</span>,
-                <span class="ident">current_course_instance_id</span>
-            )
-            .<span class="ident">fetch_optional</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">id</span>);
-
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">selected_exercise_task_id</span>) <span class="op">=</span> <span class="ident">selected_exercise_task_id</span> {
-                <span class="comment">// a task has previously been selected, return it</span>
-                <span class="macro">sqlx::query_as!</span>(
-                    <span class="ident">CourseMaterialExerciseTask</span>,
-                    <span class="string">&quot;
-SELECT id,
-  exercise_id,
-  exercise_type,
-  assignment,
-  public_spec
-FROM exercise_tasks
-WHERE id = $1
-                &quot;</span>,
-                    <span class="ident">selected_exercise_task_id</span>
-                )
-                .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-                .<span class="kw">await</span><span class="question-mark">?</span>
-            } <span class="kw">else</span> {
-                <span class="comment">// no task has been selected</span>
-                <span class="comment">// Exercise task contains the actual assignment and activity</span>
-                <span class="comment">// What exercise task to give for the student depends on the</span>
-                <span class="comment">// exercise -- for now we&#39;ll give a random exercise task to the student</span>
-                <span class="comment">// this could be changed by creating a policy in the exercise.</span>
-                <span class="kw">let</span> <span class="ident">selected_exercise_task</span> <span class="op">=</span> <span class="ident">get_random_exercise_task</span>(<span class="ident">conn</span>, <span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-                <span class="macro">sqlx::query!</span>(
-                    <span class="string">&quot;
-INSERT INTO user_exercise_states (
-    user_id,
-    exercise_id,
-    course_instance_id,
-    selected_exercise_task_id
-  )
-VALUES ($1, $2, $3, $4) ON CONFLICT (user_id, exercise_id, course_instance_id) DO
-UPDATE
-SET selected_exercise_task_id = $4
-&quot;</span>,
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">match</span> <span class="ident">user_course_settings</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">settings</span>) <span class="kw">if</span> <span class="ident">settings</span>.<span class="ident">current_course_id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">exercise</span>.<span class="ident">course_id</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="comment">// User is enrolled on an instance of the given course.</span>
+                <span class="kw">let</span> <span class="ident">task</span> <span class="op">=</span> <span class="ident">exercise_tasks::get_or_select_user_exercise_task_for_course_instance</span>(
+                    <span class="ident">conn</span>,
                     <span class="ident">user_id</span>,
                     <span class="ident">exercise_id</span>,
-                    <span class="ident">current_course_instance_id</span>,
-                    <span class="ident">selected_exercise_task</span>.<span class="ident">id</span>,
+                    <span class="ident">settings</span>.<span class="ident">current_course_instance_id</span>,
                 )
-                .<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
                 .<span class="kw">await</span><span class="question-mark">?</span>;
-                <span class="ident">selected_exercise_task</span>
+                <span class="prelude-val">Ok</span>((<span class="ident">task</span>, <span class="prelude-val">Some</span>(<span class="ident">settings</span>.<span class="ident">current_course_id</span>)))
             }
-        } <span class="kw">else</span> {
-            <span class="comment">// user is not enrolled on the course, return error</span>
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ModelError::PreconditionFailed</span>(
-                <span class="string">&quot;User must be enrolled to the course&quot;</span>.<span class="ident">to_string</span>(),
-            ));
-        }
+            <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="comment">// User is enrolled on a different language version of the course. Show exercise</span>
+                <span class="comment">// task based on their latest enrollment or a random one.</span>
+                <span class="kw">let</span> <span class="ident">latest_instance</span> <span class="op">=</span> <span class="ident">course_instances::course_instance_by_users_latest_enrollment</span>(
+                    <span class="ident">conn</span>,
+                    <span class="ident">user_id</span>,
+                    <span class="ident">exercise</span>.<span class="ident">course_id</span>,
+                )
+                .<span class="kw">await</span><span class="question-mark">?</span>;
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">instance</span>) <span class="op">=</span> <span class="ident">latest_instance</span> {
+                    <span class="kw">let</span> <span class="ident">exercise_task</span> <span class="op">=</span> <span class="ident">get_existing_user_exercise_task_for_course_instance</span>(
+                        <span class="ident">conn</span>,
+                        <span class="ident">user_id</span>,
+                        <span class="ident">exercise</span>.<span class="ident">id</span>,
+                        <span class="ident">instance</span>.<span class="ident">id</span>,
+                    )
+                    .<span class="kw">await</span><span class="question-mark">?</span>;
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">exercise_task</span>) <span class="op">=</span> <span class="ident">exercise_task</span> {
+                        <span class="prelude-val">Ok</span>((<span class="ident">exercise_task</span>, <span class="prelude-val">Some</span>(<span class="ident">instance</span>.<span class="ident">id</span>)))
+                    } <span class="kw">else</span> {
+                        <span class="kw">let</span> <span class="ident">random_task</span> <span class="op">=</span>
+                            <span class="ident">exercise_tasks::get_random_exercise_task</span>(<span class="ident">conn</span>, <span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+                        <span class="prelude-val">Ok</span>((<span class="ident">random_task</span>, <span class="prelude-val">None</span>))
+                    }
+                } <span class="kw">else</span> {
+                    <span class="kw">let</span> <span class="ident">random_task</span> <span class="op">=</span>
+                        <span class="ident">exercise_tasks::get_random_exercise_task</span>(<span class="ident">conn</span>, <span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+                    <span class="prelude-val">Ok</span>((<span class="ident">random_task</span>, <span class="prelude-val">None</span>))
+                }
+            }
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="comment">// User is not enrolled on any course version. This is not a valid scenario because</span>
+                <span class="comment">// tasks are based on a specific instance.</span>
+                <span class="prelude-val">Err</span>(<span class="ident">ModelError::PreconditionFailed</span>(
+                    <span class="string">&quot;User must be enrolled to the course&quot;</span>.<span class="ident">to_string</span>(),
+                ))
+            }
+        }<span class="question-mark">?</span>
     } <span class="kw">else</span> {
-        <span class="comment">// user is not logged in, get a random task</span>
-        <span class="ident">get_random_exercise_task</span>(<span class="ident">conn</span>, <span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>
+        <span class="comment">// No signed in user. Show random exercise.</span>
+        <span class="kw">let</span> <span class="ident">random_task</span> <span class="op">=</span> <span class="ident">exercise_tasks::get_random_exercise_task</span>(<span class="ident">conn</span>, <span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        (<span class="ident">random_task</span>, <span class="prelude-val">None</span>)
     };
 
     <span class="kw">let</span> <span class="ident">current_exercise_task_service_info</span> <span class="op">=</span> <span class="ident">get_course_material_service_info_by_exercise_type</span>(
@@ -807,8 +763,10 @@ SET selected_exercise_task_id = $4
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
     <span class="kw">use</span> <span class="kw">crate</span>::{
         <span class="ident">models</span>::{
-            <span class="ident">chapters</span>, <span class="ident">course_instance_enrollments</span>, <span class="ident">course_instances</span>, <span class="ident">courses</span>, <span class="ident">exercise_tasks</span>,
-            <span class="ident">organizations</span>, <span class="ident">pages</span>, <span class="ident">users</span>,
+            <span class="ident">chapters</span>,
+            <span class="ident">course_instance_enrollments</span>::{<span class="self">self</span>, <span class="ident">NewCourseInstanceEnrollment</span>},
+            <span class="ident">course_instances</span>, <span class="ident">course_language_groups</span>, <span class="ident">courses</span>, <span class="ident">exercise_tasks</span>, <span class="ident">organizations</span>,
+            <span class="ident">pages</span>, <span class="ident">users</span>,
         },
         <span class="ident">test_helper::Conn</span>,
         <span class="ident">utils::document_schema_processor::GutenbergBlock</span>,
@@ -835,18 +793,32 @@ SET selected_exercise_task_id = $4
         )
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="ident">courses::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;&quot;</span>, <span class="ident">organization_id</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;en-US&quot;</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">course_language_group_id</span> <span class="op">=</span> <span class="ident">course_language_groups::insert_with_id</span>(
+            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;281384b3-bbc9-4da5-b93e-4c122784a724&quot;</span>).<span class="ident">unwrap</span>(),
+        )
+        .<span class="kw">await</span>
+        .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="ident">courses::insert</span>(
+            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="string">&quot;&quot;</span>,
+            <span class="ident">organization_id</span>,
+            <span class="ident">course_language_group_id</span>,
+            <span class="string">&quot;&quot;</span>,
+            <span class="string">&quot;en-US&quot;</span>,
+        )
+        .<span class="kw">await</span>
+        .<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">course_instance</span> <span class="op">=</span> <span class="ident">course_instances::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course_id</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>)
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
-        <span class="ident">course_instance_enrollments::insert</span>(
+        <span class="ident">course_instance_enrollments::insert_enrollment_and_set_as_current</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">user_id</span>,
-            <span class="ident">course_id</span>,
-            <span class="ident">course_instance</span>.<span class="ident">id</span>,
-            <span class="bool-val">true</span>,
+            <span class="ident">NewCourseInstanceEnrollment</span> {
+                <span class="ident">course_id</span>,
+                <span class="ident">course_instance_id</span>: <span class="ident">course_instance</span>.<span class="ident">id</span>,
+                <span class="ident">user_id</span>,
+            },
         )
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();

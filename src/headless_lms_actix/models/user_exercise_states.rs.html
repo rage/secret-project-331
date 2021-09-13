@@ -600,6 +600,39 @@
 <span id="598">598</span>
 <span id="599">599</span>
 <span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="kw">super</span>::{
     <span class="ident">exercises</span>::{<span class="ident">ActivityProgress</span>, <span class="ident">GradingProgress</span>},
@@ -628,6 +661,7 @@
     <span class="kw">pub</span> <span class="ident">score_given</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">grading_progress</span>: <span class="ident">GradingProgress</span>,
     <span class="kw">pub</span> <span class="ident">activity_progress</span>: <span class="ident">ActivityProgress</span>,
+    <span class="kw">pub</span> <span class="ident">selected_exercise_task_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">FromRow</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">TS</span>)]</span>
@@ -736,7 +770,8 @@ RETURNING user_id,
   deleted_at,
   score_given,
   grading_progress as &quot;grading_progress: _&quot;,
-  activity_progress as &quot;activity_progress: _&quot;;
+  activity_progress as &quot;activity_progress: _&quot;,
+  selected_exercise_task_id;
   &quot;#</span>,
         <span class="ident">user_id</span>,
         <span class="ident">exercise_id</span>,
@@ -777,7 +812,8 @@ SELECT user_id,
   deleted_at,
   score_given,
   grading_progress as &quot;grading_progress: _&quot;,
-  activity_progress as &quot;activity_progress: _&quot;
+  activity_progress as &quot;activity_progress: _&quot;,
+  selected_exercise_task_id
 FROM user_exercise_states
 WHERE user_id = $1
   AND exercise_id = $2
@@ -790,6 +826,35 @@ WHERE user_id = $1
     .<span class="ident">fetch_optional</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+}
+
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upsert_selected_exercise_task_id</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">selected_exercise_task_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="macro">sqlx::query!</span>(
+        <span class="string">&quot;
+INSERT INTO user_exercise_states (
+    user_id,
+    exercise_id,
+    course_instance_id,
+    selected_exercise_task_id
+  )
+VALUES ($1, $2, $3, $4) ON CONFLICT (user_id, exercise_id, course_instance_id) DO
+UPDATE
+SET selected_exercise_task_id = $4
+&quot;</span>,
+        <span class="ident">user_id</span>,
+        <span class="ident">exercise_id</span>,
+        <span class="ident">course_instance_id</span>,
+        <span class="ident">selected_exercise_task_id</span>,
+    )
+    .<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
 }
 
 <span class="kw">fn</span> <span class="ident">figure_out_new_score_given</span>(
@@ -928,7 +993,8 @@ RETURNING user_id,
   deleted_at,
   score_given,
   grading_progress as &quot;grading_progress: _&quot;,
-  activity_progress as &quot;activity_progress: _&quot;
+  activity_progress as &quot;activity_progress: _&quot;,
+  selected_exercise_task_id;
     &quot;#</span>,
         <span class="ident">user_id</span>,
         <span class="ident">exercise_id</span>,

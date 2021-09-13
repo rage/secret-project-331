@@ -151,7 +151,19 @@
 <span id="149">149</span>
 <span id="150">150</span>
 <span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
 </pre><pre class="rust">
+<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{
     <span class="ident">de</span>::{<span class="self">self</span>, <span class="ident">MapAccess</span>, <span class="ident">Visitor</span>},
     <span class="ident">Deserialize</span>, <span class="ident">Deserializer</span>,
@@ -171,6 +183,16 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Pagination</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">page</span>: <span class="ident">i64</span>, <span class="ident">limit</span>: <span class="ident">i64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="ident">page</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">0</span> {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;Page must be a positive value.&quot;</span>));
+        }
+        <span class="kw">if</span> <span class="ident">limit</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">0</span> {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;Limit must be a positive value.&quot;</span>));
+        }
+        <span class="prelude-val">Ok</span>(<span class="ident">Pagination</span> { <span class="ident">page</span>, <span class="ident">limit</span> })
+    }
+
     <span class="doccomment">/// Guaranteed to be positive.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">page</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i64</span> {
         <span class="self">self</span>.<span class="ident">page</span>

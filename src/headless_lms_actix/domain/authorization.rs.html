@@ -202,6 +202,9 @@
 <span id="200">200</span>
 <span id="201">201</span>
 <span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">controllers::ControllerError</span>,
@@ -401,7 +404,10 @@
     <span class="kw">match</span> <span class="ident">user_role</span> {
         <span class="ident">Admin</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
         <span class="ident">Assistant</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">matches!</span>(<span class="ident">action</span>, <span class="ident">View</span> <span class="op">|</span> <span class="ident">Edit</span> <span class="op">|</span> <span class="ident">Grade</span> <span class="op">|</span> <span class="ident">DeleteAnswer</span>),
-        <span class="ident">Teacher</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">matches!</span>(<span class="ident">action</span>, <span class="ident">View</span> <span class="op">|</span> <span class="ident">Teach</span> <span class="op">|</span> <span class="ident">Edit</span> <span class="op">|</span> <span class="ident">Grade</span> <span class="op">|</span> <span class="ident">DeleteAnswer</span>),
+        <span class="ident">Teacher</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">matches!</span>(
+            <span class="ident">action</span>,
+            <span class="ident">View</span> <span class="op">|</span> <span class="ident">Teach</span> <span class="op">|</span> <span class="ident">Edit</span> <span class="op">|</span> <span class="ident">Grade</span> <span class="op">|</span> <span class="ident">Duplicate</span> <span class="op">|</span> <span class="ident">DeleteAnswer</span>
+        ),
         <span class="ident">Reviewer</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">matches!</span>(<span class="ident">action</span>, <span class="ident">View</span> <span class="op">|</span> <span class="ident">Grade</span>),
     }
 }

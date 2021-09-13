@@ -228,6 +228,58 @@
 <span id="226">226</span>
 <span id="227">227</span>
 <span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="kw">super</span><span class="ident">::ModelResult</span>;
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
@@ -342,13 +394,11 @@ SELECT i.id,
   i.name,
   i.description,
   i.variant_status AS &quot;variant_status: VariantStatus&quot;
-FROM course_instances i
-  JOIN course_instance_enrollments e ON i.id = e.course_instance_id
-WHERE e.user_id = $1
-  AND e.course_id = $2
-  AND e.current = &#39;t&#39;
-  AND e.deleted_at IS NULL
-  AND i.deleted_at IS NULL;
+FROM user_course_settings ucs
+  JOIN course_instances i ON (ucs.current_course_instance_id = i.id)
+WHERE ucs.user_id = $1
+  AND ucs.current_course_id = $2
+  AND ucs.deleted_at IS NULL;
     &quot;#</span>,
         <span class="ident">user_id</span>,
         <span class="ident">course_id</span>,
@@ -356,6 +406,40 @@ WHERE e.user_id = $1
     .<span class="ident">fetch_optional</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">course_instance_enrollment</span>)
+}
+
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">course_instance_by_users_latest_enrollment</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CourseInstance</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">course_instance</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
+        <span class="ident">CourseInstance</span>,
+        <span class="string">r#&quot;
+SELECT i.id,
+  i.created_at,
+  i.updated_at,
+  i.deleted_at,
+  i.course_id,
+  i.starts_at,
+  i.ends_at,
+  i.name,
+  i.description,
+  i.variant_status AS &quot;variant_status: VariantStatus&quot;
+FROM course_instances i
+  JOIN course_instance_enrollments ie ON (i.id = ie.course_id)
+WHERE i.course_id = $1
+  AND i.deleted_at IS NULL
+  AND ie.user_id = $2
+  AND ie.deleted_at IS NULL
+ORDER BY ie.created_at DESC;
+    &quot;#</span>,
+        <span class="ident">course_id</span>,
+        <span class="ident">user_id</span>,
+    )
+    .<span class="ident">fetch_optional</span>(<span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">course_instance</span>)
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_all_course_instances</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CourseInstance</span><span class="op">&gt;</span><span class="op">&gt;</span> {
@@ -424,7 +508,7 @@ WHERE id = $2;
 <span class="kw">mod</span> <span class="ident">test</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
     <span class="kw">use</span> <span class="kw">crate</span>::{
-        <span class="ident">models</span>::{<span class="ident">courses</span>, <span class="ident">organizations</span>},
+        <span class="ident">models</span>::{<span class="ident">course_language_groups</span>, <span class="ident">courses</span>, <span class="ident">organizations</span>},
         <span class="ident">test_helper::Conn</span>,
     };
 
@@ -442,12 +526,32 @@ WHERE id = $2;
         )
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">course_1_id</span> <span class="op">=</span> <span class="ident">courses::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;&quot;</span>, <span class="ident">organization_id</span>, <span class="string">&quot;course-1&quot;</span>, <span class="string">&quot;en-US&quot;</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">course_2_id</span> <span class="op">=</span> <span class="ident">courses::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;&quot;</span>, <span class="ident">organization_id</span>, <span class="string">&quot;course-2&quot;</span>, <span class="string">&quot;en-US&quot;</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">course_language_group_id</span> <span class="op">=</span> <span class="ident">course_language_groups::insert_with_id</span>(
+            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;281384b3-bbc9-4da5-b93e-4c122784a724&quot;</span>).<span class="ident">unwrap</span>(),
+        )
+        .<span class="kw">await</span>
+        .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">course_1_id</span> <span class="op">=</span> <span class="ident">courses::insert</span>(
+            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="string">&quot;&quot;</span>,
+            <span class="ident">organization_id</span>,
+            <span class="ident">course_language_group_id</span>,
+            <span class="string">&quot;course-1&quot;</span>,
+            <span class="string">&quot;en-US&quot;</span>,
+        )
+        .<span class="kw">await</span>
+        .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">course_2_id</span> <span class="op">=</span> <span class="ident">courses::insert</span>(
+            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="string">&quot;&quot;</span>,
+            <span class="ident">organization_id</span>,
+            <span class="ident">course_language_group_id</span>,
+            <span class="string">&quot;course-2&quot;</span>,
+            <span class="string">&quot;en-US&quot;</span>,
+        )
+        .<span class="kw">await</span>
+        .<span class="ident">unwrap</span>();
 
         <span class="kw">let</span> <span class="ident">_course_1_instance_1</span> <span class="op">=</span> <span class="ident">insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course_1_id</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">course_2_instance_1</span> <span class="op">=</span> <span class="ident">insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course_2_id</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>).<span class="kw">await</span>;

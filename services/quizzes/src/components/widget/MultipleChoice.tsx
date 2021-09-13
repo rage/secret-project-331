@@ -129,7 +129,7 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
         return (
           <button
             key={qo.id}
-            value={JSON.stringify(qo)}
+            value={qo.id}
             onClick={handleOptionSelect}
             className={css`
               display: flex;

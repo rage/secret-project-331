@@ -2,7 +2,7 @@ import { InputProps, Link, Paper, Tab, Tabs, TextField } from "@material-ui/core
 import React, { useEffect, useState } from "react"
 import styled from "styled-components"
 
-import { MarkDownText } from "./MarkDownText"
+import { MarkdownText } from "./MarkdownText"
 
 const StyledAppBar = styled(Paper)`
   margin-bottom: 1rem;
@@ -77,7 +77,7 @@ export const MarkdownEditor: React.FC<ExerciseEditorProps> = ({ text, label, onC
             required
           />
         )}
-        {activeTab === 1 && <MarkDownText text={text} />}
+        {activeTab === 1 && <MarkdownText text={text} />}
       </EditorWrapper>
     </>
   )

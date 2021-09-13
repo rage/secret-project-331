@@ -2,7 +2,7 @@ import produce from "immer"
 import _ from "lodash"
 import { createReducer } from "typesafe-actions"
 
-import { action, ItemVariables } from "../../../types/types"
+import { action, QuizItemVariables } from "../../../types/types"
 import {
   createdNewItem,
   createdNewOption,
@@ -25,7 +25,9 @@ import {
   toggleValidRegexTestingState,
 } from "./itemVariableActions"
 
-export const itemVariableReducers = createReducer<{ [itemId: string]: ItemVariables }, action>({})
+export const itemVariableReducers = createReducer<{ [itemId: string]: QuizItemVariables }, action>(
+  {},
+)
   .handleAction(initializedEditor, (state, action) => {
     return produce(state, (draftState) => {
       for (const [id, item] of Object.entries(action.payload.normalizedQuiz.items)) {

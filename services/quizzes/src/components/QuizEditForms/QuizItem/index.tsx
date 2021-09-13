@@ -6,7 +6,7 @@ import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
 import { decreasedItemOrder, increasedItemOrder } from "../../../store/editor/items/itemAction"
-import { NormalizedItem } from "../../../types/types"
+import { NormalizedQuizItem } from "../../../types/types"
 
 import CheckBoxContent from "./CheckBoxContent"
 import ClickableMultipleChoiceContent from "./ClickableMultipleChoiceContent"
@@ -27,7 +27,7 @@ const QuizItemContainer = styled.div`
 `
 
 interface QuizItemProps {
-  item: NormalizedItem
+  item: NormalizedQuizItem
 }
 
 const QuizItem: React.FC<QuizItemProps> = ({ item }) => {
@@ -49,7 +49,7 @@ const QuizItem: React.FC<QuizItemProps> = ({ item }) => {
   )
 }
 
-const contentBasedOnType = (type: string, item: NormalizedItem) => {
+const contentBasedOnType = (type: string, item: NormalizedQuizItem) => {
   switch (type) {
     case "multiple-choice": {
       return <MultipleChoiceContent item={item} />

@@ -5,7 +5,7 @@ interface MarkDownTextProps {
   text: string
 }
 
-export const MarkDownText: React.FC<MarkDownTextProps> = ({ text }) => {
+export const MarkdownText: React.FC<MarkDownTextProps> = ({ text }) => {
   const reader = new Parser()
   const writer = new HtmlRenderer()
 

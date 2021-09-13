@@ -9,7 +9,7 @@ import { createdNewOption, deletedItem } from "../../../../store/editor/editorAc
 import { setAdvancedEditing } from "../../../../store/editor/itemVariables/itemVariableActions"
 import { editedQuizItemTitle } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
-import { NormalizedItem } from "../../../../types/types"
+import { NormalizedQuizItem } from "../../../../types/types"
 import MarkdownEditor from "../../../MarkdownEditor"
 
 import MultipleChoiceButton from "./MultiplChoiceButton"
@@ -64,7 +64,7 @@ const ModalButtonWrapper = styled.div`
 `
 
 interface MultipleChoiceContentProps {
-  item: NormalizedItem
+  item: NormalizedQuizItem
 }
 
 const MultipleChoiceContent: React.FC<MultipleChoiceContentProps> = ({ item }) => {

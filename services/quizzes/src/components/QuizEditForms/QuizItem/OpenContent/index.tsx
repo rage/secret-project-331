@@ -22,7 +22,7 @@ import {
   editedValidityRegex,
 } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
-import { NormalizedItem } from "../../../../types/types"
+import { NormalizedQuizItem } from "../../../../types/types"
 import MarkdownEditor from "../../../MarkdownEditor"
 
 import FormatRegexTesterModalContent from "./FormatRegexTesterModalContent"
@@ -85,7 +85,7 @@ const ModalButtonWrapper = styled.div`
   justify-content: flex-end;
 `
 interface OpenContentProps {
-  item: NormalizedItem
+  item: NormalizedQuizItem
 }
 
 const OpenContent: React.FC<OpenContentProps> = ({ item }) => {

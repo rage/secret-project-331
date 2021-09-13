@@ -6,7 +6,7 @@ import { v4 } from "uuid"
 import StatelessEditor from "../components/StatelessEditor"
 import { normalizedQuiz } from "../schemas"
 import { initializedEditor } from "../store/editor/editorActions"
-import { storeState, useTypedSelector } from "../store/store"
+import { StoreState, useTypedSelector } from "../store/store"
 import { Entities, Quiz } from "../types/types"
 
 const Editor: React.FC = () => {
@@ -79,7 +79,7 @@ function onHeightChange(newHeight: number, port: MessagePort) {
   })
 }
 
-const normalizeData = (data: storeState) => {
+const normalizeData = (data: StoreState) => {
   const normalizedInputData = normalize(data === null ? emptyQuiz : data, normalizedQuiz)
   return {
     quizzes: normalizedInputData.entities.quizzes ?? {},
@@ -91,7 +91,7 @@ const normalizeData = (data: storeState) => {
   }
 }
 
-const denormalizeData = (state: storeState) => {
+const denormalizeData = (state: StoreState) => {
   const entities: Entities = {
     quizzes: state.editor.quizzes,
     items: state.editor.items,

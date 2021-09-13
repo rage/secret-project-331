@@ -17,7 +17,7 @@ import {
   toggledMultiOptions,
 } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
-import { NormalizedItem } from "../../../../types/types"
+import { NormalizedQuizItem } from "../../../../types/types"
 import MarkdownEditor from "../../../MarkdownEditor"
 
 const ModalContent = styled.div`
@@ -38,7 +38,7 @@ const ModalContentTitleWrapper = styled.div`
 `
 
 interface ModalContentProps {
-  item: NormalizedItem
+  item: NormalizedQuizItem
 }
 
 export const OpenModalContent: React.FC<ModalContentProps> = ({ item }) => {

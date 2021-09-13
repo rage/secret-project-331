@@ -1,0 +1,15 @@
+{
+  "locales": [
+    "en-US",
+    "fi-FI"
+  ],
+  "catalogs": [
+    {
+      "path": "services/main-frontend/src/locales/{locale}/messages",
+      "include": [
+        "services/main-frontend/src"
+      ]
+    }
+  ],
+  "format": "po"
+}

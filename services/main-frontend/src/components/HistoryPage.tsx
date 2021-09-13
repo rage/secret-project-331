@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import React from "react"
+import { Trans, useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import { fetchHistoryForPage } from "../services/backend/pages"
@@ -23,6 +24,7 @@ const HistoryPage: React.FC<Props> = ({
   onCompare,
   onRestore,
 }) => {
+  const { t } = useTranslation()
   const { isLoading, error, data } = useQuery(
     `page-history-${pageId}-${page}-${limit}`,
     async () => {
@@ -45,7 +47,13 @@ const HistoryPage: React.FC<Props> = ({
   }
 
   if (isLoading || !data) {
-    return <div>Loading page...</div>
+    return (
+      <div>
+        <Trans t={t} i18nKey="loading-page-plz-wait">
+          Loading page... <b>Plz wait.</b>
+        </Trans>
+      </div>
+    )
   }
 
   return (

@@ -1,3 +1,5 @@
+import React from "react"
+import { Trans } from "react-i18next"
 import { useQuery } from "react-query"
 
 import { fetchFeedback, markAsRead } from "../services/backend/feedback"
@@ -29,7 +31,7 @@ const FeedbackPage: React.FC<Props> = ({ courseId, page, limit, read, onChange }
   }
 
   if (isLoading || !data) {
-    return <div>Loading feedback...</div>
+    return <Trans i18nKey="loading-feedback">Loading feedback...</Trans>
   }
 
   async function handleMarkAsRead(feedback: Feedback) {

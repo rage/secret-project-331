@@ -31,7 +31,7 @@ import {
   toggledSharedOptionFeedbackMessage,
 } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
-import { NormalizedItem } from "../../../../types/types"
+import { NormalizedQuizItem } from "../../../../types/types"
 import MarkdownEditor from "../../../MarkdownEditor"
 import { ModalWrapper } from "../../../Shared/Modal"
 
@@ -74,7 +74,7 @@ const Spacer = styled.div`
 `
 
 interface EditorModalProps {
-  item: NormalizedItem
+  item: NormalizedQuizItem
 }
 
 export const MultipleChoiceModalContent: React.FC<EditorModalProps> = ({ item }) => {

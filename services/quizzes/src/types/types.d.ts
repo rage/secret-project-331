@@ -15,7 +15,7 @@ export interface Quiz {
   awardPointsEvenIfWrong: boolean
   grantPointsPolicy: "grant_whenever_possible" | "grant_only_when_answer_fully_correct"
   autoReject: boolean
-  items: Item[]
+  items: QuizItem[]
   title: string
   body: string
   submitMessage: string | null
@@ -64,12 +64,12 @@ export interface PublicQuiz {
   open: Date | null
   tries: number
   triesLimited: boolean
-  items: PublicItem[]
+  items: PublicQuizItem[]
   title: string
   body: string
 }
 
-export interface Item {
+export interface QuizItem {
   id: string
   quizId: string
   type: string
@@ -86,7 +86,7 @@ export interface Item {
   maxLabel: string | null
   minLabel: string | null
   usesSharedOptionFeedbackMessage: boolean
-  options: Option[]
+  options: QuizItemOption[]
   title: string
   body: string
   successMessage: null
@@ -97,7 +97,7 @@ export interface Item {
   feedbackDisplayPolicy: "DisplayFeedbackOnQuizItem" | "DisplayFeedbackOnAllOptions"
 }
 
-export interface NormalizedItem {
+export interface NormalizedQuizItem {
   id: string
   quizId: string
   type: string
@@ -123,7 +123,7 @@ export interface NormalizedItem {
   feedbackDisplayPolicy: "DisplayFeedbackOnQuizItem" | "DisplayFeedbackOnAllOptions"
 }
 
-export interface ItemVariables {
+export interface QuizItemVariables {
   scaleMin: number
   scaleMax: number
   validMin: boolean
@@ -141,7 +141,7 @@ export interface ItemVariables {
   newOptions: string[]
 }
 
-export interface PublicItem {
+export interface PublicQuizItem {
   id: string
   quizId: string
   type: string
@@ -153,13 +153,13 @@ export interface PublicItem {
   minValue: number | null
   maxLabel: string | null
   minLabel: string | null
-  options: PublicOption[]
+  options: PublicQuizItemOption[]
   title: string
   body: string
   direction: "row" | "column"
 }
 
-export interface Option {
+export interface QuizItemOption {
   id: string
   quizItemId?: string
   order: number
@@ -172,7 +172,7 @@ export interface Option {
   failureMessage: null | string
 }
 
-export interface NormalizedOption {
+export interface NormalizedQuizItemOption {
   id: string
   quizItemId: string
   order: number
@@ -185,51 +185,38 @@ export interface NormalizedOption {
   failureMessage: null | string
 }
 
-export interface OptionVariables {
+export interface QuizItemOptionVariables {
   optionEditing: boolean
 }
 
-export interface PublicOption {
+export interface PublicQuizItemOption {
   id: string
   quizItemId?: string
   order: number
-  title: string
+  title: string | null
   body: string | null
 }
 
-export interface Answer {
+export interface QuizAnswer {
   id: string
-  quizId: string
-  userId: number
-  languageId: string
-  status: string
   createdAt: string
   updatedAt: string
-  userQuizState: UserQuizState
-  itemAnswers: ItemAnswer[]
-  peerReviews: PeerReview[]
-  quiz: Quiz
-  deleted: boolean
+  quizId: string
+  status: "confirmed" | "open" | "locked"
+  itemAnswers: QuizItemAnswer[]
 }
 
-export interface ItemAnswer {
+export interface QuizItemAnswer {
   id: string
   quizAnswerId: string
   quizItemId: string
-  textData: string
-  intData: null
+  textData: string | null
+  intData: number | null
+  createdAt: string
+  updatedAt: string
   correct: boolean
-  createdAt: string
-  updatedAt: string
-  optionAnswers: OptionAnswer[]
-}
-
-export interface OptionAnswer {
-  id: string
-  quizItemAnswerId: string
-  quizOptionId: string
-  createdAt: string
-  updatedAt: string
+  // Only contains an id of a selected option
+  optionAnswers: string[] | null
 }
 
 export interface UserQuizState {
@@ -247,8 +234,8 @@ export interface UserQuizState {
 
 export interface Entities {
   quizzes: { [quizId: string]: NormalizedQuiz }
-  items: { [itemId: string]: NormalizedItem }
-  options?: { [optionId: string]: NormalizedOption }
+  items: { [itemId: string]: NormalizedQuizItem }
+  options?: { [optionId: string]: NormalizedQuizItemOption }
   result: string
 }
 

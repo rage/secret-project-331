@@ -8,12 +8,12 @@ import styled from "styled-components"
 import { deletedItem } from "../../../../store/editor/editorActions"
 import { setAdvancedEditing } from "../../../../store/editor/itemVariables/itemVariableActions"
 import { useTypedSelector } from "../../../../store/store"
-import { NormalizedItem } from "../../../../types/types"
+import { NormalizedQuizItem } from "../../../../types/types"
 
 import CustomModalContent from "./CustomModalContent"
 
 interface CustomFrontendProps {
-  item: NormalizedItem
+  item: NormalizedQuizItem
 }
 
 const EmptyBox = styled(Box)`

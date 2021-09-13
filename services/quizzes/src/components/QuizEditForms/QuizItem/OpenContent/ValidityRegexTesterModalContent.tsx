@@ -12,7 +12,7 @@ import {
 } from "../../../../store/editor/itemVariables/itemVariableActions"
 import { editedValidityRegex } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
-import { NormalizedItem } from "../../../../types/types"
+import { NormalizedQuizItem } from "../../../../types/types"
 
 const ModalContent = styled.div`
   padding: 1rem;
@@ -30,7 +30,7 @@ const IconContainer = styled.div`
 `
 
 interface ModalContentProps {
-  item: NormalizedItem
+  item: NormalizedQuizItem
 }
 
 export const ValidityRegexTesterModalContent: React.FC<ModalContentProps> = ({ item }) => {

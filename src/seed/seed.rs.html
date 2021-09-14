@@ -1393,7 +1393,7 @@
             <span class="ident">name</span>: <span class="string">&quot;Quizzes example, multiple-choice&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">url</span>: <span class="string">&quot;http://project-331.local/quizzes/exercise&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">width</span>: <span class="number">500</span>,
-            <span class="ident">data</span>: <span class="macro">serde_json::json!</span>([
+            <span class="ident">data</span>: <span class="macro">serde_json::json!</span>(
               {
                 <span class="string">&quot;id&quot;</span>: <span class="string">&quot;3ee47b02-ba13-46a7-957e-fd4f21fc290b&quot;</span>,
                 <span class="string">&quot;courseId&quot;</span>: <span class="string">&quot;5209f752-9db9-4daf-a7bc-64e21987b719&quot;</span>,
@@ -1461,7 +1461,7 @@
                     }
                 ]
               }
-            ]),
+            ),
         },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;

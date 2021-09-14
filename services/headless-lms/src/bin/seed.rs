@@ -267,7 +267,7 @@ async fn main() -> Result<()> {
             name: "Quizzes example, multiple-choice".to_string(),
             url: "http://project-331.local/quizzes/exercise".to_string(),
             width: 500,
-            data: serde_json::json!([
+            data: serde_json::json!(
               {
                 "id": "3ee47b02-ba13-46a7-957e-fd4f21fc290b",
                 "courseId": "5209f752-9db9-4daf-a7bc-64e21987b719",
@@ -335,7 +335,7 @@ async fn main() -> Result<()> {
                     }
                 ]
               }
-            ]),
+            ),
         },
     )
     .await?;

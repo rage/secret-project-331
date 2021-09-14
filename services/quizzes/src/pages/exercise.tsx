@@ -28,9 +28,11 @@ const ExercisePage: React.FC = () => {
         port.onmessage = (message: WindowEventMap["message"]) => {
           console.log("Frame received a message from port", JSON.stringify(message.data))
           const data = message.data
+          console.log(data.data)
           if (data.message === "set-state") {
             console.log("Frame: setting state from message")
-            setQuiz(data.data[0])
+            // Quiz should be sent to the widget as a quiz object, not as a list containing the quiz object
+            setQuiz(data.data)
           } else {
             console.error("Frame received an unknown message from message port")
           }

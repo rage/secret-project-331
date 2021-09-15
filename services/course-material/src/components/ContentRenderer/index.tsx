@@ -14,6 +14,7 @@ import CourseObjectiveSectionBlock from "./CourseObjectiveSectionBlock"
 import CourseProgressBlock from "./CourseProgressBlock"
 import CustomHTMLBlock from "./CustomHTMLBlock"
 import DefaultBlock from "./DefaultBlock"
+import EmbedBlock from "./EmbedBlock"
 import ExerciseBlock from "./ExerciseBlock"
 import ExerciseListBlock from "./ExerciseListBlock/index"
 import HeadingBlock from "./Headings/HeadingBlock"
@@ -46,7 +47,7 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   // "core/button",
   "core/columns": ColumnsBlock,
   "core/column": ColumnBlock,
-  // "core/embed", // This is used by youtube, twitter etc.
+  "core/embed": EmbedBlock, // This is used by youtube, twitter etc.
   // "core/file",
   // "core/group",
   // "core/rss",

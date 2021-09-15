@@ -4,9 +4,11 @@ use crate::{
     domain::authorization::AuthUser,
     models::{
         chapters::{ChapterStatus, ChapterWithStatus},
+        courses::Course,
         feedback,
-        pages::PageSearchRequest,
+        pages::{CoursePageWithUserData, PageSearchRequest},
         proposed_page_edits::{self, NewProposedPageEdits},
+        user_course_settings::UserCourseSettings,
     },
     models::{course_instances::CourseInstance, courses, pages::PageSearchResult},
     models::{feedback::NewFeedback, pages::Page},
@@ -15,6 +17,20 @@ use actix_web::web::{self, Json, ServiceConfig};
 use chrono::Utc;
 use sqlx::PgPool;
 use uuid::Uuid;
+
+/**
+GET `/api/v0/main-frontend/courses/:course_id` - Get course.
+*/
+#[instrument(skip(pool))]
+async fn get_course(
+    request_course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<Json<Course>> {
+    let mut conn = pool.acquire().await?;
+    let course = crate::models::courses::get_course(&mut conn, *request_course_id).await?;
+    Ok(Json(course))
+}
 
 /**
 GET `/:course_slug/page-by-path/...` - Returns a course page by path
@@ -41,7 +57,8 @@ GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//par
 async fn get_course_page_by_path(
     params: web::Path<(String, String)>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<Json<Page>> {
+    user: Option<AuthUser>,
+) -> ControllerResult<Json<CoursePageWithUserData>> {
     let mut conn = pool.acquire().await?;
     let (course_slug, raw_page_path) = params.into_inner();
     let path = if raw_page_path.starts_with('/') {
@@ -50,17 +67,11 @@ async fn get_course_page_by_path(
         format!("/{}", raw_page_path)
     };
 
-    let page = crate::models::pages::get_page_by_path(&mut conn, course_slug, &path).await?;
+    let page_with_user_data =
+        crate::models::pages::get_page_with_user_data_by_path(&mut conn, user, course_slug, &path)
+            .await?;
 
-    if let Some(chapter_id) = page.chapter_id {
-        if !crate::models::chapters::is_open(&mut conn, chapter_id).await? {
-            return Err(ControllerError::Forbidden(
-                "Chapter is not open yet".to_string(),
-            ));
-        }
-    }
-
-    Ok(Json(page))
+    Ok(Json(page_with_user_data))
 }
 
 /**
@@ -220,6 +231,28 @@ async fn get_chapters(
         })
         .collect();
     Ok(Json(chapters))
+}
+
+/**
+GET `/api/v0/course-material/courses/:course_id/user-settings` - Returns user settings for the current course.
+*/
+async fn get_user_course_settings(
+    pool: web::Data<PgPool>,
+    request_course_id: web::Path<Uuid>,
+    user: Option<AuthUser>,
+) -> ControllerResult<Json<Option<UserCourseSettings>>> {
+    let mut conn = pool.acquire().await?;
+    if let Some(user) = user {
+        let settings = crate::models::user_course_settings::get_user_course_settings_by_course_id(
+            &mut conn,
+            user.id,
+            *request_course_id,
+        )
+        .await?;
+        Ok(Json(settings))
+    } else {
+        Ok(Json(None))
+    }
 }
 
 /**
@@ -424,28 +457,33 @@ The name starts with an underline in order to appear before other functions in t
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
 pub fn _add_courses_routes(cfg: &mut ServiceConfig) {
-    cfg.route(
-        "/{course_id}/page-by-path/{url_path:.*}",
-        web::get().to(get_course_page_by_path),
-    )
-    .route("/{course_id}/pages", web::get().to(get_course_pages))
-    .route("/{course_id}/chapters", web::get().to(get_chapters))
-    .route(
-        "/{course_id}/course-instances",
-        web::get().to(get_course_instances),
-    )
-    .route(
-        "/{course_id}/current-instance",
-        web::get().to(get_current_course_instance),
-    )
-    .route(
-        "/{course_id}/search-pages-with-phrase",
-        web::post().to(search_pages_with_phrase),
-    )
-    .route(
-        "/{course_id}/search-pages-with-words",
-        web::post().to(search_pages_with_words),
-    )
-    .route("/{course_id}/feedback", web::post().to(feedback))
-    .route("/{course_id}/propose-edit", web::post().to(propose_edit));
+    cfg.route("/{course_id}", web::get().to(get_course))
+        .route("/{course_id}/chapters", web::get().to(get_chapters))
+        .route(
+            "/{course_id}/course-instances",
+            web::get().to(get_course_instances),
+        )
+        .route(
+            "/{course_id}/current-instance",
+            web::get().to(get_current_course_instance),
+        )
+        .route("/{course_id}/feedback", web::post().to(feedback))
+        .route(
+            "/{course_id}/page-by-path/{url_path:.*}",
+            web::get().to(get_course_page_by_path),
+        )
+        .route("/{course_id}/pages", web::get().to(get_course_pages))
+        .route(
+            "/{course_id}/search-pages-with-phrase",
+            web::post().to(search_pages_with_phrase),
+        )
+        .route(
+            "/{course_id}/search-pages-with-words",
+            web::post().to(search_pages_with_words),
+        )
+        .route(
+            "/{course_id}/user-settings",
+            web::get().to(get_user_course_settings),
+        )
+        .route("/{course_id}/propose-edit", web::post().to(propose_edit));
 }

@@ -3,11 +3,11 @@ import { combineReducers, createStore } from "redux"
 import { composeWithDevTools } from "redux-devtools-extension"
 
 import {
-  ItemVariables,
-  NormalizedItem,
-  NormalizedOption,
   NormalizedQuiz,
-  OptionVariables,
+  NormalizedQuizItem,
+  NormalizedQuizItemOption,
+  QuizItemOptionVariables,
+  QuizItemVariables,
   QuizVariables,
 } from "../types/types"
 
@@ -35,18 +35,18 @@ const reducer = combineReducers({
 
 const store = createStore(reducer, composeWithDevTools())
 
-export interface storeState {
+export interface StoreState {
   editor: {
     quizzes: { [quizId: string]: NormalizedQuiz }
-    items: { [itemId: string]: NormalizedItem }
-    options: { [optionId: string]: NormalizedOption }
+    items: { [itemId: string]: NormalizedQuizItem }
+    options: { [optionId: string]: NormalizedQuizItemOption }
     quizId: string
-    itemVariables: { [itemId: string]: ItemVariables }
-    optionVariables: { [optionId: string]: OptionVariables }
+    itemVariables: { [itemId: string]: QuizItemVariables }
+    optionVariables: { [optionId: string]: QuizItemOptionVariables }
     quizVariables: { [quizId: string]: QuizVariables }
   }
 }
 
-export const useTypedSelector: TypedUseSelectorHook<storeState> = useSelector
+export const useTypedSelector: TypedUseSelectorHook<StoreState> = useSelector
 
 export default store

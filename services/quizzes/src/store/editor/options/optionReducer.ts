@@ -3,7 +3,7 @@ import { normalize } from "normalizr"
 import { createReducer } from "typesafe-actions"
 
 import { normalizedQuiz } from "../../../schemas"
-import { action, NormalizedOption, Quiz } from "../../../types/types"
+import { action, NormalizedQuizItemOption, Quiz } from "../../../types/types"
 import {
   createdNewOption,
   createdNewQuiz,
@@ -18,7 +18,10 @@ import {
   editedOptionTitle,
 } from "./optionActions"
 
-export const optionReducer = createReducer<{ [optionId: string]: NormalizedOption }, action>({})
+export const optionReducer = createReducer<
+  { [optionId: string]: NormalizedQuizItemOption },
+  action
+>({})
   .handleAction(initializedEditor, (_state, action) => action.payload.normalizedQuiz.options ?? {})
 
   .handleAction(editedOptionTitle, (state, action) => {

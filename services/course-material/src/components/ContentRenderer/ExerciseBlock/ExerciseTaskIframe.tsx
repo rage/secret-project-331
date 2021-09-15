@@ -13,6 +13,7 @@ const ExerciseTaskIframe: React.FC<ExerciseTaskIframeProps> = ({ url, public_spe
   if (!url || url.trim() === "") {
     return <Alert severity="error">Cannot render exercise task, missing url.</Alert>
   }
+
   return (
     <MessageChannelIFrame
       url={url}

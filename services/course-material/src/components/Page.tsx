@@ -10,6 +10,7 @@ import NavigationContainer from "./ContentRenderer/NavigationContainer"
 import FeedbackHandler from "./FeedbackHandler"
 import SearchDialog from "./SearchDialog"
 import SelectCourseInstanceModal from "./modals/SelectCourseInstanceModal"
+import UserOnWrongCourseNotification from "./notifications/UserOnWrongCourseNotification"
 
 interface Props {
   courseSlug: string
@@ -24,6 +25,12 @@ const Page: React.FC<Props> = ({ courseSlug, onRefresh }) => {
 
   return (
     <>
+      {pageContext.settings &&
+        pageContext.settings.current_course_instance_id !== pageContext.instance?.id && (
+          <UserOnWrongCourseNotification
+            correctCourseId={pageContext.settings?.current_course_id}
+          />
+        )}
       <div
         className={css`
           text-align: right;

@@ -1,5 +1,12 @@
-use super::{chapters::ChapterStatus, courses::Course, ModelResult};
+use super::{
+    chapters::{self, ChapterStatus},
+    course_instances::{self, CourseInstance},
+    courses::Course,
+    user_course_settings::{self, UserCourseSettings},
+    ModelResult,
+};
 use crate::{
+    domain::authorization::AuthUser,
     models::{
         chapters::DatabaseChapter,
         exercise_service_info,
@@ -45,6 +52,13 @@ impl Page {
     pub fn blocks_cloned(&self) -> ModelResult<Vec<GutenbergBlock>> {
         serde_json::from_value(self.content.clone()).map_err(Into::into)
     }
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+pub struct CoursePageWithUserData {
+    pub page: Page,
+    pub instance: Option<CourseInstance>,
+    pub settings: Option<UserCourseSettings>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -348,6 +362,45 @@ WHERE courses.slug = $1
     .fetch_one(conn)
     .await?;
     Ok(page)
+}
+
+pub async fn get_page_with_user_data_by_path(
+    conn: &mut PgConnection,
+    user: Option<AuthUser>,
+    course_slug: String,
+    url_path: &str,
+) -> ModelResult<CoursePageWithUserData> {
+    let page = get_page_by_path(conn, course_slug, url_path).await?;
+    if let Some(chapter_id) = page.chapter_id {
+        if !chapters::is_open(conn, chapter_id).await? {
+            return Err(ModelError::PreconditionFailed(
+                "Chapter is not open yet".to_string(),
+            ));
+        }
+    }
+
+    if let Some(user) = user {
+        let instance =
+            course_instances::current_course_instance_of_user(conn, user.id, page.course_id)
+                .await?;
+        let settings = user_course_settings::get_user_course_settings_by_course_id(
+            conn,
+            user.id,
+            page.course_id,
+        )
+        .await?;
+        Ok(CoursePageWithUserData {
+            page,
+            instance,
+            settings,
+        })
+    } else {
+        Ok(CoursePageWithUserData {
+            page,
+            instance: None,
+            settings: None,
+        })
+    }
 }
 
 pub async fn get_page_with_exercises(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<Page> {

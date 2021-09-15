@@ -10,7 +10,7 @@ import {
   editedOptionTitle,
 } from "../../../../store/editor/options/optionActions"
 import { useTypedSelector } from "../../../../store/store"
-import { NormalizedOption } from "../../../../types/types"
+import { NormalizedQuizItemOption } from "../../../../types/types"
 import MarkdownEditor from "../../../MarkdownEditor"
 
 const ModalContent = styled.div`
@@ -19,7 +19,7 @@ const ModalContent = styled.div`
 `
 
 interface OptionEditorProps {
-  option: NormalizedOption
+  option: NormalizedQuizItemOption
 }
 
 export const OptionModalContent: React.FC<OptionEditorProps> = ({ option }) => {

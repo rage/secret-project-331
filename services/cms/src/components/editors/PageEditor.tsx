@@ -64,7 +64,10 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
       })
       setError(null)
       setContent(res.content as BlockInstance[])
-    } catch (e) {
+    } catch (e: unknown) {
+      if (!(e instanceof Error)) {
+        throw e
+      }
       setError(e.toString())
     } finally {
       setSaving(false)

@@ -8,7 +8,7 @@ import styled from "styled-components"
 import { deletedOption } from "../../../../store/editor/editorActions"
 import { setOptionEditing } from "../../../../store/editor/optionVariables/optionVariableActions"
 import { useTypedSelector } from "../../../../store/store"
-import { NormalizedOption } from "../../../../types/types"
+import { NormalizedQuizItemOption } from "../../../../types/types"
 
 import OptionModalContent from "./OptionModalContent"
 
@@ -49,7 +49,7 @@ const IncorrectButton = styled(Button)`
 `
 
 interface MultipleChoiceDropdownButtonProps {
-  option: NormalizedOption
+  option: NormalizedQuizItemOption
 }
 
 const MultipleChoiceDropdownButton: React.FC<MultipleChoiceDropdownButtonProps> = ({ option }) => {

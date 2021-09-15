@@ -94,10 +94,12 @@ const Footer: React.FC<FooterProps> = ({ licenseUrl }) => {
         }
       `}
     >
-      <Banner
-        variant="readOnly"
-        content="Secret project is a system developed by the MOOC centre of Univeristy of Helsinki that enables teachers in all institutions to create online courses for free."
-      />
+      <Banner variant="readOnly">
+        <>
+          Secret project is a system developed by the MOOC centre of Univeristy of Helsinki that
+          enables teachers in all institutions to create online courses for free.
+        </>
+      </Banner>
       <Wrapper>
         <div
           className={css`

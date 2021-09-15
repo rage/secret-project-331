@@ -7,48 +7,53 @@ import { runCallbackIfEnterPressed } from "../utils/accessibility"
 export interface SpeechBalloonProps {
   className?: string
   onClick?: () => void
+  children?: React.ReactNode
 }
 
 const SQUARE_SIZE = "1rem"
 
-const SpeechBalloon: React.FC<SpeechBalloonProps> = ({ children, className, onClick }) => {
-  const bg = baseTheme.colors.grey[300]
+const SpeechBalloon = React.forwardRef<HTMLDivElement, SpeechBalloonProps>(
+  ({ children, className, onClick }, ref) => {
+    const bg = baseTheme.colors.grey[300]
 
-  const outerCss = css`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: max-content;
-  `
-  return (
-    <div
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => onClick && runCallbackIfEnterPressed(e, onClick)}
-      onClick={onClick}
-      className={`${outerCss} ${className}`}
-    >
+    const outerCss = css`
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: max-content;
+    `
+    return (
       <div
-        className={css`
-          background: ${bg};
-          width: max-content;
-          padding: 1rem;
-        `}
+        ref={ref}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => onClick && runCallbackIfEnterPressed(e, onClick)}
+        onClick={onClick}
+        className={`${outerCss} ${className}`}
       >
-        {children}
+        <div
+          className={css`
+            background: ${bg};
+            width: max-content;
+            padding: 1rem;
+          `}
+        >
+          {children}
+        </div>
+        <div
+          className={css`
+            width: ${SQUARE_SIZE};
+            height: ${SQUARE_SIZE};
+            position: relative;
+            top: calc(-${SQUARE_SIZE} / 2);
+            background: ${bg};
+            transform: rotate(45deg);
+          `}
+        />
       </div>
-      <div
-        className={css`
-          width: ${SQUARE_SIZE};
-          height: ${SQUARE_SIZE};
-          position: relative;
-          top: calc(-${SQUARE_SIZE} / 2);
-          background: ${bg};
-          transform: rotate(45deg);
-        `}
-      />
-    </div>
-  )
-}
+    )
+  },
+)
 
+SpeechBalloon.displayName = "SpeechBalloon"
 export default SpeechBalloon

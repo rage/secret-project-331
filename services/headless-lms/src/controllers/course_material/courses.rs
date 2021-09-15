@@ -406,7 +406,7 @@ async fn propose_edit(
 ) -> ControllerResult<String> {
     let mut conn = pool.acquire().await?;
     let course = courses::get_course_by_slug(&mut conn, course_slug.as_str()).await?;
-    let id = proposed_page_edits::insert(
+    let (id, _) = proposed_page_edits::insert(
         &mut conn,
         course.id,
         user.map(|u| u.id),

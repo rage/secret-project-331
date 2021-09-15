@@ -39,10 +39,11 @@ const EditProposalList: React.FC<Props> = ({ courseId, pending, perPage }) => {
   if (isLoading || !data) {
     return <div>Loading feedback...</div>
   }
-  const pageCount = Math.floor((pending ? data.pending : data.handled) / perPage)
-  if (pageCount < 1) {
-    return <div>No feedback</div>
+  const items = pending ? data.pending : data.handled
+  if (items <= 0) {
+    return <div>No proposals</div>
   }
+  const pageCount = Math.floor(items / perPage)
   if (page > pageCount) {
     setPage(pageCount)
   }

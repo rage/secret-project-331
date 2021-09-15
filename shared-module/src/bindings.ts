@@ -365,6 +365,18 @@ export interface ProposalCount {
   handled: number
 }
 
+export interface BlockProposalInfo {
+  page_id: string
+  page_proposal_id: string
+  block_proposal_ids: string[]
+}
+
+export interface GetEditProposalsQuery {
+  pending: boolean
+  page?: number
+  limit?: number
+}
+
 export type VariantStatus = "Draft" | "Upcoming" | "Active" | "Ended"
 
 export type ChapterStatus = "open" | "closed"

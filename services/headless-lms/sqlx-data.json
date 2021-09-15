@@ -2855,6 +2855,22 @@
       "nullable": [false, false, false, false, true, false, true, false, false, false, false, true]
     }
   },
+  "6b8536e8f4621ec17b4b6a7aea1b2df02d5f86d70df29eaa89dd00c028aa4e67": {
+    "query": "\nINSERT INTO proposed_block_edits (\n  proposal_id,\n  block_id,\n  block_attribute,\n  original_text,\n  changed_text\n)\nVALUES ($1, $2, $3, $4, $5)\nRETURNING id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Text", "Text", "Text"]
+      },
+      "nullable": [false]
+    }
+  },
   "6bd95f1c7298f117e046d351cf2326c37ff3347283997ca98ba97aa8c70bb450": {
     "query": "\nINSERT INTO user_exercise_states (\n    user_id,\n    exercise_id,\n    course_instance_id,\n    selected_exercise_task_id\n  )\nVALUES ($1, $2, $3, $4) ON CONFLICT (user_id, exercise_id, course_instance_id) DO\nUPDATE\nSET selected_exercise_task_id = $4\n",
     "describe": {
@@ -3238,74 +3254,6 @@
         "Left": ["Uuid", "Uuid"]
       },
       "nullable": [false, false]
-    }
-  },
-  "80fadd6dc0106a63a201ce3ac7edfb7cc7ef8095d58013238ac8167b309ec96a": {
-    "query": "\nSELECT proposed_page_edits.id AS page_proposal_id,\n  proposed_block_edits.id AS block_proposal_id,\n  page_id,\n  user_id,\n  block_id,\n  original_text,\n  changed_text,\n  proposed_page_edits.pending,\n  proposed_block_edits.status as \"block_proposal_status: ProposalStatus\",\n  proposed_page_edits.created_at\nFROM (\n    SELECT id,\n      page_id,\n      user_id,\n      pending,\n      created_at\n    FROM proposed_page_edits\n    WHERE course_id = $1\n      AND deleted_at IS NULL\n    LIMIT $2 OFFSET $3\n  ) proposed_page_edits\n  LEFT JOIN proposed_block_edits ON proposed_page_edits.id = proposed_block_edits.proposal_id\nWHERE proposed_block_edits.deleted_at IS NULL\nORDER BY created_at DESC,\n  proposed_page_edits.id\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "page_proposal_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "block_proposal_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 2,
-          "name": "page_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 3,
-          "name": "user_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 4,
-          "name": "block_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "original_text",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 6,
-          "name": "changed_text",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 7,
-          "name": "pending",
-          "type_info": "Bool"
-        },
-        {
-          "ordinal": 8,
-          "name": "block_proposal_status: ProposalStatus",
-          "type_info": {
-            "Custom": {
-              "name": "proposal_status",
-              "kind": {
-                "Enum": ["pending", "accepted", "rejected"]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 9,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Int8", "Int8"]
-      },
-      "nullable": [false, false, false, true, false, false, false, false, false, false]
     }
   },
   "8355f2e2500598d1b6fb129f1c7876b2415df0f4235a164a98b0414f8445c84b": {
@@ -4472,16 +4420,6 @@
       "nullable": [false, false, false, false, false, true, false, null, false, true, true]
     }
   },
-  "a4dc7fad993ac092c3cec106922ede8d46dbcb9a2a67a4aae75c300f7b595ff3": {
-    "query": "\nINSERT INTO proposed_block_edits (\n  proposal_id,\n  block_id,\n  block_attribute,\n  original_text,\n  changed_text\n)\nVALUES ($1, $2, $3, $4, $5)\n",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Uuid", "Uuid", "Text", "Text", "Text"]
-      },
-      "nullable": []
-    }
-  },
   "a564b4d932be98839ba4902d318c21812fbf46b9e97c8e097a3a28fc4d10d682": {
     "query": "\nUPDATE chapters\nSET front_page_id = uuid_generate_v5(course_id, front_page_id::text)\nWHERE course_id = $1\n    AND front_page_id IS NOT NULL;\n        ",
     "describe": {
@@ -4521,6 +4459,37 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false]
+    }
+  },
+  "a9a3d42858671322486da46b93d3aa54e983769faa599fe7e486faf2e64b7be0": {
+    "query": "\nUPDATE proposed_block_edits\nSET status = 'accepted'\nWHERE id = $1\nRETURNING block_id,\n  block_attribute,\n  original_text,\n  changed_text\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "block_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "block_attribute",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 2,
+          "name": "original_text",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 3,
+          "name": "changed_text",
+          "type_info": "Text"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false]
     }
   },
   "a9e271cada9f2f343a30090ab395a3a921c69ae488694b9cf483dfffa9920d75": {
@@ -4951,6 +4920,79 @@
         "Left": ["Varchar"]
       },
       "nullable": [false]
+    }
+  },
+  "bc619d55d91c4c877c370bc770e5eb2fae94e787e1ab518df2f203af9528bf98": {
+    "query": "\nSELECT proposed_page_edits.id AS page_proposal_id,\n  proposed_block_edits.id AS block_proposal_id,\n  page_id,\n  user_id,\n  block_id,\n  original_text,\n  changed_text,\n  proposed_page_edits.pending,\n  block_attribute,\n  proposed_block_edits.status as \"block_proposal_status: ProposalStatus\",\n  proposed_page_edits.created_at\nFROM (\n    SELECT id,\n      page_id,\n      user_id,\n      pending,\n      created_at\n    FROM proposed_page_edits\n    WHERE course_id = $1\n      AND pending = $2\n      AND deleted_at IS NULL\n    LIMIT $3 OFFSET $4\n  ) proposed_page_edits\n  LEFT JOIN proposed_block_edits ON proposed_page_edits.id = proposed_block_edits.proposal_id\nWHERE proposed_block_edits.deleted_at IS NULL\nORDER BY created_at DESC,\n  proposed_page_edits.id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "page_proposal_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "block_proposal_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "page_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 3,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "block_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "original_text",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 6,
+          "name": "changed_text",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 7,
+          "name": "pending",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 8,
+          "name": "block_attribute",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 9,
+          "name": "block_proposal_status: ProposalStatus",
+          "type_info": {
+            "Custom": {
+              "name": "proposal_status",
+              "kind": {
+                "Enum": ["pending", "accepted", "rejected"]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 10,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Bool", "Int8", "Int8"]
+      },
+      "nullable": [false, false, false, true, false, false, false, false, false, false, false]
     }
   },
   "c00028f92949b3e8d712a87d620c60b033e48b43583ed796d2e73d219df2931b": {
@@ -5446,37 +5488,6 @@
         "Left": ["Uuid", "Jsonb", "Varchar", "Varchar", "Uuid"]
       },
       "nullable": [false, false, false, false, true, false, false, true, false, false, true]
-    }
-  },
-  "d10c03e80271a8a4831b4572594e67f25734f0e87c97ea1ff40cf09d22bbba54": {
-    "query": "\nUPDATE proposed_block_edits\nSET status = 'accepted'\nWHERE id = $1\nRETURNING block_id,\nblock_attribute,\noriginal_text,\nchanged_text\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "block_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "block_attribute",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 2,
-          "name": "original_text",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 3,
-          "name": "changed_text",
-          "type_info": "Text"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, false, false]
     }
   },
   "d13e367302b3873770dbcd15736161dd89130c0d06620cb5d337b1f7c9f230e8": {

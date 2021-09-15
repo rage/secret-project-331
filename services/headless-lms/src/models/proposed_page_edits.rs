@@ -1,4 +1,4 @@
-use super::proposed_block_edits::{BlockProposal, NewProposedBlockEdits};
+use super::proposed_block_edits::{BlockProposal, NewProposedBlockEdit};
 use crate::{
     domain::merge_edits,
     models::{proposed_block_edits::ProposalStatus, ModelError, ModelResult},
@@ -15,7 +15,7 @@ use uuid::Uuid;
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
 pub struct NewProposedPageEdits {
     pub page_id: Uuid,
-    pub block_edits: Vec<NewProposedBlockEdits>,
+    pub block_edits: Vec<NewProposedBlockEdit>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
@@ -39,7 +39,7 @@ pub async fn insert(
     course_id: Uuid,
     user_id: Option<Uuid>,
     edits: &NewProposedPageEdits,
-) -> ModelResult<Uuid> {
+) -> ModelResult<(Uuid, Vec<Uuid>)> {
     if edits.block_edits.is_empty() {
         return Err(ModelError::Generic("No block edits".to_string()));
     }
@@ -57,8 +57,10 @@ RETURNING id
     )
     .fetch_one(&mut tx)
     .await?;
+
+    let mut block_ids = vec![];
     for block_edit in &edits.block_edits {
-        sqlx::query!(
+        let res = sqlx::query!(
             "
 INSERT INTO proposed_block_edits (
   proposal_id,
@@ -68,6 +70,7 @@ INSERT INTO proposed_block_edits (
   changed_text
 )
 VALUES ($1, $2, $3, $4, $5)
+RETURNING id
 ",
             page_res.id,
             block_edit.block_id,
@@ -75,16 +78,18 @@ VALUES ($1, $2, $3, $4, $5)
             block_edit.original_text,
             block_edit.changed_text
         )
-        .execute(&mut tx)
+        .fetch_one(&mut tx)
         .await?;
+        block_ids.push(res.id);
     }
     tx.commit().await?;
-    Ok(page_res.id)
+    Ok((page_res.id, block_ids))
 }
 
 pub async fn get_proposals_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,
+    pending: bool,
     pagination: &Pagination,
 ) -> ModelResult<Vec<PageProposal>> {
     let res = sqlx::query!(
@@ -97,6 +102,7 @@ SELECT proposed_page_edits.id AS page_proposal_id,
   original_text,
   changed_text,
   proposed_page_edits.pending,
+  block_attribute,
   proposed_block_edits.status as "block_proposal_status: ProposalStatus",
   proposed_page_edits.created_at
 FROM (
@@ -107,8 +113,9 @@ FROM (
       created_at
     FROM proposed_page_edits
     WHERE course_id = $1
+      AND pending = $2
       AND deleted_at IS NULL
-    LIMIT $2 OFFSET $3
+    LIMIT $3 OFFSET $4
   ) proposed_page_edits
   LEFT JOIN proposed_block_edits ON proposed_page_edits.id = proposed_block_edits.proposal_id
 WHERE proposed_block_edits.deleted_at IS NULL
@@ -116,8 +123,9 @@ ORDER BY created_at DESC,
   proposed_page_edits.id
 "#,
         course_id,
+        pending,
         pagination.limit(),
-        pagination.offset()
+        pagination.offset(),
     )
     .fetch_all(&mut *conn)
     .await?;
@@ -139,10 +147,16 @@ ORDER BY created_at DESC,
             .context("Failed to find block that the edit was for")?;
         let content = block
             .attributes
-            .get("content")
-            .context("Missing content in edited block")?
+            .get(&r.block_attribute)
+            .context(format!(
+                "Missing expected attribute '{}' in edited block",
+                r.block_attribute
+            ))?
             .as_str()
-            .context("Content did not contain a string")?
+            .context(format!(
+                "Attribute '{}' did not contain a string",
+                r.block_attribute
+            ))?
             .to_string();
         let page_proposal_id = r.page_proposal_id;
         let page_id = r.page_id;
@@ -284,7 +298,7 @@ mod test {
         let (data, block_id) = init_content(tx.as_mut(), "Content with a tpo in it.").await;
         let new = NewProposedPageEdits {
             page_id: data.page,
-            block_edits: vec![NewProposedBlockEdits {
+            block_edits: vec![NewProposedBlockEdit {
                 block_id,
                 block_attribute: "content".to_string(),
                 original_text: "Content with a tpo in it.".to_string(),
@@ -292,12 +306,10 @@ mod test {
             }],
         };
         insert(tx.as_mut(), data.course, None, &new).await.unwrap();
-        let proposals = get_proposals_for_course(tx.as_mut(), data.course, &Pagination::default())
-            .await
-            .unwrap();
-        let mut ps = get_proposals_for_course(tx.as_mut(), data.course, &Pagination::default())
-            .await
-            .unwrap();
+        let mut ps =
+            get_proposals_for_course(tx.as_mut(), data.course, true, &Pagination::default())
+                .await
+                .unwrap();
         let mut p = ps.pop().unwrap();
         let b = p.block_proposals.pop().unwrap();
         assert_eq!(b.accept_preview.unwrap(), "Content with a typo in it.");
@@ -305,11 +317,11 @@ mod test {
             .await
             .unwrap();
 
-        let mut ps = get_proposals_for_course(tx.as_mut(), data.course, &Pagination::default())
-            .await
-            .unwrap();
-        let p = ps.pop().unwrap();
-        assert_eq!(p.pending, false);
+        let mut ps =
+            get_proposals_for_course(tx.as_mut(), data.course, false, &Pagination::default())
+                .await
+                .unwrap();
+        let _ = ps.pop().unwrap();
 
         assert_content(tx.as_mut(), data.page, "Content with a typo in it.").await;
     }
@@ -322,7 +334,7 @@ mod test {
         let (data, block_id) = init_content(tx.as_mut(), "Content with a tpo in it.").await;
         let new = NewProposedPageEdits {
             page_id: data.page,
-            block_edits: vec![NewProposedBlockEdits {
+            block_edits: vec![NewProposedBlockEdit {
                 block_id,
                 block_attribute: "content".to_string(),
                 original_text: "Content with a tpo in it.".to_string(),
@@ -330,13 +342,11 @@ mod test {
             }],
         };
         insert(tx.as_mut(), data.course, None, &new).await.unwrap();
-        let proposals = get_proposals_for_course(tx.as_mut(), data.course, &Pagination::default())
-            .await
-            .unwrap();
 
-        let mut ps = get_proposals_for_course(tx.as_mut(), data.course, &Pagination::default())
-            .await
-            .unwrap();
+        let mut ps =
+            get_proposals_for_course(tx.as_mut(), data.course, true, &Pagination::default())
+                .await
+                .unwrap();
         let mut p = ps.pop().unwrap();
         let b = p.block_proposals.pop().unwrap();
         assert_eq!(b.accept_preview.unwrap(), "Content with a typo in it.");
@@ -346,11 +356,11 @@ mod test {
             .await
             .unwrap();
 
-        let mut ps = get_proposals_for_course(tx.as_mut(), data.course, &Pagination::default())
-            .await
-            .unwrap();
-        let p = ps.pop().unwrap();
-        assert_eq!(p.pending, false);
+        let mut ps =
+            get_proposals_for_course(tx.as_mut(), data.course, false, &Pagination::default())
+                .await
+                .unwrap();
+        let _ = ps.pop().unwrap();
 
         assert_content(tx.as_mut(), data.page, "Content with a tpo in it.").await;
     }

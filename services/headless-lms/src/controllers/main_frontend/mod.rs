@@ -14,6 +14,7 @@ pub mod feedback;
 pub mod organizations;
 pub mod pages;
 pub mod playground_examples;
+pub mod proposed_edits;
 pub mod submissions;
 
 use actix_web::web::{self, ServiceConfig};
@@ -25,7 +26,8 @@ use self::{
     courses::_add_courses_routes, email_templates::_add_email_templates_routes,
     exercises::_add_exercises_routes, feedback::_add_feedback_routes,
     organizations::_add_organizations_routes, pages::_add_pages_routes,
-    playground_examples::_add_playground_examples_routes, submissions::_add_submissions_routes,
+    playground_examples::_add_playground_examples_routes,
+    proposed_edits::_add_proposed_edits_routes, submissions::_add_submissions_routes,
 };
 
 /// Add controllers from all the submodules.
@@ -39,5 +41,6 @@ pub fn add_main_frontend_routes<T: 'static + FileStore>(cfg: &mut ServiceConfig)
         .service(web::scope("/organizations").configure(_add_organizations_routes::<T>))
         .service(web::scope("/pages").configure(_add_pages_routes))
         .service(web::scope("/submissions").configure(_add_submissions_routes))
-        .service(web::scope("/playground_examples").configure(_add_playground_examples_routes));
+        .service(web::scope("/playground_examples").configure(_add_playground_examples_routes))
+        .service(web::scope("/proposed-edits").configure(_add_proposed_edits_routes));
 }

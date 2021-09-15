@@ -4,6 +4,7 @@ use crate::{
         auth::Login,
         main_frontend::{
             courses::GetFeedbackQuery, exercises::ExerciseSubmissions, feedback::MarkAsRead,
+            proposed_edits::GetEditProposalsQuery,
         },
         UploadResult,
     },
@@ -28,7 +29,7 @@ use crate::{
             PageSearchResult, PageUpdate, PageWithExercises,
         },
         playground_examples::{PlaygroundExample, PlaygroundExampleData},
-        proposed_block_edits::{BlockProposal, ProposalStatus},
+        proposed_block_edits::{BlockProposal, BlockProposalInfo, ProposalStatus},
         proposed_page_edits::{PageProposal, ProposalCount},
         submissions::{
             NewSubmission, Submission, SubmissionCount, SubmissionCountByExercise,
@@ -86,6 +87,8 @@ ts_rs::export! {
   PageProposal,
   BlockProposal,
   ProposalCount,
+  BlockProposalInfo,
+  GetEditProposalsQuery,
   // dependencies
   VariantStatus,
   ChapterStatus,

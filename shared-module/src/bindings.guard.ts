@@ -5,6 +5,7 @@
 import {
   ActivityProgress,
   BlockProposal,
+  BlockProposalInfo,
   Chapter,
   ChapterStatus,
   ChapterUpdate,
@@ -29,6 +30,7 @@ import {
   Feedback,
   FeedbackBlock,
   FeedbackCount,
+  GetEditProposalsQuery,
   GetFeedbackQuery,
   Grading,
   GradingProgress,
@@ -592,6 +594,28 @@ export function isProposalCount(obj: any, _argumentName?: string): obj is Propos
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.pending === "number" &&
     typeof obj.handled === "number"
+  )
+}
+
+export function isBlockProposalInfo(obj: any, _argumentName?: string): obj is BlockProposalInfo {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.page_id === "string" &&
+    typeof obj.page_proposal_id === "string" &&
+    Array.isArray(obj.block_proposal_ids) &&
+    obj.block_proposal_ids.every((e: any) => typeof e === "string")
+  )
+}
+
+export function isGetEditProposalsQuery(
+  obj: any,
+  _argumentName?: string,
+): obj is GetEditProposalsQuery {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.pending === "boolean" &&
+    (typeof obj.page === "undefined" || typeof obj.page === "number") &&
+    (typeof obj.limit === "undefined" || typeof obj.limit === "number")
   )
 }
 

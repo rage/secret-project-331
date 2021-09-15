@@ -1,7 +1,11 @@
 import { useQuery } from "react-query"
 
-import { fetchEditProposals } from "../services/backend/proposedEdits"
-import { Feedback } from "../shared-module/bindings"
+import {
+  acceptEditProposalBlocks,
+  fetchEditProposals,
+  rejectEditProposalBlocks,
+} from "../services/backend/proposedEdits"
+import { BlockProposal } from "../shared-module/bindings"
 
 import EditProposalView from "./EditProposalView"
 
@@ -15,8 +19,8 @@ interface Props {
 
 const EditProposalPage: React.FC<Props> = ({ courseId, page, limit, pending, onChange }) => {
   const { isLoading, error, data, refetch } = useQuery(
-    `edit-proposal-list-${courseId}-${page}`,
-    () => fetchEditProposals(courseId, page, limit),
+    `edit-proposal-list-${courseId}-${pending}-${page}-${limit}`,
+    () => fetchEditProposals(courseId, pending, page, limit),
   )
 
   if (error) {
@@ -37,11 +41,43 @@ const EditProposalPage: React.FC<Props> = ({ courseId, page, limit, pending, onC
     return <div>Nothing here!</div>
   }
 
+  async function handleAcceptBlocks(
+    pageId: string,
+    pageProposalId: string,
+    blockProposals: BlockProposal[],
+  ) {
+    await acceptEditProposalBlocks(
+      pageId,
+      pageProposalId,
+      blockProposals.map((b) => b.id),
+    )
+    await refetch()
+    await onChange()
+  }
+
+  async function handleRejectBlocks(
+    pageId: string,
+    pageProposalId: string,
+    blockProposals: BlockProposal[],
+  ) {
+    await rejectEditProposalBlocks(
+      pageId,
+      pageProposalId,
+      blockProposals.map((b) => b.id),
+    )
+    await refetch()
+    await onChange()
+  }
+
   return (
     <ul>
       {proposals.map((p) => (
         <li key={p.id}>
-          <EditProposalView proposal={p} />
+          <EditProposalView
+            proposal={p}
+            handleAcceptBlocks={handleAcceptBlocks}
+            handleRejectBlocks={handleRejectBlocks}
+          />
         </li>
       ))}
     </ul>

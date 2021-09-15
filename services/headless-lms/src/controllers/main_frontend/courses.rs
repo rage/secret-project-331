@@ -9,7 +9,6 @@ use crate::{
         courses::{Course, CourseStructure, CourseUpdate, NewCourse},
         exercises::Exercise,
         feedback::{self, Feedback, FeedbackCount},
-        proposed_page_edits::{self, PageProposal, ProposalCount},
         submissions::{SubmissionCount, SubmissionCountByExercise, SubmissionCountByWeekAndHour},
     },
     utils::{file_store::FileStore, pagination::Pagination, strings::is_ietf_language_code_like},
@@ -674,39 +673,6 @@ pub async fn get_feedback_count(
 }
 
 /**
-GET `/api/v0/main-frontend/courses/:id/edit-proposals?read=true` - Returns feedback for the given course.
-*/
-#[instrument(skip(pool))]
-pub async fn get_edit_proposals(
-    course_id: web::Path<Uuid>,
-    pool: web::Data<PgPool>,
-    pagination: web::Query<Pagination>,
-) -> ControllerResult<Json<Vec<PageProposal>>> {
-    let mut conn = pool.acquire().await?;
-    let course_id = course_id.into_inner();
-
-    let feedback =
-        proposed_page_edits::get_proposals_for_course(&mut conn, course_id, &pagination).await?;
-    Ok(Json(feedback))
-}
-
-/**
-GET `/api/v0/main-frontend/courses/:id/edit-proposal-count` - Returns the amount of feedback for the given course.
-*/
-#[instrument(skip(pool))]
-pub async fn get_edit_proposal_count(
-    course_id: web::Path<Uuid>,
-    pool: web::Data<PgPool>,
-) -> ControllerResult<Json<ProposalCount>> {
-    let mut conn = pool.acquire().await?;
-    let course_id = course_id.into_inner();
-
-    let edit_proposal_count =
-        proposed_page_edits::get_proposal_count_for_course(&mut conn, course_id).await?;
-    Ok(Json(edit_proposal_count))
-}
-
-/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -755,13 +721,5 @@ pub fn _add_courses_routes<T: 'static + FileStore>(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/feedback-count",
             web::get().to(get_feedback_count),
-        )
-        .route(
-            "/{course_id}/edit-proposals",
-            web::get().to(get_edit_proposals),
-        )
-        .route(
-            "/{course_id}/edit-proposal-count",
-            web::get().to(get_edit_proposal_count),
         );
 }

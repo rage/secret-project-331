@@ -7,7 +7,7 @@ use headless_lms_actix::models::exercises::GradingProgress;
 use headless_lms_actix::models::feedback::{FeedbackBlock, NewFeedback};
 use headless_lms_actix::models::pages::{NewPage, PageUpdate};
 use headless_lms_actix::models::playground_examples::PlaygroundExampleData;
-use headless_lms_actix::models::proposed_block_edits::NewProposedBlockEdits;
+use headless_lms_actix::models::proposed_block_edits::NewProposedBlockEdit;
 use headless_lms_actix::models::proposed_page_edits::NewProposedPageEdits;
 use headless_lms_actix::models::submissions::GradingResult;
 use headless_lms_actix::models::{
@@ -682,7 +682,7 @@ async fn seed_sample_course(
     // edit proposals
     let edits = NewProposedPageEdits {
         page_id: page_c1_1,
-        block_edits: vec![NewProposedBlockEdits {
+        block_edits: vec![NewProposedBlockEdit {
             block_id: block_id_4,
             block_attribute: "content".to_string(),
             original_text: "So bg, that we need many paragraphs.".to_string(),
@@ -693,13 +693,13 @@ async fn seed_sample_course(
     let edits = NewProposedPageEdits {
         page_id: page_c1_1,
         block_edits: vec![
-            NewProposedBlockEdits {
+            NewProposedBlockEdit {
                 block_id: block_id_1,
                 block_attribute: "content".to_string(),
                 original_text: "Everything is a big topic.".to_string(),
                 changed_text: "Everything is a very big topic.".to_string(),
             },
-            NewProposedBlockEdits {
+            NewProposedBlockEdit {
                 block_id: block_id_5,
                 block_attribute: "content".to_string(),
                 original_text: "Like this.".to_string(),
@@ -1031,6 +1031,7 @@ fn example_exercise(
             client_id: block_2,
             attributes: attributes! {
                 "id": task,
+                "name": "Best exercise task",
                 "exercise_type": "example-exercise",
                 "private_spec": serde_json::json!([
                     {

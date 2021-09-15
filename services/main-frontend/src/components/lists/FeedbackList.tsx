@@ -39,10 +39,11 @@ const FeedbackList: React.FC<Props> = ({ courseId, pending, perPage }) => {
   if (isLoading || !data) {
     return <div>Loading feedback...</div>
   }
-  const pageCount = Math.floor((pending ? data.unread : data.read) / perPage)
-  if (pageCount < 1) {
+  const items = pending ? data.unread : data.read
+  if (items <= 0) {
     return <div>No feedback</div>
   }
+  const pageCount = Math.floor(items / perPage)
   if (page > pageCount) {
     setPage(pageCount)
   }

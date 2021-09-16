@@ -61,6 +61,7 @@
     "monaco-editor": "^0.27.0",
     "react-query": "^3.21.1",
     "react-spring": "^9.2.4",
-    "styled-system": "^5.1.5"
+    "styled-system": "^5.1.5",
+    "use-debounce": "^7.0.0"
   }
 }

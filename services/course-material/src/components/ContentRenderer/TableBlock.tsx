@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 
-import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
+import { courseMaterialCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { TableAttributes } from "../../types/GutenbergBlockAttributes"
 
@@ -23,7 +23,7 @@ const TableBlock: React.FC<BlockRendererProps<TableAttributes>> = ({ data }) => 
   return (
     <table
       className={css`
-        ${normalWidthCenteredComponentStyles}
+        ${courseMaterialCenteredComponentStyles}
       `}
     >
       {head && (

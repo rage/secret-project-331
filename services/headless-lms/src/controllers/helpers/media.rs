@@ -2,8 +2,11 @@
 
 use crate::controllers::{ControllerError, ControllerResult};
 use crate::models::courses::Course;
+use crate::models::organizations::DatabaseOrganization;
 use crate::utils::file_store::file_utils::{get_extension_from_filename, upload_media_to_storage};
-use crate::utils::file_store::{course_audio_path, course_file_path, course_image_path, FileStore};
+use crate::utils::file_store::{
+    course_audio_path, course_file_path, course_image_path, organization_image_path, FileStore,
+};
 use crate::utils::strings::generate_random_string;
 use actix_multipart as mp;
 use actix_web::http::{header, HeaderMap};
@@ -28,6 +31,34 @@ pub async fn upload_media_for_course(
                 mime::AUDIO => generate_audio_path(&field, course),
                 mime::IMAGE => generate_image_path(&field, course),
                 _ => generate_file_path(&field, course),
+            }?;
+            upload_media_to_storage(&path, field, file_store).await?;
+            Ok(path)
+        }
+        Err(err) => Err(ControllerError::InternalServerError(err.to_string())),
+    }
+}
+
+pub async fn upload_image_for_organization(
+    headers: &HeaderMap,
+    mut payload: mp::Multipart,
+    organization: &DatabaseOrganization,
+    file_store: &impl FileStore,
+) -> ControllerResult<PathBuf> {
+    validate_media_headers(headers)?;
+
+    let next_payload = payload
+        .next()
+        .await
+        .ok_or_else(|| ControllerError::BadRequest("Missing form data".into()))?;
+    match next_payload {
+        Ok(field) => {
+            let path: PathBuf = match field.content_type().type_() {
+                mime::IMAGE => generate_organization_image_path(&field, organization),
+                unsupported => Err(ControllerError::BadRequest(format!(
+                    "Unsupported image Mime type: {}",
+                    unsupported
+                ))),
             }?;
             upload_media_to_storage(&path, field, file_store).await?;
             Ok(path)
@@ -104,6 +135,37 @@ fn generate_image_path(field: &mp::Field, course: &Course) -> ControllerResult<P
     let mut file_name = generate_random_string(30);
     file_name.push_str(extension);
     let path = course_image_path(course, file_name)
+        .map_err(|err| ControllerError::InternalServerError(err.to_string()))?;
+
+    Ok(path)
+}
+
+fn generate_organization_image_path(
+    field: &mp::Field,
+    organization: &DatabaseOrganization,
+) -> ControllerResult<PathBuf> {
+    let extension = match field.content_type().to_string().as_str() {
+        "image/jpeg" => ".jpg",
+        "image/png" => ".png",
+        "image/svg+xml" => ".svg",
+        "image/tiff" => ".tif",
+        "image/bmp" => ".bmp",
+        "image/webp" => ".webp",
+        "image/gif" => ".gif",
+        unsupported => {
+            return Err(ControllerError::BadRequest(format!(
+                "Unsupported image Mime type: {}",
+                unsupported
+            )))
+        }
+    };
+
+    // using a random string for the image name because
+    // a) we don't want the filename to be user controllable
+    // b) we don't want the filename to be too easily guessable (so no uuid)
+    let mut file_name = generate_random_string(30);
+    file_name.push_str(extension);
+    let path = organization_image_path(organization, file_name)
         .map_err(|err| ControllerError::InternalServerError(err.to_string()))?;
 
     Ok(path)

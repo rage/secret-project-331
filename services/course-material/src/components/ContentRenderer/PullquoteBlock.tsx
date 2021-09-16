@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import sanitizeHtml from "sanitize-html"
 
-import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
+import { courseMaterialCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import colorMapper from "../../styles/colorMapper"
 import { PullquoteAttributes } from "../../types/GutenbergBlockAttributes"
 
@@ -39,7 +39,7 @@ const PullquoteBlock: React.FC<BlockRendererProps<PullquoteAttributes>> = ({ dat
       backgroundColor={backgroundColor}
       solidColor={solidColor}
       className={css`
-        ${normalWidthCenteredComponentStyles}
+        ${courseMaterialCenteredComponentStyles}
       `}
     >
       <Blockquote textColor={textColor}>

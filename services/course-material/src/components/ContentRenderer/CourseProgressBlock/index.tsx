@@ -3,7 +3,7 @@ import { useContext } from "react"
 
 import { BlockRendererProps } from ".."
 import CoursePageContext from "../../../contexts/CoursePageContext"
-import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
+import { courseMaterialCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import GenericLoading from "../../GenericLoading"
 
@@ -20,7 +20,7 @@ const CourseProgressBlock: React.FC<BlockRendererProps<unknown>> = () => {
     return (
       <div
         className={css`
-          ${normalWidthCenteredComponentStyles}
+          ${courseMaterialCenteredComponentStyles}
         `}
       >
         Select course version to see your progress.

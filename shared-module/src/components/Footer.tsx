@@ -4,7 +4,8 @@ import React from "react"
 
 import UHLogo from "../img/UHLogo.svg"
 import MOOCfi from "../img/moocfi.svg"
-import { headingFont, typography } from "../styles"
+import { baseTheme, headingFont, typography } from "../styles"
+import { respondToOrLarger } from "../styles/respond"
 import basePath from "../utils/base-path"
 
 import Banner from "./Banner/Banner"
@@ -18,13 +19,13 @@ const Wrapper = styled.div`
   position: relative;
   gap: 40px;
 
-  @media (min-width: 600px) {
+  ${respondToOrLarger.md} {
     grid-template-columns: 0.5fr 1fr 0.5fr;
     padding: 4.5rem;
     gap: 20px;
   }
 
-  h3 {
+  h1 {
     margin-bottom: 1rem;
     opacity: 0.8;
     line-height: 1;
@@ -33,7 +34,7 @@ const Wrapper = styled.div`
   div:first-of-type {
     margin-right: 0;
 
-    @media (min-width: 600px) {
+    ${respondToOrLarger.md} {
       padding-right: 20px;
     }
   }
@@ -41,14 +42,14 @@ const Wrapper = styled.div`
 
 const StyledLink = styled.a`
   text-decoration: none;
-  color: #333;
+  color: ${baseTheme.colors.grey[800]};
   font-size: 1.2rem;
   opacity: 0.7;
   transition: opacity 0.2s ease-in;
   margin-bottom: 5px;
   font-family: ${headingFont};
 
-  @media (min-width: 600px) {
+  ${respondToOrLarger.md} {
     margin-bottom: 10px;
   }
 
@@ -61,18 +62,13 @@ const Text = styled.div`
   width: 100%;
   padding: 0;
 
-  @media (min-width: 600px) {
-    width: 100%;
+  ${respondToOrLarger.md} {
     padding: 0 2rem 0 2rem;
   }
   span {
     font-size: 16px;
     padding-right: 0;
     opacity: 0.7;
-
-    @media (min-width: 600px) {
-      /* padding: 0 rem; */
-    }
   }
 `
 const Links = styled.div`

@@ -13,7 +13,10 @@ use async_trait::async_trait;
 use bytes::Bytes;
 use futures::Stream;
 
-use crate::{models::courses::Course, ApplicationConfiguration};
+use crate::{
+    models::{courses::Course, organizations::DatabaseOrganization},
+    ApplicationConfiguration,
+};
 
 pub type GenericPayload = Pin<Box<dyn Stream<Item = Result<Bytes>>>>;
 /**
@@ -60,6 +63,17 @@ fn path_to_str(path: &Path) -> Result<&str> {
             "Could not convert path to string because it contained invalid UTF-8 characters."
         )),
     }
+}
+
+pub fn organization_image_path(
+    organization: &DatabaseOrganization,
+    image_name: String,
+) -> Result<PathBuf> {
+    let path = PathBuf::from(format!(
+        "organizations/{}/images/{}",
+        organization.id, image_name
+    ));
+    Ok(path)
 }
 
 pub fn course_image_path(course: &Course, image_name: String) -> Result<PathBuf> {

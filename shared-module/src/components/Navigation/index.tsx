@@ -16,7 +16,7 @@ const Navbar: React.FC<NavigationProps> = (props) => {
   if (props.variant === "simple") {
     return <SimpleNav {...props} />
   }
-  return <ComplexNav />
+  return <ComplexNav {...props} />
 }
 
 export default Navbar

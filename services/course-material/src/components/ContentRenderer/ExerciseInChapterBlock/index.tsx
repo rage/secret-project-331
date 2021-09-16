@@ -2,13 +2,13 @@ import { useContext } from "react"
 
 import { BlockRendererProps } from ".."
 import CoursePageContext from "../../../contexts/CoursePageContext"
-import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
+import { courseMaterialCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import GenericLoading from "../../GenericLoading"
 
-import ExerciseList from "./ExerciseList"
+import ExercisesInChapter from "./ExercisesInChapter"
 
-const ExerciseListBlock: React.FC<BlockRendererProps<unknown>> = () => {
+const ExerciseInChapterBlock: React.FC<BlockRendererProps<unknown>> = () => {
   const pageContext = useContext(CoursePageContext)
 
   if (pageContext.state !== "ready") {
@@ -22,10 +22,10 @@ const ExerciseListBlock: React.FC<BlockRendererProps<unknown>> = () => {
   }
 
   return (
-    <div className={normalWidthCenteredComponentStyles}>
-      <ExerciseList chapterId={chapterId} />
+    <div className={courseMaterialCenteredComponentStyles}>
+      <ExercisesInChapter chapterId={chapterId} />
     </div>
   )
 }
 
-export default withErrorBoundary(ExerciseListBlock)
+export default withErrorBoundary(ExerciseInChapterBlock)

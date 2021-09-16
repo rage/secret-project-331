@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 
-import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
+import { courseMaterialCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import { ImageAttributes } from "../../types/GutenbergBlockAttributes"
 
 import { BlockRendererProps } from "."
@@ -10,7 +10,7 @@ const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => 
   return (
     <figure
       className={css`
-        ${normalWidthCenteredComponentStyles}
+        ${courseMaterialCenteredComponentStyles}
       `}
     >
       <img

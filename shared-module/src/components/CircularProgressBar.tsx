@@ -3,12 +3,17 @@ import React from "react"
 
 import { baseTheme, headingFont } from "../styles"
 
-export interface ExtraProps {
-  variant?: "large" | "medium" | "small"
+export interface CircularProgressBarExtraProps {
+  scoreMaximum: number
+  userPoints: number
+}
+
+interface CircleBoxProps {
   point: number
 }
 
-export type CircularProgressBarProps = React.HTMLAttributes<HTMLDivElement> & ExtraProps
+export type CircularProgressBarProps = React.HTMLAttributes<HTMLDivElement> &
+  CircularProgressBarExtraProps
 
 const CircleBox = styled.div`
   width: 50px;
@@ -39,7 +44,7 @@ const CircleBox = styled.div`
     stroke: ${baseTheme.colors.green[100]};
     stroke-width: 4px;
     stroke-dasharray: 100 100;
-    stroke-dashoffset: ${({ point }: ExtraProps) => 100 - point * 100};
+    stroke-dashoffset: ${({ point }: CircleBoxProps) => 100 - point * 100};
     transition: stroke-dashoffset 0.7s ease-in-out;
   }
   .progress-text {
@@ -51,8 +56,8 @@ const CircleBox = styled.div`
   }
 `
 
-const CircularProgressBar: React.FC<CircularProgressBarProps> = ({ point }) => {
-  const complete = point / 100
+const CircularProgressBar: React.FC<CircularProgressBarProps> = ({ scoreMaximum, userPoints }) => {
+  const complete = userPoints / scoreMaximum
   return (
     <CircleBox point={complete}>
       <div className="progress">
@@ -71,7 +76,7 @@ const CircularProgressBar: React.FC<CircularProgressBarProps> = ({ point }) => {
           ></circle>
         </svg>
         <div className="progress-text" data-progress="50">
-          1/2
+          {userPoints}/{scoreMaximum}
         </div>
       </div>
     </CircleBox>

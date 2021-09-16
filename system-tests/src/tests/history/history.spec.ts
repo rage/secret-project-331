@@ -117,7 +117,7 @@ test("test", async ({ page, headless }) => {
   // Fill [placeholder="Option text"]
   await frame.fill('[placeholder="Option text"]', "Updated answer")
   // Check input[type="checkbox"]
-  await frame.check('input[type="checkbox"]')
+  await frame.check(':nth-match(input[type="checkbox"], 2)')
 
   // Click text=Save
   await page.click("text=Save")

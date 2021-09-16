@@ -12,7 +12,7 @@ export async function login(
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/login?return_to=%2F' }*/),
-    page.click("text=Login"),
+    page.click("text=Log in"),
   ])
 
   await page.click('input[name="email"]')
@@ -23,19 +23,19 @@ export async function login(
 
   await Promise.all([
     page.waitForNavigation(/*{ url: "http://project-331.local/" }*/),
-    page.click("button[name=login]"),
+    page.click("text=Submit"),
   ])
 
   // Ensure we are logged in
   const afterLogin = await page.content()
   expect(afterLogin).toContain("Logout")
-  expect(afterLogin).not.toContain("Login")
+  expect(afterLogin).not.toContain("Log in")
 
   // Store login state
   await page.context().storageState({ path: `src/states/${user}.json` })
   if (!stayLoggedIn) {
     await page.click('[aria-label="Navigation"]')
     await page.click("text=Logout")
-    await page.waitForSelector("text=Login")
+    await page.waitForSelector("text=Log in")
   }
 }

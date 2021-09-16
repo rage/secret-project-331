@@ -65,7 +65,7 @@ const EmailTemplateEdit: React.FC<EmailTemplateEditProps> = ({ query }) => {
 
   return (
     <CourseContext.Provider value={{ courseId: instanceQuery.data.course_id }}>
-      <Layout frontPageUrl={basePath()} navVariant="complex">
+      <Layout>
         <EmailEditor data={templateQuery.data} handleSave={handleSave} />
       </Layout>
     </CourseContext.Provider>

@@ -13,7 +13,6 @@ import Button from "../../../../shared-module/components/Button"
 import DebugModal from "../../../../shared-module/components/DebugModal"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
-import basePath from "../../../../shared-module/utils/base-path"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
@@ -48,7 +47,7 @@ const CoursePages: React.FC<CoursePagesProps> = ({ query }) => {
   const maxPart = max(data.chapters.map((p) => p.chapter_number))
 
   return (
-    <Layout frontPageUrl={basePath()} navVariant="complex">
+    <Layout navVariant="complex">
       <div
         className={css`
           ${normalWidthCenteredComponentStyles}

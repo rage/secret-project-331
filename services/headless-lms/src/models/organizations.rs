@@ -11,26 +11,26 @@ use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct DatabaseOrganization {
-    id: Uuid,
-    slug: String,
-    created_at: DateTime<Utc>,
-    updated_at: DateTime<Utc>,
-    name: String,
-    description: Option<String>,
-    organization_image_path: Option<String>,
-    deleted_at: Option<DateTime<Utc>>,
+    pub id: Uuid,
+    pub slug: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub name: String,
+    pub description: Option<String>,
+    pub organization_image_path: Option<String>,
+    pub deleted_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct Organization {
-    id: Uuid,
-    slug: String,
-    created_at: DateTime<Utc>,
-    updated_at: DateTime<Utc>,
-    name: String,
-    description: Option<String>,
-    organization_image_url: Option<String>,
-    deleted_at: Option<DateTime<Utc>>,
+    pub id: Uuid,
+    pub slug: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub name: String,
+    pub description: Option<String>,
+    pub organization_image_url: Option<String>,
+    pub deleted_at: Option<DateTime<Utc>>,
 }
 
 impl Organization {
@@ -87,6 +87,43 @@ pub async fn all_organizations(conn: &mut PgConnection) -> ModelResult<Vec<Datab
     .fetch_all(conn)
     .await?;
     Ok(organizations)
+}
+
+pub async fn get_organization(
+    conn: &mut PgConnection,
+    organization_id: Uuid,
+) -> ModelResult<DatabaseOrganization> {
+    let org = sqlx::query_as!(
+        DatabaseOrganization,
+        "
+SELECT *
+from organizations
+where id = $1;",
+        organization_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(org)
+}
+
+pub async fn update_organization_image_path(
+    conn: &mut PgConnection,
+    organization_id: Uuid,
+    organization_image_path: Option<String>,
+) -> ModelResult<DatabaseOrganization> {
+    let updated_organization = sqlx::query_as!(
+        DatabaseOrganization,
+        "
+UPDATE organizations
+SET organization_image_path = $1
+WHERE id = $2
+RETURNING *;",
+        organization_image_path,
+        organization_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(updated_organization)
 }
 
 #[cfg(test)]

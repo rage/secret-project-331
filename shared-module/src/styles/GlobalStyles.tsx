@@ -14,6 +14,7 @@ const globalCss = css`
 
   html, body {
     font-family: ${primaryFont};
+    font-size: 16px;
   }
   h1,
   h2,

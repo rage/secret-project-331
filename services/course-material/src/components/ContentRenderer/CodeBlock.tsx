@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 
-import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
+import { courseMaterialCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import { CodeAttributes } from "../../types/GutenbergBlockAttributes"
 
 import { BlockRendererProps } from "."
@@ -10,7 +10,7 @@ const CodeBlock: React.FC<BlockRendererProps<CodeAttributes>> = ({ data }) => {
   return (
     <pre
       className={css`
-        ${normalWidthCenteredComponentStyles}
+        ${courseMaterialCenteredComponentStyles}
       `}
     >
       <code>{attributes.content}</code>

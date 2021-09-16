@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import sanitizeHtml from "sanitize-html"
 
-import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
+import { courseMaterialCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import { ListAttributes } from "../../types/GutenbergBlockAttributes"
 
 import { BlockRendererProps } from "."
@@ -12,7 +12,7 @@ const ListBlock: React.FC<BlockRendererProps<ListAttributes>> = ({ data }) => {
     return (
       <ol
         className={css`
-          ${normalWidthCenteredComponentStyles}
+          ${courseMaterialCenteredComponentStyles}
         `}
         dangerouslySetInnerHTML={{ __html: sanitizeHtml(attributes.values) }}
       ></ol>
@@ -21,7 +21,7 @@ const ListBlock: React.FC<BlockRendererProps<ListAttributes>> = ({ data }) => {
     return (
       <ul
         className={css`
-          ${normalWidthCenteredComponentStyles}
+          ${courseMaterialCenteredComponentStyles}
         `}
         dangerouslySetInnerHTML={{ __html: sanitizeHtml(attributes.values) }}
       ></ul>

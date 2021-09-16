@@ -2,7 +2,7 @@ import styled from "@emotion/styled"
 import React from "react"
 
 import ArrowSVGIcon from "../img/arrow.svg"
-import { headingFont } from "../styles"
+import { baseTheme, headingFont } from "../styles"
 
 const Wrapper = styled.aside`
   border-radius: 10px;
@@ -30,7 +30,7 @@ const ChapterParts = styled.div`
   margin-left: 0em;
   padding: 0.6em 1em;
   list-style-type: none;
-  color: #333;
+  color: ${baseTheme.colors.grey[800]};
   text-decoration: none;
   border-radius: 2px;
   margin-bottom: 0.4em;

@@ -2,6 +2,8 @@ import { keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
+import { baseTheme } from "../../styles"
+
 import DetailAccordion from "./DetailAccordion"
 
 const openAnimation = keyframes`
@@ -20,7 +22,7 @@ const TextWrapper = styled.div`
 
   details[open] summary ~ * {
     animation: ${openAnimation} 0.3s ease-in-out;
-    color: #333;
+    color: ${baseTheme.colors.grey[800]};
   }
 
   details[open] > div {
@@ -31,14 +33,14 @@ const TextWrapper = styled.div`
 
   details summary {
     padding: 1rem 0;
-    border-bottom: 1px solid #333;
+    border-bottom: 1px solid ${baseTheme.colors.grey[800]};
     position: relative;
     cursor: pointer;
     font-size: 1.25rem;
     font-weight: medium;
     list-style: none;
     outline: 0;
-    color: #333;
+    color: ${baseTheme.colors.grey[800]};
   }
 
   details summary::-webkit-details-marker {

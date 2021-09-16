@@ -1,7 +1,4 @@
-import { ThemeProvider } from "@emotion/react"
 import React from "react"
-
-import { theme } from "../../styles"
 
 import { CardExtraProps } from "."
 
@@ -11,9 +8,9 @@ export type CardProps = React.ButtonHTMLAttributes<HTMLDivElement> & CardExtraPr
 
 const IllustrationCard: React.FC<CardProps> = () => {
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <div></div>
-    </ThemeProvider>
+    </>
   )
 }
 

@@ -56,7 +56,7 @@ const Editor: React.FC<Props> = ({ state, setState, onHeightChange, port, maxWid
         overflow: hidden;
         box-sizing: border-box;
         width: 100%;
-        max-width: ${maxWidth}px;
+        max-width: ${maxWidth}rem;
         margin: 0 auto;
       `}
       ref={contentRef}

@@ -62,7 +62,7 @@ const CourseInstanceEmailTemplates: React.FC<CourseInstanceEmailTemplatesProps> 
   }
 
   return (
-    <Layout frontPageUrl={basePath()} navVariant="complex">
+    <Layout navVariant="complex">
       <div
         className={css`
           ${normalWidthCenteredComponentStyles}

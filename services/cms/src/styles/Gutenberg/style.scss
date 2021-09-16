@@ -37,7 +37,8 @@
 // Gutenberg editor sidebar styling
 .editor__sidebar {
   position: fixed;
-  top: 0;
+  // Height of the complex navbar
+  top: 90px;
   right: 0;
   bottom: 0;
   width: $sidebar-width;
@@ -45,6 +46,8 @@
   height: auto;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
+  z-index: 9001;
+  background-color: white;
 
   // Temporarily disable the sidebar on mobile
   // Do we want to support advanced content editing with a mobile phone?

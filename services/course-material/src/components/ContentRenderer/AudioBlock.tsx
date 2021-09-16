@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 
-import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
+import { courseMaterialCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { AudioAttributes } from "../../types/GutenbergBlockAttributes"
 
@@ -11,7 +11,7 @@ const AudioBlock: React.FC<BlockRendererProps<AudioAttributes>> = ({ data }) => 
   return (
     <figure
       className={css`
-        ${normalWidthCenteredComponentStyles}
+        ${courseMaterialCenteredComponentStyles}
       `}
     >
       {/* Gutenberg schema has no support for captions */}
@@ -20,7 +20,7 @@ const AudioBlock: React.FC<BlockRendererProps<AudioAttributes>> = ({ data }) => 
         <source
           src={attributes.src}
           className={css`
-            ${normalWidthCenteredComponentStyles}
+            ${courseMaterialCenteredComponentStyles}
           `}
         />
       </audio>

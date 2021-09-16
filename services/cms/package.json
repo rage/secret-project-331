@@ -60,6 +60,7 @@
     "recoil-devtools-log-monitor": "^0.4.0",
     "recoil-devtools-logger": "^0.4.0",
     "styled-system": "^5.1.5",
+    "use-debounce": "^7.0.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

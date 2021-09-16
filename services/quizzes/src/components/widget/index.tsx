@@ -1,8 +1,8 @@
 import { useReducer } from "react"
 
 import { useSendQuizAnswerOnChange } from "../../hooks/useSendQuizAnswerOnChange"
+import HeightTrackingContainer from "../../shared-module/components/HeightTrackingContainer"
 import { PublicQuiz, PublicQuizItem, QuizAnswer, QuizItemAnswer } from "../../types/types"
-import HeightTrackingContainer from "../HeightTrackingComponent"
 
 import MultipleChoice from "./MultipleChoice"
 import Unsupported from "./Unsupported"

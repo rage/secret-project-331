@@ -2,7 +2,7 @@ import { useRouter } from "next/router"
 import React, { useEffect, useState } from "react"
 
 import ExerciseBase from "../components/ExerciseBase"
-import HeightTrackingContainer from "../components/HeightTrackingContainer"
+import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
 import { ModelSolutionApi, PublicAlternative } from "../util/stateInterfaces"
 
 interface SubmissionState {

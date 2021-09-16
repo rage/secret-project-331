@@ -1,6 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A tutorial for handling CSV data in Rust."><meta name="keywords" content="rust, rustlang, rust-lang, tutorial"><title>csv::tutorial - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
-<link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../csv/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a><h2 class="location">Module tutorial</h2><div class="sidebar-elems"><div id="sidebar-vars" data-name="tutorial" data-ty="mod" data-relpath="./"></div><script defer src="./sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../index.html">csv</a>::<wbr><a class="mod" href="#">tutorial</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../src/csv/tutorial.rs.html#1-2520" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A tutorial for handling CSV data in Rust.</p>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A tutorial for handling CSV data in Rust."><meta name="keywords" content="rust, rustlang, rust-lang, tutorial"><title>csv::tutorial - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../csv/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a><h2 class="location">Module tutorial</h2><div class="sidebar-elems"><div id="sidebar-vars" data-name="tutorial" data-ty="mod" data-relpath="./"></div><script defer src="./sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../index.html">csv</a>::<wbr><a class="mod" href="#">tutorial</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../src/csv/tutorial.rs.html#1-2520" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A tutorial for handling CSV data in Rust.</p>
 <p>This tutorial will cover basic CSV reading and writing, automatic
 (de)serialization with Serde, CSV transformations and performance.</p>
 <p>This tutorial is targeted at beginner Rust programmers. Experienced Rust
@@ -56,30 +54,26 @@ and prints a “debug” version of each record. This assumes that you have the
 <a href="https://www.rust-lang.org/install.html">Rust toolchain installed</a>,
 which includes both Rust and Cargo.</p>
 <p>We’ll start by creating a new Cargo project:</p>
-<pre><code class="language-text">$ cargo new --bin csvtutor
-$ cd csvtutor
-</code></pre>
+<div class="example-wrap"><pre class="language-text">$ cargo new --bin csvtutor
+$ cd csvtutor</pre></div>
 <p>Once inside <code>csvtutor</code>, open <code>Cargo.toml</code> in your favorite text editor and add
 <code>csv = &quot;1.1&quot;</code> to your <code>[dependencies]</code> section. At this point, your
 <code>Cargo.toml</code> should look something like this:</p>
-<pre><code class="language-text">[package]
+<div class="example-wrap"><pre class="language-text">[package]
 name = &quot;csvtutor&quot;
 version = &quot;0.1.0&quot;
 authors = [&quot;Your Name&quot;]
 
 [dependencies]
-csv = &quot;1.1&quot;
-</code></pre>
+csv = &quot;1.1&quot;</pre></div>
 <p>Next, let’s build your project. Since you added the <code>csv</code> crate as a
 dependency, Cargo will automatically download it and compile it for you. To
 build your project, use Cargo:</p>
-<pre><code class="language-text">$ cargo build
-</code></pre>
+<div class="example-wrap"><pre class="language-text">$ cargo build</pre></div>
 <p>This will produce a new binary, <code>csvtutor</code>, in your <code>target/debug</code> directory.
 It won’t do much at this point, but you can run it:</p>
-<pre><code class="language-text">$ ./target/debug/csvtutor
-Hello, world!
-</code></pre>
+<div class="example-wrap"><pre class="language-text">$ ./target/debug/csvtutor
+Hello, world!</pre></div>
 <p>Let’s make our program do something useful. Our program will read CSV data on
 stdin and print debug output for each record on stdout. To write this program,
 open <code>src/main.rs</code> in your favorite text editor and replace its contents with
@@ -105,23 +99,18 @@ this:</p>
 }</pre></div>
 <p>Don’t worry too much about what this code means; we’ll dissect it in the next
 section. For now, try rebuilding your project:</p>
-<pre><code class="language-text">$ cargo build
-</code></pre>
+<div class="example-wrap"><pre class="language-text">$ cargo build</pre></div>
 <p>Assuming that succeeds, let’s try running our program. But first, we will need
 some CSV data to play with! For that, we will use a random selection of 100
 US cities, along with their population size and geographical coordinates. (We
 will use this same CSV data throughout the entire tutorial.) To get the data,
 download it from github:</p>
-<pre><code class="language-text">$ curl -LO 'https://raw.githubusercontent.com/BurntSushi/rust-csv/master/examples/data/uspop.csv'
-</code></pre>
+<div class="example-wrap"><pre class="language-text">$ curl -LO &#39;https://raw.githubusercontent.com/BurntSushi/rust-csv/master/examples/data/uspop.csv&#39;</pre></div>
 <p>And now finally, run your program on <code>uspop.csv</code>:</p>
-<pre><code class="language-text">$ ./target/debug/csvtutor &lt; uspop.csv
+<div class="example-wrap"><pre class="language-text">$ ./target/debug/csvtutor &lt; uspop.csv
 StringRecord([&quot;Davidsons Landing&quot;, &quot;AK&quot;, &quot;&quot;, &quot;65.2419444&quot;, &quot;-165.2716667&quot;])
 StringRecord([&quot;Kenai&quot;, &quot;AK&quot;, &quot;7610&quot;, &quot;60.5544444&quot;, &quot;-151.2583333&quot;])
-StringRecord([&quot;Oakman&quot;, &quot;AL&quot;, &quot;&quot;, &quot;33.7133333&quot;, &quot;-87.3886111&quot;])
-# ... and much more
-</code></pre>
-<h1 id="basic-error-handling" class="section-header"><a href="#basic-error-handling">Basic error handling</a></h1>
+StringRecord([&quot;Oakman&quot;, &quot;AL&quot;, &quot;&quot;, &quot;33.7133333&quot;, &quot;-87.3886111&quot;])</pre></div><h1 id="basic-error-handling" class="section-header"><a href="#basic-error-handling">Basic error handling</a></h1>
 <p>Since reading CSV data can result in errors, error handling is pervasive
 throughout the examples in this tutorial. Therefore, we’re going to spend a
 little bit of time going over basic error handling, and in particular, fix
@@ -182,15 +171,14 @@ this tutorial, although robust command line applications should probably try
 to handle it (e.g., when a broken pipe occurs). The former however is worth
 looking into in more detail. For example, if a user of this program provides
 invalid CSV data, then the program will panic:</p>
-<pre><code class="language-text">$ cat invalid
+<div class="example-wrap"><pre class="language-text">$ cat invalid
 header1,header2
 foo,bar
 quux,baz,foobar
 $ ./target/debug/csvtutor &lt; invalid
 StringRecord { position: Some(Position { byte: 16, line: 2, record: 1 }), fields: [&quot;foo&quot;, &quot;bar&quot;] }
-thread 'main' panicked at 'called `Result::unwrap()` on an `Err` value: UnequalLengths { pos: Some(Position { byte: 24, line: 3, record: 2 }), expected_len: 2, len: 3 }', /checkout/src/libcore/result.rs:859
-note: Run with `RUST_BACKTRACE=1` for a backtrace.
-</code></pre>
+thread &#39;main&#39; panicked at &#39;called `Result::unwrap()` on an `Err` value: UnequalLengths { pos: Some(Position { byte: 24, line: 3, record: 2 }), expected_len: 2, len: 3 }&#39;, /checkout/src/libcore/result.rs:859
+note: Run with `RUST_BACKTRACE=1` for a backtrace.</pre></div>
 <p>What happened here? First and foremost, we should talk about why the CSV data
 is invalid. The CSV data consists of three records: a header and two data
 records. The header and first data record have two fields, but the second
@@ -265,14 +253,13 @@ let’s get rid of the panic and print an error message manually:</p>
 }</pre></div>
 <p>If we run our program again, we’ll still see an error message, but it is no
 longer a panic message:</p>
-<pre><code class="language-text">$ cat invalid
+<div class="example-wrap"><pre class="language-text">$ cat invalid
 header1,header2
 foo,bar
 quux,baz,foobar
 $ ./target/debug/csvtutor &lt; invalid
 StringRecord { position: Some(Position { byte: 16, line: 2, record: 1 }), fields: [&quot;foo&quot;, &quot;bar&quot;] }
-error reading CSV from &lt;stdin&gt;: CSV error: record 2 (line: 3, byte: 24): found record with 3 fields, but the previous record has 2 fields
-</code></pre>
+error reading CSV from &lt;stdin&gt;: CSV error: record 2 (line: 3, byte: 24): found record with 3 fields, but the previous record has 2 fields</pre></div>
 <p>The second step for moving to recoverable errors is to put our CSV record loop
 into a separate function. This function then has the option of <em>returning</em> an
 error, which our <code>main</code> function can then inspect and decide what to do with.</p>
@@ -399,13 +386,11 @@ path argument instead of stdin.</p>
 }</pre></div>
 <p>If you replace the contents of your <code>src/main.rs</code> file with the above code,
 then you should be able to rebuild your project and try it out:</p>
-<pre><code class="language-text">$ cargo build
+<div class="example-wrap"><pre class="language-text">$ cargo build
 $ ./target/debug/csvtutor uspop.csv
 StringRecord([&quot;Davidsons Landing&quot;, &quot;AK&quot;, &quot;&quot;, &quot;65.2419444&quot;, &quot;-165.2716667&quot;])
 StringRecord([&quot;Kenai&quot;, &quot;AK&quot;, &quot;7610&quot;, &quot;60.5544444&quot;, &quot;-151.2583333&quot;])
-StringRecord([&quot;Oakman&quot;, &quot;AL&quot;, &quot;&quot;, &quot;33.7133333&quot;, &quot;-87.3886111&quot;])
-# ... and much more
-</code></pre>
+StringRecord([&quot;Oakman&quot;, &quot;AL&quot;, &quot;&quot;, &quot;33.7133333&quot;, &quot;-87.3886111&quot;])</pre></div>
 <p>This example contains two new pieces of code:</p>
 <ol>
 <li>Code for querying the positional arguments of your program. We put this code
@@ -437,8 +422,7 @@ the file could not be opened.</p>
 <h2 id="reading-headers" class="section-header"><a href="#reading-headers">Reading headers</a></h2>
 <p>If you had a chance to look at the data inside <code>uspop.csv</code>, you would notice
 that there is a header record that looks like this:</p>
-<pre><code class="language-text">City,State,Population,Latitude,Longitude
-</code></pre>
+<div class="example-wrap"><pre class="language-text">City,State,Population,Latitude,Longitude</pre></div>
 <p>Now, if you look back at the output of the commands you’ve run so far, you’ll
 notice that the header record is never printed. Why is that? By default, the
 CSV reader will interpret the first record in CSV data as a header, which
@@ -469,13 +453,12 @@ produces terser examples.)</p>
 }</pre></div>
 <p>If you compile and run this program with our <code>uspop.csv</code> data, then you’ll see
 that the header record is now printed:</p>
-<pre><code class="language-text">$ cargo build
+<div class="example-wrap"><pre class="language-text">$ cargo build
 $ ./target/debug/csvtutor &lt; uspop.csv
 StringRecord([&quot;City&quot;, &quot;State&quot;, &quot;Population&quot;, &quot;Latitude&quot;, &quot;Longitude&quot;])
 StringRecord([&quot;Davidsons Landing&quot;, &quot;AK&quot;, &quot;&quot;, &quot;65.2419444&quot;, &quot;-165.2716667&quot;])
 StringRecord([&quot;Kenai&quot;, &quot;AK&quot;, &quot;7610&quot;, &quot;60.5544444&quot;, &quot;-151.2583333&quot;])
-StringRecord([&quot;Oakman&quot;, &quot;AL&quot;, &quot;&quot;, &quot;33.7133333&quot;, &quot;-87.3886111&quot;])
-</code></pre>
+StringRecord([&quot;Oakman&quot;, &quot;AL&quot;, &quot;&quot;, &quot;33.7133333&quot;, &quot;-87.3886111&quot;])</pre></div>
 <p>If you ever need to access the header record directly, then you can use the
 <a href="../struct.Reader.html#method.headers"><code>Reader::header</code></a>
 method like so:</p>
@@ -519,15 +502,13 @@ show how to read some CSV data that is a little less clean. This CSV data
 uses <code>;</code> as a delimiter, escapes quotes with <code>\&quot;</code> (instead of <code>&quot;&quot;</code>) and has
 records of varying length. Here’s the data, which contains a list of WWE
 wrestlers and the year they started, if it’s known:</p>
-<pre><code class="language-text">$ cat strange.csv
+<div class="example-wrap"><pre class="language-text">$ cat strange.csv
 &quot;\&quot;Hacksaw\&quot; Jim Duggan&quot;;1987
 &quot;Bret \&quot;Hit Man\&quot; Hart&quot;;1984
-# We're not sure when Rafael started, so omit the year.
 Rafael Halperin
 &quot;\&quot;Big Cat\&quot; Ernie Ladd&quot;;1964
 &quot;\&quot;Macho Man\&quot; Randy Savage&quot;;1985
-&quot;Jake \&quot;The Snake\&quot; Roberts&quot;;1986
-</code></pre>
+&quot;Jake \&quot;The Snake\&quot; Roberts&quot;;1986</pre></div>
 <p>To read this CSV data, we’ll want to do the following:</p>
 <ol>
 <li>Disable headers, since this data has none.</li>
@@ -558,15 +539,14 @@ as seen in the following example:</p>
     <span class="prelude-val">Ok</span>(())
 }</pre></div>
 <p>Now re-compile your project and try running the program on <code>strange.csv</code>:</p>
-<pre><code class="language-text">$ cargo build
+<div class="example-wrap"><pre class="language-text">$ cargo build
 $ ./target/debug/csvtutor &lt; strange.csv
 StringRecord([&quot;\&quot;Hacksaw\&quot; Jim Duggan&quot;, &quot;1987&quot;])
 StringRecord([&quot;Bret \&quot;Hit Man\&quot; Hart&quot;, &quot;1984&quot;])
 StringRecord([&quot;Rafael Halperin&quot;])
 StringRecord([&quot;\&quot;Big Cat\&quot; Ernie Ladd&quot;, &quot;1964&quot;])
 StringRecord([&quot;\&quot;Macho Man\&quot; Randy Savage&quot;, &quot;1985&quot;])
-StringRecord([&quot;Jake \&quot;The Snake\&quot; Roberts&quot;, &quot;1986&quot;])
-</code></pre>
+StringRecord([&quot;Jake \&quot;The Snake\&quot; Roberts&quot;, &quot;1986&quot;])</pre></div>
 <p>You should feel encouraged to play around with the settings. Some interesting
 things you might try:</p>
 <ol>
@@ -596,10 +576,9 @@ Rust types. In simpler terms, that means instead of iterating over records
 as an array of string fields, we can iterate over records of a specific type
 of our choosing.</p>
 <p>For example, let’s take a look at some data from our <code>uspop.csv</code> file:</p>
-<pre><code class="language-text">City,State,Population,Latitude,Longitude
+<div class="example-wrap"><pre class="language-text">City,State,Population,Latitude,Longitude
 Davidsons Landing,AK,,65.2419444,-165.2716667
-Kenai,AK,7610,60.5544444,-151.2583333
-</code></pre>
+Kenai,AK,7610,60.5544444,-151.2583333</pre></div>
 <p>While some of these fields make sense as strings (<code>City</code>, <code>State</code>), other
 fields look more like numbers. For example, <code>Population</code> looks like it contains
 integers while <code>Latitude</code> and <code>Longitude</code> appear to contain decimals. If we
@@ -654,13 +633,11 @@ type: <code>(String, String, Option&lt;u64&gt;, f64, f64)</code>.</p>
     <span class="prelude-val">Ok</span>(())
 }</pre></div>
 <p>Running this code should show similar output as previous examples:</p>
-<pre><code class="language-text">$ cargo build
+<div class="example-wrap"><pre class="language-text">$ cargo build
 $ ./target/debug/csvtutor &lt; uspop.csv
 (&quot;Davidsons Landing&quot;, &quot;AK&quot;, None, 65.2419444, -165.2716667)
 (&quot;Kenai&quot;, &quot;AK&quot;, Some(7610), 60.5544444, -151.2583333)
-(&quot;Oakman&quot;, &quot;AL&quot;, None, 33.7133333, -87.3886111)
-# ... and much more
-</code></pre>
+(&quot;Oakman&quot;, &quot;AL&quot;, None, 33.7133333, -87.3886111)</pre></div>
 <p>One of the downsides of using Serde this way is that the type you use must
 match the order of fields as they appear in each record. This can be a pain
 if your CSV data has a header record, since you might tend to think about each
@@ -691,12 +668,11 @@ a new <code>use</code> statement that imports <code>HashMap</code> from the stan
 }</pre></div>
 <p>Running this program shows similar results as before, but each record is
 printed as a map:</p>
-<pre><code class="language-text">$ cargo build
+<div class="example-wrap"><pre class="language-text">$ cargo build
 $ ./target/debug/csvtutor &lt; uspop.csv
 {&quot;City&quot;: &quot;Davidsons Landing&quot;, &quot;Latitude&quot;: &quot;65.2419444&quot;, &quot;State&quot;: &quot;AK&quot;, &quot;Population&quot;: &quot;&quot;, &quot;Longitude&quot;: &quot;-165.2716667&quot;}
 {&quot;City&quot;: &quot;Kenai&quot;, &quot;Population&quot;: &quot;7610&quot;, &quot;State&quot;: &quot;AK&quot;, &quot;Longitude&quot;: &quot;-151.2583333&quot;, &quot;Latitude&quot;: &quot;60.5544444&quot;}
-{&quot;State&quot;: &quot;AL&quot;, &quot;City&quot;: &quot;Oakman&quot;, &quot;Longitude&quot;: &quot;-87.3886111&quot;, &quot;Population&quot;: &quot;&quot;, &quot;Latitude&quot;: &quot;33.7133333&quot;}
-</code></pre>
+{&quot;State&quot;: &quot;AL&quot;, &quot;City&quot;: &quot;Oakman&quot;, &quot;Longitude&quot;: &quot;-87.3886111&quot;, &quot;Population&quot;: &quot;&quot;, &quot;Latitude&quot;: &quot;33.7133333&quot;}</pre></div>
 <p>This method works especially well if you need to read CSV data with header
 records, but whose exact structure isn’t known until your program runs.
 However, in our case, we know the structure of the data in <code>uspop.csv</code>. In
@@ -707,8 +683,7 @@ by their corresponding header name <em>and</em> assign each field its own unique
 type? The answer is yes, but we’ll need to bring in Serde’s <code>derive</code> feature
 first. You can do that by adding this to the <code>[dependencies]</code> section of your
 <code>Cargo.toml</code> file:</p>
-<pre><code class="language-text">serde = { version = &quot;1&quot;, features = [&quot;derive&quot;] }
-</code></pre>
+<div class="example-wrap"><pre class="language-text">serde = { version = &quot;1&quot;, features = [&quot;derive&quot;] }</pre></div>
 <p>With these crates added to our project, we can now define our own custom struct
 that represents our record. We then ask Serde to automatically write the glue
 code required to populate our struct from a CSV record. The next example shows
@@ -756,12 +731,11 @@ how. Don’t miss the new Serde imports!</p>
     }
 }</pre></div>
 <p>Compile and run this program to see similar output as before:</p>
-<pre><code class="language-text">$ cargo build
+<div class="example-wrap"><pre class="language-text">$ cargo build
 $ ./target/debug/csvtutor &lt; uspop.csv
 Record { latitude: 65.2419444, longitude: -165.2716667, population: None, city: &quot;Davidsons Landing&quot;, state: &quot;AK&quot; }
 Record { latitude: 60.5544444, longitude: -151.2583333, population: Some(7610), city: &quot;Kenai&quot;, state: &quot;AK&quot; }
-Record { latitude: 33.7133333, longitude: -87.3886111, population: None, city: &quot;Oakman&quot;, state: &quot;AL&quot; }
-</code></pre>
+Record { latitude: 33.7133333, longitude: -87.3886111, population: None, city: &quot;Oakman&quot;, state: &quot;AL&quot; }</pre></div>
 <p>Once again, we didn’t need to change our <code>run</code> function at all: we’re still
 iterating over records using the <code>deserialize</code> iterator that we started with
 in the beginning of this section. The only thing that changed in this example
@@ -776,16 +750,14 @@ derive, change <code>#[derive(Debug, Deserialize)]</code> to <code>#[derive(Debu
 <code>#[serde(rename_all = &quot;PascalCase&quot;)]</code>. This directive helps Serde map your
 struct’s field names to the header names in the CSV data. If you recall, our
 header record is:</p>
-<pre><code class="language-text">City,State,Population,Latitude,Longitude
-</code></pre>
+<div class="example-wrap"><pre class="language-text">City,State,Population,Latitude,Longitude</pre></div>
 <p>Notice that each name is capitalized, but the fields in our struct are not. The
 <code>#[serde(rename_all = &quot;PascalCase&quot;)]</code> directive fixes that by interpreting each
 field in <code>PascalCase</code>, where the first letter of the field is capitalized. If
 we didn’t tell Serde about the name remapping, then the program will quit with
 an error:</p>
-<pre><code class="language-text">$ ./target/debug/csvtutor &lt; uspop.csv
-CSV deserialize error: record 1 (line: 2, byte: 41): missing field `latitude`
-</code></pre>
+<div class="example-wrap"><pre class="language-text">$ ./target/debug/csvtutor &lt; uspop.csv
+CSV deserialize error: record 1 (line: 2, byte: 41): missing field `latitude`</pre></div>
 <p>We could have fixed this through other means. For example, we could have used
 capital letters in our field names:</p>
 
@@ -826,8 +798,7 @@ clean. To do this exercise, we’ll work with a slightly tweaked version of the
 US population data we’ve been using throughout this tutorial. This version of
 the data is slightly messier than what we’ve been using. You can get it like
 so:</p>
-<pre><code class="language-text">$ curl -LO 'https://raw.githubusercontent.com/BurntSushi/rust-csv/master/examples/data/uspop-null.csv'
-</code></pre>
+<div class="example-wrap"><pre class="language-text">$ curl -LO &#39;https://raw.githubusercontent.com/BurntSushi/rust-csv/master/examples/data/uspop-null.csv&#39;</pre></div>
 <p>Let’s start by running our program from the previous section:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
@@ -851,21 +822,18 @@ so:</p>
     <span class="prelude-val">Ok</span>(())
 }</pre></div>
 <p>Compile and run it on our messier data:</p>
-<pre><code class="language-text">$ cargo build
+<div class="example-wrap"><pre class="language-text">$ cargo build
 $ ./target/debug/csvtutor &lt; uspop-null.csv
 Record { latitude: 65.2419444, longitude: -165.2716667, population: None, city: &quot;Davidsons Landing&quot;, state: &quot;AK&quot; }
 Record { latitude: 60.5544444, longitude: -151.2583333, population: Some(7610), city: &quot;Kenai&quot;, state: &quot;AK&quot; }
 Record { latitude: 33.7133333, longitude: -87.3886111, population: None, city: &quot;Oakman&quot;, state: &quot;AL&quot; }
-# ... more records
-CSV deserialize error: record 42 (line: 43, byte: 1710): field 2: invalid digit found in string
-</code></pre>
+CSV deserialize error: record 42 (line: 43, byte: 1710): field 2: invalid digit found in string</pre></div>
 <p>Oops! What happened? The program printed several records, but stopped when it
 tripped over a deserialization problem. The error message says that it found
 an invalid digit in the field at index <code>2</code> (which is the <code>Population</code> field)
 on line 43. What does line 43 look like?</p>
-<pre><code class="language-text">$ head -n 43 uspop-null.csv | tail -n1
-Flint Springs,KY,NULL,37.3433333,-86.7136111
-</code></pre>
+<div class="example-wrap"><pre class="language-text">$ head -n 43 uspop-null.csv | tail -n1
+Flint Springs,KY,NULL,37.3433333,-86.7136111</pre></div>
 <p>Ah! The third field (index <code>2</code>) is supposed to either be empty or contain a
 population count. However, in this data, it seems that <code>NULL</code> sometimes appears
 as a value, presumably to indicate that there is no count available.</p>
@@ -899,13 +867,11 @@ to a <code>None</code> value, as shown in this next example:</p>
 }</pre></div>
 <p>If you compile and run this example, then it should run to completion just
 like the other examples:</p>
-<pre><code class="language-text">$ cargo build
+<div class="example-wrap"><pre class="language-text">$ cargo build
 $ ./target/debug/csvtutor &lt; uspop-null.csv
 Record { latitude: 65.2419444, longitude: -165.2716667, population: None, city: &quot;Davidsons Landing&quot;, state: &quot;AK&quot; }
 Record { latitude: 60.5544444, longitude: -151.2583333, population: Some(7610), city: &quot;Kenai&quot;, state: &quot;AK&quot; }
-Record { latitude: 33.7133333, longitude: -87.3886111, population: None, city: &quot;Oakman&quot;, state: &quot;AL&quot; }
-# ... and more
-</code></pre>
+Record { latitude: 33.7133333, longitude: -87.3886111, population: None, city: &quot;Oakman&quot;, state: &quot;AL&quot; }</pre></div>
 <p>The only change in this example was adding this attribute to the <code>population</code>
 field in our <code>Record</code> type:</p>
 
@@ -951,13 +917,12 @@ control the output format.</p>
     }
 }</pre></div>
 <p>Compiling and running this example results in CSV data being printed:</p>
-<pre><code class="language-text">$ cargo build
+<div class="example-wrap"><pre class="language-text">$ cargo build
 $ ./target/debug/csvtutor
 City,State,Population,Latitude,Longitude
 Davidsons Landing,AK,,65.2419444,-165.2716667
 Kenai,AK,7610,60.5544444,-151.2583333
-Oakman,AL,,33.7133333,-87.3886111
-</code></pre>
+Oakman,AL,,33.7133333,-87.3886111</pre></div>
 <p>Before moving on, it’s worth taking a closer look at the <code>write_record</code>
 method. In this example, it looks rather simple, but if you’re new to Rust then
 its type signature might look a little daunting:</p>
@@ -1055,11 +1020,10 @@ of <code>stdout</code>:</p>
 <h2 id="writing-tab-separated-values" class="section-header"><a href="#writing-tab-separated-values">Writing tab separated values</a></h2>
 <p>In the previous section, we saw how to write some simple CSV data to <code>stdout</code>
 that looked like this:</p>
-<pre><code class="language-text">City,State,Population,Latitude,Longitude
+<div class="example-wrap"><pre class="language-text">City,State,Population,Latitude,Longitude
 Davidsons Landing,AK,,65.2419444,-165.2716667
 Kenai,AK,7610,60.5544444,-151.2583333
-Oakman,AL,,33.7133333,-87.3886111
-</code></pre>
+Oakman,AL,,33.7133333,-87.3886111</pre></div>
 <p>You might wonder to yourself: what’s the point of using a CSV writer if the
 data is so simple? Well, the benefit of a CSV writer is that it can handle all
 types of data without sacrificing the integrity of your data. That is, it knows
@@ -1088,13 +1052,12 @@ Here’s an example:</p>
     <span class="prelude-val">Ok</span>(())
 }</pre></div>
 <p>Compiling and running this example gives:</p>
-<pre><code class="language-text">$ cargo build
+<div class="example-wrap"><pre class="language-text">$ cargo build
 $ ./target/debug/csvtutor
 &quot;City&quot;  &quot;State&quot; &quot;Population&quot;    &quot;Latitude&quot;      &quot;Longitude&quot;
 &quot;Davidsons Landing&quot;     &quot;AK&quot;    &quot;&quot;      65.2419444      -165.2716667
 &quot;Kenai&quot; &quot;AK&quot;    7610    60.5544444      -151.2583333
-&quot;Oakman&quot;        &quot;AL&quot;    &quot;&quot;      33.7133333      -87.3886111
-</code></pre>
+&quot;Oakman&quot;        &quot;AL&quot;    &quot;&quot;      33.7133333      -87.3886111</pre></div>
 <p>In this example, we used a new type
 <a href="../enum.QuoteStyle.html"><code>QuoteStyle</code></a>.
 The <code>QuoteStyle</code> type represents the different quoting strategies available
@@ -1130,13 +1093,12 @@ into CSV records using Serde. In this section, we’ll learn how to use it.</p>
     <span class="prelude-val">Ok</span>(())
 }</pre></div>
 <p>Compiling and running this program gives the expected output:</p>
-<pre><code class="language-text">$ cargo build
+<div class="example-wrap"><pre class="language-text">$ cargo build
 $ ./target/debug/csvtutor
 City,State,Population,Latitude,Longitude
 Davidsons Landing,AK,,65.2419444,-165.2716667
 Kenai,AK,7610,60.5544444,-151.2583333
-Oakman,AL,,33.7133333,-87.3886111
-</code></pre>
+Oakman,AL,,33.7133333,-87.3886111</pre></div>
 <p>The key thing to note in the above example is the use of <code>serialize</code> instead
 of <code>write_record</code> to write our data. In particular, <code>write_record</code> is used
 when writing a simple record that contains string-like data only. On the other
@@ -1152,8 +1114,7 @@ automatic <code>derive</code> feature again. As in the
 <a href="#reading-with-serde">previous section on reading with Serde</a>,
 we’ll need to add a couple crates to our <code>[dependencies]</code> section in our
 <code>Cargo.toml</code> (if they aren’t already there):</p>
-<pre><code class="language-text">serde = { version = &quot;1&quot;, features = [&quot;derive&quot;] }
-</code></pre>
+<div class="example-wrap"><pre class="language-text">serde = { version = &quot;1&quot;, features = [&quot;derive&quot;] }</pre></div>
 <p>And we’ll also need to add a new <code>use</code> statement to our code, for Serde, as
 shown in the example:</p>
 
@@ -1213,13 +1174,12 @@ shown in the example:</p>
 }</pre></div>
 <p>Compiling and running this example has the same output as last time, even
 though we didn’t explicitly write a header record:</p>
-<pre><code class="language-text">$ cargo build
+<div class="example-wrap"><pre class="language-text">$ cargo build
 $ ./target/debug/csvtutor
 City,State,Population,Latitude,Longitude
 Davidsons Landing,AK,,65.2419444,-165.2716667
 Kenai,AK,7610,60.5544444,-151.2583333
-Oakman,AL,,33.7133333,-87.3886111
-</code></pre>
+Oakman,AL,,33.7133333,-87.3886111</pre></div>
 <p>In this case, the <code>serialize</code> method noticed that we were writing a struct
 with field names. When this happens, <code>serialize</code> will automatically write a
 header record (only if no other records have been written) that consists of
@@ -1315,11 +1275,10 @@ rows with a field that matches the query.</p>
 }</pre></div>
 <p>If we compile and run this program with a query of <code>MA</code> on <code>uspop.csv</code>, we’ll
 see that only one record matches:</p>
-<pre><code class="language-text">$ cargo build
+<div class="example-wrap"><pre class="language-text">$ cargo build
 $ ./csvtutor MA &lt; uspop.csv
 City,State,Population,Latitude,Longitude
-Reading,MA,23441,42.5255556,-71.0958333
-</code></pre>
+Reading,MA,23441,42.5255556,-71.0958333</pre></div>
 <p>This example doesn’t actually introduce anything new. It merely combines what
 you’ve already learned about CSV readers and writers from previous sections.</p>
 <p>Let’s add a twist to this example. In the real world, you’re often faced with
@@ -1332,19 +1291,16 @@ ASCII—which is a subset of both Latin-1 and UTF-8—we haven’t had any
 problems. But let’s introduce a slightly tweaked version of our <code>uspop.csv</code>
 file that contains an encoding of a Latin-1 character that is invalid UTF-8.
 You can get the data like so:</p>
-<pre><code class="language-text">$ curl -LO 'https://raw.githubusercontent.com/BurntSushi/rust-csv/master/examples/data/uspop-latin1.csv'
-</code></pre>
+<div class="example-wrap"><pre class="language-text">$ curl -LO &#39;https://raw.githubusercontent.com/BurntSushi/rust-csv/master/examples/data/uspop-latin1.csv&#39;</pre></div>
 <p>Even though I’ve already given away the problem, let’s see what happen when
 we try to run our previous example on this new data:</p>
-<pre><code class="language-text">$ ./csvtutor MA &lt; uspop-latin1.csv
+<div class="example-wrap"><pre class="language-text">$ ./csvtutor MA &lt; uspop-latin1.csv
 City,State,Population,Latitude,Longitude
-CSV parse error: record 3 (line 4, field: 0, byte: 125): invalid utf-8: invalid UTF-8 in field 0 near byte index 0
-</code></pre>
+CSV parse error: record 3 (line 4, field: 0, byte: 125): invalid utf-8: invalid UTF-8 in field 0 near byte index 0</pre></div>
 <p>The error message tells us exactly what’s wrong. Let’s take a look at line 4
 to see what we’re dealing with:</p>
-<pre><code class="language-text">$ head -n4 uspop-latin1.csv | tail -n1
-Õakman,AL,,33.7133333,-87.3886111
-</code></pre>
+<div class="example-wrap"><pre class="language-text">$ head -n4 uspop-latin1.csv | tail -n1
+Õakman,AL,,33.7133333,-87.3886111</pre></div>
 <p>In this case, the very first character is the Latin-1 <code>Õ</code>, which is encoded as
 the byte <code>0xD5</code>, which is in turn invalid UTF-8. So what do we do now that our
 CSV parser has choked on our data? You have two choices. The first is to go in
@@ -1400,12 +1356,10 @@ change:</p>
 }</pre></div>
 <p>Compiling and running this now yields the same results as our first example,
 but this time it works on data that isn’t valid UTF-8.</p>
-<pre><code class="language-text">$ cargo build
+<div class="example-wrap"><pre class="language-text">$ cargo build
 $ ./csvtutor MA &lt; uspop-latin1.csv
 City,State,Population,Latitude,Longitude
-Reading,MA,23441,42.5255556,-71.0958333
-</code></pre>
-<h2 id="filter-by-population-count" class="section-header"><a href="#filter-by-population-count">Filter by population count</a></h2>
+Reading,MA,23441,42.5255556,-71.0958333</pre></div><h2 id="filter-by-population-count" class="section-header"><a href="#filter-by-population-count">Filter by population count</a></h2>
 <p>In this section, we will show another example program that both reads and
 writes CSV data, but instead of dealing with arbitrary records, we will use
 Serde to deserialize and serialize records with specific types.</p>
@@ -1418,8 +1372,7 @@ consider the case when the population count is missing.</p>
 <p>Since we’re using Serde in this example, don’t forget to add the Serde
 dependencies to your <code>Cargo.toml</code> in your <code>[dependencies]</code> section if they
 aren’t already there:</p>
-<pre><code class="language-text">serde = { version = &quot;1&quot;, features = [&quot;derive&quot;] }
-</code></pre>
+<div class="example-wrap"><pre class="language-text">serde = { version = &quot;1&quot;, features = [&quot;derive&quot;] }</pre></div>
 <p>Now here’s the code:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
@@ -1489,14 +1442,12 @@ aren’t already there:</p>
 <p>If we compile and run our program with a minimum threshold of <code>100000</code>, we
 should see three matching records. Notice that the headers were added even
 though we never explicitly wrote them!</p>
-<pre><code class="language-text">$ cargo build
+<div class="example-wrap"><pre class="language-text">$ cargo build
 $ ./target/debug/csvtutor 100000 &lt; uspop.csv
 City,State,Population,Latitude,Longitude
 Fontana,CA,169160,34.0922222,-117.4341667
 Bridgeport,CT,139090,41.1669444,-73.2052778
-Indianapolis,IN,773283,39.7683333,-86.1580556
-</code></pre>
-<h1 id="performance" class="section-header"><a href="#performance">Performance</a></h1>
+Indianapolis,IN,773283,39.7683333,-86.1580556</pre></div><h1 id="performance" class="section-header"><a href="#performance">Performance</a></h1>
 <p>In this section, we’ll go over how to squeeze the most juice out of our CSV
 reader. As it happens, most of the APIs we’ve seen so far were designed with
 high level convenience in mind, and that often comes with some costs. For the
@@ -1518,13 +1469,12 @@ even when we compile without the <code>--release</code> flag. Therefore, in orde
 actually witness a performance difference, we need a bigger dataset. To get
 such a dataset, we’ll use the original source of <code>uspop.csv</code>. <strong>Warning: the
 download is 41MB compressed and decompresses to 145MB.</strong></p>
-<pre><code class="language-text">$ curl -LO http://burntsushi.net/stuff/worldcitiespop.csv.gz
+<div class="example-wrap"><pre class="language-text">$ curl -LO http://burntsushi.net/stuff/worldcitiespop.csv.gz
 $ gunzip worldcitiespop.csv.gz
 $ wc worldcitiespop.csv
   3173959   5681543 151492068 worldcitiespop.csv
 $ md5sum worldcitiespop.csv
-6198bd180b6d6586626ecbf044c1cca5  worldcitiespop.csv
-</code></pre>
+6198bd180b6d6586626ecbf044c1cca5  worldcitiespop.csv</pre></div>
 <p>Finally, it’s worth pointing out that this section is not attempting to
 present a rigorous set of benchmarks. We will stay away from rigorous analysis
 and instead rely a bit more on wall clock times and intuition.</p>
@@ -1573,14 +1523,13 @@ adapting a previous example to count the number of records in
 <p>Now let’s compile and run it and see what kind of timing we get. Don’t forget
 to compile with the <code>--release</code> flag. (For grins, try compiling without the
 <code>--release</code> flag and see how long it takes to run the program!)</p>
-<pre><code class="language-text">$ cargo build --release
+<div class="example-wrap"><pre class="language-text">$ cargo build --release
 $ time ./target/release/csvtutor &lt; worldcitiespop.csv
 2176
 
 real    0m0.645s
 user    0m0.627s
-sys     0m0.017s
-</code></pre>
+sys     0m0.017s</pre></div>
 <p>All right, so what’s the first thing we can do to make this faster? This
 section promised to speed things up by amortizing allocation, but we can do
 something even simpler first: iterate over
@@ -1608,14 +1557,13 @@ shown in the next example:</p>
     <span class="prelude-val">Ok</span>(<span class="ident">count</span>)
 }</pre></div>
 <p>And now compile and run:</p>
-<pre><code class="language-text">$ cargo build --release
+<div class="example-wrap"><pre class="language-text">$ cargo build --release
 $ time ./target/release/csvtutor &lt; worldcitiespop.csv
 2176
 
 real    0m0.429s
 user    0m0.403s
-sys     0m0.023s
-</code></pre>
+sys     0m0.023s</pre></div>
 <p>Our program is now approximately 30% faster, all because we removed UTF-8
 validation. But was it actually okay to remove UTF-8 validation? What have we
 lost? In this case, it is perfectly acceptable to drop UTF-8 validation and use
@@ -1665,14 +1613,13 @@ method.</p>
     <span class="prelude-val">Ok</span>(<span class="ident">count</span>)
 }</pre></div>
 <p>Compile and run:</p>
-<pre><code class="language-text">$ cargo build --release
+<div class="example-wrap"><pre class="language-text">$ cargo build --release
 $ time ./target/release/csvtutor &lt; worldcitiespop.csv
 2176
 
 real    0m0.308s
 user    0m0.283s
-sys     0m0.023s
-</code></pre>
+sys     0m0.023s</pre></div>
 <p>Woohoo! This represents <em>another</em> 30% boost over the previous example, which is
 a 50% boost over the first example.</p>
 <p>Let’s dissect this code by taking a look at the type signature of the
@@ -1748,14 +1695,13 @@ example using Serde in a previous section:</p>
     }
 }</pre></div>
 <p>Now compile and run this program:</p>
-<pre><code class="language-text">$ cargo build --release
+<div class="example-wrap"><pre class="language-text">$ cargo build --release
 $ ./target/release/csvtutor &lt; worldcitiespop.csv
 2176
 
 real    0m1.381s
 user    0m1.367s
-sys     0m0.013s
-</code></pre>
+sys     0m0.013s</pre></div>
 <p>The first thing you might notice is that this is quite a bit slower than our
 programs in the previous section. This is because deserializing each record
 has a certain amount of overhead to it. In particular, some of the fields need
@@ -1795,14 +1741,13 @@ like:</p>
     <span class="prelude-val">Ok</span>(<span class="ident">count</span>)
 }</pre></div>
 <p>Compile and run:</p>
-<pre><code class="language-text">$ cargo build --release
+<div class="example-wrap"><pre class="language-text">$ cargo build --release
 $ ./target/release/csvtutor &lt; worldcitiespop.csv
 2176
 
 real    0m1.055s
 user    0m1.040s
-sys     0m0.013s
-</code></pre>
+sys     0m0.013s</pre></div>
 <p>This corresponds to an approximately 24% increase in performance. To achieve
 this, we had to make two important changes.</p>
 <p>The first was to make our <code>Record</code> type contain <code>&amp;str</code> fields instead of
@@ -1855,14 +1800,13 @@ of <code>StringRecord</code>:</p>
     <span class="prelude-val">Ok</span>(<span class="ident">count</span>)
 }</pre></div>
 <p>Compile and run:</p>
-<pre><code class="language-text">$ cargo build --release
+<div class="example-wrap"><pre class="language-text">$ cargo build --release
 $ ./target/release/csvtutor &lt; worldcitiespop.csv
 2176
 
 real    0m0.873s
 user    0m0.850s
-sys     0m0.023s
-</code></pre>
+sys     0m0.023s</pre></div>
 <p>This corresponds to a 17% increase over the previous example and a 37% increase
 over the first example.</p>
 <p>In sum, Serde parsing is still quite fast, but will generally not be the
@@ -1975,14 +1919,13 @@ access to I/O, which would be harder without the standard library.)</p>
     }
 }</pre></div>
 <p>And compile and run it:</p>
-<pre><code class="language-text">$ cargo build --release
+<div class="example-wrap"><pre class="language-text">$ cargo build --release
 $ time ./target/release/csvtutor &lt; worldcitiespop.csv
 2176
 
 real    0m0.572s
 user    0m0.513s
-sys     0m0.057s
-</code></pre>
+sys     0m0.057s</pre></div>
 <p>This isn’t as fast as some of our previous examples where we used the <code>csv</code>
 crate to read into a <code>StringRecord</code> or a <code>ByteRecord</code>. This is mostly because
 this example reads a field at a time, which incurs more overhead than reading a
@@ -2016,4 +1959,6 @@ performance CSV swiss army knife. It can slice, select, search, sort, join,
 concatenate, index, format and compute statistics on arbitrary CSV data. Give
 it a try!</li>
 </ul>
-</div></details></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="csv" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div><script src="../../main.js"></script></body></html>
+</div></details></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="csv" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script>
+</body></html>

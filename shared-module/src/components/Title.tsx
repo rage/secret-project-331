@@ -11,7 +11,7 @@ export type HeadingProps = React.HTMLAttributes<HTMLHeadingElement> & HeadingExt
 
 const StyledTitle = styled.h1`
   font-weight: ${fontWeights.bold};
-  color: ${baseTheme.colors.neutral[600]};
+  color: ${baseTheme.colors.neutral[200]};
   font-size: ${({ variant }: HeadingProps) =>
     variant === "large" ? typography.h1 : variant === "medium" ? typography.h2 : typography.h3};
 `

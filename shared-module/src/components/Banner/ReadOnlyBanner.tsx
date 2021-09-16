@@ -1,8 +1,10 @@
 import styled from "@emotion/styled"
 import React from "react"
 
+import { baseTheme } from "../../styles"
+
 const BannerWrapper = styled.div`
-  background: rgba(212, 212, 217, 1);
+  background: ${baseTheme.colors.grey[400]};
   width: 100%;
   position: relative;
   padding: 2rem 2rem;

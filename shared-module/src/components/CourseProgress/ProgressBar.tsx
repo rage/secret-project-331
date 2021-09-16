@@ -2,6 +2,7 @@ import { keyframes } from "@emotion/react"
 import styled from "@emotion/styled"
 
 import { headingFont } from "../../styles"
+import { respondToOrLarger } from "../../styles/respond"
 
 import CourseProgressExtraProps from "./index"
 
@@ -22,7 +23,7 @@ const LinearProgress = styled.div`
   height: 30px;
   width: 290px;
 
-  @media (min-width: 600px) {
+  ${respondToOrLarger.sm} {
     height: 40px;
     width: 500px;
   }
@@ -36,7 +37,7 @@ const LinearProgress = styled.div`
     display: flex;
     justify-content: end;
 
-    @media (min-width: 600px) {
+    ${respondToOrLarger.sm} {
       height: 30px;
     }
 

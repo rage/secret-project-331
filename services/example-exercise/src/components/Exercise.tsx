@@ -1,9 +1,9 @@
 import { useState } from "react"
 
+import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
 import { PublicAlternative } from "../util/stateInterfaces"
 
 import ExerciseBase from "./ExerciseBase"
-import HeightTrackingContainer from "./HeightTrackingContainer"
 
 interface Props {
   state: PublicAlternative[]

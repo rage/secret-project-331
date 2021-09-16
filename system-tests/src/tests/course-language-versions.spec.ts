@@ -82,12 +82,10 @@ test("test", async ({ page, headless }) => {
   // Go to http://project-331.local/courses/introduction-to-localizing/chapter-1/page-1
   await page.goto("http://project-331.local/courses/introduction-to-localizing/chapter-1/page-1")
 
-  await expectScreenshotsToMatchSnapshots(
-    page,
-    headless,
-    "wrong-course-banner",
+  await expectScreenshotsToMatchSnapshots(page, headless, "wrong-course-banner", [
     "text=Looks like you're already on a different language version",
-  )
+    "text=a",
+  ])
 
   // Click text=Johdatus lokalisointiin
   await page.click("text=Johdatus lokalisointiin")

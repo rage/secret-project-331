@@ -1,4 +1,5 @@
 import styled from "@emotion/styled"
+import Link from "next/link"
 import React from "react"
 
 import { baseTheme } from "../../styles"
@@ -18,9 +19,11 @@ const Wrapper = styled.aside`
     margin-bottom: 2rem;
   }
 `
-const Link = styled.a`
-  color: #1c3b40;
-  box-shadow: none;
+
+const StyledLink = styled.div`
+  :hover {
+    cursor: pointer;
+  }
 `
 
 const ImageBox = styled.div`
@@ -50,12 +53,8 @@ const ImageBox = styled.div`
     margin-bottom: 0;
   }
 `
-/* const StyledArrow = styled(Arrow)`
-  display: absolute;
-  right: 0;
-` */
 
-const PageParts = styled.div`
+const ExercisePart = styled.div`
   position: relative;
   margin-left: 0em;
   padding: 0.6em 1em;
@@ -63,23 +62,12 @@ const PageParts = styled.div`
   color: ${baseTheme.colors.grey[800]};
   text-decoration: none;
   border-radius: 2px;
-  margin-bottom: 0.4em;
-  background: #f1f1f1;
+  background: ${baseTheme.colors.grey[200]};
   display: flex;
   align-items: center;
 
-  ${({ selected }: ExerciseListBoxExtraProps) =>
-    selected &&
-    `
-    background-color: #f1f1f1;
-    font-weight: 600;
-
-    :hover {
-      background-color: #D8D8D8 !important;
-    }
-  `}
   :hover {
-    background-color: #d8d8d8;
+    background-color: ${baseTheme.colors.grey[300]};
   }
 
   span {
@@ -102,34 +90,44 @@ const chooseChapterValue = {
   4: "V",
 } */
 
-export interface ExerciseListBoxExtraProps {
-  variant: "text" | "link" | "readOnly"
-  selected: boolean
-  pageIndex: number
-  pageTitle: string
-  pageLink: string
+export interface ExerciseBoxExtraProps {
+  exerciseIndex: number
+  exerciseTitle: string
+  url: string
+  scoreMaximum: number
+  userPoints?: number
 }
 
-export type ExerciseListBox = React.HTMLAttributes<HTMLDivElement> & ExerciseListBoxExtraProps
+export type ExerciseBox = React.HTMLAttributes<HTMLDivElement> & ExerciseBoxExtraProps
 
-const ExerciseListBox: React.FC<ExerciseListBox> = (props) => {
+const ExerciseBox: React.FC<ExerciseBox> = ({
+  exerciseIndex,
+  exerciseTitle,
+  url,
+  scoreMaximum,
+  userPoints,
+}) => {
   return (
     <Wrapper>
-      <>
-        <Link href={props.pageLink}>
-          <PageParts {...props}>
+      <StyledLink>
+        <Link href={url}>
+          <ExercisePart>
             <ImageBox>
               <div>
-                <p>{props.pageIndex}</p>
+                <p>{exerciseIndex}</p>
               </div>
             </ImageBox>
-            <span>{props.pageTitle}</span>
-            <CircularProgressBar point={54} className="progress" />
-          </PageParts>
+            <span>{exerciseTitle}</span>
+            <CircularProgressBar
+              scoreMaximum={scoreMaximum}
+              userPoints={userPoints ?? 0}
+              className="progress"
+            />
+          </ExercisePart>
         </Link>
-      </>
+      </StyledLink>
     </Wrapper>
   )
 }
 
-export default ExerciseListBox
+export default ExerciseBox

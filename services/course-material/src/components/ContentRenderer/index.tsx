@@ -16,13 +16,13 @@ import CustomHTMLBlock from "./CustomHTMLBlock"
 import DefaultBlock from "./DefaultBlock"
 import EmbedBlock from "./EmbedBlock"
 import ExerciseBlock from "./ExerciseBlock"
-import ExerciseListBlock from "./ExerciseListBlock/index"
+import ExerciseInChapterBlock from "./ExerciseInChapterBlock/index"
 import HeadingBlock from "./Headings/HeadingBlock"
 import HeroSectionBlock from "./HeroSectionBlock"
 import ImageBlock from "./ImageBlock"
 import LandingPageHeroSectionBlock from "./LandingPageHeroSectionBlock"
 import ListBlock from "./ListBlock"
-import PagesListBlock from "./PagesListBlock"
+import PagesInChapterBlock from "./PagesInChapterBlock"
 import ParagraphBlock from "./ParagraphBlock"
 import PreformatterBlock from "./PreformatterBlock"
 import PullquoteBlock from "./PullquoteBlock"
@@ -69,8 +69,8 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "core/preformatted": PreformatterBlock,
   "core/table": TableBlock,
   "moocfi/exercise": ExerciseBlock,
-  "moocfi/exercises-in-chapter": ExerciseListBlock,
-  "moocfi/pages-in-chapter": PagesListBlock,
+  "moocfi/exercises-in-chapter": ExerciseInChapterBlock,
+  "moocfi/pages-in-chapter": PagesInChapterBlock,
   "moocfi/course-chapter-grid": CourseChapterGridBlock,
   "moocfi/latex": LatexBlock,
   "moocfi/hero-section": HeroSectionBlock,

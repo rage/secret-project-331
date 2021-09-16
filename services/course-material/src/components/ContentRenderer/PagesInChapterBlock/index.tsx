@@ -1,4 +1,4 @@
-import { useContext } from "react"
+import React, { useContext } from "react"
 
 import { BlockRendererProps } from ".."
 import CoursePageContext from "../../../contexts/CoursePageContext"
@@ -6,9 +6,9 @@ import { courseMaterialCenteredComponentStyles } from "../../../shared-module/st
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import GenericLoading from "../../GenericLoading"
 
-import ExerciseList from "./ExerciseList"
+import PagesInChapter from "./PagesInChapter"
 
-const ExerciseListBlock: React.FC<BlockRendererProps<unknown>> = () => {
+const PagesInChapterBlock: React.FC<BlockRendererProps<unknown>> = () => {
   const pageContext = useContext(CoursePageContext)
 
   if (pageContext.state !== "ready") {
@@ -18,14 +18,14 @@ const ExerciseListBlock: React.FC<BlockRendererProps<unknown>> = () => {
   const chapterId = pageContext.pageData.chapter_id
 
   if (!chapterId) {
-    return <pre>ExerciseListBlock: Missing chapter id on this page.</pre>
+    return <pre>PageListBlock: Missing chapter id on this page.</pre>
   }
 
   return (
     <div className={courseMaterialCenteredComponentStyles}>
-      <ExerciseList chapterId={chapterId} />
+      <PagesInChapter chapterId={chapterId} />
     </div>
   )
 }
 
-export default withErrorBoundary(ExerciseListBlock)
+export default withErrorBoundary(PagesInChapterBlock)

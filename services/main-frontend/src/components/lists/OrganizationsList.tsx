@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import Link from "next/link"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import { fetchOrganizations } from "../../services/backend/organizations"
@@ -10,6 +11,7 @@ import { wideWidthCenteredComponentStyles } from "../../shared-module/styles/com
 import basePath from "../../shared-module/utils/base-path"
 
 const OrganizationsList: React.FC = () => {
+  const { t } = useTranslation()
   const { isLoading, error, data } = useQuery(`organizations`, () => fetchOrganizations(), {
     cacheTime: 60000,
   })
@@ -38,7 +40,7 @@ const OrganizationsList: React.FC = () => {
           color: #707070;
         `}
       >
-        Organizations
+        {t("organizations-heading")}
       </h1>
       <div
         className={css`

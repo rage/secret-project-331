@@ -1,5 +1,5 @@
 import React from "react"
-import { Trans } from "react-i18next"
+import { Trans, useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import { fetchFeedback, markAsRead } from "../services/backend/feedback"
@@ -16,6 +16,7 @@ interface Props {
 }
 
 const FeedbackPage: React.FC<Props> = ({ courseId, page, limit, read, onChange }) => {
+  const t = useTranslation()
   const { isLoading, error, data, refetch } = useQuery(
     `feedback-list-${courseId}-${read}-${page}`,
     () => fetchFeedback(courseId, read, page, limit),

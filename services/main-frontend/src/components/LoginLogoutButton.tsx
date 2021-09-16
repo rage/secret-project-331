@@ -1,11 +1,13 @@
 import Link from "next/link"
 import { useRouter } from "next/router"
 import React, { useContext } from "react"
+import { useTranslation } from "react-i18next"
 
 import LoginStateContext from "../shared-module/contexts/LoginStateContext"
 import { logout } from "../shared-module/services/backend/auth"
 
 export default function LoginLogoutButton(): JSX.Element {
+  const { t } = useTranslation()
   const loginStateContext = useContext(LoginStateContext)
   const router = useRouter()
 
@@ -22,7 +24,7 @@ export default function LoginLogoutButton(): JSX.Element {
     return (
       <form onSubmit={submitLogout}>
         <button name="logout" type="submit">
-          Logout
+          {t("logout")}
         </button>
       </form>
     )

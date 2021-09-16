@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 module.exports = {
   env: {
     browser: true,
@@ -5,6 +6,7 @@ module.exports = {
     node: true,
   },
   extends: [
+    "plugin:i18next/recommended",
     "plugin:jsx-a11y/recommended",
     "plugin:react-hooks/recommended",
     "eslint:recommended",

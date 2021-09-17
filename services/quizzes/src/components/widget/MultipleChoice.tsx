@@ -54,6 +54,9 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
         className={css`
           display: flex;
           flex-direction: row;
+          @media only screen and (max-width: 600px) {
+            flex-direction: column;
+          }
         `}
       >
         <div
@@ -73,6 +76,9 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
             flex: 2;
             flex-direction: row;
             justify-content: space-between;
+            @media only screen and (max-width: 415px) {
+              flex-direction: column;
+            }
           `}
         >
           {quizItem.options.map((qo) => {

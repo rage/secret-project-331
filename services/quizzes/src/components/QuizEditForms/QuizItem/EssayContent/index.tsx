@@ -13,7 +13,7 @@ import {
   editedQuizItemTitle,
 } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
-import { NormalizedItem } from "../../../../types/types"
+import { NormalizedQuizItem } from "../../../../types/types"
 import MarkdownEditor from "../../../MarkdownEditor"
 
 import EssayModalContent from "./EssayModalContent"
@@ -68,7 +68,7 @@ const EditButtonWrapper = styled.div`
 `
 
 interface EssayContentProps {
-  item: NormalizedItem
+  item: NormalizedQuizItem
 }
 
 const EssayContent: React.FC<EssayContentProps> = ({ item }) => {

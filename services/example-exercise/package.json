@@ -34,6 +34,7 @@
     "react-is": "^17.0.2",
     "react-spring": "^9.2.4",
     "styled-system": "^5.1.5",
+    "use-debounce": "^7.0.0",
     "use-memo-one": "^1.1.2",
     "uuid": "^8.3.2"
   },

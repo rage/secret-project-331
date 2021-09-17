@@ -14,6 +14,7 @@ use crate::{
         courses::{Course, CourseStructure, CourseUpdate, NewCourse},
         email_templates::{EmailTemplate, EmailTemplateNew, EmailTemplateUpdate},
         exercise_service_info::{CourseMaterialExerciseServiceInfo, ExerciseServiceInfoApi},
+        exercise_services::{ExerciseService, ExerciseServiceNewOrUpdate},
         exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
         exercises::{
             ActivityProgress, CourseMaterialExercise, Exercise, ExerciseStatus, GradingProgress,
@@ -23,15 +24,17 @@ use crate::{
         organizations::Organization,
         page_history::{HistoryChangeReason, PageHistory},
         pages::{
-            ExerciseWithExerciseTasks, HistoryRestoreData, NewPage, NormalizedCmsExercise,
-            NormalizedCmsExerciseTask, Page, PageRoutingDataWithChapterStatus, PageSearchRequest,
-            PageSearchResult, PageUpdate, PageWithExercises,
+            CoursePageWithUserData, ExerciseWithExerciseTasks, HistoryRestoreData, NewPage,
+            NormalizedCmsExercise, NormalizedCmsExerciseTask, Page,
+            PageRoutingDataWithChapterStatus, PageSearchRequest, PageSearchResult, PageUpdate,
+            PageWithExercises,
         },
         playground_examples::{PlaygroundExample, PlaygroundExampleData},
         submissions::{
             NewSubmission, Submission, SubmissionCount, SubmissionCountByExercise,
             SubmissionCountByWeekAndHour, SubmissionInfo, SubmissionResult,
         },
+        user_course_settings::UserCourseSettings,
         user_exercise_states::UserProgress,
     },
     utils::pagination::Pagination,
@@ -51,6 +54,8 @@ ts_rs::export! {
   CourseMaterialExercise,
   PageRoutingDataWithChapterStatus,
   SubmissionResult,
+  ExerciseService,
+  ExerciseServiceNewOrUpdate,
   Course,
   Exercise,
   ExerciseServiceInfoApi,
@@ -98,6 +103,8 @@ ts_rs::export! {
   ExerciseWithExerciseTasks,
   NormalizedCmsExercise,
   NormalizedCmsExerciseTask,
-  PlaygroundExample,PlaygroundExampleData
+  UserCourseSettings,
+  PlaygroundExample,PlaygroundExampleData,
+  CoursePageWithUserData
     => "../../shared-module/src/bindings.ts"
 }

@@ -2,10 +2,11 @@ use super::{exercise_service_info::ExerciseServiceInfo, ModelError, ModelResult}
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
+use ts_rs::TS;
 use url::Url;
 use uuid::Uuid;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct ExerciseService {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -15,6 +16,15 @@ pub struct ExerciseService {
     pub slug: String,
     pub public_url: String,
     /// This is needed because connecting to services directly inside the cluster with a special url is much for efficient than connecting to the same service with a url that would get routed though the internet. If not defined, use we can reach the service with the public url.
+    pub internal_url: Option<String>,
+    pub max_reprocessing_submissions_at_once: i32,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+pub struct ExerciseServiceNewOrUpdate {
+    pub name: String,
+    pub slug: String,
+    pub public_url: String,
     pub internal_url: Option<String>,
     pub max_reprocessing_submissions_at_once: i32,
 }
@@ -35,6 +45,50 @@ WHERE id = $1
     .fetch_one(conn)
     .await?;
     Ok(res)
+}
+
+pub async fn update_exercise_service(
+    conn: &mut PgConnection,
+    id: Uuid,
+    exercise_service_update: &ExerciseServiceNewOrUpdate,
+) -> ModelResult<ExerciseService> {
+    let res = sqlx::query_as!(
+        ExerciseService,
+        r#"
+UPDATE exercise_services
+    SET name=$1, slug=$2, public_url=$3, internal_url=$4, max_reprocessing_submissions_at_once=$5
+WHERE id=$6
+    RETURNING *
+        "#,
+        exercise_service_update.name,
+        exercise_service_update.slug,
+        exercise_service_update.public_url,
+        exercise_service_update.internal_url,
+        exercise_service_update.max_reprocessing_submissions_at_once,
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn delete_exercise_service(
+    conn: &mut PgConnection,
+    id: Uuid,
+) -> ModelResult<ExerciseService> {
+    let deleted = sqlx::query_as!(
+        ExerciseService,
+        r#"
+UPDATE exercise_services
+    SET deleted_at = now()
+WHERE id = $1
+    RETURNING *
+        "#,
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(deleted)
 }
 
 pub async fn get_exercise_service_by_exercise_type(
@@ -129,11 +183,7 @@ WHERE deleted_at IS NULL
 
 pub async fn insert_exercise_service(
     conn: &mut PgConnection,
-    name: &str,
-    slug: &str,
-    public_url: &str,
-    internal_url: &str,
-    max_reprocessing_submissions_at_once: i32,
+    exercise_service_update: &ExerciseServiceNewOrUpdate,
 ) -> ModelResult<ExerciseService> {
     let res = sqlx::query_as!(
         ExerciseService,
@@ -148,11 +198,11 @@ INSERT INTO exercise_services (
 VALUES ($1, $2, $3, $4, $5)
 RETURNING *
   "#,
-        name,
-        slug,
-        public_url,
-        internal_url,
-        max_reprocessing_submissions_at_once
+        exercise_service_update.name,
+        exercise_service_update.slug,
+        exercise_service_update.public_url,
+        exercise_service_update.internal_url,
+        exercise_service_update.max_reprocessing_submissions_at_once
     )
     .fetch_one(conn)
     .await?;

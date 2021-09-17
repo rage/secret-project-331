@@ -1,4 +1,8 @@
-use super::ModelResult;
+use super::{
+    course_instances,
+    exercise_tasks::{self, get_existing_user_exercise_task_for_course_instance},
+    user_course_settings, ModelResult,
+};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
@@ -6,8 +10,7 @@ use ts_rs::TS;
 use uuid::Uuid;
 
 use crate::models::{
-    exercise_service_info::get_course_material_service_info_by_exercise_type,
-    exercise_tasks::get_random_exercise_task, ModelError,
+    exercise_service_info::get_course_material_service_info_by_exercise_type, ModelError,
 };
 
 use super::{
@@ -200,100 +203,67 @@ pub async fn get_course_material_exercise(
 ) -> ModelResult<CourseMaterialExercise> {
     let exercise = get_by_id(conn, exercise_id).await?;
 
-    let mut current_course_instance_id: Option<Uuid> = None;
-    // if the user is logged in, take the previously selected task or select a new one
-    let selected_exercise_task = if let Some(user_id) = user_id {
-        // user is logged in, see if they're enrolled on the course
-        current_course_instance_id = sqlx::query!(
-            r#"
-SELECT course_instance_id AS id
-FROM course_instance_enrollments
-WHERE course_id = $1
-  AND user_id = $2
-  AND current = TRUE
-  AND deleted_at IS NULL
-"#,
+    let (selected_exercise_task, current_course_instance_id) = if let Some(user_id) = user_id {
+        let user_course_settings = user_course_settings::get_user_course_settings_by_course_id(
+            conn,
+            user_id,
             exercise.course_id,
-            user_id
         )
-        .fetch_optional(&mut *conn)
-        .await?
-        .map(|r| r.id);
-
-        if let Some(current_course_instance_id) = current_course_instance_id {
-            // user is enrolled on an instance of the given course, see if a task has already been selected
-            let selected_exercise_task_id: Option<Uuid> = sqlx::query!(
-                r#"
-SELECT selected_exercise_task_id AS "id!"
-FROM user_exercise_states
-WHERE user_id = $1
-  AND selected_exercise_task_id IS NOT NULL
-  AND exercise_id = $2
-  AND course_instance_id = $3
-  AND deleted_at IS NULL
-            "#,
-                user_id,
-                exercise.id,
-                current_course_instance_id
-            )
-            .fetch_optional(&mut *conn)
-            .await?
-            .map(|r| r.id);
-
-            if let Some(selected_exercise_task_id) = selected_exercise_task_id {
-                // a task has previously been selected, return it
-                sqlx::query_as!(
-                    CourseMaterialExerciseTask,
-                    "
-SELECT id,
-  exercise_id,
-  exercise_type,
-  assignment,
-  public_spec
-FROM exercise_tasks
-WHERE id = $1
-                ",
-                    selected_exercise_task_id
-                )
-                .fetch_one(&mut *conn)
-                .await?
-            } else {
-                // no task has been selected
-                // Exercise task contains the actual assignment and activity
-                // What exercise task to give for the student depends on the
-                // exercise -- for now we'll give a random exercise task to the student
-                // this could be changed by creating a policy in the exercise.
-                let selected_exercise_task = get_random_exercise_task(conn, exercise_id).await?;
-                sqlx::query!(
-                    "
-INSERT INTO user_exercise_states (
-    user_id,
-    exercise_id,
-    course_instance_id,
-    selected_exercise_task_id
-  )
-VALUES ($1, $2, $3, $4) ON CONFLICT (user_id, exercise_id, course_instance_id) DO
-UPDATE
-SET selected_exercise_task_id = $4
-",
+        .await?;
+        match user_course_settings {
+            Some(settings) if settings.current_course_id == exercise.course_id => {
+                // User is enrolled on an instance of the given course.
+                let task = exercise_tasks::get_or_select_user_exercise_task_for_course_instance(
+                    conn,
                     user_id,
                     exercise_id,
-                    current_course_instance_id,
-                    selected_exercise_task.id,
+                    settings.current_course_instance_id,
                 )
-                .execute(&mut *conn)
                 .await?;
-                selected_exercise_task
+                Ok((task, Some(settings.current_course_id)))
             }
-        } else {
-            // user is not enrolled on the course, return error
-            return Err(ModelError::PreconditionFailed(
-                "User must be enrolled to the course".to_string(),
-            ));
-        }
+            Some(_) => {
+                // User is enrolled on a different language version of the course. Show exercise
+                // task based on their latest enrollment or a random one.
+                let latest_instance = course_instances::course_instance_by_users_latest_enrollment(
+                    conn,
+                    user_id,
+                    exercise.course_id,
+                )
+                .await?;
+                if let Some(instance) = latest_instance {
+                    let exercise_task = get_existing_user_exercise_task_for_course_instance(
+                        conn,
+                        user_id,
+                        exercise.id,
+                        instance.id,
+                    )
+                    .await?;
+                    if let Some(exercise_task) = exercise_task {
+                        Ok((exercise_task, Some(instance.id)))
+                    } else {
+                        let random_task =
+                            exercise_tasks::get_random_exercise_task(conn, exercise_id).await?;
+                        Ok((random_task, None))
+                    }
+                } else {
+                    let random_task =
+                        exercise_tasks::get_random_exercise_task(conn, exercise_id).await?;
+                    Ok((random_task, None))
+                }
+            }
+            None => {
+                // User is not enrolled on any course version. This is not a valid scenario because
+                // tasks are based on a specific instance.
+                Err(ModelError::PreconditionFailed(
+                    "User must be enrolled to the course".to_string(),
+                ))
+            }
+        }?
     } else {
-        // user is not logged in, get a random task
-        get_random_exercise_task(conn, exercise_id).await?
+        // No signed in user. Show random exercise.
+        let random_task = exercise_tasks::get_random_exercise_task(conn, exercise_id).await?;
+        (random_task, None)
     };
 
     let current_exercise_task_service_info = get_course_material_service_info_by_exercise_type(
@@ -346,8 +316,10 @@ mod test {
     use super::*;
     use crate::{
         models::{
-            chapters, course_instance_enrollments, course_instances, courses, exercise_tasks,
-            organizations, pages, users,
+            chapters,
+            course_instance_enrollments::{self, NewCourseInstanceEnrollment},
+            course_instances, course_language_groups, courses, exercise_tasks, organizations,
+            pages, users,
         },
         test_helper::Conn,
         utils::document_schema_processor::GutenbergBlock,
@@ -374,18 +346,32 @@ mod test {
         )
         .await
         .unwrap();
-        let course_id = courses::insert(tx.as_mut(), "", organization_id, "", "en-US")
-            .await
-            .unwrap();
+        let course_language_group_id = course_language_groups::insert_with_id(
+            tx.as_mut(),
+            Uuid::parse_str("281384b3-bbc9-4da5-b93e-4c122784a724").unwrap(),
+        )
+        .await
+        .unwrap();
+        let course_id = courses::insert(
+            tx.as_mut(),
+            "",
+            organization_id,
+            course_language_group_id,
+            "",
+            "en-US",
+        )
+        .await
+        .unwrap();
         let course_instance = course_instances::insert(tx.as_mut(), course_id, None, None)
             .await
             .unwrap();
-        course_instance_enrollments::insert(
+        course_instance_enrollments::insert_enrollment_and_set_as_current(
             tx.as_mut(),
-            user_id,
-            course_id,
-            course_instance.id,
-            true,
+            NewCourseInstanceEnrollment {
+                course_id,
+                course_instance_id: course_instance.id,
+                user_id,
+            },
         )
         .await
         .unwrap();

@@ -7,7 +7,6 @@ import { fetchSubmissionInfo } from "../../services/backend/submissions"
 import DebugModal from "../../shared-module/components/DebugModal"
 import useQueryParameter from "../../shared-module/hooks/useQueryParameter"
 import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
-import basePath from "../../shared-module/utils/base-path"
 import dontRenderUntilQueryParametersReady from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
 
 const Submission: React.FC = () => {
@@ -37,7 +36,7 @@ const Submission: React.FC = () => {
   }
 
   return (
-    <Layout frontPageUrl={basePath()} navVariant="complex">
+    <Layout navVariant="complex">
       <div className={normalWidthCenteredComponentStyles}>
         <h1>Submission {data.submission.id}</h1>
         {grading}

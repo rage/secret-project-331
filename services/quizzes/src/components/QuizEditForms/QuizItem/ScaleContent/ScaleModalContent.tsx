@@ -13,7 +13,7 @@ import {
   editedScaleMinValue,
 } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
-import { NormalizedItem } from "../../../../types/types"
+import { NormalizedQuizItem } from "../../../../types/types"
 
 const ModalContent = styled.div`
   padding: 1rem;
@@ -42,7 +42,7 @@ const ModalContentTitleWrapper = styled.div`
 `
 
 interface ScaleItemEditorModalProps {
-  item: NormalizedItem
+  item: NormalizedQuizItem
 }
 export const ScaleModalContent: React.FC<ScaleItemEditorModalProps> = ({ item }) => {
   const dispatch = useDispatch()

@@ -3,7 +3,8 @@ import React, { Fragment } from "react"
 
 import ArrowSVGIcon from "../img/arrow.svg"
 import LockIcon from "../img/lock.svg"
-import { typography } from "../styles"
+import { baseTheme, typography } from "../styles"
+import { respondToOrLarger } from "../styles/respond"
 
 const SectionWrapper = styled.div`
   margin-top: 3rem;
@@ -12,7 +13,7 @@ const SectionWrapper = styled.div`
 
   p {
     font-size: 1rem;
-    color: #333;
+    color: ${baseTheme.colors.grey[800]};
     margin: 0;
     padding: 0;
     display: flex;
@@ -42,7 +43,7 @@ const StyledArrow = styled.div`
   justify-content: center;
   align-items: center;
 
-  @media (min-width: 600px) {
+  ${respondToOrLarger.sm} {
     padding: 1rem 1.6rem;
     width: auto;
   }
@@ -50,7 +51,7 @@ const StyledArrow = styled.div`
   svg {
     width: 60%;
 
-    @media (min-width: 600px) {
+    ${respondToOrLarger.sm} {
       width: 80%;
     }
   }
@@ -70,18 +71,18 @@ const StyledLink = styled.a`
   margin: 1rem 0;
   display: flex;
   min-width: 100%;
-  background-color: #333;
+  background-color: ${baseTheme.colors.grey[800]};
   transition: background-color 0.2s;
 
-  @media (min-width: 600px) {
+  ${respondToOrLarger.sm} {
     padding: 1.4rem 1.4rem;
-    background-color: #333;
+    background-color: ${baseTheme.colors.grey[800]};
   }
 
   &:hover {
     text-decoration: none;
     color: white;
-    background-color: #333;
+    background-color: ${baseTheme.colors.grey[800]};
   }
 
   span {
@@ -90,7 +91,7 @@ const StyledLink = styled.a`
     line-height: 1.3;
     width: 68%;
 
-    @media (min-width: 600px) {
+    ${respondToOrLarger.sm} {
       width: 100%;
     }
   }

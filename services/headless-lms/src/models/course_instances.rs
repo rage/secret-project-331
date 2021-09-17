@@ -111,13 +111,11 @@ SELECT i.id,
   i.name,
   i.description,
   i.variant_status AS "variant_status: VariantStatus"
-FROM course_instances i
-  JOIN course_instance_enrollments e ON i.id = e.course_instance_id
-WHERE e.user_id = $1
-  AND e.course_id = $2
-  AND e.current = 't'
-  AND e.deleted_at IS NULL
-  AND i.deleted_at IS NULL;
+FROM user_course_settings ucs
+  JOIN course_instances i ON (ucs.current_course_instance_id = i.id)
+WHERE ucs.user_id = $1
+  AND ucs.current_course_id = $2
+  AND ucs.deleted_at IS NULL;
     "#,
         user_id,
         course_id,
@@ -125,6 +123,40 @@ WHERE e.user_id = $1
     .fetch_optional(conn)
     .await?;
     Ok(course_instance_enrollment)
+}
+
+pub async fn course_instance_by_users_latest_enrollment(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<Option<CourseInstance>> {
+    let course_instance = sqlx::query_as!(
+        CourseInstance,
+        r#"
+SELECT i.id,
+  i.created_at,
+  i.updated_at,
+  i.deleted_at,
+  i.course_id,
+  i.starts_at,
+  i.ends_at,
+  i.name,
+  i.description,
+  i.variant_status AS "variant_status: VariantStatus"
+FROM course_instances i
+  JOIN course_instance_enrollments ie ON (i.id = ie.course_id)
+WHERE i.course_id = $1
+  AND i.deleted_at IS NULL
+  AND ie.user_id = $2
+  AND ie.deleted_at IS NULL
+ORDER BY ie.created_at DESC;
+    "#,
+        course_id,
+        user_id,
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(course_instance)
 }
 
 pub async fn get_all_course_instances(conn: &mut PgConnection) -> ModelResult<Vec<CourseInstance>> {
@@ -193,7 +225,7 @@ WHERE id = $2;
 mod test {
     use super::*;
     use crate::{
-        models::{courses, organizations},
+        models::{course_language_groups, courses, organizations},
         test_helper::Conn,
     };
 
@@ -211,12 +243,32 @@ mod test {
         )
         .await
         .unwrap();
-        let course_1_id = courses::insert(tx.as_mut(), "", organization_id, "course-1", "en-US")
-            .await
-            .unwrap();
-        let course_2_id = courses::insert(tx.as_mut(), "", organization_id, "course-2", "en-US")
-            .await
-            .unwrap();
+        let course_language_group_id = course_language_groups::insert_with_id(
+            tx.as_mut(),
+            Uuid::parse_str("281384b3-bbc9-4da5-b93e-4c122784a724").unwrap(),
+        )
+        .await
+        .unwrap();
+        let course_1_id = courses::insert(
+            tx.as_mut(),
+            "",
+            organization_id,
+            course_language_group_id,
+            "course-1",
+            "en-US",
+        )
+        .await
+        .unwrap();
+        let course_2_id = courses::insert(
+            tx.as_mut(),
+            "",
+            organization_id,
+            course_language_group_id,
+            "course-2",
+            "en-US",
+        )
+        .await
+        .unwrap();
 
         let _course_1_instance_1 = insert(tx.as_mut(), course_1_id, None, None).await.unwrap();
         let course_2_instance_1 = insert(tx.as_mut(), course_2_id, None, None).await;

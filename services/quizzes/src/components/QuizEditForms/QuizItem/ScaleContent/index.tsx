@@ -26,7 +26,7 @@ import {
   editedScaleMinValue,
 } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
-import { NormalizedItem } from "../../../../types/types"
+import { NormalizedQuizItem } from "../../../../types/types"
 import MarkdownEditor from "../../../MarkdownEditor"
 
 import ScaleModalContent from "./ScaleModalContent"
@@ -97,7 +97,7 @@ const ModalButtonWrapper = styled.div`
 `
 
 interface ScaleContentProps {
-  item: NormalizedItem
+  item: NormalizedQuizItem
 }
 const ScaleContent: React.FC<ScaleContentProps> = ({ item }) => {
   const quizId = useTypedSelector((state) => state.editor.quizId)

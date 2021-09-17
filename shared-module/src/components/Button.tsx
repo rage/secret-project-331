@@ -8,6 +8,8 @@ import { fontWeights, headingFont, theme, typography } from "../styles"
 export interface ButtonExtraProps {
   variant: "primary" | "secondary" | "tertiary"
   size: "medium" | "large"
+  transform: "normal" | "uppercase"
+  children: React.ReactNode
 }
 
 export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & ButtonExtraProps
@@ -27,11 +29,12 @@ const BaseButton = styled.button`
   text-decoration: none;
   text-align: center;
   justify-content: center;
-  text-transform: uppercase;
-  font-size: 14px !important;
+  text-transform: ${({ transform }: ButtonProps) =>
+    transform == "normal" ? "capitalize" : "uppercase"};
+  font-size: ${({ transform }: ButtonProps) => (transform == "normal" ? "18px" : "14px")};
   letter-spacing: 0.02em;
   transition: all 150ms linear;
-  border: 2px solid;
+  border: 3px solid transparent;
   z-index: 1;
 
   &:hover {
@@ -51,7 +54,6 @@ const BaseButton = styled.button`
 `
 
 const PrimaryButton = styled(BaseButton)`
-  font-size: ${typography.paragraph};
   color: ${theme.primary.text};
   background-color: ${theme.primary.bg};
   border-color: ${theme.primary.hoverBorder};
@@ -78,13 +80,13 @@ const PrimaryButton = styled(BaseButton)`
 `
 
 const SecondaryButton = styled(BaseButton)`
-  font-size: ${typography.paragraph};
   color: ${theme.secondary.text};
   background-color: ${theme.secondary.bg};
 
   &:hover {
     color: ${theme.secondary.hoverText};
     background-color: ${theme.secondary.hoverBg};
+    border-color: ${theme.secondary.hoverBorder};
   }
 
   ,
@@ -102,7 +104,6 @@ const SecondaryButton = styled(BaseButton)`
 `
 
 const TertiaryButton = styled(BaseButton)`
-  font-size: ${typography.paragraph};
   color: ${theme.secondary.text};
   background-color: #333;
 

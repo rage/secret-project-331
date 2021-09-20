@@ -1,3 +1,4 @@
+import { ThemeProvider } from "@material-ui/styles"
 import type { AppProps } from "next/app"
 import React from "react"
 import { QueryClientProvider } from "react-query"
@@ -6,6 +7,7 @@ import { ReactQueryDevtools } from "react-query/devtools"
 import { LoginStateContextProvider } from "../shared-module/contexts/LoginStateContext"
 import { queryClient } from "../shared-module/services/appQueryClient"
 import GlobalStyles from "../shared-module/styles/GlobalStyles"
+import muiTheme from "../shared-module/styles/muiTheme"
 
 const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
   React.useEffect(() => {
@@ -20,11 +22,13 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
     <QueryClientProvider client={queryClient}>
       {/* <RecoilRoot> */}
       {/* <Devtools /> */}
-      <GlobalStyles />
-      <LoginStateContextProvider>
-        <Component {...pageProps} />
-      </LoginStateContextProvider>
-      <ReactQueryDevtools initialIsOpen={false} />
+      <ThemeProvider theme={muiTheme}>
+        <GlobalStyles />
+        <LoginStateContextProvider>
+          <Component {...pageProps} />
+        </LoginStateContextProvider>
+        <ReactQueryDevtools initialIsOpen={false} />
+      </ThemeProvider>
       {/* </RecoilRoot> */}
     </QueryClientProvider>
   )

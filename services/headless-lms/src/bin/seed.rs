@@ -264,6 +264,59 @@ async fn main() -> Result<()> {
     playground_examples::insert_playground_example(
         &mut conn,
         PlaygroundExampleData {
+            name: "Quizzes, example, checkbox".to_string(),
+            url: "http://project-331.local/quizzes/exercise".to_string(),
+            width: 500,
+            data: serde_json::json!({
+                "id": "57f03d8e-e768-485c-b0c3-a3e485a3e18a",
+                "body": "", "open": "2021-09-21T07:46:23.290Z",
+                "part": 1,
+                "section": 1,
+                "items": [
+                    {
+                        "id": "5f09bd92-6e33-415b-b356-227563a02816",
+                        "body": "",
+                        "type": "checkbox",
+                        "multi": false,
+                        "order": 1,
+                        "title": "I accept the terms and conditions.",
+                        "quizId": "57f03d8e-e768-485c-b0c3-a3e485a3e18a",
+                        "options": [],
+                        "maxValue": null,
+                        "maxWords": null,
+                        "minValue": null,
+                        "minWords": null,
+                        "direction": "row"
+                    },
+                    {
+                        "id": "818fc326-ed38-4fe5-95d3-0f9d15032d01",
+                        "body": "",
+                        "type": "checkbox",
+                        "multi": false,
+                        "order": 2,
+                        "title": "I agree with the privacy policy, and will allow my specified personal details to be used for scientific research purposes.",
+                        "quizId": "57f03d8e-e768-485c-b0c3-a3e485a3e18a",
+                        "options": [],
+                        "maxValue": null,
+                        "maxWords": null,
+                        "minValue": null,
+                        "minWords": null,
+                        "direction": "row"
+                    },
+                ],
+                "title": "",
+                "tries": 1,
+                "courseId": "51ee97a7-684f-4cba-8a01-8c558803c4f7",
+                "deadline": "2021-09-21T07:46:23.290Z",
+                "triesLimited": true
+            }),
+        },
+    )
+    .await?;
+
+    playground_examples::insert_playground_example(
+        &mut conn,
+        PlaygroundExampleData {
             name: "Quizzes example, multiple-choice".to_string(),
             url: "http://project-331.local/quizzes/exercise".to_string(),
             width: 500,

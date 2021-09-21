@@ -4,6 +4,7 @@ import { useSendQuizAnswerOnChange } from "../../hooks/useSendQuizAnswerOnChange
 import HeightTrackingContainer from "../../shared-module/components/HeightTrackingContainer"
 import { PublicQuiz, PublicQuizItem, QuizAnswer, QuizItemAnswer } from "../../types/types"
 
+import Essay from "./Essay"
 import MultipleChoice from "./MultipleChoice"
 import Unsupported from "./Unsupported"
 
@@ -23,7 +24,7 @@ type QuizItemType =
 
 const componentsByTypeNames = (typeName: QuizItemType) => {
   const mapTypeToComponent: { [key: string]: React.FC<QuizItemComponentProps> } = {
-    essay: Unsupported,
+    essay: Essay,
     "multiple-choice": MultipleChoice,
     scale: Unsupported,
     checkbox: Unsupported,

@@ -56,13 +56,13 @@ const cssReset = css`
   }
 
   /* Inherit fonts for inputs and buttons */
-  /* Add !important to override MuiTheme Roboto */
+  /* Add !important to override MuiTheme Roboto
   input,
   button,
   textarea,
   select {
     font: inherit !important;
-  }
+  }*/
 
   /* Remove all animations and transitions for people that prefer not to see them */
   @media (prefers-reduced-motion: reduce) {

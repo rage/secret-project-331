@@ -35,7 +35,7 @@ const Home: React.FC = () => {
   const [exampleUrl, setExampleUrl] = useState<string | null>(null)
   const [exampleWidth, setExampleWidth] = useState<number | null>(null)
   const [exampleData, setExampleData] = useState<string | null>(null)
-  const [exampleName, setExampleName] = useState<string | null>(null)
+  const [exampleName, setExampleName] = useState<string>("")
   const [combinedUrl, setCombinedUrl] = useState<string | null>(null)
   const [invalidUrl, setInvalidUrl] = useState<boolean>(false)
   const [selectedExample, setSelectedExample] = useState<PlaygroundExample | null>(null)
@@ -208,6 +208,7 @@ const Home: React.FC = () => {
                   label="Examples"
                   onChange={handleExampleChange}
                   fullWidth
+                  value={selectedExample ? JSON.stringify(selectedExample) : ""}
                 >
                   {data.map((example) => (
                     <MenuItem key={JSON.stringify(example)} value={JSON.stringify(example)}>
@@ -241,7 +242,7 @@ const Home: React.FC = () => {
           `}
         />
         <TextField
-          value={exampleName || ""}
+          value={exampleName}
           placeholder="Example name"
           label="Example name"
           fullWidth

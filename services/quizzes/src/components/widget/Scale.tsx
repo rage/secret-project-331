@@ -60,6 +60,7 @@ const Scale: React.FC<QuizItemComponentProps> = ({
           const value = (i + minValue).toString()
           return (
             <div
+              key={value}
               className={css`
                 flex: 1 3rem;
                 margin: 0.5rem;

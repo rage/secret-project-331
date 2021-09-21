@@ -2,6 +2,7 @@ import styled from "@emotion/styled"
 import React from "react"
 
 import Next from "../../img/next.svg"
+import { respondToOrLarger } from "../../styles/respond"
 
 import ReadOnlyBanner from "./ReadOnlyBanner"
 
@@ -12,7 +13,7 @@ const BannerWrapper = styled.div`
   margin: 0 auto;
   display: block;
 
-  @media (min-width: 600px) {
+  ${respondToOrLarger.sm} {
     max-width: 1984px;
   }
 
@@ -30,7 +31,7 @@ const BannerWrapper = styled.div`
     transition: all 200ms linear;
     transform: rotate(45deg);
 
-    @media (min-width: 600px) {
+    ${respondToOrLarger.sm} {
       top: 30px;
       right: 4rem;
     }
@@ -47,7 +48,7 @@ const Content = styled.div`
   grid-template-columns: repeat(6, 1fr);
   gap: 2rem;
 
-  @media (min-width: 600px) {
+  ${respondToOrLarger.sm} {
     padding: 2rem 4rem 2.5rem 4rem;
     grid-template-columns: repeat(12, 1fr);
   }

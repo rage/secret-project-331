@@ -1,9 +1,9 @@
-import { ThemeProvider } from "@emotion/react"
 import styled from "@emotion/styled"
 import React from "react"
 
 /* import { border, color, space } from "styled-system" */
-import { theme, typography } from "../styles"
+import { typography } from "../styles"
+import { respondToOrLarger } from "../styles/respond"
 
 const HeroWrapper = styled.div`
   background: #cacaca;
@@ -36,7 +36,7 @@ const TextBox = styled.div`
     opacity: 0.8;
     z-index: 20;
 
-    @media (min-width: 600px) {
+    ${respondToOrLarger.sm} {
       font-size: ${typography.h5};
     }
   }
@@ -51,16 +51,12 @@ export type CardProps = React.HTMLAttributes<HTMLDivElement> & HeroSectionProps
 
 const HeroSection: React.FC<CardProps> = ({ title, subtitle }) => {
   return (
-    <ThemeProvider theme={theme}>
-      <>
-        <HeroWrapper>
-          <TextBox>
-            <h1>{title}</h1>
-            <span>{subtitle}</span>
-          </TextBox>
-        </HeroWrapper>
-      </>
-    </ThemeProvider>
+    <HeroWrapper>
+      <TextBox>
+        <h1>{title}</h1>
+        <span>{subtitle}</span>
+      </TextBox>
+    </HeroWrapper>
   )
 }
 

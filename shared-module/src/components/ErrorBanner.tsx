@@ -1,6 +1,8 @@
 import styled from "@emotion/styled"
 import React from "react"
 
+import { baseTheme } from "../styles"
+
 const BannerWrapper = styled.div`
   background: #f1f1f1;
   width: 100%;
@@ -46,7 +48,7 @@ const DetailTag = styled.div`
   }
 
   details[open] summary ~ * {
-    color: #333;
+    color: ${baseTheme.colors.grey[800]};
   }
 
   details[open] > div {
@@ -61,7 +63,7 @@ const DetailTag = styled.div`
     font-size: 1.1rem;
     font-weight: medium;
     list-style: none;
-    color: #333;
+    color: ${baseTheme.colors.grey[800]};
     outline: 0;
   }
 

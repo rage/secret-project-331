@@ -7,6 +7,8 @@ import {
   test,
 } from "@playwright/test"
 
+import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
+
 test.describe("Uploading media as admin", async () => {
   // As Admin
   test.use({
@@ -25,7 +27,7 @@ test.describe("Uploading media as admin", async () => {
     },
   )
 
-  test("test", async ({ page }) => {
+  test("test", async ({ page, headless }) => {
     await Promise.all([
       page.waitForNavigation(),
       await page.click("text=University of Helsinki, Department of Computer Science"),
@@ -61,7 +63,14 @@ test.describe("Uploading media as admin", async () => {
 
     // Click image direct link to open the uploaded image
     const [newPage] = await Promise.all([page.waitForEvent("popup"), page.click("a[href$='.png']")])
-    const screenshot = await newPage.screenshot()
-    expect(screenshot).toMatchSnapshot(`uploadMediaPicture.png`, { threshold: 0.2 })
+    // const screenshot = await newPage.screenshot()
+    // expect(screenshot).toMatchSnapshot(`uploadMediaPicture.png`, { threshold: 0.2 })
+
+    await expectScreenshotsToMatchSnapshots({
+      page: newPage,
+      snapshotName: "uploadMediaPicture.png",
+      toMatchSnapshotOptions: { threshold: 0.2 },
+      headless,
+    })
   })
 })

@@ -44,12 +44,20 @@ test("test", async ({ headless, page }) => {
   )
 
   // Feedback tooltip
-  await expectScreenshotsToMatchSnapshots(
+  // await expectScreenshotsToMatchSnapshots(
+  //   page,
+  //   headless,
+  //   "feedback-tooltip",
+  //   `.${feedbackTooltipClass}`,
+  // )
+
+  await expectScreenshotsToMatchSnapshots({
     page,
     headless,
-    "feedback-tooltip",
-    `.${feedbackTooltipClass}`,
-  )
+    snapshotName: "feedback-tooltip",
+    waitForThisToBeVisibleAndStable: `.${feedbackTooltipClass}`,
+    toMatchSnapshotOptions: { threshold: 0.4 },
+  })
 
   // Click :nth-match(:text("Give feedback"), 2)
   await page.click(':nth-match(:text("Give feedback"), 2)')
@@ -64,12 +72,20 @@ test("test", async ({ headless, page }) => {
   )
 
   // Feedback input box
-  await expectScreenshotsToMatchSnapshots(
+  // await expectScreenshotsToMatchSnapshots(
+  //   page,
+  //   headless,
+  //   "feedback-input",
+  //   `text=I found this pretty confusing`,
+  // )
+
+  await expectScreenshotsToMatchSnapshots({
     page,
     headless,
-    "feedback-input",
-    `text=I found this pretty confusing`,
-  )
+    snapshotName: "feedback-input",
+    waitForThisToBeVisibleAndStable: `text=I found this pretty confusing`,
+    toMatchSnapshotOptions: { threshold: 0.4 },
+  })
 
   // Click text=Submit
   await page.click('text="Submit"')
@@ -109,16 +125,23 @@ test("test", async ({ headless, page }) => {
   })
 
   // Unread feedback view
-  await expectScreenshotsToMatchSnapshots(
+  await expectScreenshotsToMatchSnapshots({
     page,
     headless,
-    "feedback-unread",
-    `text=Sent by xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`,
-  )
+    snapshotName: "feedback-unread",
+    waitForThisToBeVisibleAndStable: `text=Sent by xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`,
+    toMatchSnapshotOptions: { threshold: 0.4 },
+  })
 
   // Click text=Mark as read
   await page.click("text=Mark as read")
-  await expectScreenshotsToMatchSnapshots(page, headless, "feedback-empty", `text=No feedback`)
+  await expectScreenshotsToMatchSnapshots({
+    page,
+    headless,
+    snapshotName: "feedback-empty",
+    waitForThisToBeVisibleAndStable: `text=No feedback`,
+    toMatchSnapshotOptions: { threshold: 0.4 },
+  })
 
   // Click :nth-match(:text("Read"), 2)
   await page.click(':nth-match(:text("Read"), 2)')

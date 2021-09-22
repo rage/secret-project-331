@@ -14,7 +14,7 @@ interface ToMatchSnapshotOptions {
 interface ExpectScreenshotsToMatchSnapshotsProps {
   headless: boolean
   snapshotName: string
-  waitForThisToBeVisibleAndStable: string | ElementHandle | (string | ElementHandle)[]
+  waitForThisToBeVisibleAndStable?: string | ElementHandle | (string | ElementHandle)[]
   toMatchSnapshotOptions?: ToMatchSnapshotOptions
   beforeScreenshot?: () => Promise<void>
   page?: Page

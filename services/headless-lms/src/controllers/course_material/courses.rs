@@ -394,10 +394,10 @@ async fn search_pages_with_words(
 }
 
 /**
-POST `/api/v0/course-material/courses/:course_slug/feedback` - Creates new feedback.
+POST `/api/v0/course-material/courses/:course_id/feedback` - Creates new feedback.
 */
 pub async fn feedback(
-    course_slug: web::Path<String>,
+    course_id: web::Path<Uuid>,
     new_feedback: web::Json<NewFeedback>,
     pool: web::Data<PgPool>,
     user: Option<AuthUser>,
@@ -423,8 +423,7 @@ pub async fn feedback(
         }
     }
 
-    let course = courses::get_course_by_slug(&mut conn, course_slug.as_str()).await?;
-    let id = feedback::insert(&mut conn, user.map(|u| u.id), course.id, f).await?;
+    let id = feedback::insert(&mut conn, user.map(|u| u.id), course_id.into_inner(), f).await?;
     Ok(id.to_string())
 }
 

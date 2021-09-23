@@ -73,7 +73,11 @@ const EditProposalView: React.FC<Props> = ({
             variant={"primary"}
             size={"medium"}
             onClick={() =>
-              handleAcceptBlocks(proposal.page_id, proposal.id, proposal.block_proposals)
+              handleAcceptBlocks(
+                proposal.page_id,
+                proposal.id,
+                proposal.block_proposals.filter((p) => p.status === "Pending"),
+              )
             }
           >
             Accept all
@@ -82,7 +86,11 @@ const EditProposalView: React.FC<Props> = ({
             variant={"secondary"}
             size={"medium"}
             onClick={() =>
-              handleRejectBlocks(proposal.page_id, proposal.id, proposal.block_proposals)
+              handleRejectBlocks(
+                proposal.page_id,
+                proposal.id,
+                proposal.block_proposals.filter((p) => p.status === "Pending"),
+              )
             }
           >
             Reject all

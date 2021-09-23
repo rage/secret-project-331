@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import _ from "lodash"
 import React from "react"
 
+import { respondToOrLarger } from "../../shared-module/styles/respond"
 import { QuizItemAnswer } from "../../types/types"
 import { MarkdownText } from "../MarkdownText"
 
@@ -53,7 +54,10 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
       <div
         className={css`
           display: flex;
-          flex-direction: row;
+          flex-direction: column;
+          ${respondToOrLarger.md} {
+            flex-direction: row;
+          }
         `}
       >
         <div
@@ -71,8 +75,11 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
           className={css`
             display: flex;
             flex: 2;
-            flex-direction: row;
+            flex-direction: column;
             justify-content: space-between;
+            ${respondToOrLarger.sm} {
+              flex-direction: row;
+            }
           `}
         >
           {quizItem.options.map((qo) => {

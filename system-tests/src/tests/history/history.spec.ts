@@ -45,7 +45,12 @@ test("test", async ({ page, headless }) => {
   ])
   await page.waitForLoadState("networkidle")
 
-  await expectScreenshotsToMatchSnapshots(page, headless, "initial-page", null)
+  await expectScreenshotsToMatchSnapshots({
+    page,
+    headless,
+    snapshotName: "initial-page",
+    waitForThisToBeVisibleAndStable: null,
+  })
 
   // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
@@ -157,16 +162,16 @@ test("test", async ({ page, headless }) => {
 
   const stableElement = await page.waitForSelector("text=core/paragraph")
 
-  await expectScreenshotsToMatchSnapshots(
+  await expectScreenshotsToMatchSnapshots({
     page,
     headless,
-    "history-view-p1",
-    stableElement,
-    { threshold: 0.3 },
-    async () => {
+    snapshotName: "history-view-p1",
+    waitForThisToBeVisibleAndStable: stableElement,
+    toMatchSnapshotOptions: { threshold: 0.3 },
+    beforeScreenshot: async () => {
       await replaceIdsAndTimesFromHistoryView(page)
     },
-  )
+  })
 
   // Click [aria-label="Go to page 4"]
   await page.click('[aria-label="Go to page 4"]')
@@ -174,16 +179,16 @@ test("test", async ({ page, headless }) => {
 
   const stableElement2 = await page.waitForSelector("text=core/paragraph")
 
-  await expectScreenshotsToMatchSnapshots(
+  await expectScreenshotsToMatchSnapshots({
     page,
     headless,
-    "history-view-p4-before-compare",
-    stableElement2,
-    { threshold: 0.3 },
-    async () => {
+    snapshotName: "history-view-p4-before-compare",
+    waitForThisToBeVisibleAndStable: stableElement2,
+    toMatchSnapshotOptions: { threshold: 0.3 },
+    beforeScreenshot: async () => {
       await replaceIdsAndTimesFromHistoryView(page)
     },
-  )
+  })
 
   await page.waitForTimeout(100)
 
@@ -206,13 +211,18 @@ test("test", async ({ page, headless }) => {
 
   await page.waitForSelector("text=Best exercise")
 
-  await expectScreenshotsToMatchSnapshots(
+  await expectScreenshotsToMatchSnapshots({
     page,
     headless,
-    "history-view-p4-after-compare",
+    snapshotName: "history-view-p4-after-compare",
     // wait for the diff to show up
-    [".line-delete", ".line-insert", ".insert-sign", ".delete-sign"],
-  )
+    waitForThisToBeVisibleAndStable: [
+      ".line-delete",
+      ".line-insert",
+      ".insert-sign",
+      ".delete-sign",
+    ],
+  })
 
   // Click text=Restore
   await Promise.all([
@@ -223,16 +233,16 @@ test("test", async ({ page, headless }) => {
   await page.waitForSelector("[aria-label='page 1'][aria-current='true']")
   await page.waitForTimeout(100)
 
-  await expectScreenshotsToMatchSnapshots(
+  await expectScreenshotsToMatchSnapshots({
     page,
     headless,
-    "history-view-after-restore",
-    "text=Best exercise",
-    { threshold: 0.3 },
-    async () => {
+    snapshotName: "history-view-after-restore",
+    waitForThisToBeVisibleAndStable: "text=Best exercise",
+    toMatchSnapshotOptions: { threshold: 0.3 },
+    beforeScreenshot: async () => {
       await replaceIdsAndTimesFromHistoryView(page)
     },
-  )
+  })
 
   // Click text=Home
   await Promise.all([
@@ -265,7 +275,12 @@ test("test", async ({ page, headless }) => {
   ])
 
   await page.waitForLoadState("networkidle")
-  await expectScreenshotsToMatchSnapshots(page, headless, "page-after-restore", null)
+  await expectScreenshotsToMatchSnapshots({
+    page,
+    headless,
+    snapshotName: "page-after-restore",
+    waitForThisToBeVisibleAndStable: null,
+  })
 })
 
 async function replaceIdsAndTimesFromHistoryView(page: Page) {

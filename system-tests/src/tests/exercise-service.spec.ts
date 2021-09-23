@@ -65,14 +65,14 @@ test("can add and delete exercise service", async ({ page, headless }) => {
   await page.click('button:has-text("Create")')
   await page.waitForSelector("text=New exercise service")
 
-  await expectScreenshotsToMatchSnapshots(
+  await expectScreenshotsToMatchSnapshots({
     page,
     headless,
-    "exercise-service-page",
-    "text=New exercise service",
-    { threshold: 0.3 },
-    async () => {
+    snapshotName: "exercise-service-page",
+    waitForThisToBeVisibleAndStable: "text=New exercise service",
+    toMatchSnapshotOptions: { threshold: 0.3 },
+    beforeScreenshot: async () => {
       await replaceTimeComponentDates(page)
     },
-  )
+  })
 })

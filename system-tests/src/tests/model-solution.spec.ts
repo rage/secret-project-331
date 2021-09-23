@@ -39,12 +39,13 @@ test.describe("Model solutions", () => {
 
     const stableElement = await frame.waitForSelector("text=a")
 
-    await expectScreenshotsToMatchSnapshots(
+    await expectScreenshotsToMatchSnapshots({
       page,
       headless,
-      "model-solutions-in-submissions",
-      stableElement,
-    )
+      snapshotName: "model-solutions-in-submissions",
+      waitForThisToBeVisibleAndStable: stableElement,
+      toMatchSnapshotOptions: { threshold: 0.4 },
+    })
   })
 
   test("model-solutions are not displayed in the exercises", async ({ headless, page }) => {
@@ -84,11 +85,12 @@ test.describe("Model solutions", () => {
 
     const stableElement = await frame.waitForSelector("text=a")
 
-    await expectScreenshotsToMatchSnapshots(
+    await expectScreenshotsToMatchSnapshots({
       page,
       headless,
-      "model-solutions-in-exercises",
-      stableElement,
-    )
+      snapshotName: "model-solutions-in-exercises",
+      waitForThisToBeVisibleAndStable: stableElement,
+      toMatchSnapshotOptions: { threshold: 0.4 },
+    })
   })
 })

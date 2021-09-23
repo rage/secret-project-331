@@ -5,6 +5,7 @@ import dynamic from "next/dynamic"
 import { useState } from "react"
 
 import Button from "../shared-module/components/Button"
+import { monospaceFont } from "../shared-module/styles"
 
 export interface SerializeGutenbergModalProps {
   content: BlockInstance[]
@@ -32,7 +33,7 @@ const SerializeGutenbergModal: React.FC<SerializeGutenbergModalProps> = ({ conte
           `}
         >
           <MonacoEditor
-            options={{ wordWrap: "on" }}
+            options={{ wordWrap: "on", fontFamily: monospaceFont }}
             height="90vh"
             width="80vw"
             defaultLanguage="html"

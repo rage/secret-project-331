@@ -5,6 +5,7 @@ import { useQuery } from "react-query"
 
 import { fetchHistoryForPage } from "../services/backend/pages"
 import { PageHistory } from "../shared-module/bindings"
+import { monospaceFont } from "../shared-module/styles"
 import replaceUuidsWithPlaceholdersInText from "../shared-module/utils/testing/replaceUuidsWithPlaceholders"
 
 import HistoryList from "./lists/HistoryList"
@@ -83,7 +84,7 @@ const HistoryView: React.FC<Props> = ({ pageId }) => {
         language="json"
         original={currentRevision || "Loading..."}
         modified={selectedRevision || "Loading..."}
-        options={{ readOnly: true }}
+        options={{ readOnly: true, fontFamily: monospaceFont }}
       />
       <HistoryList
         pageId={pageId}

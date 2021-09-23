@@ -18,11 +18,11 @@ const OrganizationsList: React.FC = () => {
   })
 
   if (error) {
-    return <div>Error loading organizations.</div>
+    return <div>{t("error-loading-organizations")}</div>
   }
 
   if (isLoading) {
-    return <div>Loading...</div>
+    return <div>{t("loading-text")}</div>
   }
 
   return (

@@ -12,7 +12,7 @@ export default function LoginLogoutButton(): JSX.Element {
   const router = useRouter()
 
   if (loginStateContext.isLoading) {
-    return <>Loading...</>
+    return <>{t("loading-text")}</>
   }
 
   if (loginStateContext.signedIn) {
@@ -29,6 +29,6 @@ export default function LoginLogoutButton(): JSX.Element {
       </form>
     )
   } else {
-    return <Link href={`/login?return_to=${encodeURIComponent(router.asPath)}`}>Login</Link>
+    return <Link href={`/login?return_to=${encodeURIComponent(router.asPath)}`}>{t("login")}</Link>
   }
 }

@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import { groupBy, max } from "lodash"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import { fetchCourseWeekdayHourSubmissionCounts } from "../../services/backend/courses"
@@ -10,16 +11,6 @@ import Echarts from "../Echarts"
 
 export interface CourseSubmissionsByWeekdayAndHourProps {
   courseId: string
-}
-
-const isodowToWeekdayName = {
-  1: "Monday",
-  2: "Tuesday",
-  3: "Wednesday",
-  4: "Thursday",
-  5: "Friday",
-  6: "Saturday",
-  7: "Sunday",
 }
 
 const hours = [
@@ -54,21 +45,32 @@ const maxCircleSize = 100
 const CourseSubmissionsByWeekdayAndHour: React.FC<CourseSubmissionsByWeekdayAndHourProps> = ({
   courseId,
 }) => {
+  const { t } = useTranslation()
   const { isLoading, error, data } = useQuery(
     `course-submissions-by-weekday-and-hour-${courseId}`,
     () => fetchCourseWeekdayHourSubmissionCounts(courseId),
   )
 
+  const isodowToWeekdayName = {
+    1: t("weekday-monday"),
+    2: t("weekday-tuesday"),
+    3: t("weekday-wednesday"),
+    4: t("weekday-thursday"),
+    5: t("weekday-friday"),
+    6: t("weekday-saturday"),
+    7: t("weekday-sunday"),
+  }
+
   if (error) {
-    return <div>Error.</div>
+    return <div>{t("error-title")}</div>
   }
 
   if (isLoading || !data) {
-    return <div>Loading...</div>
+    return <div>{t("loading-text")}</div>
   }
 
   if (data.length === 0) {
-    return <div>No data</div>
+    return <div>{t("no-data")}</div>
   }
 
   const dataByWeekDay = groupBy(data, (o) => o.isodow)
@@ -86,20 +88,26 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<CourseSubmissionsByWeekdayAndH
         options={{
           title: Object.entries(dataByWeekDay).map(([weekdayNumber, _entries], i) => {
             return {
+              // eslint-disable-next-line i18next/no-literal-string
               textBaseline: "middle",
               top: ((i + 0.5) * 100) / 7 + "%",
               text: isodowToWeekdayName[weekdayNumber],
             }
           }),
           tooltip: {
+            // eslint-disable-next-line i18next/no-literal-string
             position: "top",
             formatter: (a) => {
-              return `Hour: ${a.data[0]}<br />Submissions: ${a.data[1]}`
+              return t("hourly-submissions-visualization-tooltip", {
+                day: a.data[0],
+                submissions: a.data[1],
+              })
             },
           },
           singleAxis: Object.entries(dataByWeekDay).map(([_weekdayNumber, _entries], i) => {
             return {
               left: 150,
+              // eslint-disable-next-line i18next/no-literal-string
               type: "category",
               boundaryGap: false,
               data: hours,
@@ -113,7 +121,9 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<CourseSubmissionsByWeekdayAndH
           series: Object.entries(dataByWeekDay).map(([_weekdayNumber, entries], i) => {
             return {
               singleAxisIndex: i,
+              // eslint-disable-next-line i18next/no-literal-string
               coordinateSystem: "singleAxis",
+              // eslint-disable-next-line i18next/no-literal-string
               type: "scatter",
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               data: (entries as any[]).map((o) => [o.hour, o.count]),

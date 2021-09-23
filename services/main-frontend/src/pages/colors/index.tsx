@@ -19,7 +19,7 @@ const Home: React.FC = () => {
             grid-gap: 30px;
           `}
         >
-          {Object.entries(baseTheme.colors).map(([k, v]) => {
+          {Object.entries(baseTheme.colors).map(([k, _v]) => {
             return (
               <div key={k}>
                 <h3>{k}</h3>

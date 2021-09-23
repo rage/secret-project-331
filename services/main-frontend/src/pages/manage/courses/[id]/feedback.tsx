@@ -1,12 +1,12 @@
 import { Paper, Tab, Tabs } from "@material-ui/core"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import Layout from "../../../../components/Layout"
 import FeedbackList from "../../../../components/lists/FeedbackList"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
-import basePath from "../../../../shared-module/utils/base-path"
 import {
   dontRenderUntilQueryParametersReady,
   SimplifiedUrlQuery,
@@ -18,6 +18,7 @@ export interface FeedbackProps {
 }
 
 const FeedbackPage: React.FC<FeedbackProps> = ({ query }) => {
+  const { t } = useTranslation()
   const router = useRouter()
 
   const courseId = query.id
@@ -34,7 +35,7 @@ const FeedbackPage: React.FC<FeedbackProps> = ({ query }) => {
   return (
     <Layout navVariant={"complex"}>
       <div className={wideWidthCenteredComponentStyles}>
-        <h3>Feedback</h3>
+        <h3>{t("title-feedback")}</h3>
         <Paper square>
           <Tabs
             value={read}
@@ -45,8 +46,8 @@ const FeedbackPage: React.FC<FeedbackProps> = ({ query }) => {
               setRead(value)
             }}
           >
-            <Tab label="Unread" value={false} />
-            <Tab label="Read" value={true} />
+            <Tab label={t("undread")} value={false} />
+            <Tab label={t("read")} value={true} />
           </Tabs>
         </Paper>
         <FeedbackList courseId={courseId} read={read} perPage={1} />

@@ -1,4 +1,6 @@
 /* eslint-disable i18next/no-literal-string */
+
+const DETECT_CSS_REGEX = /\S+:\s+\S+;/
 module.exports = {
   env: {
     browser: true,
@@ -136,5 +138,14 @@ module.exports = {
     // Shared module will have unresolved import.
     "import/no-unresolved": "off",
     "import/no-named-as-default": "off",
+    "i18next/no-literal-string": [
+      "error",
+      {
+        validateTemplate: true,
+        ignoreAttribute: ["variant", "size", "href", "severity", "navVariant"],
+        ignore: [DETECT_CSS_REGEX],
+        ignoreCallee: ["useQuery", "useQueryParameter"],
+      },
+    ],
   },
 }

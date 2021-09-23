@@ -12,6 +12,7 @@ import EditIcon from "@material-ui/icons/Edit"
 import ErrorIcon from "@material-ui/icons/Error"
 import SaveIcon from "@material-ui/icons/Save"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import Layout from "../../../components/Layout"
@@ -99,15 +100,18 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
       setStatus(null)
     }, 4000)
     if (!canSave(service)) {
+      // eslint-disable-next-line i18next/no-literal-string
       setStatus("failed")
       return
     }
     try {
       const updated = await updateExerciseService(service.id, service)
       setService(updated)
+      // eslint-disable-next-line i18next/no-literal-string
       setStatus("saved")
       await refetch()
     } catch (e) {
+      // eslint-disable-next-line i18next/no-literal-string
       setStatus("failed")
       console.error(e)
     }
@@ -129,6 +133,7 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
       await deleteExerciseService(service.id)
       await refetch()
     } catch (e) {
+      // eslint-disable-next-line i18next/no-literal-string
       setStatus("failed")
       console.error(e)
     }
@@ -323,7 +328,7 @@ const ExerciseServiceCreationModal: React.FC<ExerciseServiceCreationModelProps> 
         </CardContent>
         <CardContent>
           <Button variant="primary" size="medium" onClick={handleSubmit}>
-            Create
+            {t("button-text-create")}
           </Button>
           <Button variant="secondary" size="medium" onClick={handleClose}>
             Cancel
@@ -335,6 +340,7 @@ const ExerciseServiceCreationModal: React.FC<ExerciseServiceCreationModelProps> 
 }
 
 const ExerciseServicePage: React.FC = () => {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [exerciseService, setExerciseService] = useState({
     name: "",
@@ -374,11 +380,11 @@ const ExerciseServicePage: React.FC = () => {
   )
 
   if (error) {
-    return <div>Error fetching exercise services.</div>
+    return <div>{t("error-title")}</div>
   }
 
   if (isLoading || !data) {
-    return <div>Loading...</div>
+    return <div>{t("loading-text")}</div>
   }
 
   const handleClose = () => {
@@ -406,9 +412,9 @@ const ExerciseServicePage: React.FC = () => {
   return (
     <Layout navVariant={"simple"} frontPageUrl={basePath() + "/../.."}>
       <div className={normalWidthCenteredComponentStyles}>
-        <h2> Manage exercise services:</h2>
+        <h2>{t("title-manage-exercise-services")}</h2>
         <Button onClick={openModal} variant="primary" size="medium">
-          Add new service
+          {t("button-text-new")}
         </Button>
         <br />
         <ExerciseServiceContainer exercise_services={data} refetch={refetch} />

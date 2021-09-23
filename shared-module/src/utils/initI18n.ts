@@ -16,17 +16,30 @@ const initI18n = (defaultNS: string): typeof i18n => {
           const resources = await import(`../locales/${language}/${namespace}.json`)
           callback(null, resources)
         } catch (error) {
+          // @ts-ignore: checks for existance of the field
+          if (error.code === "MODULE_NOT_FOUND") {
+            callback(null, {})
+            return
+          }
           console.error("Could not load translations", error)
           callback(error, null)
         }
       },
     })
     .init({
+      // cimode language used to prevent an extra import before the language is set. The user should never see the dev fallback
+      // eslint-disable-next-line i18next/no-literal-string
+      // lng: "cimode",
+      // eslint-disable-next-line i18next/no-literal-string
       ns: [defaultNS, "shared-module"],
       defaultNS,
-      // fallbackLng: "en-US",
+      // eslint-disable-next-line i18next/no-literal-string
+      fallbackLng: "en-US",
       interpolation: {
         escapeValue: false, // react does the escaping
+      },
+      react: {
+        useSuspense: false,
       },
     })
   return i18n

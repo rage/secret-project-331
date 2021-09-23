@@ -1,6 +1,7 @@
 import { Pagination } from "@material-ui/core"
 import { useRouter } from "next/router"
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import { fetchFeedbackCount } from "../../services/backend/feedback"
@@ -13,6 +14,7 @@ interface Props {
 }
 
 const FeedbackList: React.FC<Props> = ({ courseId, read, perPage }) => {
+  const { t } = useTranslation()
   const router = useRouter()
 
   let initialPage: number
@@ -30,18 +32,18 @@ const FeedbackList: React.FC<Props> = ({ courseId, read, perPage }) => {
   if (error) {
     return (
       <div>
-        <h1>Error</h1>
+        <h1>{t("error-title")}</h1>
         <pre>{JSON.stringify(error, undefined, 2)}</pre>
       </div>
     )
   }
 
   if (isLoading || !data) {
-    return <div>Loading feedback...</div>
+    return <div>{t("loading-text")}</div>
   }
   const pageCount = Math.floor((read ? data.read : data.unread) / perPage)
   if (pageCount < 1) {
-    return <div>No feedback</div>
+    return <div>{t("no-feedback")}</div>
   }
   if (page > pageCount) {
     setPage(pageCount)

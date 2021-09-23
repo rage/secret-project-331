@@ -1,5 +1,5 @@
 // import the original type declarations
-import "react-i18next"
+import Reacti18Next from "react-i18next"
 
 import mainFrontend from "../src/shared-module/locales/en-US/main-frontend.json"
 
@@ -10,4 +10,6 @@ declare module "react-i18next" {
       "main-frontend": typeof mainFrontend
     }
   }
+
+  type Trans = string // typeof Reacti18Next.Trans
 }

@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import { Dialog } from "@material-ui/core"
 import Link from "next/link"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery, useQueryClient } from "react-query"
 
 import Layout from "../../../../components/Layout"
@@ -26,6 +27,7 @@ import { dontRenderUntilQueryParametersReady } from "../../../../shared-module/u
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 const ManageCoursePage: React.FC<unknown> = () => {
+  const { t } = useTranslation()
   const id = useQueryParameter("id")
 
   const queryClient = useQueryClient()
@@ -34,11 +36,11 @@ const ManageCoursePage: React.FC<unknown> = () => {
   const [showNewLanguageVersionForm, setShowNewLanguageVersionForm] = useState(false)
 
   if (error) {
-    return <div>Error fetching course data.</div>
+    return <div>{t("error-title")}</div>
   }
 
   if (isLoading || !course) {
-    return <div>Loading...</div>
+    return <div>{t("loading-text")}</div>
   }
 
   const handleOnDelete = async (courseId: string) => {
@@ -72,10 +74,10 @@ const ManageCoursePage: React.FC<unknown> = () => {
           size="medium"
           onClick={async () => await handleOnDelete(course.id)}
         >
-          Delete course
+          {t("button-text-delete")}
         </Button>
         <Button variant="primary" size="medium" onClick={() => setShowForm(!showForm)}>
-          Edit course name
+          {t("button-text-edit")}
         </Button>
         <Dialog open={showForm} onClose={() => setShowForm(!showForm)}>
           <div
@@ -84,7 +86,7 @@ const ManageCoursePage: React.FC<unknown> = () => {
             `}
           >
             <Button variant="primary" size="medium" onClick={() => setShowForm(!showForm)}>
-              Close
+              {t("button-text-close")}
             </Button>
             <UpdateCourseForm
               courseId={id}
@@ -107,9 +109,9 @@ const ManageCoursePage: React.FC<unknown> = () => {
               variant="secondary"
               onClick={() => setShowNewLanguageVersionForm(false)}
             >
-              Close
+              {t("button-text-close")}
             </Button>
-            <div>Create new language version of {course.name}</div>
+            <div>{t("create-new-language-version-of", { "course-name": course.name })}</div>
             <NewCourseForm
               organizationId={course.organization_id}
               onSubmitForm={handleCreateNewLanguageVersion}
@@ -118,11 +120,11 @@ const ManageCoursePage: React.FC<unknown> = () => {
         </Dialog>
         <br />
         <Link href={{ pathname: "/manage/courses/[id]/stats", query: { id: course.id } }}>
-          Stats
+          {t("stats")}
         </Link>
         <br />
         <Link href={{ pathname: "/manage/courses/[id]/pages", query: { id: course.id } }}>
-          Manage pages
+          {t("manage-pages")}
         </Link>
         <br />
         <Link
@@ -131,16 +133,16 @@ const ManageCoursePage: React.FC<unknown> = () => {
             query: { id: course.id },
           }}
         >
-          Manage feedback
+          {t("manage-feedback")}
         </Link>
-        <h3>All course language versions</h3>
+        <h3>{t("title-all-course-language-versions")}</h3>
         <CourseLanguageVersionsList courseId={id} />
         <Button size="medium" variant="primary" onClick={() => setShowNewLanguageVersionForm(true)}>
-          New language version
+          {t("button-text-new")}
         </Button>
-        <h3>All course instances</h3>
+        <h3>{t("title-all-course-instances")}</h3>
         <CourseInstancesList courseId={id} />
-        <h3>All exercises</h3>
+        <h3>{t("title-all-exercises")}</h3>
         <ExerciseList courseId={id} />
       </div>
     </Layout>

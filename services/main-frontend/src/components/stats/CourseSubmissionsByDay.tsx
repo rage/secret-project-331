@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import { groupBy, max } from "lodash"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import { fetchCourseDailySubmissionCounts } from "../../services/backend/courses"
@@ -13,20 +14,21 @@ export interface CourseSubmissionsByDayProps {
 }
 
 const CourseSubmissionsByDay: React.FC<CourseSubmissionsByDayProps> = ({ courseId }) => {
+  const { t } = useTranslation()
   const { isLoading, error, data } = useQuery(`course-daily-submission-counts-${courseId}`, () =>
     fetchCourseDailySubmissionCounts(courseId),
   )
 
   if (error) {
-    return <div>Error.</div>
+    return <div>{t("error-title")}.</div>
   }
 
   if (isLoading || !data) {
-    return <div>Loading...</div>
+    return <div>{t("loading-text")}</div>
   }
 
   if (data.length === 0) {
-    return <div>No data</div>
+    return <div>{t("no-data")}</div>
   }
 
   const eChartsData = groupBy(data, (o) => {
@@ -47,9 +49,13 @@ const CourseSubmissionsByDay: React.FC<CourseSubmissionsByDayProps> = ({ courseI
         height={200 * Object.keys(eChartsData).length}
         options={{
           tooltip: {
+            // eslint-disable-next-line i18next/no-literal-string
             position: "top",
             formatter: (a) => {
-              return `Day: ${a.data[0]}<br />Submissions: ${a.data[1]}`
+              return t("daily-submissions-visualization-tooltip", {
+                day: a.data[0],
+                submissions: a.data[1],
+              })
             },
           },
           visualMap: {
@@ -60,6 +66,7 @@ const CourseSubmissionsByDay: React.FC<CourseSubmissionsByDayProps> = ({ courseI
           calendar: Object.entries(eChartsData).map(([year, _submissionCounts], i) => {
             return {
               range: year,
+              // eslint-disable-next-line i18next/no-literal-string
               cellSize: ["auto", 20],
               dayLabel: {
                 firstDay: 1,
@@ -69,7 +76,9 @@ const CourseSubmissionsByDay: React.FC<CourseSubmissionsByDayProps> = ({ courseI
           }),
           series: Object.entries(eChartsData).map(([_year, submissionCounts], i) => {
             return {
+              // eslint-disable-next-line i18next/no-literal-string
               type: "heatmap",
+              // eslint-disable-next-line i18next/no-literal-string
               coordinateSystem: "calendar",
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               data: (submissionCounts as any[]).map((o) => [o.date, o.count]),

@@ -3,20 +3,17 @@ import { useLayoutEffect, useState } from "react"
 import { useSpring } from "react-spring"
 
 import { headingFont } from "../../styles"
+import { respondToOrLarger } from "../../styles/respond"
 
 const StyledSVG = styled.div`
   position: relative;
-  width: 257px;
-
-  @media (min-width: 600px) {
-    width: 321px;
-  }
-
+  width: 100%;
+  text-align: center;
   svg {
-    margin: 0rem auto;
+    margin: 0 auto;
     width: 16rem;
 
-    @media (min-width: 600px) {
+    ${respondToOrLarger.sm} {
       width: 20rem;
     }
   }
@@ -30,13 +27,6 @@ const StyledSVG = styled.div`
     font-weight: 400;
     opacity: 0.9;
     font-family: ${headingFont};
-
-    @media (min-width: 600px) {
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 3rem;
-    }
   }
 `
 export interface CourseProgressExtraProps {
@@ -46,11 +36,11 @@ export interface CourseProgressExtraProps {
   label: string
 }
 
-const ScoreBoard: React.FC<CourseProgressExtraProps> = ({ point = 10, label, min, max }) => {
+const CircularProgress: React.FC<CourseProgressExtraProps> = ({ point = 10, label, min, max }) => {
   const [willAnimate, setWillAnimate] = useState(false)
 
-  const minimum = min ? min : 0
-  const maximum = max ? max : 0
+  const minimum = min ?? 0
+  const maximum = max ?? 0
   useLayoutEffect(() => {
     const onScroll = () => {
       const scrollPosition = window.scrollY + window.innerHeight
@@ -69,7 +59,7 @@ const ScoreBoard: React.FC<CourseProgressExtraProps> = ({ point = 10, label, min
   })
   return (
     <>
-      <h1>{label}</h1>
+      <h2>{label}</h2>
       <StyledSVG>
         <svg xmlns="http://www.w3.org/2000/svg" width="497" height="497" viewBox="0 0 497 497">
           <g id="Group_11" transform="translate(-712 -7629)">
@@ -105,4 +95,4 @@ const ScoreBoard: React.FC<CourseProgressExtraProps> = ({ point = 10, label, min
   )
 }
 
-export default ScoreBoard
+export default CircularProgress

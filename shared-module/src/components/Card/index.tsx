@@ -1,7 +1,4 @@
-import { ThemeProvider } from "@emotion/react"
 import React from "react"
-
-import { theme } from "../../styles"
 
 import IllustrationCard from "./IllustrationCard"
 import SimpleCard from "./SimpleCard"
@@ -23,13 +20,13 @@ export type CardProps = React.ButtonHTMLAttributes<HTMLDivElement> & CardExtraPr
 
 const Card: React.FC<CardProps> = (props) => {
   return (
-    <ThemeProvider theme={theme}>
+    <>
       {props.variant === "simple" ? (
         <SimpleCard {...props}></SimpleCard>
       ) : (
         <IllustrationCard {...props} />
       )}
-    </ThemeProvider>
+    </>
   )
 }
 

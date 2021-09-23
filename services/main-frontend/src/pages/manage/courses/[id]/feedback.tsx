@@ -32,7 +32,7 @@ const FeedbackPage: React.FC<FeedbackProps> = ({ query }) => {
   const [read, setRead] = useState(initialRead)
 
   return (
-    <Layout frontPageUrl={basePath()} navVariant={"complex"}>
+    <Layout navVariant={"complex"}>
       <div className={wideWidthCenteredComponentStyles}>
         <h3>Feedback</h3>
         <Paper square>

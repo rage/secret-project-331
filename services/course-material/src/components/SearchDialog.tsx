@@ -1,5 +1,7 @@
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
+import { faSearch } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Dialog, Paper, TextField } from "@material-ui/core"
 import Link from "next/link"
 import React, { useEffect, useMemo, useState } from "react"
@@ -22,6 +24,12 @@ const HeaderBar = styled.div`
   h1 {
     font-size: 1.25rem;
     margin-bottom: 0;
+  }
+`
+
+const StyledIcon = css`
+  :hover {
+    cursor: pointer;
   }
 `
 
@@ -89,9 +97,12 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId }) => {
 
   return (
     <>
-      <Button size="medium" variant="secondary" onClick={() => openModal()}>
-        Search
-      </Button>
+      <FontAwesomeIcon
+        className={cx(StyledIcon)}
+        icon={faSearch}
+        aria-label="Search page"
+        onClick={openModal}
+      />
       <Dialog maxWidth="xl" open={open} onClose={closeModal}>
         <Paper
           className={css`

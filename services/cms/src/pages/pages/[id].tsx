@@ -48,7 +48,7 @@ const Pages = ({ query }: PagesProps) => {
 
   return (
     <CourseContext.Provider value={{ courseId: data.course_id }}>
-      <Layout frontPageUrl={`/manage/courses/${data.course_id}/pages`} navVariant="complex">
+      <Layout frontPageUrl={`/manage/courses/${data.course_id}/pages`}>
         <PageEditor data={data} handleSave={handleSave} />
       </Layout>
     </CourseContext.Provider>

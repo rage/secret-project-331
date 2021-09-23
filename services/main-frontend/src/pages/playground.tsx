@@ -162,7 +162,7 @@ const Home: React.FC = () => {
   }
 
   return (
-    <Layout frontPageUrl="/" navVariant="simple">
+    <Layout>
       <div className={normalWidthCenteredComponentStyles}>
         <Grow
           in={

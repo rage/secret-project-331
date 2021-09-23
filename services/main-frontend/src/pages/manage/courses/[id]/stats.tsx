@@ -14,7 +14,7 @@ const StatsPage: React.FC<unknown> = () => {
   const id = useQueryParameter("id")
 
   return (
-    <Layout frontPageUrl={basePath()} navVariant="complex">
+    <Layout navVariant="complex">
       <div
         className={css`
           ${normalWidthCenteredComponentStyles}

@@ -8,14 +8,7 @@ import { BlockRendererProps } from "../"
 import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import colorMapper from "../../../styles/colorMapper"
 import fontSizeMapper from "../../../styles/fontSizeMapper"
-
-interface ParagraphBlockAttributes {
-  content: string
-  dropCap: boolean
-  textColor?: string
-  backgroundColor?: string
-  fontSize?: string
-}
+import { ParagraphAttributes } from "../../../types/GutenbergBlockAttributes"
 
 const Paragraph = dynamic(() => import("./BasicParagraph"))
 const LatexParagraph = dynamic(() => import("./LatexParagraph"))
@@ -42,21 +35,40 @@ const convertToLatex = (data: string) => {
   return { count, converted }
 }
 
-const ParagraphBlock: React.FC<BlockRendererProps<ParagraphBlockAttributes>> = ({
-  id,
+const hasDropCap = css`
+  :first-letter {
+    float: left;
+    font-size: 8.4em;
+    line-height: 0.68;
+    font-weight: 100;
+    margin: 0.05em 0.1em 0 0;
+    text-transform: uppercase;
+    font-style: normal;
+  }
+`
+
+const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
   data,
+  id,
   editing,
   setEdits,
 }) => {
-  const attributes: ParagraphBlockAttributes = data.attributes
-
-  const textColor = colorMapper(attributes.textColor, "#000000")
+  const {
+    textColor,
+    backgroundColor,
+    fontSize,
+    content,
+    dropCap,
+    align,
+    anchor,
+    // className, Additional classNames added in Advanced menu
+    // direction, If read from right to left or left to right
+    // style,
+  } = data.attributes
 
   // If background color is undefined, it indicates a transparent background
   // and we let the background color property unset in CSS.
-  const backgroundColor = colorMapper(attributes.backgroundColor, "unset")
-
-  const fontSize = fontSizeMapper(attributes.fontSize)
+  const bgColor = colorMapper(backgroundColor, "unset")
 
   if (editing) {
     return (
@@ -73,12 +85,12 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphBlockAttributes>> = (
         contentEditable
         onInput={(ev) => {
           const changed = ev.currentTarget.innerText
-          if (attributes.content !== changed) {
+          if (content !== changed) {
             setEdits((edits) => {
               edits.set(id, {
                 block_id: id,
                 block_attribute: "content",
-                original_text: attributes.content,
+                original_text: content,
                 changed_text: changed,
               })
               return new Map(edits)
@@ -92,12 +104,12 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphBlockAttributes>> = (
           }
         }}
       >
-        {attributes.content}
+        {content}
       </p>
     )
   }
 
-  const sanitizedHTML = sanitizeHtml(attributes.content)
+  const sanitizedHTML = sanitizeHtml(content)
   const { count, converted } = convertToLatex(sanitizedHTML)
   const P = count > 0 ? LatexParagraph : Paragraph
 
@@ -105,16 +117,19 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphBlockAttributes>> = (
     <P
       className={css`
         ${normalWidthCenteredComponentStyles}
+        ${dropCap ? hasDropCap : null}
         white-space: pre-line;
         min-width: 1px;
-        color: ${textColor};
-        background-color: ${backgroundColor};
-        font-size: ${fontSize};
-        ${backgroundColor && `padding: 1.25em 2.375em;`}
+        color: ${colorMapper(textColor, "#000000")};
+        background-color: ${bgColor};
+        font-size: ${fontSizeMapper(fontSize)};
+        line-height: 2rem;
+        text-align: ${align ?? "left"};
       `}
       dangerouslySetInnerHTML={{
         __html: converted,
       }}
+      {...(anchor ? { id: anchor } : {})}
     />
   )
 }

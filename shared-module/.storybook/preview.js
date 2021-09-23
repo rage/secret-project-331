@@ -1,5 +1,4 @@
 
-import { ThemeProvider } from '@emotion/react';
 import { MINIMAL_VIEWPORTS} from '@storybook/addon-viewport';
 import GlobalStyles from "../src/styles/GlobalStyles"
 import * as nextImage from 'next/image';

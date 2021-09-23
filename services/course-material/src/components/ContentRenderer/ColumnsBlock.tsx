@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 
-import { respond } from "../../shared-module/styles/respond"
+import { respondToOrLarger } from "../../shared-module/styles/respond"
 import { ColumnsAttributes } from "../../types/GutenbergBlockAttributes"
 
 import DefaultBlock from "./DefaultBlock"
@@ -12,9 +12,10 @@ const ColumnsBlock: React.FC<BlockRendererProps<ColumnsAttributes>> = ({ data })
     <div
       className={css`
         display: flex;
-        ${respond.mobile`
-          flex-wrap: wrap;
-        `}
+        flex-wrap: wrap;
+        ${respondToOrLarger.lg} {
+          flex-wrap: nowrap;
+        }
       `}
     >
       {data.innerBlocks.map((block) => {

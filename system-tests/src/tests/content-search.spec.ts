@@ -41,7 +41,7 @@ test("test", async ({ page, headless }) => {
   ])
 
   // Click text=Search
-  await page.click("text=Search")
+  await page.click('[aria-label="Search page"]')
 
   // Click [placeholder="Search..."]
   await page.click('[placeholder="Search..."]')
@@ -65,7 +65,7 @@ test("test", async ({ page, headless }) => {
   )
 
   // Click text=Search
-  await page.click('button:nth-match(:text("Search"), 1)')
+  await page.click('[aria-label="Search page"]')
 
   // Click [placeholder="Search..."]
   await page.click('[placeholder="Search..."]')

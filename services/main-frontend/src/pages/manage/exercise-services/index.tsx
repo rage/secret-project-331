@@ -406,7 +406,7 @@ const ExerciseServicePage: React.FC = () => {
   return (
     <Layout navVariant={"simple"} frontPageUrl={basePath() + "/../.."}>
       <div className={normalWidthCenteredComponentStyles}>
-        <h2> Manage exercise services:</h2>
+        <h2>Manage exercise services:</h2>
         <Button onClick={openModal} variant="primary" size="medium">
           Add new service
         </Button>

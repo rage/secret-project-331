@@ -244,7 +244,6 @@ test.describe("quizzes tests", () => {
   })
 
   test("multiple choice", async ({ page }) => {
-    test.skip(true, "broken test")
     // Go to http://project-331.local/
     await page.goto("http://project-331.local/")
 

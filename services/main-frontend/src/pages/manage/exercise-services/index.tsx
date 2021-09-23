@@ -58,9 +58,9 @@ const convertToSlug = (name: string) => {
 
 const canSave = (service: ExerciseServiceNewOrUpdate) => {
   return (
-    validNumber(service.max_reprocessing_submissions_at_once) &&
+    validNumber(service.max_reprocessing_submissions_at_once.toString()) &&
     service.max_reprocessing_submissions_at_once > 0 &&
-    validURL(service.internal_url) &&
+    validURL(service.internal_url ?? "") &&
     validURL(service.public_url)
   )
 }
@@ -211,7 +211,7 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
             editing={editing}
             onChange={onChange("internal_url")}
             type={"text"}
-            error={!validURL(service.internal_url)}
+            error={!validURL(service.internal_url ?? "")}
           />
           <ContentArea
             title={"Reprocessing submissions"}
@@ -316,7 +316,7 @@ const ExerciseServiceCreationModal: React.FC<ExerciseServiceCreationModelProps> 
             editing={true}
             onChange={onChange("internal_url")}
             type={"text"}
-            error={!validURL(exercise_service.internal_url)}
+            error={!validURL(exercise_service.internal_url ?? "")}
           />
           <ContentArea
             title={"Reprocessing submissions"}

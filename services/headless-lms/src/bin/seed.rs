@@ -340,6 +340,75 @@ async fn main() -> Result<()> {
     )
     .await?;
 
+    playground_examples::insert_playground_example(
+        &mut conn,
+        PlaygroundExampleData {
+            name: "Quizzes example, scale".to_string(),
+            url: "http://project-331.local/quizzes/exercise".to_string(),
+            width: 500,
+            data: serde_json::json!({
+                "id": "3d3c633d-ea60-412f-8c85-8cab7742a5b8",
+                "title": "The regex quiz",
+                "body": "Please answer to the following guestions based on your feelings about using regex. Use the scale 1 = completely disagree, 7 = completely agree",
+                "deadline": Utc.ymd(2121, 9, 1).and_hms(23, 59, 59).to_string(),
+                "open": Utc.ymd(2021, 9, 1).and_hms(23, 59, 59).to_string(),
+                "part": 1,
+                "items": [
+                  {
+                    "id": "d2422f0c-2378-4099-bde7-e1231ceac220",
+                    "body": "",
+                    "type": "scale",
+                    "multi": false,
+                    "order": 1,
+                    "title": "Regex is generally readable.",
+                    "quizId": "3d3c633d-ea60-412f-8c85-8cab7742a5b8",
+                    "options": [],
+                    "maxValue": 4,
+                    "maxWords": null,
+                    "minValue": 1,
+                    "minWords": null,
+                    "direction": "row",
+                  },
+                  {
+                    "id": "b3ce858c-a5ed-4cf7-a9ee-62ef91d1a75a",
+                    "body": "",
+                    "type": "scale",
+                    "multi": false,
+                    "order": 2,
+                    "title": "Regex is what some people consider to be a 'write-only' language.",
+                    "quizId": "3d3c633d-ea60-412f-8c85-8cab7742a5b8",
+                    "options": [],
+                    "maxValue": 7,
+                    "maxWords": null,
+                    "minValue": 1,
+                    "minWords": null,
+                    "direction": "row"
+                  },
+                  {
+                    "id": "eb7f6898-7ba5-4f89-8e24-a17f57381131",
+                    "body": "",
+                    "type": "scale",
+                    "multi": false,
+                    "order": 3,
+                    "title": "Regex can be useful when parsing HTML.",
+                    "quizId": "3d3c633d-ea60-412f-8c85-8cab7742a5b8",
+                    "options": [],
+                    "maxValue": 15,
+                    "maxWords": null,
+                    "minValue": 1,
+                    "minWords": null,
+                    "direction": "row"
+                  }
+                ],
+                "tries": 1,
+                "section": 1,
+                "courseId": "f5bed4ff-63ec-44cd-9056-86eb00df84ca",
+                "triesLimited": true
+              }),
+        },
+    )
+    .await?;
+
     Ok(())
 }
 

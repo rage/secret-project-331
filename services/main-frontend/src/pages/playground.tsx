@@ -218,6 +218,7 @@ const Home: React.FC = () => {
                   label="Examples"
                   onChange={handleExampleChange}
                   fullWidth
+                  value={selectedExample ? JSON.stringify(selectedExample) : ""}
                 >
                   {data.map((example) => (
                     <MenuItem key={JSON.stringify(example)} value={JSON.stringify(example)}>
@@ -251,7 +252,7 @@ const Home: React.FC = () => {
           `}
         />
         <TextField
-          value={exampleName || ""}
+          value={exampleName}
           placeholder="Example name"
           label="Example name"
           fullWidth

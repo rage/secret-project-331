@@ -43,14 +43,6 @@ test("test", async ({ headless, page }) => {
     },
   )
 
-  // Feedback tooltip
-  // await expectScreenshotsToMatchSnapshots(
-  //   page,
-  //   headless,
-  //   "feedback-tooltip",
-  //   `.${feedbackTooltipClass}`,
-  // )
-
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,
@@ -70,14 +62,6 @@ test("test", async ({ headless, page }) => {
     "textarea",
     "I found this pretty confusing! First of all, at vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat.",
   )
-
-  // Feedback input box
-  // await expectScreenshotsToMatchSnapshots(
-  //   page,
-  //   headless,
-  //   "feedback-input",
-  //   `text=I found this pretty confusing`,
-  // )
 
   await expectScreenshotsToMatchSnapshots({
     page,

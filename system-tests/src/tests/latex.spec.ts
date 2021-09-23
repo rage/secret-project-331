@@ -126,10 +126,6 @@ test("latex-block renders", async ({ headless, page }) => {
   // Click text=Chapter 1: first page
   await Promise.all([page.waitForNavigation(), page.click("text=first page")])
   expectPath(page, "/courses/latex-course/chapter-1")
-  // await expectScreenshotsToMatchSnapshots(page, headless, "latex", [
-  //   "text=Inline latex",
-  //   "text=Wubba Lubba Dub Dub",
-  // ])
 
   await expectScreenshotsToMatchSnapshots({
     page,

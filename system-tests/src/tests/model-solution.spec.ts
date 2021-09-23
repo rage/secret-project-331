@@ -39,13 +39,6 @@ test.describe("Model solutions", () => {
 
     const stableElement = await frame.waitForSelector("text=a")
 
-    // await expectScreenshotsToMatchSnapshots(
-    //   page,
-    //   headless,
-    //   "model-solutions-in-submissions",
-    //   stableElement,
-    // )
-
     await expectScreenshotsToMatchSnapshots({
       page,
       headless,
@@ -91,13 +84,6 @@ test.describe("Model solutions", () => {
     )
 
     const stableElement = await frame.waitForSelector("text=a")
-
-    // await expectScreenshotsToMatchSnapshots(
-    //   page,
-    //   headless,
-    //   "model-solutions-in-exercises",
-    //   stableElement,
-    // )
 
     await expectScreenshotsToMatchSnapshots({
       page,

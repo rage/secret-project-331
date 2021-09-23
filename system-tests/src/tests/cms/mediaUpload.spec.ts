@@ -63,8 +63,6 @@ test.describe("Uploading media as admin", async () => {
 
     // Click image direct link to open the uploaded image
     const [newPage] = await Promise.all([page.waitForEvent("popup"), page.click("a[href$='.png']")])
-    // const screenshot = await newPage.screenshot()
-    // expect(screenshot).toMatchSnapshot(`uploadMediaPicture.png`, { threshold: 0.2 })
 
     await expectScreenshotsToMatchSnapshots({
       page: newPage,

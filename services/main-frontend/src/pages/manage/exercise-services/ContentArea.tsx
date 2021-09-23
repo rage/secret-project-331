@@ -5,11 +5,11 @@ import React from "react"
 type inputType = "number" | "text"
 interface ContentAreaProps {
   title: string
-  text: string | number
+  text: string | number | null
   editing: boolean
-  onChange: (event: unknown) => void
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
   type: inputType
-  error: boolean | null
+  error: boolean
 }
 
 const ContentArea: React.FC<ContentAreaProps> = ({

@@ -23,7 +23,7 @@ const Home: React.FC = () => {
             return (
               <div key={k}>
                 <h3>{k}</h3>
-                {Object.entries(baseTheme.colors[k]).map(([key, val]) => {
+                {Object.entries(v).map(([key, val]) => {
                   return (
                     <div
                       key={key}
@@ -33,7 +33,7 @@ const Home: React.FC = () => {
                         align-items: center;
                         justify-content: space-between;
                         height: 3em;
-                        background-color: ${val as string};
+                        background-color: ${val};
                         padding: 0 1em;
                       `}
                     >

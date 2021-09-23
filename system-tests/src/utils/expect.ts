@@ -10,7 +10,9 @@ const expectPath = (page: Page, path: string): void => {
   const url = page.url().split("/").slice(3)
   expect(url.length === items.length)
   for (let i = 0; i < items.length; i++) {
-    if (items[i] === "[id]") continue
+    if (items[i] === "[id]") {
+      continue
+    }
     expect(url[i]).toMatch(items[i])
   }
 }

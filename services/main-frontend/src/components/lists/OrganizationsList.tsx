@@ -19,7 +19,7 @@ const OrganizationsList: React.FC = () => {
     return <div>Error loading organizations.</div>
   }
 
-  if (isLoading) {
+  if (isLoading || !data) {
     return <div>Loading...</div>
   }
 

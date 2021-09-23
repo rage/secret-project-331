@@ -20,16 +20,25 @@ import {
 import { NewCourse } from "../../../../shared-module/bindings"
 import Button from "../../../../shared-module/components/Button"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
-import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
 import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
-import { dontRenderUntilQueryParametersReady } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import {
+  dontRenderUntilQueryParametersReady,
+  SimplifiedUrlQuery,
+} from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
-const ManageCoursePage: React.FC<unknown> = () => {
-  const id = useQueryParameter("id")
+interface ManageCoursePageProps {
+  query: SimplifiedUrlQuery<"id">
+}
 
+const ManageCoursePage: React.FC<ManageCoursePageProps> = ({ query }) => {
   const queryClient = useQueryClient()
-  const { isLoading, error, data: course, refetch } = useQuery(`course-${id}`, () => getCourse(id))
+  const {
+    isLoading,
+    error,
+    data: course,
+    refetch,
+  } = useQuery(`course-${query.id}`, () => getCourse(query.id))
   const [showForm, setShowForm] = useState(false)
   const [showNewLanguageVersionForm, setShowNewLanguageVersionForm] = useState(false)
 
@@ -87,7 +96,7 @@ const ManageCoursePage: React.FC<unknown> = () => {
               Close
             </Button>
             <UpdateCourseForm
-              courseId={id}
+              courseId={query.id}
               courseName={course.name}
               onSubmitForm={handleOnUpdateCourse}
             />
@@ -134,14 +143,14 @@ const ManageCoursePage: React.FC<unknown> = () => {
           Manage feedback
         </Link>
         <h3>All course language versions</h3>
-        <CourseLanguageVersionsList courseId={id} />
+        <CourseLanguageVersionsList courseId={query.id} />
         <Button size="medium" variant="primary" onClick={() => setShowNewLanguageVersionForm(true)}>
           New language version
         </Button>
         <h3>All course instances</h3>
-        <CourseInstancesList courseId={id} />
+        <CourseInstancesList courseId={query.id} />
         <h3>All exercises</h3>
-        <ExerciseList courseId={id} />
+        <ExerciseList courseId={query.id} />
       </div>
     </Layout>
   )

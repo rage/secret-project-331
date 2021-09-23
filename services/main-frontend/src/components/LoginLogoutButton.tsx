@@ -14,13 +14,14 @@ export default function LoginLogoutButton(): JSX.Element {
   }
 
   if (loginStateContext.signedIn) {
-    const submitLogout = async (event) => {
-      event.preventDefault()
-      await logout()
-      await loginStateContext.refresh()
-    }
     return (
-      <form onSubmit={submitLogout}>
+      <form
+        onSubmit={async (event) => {
+          event.preventDefault()
+          await logout()
+          await loginStateContext.refresh()
+        }}
+      >
         <button name="logout" type="submit">
           Logout
         </button>

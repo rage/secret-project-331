@@ -1,13 +1,13 @@
 import { test } from "@playwright/test"
 
-import expectScreenshotsToMatchSnapshots from "../../../../utils/screenshot"
-import waitForFunction from "../../../../utils/waitForFunction"
+import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
+import waitForFunction from "../../../utils/waitForFunction"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test("widget, multiple-choice", async ({ page, headless }) => {
+test("widget, multiple-choice screenshot test", async ({ page, headless }) => {
   // Go to http://project-331.local/
   await page.goto("http://project-331.local/playground")
 

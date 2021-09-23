@@ -269,7 +269,10 @@ async fn main() -> Result<()> {
             width: 500,
             data: serde_json::json!({
                 "id": "57f03d8e-e768-485c-b0c3-a3e485a3e18a",
-                "body": "", "open": "2021-09-21T07:46:23.290Z",
+                "title": "Internet safety quizz",
+                "body": "Answer the following guestions about staying safe on the internet.",
+                "deadline": Utc.ymd(2121, 9, 1).and_hms(23, 59, 59).to_string(),
+                "open": Utc.ymd(2021, 9, 1).and_hms(23, 59, 59).to_string(),
                 "part": 1,
                 "section": 1,
                 "items": [
@@ -279,7 +282,7 @@ async fn main() -> Result<()> {
                         "type": "checkbox",
                         "multi": false,
                         "order": 1,
-                        "title": "I accept the terms and conditions.",
+                        "title": "The s in https stands for secure.",
                         "quizId": "57f03d8e-e768-485c-b0c3-a3e485a3e18a",
                         "options": [],
                         "maxValue": null,
@@ -294,7 +297,7 @@ async fn main() -> Result<()> {
                         "type": "checkbox",
                         "multi": false,
                         "order": 2,
-                        "title": "I agree with the privacy policy, and will allow my specified personal details to be used for scientific research purposes.",
+                        "title": "I use a strong, unique password that can't easily be guessed by those who knows me.",
                         "quizId": "57f03d8e-e768-485c-b0c3-a3e485a3e18a",
                         "options": [],
                         "maxValue": null,
@@ -304,11 +307,9 @@ async fn main() -> Result<()> {
                         "direction": "row"
                     },
                 ],
-                "title": "",
                 "tries": 1,
                 "courseId": "51ee97a7-684f-4cba-8a01-8c558803c4f7",
-                "deadline": "2021-09-21T07:46:23.290Z",
-                "triesLimited": true
+                "triesLimited": true,
             }),
         },
     )

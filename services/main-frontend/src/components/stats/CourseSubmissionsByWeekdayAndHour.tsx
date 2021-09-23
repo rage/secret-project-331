@@ -88,12 +88,14 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<CourseSubmissionsByWeekdayAndH
             return {
               textBaseline: "middle",
               top: ((i + 0.5) * 100) / 7 + "%",
+              // @ts-expect-error: todo
               text: isodowToWeekdayName[weekdayNumber],
             }
           }),
           tooltip: {
             position: "top",
             formatter: (a) => {
+              // @ts-expect-error: todo
               return `Hour: ${a.data[0]}<br />Submissions: ${a.data[1]}`
             },
           },

@@ -19,7 +19,7 @@ interface StatsPageProps {
 const StatsPage: React.FC<StatsPageProps> = ({ query }) => {
   const id = query.id
   return (
-    <Layout frontPageUrl={basePath()} navVariant="complex">
+    <Layout navVariant="complex">
       <div
         className={css`
           ${normalWidthCenteredComponentStyles}

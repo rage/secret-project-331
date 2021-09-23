@@ -17,13 +17,16 @@ import {
   CourseMaterialExercise,
   CourseMaterialExerciseServiceInfo,
   CourseMaterialExerciseTask,
+  CoursePageWithUserData,
   CourseStructure,
   CourseUpdate,
   EmailTemplate,
   EmailTemplateNew,
   EmailTemplateUpdate,
   Exercise,
+  ExerciseService,
   ExerciseServiceInfoApi,
+  ExerciseServiceNewOrUpdate,
   ExerciseStatus,
   ExerciseSubmissions,
   ExerciseTask,
@@ -63,6 +66,7 @@ import {
   SubmissionInfo,
   SubmissionResult,
   UploadResult,
+  UserCourseSettings,
   UserPointsUpdateStrategy,
   UserProgress,
   VariantStatus,
@@ -171,7 +175,6 @@ export function isCourseInstanceEnrollment(
     typeof obj.user_id === "string" &&
     typeof obj.course_id === "string" &&
     typeof obj.course_instance_id === "string" &&
-    typeof obj.current === "boolean" &&
     obj.created_at instanceof Date &&
     obj.updated_at instanceof Date &&
     (obj.deleted_at === null || obj.deleted_at instanceof Date)
@@ -248,6 +251,35 @@ export function isSubmissionResult(obj: any, _argumentName?: string): obj is Sub
   )
 }
 
+export function isExerciseService(obj: any, _argumentName?: string): obj is ExerciseService {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    typeof obj.name === "string" &&
+    typeof obj.slug === "string" &&
+    typeof obj.public_url === "string" &&
+    (obj.internal_url === null || typeof obj.internal_url === "string") &&
+    typeof obj.max_reprocessing_submissions_at_once === "number"
+  )
+}
+
+export function isExerciseServiceNewOrUpdate(
+  obj: any,
+  _argumentName?: string,
+): obj is ExerciseServiceNewOrUpdate {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.name === "string" &&
+    typeof obj.slug === "string" &&
+    typeof obj.public_url === "string" &&
+    (obj.internal_url === null || typeof obj.internal_url === "string") &&
+    typeof obj.max_reprocessing_submissions_at_once === "number"
+  )
+}
+
 export function isCourse(obj: any, _argumentName?: string): obj is Course {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
@@ -260,9 +292,8 @@ export function isCourse(obj: any, _argumentName?: string): obj is Course {
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
     typeof obj.language_code === "string" &&
     (obj.copied_from === null || typeof obj.copied_from === "string") &&
-    (obj.language_version_of_course_id === null ||
-      typeof obj.language_version_of_course_id === "string") &&
-    (obj.content_search_language === null || typeof obj.content_search_language === "string")
+    (obj.content_search_language === null || typeof obj.content_search_language === "string") &&
+    typeof obj.course_language_group_id === "string"
   )
 }
 
@@ -733,6 +764,19 @@ export function isNormalizedCmsExerciseTask(
   )
 }
 
+export function isUserCourseSettings(obj: any, _argumentName?: string): obj is UserCourseSettings {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.user_id === "string" &&
+    typeof obj.course_language_group_id === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    typeof obj.current_course_id === "string" &&
+    typeof obj.current_course_instance_id === "string"
+  )
+}
+
 export function isPlaygroundExample(obj: any, _argumentName?: string): obj is PlaygroundExample {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
@@ -755,5 +799,17 @@ export function isPlaygroundExampleData(
     typeof obj.name === "string" &&
     typeof obj.url === "string" &&
     typeof obj.width === "number"
+  )
+}
+
+export function isCoursePageWithUserData(
+  obj: any,
+  _argumentName?: string,
+): obj is CoursePageWithUserData {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (isPage(obj.page) as boolean) &&
+    (obj.instance === null || (isCourseInstance(obj.instance) as boolean)) &&
+    (obj.settings === null || (isUserCourseSettings(obj.settings) as boolean))
   )
 }

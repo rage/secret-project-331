@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import sanitizeHtml from "sanitize-html"
 
-import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
+import { courseMaterialCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import colorMapper from "../../styles/colorMapper"
 import fontSizeMapper from "../../styles/fontSizeMapper"
 import { VerseAttributes } from "../../types/GutenbergBlockAttributes"
@@ -24,7 +24,7 @@ const VerseBlock: React.FC<BlockRendererProps<VerseAttributes>> = ({ data }) => 
   return (
     <pre
       className={css`
-        ${normalWidthCenteredComponentStyles}
+        ${courseMaterialCenteredComponentStyles}
         ${attributes.backgroundColor !== undefined && `background-color: ${solidBackground};`}
         ${attributes.gradient !== undefined && `background-image: ${gradientBackground};`}
         color: ${textColor}

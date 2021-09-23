@@ -1,5 +1,5 @@
 use anyhow::Result;
-use chrono::Utc;
+use chrono::{TimeZone, Utc};
 use headless_lms_actix::models::chapters::NewChapter;
 use headless_lms_actix::models::courses::NewCourse;
 use headless_lms_actix::models::exercises::GradingProgress;
@@ -51,21 +51,28 @@ async fn main() -> Result<()> {
     // exercise services
     let _example_exercise_exercise_service = exercise_services::insert_exercise_service(
         &mut conn,
-        "Example Exercise",
-        "example-exercise",
-        "http://project-331.local/example-exercise/api/service-info",
-        "http://example-exercise.default.svc.cluster.local:3002/example-exercise/api/service-info",
-        5,
+        &exercise_services::ExerciseServiceNewOrUpdate {
+            name: "Example Exercise".to_string(),
+            slug: "example-exercise".to_string(),
+            public_url: "http://project-331.local/example-exercise/api/service-info".to_string(),
+            internal_url: Some("http://example-exercise.default.svc.cluster.local:3002/example-exercise/api/service-info".to_string()),
+            max_reprocessing_submissions_at_once: 5,
+        }
     )
     .await?;
 
     exercise_services::insert_exercise_service(
         &mut conn,
-        "Quizzes",
-        "quizzes",
-        "http://project-331.local/quizzes/api/service-info",
-        "http://quizzes.default.svc.cluster.local:3004/quizzes/api/service-info",
-        5,
+        &exercise_services::ExerciseServiceNewOrUpdate {
+            name: "Quizzes".to_string(),
+            slug: "quizzes".to_string(),
+            public_url: "http://project-331.local/quizzes/api/service-info".to_string(),
+            internal_url: Some(
+                "http://quizzes.default.svc.cluster.local:3004/quizzes/api/service-info"
+                    .to_string(),
+            ),
+            max_reprocessing_submissions_at_once: 5,
+        },
     )
     .await?;
 
@@ -80,6 +87,12 @@ async fn main() -> Result<()> {
         &mut conn,
         "teacher@example.com",
         Uuid::parse_str("90643204-7656-4570-bdd9-aad5d297f9ce")?,
+    )
+    .await?;
+    let language_teacher = users::insert_with_id(
+        &mut conn,
+        "language.teacher@example.com",
+        Uuid::parse_str("0fd8bd2d-cb4e-4035-b7db-89e798fe4df0")?,
     )
     .await?;
     let assistant = users::insert_with_id(
@@ -137,6 +150,25 @@ async fn main() -> Result<()> {
         admin,
         teacher,
         student,
+    )
+    .await?;
+    let introduction_to_localizing = seed_sample_course(
+        &mut conn,
+        uh_cs,
+        Uuid::parse_str("639f4d25-9376-49b5-bcca-7cba18c38565")?,
+        "Introduction to localizing",
+        "introduction-to-localizing",
+        admin,
+        teacher,
+        student,
+    )
+    .await?;
+    roles::insert(
+        &mut conn,
+        language_teacher,
+        None,
+        Some(introduction_to_localizing),
+        UserRole::Teacher,
     )
     .await?;
 
@@ -225,6 +257,85 @@ async fn main() -> Result<()> {
                 "name": "c"
               }
             ]),
+        },
+    )
+    .await?;
+
+    playground_examples::insert_playground_example(
+        &mut conn,
+        PlaygroundExampleData {
+            name: "Quizzes example, multiple-choice".to_string(),
+            url: "http://project-331.local/quizzes/exercise".to_string(),
+            width: 500,
+            data: serde_json::json!(
+              {
+                "id": "3ee47b02-ba13-46a7-957e-fd4f21fc290b",
+                "courseId": "5209f752-9db9-4daf-a7bc-64e21987b719",
+                "body": "Something about CSS and color codes",
+                "deadline": Utc.ymd(2121, 9, 1).and_hms(23, 59, 59).to_string(),
+                "open": Utc.ymd(2021, 9, 1).and_hms(23, 59, 59).to_string(),
+                "part": 1,
+                "section": 1,
+                "title": "Something about CSS and color codes",
+                "tries": 1,
+                "triesLimited": false,
+                "items": [
+                    {
+                        "id": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                        "body": "Which of the color codes represent the color **red**?",
+                        "direction": "row",
+                        "maxLabel": null,
+                        "maxValue": null,
+                        "maxWords": null,
+                        "minLabel": null,
+                        "minValue": null,
+                        "minWords": null,
+                        "multi": false,
+                        "order": 1,
+                        "quizId": "3ee47b02-ba13-46a7-957e-fd4f21fc290b",
+                        "title": "Hexadecimal color codes",
+                        "type": "multiple-choice",
+                        "options": [
+                            {
+                                "id": "8d17a216-9655-4558-adfb-cf66fb3e08ba",
+                                "body": "#00ff00",
+                                "order": 1,
+                                "title": null,
+                                "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                            },
+                            {
+                                "id": "11e0f3ac-fe21-4524-93e6-27efd4a92595",
+                                "body": "#0000ff",
+                                "order": 2,
+                                "title": null,
+                                "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                            },
+                            {
+                                "id": "e0033168-9f92-4d71-9c23-7698de9ea3b0",
+                                "body": "#663300",
+                                "order": 3,
+                                "title": null,
+                                "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                            },
+                            {
+                                "id": "2931180f-827f-468c-a616-a8df6e94f717",
+                                "body": "#ff0000",
+                                "order": 4,
+                                "title": null,
+                                "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                            },
+                            {
+                                "id": "9f5a09d7-c03f-44dd-85db-38065600c2c3",
+                                "body": "#ffffff",
+                                "order": 5,
+                                "title": null,
+                                "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                            },
+                        ]
+                    }
+                ]
+              }
+            ),
         },
     )
     .await?;

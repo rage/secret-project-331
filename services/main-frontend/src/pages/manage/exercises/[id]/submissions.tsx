@@ -31,7 +31,7 @@ const SubmissionsPage: React.FC<SubmissionPageProps> = ({ query }) => {
   }
 
   return (
-    <Layout frontPageUrl={basePath()} navVariant="complex">
+    <Layout navVariant="complex">
       <div className={wideWidthCenteredComponentStyles}>
         <h4>Submissions</h4>
         <table>

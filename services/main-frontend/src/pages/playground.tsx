@@ -1,5 +1,14 @@
 import { css } from "@emotion/css"
-import { Alert, Grow, MenuItem, Select, SelectChangeEvent, TextField } from "@material-ui/core"
+import {
+  Alert,
+  FormControl,
+  Grow,
+  InputLabel,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+} from "@material-ui/core"
+import TextField from "@material-ui/core/TextField"
 import dynamic from "next/dynamic"
 import React, { useEffect, useState } from "react"
 import { useMutation, useQuery } from "react-query"
@@ -163,7 +172,7 @@ const Home: React.FC = () => {
   }
 
   return (
-    <Layout frontPageUrl="/" navVariant="simple">
+    <Layout>
       <div className={normalWidthCenteredComponentStyles}>
         <Grow
           in={
@@ -195,20 +204,29 @@ const Home: React.FC = () => {
         {data.length > 0 && (
           <div>
             <h4>List of examples</h4>
-            <Select
-              onChange={handleExampleChange}
-              defaultValue={data[0].name}
-              fullWidth
+            <div
               className={css`
                 margin-bottom: 1rem;
+                margin-top: 0.5rem;
               `}
             >
-              {data.map((example) => (
-                <MenuItem key={JSON.stringify(example)} value={JSON.stringify(example)}>
-                  {example.name}
-                </MenuItem>
-              ))}
-            </Select>
+              <FormControl fullWidth>
+                <InputLabel id="playground-examples-label-id">Examples</InputLabel>
+                <Select
+                  id="playground-examples"
+                  labelId="playground-examples-label-id"
+                  label="Examples"
+                  onChange={handleExampleChange}
+                  fullWidth
+                >
+                  {data.map((example) => (
+                    <MenuItem key={JSON.stringify(example)} value={JSON.stringify(example)}>
+                      {example.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
           </div>
         )}
         <TextField

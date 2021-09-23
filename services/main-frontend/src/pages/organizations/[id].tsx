@@ -5,15 +5,15 @@ import React, { useContext, useState } from "react"
 import { useQuery } from "react-query"
 
 import Layout from "../../components/Layout"
+import OrganizationImageWidget from "../../components/OrganizationImageWidget"
 import NewCourseForm from "../../components/forms/NewCourseForm"
 import { postNewCourse } from "../../services/backend/courses"
-import { fetchOrganizationCourses } from "../../services/backend/organizations"
+import { fetchOrganization, fetchOrganizationCourses } from "../../services/backend/organizations"
 import { NewCourse } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
 import DebugModal from "../../shared-module/components/DebugModal"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
 import { wideWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
-import basePath from "../../shared-module/utils/base-path"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
@@ -24,38 +24,55 @@ interface OrganizationPageProps {
 }
 
 const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
-  const { isLoading, error, data, refetch } = useQuery(`organization-${query.id}-courses`, () =>
-    fetchOrganizationCourses(query.id),
-  )
+  const {
+    isLoading: isLoadingOrgCourses,
+    error: errorOrgCourses,
+    data: dataOrgCourses,
+    refetch: refetchOrgCourses,
+  } = useQuery(`organization-courses`, () => fetchOrganizationCourses(query.id))
+  const {
+    isLoading: isLoadingOrg,
+    error: errorOrg,
+    data: dataOrg,
+    refetch: refetchOrg,
+  } = useQuery(`organization-${query.id}`, () => fetchOrganization(query.id))
   const loginStateContext = useContext(LoginStateContext)
 
   const [newCourseFormOpen, setNewCourseFormOpen] = useState(false)
-
-  if (error) {
-    return <pre>{JSON.stringify(error, undefined, 2)}</pre>
+  console.log(dataOrg)
+  if (errorOrgCourses) {
+    return <pre>{JSON.stringify(errorOrgCourses, undefined, 2)}</pre>
   }
 
-  if (isLoading || !data) {
+  if (errorOrg) {
+    return <pre>{JSON.stringify(errorOrg, undefined, 2)}</pre>
+  }
+
+  if (isLoadingOrgCourses || !dataOrgCourses || isLoadingOrg || !dataOrg) {
     return <>Loading...</>
   }
 
   const handleSubmitNewCourse = async (newCourse: NewCourse) => {
     await postNewCourse(newCourse)
-    await refetch()
+    await refetchOrgCourses()
     setNewCourseFormOpen(false)
   }
 
   return (
-    <Layout frontPageUrl={basePath()} navVariant="simple">
+    // Removing frontPageUrl for some unsolved reason returns to organization front page rather than root
+    <Layout frontPageUrl="/">
       <div className={wideWidthCenteredComponentStyles}>
         <h1>Organization courses</h1>
-
+        <OrganizationImageWidget
+          organization={dataOrg}
+          onOrganizationUpdated={() => refetchOrg()}
+        />
         <div
           className={css`
             margin-bottom: 1rem;
           `}
         >
-          {data.map((course) => (
+          {dataOrgCourses.map((course) => (
             <div key={course.id}>
               <a href={`/courses/${course.slug}`}>{course.name}</a>{" "}
               {loginStateContext.signedIn && (
@@ -108,7 +125,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
             </div>
           </Dialog>
         </div>
-        <DebugModal data={data} />
+        <DebugModal data={dataOrgCourses} />
       </div>
     </Layout>
   )

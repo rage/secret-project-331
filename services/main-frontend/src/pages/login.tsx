@@ -19,7 +19,7 @@ const Login: React.FC = () => {
   const uncheckedReturnTo = useQueryParameter("return_to")
 
   return (
-    <Layout frontPageUrl={basePath()} navVariant="simple">
+    <Layout>
       <div className={wideWidthCenteredComponentStyles}>
         <form
           onSubmit={async (event) => {

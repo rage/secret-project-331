@@ -1,8 +1,9 @@
-import { CourseInstance, Page } from "../shared-module/bindings"
+import { CourseInstance, Page, UserCourseSettings } from "../shared-module/bindings"
 
 interface PageStateLoading {
   state: "loading"
   pageData: null
+  settings: null
   instance: null
   error: null
 }
@@ -10,6 +11,7 @@ interface PageStateLoading {
 interface PageStateReady {
   state: "ready"
   pageData: Page
+  settings: UserCourseSettings | null
   instance: CourseInstance | null
   error: null
 }
@@ -17,6 +19,7 @@ interface PageStateReady {
 interface PageStateError {
   state: "error"
   pageData: null
+  settings: null
   instance: null
   error: unknown
 }
@@ -30,7 +33,7 @@ interface RawSetStateAction {
 
 interface SetDataAction {
   type: "setData"
-  payload: { pageData: Page; instance: CourseInstance | null }
+  payload: { pageData: Page; instance: CourseInstance | null; settings: UserCourseSettings | null }
 }
 
 interface SetErrorAction {
@@ -56,12 +59,26 @@ export default function pageStateReducer(
     case "rawSetState":
       return action.payload
     case "setData": {
-      const { instance, pageData } = action.payload
-      return { ...prev, state: "ready", instance, pageData, error: null }
+      const { instance, pageData, settings } = action.payload
+      return { ...prev, state: "ready", instance, pageData, settings, error: null }
     }
     case "setError":
-      return { ...prev, state: "error", error: action.payload, instance: null, pageData: null }
+      return {
+        ...prev,
+        state: "error",
+        error: action.payload,
+        instance: null,
+        pageData: null,
+        settings: null,
+      }
     case "setLoading":
-      return { ...prev, state: "loading", error: null, instance: null, pageData: null }
+      return {
+        ...prev,
+        state: "loading",
+        error: null,
+        instance: null,
+        pageData: null,
+        settings: null,
+      }
   }
 }

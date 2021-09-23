@@ -9,7 +9,7 @@ import {
   editedQuizItemBody,
 } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
-import { NormalizedItem } from "../../../../types/types"
+import { NormalizedQuizItem } from "../../../../types/types"
 import MarkdownEditor from "../../../MarkdownEditor"
 import { ModalContent, ModalContentTitleWrapper } from "../../../Shared/Modal"
 
@@ -24,7 +24,7 @@ const MinWords = styled(TextField)`
 `
 
 interface ModalContentProps {
-  item: NormalizedItem
+  item: NormalizedQuizItem
 }
 
 export const EssayModalContent: React.FC<ModalContentProps> = ({ item }) => {

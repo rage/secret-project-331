@@ -12,7 +12,6 @@ import { searchPagesWithPhrase, searchPagesWithWords } from "../services/backend
 import { PageSearchResult } from "../shared-module/bindings"
 import Button from "../shared-module/components/Button"
 import DebugModal from "../shared-module/components/DebugModal"
-import { primaryFont } from "../shared-module/styles"
 
 export interface SearchDialogProps {
   courseId: string
@@ -137,9 +136,6 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId }) => {
               }}
               fullWidth
               placeholder="Search..."
-              className={css`
-                font-family: ${primaryFont};
-              `}
             />
             <div
               className={css`

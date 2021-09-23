@@ -332,7 +332,7 @@ WHERE id = $1;
 
 pub async fn get_page_by_path(
     conn: &mut PgConnection,
-    course_slug: String,
+    course_slug: &str,
     url_path: &str,
 ) -> ModelResult<Page> {
     let page = sqlx::query_as!(
@@ -367,7 +367,7 @@ WHERE courses.slug = $1
 pub async fn get_page_with_user_data_by_path(
     conn: &mut PgConnection,
     user: Option<AuthUser>,
-    course_slug: String,
+    course_slug: &str,
     url_path: &str,
 ) -> ModelResult<CoursePageWithUserData> {
     let page = get_page_by_path(conn, course_slug, url_path).await?;

@@ -68,7 +68,7 @@ async fn get_course_page_by_path(
     };
 
     let page_with_user_data =
-        crate::models::pages::get_page_with_user_data_by_path(&mut conn, user, course_slug, &path)
+        crate::models::pages::get_page_with_user_data_by_path(&mut conn, user, &course_slug, &path)
             .await?;
 
     Ok(Json(page_with_user_data))

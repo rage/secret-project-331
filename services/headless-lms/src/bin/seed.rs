@@ -738,6 +738,7 @@ async fn seed_sample_course(
     // feedback
     let new_feedback = NewFeedback {
         feedback_given: "this part was unclear to me".to_string(),
+        selected_text: Some("blanditiis".to_string()),
         related_blocks: vec![FeedbackBlock {
             id: block_id_4,
             text: Some(
@@ -750,6 +751,7 @@ async fn seed_sample_course(
     feedback::mark_as_read(conn, feedback, true).await?;
     let new_feedback = NewFeedback {
         feedback_given: "I dont think we need these paragraphs".to_string(),
+        selected_text: Some("verything".to_string()),
         related_blocks: vec![
             FeedbackBlock {
                 id: block_id_1,
@@ -772,6 +774,7 @@ async fn seed_sample_course(
         course.id,
         NewFeedback {
             feedback_given: "Anonymous feedback".to_string(),
+            selected_text: None,
             related_blocks: vec![FeedbackBlock {
                 id: block_id_1,
                 text: None,
@@ -785,6 +788,7 @@ async fn seed_sample_course(
         course.id,
         NewFeedback {
             feedback_given: "Anonymous unrelated feedback".to_string(),
+            selected_text: None,
             related_blocks: vec![],
         },
     )

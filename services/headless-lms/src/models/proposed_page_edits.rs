@@ -94,17 +94,17 @@ pub async fn get_proposals_for_course(
 ) -> ModelResult<Vec<PageProposal>> {
     let res = sqlx::query!(
         r#"
-SELECT proposed_page_edits.id AS page_proposal_id,
-  proposed_block_edits.id AS block_proposal_id,
-  page_id,
+SELECT proposed_page_edits.id AS "page_proposal_id!",
+  proposed_block_edits.id AS "block_proposal_id!",
+  page_id as "page_id!",
   user_id,
   block_id,
   original_text,
   changed_text,
-  proposed_page_edits.pending,
+  proposed_page_edits.pending as "pending!",
   block_attribute,
   proposed_block_edits.status as "block_proposal_status: ProposalStatus",
-  proposed_page_edits.created_at
+  proposed_page_edits.created_at as "created_at!"
 FROM (
     SELECT id,
       page_id,
@@ -115,12 +115,12 @@ FROM (
     WHERE course_id = $1
       AND pending = $2
       AND deleted_at IS NULL
+    ORDER BY created_at DESC,
+      id
     LIMIT $3 OFFSET $4
   ) proposed_page_edits
   LEFT JOIN proposed_block_edits ON proposed_page_edits.id = proposed_block_edits.proposal_id
 WHERE proposed_block_edits.deleted_at IS NULL
-ORDER BY created_at DESC,
-  proposed_page_edits.id
 "#,
         course_id,
         pending,

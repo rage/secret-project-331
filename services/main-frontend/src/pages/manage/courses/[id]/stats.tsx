@@ -4,15 +4,20 @@ import React from "react"
 import Layout from "../../../../components/Layout"
 import CourseSubmissionsByDay from "../../../../components/stats/CourseSubmissionsByDay"
 import CourseSubmissionsByWeekdayAndHour from "../../../../components/stats/CourseSubmissionsByWeekdayAndHour"
-import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
 import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import basePath from "../../../../shared-module/utils/base-path"
-import { dontRenderUntilQueryParametersReady } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import {
+  dontRenderUntilQueryParametersReady,
+  SimplifiedUrlQuery,
+} from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
-const StatsPage: React.FC<unknown> = () => {
-  const id = useQueryParameter("id")
+interface StatsPageProps {
+  query: SimplifiedUrlQuery<"id">
+}
 
+const StatsPage: React.FC<StatsPageProps> = ({ query }) => {
+  const id = query.id
   return (
     <Layout navVariant="complex">
       <div

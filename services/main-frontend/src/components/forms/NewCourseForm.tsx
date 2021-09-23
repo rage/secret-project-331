@@ -43,6 +43,9 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
       setLanguageCode("en-US")
       setError(null)
     } catch (e) {
+      if (!(e instanceof Error)) {
+        throw e
+      }
       setError(e.toString())
     } finally {
       setSubmitDisabled(false)

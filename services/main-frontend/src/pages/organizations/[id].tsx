@@ -13,25 +13,29 @@ import { NewCourse } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
 import DebugModal from "../../shared-module/components/DebugModal"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
-import useQueryParameter from "../../shared-module/hooks/useQueryParameter"
 import { wideWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
-import dontRenderUntilQueryParametersReady from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import dontRenderUntilQueryParametersReady, {
+  SimplifiedUrlQuery,
+} from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
-const Organization: React.FC<unknown> = () => {
-  const id = useQueryParameter("id")
+interface OrganizationPageProps {
+  query: SimplifiedUrlQuery<"id">
+}
+
+const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
   const {
     isLoading: isLoadingOrgCourses,
     error: errorOrgCourses,
     data: dataOrgCourses,
     refetch: refetchOrgCourses,
-  } = useQuery(`organization-courses`, () => fetchOrganizationCourses(id))
+  } = useQuery(`organization-courses`, () => fetchOrganizationCourses(query.id))
   const {
     isLoading: isLoadingOrg,
     error: errorOrg,
     data: dataOrg,
     refetch: refetchOrg,
-  } = useQuery(`organization-${id}`, () => fetchOrganization(id))
+  } = useQuery(`organization-${query.id}`, () => fetchOrganization(query.id))
   const loginStateContext = useContext(LoginStateContext)
 
   const [newCourseFormOpen, setNewCourseFormOpen] = useState(false)
@@ -117,7 +121,7 @@ const Organization: React.FC<unknown> = () => {
               >
                 Close
               </Button>
-              <NewCourseForm organizationId={id} onSubmitForm={handleSubmitNewCourse} />
+              <NewCourseForm organizationId={query.id} onSubmitForm={handleSubmitNewCourse} />
             </div>
           </Dialog>
         </div>

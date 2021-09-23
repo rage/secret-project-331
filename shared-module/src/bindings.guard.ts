@@ -48,6 +48,8 @@ import {
   NewCourse,
   NewFeedback,
   NewPage,
+  NewProposedBlockEdit,
+  NewProposedPageEdits,
   NewSubmission,
   NormalizedCmsExercise,
   NormalizedCmsExerciseTask,
@@ -550,6 +552,7 @@ export function isFeedback(obj: any, _argumentName?: string): obj is Feedback {
     (obj.user_id === null || typeof obj.user_id === "string") &&
     typeof obj.course_id === "string" &&
     typeof obj.feedback_given === "string" &&
+    (obj.selected_text === null || typeof obj.selected_text === "string") &&
     typeof obj.marked_as_read === "boolean" &&
     obj.created_at instanceof Date &&
     Array.isArray(obj.blocks) &&
@@ -568,6 +571,7 @@ export function isNewFeedback(obj: any, _argumentName?: string): obj is NewFeedb
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.feedback_given === "string" &&
+    (obj.selected_text === null || typeof obj.selected_text === "string") &&
     Array.isArray(obj.related_blocks) &&
     obj.related_blocks.every((e: any) => isFeedbackBlock(e) as boolean)
   )
@@ -650,6 +654,18 @@ export function isGetEditProposalsQuery(
     typeof obj.pending === "boolean" &&
     (typeof obj.page === "undefined" || typeof obj.page === "number") &&
     (typeof obj.limit === "undefined" || typeof obj.limit === "number")
+  )
+}
+
+export function isNewProposedPageEdits(
+  obj: any,
+  _argumentName?: string,
+): obj is NewProposedPageEdits {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.page_id === "string" &&
+    Array.isArray(obj.block_edits) &&
+    obj.block_edits.every((e: any) => isNewProposedBlockEdit(e) as boolean)
   )
 }
 
@@ -768,6 +784,19 @@ export function isPagination(obj: any, _argumentName?: string): obj is Paginatio
 
 export function isProposalStatus(obj: any, _argumentName?: string): obj is ProposalStatus {
   return obj === "Pending" || obj === "Accepted" || obj === "Rejected"
+}
+
+export function isNewProposedBlockEdit(
+  obj: any,
+  _argumentName?: string,
+): obj is NewProposedBlockEdit {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.block_id === "string" &&
+    typeof obj.block_attribute === "string" &&
+    typeof obj.original_text === "string" &&
+    typeof obj.changed_text === "string"
+  )
 }
 
 export function isExerciseTask(obj: any, _argumentName?: string): obj is ExerciseTask {

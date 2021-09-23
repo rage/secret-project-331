@@ -331,6 +331,7 @@ export interface Feedback {
   user_id: string | null
   course_id: string
   feedback_given: string
+  selected_text: string | null
   marked_as_read: boolean
   created_at: Date
   blocks: FeedbackBlock[]
@@ -342,6 +343,7 @@ export interface MarkAsRead {
 
 export interface NewFeedback {
   feedback_given: string
+  selected_text: string | null
   related_blocks: FeedbackBlock[]
 }
 
@@ -394,6 +396,11 @@ export interface GetEditProposalsQuery {
   pending: boolean
   page?: number
   limit?: number
+}
+
+export interface NewProposedPageEdits {
+  page_id: string
+  block_edits: NewProposedBlockEdit[]
 }
 
 export type VariantStatus = "Draft" | "Upcoming" | "Active" | "Ended"
@@ -468,6 +475,13 @@ export interface Pagination {
 }
 
 export type ProposalStatus = "Pending" | "Accepted" | "Rejected"
+
+export interface NewProposedBlockEdit {
+  block_id: string
+  block_attribute: string
+  original_text: string
+  changed_text: string
+}
 
 export interface ExerciseTask {
   id: string

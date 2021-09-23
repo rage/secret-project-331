@@ -30,6 +30,7 @@ const CourseSubmissionsByDay: React.FC<CourseSubmissionsByDayProps> = ({ courseI
   }
 
   const eChartsData = groupBy(data, (o) => {
+    // @ts-expect-error: todo
     const dateString = o.date
     const year = dateString.substring(0, dateString.indexOf("-"))
     return year
@@ -49,6 +50,7 @@ const CourseSubmissionsByDay: React.FC<CourseSubmissionsByDayProps> = ({ courseI
           tooltip: {
             position: "top",
             formatter: (a) => {
+              // @ts-expect-error: todo
               return `Day: ${a.data[0]}<br />Submissions: ${a.data[1]}`
             },
           },

@@ -85,7 +85,7 @@ const PagePage: React.FC = () => {
             process.env.NEXT_PUBLIC_BASE_PATH + router.asPath,
           )}`}
         >
-          <Page courseSlug={courseSlug} onRefresh={handleRefresh} />
+          <Page onRefresh={handleRefresh} />
         </Layout>
       </CoursePageContext.Provider>
     </CoursePageDispatch.Provider>

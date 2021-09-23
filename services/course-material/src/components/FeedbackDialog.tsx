@@ -1,38 +1,80 @@
 import { css } from "@emotion/css"
-import { Dialog, TextField } from "@material-ui/core"
+import { TextField } from "@material-ui/core"
 import React, { useState } from "react"
 
 import { postFeedback } from "../services/backend"
+import { FeedbackBlock } from "../shared-module/bindings"
 import Button from "../shared-module/components/Button"
 import { courseMaterialBlockClass } from "../utils/constants"
 
 interface Props {
-  courseSlug: string
-  selection: string
-  open: boolean
+  courseId: string
+  lastSelection: string
+  setLastSelection: (s: string) => void
   onSubmitSuccess: () => void
   close: () => unknown
 }
 
+interface Comment {
+  selectedText: string
+  comment: string
+  relatedBlocks: Array<FeedbackBlock>
+}
+
 const FeedbackDialog: React.FC<Props> = ({
-  courseSlug,
-  selection,
-  open,
+  courseId,
+  lastSelection,
+  setLastSelection,
   onSubmitSuccess,
   close,
 }) => {
-  const [feedback, setFeedback] = useState("")
+  const [comments, setComments] = useState<Array<Comment>>([])
+  const [comment, setComment] = useState("")
   const [error, setError] = useState<string | null>(null)
 
-  async function submit() {
+  // try to send the feedback to the server
+  async function send() {
     setError("")
 
-    if (feedback.length === 0) {
-      setError("Feedback cannot be empty")
+    if (comments.length === 0) {
+      setError("Feedback has to contain at least one comment")
       return
     }
 
-    const relatedBlocks = []
+    try {
+      for (const c of comments) {
+        const selected_text = c.selectedText.length > 0 ? c.selectedText : null
+        await postFeedback(courseId, {
+          feedback_given: c.comment,
+          selected_text,
+          related_blocks: c.relatedBlocks,
+        })
+      }
+    } catch (e: unknown) {
+      console.error(e)
+      if (e instanceof Error) {
+        setError(e.toString())
+      }
+      return
+    }
+    onSubmitSuccess()
+    close()
+  }
+
+  // attach a single comment to the feedback
+  async function addComment() {
+    setError("")
+    if (comment.length === 0) {
+      setError("Comment cannot be empty")
+      return
+    }
+    if (charactersLeft <= 0) {
+      setError("Comment is too long")
+      return
+    }
+
+    // get all visible blocks and attach them to the feedback
+    const relatedBlocks: Array<FeedbackBlock> = []
     const blocks = document.getElementsByClassName(courseMaterialBlockClass)
     for (let i = 0; i < blocks.length; i++) {
       const block = blocks[i]
@@ -42,82 +84,236 @@ const FeedbackDialog: React.FC<Props> = ({
       const bottomAboveScreen = rect.bottom < 0
       const onScreen = !bottomAboveScreen && !topBelowScreen
       if (onScreen) {
+        // limit block text length
+        const text = block.textContent ? block.textContent.slice(0, 1000) : null
         relatedBlocks.push({
           id: block.id,
-          text: block.textContent,
+          text,
         })
       }
     }
-
-    try {
-      await postFeedback(courseSlug, {
-        feedback_given: feedback,
-        related_blocks: relatedBlocks,
-      })
-    } catch (e: unknown) {
-      console.error(e)
-      if (e instanceof Error) {
-        setError(e.toString())
-      }
-      return
-    }
-    setFeedback("")
-    onSubmitSuccess()
-    close()
+    // limit selection length
+    const selectedText = lastSelection.slice(0, 10000)
+    setComments((cs) => [...cs, { comment, selectedText, relatedBlocks }])
+    setComment("")
+    setLastSelection("")
   }
 
-  const charactersLeft = 1000 - feedback.length
+  const charactersLeft = 1000 - comment.length
   return (
-    <Dialog open={open}>
+    <>
       <div
         className={css`
-          margin: 8px;
-          width: 550px;
+          position: fixed;
+          width: 447px;
+          background: #ffffff;
+          border: 1px solid #c4c4c4;
+          box-sizing: border-box;
+          border-radius: 4px;
+
+          bottom: 200px;
+          right: 20px;
+          z-index: 100;
         `}
       >
-        <h2>Send feedback</h2>
-        <form>
-          <TextField
-            value={feedback}
-            onChange={(ev) => setFeedback(ev.target.value)}
-            placeholder={"Write your feedback here"}
-            className={css`
-              width: 100%;
-            `}
-            multiline
-            rows={6}
-          />
-        </form>
-        {charactersLeft > 0 && charactersLeft < 500 && <div>{charactersLeft} characters left</div>}
-        {charactersLeft < 0 && <div>{Math.abs(charactersLeft)} characters over the limit</div>}
-        {error && <div>Error: {error}</div>}
-        <Button variant={"primary"} size={"medium"} disabled={charactersLeft < 0} onClick={submit}>
-          Submit
-        </Button>
-        <Button
-          variant={"secondary"}
-          size={"medium"}
-          onClick={() => {
-            setFeedback("")
-            close()
-          }}
-        >
-          Cancel
-        </Button>
-        <div>Selected material:</div>
         <div
           className={css`
-            max-height: 100px;
-            overflow-wrap: anywhere;
-            white-space: pre-wrap;
-            overflow-y: scroll;
-            border: 1px solid LightGray;
+            font-family: Josefin Sans, sans-serif;
+            font-style: normal;
+            font-weight: 600;
+            font-size: 22px;
+            line-height: 22px;
+            color: #000000;
+
+            margin: 20px;
           `}
         >
-          {selection}
+          Send feedback
+        </div>
+        <div
+          className={css`
+            height: 0px;
+            border: 1px solid #eaeaea;
+          `}
+        />
+        <div
+          className={css`
+            max-height: 300px;
+            overflow-y: scroll;
+          `}
+        >
+          {comments.length > 0 &&
+            comments.map((c, i) => (
+              <div key={`${c}-${i}`}>
+                {c.selectedText.length > 0 && (
+                  <div
+                    className={css`
+                      background: rgba(196, 196, 196, 0.3);
+
+                      overflow: hidden;
+                      white-space: nowrap;
+                      text-overflow: ellipsis;
+                      margin: 16px;
+                    `}
+                  >
+                    <span
+                      className={css`
+                        font-family: Space Mono, sans-serif;
+                        font-style: normal;
+                        font-weight: normal;
+                        font-size: 16px;
+                        line-height: 16px;
+                        color: #3b4754;
+                      `}
+                    >
+                      {c.selectedText}
+                    </span>
+                  </div>
+                )}
+                <div
+                  className={css`
+                    font-family: Lato, sans-serif;
+                    font-style: normal;
+                    font-weight: normal;
+                    font-size: 16px;
+                    line-height: 20px;
+                    color: #3b4754;
+
+                    overflow: hidden;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    margin: 18px;
+                  `}
+                >
+                  {c.comment}
+                </div>
+                <button
+                  className={css`
+                    font-family: Lato, sans-serif;
+                    font-style: normal;
+                    font-weight: normal;
+                    font-size: 13px;
+                    line-height: 16px;
+                    color: rgba(117, 117, 117, 0.6);
+
+                    margin-top: 5px;
+                    margin-left: 26px;
+                    cursor: pointer;
+                    padding: 0;
+                    border: none;
+                    background: none;
+                  `}
+                  onClick={() =>
+                    setComments((cs) => [...cs.slice(0, i), ...cs.slice(i + 1, cs.length)])
+                  }
+                >
+                  Delete
+                </button>
+              </div>
+            ))}
+        </div>
+        {comments.length === 0 && (
+          <div
+            className={css`
+              margin: 16px;
+            `}
+          >
+            No comments yet
+          </div>
+        )}
+        <div
+          className={css`
+            height: 0px;
+            border: 1px solid #eaeaea;
+          `}
+        />
+        <div
+          className={css`
+            margin: 31px;
+          `}
+        >
+          {lastSelection.length === 0 && (
+            <div>You can comment on specific portions of the material by highlighting it.</div>
+          )}
+          {lastSelection.length > 0 && (
+            <>
+              <div
+                className={css`
+                  overflow: hidden;
+                  white-space: nowrap;
+                  text-overflow: ellipsis;
+                `}
+              >
+                Commenting on: {lastSelection}{" "}
+              </div>
+              <Button variant="tertiary" size="medium" onClick={() => setLastSelection("")}>
+                Clear selection
+              </Button>
+            </>
+          )}
+          <TextField
+            className={css`
+              background: #f7f7f7;
+              border: 1px solid #c4c4c4;
+              box-sizing: border-box;
+              border-radius: 2px;
+            `}
+            fullWidth
+            multiline
+            rows={3}
+            value={comment}
+            onChange={(ev) => setComment(ev.target.value)}
+          />
+          {charactersLeft >= 0 && charactersLeft < 200 && (
+            <div>{charactersLeft} characters left</div>
+          )}
+          {charactersLeft < 0 && <div>{Math.abs(charactersLeft)} characters over the limit</div>}
+          {error && error?.length > 0 && (
+            <div
+              className={css`
+                color: Crimson;
+              `}
+            >
+              {error}
+            </div>
+          )}
+          <Button
+            className={css`
+              margin-top: 27px;
+              margin-right: 0px;
+            `}
+            variant="tertiary"
+            size="medium"
+            onClick={addComment}
+          >
+            Add comment
+          </Button>
+          <br />
+          <Button
+            className={css`
+              margin-top: 27px;
+              margin-right: 0px;
+            `}
+            variant="primary"
+            size="medium"
+            onClick={send}
+          >
+            Send
+          </Button>
+          <Button
+            className={css`
+              margin-top: 27px;
+              margin-right: 0px;
+            `}
+            variant="secondary"
+            size="medium"
+            onClick={close}
+          >
+            Close
+          </Button>
         </div>
       </div>
-    </Dialog>
+    </>
   )
 }
 

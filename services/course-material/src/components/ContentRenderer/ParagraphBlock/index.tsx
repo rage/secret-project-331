@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import KaTex from "katex"
 import dynamic from "next/dynamic"
+import React from "react"
 import sanitizeHtml from "sanitize-html"
 
 import { BlockRendererProps } from "../"
@@ -41,7 +42,12 @@ const convertToLatex = (data: string) => {
   return { count, converted }
 }
 
-const ParagraphBlock: React.FC<BlockRendererProps<ParagraphBlockAttributes>> = ({ data }) => {
+const ParagraphBlock: React.FC<BlockRendererProps<ParagraphBlockAttributes>> = ({
+  id,
+  data,
+  editing,
+  setEdits,
+}) => {
   const attributes: ParagraphBlockAttributes = data.attributes
 
   const textColor = colorMapper(attributes.textColor, "#000000")
@@ -51,9 +57,48 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphBlockAttributes>> = (
   const backgroundColor = colorMapper(attributes.backgroundColor, "unset")
 
   const fontSize = fontSizeMapper(attributes.fontSize)
+
+  if (editing) {
+    return (
+      <p
+        className={css`
+          ${normalWidthCenteredComponentStyles}
+          white-space: pre-line;
+          min-width: 1px;
+          color: ${textColor};
+          background-color: ${backgroundColor};
+          font-size: ${fontSize};
+          ${backgroundColor && `padding: 1.25em 2.375em;`}
+        `}
+        contentEditable
+        onInput={(ev) => {
+          const changed = ev.currentTarget.innerText
+          if (attributes.content !== changed) {
+            setEdits((edits) => {
+              edits.set(id, {
+                block_id: id,
+                block_attribute: "content",
+                original_text: attributes.content,
+                changed_text: changed,
+              })
+              return new Map(edits)
+            })
+          } else {
+            // returned to original
+            setEdits((edits) => {
+              edits.delete(id)
+              return new Map(edits)
+            })
+          }
+        }}
+      >
+        {attributes.content}
+      </p>
+    )
+  }
+
   const sanitizedHTML = sanitizeHtml(attributes.content)
   const { count, converted } = convertToLatex(sanitizedHTML)
-
   const P = count > 0 ? LatexParagraph : Paragraph
 
   return (

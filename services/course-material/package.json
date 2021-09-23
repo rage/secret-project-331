@@ -25,6 +25,7 @@
     "@monaco-editor/react": "^4.2.2",
     "axios": "^0.21.1",
     "date-fns": "^2.23.0",
+    "diff": "^5.0.0",
     "express": "^4.17.1",
     "http-proxy-middleware": "^2.0.1",
     "katex": "^0.13.17",
@@ -44,6 +45,7 @@
   "devDependencies": {
     "@emotion/babel-plugin": "^11.3.0",
     "@types/date-fns": "^2.6.0",
+    "@types/diff": "^5.0.1",
     "@types/node": "^16.7.10",
     "@types/react": "^17.0.19",
     "@types/react-dom": "^17.0.9",

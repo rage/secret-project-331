@@ -5,6 +5,7 @@ import {
   CourseMaterialExercise,
   CoursePageWithUserData,
   NewFeedback,
+  NewProposedPageEdits,
   NewSubmission,
   Page,
   PageRoutingDataWithChapterStatus,
@@ -164,9 +165,13 @@ export const searchPagesWithWords = async (
   ).data
 }
 
-export const postFeedback = async (
-  courseSlug: string,
-  newFeedback: NewFeedback,
-): Promise<string> => {
-  return (await courseMaterialClient.post(`/courses/${courseSlug}/feedback`, newFeedback)).data
+export const postFeedback = async (courseId: string, newFeedback: NewFeedback): Promise<string> => {
+  return (await courseMaterialClient.post(`/courses/${courseId}/feedback`, newFeedback)).data
+}
+
+export const postProposedEdits = async (
+  courseId: string,
+  newProposedEdits: NewProposedPageEdits,
+): Promise<void> => {
+  return (await courseMaterialClient.post(`/proposed-edits/${courseId}`, newProposedEdits)).data
 }

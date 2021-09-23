@@ -122,6 +122,7 @@ const navMenu = css`
     position: static;
     top: auto;
     left: auto;
+    transition: none;
   }
 `
 const navLinks = css`
@@ -161,7 +162,7 @@ const navLinks = css`
     animation: ${swingHorizontal} 1s ease;
     animation-iteration-count: 1;
     ${respondToOrLarger.lg} {
-      animation: none 0 ease 0 1 normal none running;
+      animation: none 0 ease;
     }
   }
 

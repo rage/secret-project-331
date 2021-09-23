@@ -37,7 +37,7 @@ export const deleteExerciseService = async (
 
 export const updateExerciseService = async (
   exercise_service_id: string,
-  exercise_service: ExerciseService | ExerciseServiceNewOrUpdate,
+  exercise_service: ExerciseService,
 ): Promise<ExerciseService> => {
   const data = (
     await mainFrontendClient.put(`/exercise-services/${exercise_service_id}`, exercise_service, {

@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import React from "react"
 
+import { respondToOrLarger } from "../../shared-module/styles/respond"
 import { MarkdownText } from "../MarkdownText"
 
 import { QuizItemComponentProps } from "."
@@ -11,7 +12,7 @@ const Scale: React.FC<QuizItemComponentProps> = ({
   setQuizItemAnswerState,
 }) => {
   const minValue = quizItem.minValue ?? 1
-  const maxValue = quizItem.maxValue ?? 5
+  const maxValue = quizItem.maxValue ?? 7
 
   const handleOptionSelect = (option: string) => {
     if (!quizItemAnswerState) {
@@ -26,8 +27,7 @@ const Scale: React.FC<QuizItemComponentProps> = ({
       className={css`
         display: flex;
         flex-direction: column;
-        /* respondToOrLarger.sm */
-        @media (min-width: 36rem) {
+        ${respondToOrLarger.md} {
           flex-direction: row;
           flex-wrap: wrap;
         }
@@ -38,8 +38,7 @@ const Scale: React.FC<QuizItemComponentProps> = ({
           flex: 5;
           margin: 0.5rem;
           text-align: center;
-          /* respondToOrLarger.sm */
-          @media (min-width: 36rem) {
+          ${respondToOrLarger.md} {
             text-align: left;
           }
         `}

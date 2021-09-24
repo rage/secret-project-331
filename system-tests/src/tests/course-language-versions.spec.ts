@@ -88,7 +88,7 @@ test("test", async ({ page, headless }) => {
     snapshotName: "wrong-course-banner",
     waitForThisToBeVisibleAndStable: [
       "text=Looks like you're already on a different language version",
-      "text=a",
+      `button:has-text("a")`,
     ],
   })
 

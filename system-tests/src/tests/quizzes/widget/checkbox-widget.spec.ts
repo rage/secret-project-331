@@ -26,7 +26,7 @@ test("widget, checkbox", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "widget-checkbox",
-    waitForThisToBeVisibleAndStable: await frame.frameElement(),
+    waitForThisToBeVisibleAndStable: `text="The s in https stands for secure."`,
     frame,
   })
 })

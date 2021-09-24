@@ -2,6 +2,9 @@
 set -euo pipefail
 source "$(dirname "$0")/.common"
 
+ensure_program_in_path "minikube"
+check_minikube_version
+
 COMMAND="minikube"
 cores=$(nproc)
 

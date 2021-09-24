@@ -26,7 +26,7 @@ test("widget, scale", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "widget-scale",
-    waitForThisToBeVisibleAndStable: await frame.frameElement(),
+    waitForThisToBeVisibleAndStable: [`text="Regex can be useful"`, `text="15"`],
     frame,
   })
 })

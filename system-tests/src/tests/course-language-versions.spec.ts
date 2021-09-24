@@ -80,7 +80,7 @@ test("test", async ({ page, headless }) => {
   ])
 
   // Go to http://project-331.local/courses/introduction-to-localizing/chapter-1/page-1
-  await page.goto("http://project-331.local/courses/introduction-to-localizing/chapter-1/page-1")
+  await page.goto("http://project-331.local/courses/introduction-to-localizing/chapter-1")
 
   await expectScreenshotsToMatchSnapshots({
     page,
@@ -88,7 +88,6 @@ test("test", async ({ page, headless }) => {
     snapshotName: "wrong-course-banner",
     waitForThisToBeVisibleAndStable: [
       "text=Looks like you're already on a different language version",
-      "text=a",
     ],
   })
 

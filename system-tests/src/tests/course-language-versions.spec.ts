@@ -46,7 +46,7 @@ test("test", async ({ page, headless }) => {
   // Click [aria-label="Kotisivulle"]
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
-    page.click('[aria-label="Kotisivulle"]'),
+    page.click('[aria-label="Front page"]'),
   ])
 
   // Click [id="__next"] div >> :nth-match(div:has-text("University of Helsinki, Department of Computer ScienceOrganization for Computer "), 4)
@@ -82,12 +82,15 @@ test("test", async ({ page, headless }) => {
   // Go to http://project-331.local/courses/introduction-to-localizing/chapter-1/page-1
   await page.goto("http://project-331.local/courses/introduction-to-localizing/chapter-1/page-1")
 
-  await expectScreenshotsToMatchSnapshots(
+  await expectScreenshotsToMatchSnapshots({
     page,
     headless,
-    "wrong-course-banner",
-    "text=Looks like you're already on a different language version",
-  )
+    snapshotName: "wrong-course-banner",
+    waitForThisToBeVisibleAndStable: [
+      "text=Looks like you're already on a different language version",
+      "text=a",
+    ],
+  })
 
   // Click text=Johdatus lokalisointiin
   await page.click("text=Johdatus lokalisointiin")

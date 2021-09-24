@@ -5,14 +5,19 @@ import Layout from "../../components/Layout"
 import SubmissionIFrame from "../../components/SubmissionIFrame"
 import { fetchSubmissionInfo } from "../../services/backend/submissions"
 import DebugModal from "../../shared-module/components/DebugModal"
-import useQueryParameter from "../../shared-module/hooks/useQueryParameter"
 import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
-import basePath from "../../shared-module/utils/base-path"
-import dontRenderUntilQueryParametersReady from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import dontRenderUntilQueryParametersReady, {
+  SimplifiedUrlQuery,
+} from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
 
-const Submission: React.FC = () => {
-  const id = useQueryParameter("id")
-  const { isLoading, error, data } = useQuery(`submission-${id}`, () => fetchSubmissionInfo(id))
+interface SubmissionPageProps {
+  query: SimplifiedUrlQuery<"id">
+}
+
+const Submission: React.FC<SubmissionPageProps> = ({ query }) => {
+  const { isLoading, error, data } = useQuery(`submission-${query.id}`, () =>
+    fetchSubmissionInfo(query.id),
+  )
 
   if (error) {
     return <pre>{JSON.stringify(error, undefined, 2)}</pre>
@@ -37,7 +42,7 @@ const Submission: React.FC = () => {
   }
 
   return (
-    <Layout frontPageUrl={basePath()} navVariant="complex">
+    <Layout navVariant="complex">
       <div className={normalWidthCenteredComponentStyles}>
         <h1>Submission {data.submission.id}</h1>
         {grading}

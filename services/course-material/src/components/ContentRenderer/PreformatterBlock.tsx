@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import sanitizeHtml from "sanitize-html"
 
-import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
+import { courseMaterialCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import colorMapper from "../../styles/colorMapper"
 import fontSizeMapper from "../../styles/fontSizeMapper"
 import { PreformattedAttributes } from "../../types/GutenbergBlockAttributes"
@@ -18,7 +18,7 @@ const PreformatterBlock: React.FC<BlockRendererProps<PreformattedAttributes>> = 
   return (
     <pre
       className={css`
-        ${normalWidthCenteredComponentStyles}
+        ${courseMaterialCenteredComponentStyles}
         color: ${textColor};
         font-size: ${fontSize};
         white-space: pre-line;

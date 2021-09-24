@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A scoped, structured logging and diagnostics system."><meta name="keywords" content="rust, rustlang, rust-lang, tracing"><title>tracing - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../tracing/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;tokio-rs&#x2F;tracing&#x2F;master&#x2F;assets&#x2F;logo-type.png' alt='logo'></div></a><h2 class="location">Crate tracing</h2><div class="block version"><div class="narrow-helper"></div><p>Version 0.1.26</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all tracing's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li><li><a href="#structs">Structs</a></li><li><a href="#traits">Traits</a></li></ul></div><div id="sidebar-vars" data-name="tracing" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">tracing</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/tracing/lib.rs.html#1-1056" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A scoped, structured logging and diagnostics system.</p>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A scoped, structured logging and diagnostics system."><meta name="keywords" content="rust, rustlang, rust-lang, tracing"><title>tracing - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../tracing/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;tokio-rs&#x2F;tracing&#x2F;master&#x2F;assets&#x2F;logo-type.png' alt='logo'></div></a><h2 class="location">Crate tracing</h2><div class="block version"><div class="narrow-helper"></div><p>Version 0.1.28</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all tracing's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li><li><a href="#structs">Structs</a></li><li><a href="#traits">Traits</a></li></ul></div><div id="sidebar-vars" data-name="tracing" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">tracing</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/tracing/lib.rs.html#1-1057" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A scoped, structured logging and diagnostics system.</p>
 <h1 id="overview" class="section-header"><a href="#overview">Overview</a></h1>
 <p><code>tracing</code> is a framework for instrumenting Rust programs to collect
 structured, event-based diagnostic information.</p>
@@ -14,7 +14,6 @@ addition, <code>tracing</code> spans are <em>structured</em>, with the ability t
 data as well as textual messages.</p>
 <p>The <code>tracing</code> crate provides the APIs necessary for instrumenting libraries
 and applications to emit trace data.</p>
-<p><em>Compiler support: <a href="#supported-rust-versions">requires <code>rustc</code> 1.42+</a></em></p>
 <h1 id="core-concepts" class="section-header"><a href="#core-concepts">Core Concepts</a></h1>
 <p>The core of <code>tracing</code>’s API is composed of <em>spans</em>, <em>events</em> and
 <em>subscribers</em>. We’ll cover these in turn.</p>
@@ -37,15 +36,13 @@ referred to as that thread’s <em>current</em> span.</p>
 <span class="comment">// perform some work in the context of `my_span`...</span></pre></div>
 <p>The <a href="span/index.html"><code>span</code> module</a>’s documentation provides further details on how to
 use spans.</p>
-<div class="information">
-     <div class="tooltip compile_fail" style="">&#x26a0; &#xfe0f;<span class="tooltiptext">Warning</span></div>
- </div><div class="example-wrap" style="display:inline-block"><pre class="compile_fail" style="white-space:normal;font:inherit;">
+<pre class="compile_fail" style="white-space:normal;font:inherit;">
      <strong>Warning</strong>: In asynchronous code that uses async/await syntax,
      <code>Span::enter</code> may produce incorrect traces if the returned drop
      guard is held across an await point. See
      <a href="span/struct.Span.html#in-asynchronous-code">the method documentation</a>
      for details.
- </pre></div>
+ </pre>
 <h2 id="events" class="section-header"><a href="#events">Events</a></h2>
 <p>An <a href="event/struct.Event.html" title="Event"><code>Event</code></a> represents a <em>moment</em> in time. It signifies something that
 happened while a trace was being recorded. <code>Event</code>s are comparable to the log
@@ -90,13 +87,13 @@ active subscribers express interest in a given set of metadata by returning
 <p>First, add this to your <code>Cargo.toml</code>:</p>
 <div class="example-wrap"><pre class="language-toml">[dependencies]
 tracing = &quot;0.1&quot;</pre></div>
-<p><em>Compiler support: requires rustc 1.39+</em></p>
+<p><em>Compiler support: <a href="#supported-rust-versions">requires <code>rustc</code> 1.42+</a></em></p>
 <h2 id="recording-spans-and-events" class="section-header"><a href="#recording-spans-and-events">Recording Spans and Events</a></h2>
 <p>Spans and events are recorded using macros.</p>
 <h3 id="spans-1" class="section-header"><a href="#spans-1">Spans</a></h3>
 <p>The <a href="macro.span.html"><code>span!</code></a> macro expands to a <a href="struct.Span.html"><code>Span</code> struct</a> which is used to
 record a span. The <a href="struct.Span.html#method.enter" title="Span::enter"><code>Span::enter</code></a> method on that struct records that the
-span has been entered, and returns a <a href="https://github.com/rust-unofficial/patterns/blob/master/patterns/RAII.md">RAII</a> guard object, which will exit
+span has been entered, and returns a <a href="https://github.com/rust-unofficial/patterns/blob/master/patterns/behavioural/RAII.md">RAII</a> guard object, which will exit
 the span when dropped.</p>
 <p>For example:</p>
 
@@ -380,13 +377,11 @@ function:</p>
 <span class="kw">let</span> <span class="ident">my_subscriber</span> <span class="op">=</span> <span class="ident">FooSubscriber::new</span>();
 <span class="ident">tracing::subscriber::set_global_default</span>(<span class="ident">my_subscriber</span>)
     .<span class="ident">expect</span>(<span class="string">&quot;setting tracing default failed&quot;</span>);</pre></div>
-<div class="information">
-     <div class="tooltip compile_fail" style="">&#x26a0; &#xfe0f;<span class="tooltiptext">Warning</span></div>
- </div><div class="example-wrap" style="display:inline-block"><pre class="compile_fail" style="white-space:normal;font:inherit;">
- <strong>Warning</strong>: In general, libraries should <em>not</em> call
- <code>set_global_default()</code>! Doing so will cause conflicts when
- executables that depend on the library try to set the default later.
- </pre></div>
+<pre class="compile_fail" style="white-space:normal;font:inherit;">
+     <strong>Warning</strong>: In general, libraries should <em>not</em> call
+     <code>set_global_default()</code>! Doing so will cause conflicts when
+     executables that depend on the library try to set the default later.
+ </pre>
 <p>This subscriber will be used as the default in all threads for the
 remainder of the duration of the program, similar to setting the logger
 in the <code>log</code> crate.</p>
@@ -486,6 +481,7 @@ It provides a subscriber that records the time elapsed between pairs of
 <a href="https://opentelemetry.io/">OpenTelemetry</a>-compatible distributed tracing systems.</li>
 <li><a href="https://crates.io/crates/tracing-honeycomb"><code>tracing-honeycomb</code></a> Provides a layer that reports traces spanning multiple machines to <a href="https://www.honeycomb.io/">honeycomb.io</a>. Backed by <a href="https://crates.io/crates/tracing-distributed"><code>tracing-distributed</code></a>.</li>
 <li><a href="https://crates.io/crates/tracing-distributed"><code>tracing-distributed</code></a> Provides a generic implementation of a layer that reports traces spanning multiple machines to some backend.</li>
+<li><a href="https://crates.io/crates/tracing-actix-web"><code>tracing-actix-web</code></a> provides <code>tracing</code> integration for the <code>actix-web</code> web framework.</li>
 <li><a href="https://crates.io/crates/tracing-actix"><code>tracing-actix</code></a> provides <code>tracing</code> integration for the <code>actix</code> actor
 framework.</li>
 <li><a href="https://crates.io/crates/tracing-gelf"><code>tracing-gelf</code></a> implements a subscriber for exporting traces in Greylog
@@ -508,15 +504,11 @@ applications.</li>
 </ul>
 <p>If you’re the maintainer of a <code>tracing</code> ecosystem crate not listed above,
 please let us know! We’d love to add your project to the list!</p>
-<div class="information">
-     <div class="tooltip ignore" style="">ⓘ<span class="tooltiptext">Note</span></div>
- </div>
- <div class="example-wrap" style="display:inline-block">
- <pre class="ignore" style="white-space:normal;font:inherit;">
- <strong>Note</strong>: Some of these ecosystem crates are currently
- unreleased and/or in earlier stages of development. They may be less stable
- than <code>tracing</code> and <code>tracing-core</code>.
- </pre></div>
+<pre class="ignore" style="white-space:normal;font:inherit;">
+     <strong>Note</strong>: Some of these ecosystem crates are currently
+     unreleased and/or in earlier stages of development. They may be less stable
+     than <code>tracing</code> and <code>tracing-core</code>.
+ </pre>
 <h2 id="crate-feature-flags" class="section-header"><a href="#crate-feature-flags">Crate Feature Flags</a></h2>
 <p>The following crate feature flags are available:</p>
 <ul>
@@ -545,16 +537,12 @@ which may add to the compile time of crates that do not already use it.</p>
 <p><code>std</code>: Depend on the Rust standard library (enabled by default).</p>
 <p><code>no_std</code> users may disable this feature with <code>default-features = false</code>:</p>
 <div class="example-wrap"><pre class="language-toml">[dependencies]
-tracing = { version = &quot;0.1.26&quot;, default-features = false }</pre></div></li>
+tracing = { version = &quot;0.1.28&quot;, default-features = false }</pre></div></li>
 </ul>
-<div class="information">
-     <div class="tooltip ignore" style="">ⓘ<span class="tooltiptext">Note</span></div>
- </div>
- <div class="example-wrap" style="display:inline-block">
- <pre class="ignore" style="white-space:normal;font:inherit;">
- <strong>Note</strong>: <code>tracing</code>'s <code>no_std</code> support
- requires <code>liballoc</code>.
- </pre></div>
+<pre class="ignore" style="white-space:normal;font:inherit;">
+     <strong>Note</strong>: <code>tracing</code>'s <code>no_std</code> support
+     requires <code>liballoc</code>.
+ </pre>
 <h2 id="supported-rust-versions" class="section-header"><a href="#supported-rust-versions">Supported Rust Versions</a></h2>
 <p>Tracing is built against the latest stable release. The minimum supported
 version is 1.42. The current Tracing version is not guaranteed to build on
@@ -567,7 +555,7 @@ increased past 1.42, three minor versions prior. Increasing the minimum
 supported compiler version is not considered a semver breaking change as
 long as doing so complies with this policy.</p>
 </div></details><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="mod" href="dispatcher/index.html" title="tracing::dispatcher mod">dispatcher</a></div><div class="item-right docblock-short"><p>Dispatches trace events to <a href="struct.Subscriber.html"><code>Subscriber</code></a>s.</p>
+<div class="item-table"><div class="item-left module-item"><a class="mod" href="dispatcher/index.html" title="tracing::dispatcher mod">dispatcher</a></div><div class="item-right docblock-short"><p>Dispatches trace events to <a href="trait.Subscriber.html"><code>Subscriber</code></a>s.</p>
 </div><div class="item-left module-item"><a class="mod" href="event/index.html" title="tracing::event mod">event</a></div><div class="item-right docblock-short"><p>Events represent single points in time during the execution of a program.</p>
 </div><div class="item-left module-item"><a class="mod" href="field/index.html" title="tracing::field mod">field</a></div><div class="item-right docblock-short"><p>Structured data associated with <code>Span</code>s and <code>Event</code>s.</p>
 </div><div class="item-left module-item"><a class="mod" href="instrument/index.html" title="tracing::instrument mod">instrument</a></div><div class="item-right docblock-short"><p>Attach a span to a <code>std::future::Future</code>.</p>

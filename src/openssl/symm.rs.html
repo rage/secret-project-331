@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;openssl-0.10.35&#x2F;src&#x2F;symm.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>symm.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../openssl/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;openssl-0.10.36&#x2F;src&#x2F;symm.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>symm.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../openssl/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -1561,6 +1561,68 @@
 <span id="1561">1561</span>
 <span id="1562">1562</span>
 <span id="1563">1563</span>
+<span id="1564">1564</span>
+<span id="1565">1565</span>
+<span id="1566">1566</span>
+<span id="1567">1567</span>
+<span id="1568">1568</span>
+<span id="1569">1569</span>
+<span id="1570">1570</span>
+<span id="1571">1571</span>
+<span id="1572">1572</span>
+<span id="1573">1573</span>
+<span id="1574">1574</span>
+<span id="1575">1575</span>
+<span id="1576">1576</span>
+<span id="1577">1577</span>
+<span id="1578">1578</span>
+<span id="1579">1579</span>
+<span id="1580">1580</span>
+<span id="1581">1581</span>
+<span id="1582">1582</span>
+<span id="1583">1583</span>
+<span id="1584">1584</span>
+<span id="1585">1585</span>
+<span id="1586">1586</span>
+<span id="1587">1587</span>
+<span id="1588">1588</span>
+<span id="1589">1589</span>
+<span id="1590">1590</span>
+<span id="1591">1591</span>
+<span id="1592">1592</span>
+<span id="1593">1593</span>
+<span id="1594">1594</span>
+<span id="1595">1595</span>
+<span id="1596">1596</span>
+<span id="1597">1597</span>
+<span id="1598">1598</span>
+<span id="1599">1599</span>
+<span id="1600">1600</span>
+<span id="1601">1601</span>
+<span id="1602">1602</span>
+<span id="1603">1603</span>
+<span id="1604">1604</span>
+<span id="1605">1605</span>
+<span id="1606">1606</span>
+<span id="1607">1607</span>
+<span id="1608">1608</span>
+<span id="1609">1609</span>
+<span id="1610">1610</span>
+<span id="1611">1611</span>
+<span id="1612">1612</span>
+<span id="1613">1613</span>
+<span id="1614">1614</span>
+<span id="1615">1615</span>
+<span id="1616">1616</span>
+<span id="1617">1617</span>
+<span id="1618">1618</span>
+<span id="1619">1619</span>
+<span id="1620">1620</span>
+<span id="1621">1621</span>
+<span id="1622">1622</span>
+<span id="1623">1623</span>
+<span id="1624">1624</span>
+<span id="1625">1625</span>
 </pre><pre class="rust">
 <span class="doccomment">//! High level interface to certain symmetric ciphers.</span>
 <span class="doccomment">//!</span>
@@ -1854,6 +1916,26 @@
         <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_chacha20_poly1305</span>()) }
     }
 
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">osslconf</span> <span class="op">=</span> <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>))]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">seed_cbc</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Cipher</span> {
+        <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_seed_cbc</span>()) }
+    }
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">osslconf</span> <span class="op">=</span> <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>))]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">seed_cfb128</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Cipher</span> {
+        <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_seed_cfb128</span>()) }
+    }
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">osslconf</span> <span class="op">=</span> <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>))]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">seed_ecb</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Cipher</span> {
+        <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_seed_ecb</span>()) }
+    }
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">osslconf</span> <span class="op">=</span> <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>))]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">seed_ofb</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Cipher</span> {
+        <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_seed_ofb</span>()) }
+    }
+
     <span class="doccomment">/// Creates a `Cipher` from a raw pointer to its OpenSSL type.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Safety</span>
@@ -1990,7 +2072,7 @@
 <span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">Send</span> <span class="kw">for</span> <span class="ident">Crypter</span> {}
 
 <span class="kw">impl</span> <span class="ident">Crypter</span> {
-    <span class="doccomment">/// Creates a new `Crypter`.  The initialisation vector, `iv`, is not necesarry for certain</span>
+    <span class="doccomment">/// Creates a new `Crypter`.  The initialisation vector, `iv`, is not necessary for certain</span>
     <span class="doccomment">/// types of `Cipher`.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Panics</span>
@@ -2245,7 +2327,7 @@
 <span class="doccomment">/// Encrypts data in one go, and returns the encrypted data.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Data is encrypted using the specified cipher type `t` in encrypt mode with the specified `key`</span>
-<span class="doccomment">/// and initailization vector `iv`. Padding is enabled.</span>
+<span class="doccomment">/// and initialization vector `iv`. Padding is enabled.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// This is a convenient interface to `Crypter` to encrypt all data in one go.  To encrypt a stream</span>
 <span class="doccomment">/// of data increamentally , use `Crypter` instead.</span>
@@ -2284,7 +2366,7 @@
 <span class="doccomment">/// Decrypts data in one go, and returns the decrypted data.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Data is decrypted using the specified cipher type `t` in decrypt mode with the specified `key`</span>
-<span class="doccomment">/// and initailization vector `iv`. Padding is enabled.</span>
+<span class="doccomment">/// and initialization vector `iv`. Padding is enabled.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// This is a convenient interface to `Crypter` to decrypt all data in one go.  To decrypt a  stream</span>
 <span class="doccomment">/// of data increamentally , use `Crypter` instead.</span>
@@ -3123,6 +3205,48 @@
         )
         .<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="ident">pt</span>, <span class="ident">hex::encode</span>(<span class="ident">out</span>));
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">osslconf</span> <span class="op">=</span> <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>, <span class="ident">ossl300</span>)))]</span>
+    <span class="kw">fn</span> <span class="ident">test_seed_cbc</span>() {
+        <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="string">&quot;5363686f6b6f6c6164656e6b756368656e0a&quot;</span>;
+        <span class="kw">let</span> <span class="ident">ct</span> <span class="op">=</span> <span class="string">&quot;c2edf0fb2eb11bf7b2f39417a8528896d34b24b6fd79e5923b116dfcd2aba5a4&quot;</span>;
+        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="string">&quot;41414141414141414141414141414141&quot;</span>;
+        <span class="kw">let</span> <span class="ident">iv</span> <span class="op">=</span> <span class="string">&quot;41414141414141414141414141414141&quot;</span>;
+
+        <span class="ident">cipher_test</span>(<span class="kw">super</span><span class="ident">::Cipher::seed_cbc</span>(), <span class="ident">pt</span>, <span class="ident">ct</span>, <span class="ident">key</span>, <span class="ident">iv</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">osslconf</span> <span class="op">=</span> <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>, <span class="ident">ossl300</span>)))]</span>
+    <span class="kw">fn</span> <span class="ident">test_seed_cfb128</span>() {
+        <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="string">&quot;5363686f6b6f6c6164656e6b756368656e0a&quot;</span>;
+        <span class="kw">let</span> <span class="ident">ct</span> <span class="op">=</span> <span class="string">&quot;71d4d25fc1750cb7789259e7f34061939a41&quot;</span>;
+        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="string">&quot;41414141414141414141414141414141&quot;</span>;
+        <span class="kw">let</span> <span class="ident">iv</span> <span class="op">=</span> <span class="string">&quot;41414141414141414141414141414141&quot;</span>;
+
+        <span class="ident">cipher_test</span>(<span class="kw">super</span><span class="ident">::Cipher::seed_cfb128</span>(), <span class="ident">pt</span>, <span class="ident">ct</span>, <span class="ident">key</span>, <span class="ident">iv</span>);
+    }
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">osslconf</span> <span class="op">=</span> <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>, <span class="ident">ossl300</span>)))]</span>
+    <span class="kw">fn</span> <span class="ident">test_seed_ecb</span>() {
+        <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="string">&quot;5363686f6b6f6c6164656e6b756368656e0a&quot;</span>;
+        <span class="kw">let</span> <span class="ident">ct</span> <span class="op">=</span> <span class="string">&quot;0263a9cd498cf0edb0ef72a3231761d00ce601f7d08ad19ad74f0815f2c77f7e&quot;</span>;
+        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="string">&quot;41414141414141414141414141414141&quot;</span>;
+        <span class="kw">let</span> <span class="ident">iv</span> <span class="op">=</span> <span class="string">&quot;41414141414141414141414141414141&quot;</span>;
+
+        <span class="ident">cipher_test</span>(<span class="kw">super</span><span class="ident">::Cipher::seed_ecb</span>(), <span class="ident">pt</span>, <span class="ident">ct</span>, <span class="ident">key</span>, <span class="ident">iv</span>);
+    }
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">osslconf</span> <span class="op">=</span> <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>, <span class="ident">ossl300</span>)))]</span>
+    <span class="kw">fn</span> <span class="ident">test_seed_ofb</span>() {
+        <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="string">&quot;5363686f6b6f6c6164656e6b756368656e0a&quot;</span>;
+        <span class="kw">let</span> <span class="ident">ct</span> <span class="op">=</span> <span class="string">&quot;71d4d25fc1750cb7789259e7f34061930afd&quot;</span>;
+        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="string">&quot;41414141414141414141414141414141&quot;</span>;
+        <span class="kw">let</span> <span class="ident">iv</span> <span class="op">=</span> <span class="string">&quot;41414141414141414141414141414141&quot;</span>;
+
+        <span class="ident">cipher_test</span>(<span class="kw">super</span><span class="ident">::Cipher::seed_ofb</span>(), <span class="ident">pt</span>, <span class="ident">ct</span>, <span class="ident">key</span>, <span class="ident">iv</span>);
     }
 }
 </pre></div>

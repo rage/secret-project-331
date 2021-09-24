@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;sqlx-core-0.5.5&#x2F;src&#x2F;pool&#x2F;connection.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>connection.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../sqlx_core/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;sqlx-core-0.5.7&#x2F;src&#x2F;pool&#x2F;connection.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>connection.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../sqlx_core/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -211,16 +211,66 @@
 <span id="211">211</span>
 <span id="212">212</span>
 <span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
 </pre><pre class="rust">
-<span class="kw">use</span> <span class="kw">super</span><span class="ident">::inner</span>::{<span class="ident">DecrementSizeGuard</span>, <span class="ident">SharedPool</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::connection::Connection</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::database::Database</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error::Error</span>;
-<span class="kw">use</span> <span class="ident">sqlx_rt::spawn</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>::{<span class="self">self</span>, <span class="ident">Debug</span>, <span class="ident">Formatter</span>};
 <span class="kw">use</span> <span class="ident">std::ops</span>::{<span class="ident">Deref</span>, <span class="ident">DerefMut</span>};
 <span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
 <span class="kw">use</span> <span class="ident">std::time::Instant</span>;
+
+<span class="kw">use</span> <span class="ident">futures_intrusive::sync::SemaphoreReleaser</span>;
+
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::connection::Connection</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::database::Database</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error::Error</span>;
+
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::inner</span>::{<span class="ident">DecrementSizeGuard</span>, <span class="ident">SharedPool</span>};
+<span class="kw">use</span> <span class="ident">std::future::Future</span>;
 
 <span class="doccomment">/// A connection managed by a [`Pool`][crate::pool::Pool].</span>
 <span class="doccomment">///</span>
@@ -242,8 +292,8 @@
 
 <span class="doccomment">/// RAII wrapper for connections being handled by functions that may drop them</span>
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct</span> <span class="ident">Floating</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span>, <span class="ident">C</span><span class="op">&gt;</span> {
-    <span class="ident">inner</span>: <span class="ident">C</span>,
-    <span class="ident">guard</span>: <span class="ident">DecrementSizeGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">inner</span>: <span class="ident">C</span>,
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">guard</span>: <span class="ident">DecrementSizeGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">const</span> <span class="ident">DEREF_ERR</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;(bug) connection already released to pool&quot;</span>;
@@ -271,43 +321,79 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">PoolConnection</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Explicitly release a connection from the pool</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">release</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DB::Connection</span> {
+    <span class="attribute">#[<span class="ident">deprecated</span> <span class="op">=</span> <span class="string">&quot;renamed to `.detach()` for clarity&quot;</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">release</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DB::Connection</span> {
+        <span class="self">self</span>.<span class="ident">detach</span>()
+    }
+
+    <span class="doccomment">/// Detach this connection from the pool, allowing it to open a replacement.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Note that if your application uses a single shared pool, this</span>
+    <span class="doccomment">/// effectively lets the application exceed the `max_connections` setting.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If you want the pool to treat this connection as permanently checked-out,</span>
+    <span class="doccomment">/// use [`.leak()`][Self::leak] instead.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">detach</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DB::Connection</span> {
         <span class="self">self</span>.<span class="ident">live</span>
             .<span class="ident">take</span>()
             .<span class="ident">expect</span>(<span class="string">&quot;PoolConnection double-dropped&quot;</span>)
             .<span class="ident">float</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">pool</span>)
             .<span class="ident">detach</span>()
     }
+
+    <span class="doccomment">/// Detach this connection from the pool, treating it as permanently checked-out.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This effectively will reduce the maximum capacity of the pool by 1 every time it is used.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If you don&#39;t want to impact the pool&#39;s capacity, use [`.detach()`][Self::detach] instead.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">leak</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DB::Connection</span> {
+        <span class="self">self</span>.<span class="ident">live</span>.<span class="ident">take</span>().<span class="ident">expect</span>(<span class="string">&quot;PoolConnection double-dropped&quot;</span>).<span class="ident">raw</span>
+    }
+
+    <span class="doccomment">/// Test the connection to make sure it is still live before returning it to the pool.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This effectively runs the drop handler eagerly instead of spawning a task to do it.</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">return_to_pool</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> ()<span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> {
+        <span class="comment">// we want these to happen synchronously so the drop handler doesn&#39;t try to spawn a task anyway</span>
+        <span class="comment">// this also makes the returned future `&#39;static`</span>
+        <span class="kw">let</span> <span class="ident">live</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">live</span>.<span class="ident">take</span>();
+        <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pool</span>.<span class="ident">clone</span>();
+
+        <span class="kw">async</span> <span class="kw">move</span> {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">floating</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">live</span>) <span class="op">=</span> <span class="ident">live</span> {
+                <span class="ident">live</span>.<span class="ident">float</span>(<span class="kw-2">&amp;</span><span class="ident">pool</span>)
+            } <span class="kw">else</span> {
+                <span class="kw">return</span>;
+            };
+
+            <span class="comment">// test the connection on-release to ensure it is still viable</span>
+            <span class="comment">// if an Executor future/stream is dropped during an `.await` call, the connection</span>
+            <span class="comment">// is likely to be left in an inconsistent state, in which case it should not be</span>
+            <span class="comment">// returned to the pool; also of course, if it was dropped due to an error</span>
+            <span class="comment">// this is simply a band-aid as SQLx-next (0.6) connections should be able</span>
+            <span class="comment">// to recover from cancellations</span>
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="ident">floating</span>.<span class="ident">raw</span>.<span class="ident">ping</span>().<span class="kw">await</span> {
+                <span class="macro">log::warn!</span>(
+                    <span class="string">&quot;error occurred while testing the connection on-release: {}&quot;</span>,
+                    <span class="ident">e</span>
+                );
+
+                <span class="comment">// we now consider the connection to be broken; just drop it to close</span>
+                <span class="comment">// trying to close gracefully might cause something weird to happen</span>
+                <span class="ident">drop</span>(<span class="ident">floating</span>);
+            } <span class="kw">else</span> {
+                <span class="comment">// if the connection is still viable, release it to the pool</span>
+                <span class="ident">pool</span>.<span class="ident">release</span>(<span class="ident">floating</span>);
+            }
+        }
+    }
 }
 
 <span class="doccomment">/// Returns the connection to the [`Pool`][crate::pool::Pool] it was checked-out from.</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">PoolConnection</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">live</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">live</span>.<span class="ident">take</span>() {
-            <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pool</span>.<span class="ident">clone</span>();
-            <span class="ident">spawn</span>(<span class="kw">async</span> <span class="kw">move</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">floating</span> <span class="op">=</span> <span class="ident">live</span>.<span class="ident">float</span>(<span class="kw-2">&amp;</span><span class="ident">pool</span>);
-
-                <span class="comment">// test the connection on-release to ensure it is still viable</span>
-                <span class="comment">// if an Executor future/stream is dropped during an `.await` call, the connection</span>
-                <span class="comment">// is likely to be left in an inconsistent state, in which case it should not be</span>
-                <span class="comment">// returned to the pool; also of course, if it was dropped due to an error</span>
-                <span class="comment">// this is simply a band-aid as SQLx-next (0.6) connections should be able</span>
-                <span class="comment">// to recover from cancellations</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="ident">floating</span>.<span class="ident">raw</span>.<span class="ident">ping</span>().<span class="kw">await</span> {
-                    <span class="macro">log::warn!</span>(
-                        <span class="string">&quot;error occurred while testing the connection on-release: {}&quot;</span>,
-                        <span class="ident">e</span>
-                    );
-
-                    <span class="comment">// we now consider the connection to be broken; just drop it to close</span>
-                    <span class="comment">// trying to close gracefully might cause something weird to happen</span>
-                    <span class="ident">drop</span>(<span class="ident">floating</span>);
-                } <span class="kw">else</span> {
-                    <span class="comment">// if the connection is still viable, release it to th epool</span>
-                    <span class="ident">pool</span>.<span class="ident">release</span>(<span class="ident">floating</span>);
-                }
-            });
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">live</span>.<span class="ident">is_some</span>() {
+            <span class="ident">sqlx_rt::spawn</span>(<span class="self">self</span>.<span class="ident">return_to_pool</span>());
         }
     }
 }
@@ -316,7 +402,8 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">float</span>(<span class="self">self</span>, <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">SharedPool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Floating</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="self">Self</span><span class="op">&gt;</span> {
         <span class="ident">Floating</span> {
             <span class="ident">inner</span>: <span class="self">self</span>,
-            <span class="ident">guard</span>: <span class="ident">DecrementSizeGuard::new</span>(<span class="ident">pool</span>),
+            <span class="comment">// create a new guard from a previously leaked permit</span>
+            <span class="ident">guard</span>: <span class="ident">DecrementSizeGuard::new_permit</span>(<span class="ident">pool</span>),
         }
     }
 
@@ -339,13 +426,6 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">DerefMut</span> <span class="kw">for</span> <span class="ident">Idle</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="ident">::Target</span> {
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">live</span>
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">Floating</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident">C</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_leakable</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">C</span> {
-        <span class="self">self</span>.<span class="ident">guard</span>.<span class="ident">cancel</span>();
-        <span class="self">self</span>.<span class="ident">inner</span>
     }
 }
 
@@ -375,6 +455,11 @@
         }
     }
 
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">close</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="comment">// `guard` is dropped as intended</span>
+        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">raw</span>.<span class="ident">close</span>().<span class="kw">await</span>
+    }
+
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">detach</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DB::Connection</span> {
         <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">raw</span>
     }
@@ -388,10 +473,14 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">Floating</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident">Idle</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_idle</span>(<span class="ident">idle</span>: <span class="ident">Idle</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>, <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;s</span> <span class="ident">SharedPool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_idle</span>(
+        <span class="ident">idle</span>: <span class="ident">Idle</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>,
+        <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;s</span> <span class="ident">SharedPool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>,
+        <span class="ident">permit</span>: <span class="ident">SemaphoreReleaser</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span><span class="op">&gt;</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">inner</span>: <span class="ident">idle</span>,
-            <span class="ident">guard</span>: <span class="ident">DecrementSizeGuard::new</span>(<span class="ident">pool</span>),
+            <span class="ident">guard</span>: <span class="ident">DecrementSizeGuard::from_permit</span>(<span class="ident">pool</span>, <span class="ident">permit</span>),
         }
     }
 
@@ -406,9 +495,12 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">close</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">close</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DecrementSizeGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span><span class="op">&gt;</span> {
         <span class="comment">// `guard` is dropped as intended</span>
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">live</span>.<span class="ident">raw</span>.<span class="ident">close</span>().<span class="kw">await</span>
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">live</span>.<span class="ident">raw</span>.<span class="ident">close</span>().<span class="kw">await</span> {
+            <span class="macro">log::debug!</span>(<span class="string">&quot;error occurred while closing the pool connection: {}&quot;</span>, <span class="ident">e</span>);
+        }
+        <span class="self">self</span>.<span class="ident">guard</span>
     }
 }
 

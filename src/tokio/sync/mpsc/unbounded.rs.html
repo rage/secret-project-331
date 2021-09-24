@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;tokio-1.9.0&#x2F;src&#x2F;sync&#x2F;mpsc&#x2F;unbounded.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>unbounded.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../tokio/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;tokio-1.12.0&#x2F;src&#x2F;sync&#x2F;mpsc&#x2F;unbounded.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>unbounded.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../tokio/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -321,10 +321,60 @@
 <span id="321">321</span>
 <span id="322">322</span>
 <span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::loom::sync::atomic::AtomicUsize</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sync::mpsc::chan</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sync::mpsc::error::SendError</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sync::mpsc::error</span>::{<span class="ident">SendError</span>, <span class="ident">TryRecvError</span>};
 
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 <span class="kw">use</span> <span class="ident">std::task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>};
@@ -453,6 +503,50 @@
         <span class="ident">poll_fn</span>(<span class="op">|</span><span class="ident">cx</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">poll_recv</span>(<span class="ident">cx</span>)).<span class="kw">await</span>
     }
 
+    <span class="doccomment">/// Try to receive the next value for this receiver.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This method returns the [`Empty`] error if the channel is currently</span>
+    <span class="doccomment">/// empty, but there are still outstanding [senders] or [permits].</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This method returns the [`Disconnected`] error if the channel is</span>
+    <span class="doccomment">/// currently empty, and there are no outstanding [senders] or [permits].</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Unlike the [`poll_recv`] method, this method will never return an</span>
+    <span class="doccomment">/// [`Empty`] error spuriously.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [`Empty`]: crate::sync::mpsc::error::TryRecvError::Empty</span>
+    <span class="doccomment">/// [`Disconnected`]: crate::sync::mpsc::error::TryRecvError::Disconnected</span>
+    <span class="doccomment">/// [`poll_recv`]: Self::poll_recv</span>
+    <span class="doccomment">/// [senders]: crate::sync::mpsc::Sender</span>
+    <span class="doccomment">/// [permits]: crate::sync::mpsc::Permit</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use tokio::sync::mpsc;</span>
+    <span class="doccomment">/// use tokio::sync::mpsc::error::TryRecvError;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// #[tokio::main]</span>
+    <span class="doccomment">/// async fn main() {</span>
+    <span class="doccomment">///     let (tx, mut rx) = mpsc::unbounded_channel();</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     tx.send(&quot;hello&quot;).unwrap();</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     assert_eq!(Ok(&quot;hello&quot;), rx.try_recv());</span>
+    <span class="doccomment">///     assert_eq!(Err(TryRecvError::Empty), rx.try_recv());</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     tx.send(&quot;hello&quot;).unwrap();</span>
+    <span class="doccomment">///     // Drop the last sender, closing the channel.</span>
+    <span class="doccomment">///     drop(tx);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     assert_eq!(Ok(&quot;hello&quot;), rx.try_recv());</span>
+    <span class="doccomment">///     assert_eq!(Err(TryRecvError::Disconnected), rx.try_recv());</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_recv</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">TryRecvError</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">chan</span>.<span class="ident">try_recv</span>()
+    }
+
     <span class="doccomment">/// Blocking receive to call outside of asynchronous contexts.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Panics</span>
@@ -496,7 +590,7 @@
     <span class="doccomment">/// This method returns:</span>
     <span class="doccomment">///</span>
     <span class="doccomment">///  * `Poll::Pending` if no messages are available but the channel is not</span>
-    <span class="doccomment">///    closed.</span>
+    <span class="doccomment">///    closed, or if a spurious failure happens.</span>
     <span class="doccomment">///  * `Poll::Ready(Some(message))` if a message is available.</span>
     <span class="doccomment">///  * `Poll::Ready(None)` if the channel has been closed and all messages</span>
     <span class="doccomment">///    sent before it was closed have been received.</span>
@@ -506,6 +600,12 @@
     <span class="doccomment">/// receiver, or when the channel is closed.  Note that on multiple calls to</span>
     <span class="doccomment">/// `poll_recv`, only the `Waker` from the `Context` passed to the most</span>
     <span class="doccomment">/// recent call is scheduled to receive a wakeup.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If this method returns `Poll::Pending` due to a spurious failure, then</span>
+    <span class="doccomment">/// the `Waker` will be notified when the situation causing the spurious</span>
+    <span class="doccomment">/// failure has been resolved. Note that receiving such a wakeup does not</span>
+    <span class="doccomment">/// guarantee that the next call will succeed — it could fail with another</span>
+    <span class="doccomment">/// spurious failure.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">poll_recv</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">chan</span>.<span class="ident">recv</span>(<span class="ident">cx</span>)
     }

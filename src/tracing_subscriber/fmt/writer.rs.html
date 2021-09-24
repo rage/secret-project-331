@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;tracing-subscriber-0.2.19&#x2F;src&#x2F;fmt&#x2F;writer.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>writer.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../tracing_subscriber/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;tokio-rs&#x2F;tracing&#x2F;master&#x2F;assets&#x2F;logo-type.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;tracing-subscriber-0.2.24&#x2F;src&#x2F;fmt&#x2F;writer.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>writer.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../tracing_subscriber/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;tokio-rs&#x2F;tracing&#x2F;master&#x2F;assets&#x2F;logo-type.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -1318,6 +1318,44 @@
 <span id="1318">1318</span>
 <span id="1319">1319</span>
 <span id="1320">1320</span>
+<span id="1321">1321</span>
+<span id="1322">1322</span>
+<span id="1323">1323</span>
+<span id="1324">1324</span>
+<span id="1325">1325</span>
+<span id="1326">1326</span>
+<span id="1327">1327</span>
+<span id="1328">1328</span>
+<span id="1329">1329</span>
+<span id="1330">1330</span>
+<span id="1331">1331</span>
+<span id="1332">1332</span>
+<span id="1333">1333</span>
+<span id="1334">1334</span>
+<span id="1335">1335</span>
+<span id="1336">1336</span>
+<span id="1337">1337</span>
+<span id="1338">1338</span>
+<span id="1339">1339</span>
+<span id="1340">1340</span>
+<span id="1341">1341</span>
+<span id="1342">1342</span>
+<span id="1343">1343</span>
+<span id="1344">1344</span>
+<span id="1345">1345</span>
+<span id="1346">1346</span>
+<span id="1347">1347</span>
+<span id="1348">1348</span>
+<span id="1349">1349</span>
+<span id="1350">1350</span>
+<span id="1351">1351</span>
+<span id="1352">1352</span>
+<span id="1353">1353</span>
+<span id="1354">1354</span>
+<span id="1355">1355</span>
+<span id="1356">1356</span>
+<span id="1357">1357</span>
+<span id="1358">1358</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Abstractions for creating [`io::Write`] instances.</span>
 <span class="doccomment">//!</span>
@@ -1331,11 +1369,12 @@
 
 <span class="doccomment">/// A type that can create [`io::Write`] instances.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// `MakeWriter` is used by [`fmt::Subscriber`] or [`fmt::Layer`] to print formatted text representations of</span>
-<span class="doccomment">/// [`Event`]s.</span>
+<span class="doccomment">/// `MakeWriter` is used by [`fmt::Subscriber`] or [`fmt::Layer`] to print</span>
+<span class="doccomment">/// formatted text representations of [`Event`]s.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// This trait is already implemented for function pointers and immutably-borrowing closures that</span>
-<span class="doccomment">/// return an instance of [`io::Write`], such as [`io::stdout`] and [`io::stderr`].</span>
+<span class="doccomment">/// This trait is already implemented for function pointers and</span>
+<span class="doccomment">/// immutably-borrowing closures that return an instance of [`io::Write`], such</span>
+<span class="doccomment">/// as [`io::stdout`] and [`io::stderr`].</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// The [`MakeWriter::make_writer_for`] method takes [`Metadata`] describing a</span>
 <span class="doccomment">/// span or event and returns a writer. `MakeWriter`s can optionally provide</span>
@@ -1396,8 +1435,8 @@
 <span class="doccomment">/// ```</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// [`io::Write`]: std::io::Write</span>
-<span class="doccomment">/// [`fmt::Collector`]: super::super::fmt::Collector</span>
-<span class="doccomment">/// [`fmt::Subscriber`]: super::super::fmt::Subscriber</span>
+<span class="doccomment">/// [`fmt::Layer`]: crate::fmt::Layer</span>
+<span class="doccomment">/// [`fmt::Subscriber`]: crate::fmt::Subscriber</span>
 <span class="doccomment">/// [`Event`]: tracing_core::event::Event</span>
 <span class="doccomment">/// [`io::stdout`]: std::io::stdout()</span>
 <span class="doccomment">/// [`io::stderr`]: std::io::stderr()</span>
@@ -1639,7 +1678,7 @@
     <span class="doccomment">/// determine if  a writer should be produced for a given span or event.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If the predicate returns `false`, the wrapped [`MakeWriter`]&#39;s</span>
-    <span class="doccomment">/// [`make_writer_for`][mwf] will return [`OptionalWriter::none`].</span>
+    <span class="doccomment">/// [`make_writer_for`][mwf] will return [`OptionalWriter::none`][own].</span>
     <span class="doccomment">/// Otherwise, it calls the wrapped [`MakeWriter`]&#39;s</span>
     <span class="doccomment">/// [`make_writer_for`][mwf] method, and returns the produced writer.</span>
     <span class="doccomment">///</span>
@@ -1704,6 +1743,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`Metadata`]: tracing_core::Metadata</span>
     <span class="doccomment">/// [mwf]: MakeWriter::make_writer_for</span>
+    <span class="doccomment">/// [own]: EitherWriter::none</span>
     <span class="kw">fn</span> <span class="ident">with_filter</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">filter</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">WithFilter</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">F</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">Sized</span>,
@@ -1733,7 +1773,32 @@
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// `and` can be used in conjunction with filtering combinators. For</span>
-    <span class="doccomment">/// example, if we want to write to a number of outputs depending on</span>
+    <span class="doccomment">/// example, if we want to write to a number of outputs depending on the</span>
+    <span class="doccomment">/// level of an event, we could write:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use tracing::Level;</span>
+    <span class="doccomment">/// # use tracing_subscriber::fmt::writer::MakeWriterExt;</span>
+    <span class="doccomment">/// use std::{sync::Arc, fs::File};</span>
+    <span class="doccomment">/// # // don&#39;t actually create the file when running the tests.</span>
+    <span class="doccomment">/// # fn docs() -&gt; std::io::Result&lt;()&gt; {</span>
+    <span class="doccomment">/// let debug_log = Arc::new(File::create(&quot;debug.log&quot;)?);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// // Write everything to the debug log.</span>
+    <span class="doccomment">/// let mk_writer = debug_log</span>
+    <span class="doccomment">///     // Write the `ERROR` and `WARN` levels to stderr.</span>
+    <span class="doccomment">///     .and(std::io::stderr.with_max_level(Level::WARN))</span>
+    <span class="doccomment">///     // Write `INFO` to `stdout`.</span>
+    <span class="doccomment">///     .and(std::io::stdout</span>
+    <span class="doccomment">///         .with_max_level(Level::INFO)</span>
+    <span class="doccomment">///         .with_min_level(Level::INFO)</span>
+    <span class="doccomment">///     );</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// tracing_subscriber::fmt().with_writer(mk_writer).init();</span>
+    <span class="doccomment">/// # Ok(()) }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [writers]: std::io::Write</span>
     <span class="kw">fn</span> <span class="ident">and</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">B</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Tee</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">B</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">Sized</span>,
@@ -1744,7 +1809,7 @@
 
     <span class="doccomment">/// Combines `self` with another type implementing [`MakeWriter`], returning</span>
     <span class="doccomment">/// a new [`MakeWriter`] that calls `other`&#39;s [`make_writer`] if `self`&#39;s</span>
-    <span class="doccomment">/// `make_writer` returns [`OptionalWriter::none`].</span>
+    <span class="doccomment">/// `make_writer` returns [`OptionalWriter::none`][own].</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">///</span>
@@ -1762,6 +1827,9 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// tracing_subscriber::fmt().with_writer(mk_writer).init();</span>
     <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [`make_writer`]: MakeWriter::make_writer</span>
+    <span class="doccomment">/// [own]: EitherWriter::none</span>
     <span class="kw">fn</span> <span class="ident">or_else</span><span class="op">&lt;</span><span class="ident">W</span>, <span class="ident">B</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">B</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OrElse</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">B</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">MakeWriter</span><span class="op">&lt;</span><span class="ident">Writer</span> <span class="op">=</span> <span class="ident">OptionalWriter</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Sized</span>,
@@ -1851,7 +1919,7 @@
 <span class="doccomment">/// A [`MakeWriter`] combinator that only returns an enabled [writer] for spans</span>
 <span class="doccomment">/// and events with metadata at or below a specified verbosity [`Level`].</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// This is returned by the [`MakeWriterExt::with_max_level] method. See the</span>
+<span class="doccomment">/// This is returned by the [`MakeWriterExt::with_max_level`] method. See the</span>
 <span class="doccomment">/// method documentation for details.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// [writer]: std::io::Write</span>
@@ -1865,7 +1933,7 @@
 <span class="doccomment">/// A [`MakeWriter`] combinator that only returns an enabled [writer] for spans</span>
 <span class="doccomment">/// and events with metadata at or above a specified verbosity [`Level`].</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// This is returned by the [`MakeWriterExt::with_min_level] method. See the</span>
+<span class="doccomment">/// This is returned by the [`MakeWriterExt::with_min_level`] method. See the</span>
 <span class="doccomment">/// method documentation for details.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// [writer]: std::io::Write</span>
@@ -1877,14 +1945,16 @@
 }
 
 <span class="doccomment">/// A [`MakeWriter`] combinator that wraps a [`MakeWriter`] with a predicate for</span>
-<span class="doccomment">/// span and event [`Metadata`], so that the [`MakeWriterExt::make_writer_for`]</span>
-<span class="doccomment">/// method returns [`OptionalWriter::some`] when the predicate returns `true`,</span>
-<span class="doccomment">/// and [`OptionalWriter::none`] when the predicate returns `false`.</span>
+<span class="doccomment">/// span and event [`Metadata`], so that the [`MakeWriter::make_writer_for`]</span>
+<span class="doccomment">/// method returns [`OptionalWriter::some`][ows] when the predicate returns `true`,</span>
+<span class="doccomment">/// and [`OptionalWriter::none`][own] when the predicate returns `false`.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// This is returned by the [`MakeWriterExt::with_filter`] method. See the</span>
 <span class="doccomment">/// method documentation for details.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// [`Metadata`]: tracing_core::Metadata</span>
+<span class="doccomment">/// [ows]: EitherWriter::some</span>
+<span class="doccomment">/// [own]: EitherWriter::none</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">WithFilter</span><span class="op">&lt;</span><span class="ident">M</span>, <span class="ident">F</span><span class="op">&gt;</span> {
     <span class="ident">make</span>: <span class="ident">M</span>,
@@ -1893,10 +1963,12 @@
 
 <span class="doccomment">/// Combines a [`MakeWriter`] that returns an [`OptionalWriter`] with another</span>
 <span class="doccomment">/// [`MakeWriter`], so that the second [`MakeWriter`] is used when the first</span>
-<span class="doccomment">/// [`MakeWriter`] returns [`OptionalWriter::none`].</span>
+<span class="doccomment">/// [`MakeWriter`] returns [`OptionalWriter::none`][own].</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// This is returned by the [`MakeWriterExt::or_else] method. See the</span>
 <span class="doccomment">/// method documentation for details.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// [own]: EitherWriter::none</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">OrElse</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">B</span><span class="op">&gt;</span> {
     <span class="ident">inner</span>: <span class="ident">A</span>,
@@ -2111,12 +2183,13 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span> <span class="ident">WithMaxLevel</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Wraps the provided [`MakeWriter`] with a maximum [`Level`], so that it</span>
-    <span class="doccomment">/// returns [`OptionalWriter::none`] for spans and events whose level is</span>
+    <span class="doccomment">/// returns [`OptionalWriter::none`][own] for spans and events whose level is</span>
     <span class="doccomment">/// more verbose than the maximum level.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// See [`MakeWriterExt::with_max_level`] for details.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`Level`]: tracing_core::Level</span>
+    <span class="doccomment">/// [own]: EitherWriter::none</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">make</span>: <span class="ident">M</span>, <span class="ident">level</span>: <span class="ident">tracing_core::Level</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> { <span class="ident">make</span>, <span class="ident">level</span> }
     }
@@ -2144,12 +2217,13 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span> <span class="ident">WithMinLevel</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Wraps the provided [`MakeWriter`] with a minimum [`Level`], so that it</span>
-    <span class="doccomment">/// returns [`OptionalWriter::none`] for spans and events whose level is</span>
+    <span class="doccomment">/// returns [`OptionalWriter::none`][own] for spans and events whose level is</span>
     <span class="doccomment">/// less verbose than the maximum level.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// See [`MakeWriterExt::with_min_level`] for details.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`Level`]: tracing_core::Level</span>
+    <span class="doccomment">/// [own]: EitherWriter::none</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">make</span>: <span class="ident">M</span>, <span class="ident">level</span>: <span class="ident">tracing_core::Level</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> { <span class="ident">make</span>, <span class="ident">level</span> }
     }
@@ -2222,6 +2296,8 @@
     <span class="doccomment">/// outputs.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// See the documentation for [`MakeWriterExt::and`] for details.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [writers]: std::io::Write</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">a</span>: <span class="ident">A</span>, <span class="ident">b</span>: <span class="ident">B</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> { <span class="ident">a</span>, <span class="ident">b</span> }
     }

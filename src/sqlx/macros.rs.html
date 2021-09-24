@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;sqlx-0.5.5&#x2F;src&#x2F;macros.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>macros.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../sqlx/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;sqlx-0.5.7&#x2F;src&#x2F;macros.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>macros.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../sqlx/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -726,6 +726,70 @@
 <span id="726">726</span>
 <span id="727">727</span>
 <span id="728">728</span>
+<span id="729">729</span>
+<span id="730">730</span>
+<span id="731">731</span>
+<span id="732">732</span>
+<span id="733">733</span>
+<span id="734">734</span>
+<span id="735">735</span>
+<span id="736">736</span>
+<span id="737">737</span>
+<span id="738">738</span>
+<span id="739">739</span>
+<span id="740">740</span>
+<span id="741">741</span>
+<span id="742">742</span>
+<span id="743">743</span>
+<span id="744">744</span>
+<span id="745">745</span>
+<span id="746">746</span>
+<span id="747">747</span>
+<span id="748">748</span>
+<span id="749">749</span>
+<span id="750">750</span>
+<span id="751">751</span>
+<span id="752">752</span>
+<span id="753">753</span>
+<span id="754">754</span>
+<span id="755">755</span>
+<span id="756">756</span>
+<span id="757">757</span>
+<span id="758">758</span>
+<span id="759">759</span>
+<span id="760">760</span>
+<span id="761">761</span>
+<span id="762">762</span>
+<span id="763">763</span>
+<span id="764">764</span>
+<span id="765">765</span>
+<span id="766">766</span>
+<span id="767">767</span>
+<span id="768">768</span>
+<span id="769">769</span>
+<span id="770">770</span>
+<span id="771">771</span>
+<span id="772">772</span>
+<span id="773">773</span>
+<span id="774">774</span>
+<span id="775">775</span>
+<span id="776">776</span>
+<span id="777">777</span>
+<span id="778">778</span>
+<span id="779">779</span>
+<span id="780">780</span>
+<span id="781">781</span>
+<span id="782">782</span>
+<span id="783">783</span>
+<span id="784">784</span>
+<span id="785">785</span>
+<span id="786">786</span>
+<span id="787">787</span>
+<span id="788">788</span>
+<span id="789">789</span>
+<span id="790">790</span>
+<span id="791">791</span>
+<span id="792">792</span>
 </pre><pre class="rust">
 <span class="doccomment">/// Statically checked SQL query with `println!()` style syntax.</span>
 <span class="doccomment">///</span>
@@ -765,6 +829,7 @@
 <span class="doccomment">/// | Zero or One    | `.fetch_optional(...).await`| `sqlx::Result&lt;Option&lt;{adhoc struct}&gt;&gt;`              | Extra rows are ignored. |</span>
 <span class="doccomment">/// | Exactly One    | `.fetch_one(...).await`     | `sqlx::Result&lt;{adhoc struct}&gt;`                      | Errors if no rows were returned. Extra rows are ignored. Aggregate queries, use this. |</span>
 <span class="doccomment">/// | At Least One   | `.fetch(...)`               | `impl Stream&lt;Item = sqlx::Result&lt;{adhoc struct}&gt;&gt;`  | Call `.try_next().await` to get each row result. |</span>
+<span class="doccomment">/// | Multiple   | `.fetch_all(...)`               | `sqlx::Result&lt;Vec&lt;{adhoc struct}&gt;&gt;`  | |</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// \* All methods accept one of `&amp;mut {connection type}`, `&amp;mut Transaction` or `&amp;Pool`.</span>
 <span class="doccomment">/// † Only callable if the query returns no columns; otherwise it&#39;s assumed the query *may* return at least one row.</span>
@@ -1188,6 +1253,7 @@
 <span class="doccomment">/// | Zero or One    | `.fetch_optional(...).await`| `sqlx::Result&lt;Option&lt;T&gt;&gt;`              | Extra rows are ignored. |</span>
 <span class="doccomment">/// | Exactly One    | `.fetch_one(...).await`     | `sqlx::Result&lt;T&gt;`                      | Errors if no rows were returned. Extra rows are ignored. Aggregate queries, use this. |</span>
 <span class="doccomment">/// | At Least One   | `.fetch(...)`               | `impl Stream&lt;Item = sqlx::Result&lt;T&gt;&gt;`  | Call `.try_next().await` to get each row result. |</span>
+<span class="doccomment">/// | Multiple       | `.fetch_all(...)`           | `sqlx::Result&lt;Vec&lt;T&gt;&gt;`  | |</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// \* All methods accept one of `&amp;mut {connection type}`, `&amp;mut Transaction` or `&amp;Pool`.</span>
 <span class="doccomment">/// (`.execute()` is omitted as this macro requires at least one column to be returned.)</span>
@@ -1444,6 +1510,68 @@
 <span class="doccomment">/// The directory must be relative to the project root (the directory containing `Cargo.toml`),</span>
 <span class="doccomment">/// unlike `include_str!()` which uses compiler internals to get the path of the file where it</span>
 <span class="doccomment">/// was invoked.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ## Triggering Recompilation on Migration Changes</span>
+<span class="doccomment">/// In some cases when making changes to embedded migrations, such as adding a new migration without</span>
+<span class="doccomment">/// changing any Rust source files, you might find that `cargo build` doesn&#39;t actually do anything,</span>
+<span class="doccomment">/// or when you do `cargo run` your application isn&#39;t applying new migrations on startup.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This is because our ability to tell the compiler to watch external files for changes</span>
+<span class="doccomment">/// from a proc-macro is very limited. The compiler by default only re-runs proc macros when</span>
+<span class="doccomment">/// one ore more source files have changed, because normally it shouldn&#39;t have to otherwise. SQLx is</span>
+<span class="doccomment">/// just weird in that external factors can change the output of proc macros, much to the chagrin of</span>
+<span class="doccomment">/// the compiler team and IDE plugin authors.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// As of 0.5.6, we emit `include_str!()` with an absolute path for each migration, but that</span>
+<span class="doccomment">/// only works to get the compiler to watch _existing_ migration files for changes.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Our only options for telling it to watch the whole `migrations/` directory are either via the</span>
+<span class="doccomment">/// user creating a Cargo build script in their project, or using an unstable API on nightly</span>
+<span class="doccomment">/// governed by a `cfg`-flag.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ##### Stable Rust: Cargo Build Script</span>
+<span class="doccomment">/// The only solution on stable Rust right now is to create a Cargo build script in your project</span>
+<span class="doccomment">/// and have it print `cargo:rerun-if-changed=migrations`:</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// `build.rs`</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">/// fn main() {</span>
+<span class="doccomment">///     println!(&quot;cargo:rerun-if-changed=migrations&quot;);</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// You can run `sqlx migrate build-script` to generate this file automatically.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// See: [The Cargo Book: 3.8 Build Scripts; Outputs of the Build Script](https://doc.rust-lang.org/stable/cargo/reference/build-scripts.html#outputs-of-the-build-script)</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// #### Nightly Rust: `cfg` Flag</span>
+<span class="doccomment">/// The `migrate!()` macro also listens to `--cfg sqlx_macros_unstable`, which will enable</span>
+<span class="doccomment">/// the `track_path` feature to directly tell the compiler to watch the `migrations/` directory:</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```sh,ignore</span>
+<span class="doccomment">/// $ env RUSTFLAGS=&#39;--cfg sqlx_macros_unstable&#39; cargo build</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Note that this unfortunately will trigger a fully recompile of your dependency tree, at least</span>
+<span class="doccomment">/// for the first time you use it. It also, of course, requires using a nightly compiler.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// You can also set it in `build.rustflags` in `.cargo/config.toml`:</span>
+<span class="doccomment">/// ```toml,ignore</span>
+<span class="doccomment">/// [build]</span>
+<span class="doccomment">/// rustflags = [&quot;--cfg sqlx_macros_unstable&quot;]</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// And then continue building and running your project normally.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// If you&#39;re building on nightly anyways, it would be extremely helpful to help us test</span>
+<span class="doccomment">/// this feature and find any bugs in it.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Subscribe to [the `track_path` tracking issue](https://github.com/rust-lang/rust/issues/73921)</span>
+<span class="doccomment">/// for discussion and the future stabilization of this feature.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// For brevity and because it involves the same commitment to unstable features in `proc_macro`,</span>
+<span class="doccomment">/// if you&#39;re using `--cfg procmacro2_semver_exempt` it will also enable this feature</span>
+<span class="doccomment">/// (see [`proc-macro2` docs / Unstable Features](https://docs.rs/proc-macro2/1.0.27/proc_macro2/#unstable-features)).</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;migrate&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">migrate</span> {

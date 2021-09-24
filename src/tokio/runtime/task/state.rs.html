@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;tokio-1.9.0&#x2F;src&#x2F;runtime&#x2F;task&#x2F;state.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>state.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../tokio/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;tokio-1.12.0&#x2F;src&#x2F;runtime&#x2F;task&#x2F;state.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>state.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../tokio/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -451,6 +451,148 @@
 <span id="451">451</span>
 <span id="452">452</span>
 <span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::loom::sync::atomic::AtomicUsize</span>;
 
@@ -518,6 +660,35 @@
 <span class="doccomment">/// As the task starts with a `Notified`, `NOTIFIED` is set.</span>
 <span class="kw">const</span> <span class="ident">INITIAL_STATE</span>: <span class="ident">usize</span> <span class="op">=</span> (<span class="ident">REF_ONE</span> <span class="op">*</span> <span class="number">3</span>) <span class="op">|</span> <span class="ident">JOIN_INTEREST</span> <span class="op">|</span> <span class="ident">NOTIFIED</span>;
 
+<span class="attribute">#[<span class="ident">must_use</span>]</span>
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">enum</span> <span class="ident">TransitionToRunning</span> {
+    <span class="ident">Success</span>,
+    <span class="ident">Cancelled</span>,
+    <span class="ident">Failed</span>,
+    <span class="ident">Dealloc</span>,
+}
+
+<span class="attribute">#[<span class="ident">must_use</span>]</span>
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">enum</span> <span class="ident">TransitionToIdle</span> {
+    <span class="prelude-val">Ok</span>,
+    <span class="ident">OkNotified</span>,
+    <span class="ident">OkDealloc</span>,
+    <span class="ident">Cancelled</span>,
+}
+
+<span class="attribute">#[<span class="ident">must_use</span>]</span>
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">enum</span> <span class="ident">TransitionToNotifiedByVal</span> {
+    <span class="ident">DoNothing</span>,
+    <span class="ident">Submit</span>,
+    <span class="ident">Dealloc</span>,
+}
+
+<span class="attribute">#[<span class="ident">must_use</span>]</span>
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">enum</span> <span class="ident">TransitionToNotifiedByRef</span> {
+    <span class="ident">DoNothing</span>,
+    <span class="ident">Submit</span>,
+}
+
 <span class="doccomment">/// All transitions are performed via RMW operations. This establishes an</span>
 <span class="doccomment">/// unambiguous modification order.</span>
 <span class="kw">impl</span> <span class="ident">State</span> {
@@ -535,51 +706,72 @@
         <span class="ident">Snapshot</span>(<span class="self">self</span>.<span class="ident">val</span>.<span class="ident">load</span>(<span class="ident">Acquire</span>))
     }
 
-    <span class="doccomment">/// Attempt to transition the lifecycle to `Running`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The `NOTIFIED` bit is always unset.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">transition_to_running</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">UpdateResult</span> {
-        <span class="self">self</span>.<span class="ident">fetch_update</span>(<span class="op">|</span><span class="ident">curr</span><span class="op">|</span> {
-            <span class="macro">assert!</span>(<span class="ident">curr</span>.<span class="ident">is_notified</span>());
-
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">next</span> <span class="op">=</span> <span class="ident">curr</span>;
+    <span class="doccomment">/// Attempt to transition the lifecycle to `Running`. This sets the</span>
+    <span class="doccomment">/// notified bit to false so notifications during the poll can be detected.</span>
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">transition_to_running</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TransitionToRunning</span> {
+        <span class="self">self</span>.<span class="ident">fetch_update_action</span>(<span class="op">|</span><span class="kw-2">mut</span> <span class="ident">next</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">action</span>;
+            <span class="macro">assert!</span>(<span class="ident">next</span>.<span class="ident">is_notified</span>());
 
             <span class="kw">if</span> <span class="op">!</span><span class="ident">next</span>.<span class="ident">is_idle</span>() {
-                <span class="kw">return</span> <span class="prelude-val">None</span>;
-            }
+                <span class="comment">// This happens if the task is either currently running or if it</span>
+                <span class="comment">// has already completed, e.g. if it was cancelled during</span>
+                <span class="comment">// shutdown. Consume the ref-count and return.</span>
+                <span class="ident">next</span>.<span class="ident">ref_dec</span>();
+                <span class="kw">if</span> <span class="ident">next</span>.<span class="ident">ref_count</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+                    <span class="ident">action</span> <span class="op">=</span> <span class="ident">TransitionToRunning::Dealloc</span>;
+                } <span class="kw">else</span> {
+                    <span class="ident">action</span> <span class="op">=</span> <span class="ident">TransitionToRunning::Failed</span>;
+                }
+            } <span class="kw">else</span> {
+                <span class="comment">// We are able to lock the RUNNING bit.</span>
+                <span class="ident">next</span>.<span class="ident">set_running</span>();
+                <span class="ident">next</span>.<span class="ident">unset_notified</span>();
 
-            <span class="ident">next</span>.<span class="ident">set_running</span>();
-            <span class="ident">next</span>.<span class="ident">unset_notified</span>();
-            <span class="prelude-val">Some</span>(<span class="ident">next</span>)
+                <span class="kw">if</span> <span class="ident">next</span>.<span class="ident">is_cancelled</span>() {
+                    <span class="ident">action</span> <span class="op">=</span> <span class="ident">TransitionToRunning::Cancelled</span>;
+                } <span class="kw">else</span> {
+                    <span class="ident">action</span> <span class="op">=</span> <span class="ident">TransitionToRunning::Success</span>;
+                }
+            }
+            (<span class="ident">action</span>, <span class="prelude-val">Some</span>(<span class="ident">next</span>))
         })
     }
 
     <span class="doccomment">/// Transitions the task from `Running` -&gt; `Idle`.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns `Ok` if the transition to `Idle` is successful, `Err` otherwise.</span>
-    <span class="doccomment">/// In both cases, a snapshot of the state from **after** the transition is</span>
-    <span class="doccomment">/// returned.</span>
-    <span class="doccomment">///</span>
+    <span class="doccomment">/// Returns `true` if the transition to `Idle` is successful, `false` otherwise.</span>
     <span class="doccomment">/// The transition to `Idle` fails if the task has been flagged to be</span>
     <span class="doccomment">/// cancelled.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">transition_to_idle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">UpdateResult</span> {
-        <span class="self">self</span>.<span class="ident">fetch_update</span>(<span class="op">|</span><span class="ident">curr</span><span class="op">|</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">transition_to_idle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TransitionToIdle</span> {
+        <span class="self">self</span>.<span class="ident">fetch_update_action</span>(<span class="op">|</span><span class="ident">curr</span><span class="op">|</span> {
             <span class="macro">assert!</span>(<span class="ident">curr</span>.<span class="ident">is_running</span>());
 
             <span class="kw">if</span> <span class="ident">curr</span>.<span class="ident">is_cancelled</span>() {
-                <span class="kw">return</span> <span class="prelude-val">None</span>;
+                <span class="kw">return</span> (<span class="ident">TransitionToIdle::Cancelled</span>, <span class="prelude-val">None</span>);
             }
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">next</span> <span class="op">=</span> <span class="ident">curr</span>;
+            <span class="kw">let</span> <span class="ident">action</span>;
             <span class="ident">next</span>.<span class="ident">unset_running</span>();
 
-            <span class="kw">if</span> <span class="ident">next</span>.<span class="ident">is_notified</span>() {
-                <span class="comment">// The caller needs to schedule the task. To do this, it needs a</span>
-                <span class="comment">// waker. The waker requires a ref count.</span>
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">next</span>.<span class="ident">is_notified</span>() {
+                <span class="comment">// Polling the future consumes the ref-count of the Notified.</span>
+                <span class="ident">next</span>.<span class="ident">ref_dec</span>();
+                <span class="kw">if</span> <span class="ident">next</span>.<span class="ident">ref_count</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+                    <span class="ident">action</span> <span class="op">=</span> <span class="ident">TransitionToIdle::OkDealloc</span>;
+                } <span class="kw">else</span> {
+                    <span class="ident">action</span> <span class="op">=</span> <span class="ident">TransitionToIdle::Ok</span>;
+                }
+            } <span class="kw">else</span> {
+                <span class="comment">// The caller will schedule a new notification, so we create a</span>
+                <span class="comment">// new ref-count for the notification. Our own ref-count is kept</span>
+                <span class="comment">// for now, and the caller will drop it shortly.</span>
                 <span class="ident">next</span>.<span class="ident">ref_inc</span>();
+                <span class="ident">action</span> <span class="op">=</span> <span class="ident">TransitionToIdle::OkNotified</span>;
             }
 
-            <span class="prelude-val">Some</span>(<span class="ident">next</span>)
+            (<span class="ident">action</span>, <span class="prelude-val">Some</span>(<span class="ident">next</span>))
         })
     }
 
@@ -595,47 +787,119 @@
     }
 
     <span class="doccomment">/// Transition from `Complete` -&gt; `Terminal`, decrementing the reference</span>
-    <span class="doccomment">/// count by 1.</span>
+    <span class="doccomment">/// count the specified number of times.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// When `ref_dec` is set, an additional ref count decrement is performed.</span>
-    <span class="doccomment">/// This is used to batch atomic ops when possible.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">transition_to_terminal</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">complete</span>: <span class="ident">bool</span>, <span class="ident">ref_dec</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Snapshot</span> {
-        <span class="self">self</span>.<span class="ident">fetch_update</span>(<span class="op">|</span><span class="kw-2">mut</span> <span class="ident">snapshot</span><span class="op">|</span> {
-            <span class="kw">if</span> <span class="ident">complete</span> {
-                <span class="ident">snapshot</span>.<span class="ident">set_complete</span>();
-            } <span class="kw">else</span> {
-                <span class="macro">assert!</span>(<span class="ident">snapshot</span>.<span class="ident">is_complete</span>());
-            }
-
-            <span class="comment">// Decrement the primary handle</span>
-            <span class="ident">snapshot</span>.<span class="ident">ref_dec</span>();
-
-            <span class="kw">if</span> <span class="ident">ref_dec</span> {
-                <span class="comment">// Decrement a second time</span>
-                <span class="ident">snapshot</span>.<span class="ident">ref_dec</span>();
-            }
-
-            <span class="prelude-val">Some</span>(<span class="ident">snapshot</span>)
-        })
-        .<span class="ident">unwrap</span>()
+    <span class="doccomment">/// Returns true if the task should be deallocated.</span>
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">transition_to_terminal</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">count</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="kw">let</span> <span class="ident">prev</span> <span class="op">=</span> <span class="ident">Snapshot</span>(<span class="self">self</span>.<span class="ident">val</span>.<span class="ident">fetch_sub</span>(<span class="ident">count</span> <span class="op">*</span> <span class="ident">REF_ONE</span>, <span class="ident">AcqRel</span>));
+        <span class="macro">assert!</span>(
+            <span class="ident">prev</span>.<span class="ident">ref_count</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">count</span>,
+            <span class="string">&quot;current: {}, sub: {}&quot;</span>,
+            <span class="ident">prev</span>.<span class="ident">ref_count</span>(),
+            <span class="ident">count</span>
+        );
+        <span class="ident">prev</span>.<span class="ident">ref_count</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">count</span>
     }
 
     <span class="doccomment">/// Transitions the state to `NOTIFIED`.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns `true` if the task needs to be submitted to the pool for</span>
-    <span class="doccomment">/// execution</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">transition_to_notified</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="kw">let</span> <span class="ident">prev</span> <span class="op">=</span> <span class="ident">Snapshot</span>(<span class="self">self</span>.<span class="ident">val</span>.<span class="ident">fetch_or</span>(<span class="ident">NOTIFIED</span>, <span class="ident">AcqRel</span>));
-        <span class="ident">prev</span>.<span class="ident">will_need_queueing</span>()
+    <span class="doccomment">/// If no task needs to be submitted, a ref-count is consumed.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If a task needs to be submitted, the ref-count is incremented for the</span>
+    <span class="doccomment">/// new Notified.</span>
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">transition_to_notified_by_val</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TransitionToNotifiedByVal</span> {
+        <span class="self">self</span>.<span class="ident">fetch_update_action</span>(<span class="op">|</span><span class="kw-2">mut</span> <span class="ident">snapshot</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">action</span>;
+
+            <span class="kw">if</span> <span class="ident">snapshot</span>.<span class="ident">is_running</span>() {
+                <span class="comment">// If the task is running, we mark it as notified, but we should</span>
+                <span class="comment">// not submit anything as the thread currently running the</span>
+                <span class="comment">// future is responsible for that.</span>
+                <span class="ident">snapshot</span>.<span class="ident">set_notified</span>();
+                <span class="ident">snapshot</span>.<span class="ident">ref_dec</span>();
+
+                <span class="comment">// The thread that set the running bit also holds a ref-count.</span>
+                <span class="macro">assert!</span>(<span class="ident">snapshot</span>.<span class="ident">ref_count</span>() <span class="op">&gt;</span> <span class="number">0</span>);
+
+                <span class="ident">action</span> <span class="op">=</span> <span class="ident">TransitionToNotifiedByVal::DoNothing</span>;
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">snapshot</span>.<span class="ident">is_complete</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">snapshot</span>.<span class="ident">is_notified</span>() {
+                <span class="comment">// We do not need to submit any notifications, but we have to</span>
+                <span class="comment">// decrement the ref-count.</span>
+                <span class="ident">snapshot</span>.<span class="ident">ref_dec</span>();
+
+                <span class="kw">if</span> <span class="ident">snapshot</span>.<span class="ident">ref_count</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+                    <span class="ident">action</span> <span class="op">=</span> <span class="ident">TransitionToNotifiedByVal::Dealloc</span>;
+                } <span class="kw">else</span> {
+                    <span class="ident">action</span> <span class="op">=</span> <span class="ident">TransitionToNotifiedByVal::DoNothing</span>;
+                }
+            } <span class="kw">else</span> {
+                <span class="comment">// We create a new notified that we can submit. The caller</span>
+                <span class="comment">// retains ownership of the ref-count they passed in.</span>
+                <span class="ident">snapshot</span>.<span class="ident">set_notified</span>();
+                <span class="ident">snapshot</span>.<span class="ident">ref_inc</span>();
+                <span class="ident">action</span> <span class="op">=</span> <span class="ident">TransitionToNotifiedByVal::Submit</span>;
+            }
+
+            (<span class="ident">action</span>, <span class="prelude-val">Some</span>(<span class="ident">snapshot</span>))
+        })
     }
 
-    <span class="doccomment">/// Set the cancelled bit and transition the state to `NOTIFIED`.</span>
+    <span class="doccomment">/// Transitions the state to `NOTIFIED`.</span>
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">transition_to_notified_by_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TransitionToNotifiedByRef</span> {
+        <span class="self">self</span>.<span class="ident">fetch_update_action</span>(<span class="op">|</span><span class="kw-2">mut</span> <span class="ident">snapshot</span><span class="op">|</span> {
+            <span class="kw">if</span> <span class="ident">snapshot</span>.<span class="ident">is_complete</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">snapshot</span>.<span class="ident">is_notified</span>() {
+                <span class="comment">// There is nothing to do in this case.</span>
+                (<span class="ident">TransitionToNotifiedByRef::DoNothing</span>, <span class="prelude-val">None</span>)
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">snapshot</span>.<span class="ident">is_running</span>() {
+                <span class="comment">// If the task is running, we mark it as notified, but we should</span>
+                <span class="comment">// not submit as the thread currently running the future is</span>
+                <span class="comment">// responsible for that.</span>
+                <span class="ident">snapshot</span>.<span class="ident">set_notified</span>();
+                (<span class="ident">TransitionToNotifiedByRef::DoNothing</span>, <span class="prelude-val">Some</span>(<span class="ident">snapshot</span>))
+            } <span class="kw">else</span> {
+                <span class="comment">// The task is idle and not notified. We should submit a</span>
+                <span class="comment">// notification.</span>
+                <span class="ident">snapshot</span>.<span class="ident">set_notified</span>();
+                <span class="ident">snapshot</span>.<span class="ident">ref_inc</span>();
+                (<span class="ident">TransitionToNotifiedByRef::Submit</span>, <span class="prelude-val">Some</span>(<span class="ident">snapshot</span>))
+            }
+        })
+    }
+
+    <span class="doccomment">/// Set the cancelled bit and transition the state to `NOTIFIED` if idle.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns `true` if the task needs to be submitted to the pool for</span>
     <span class="doccomment">/// execution</span>
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">transition_to_notified_and_cancel</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="kw">let</span> <span class="ident">prev</span> <span class="op">=</span> <span class="ident">Snapshot</span>(<span class="self">self</span>.<span class="ident">val</span>.<span class="ident">fetch_or</span>(<span class="ident">NOTIFIED</span> <span class="op">|</span> <span class="ident">CANCELLED</span>, <span class="ident">AcqRel</span>));
-        <span class="ident">prev</span>.<span class="ident">will_need_queueing</span>()
+        <span class="self">self</span>.<span class="ident">fetch_update_action</span>(<span class="op">|</span><span class="kw-2">mut</span> <span class="ident">snapshot</span><span class="op">|</span> {
+            <span class="kw">if</span> <span class="ident">snapshot</span>.<span class="ident">is_cancelled</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">snapshot</span>.<span class="ident">is_complete</span>() {
+                <span class="comment">// Aborts to completed or cancelled tasks are no-ops.</span>
+                (<span class="bool-val">false</span>, <span class="prelude-val">None</span>)
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">snapshot</span>.<span class="ident">is_running</span>() {
+                <span class="comment">// If the task is running, we mark it as cancelled. The thread</span>
+                <span class="comment">// running the task will notice the cancelled bit when it</span>
+                <span class="comment">// stops polling and it will kill the task.</span>
+                <span class="comment">//</span>
+                <span class="comment">// The set_notified() call is not strictly necessary but it will</span>
+                <span class="comment">// in some cases let a wake_by_ref call return without having</span>
+                <span class="comment">// to perform a compare_exchange.</span>
+                <span class="ident">snapshot</span>.<span class="ident">set_notified</span>();
+                <span class="ident">snapshot</span>.<span class="ident">set_cancelled</span>();
+                (<span class="bool-val">false</span>, <span class="prelude-val">Some</span>(<span class="ident">snapshot</span>))
+            } <span class="kw">else</span> {
+                <span class="comment">// The task is idle. We set the cancelled and notified bits and</span>
+                <span class="comment">// submit a notification if the notified bit was not already</span>
+                <span class="comment">// set.</span>
+                <span class="ident">snapshot</span>.<span class="ident">set_cancelled</span>();
+                <span class="kw">if</span> <span class="op">!</span><span class="ident">snapshot</span>.<span class="ident">is_notified</span>() {
+                    <span class="ident">snapshot</span>.<span class="ident">set_notified</span>();
+                    <span class="ident">snapshot</span>.<span class="ident">ref_inc</span>();
+                    (<span class="bool-val">true</span>, <span class="prelude-val">Some</span>(<span class="ident">snapshot</span>))
+                } <span class="kw">else</span> {
+                    (<span class="bool-val">false</span>, <span class="prelude-val">Some</span>(<span class="ident">snapshot</span>))
+                }
+            }
+        })
     }
 
     <span class="doccomment">/// Set the `CANCELLED` bit and attempt to transition to `Running`.</span>
@@ -649,17 +913,11 @@
 
             <span class="kw">if</span> <span class="ident">snapshot</span>.<span class="ident">is_idle</span>() {
                 <span class="ident">snapshot</span>.<span class="ident">set_running</span>();
-
-                <span class="kw">if</span> <span class="ident">snapshot</span>.<span class="ident">is_notified</span>() {
-                    <span class="comment">// If the task is idle and notified, this indicates the task is</span>
-                    <span class="comment">// in the run queue and is considered owned by the scheduler.</span>
-                    <span class="comment">// The shutdown operation claims ownership of the task, which</span>
-                    <span class="comment">// means we need to assign an additional ref-count to the task</span>
-                    <span class="comment">// in the queue.</span>
-                    <span class="ident">snapshot</span>.<span class="ident">ref_inc</span>();
-                }
             }
 
+            <span class="comment">// If the task was not idle, the thread currently running the task</span>
+            <span class="comment">// will notice the cancelled bit and cancel it once the poll</span>
+            <span class="comment">// completes.</span>
             <span class="ident">snapshot</span>.<span class="ident">set_cancelled</span>();
             <span class="prelude-val">Some</span>(<span class="ident">snapshot</span>)
         });
@@ -775,7 +1033,37 @@
     <span class="doccomment">/// Returns `true` if the task should be released.</span>
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">ref_dec</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">let</span> <span class="ident">prev</span> <span class="op">=</span> <span class="ident">Snapshot</span>(<span class="self">self</span>.<span class="ident">val</span>.<span class="ident">fetch_sub</span>(<span class="ident">REF_ONE</span>, <span class="ident">AcqRel</span>));
+        <span class="macro">assert!</span>(<span class="ident">prev</span>.<span class="ident">ref_count</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">1</span>);
         <span class="ident">prev</span>.<span class="ident">ref_count</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span>
+    }
+
+    <span class="doccomment">/// Returns `true` if the task should be released.</span>
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">ref_dec_twice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="kw">let</span> <span class="ident">prev</span> <span class="op">=</span> <span class="ident">Snapshot</span>(<span class="self">self</span>.<span class="ident">val</span>.<span class="ident">fetch_sub</span>(<span class="number">2</span> <span class="op">*</span> <span class="ident">REF_ONE</span>, <span class="ident">AcqRel</span>));
+        <span class="macro">assert!</span>(<span class="ident">prev</span>.<span class="ident">ref_count</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">2</span>);
+        <span class="ident">prev</span>.<span class="ident">ref_count</span>() <span class="op">=</span><span class="op">=</span> <span class="number">2</span>
+    }
+
+    <span class="kw">fn</span> <span class="ident">fetch_update_action</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span>
+    <span class="kw">where</span>
+        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">Snapshot</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">T</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Snapshot</span><span class="op">&gt;</span>),
+    {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">curr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">load</span>();
+
+        <span class="kw">loop</span> {
+            <span class="kw">let</span> (<span class="ident">output</span>, <span class="ident">next</span>) <span class="op">=</span> <span class="ident">f</span>(<span class="ident">curr</span>);
+            <span class="kw">let</span> <span class="ident">next</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">next</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">next</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">next</span>,
+                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">output</span>,
+            };
+
+            <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">val</span>.<span class="ident">compare_exchange</span>(<span class="ident">curr</span>.<span class="number">0</span>, <span class="ident">next</span>.<span class="number">0</span>, <span class="ident">AcqRel</span>, <span class="ident">Acquire</span>);
+
+            <span class="kw">match</span> <span class="ident">res</span> {
+                <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">output</span>,
+                <span class="prelude-val">Err</span>(<span class="ident">actual</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">curr</span> <span class="op">=</span> <span class="ident">Snapshot</span>(<span class="ident">actual</span>),
+            }
+        }
     }
 
     <span class="kw">fn</span> <span class="ident">fetch_update</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Snapshot</span>, <span class="ident">Snapshot</span><span class="op">&gt;</span>
@@ -817,6 +1105,10 @@
         <span class="self">self</span>.<span class="number">0</span> <span class="op">&amp;=</span> <span class="op">!</span><span class="ident">NOTIFIED</span>
     }
 
+    <span class="kw">fn</span> <span class="ident">set_notified</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="number">0</span> <span class="op">|</span><span class="op">=</span> <span class="ident">NOTIFIED</span>
+    }
+
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">is_running</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="number">0</span> <span class="op">&amp;</span> <span class="ident">RUNNING</span> <span class="op">=</span><span class="op">=</span> <span class="ident">RUNNING</span>
     }
@@ -835,10 +1127,6 @@
 
     <span class="kw">fn</span> <span class="ident">set_cancelled</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
         <span class="self">self</span>.<span class="number">0</span> <span class="op">|</span><span class="op">=</span> <span class="ident">CANCELLED</span>;
-    }
-
-    <span class="kw">fn</span> <span class="ident">set_complete</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="number">0</span> <span class="op">|</span><span class="op">=</span> <span class="ident">COMPLETE</span>;
     }
 
     <span class="doccomment">/// Returns `true` if the task&#39;s future has completed execution.</span>
@@ -878,10 +1166,6 @@
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">ref_dec</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
         <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">ref_count</span>() <span class="op">&gt;</span> <span class="number">0</span>);
         <span class="self">self</span>.<span class="number">0</span> <span class="op">-</span><span class="op">=</span> <span class="ident">REF_ONE</span>
-    }
-
-    <span class="kw">fn</span> <span class="ident">will_need_queueing</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="op">!</span><span class="self">self</span>.<span class="ident">is_notified</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">is_idle</span>()
     }
 }
 

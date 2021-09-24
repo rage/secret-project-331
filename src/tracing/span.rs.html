@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;tracing-0.1.26&#x2F;src&#x2F;span.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>span.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../tracing/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;tokio-rs&#x2F;tracing&#x2F;master&#x2F;assets&#x2F;logo-type.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;tracing-0.1.28&#x2F;src&#x2F;span.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>span.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../tracing/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;tokio-rs&#x2F;tracing&#x2F;master&#x2F;assets&#x2F;logo-type.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -1524,6 +1524,122 @@
 <span id="1524">1524</span>
 <span id="1525">1525</span>
 <span id="1526">1526</span>
+<span id="1527">1527</span>
+<span id="1528">1528</span>
+<span id="1529">1529</span>
+<span id="1530">1530</span>
+<span id="1531">1531</span>
+<span id="1532">1532</span>
+<span id="1533">1533</span>
+<span id="1534">1534</span>
+<span id="1535">1535</span>
+<span id="1536">1536</span>
+<span id="1537">1537</span>
+<span id="1538">1538</span>
+<span id="1539">1539</span>
+<span id="1540">1540</span>
+<span id="1541">1541</span>
+<span id="1542">1542</span>
+<span id="1543">1543</span>
+<span id="1544">1544</span>
+<span id="1545">1545</span>
+<span id="1546">1546</span>
+<span id="1547">1547</span>
+<span id="1548">1548</span>
+<span id="1549">1549</span>
+<span id="1550">1550</span>
+<span id="1551">1551</span>
+<span id="1552">1552</span>
+<span id="1553">1553</span>
+<span id="1554">1554</span>
+<span id="1555">1555</span>
+<span id="1556">1556</span>
+<span id="1557">1557</span>
+<span id="1558">1558</span>
+<span id="1559">1559</span>
+<span id="1560">1560</span>
+<span id="1561">1561</span>
+<span id="1562">1562</span>
+<span id="1563">1563</span>
+<span id="1564">1564</span>
+<span id="1565">1565</span>
+<span id="1566">1566</span>
+<span id="1567">1567</span>
+<span id="1568">1568</span>
+<span id="1569">1569</span>
+<span id="1570">1570</span>
+<span id="1571">1571</span>
+<span id="1572">1572</span>
+<span id="1573">1573</span>
+<span id="1574">1574</span>
+<span id="1575">1575</span>
+<span id="1576">1576</span>
+<span id="1577">1577</span>
+<span id="1578">1578</span>
+<span id="1579">1579</span>
+<span id="1580">1580</span>
+<span id="1581">1581</span>
+<span id="1582">1582</span>
+<span id="1583">1583</span>
+<span id="1584">1584</span>
+<span id="1585">1585</span>
+<span id="1586">1586</span>
+<span id="1587">1587</span>
+<span id="1588">1588</span>
+<span id="1589">1589</span>
+<span id="1590">1590</span>
+<span id="1591">1591</span>
+<span id="1592">1592</span>
+<span id="1593">1593</span>
+<span id="1594">1594</span>
+<span id="1595">1595</span>
+<span id="1596">1596</span>
+<span id="1597">1597</span>
+<span id="1598">1598</span>
+<span id="1599">1599</span>
+<span id="1600">1600</span>
+<span id="1601">1601</span>
+<span id="1602">1602</span>
+<span id="1603">1603</span>
+<span id="1604">1604</span>
+<span id="1605">1605</span>
+<span id="1606">1606</span>
+<span id="1607">1607</span>
+<span id="1608">1608</span>
+<span id="1609">1609</span>
+<span id="1610">1610</span>
+<span id="1611">1611</span>
+<span id="1612">1612</span>
+<span id="1613">1613</span>
+<span id="1614">1614</span>
+<span id="1615">1615</span>
+<span id="1616">1616</span>
+<span id="1617">1617</span>
+<span id="1618">1618</span>
+<span id="1619">1619</span>
+<span id="1620">1620</span>
+<span id="1621">1621</span>
+<span id="1622">1622</span>
+<span id="1623">1623</span>
+<span id="1624">1624</span>
+<span id="1625">1625</span>
+<span id="1626">1626</span>
+<span id="1627">1627</span>
+<span id="1628">1628</span>
+<span id="1629">1629</span>
+<span id="1630">1630</span>
+<span id="1631">1631</span>
+<span id="1632">1632</span>
+<span id="1633">1633</span>
+<span id="1634">1634</span>
+<span id="1635">1635</span>
+<span id="1636">1636</span>
+<span id="1637">1637</span>
+<span id="1638">1638</span>
+<span id="1639">1639</span>
+<span id="1640">1640</span>
+<span id="1641">1641</span>
+<span id="1642">1642</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Spans represent periods of time in which a program was executing in a</span>
 <span class="doccomment">//! particular context.</span>
@@ -1602,8 +1718,6 @@
 <span class="doccomment">//! // Dropping the `_enter` guard will exit the span.</span>
 <span class="doccomment">//!```</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! &lt;div class=&quot;information&quot;&gt;</span>
-<span class="doccomment">//!     &lt;div class=&quot;tooltip compile_fail&quot; style=&quot;&quot;&gt;&amp;#x26a0; &amp;#xfe0f;&lt;span class=&quot;tooltiptext&quot;&gt;Warning&lt;/span&gt;&lt;/div&gt;</span>
 <span class="doccomment">//! &lt;/div&gt;&lt;div class=&quot;example-wrap&quot; style=&quot;display:inline-block&quot;&gt;&lt;pre class=&quot;compile_fail&quot; style=&quot;white-space:normal;font:inherit;&quot;&gt;</span>
 <span class="doccomment">//!     &lt;strong&gt;Warning&lt;/strong&gt;: In asynchronous code that uses async/await syntax,</span>
 <span class="doccomment">//!     &lt;code&gt;Span::enter&lt;/code&gt; may produce incorrect traces if the returned drop</span>
@@ -1648,16 +1762,12 @@
 <span class="doccomment">//! });</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! &lt;div class=&quot;information&quot;&gt;</span>
-<span class="doccomment">//!     &lt;div class=&quot;tooltip ignore&quot; style=&quot;&quot;&gt;ⓘ&lt;span class=&quot;tooltiptext&quot;&gt;Note&lt;/span&gt;&lt;/div&gt;</span>
-<span class="doccomment">//! &lt;/div&gt;</span>
-<span class="doccomment">//! &lt;div class=&quot;example-wrap&quot; style=&quot;display:inline-block&quot;&gt;</span>
 <span class="doccomment">//! &lt;pre class=&quot;ignore&quot; style=&quot;white-space:normal;font:inherit;&quot;&gt;</span>
-<span class="doccomment">//! &lt;strong&gt;Note&lt;/strong&gt;: Since entering a span takes &lt;code&gt;&amp;self&lt;/code&lt;, and</span>
-<span class="doccomment">//! &lt;code&gt;Span&lt;/code&gt;s are &lt;code&gt;Clone&lt;/code&gt;, &lt;code&gt;Send&lt;/code&gt;, and</span>
-<span class="doccomment">//! &lt;code&gt;Sync&lt;/code&gt;, it is entirely valid for multiple threads to enter the</span>
-<span class="doccomment">//! same span concurrently.</span>
-<span class="doccomment">//! &lt;/pre&gt;&lt;/div&gt;</span>
+<span class="doccomment">//!     &lt;strong&gt;Note&lt;/strong&gt;: Since entering a span takes &lt;code&gt;&amp;self&lt;/code&gt;, and</span>
+<span class="doccomment">//!     &lt;code&gt;Span&lt;/code&gt;s are &lt;code&gt;Clone&lt;/code&gt;, &lt;code&gt;Send&lt;/code&gt;, and</span>
+<span class="doccomment">//!     &lt;code&gt;Sync&lt;/code&gt;, it is entirely valid for multiple threads to enter the</span>
+<span class="doccomment">//!     same span concurrently.</span>
+<span class="doccomment">//! &lt;/pre&gt;</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ## Span Relationships</span>
 <span class="doccomment">//!</span>
@@ -2137,9 +2247,7 @@
     <span class="doccomment">/// **Warning**: in asynchronous code that uses [async/await syntax][syntax],</span>
     <span class="doccomment">/// `Span::enter` should be used very carefully or avoided entirely. Holding</span>
     <span class="doccomment">/// the drop guard returned by `Span::enter` across `.await` points will</span>
-    <span class="doccomment">/// result in incorrect traces.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// For example,</span>
+    <span class="doccomment">/// result in incorrect traces. For example,</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">/// # use tracing::info_span;</span>
@@ -2183,7 +2291,7 @@
     <span class="doccomment">///       // This is okay! The span has already been exited before we reach</span>
     <span class="doccomment">///       // the await point.</span>
     <span class="doccomment">///       some_other_async_function(some_value).await;</span>
-    <span class="doccomment">///  </span>
+    <span class="doccomment">///</span>
     <span class="doccomment">///       // ...</span>
     <span class="doccomment">///   }</span>
     <span class="doccomment">///   ```</span>
@@ -2192,7 +2300,7 @@
     <span class="doccomment">///   attaching a span to a future (async function or block). This will</span>
     <span class="doccomment">///   enter the span _every_ time the future is polled, and exit it whenever</span>
     <span class="doccomment">///   the future yields.</span>
-    <span class="doccomment">///   </span>
+    <span class="doccomment">///</span>
     <span class="doccomment">///   `Instrument` can be used with an async block inside an async function:</span>
     <span class="doccomment">///   ```ignore</span>
     <span class="doccomment">///   # use tracing::info_span;</span>
@@ -2239,13 +2347,13 @@
     <span class="doccomment">///   # async fn some_other_async_function() {}</span>
     <span class="doccomment">///   #[tracing::instrument(level = &quot;info&quot;)]</span>
     <span class="doccomment">///   async fn my_async_function() {</span>
-    <span class="doccomment">///   </span>
+    <span class="doccomment">///</span>
     <span class="doccomment">///       // This is correct! If we yield here, the span will be exited,</span>
     <span class="doccomment">///       // and re-entered when we resume.</span>
     <span class="doccomment">///       some_other_async_function().await;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">///       // ...</span>
-    <span class="doccomment">///    </span>
+    <span class="doccomment">///</span>
     <span class="doccomment">///   }</span>
     <span class="doccomment">///   ```</span>
     <span class="doccomment">///</span>
@@ -2323,6 +2431,14 @@
     <span class="doccomment">/// Enters this span, consuming it and returning a [guard][`EnteredSpan`]</span>
     <span class="doccomment">/// that will exit the span when dropped.</span>
     <span class="doccomment">///</span>
+    <span class="doccomment">/// &lt;pre class=&quot;compile_fail&quot; style=&quot;white-space:normal;font:inherit;&quot;&gt;</span>
+    <span class="doccomment">///     &lt;strong&gt;Warning&lt;/strong&gt;: In asynchronous code that uses async/await syntax,</span>
+    <span class="doccomment">///     &lt;code&gt;Span::entered&lt;/code&gt; may produce incorrect traces if the returned drop</span>
+    <span class="doccomment">///     guard is held across an await point. See &lt;a href=&quot;#in-asynchronous-code&quot;&gt;the</span>
+    <span class="doccomment">///     &lt;code&gt;Span::enter&lt;/code&gt; documentation&lt;/a&gt; for details.</span>
+    <span class="doccomment">/// &lt;/pre&gt;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// If this span is enabled by the current subscriber, then this function will</span>
     <span class="doccomment">/// call [`Subscriber::enter`] with the span&#39;s [`Id`], and dropping the guard</span>
     <span class="doccomment">/// will call [`Subscriber::exit`]. If the span is disabled, this does</span>
@@ -2347,25 +2463,13 @@
     <span class="doccomment">/// Furthermore, `entered` may be used when the span must be stored in some</span>
     <span class="doccomment">/// other struct or be passed to a function while remaining entered.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// &lt;div class=&quot;information&quot;&gt;</span>
-    <span class="doccomment">///     &lt;div class=&quot;tooltip ignore&quot; style=&quot;&quot;&gt;ⓘ&lt;span class=&quot;tooltiptext&quot;&gt;Note&lt;/span&gt;&lt;/div&gt;</span>
-    <span class="doccomment">/// &lt;/div&gt;</span>
-    <span class="doccomment">/// &lt;div class=&quot;example-wrap&quot; style=&quot;display:inline-block&quot;&gt;</span>
     <span class="doccomment">/// &lt;pre class=&quot;ignore&quot; style=&quot;white-space:normal;font:inherit;&quot;&gt;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// **Note**: The returned [`EnteredSpan`] guard does not</span>
-    <span class="doccomment">/// implement `Send`. Dropping the guard will exit *this* span,</span>
-    <span class="doccomment">/// and if the guard is sent to another thread and dropped there, that thread may</span>
-    <span class="doccomment">/// never have entered this span. Thus, `EnteredSpan`s should not be sent</span>
-    <span class="doccomment">/// between threads.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// &lt;/pre&gt;&lt;/div&gt;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// **Warning**: in asynchronous code that uses [async/await syntax][syntax],</span>
-    <span class="doccomment">/// [`Span::entered`] should be used very carefully or avoided entirely. Holding</span>
-    <span class="doccomment">/// the drop guard returned by `Span::entered` across `.await` points will</span>
-    <span class="doccomment">/// result in incorrect traces. See the documentation for the</span>
-    <span class="doccomment">/// [`Span::enter`] method for details.</span>
+    <span class="doccomment">///     &lt;strong&gt;Note&lt;/strong&gt;: The returned &lt;a href=&quot;../struct.EnteredSpan.html&quot;&gt;</span>
+    <span class="doccomment">///     &lt;code&gt;EnteredSpan&lt;/a&gt;&lt;/code&gt; guard does not implement &lt;code&gt;Send&lt;/code&gt;.</span>
+    <span class="doccomment">///     Dropping the guard will exit &lt;em&gt;this&lt;/em&gt; span, and if the guard is sent</span>
+    <span class="doccomment">///     to another thread and dropped there, that thread may never have entered</span>
+    <span class="doccomment">///     this span. Thus, &lt;code&gt;EnteredSpan&lt;/code&gt;s should not be sent between threads.</span>
+    <span class="doccomment">/// &lt;/pre&gt;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [syntax]: https://rust-lang.github.io/async-book/01_getting_started/04_async_await_primer.html</span>
     <span class="doccomment">///</span>
@@ -2437,6 +2541,136 @@
         }
     }
 
+    <span class="doccomment">/// Returns this span, if it was [enabled] by the current [`Subscriber`], or</span>
+    <span class="doccomment">/// the [current span] (whose lexical distance may be further than expected),</span>
+    <span class="doccomment">///  if this span [is disabled].</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This method can be useful when propagating spans to spawned threads or</span>
+    <span class="doccomment">/// [async tasks]. Consider the following:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// let _parent_span = tracing::info_span!(&quot;parent&quot;).entered();</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// // ...</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let child_span = tracing::debug_span!(&quot;child&quot;);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// std::thread::spawn(move || {</span>
+    <span class="doccomment">///     let _entered = child_span.entered();</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     tracing::info!(&quot;spawned a thread!&quot;);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     // ...</span>
+    <span class="doccomment">/// });</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If the current [`Subscriber`] enables the [`DEBUG`] level, then both</span>
+    <span class="doccomment">/// the &quot;parent&quot; and &quot;child&quot; spans will be enabled. Thus, when the &quot;spawaned</span>
+    <span class="doccomment">/// a thread!&quot; event occurs, it will be inside of the &quot;child&quot; span. Because</span>
+    <span class="doccomment">/// &quot;parent&quot; is the parent of &quot;child&quot;, the event will _also_ be inside of</span>
+    <span class="doccomment">/// &quot;parent&quot;.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// However, if the [`Subscriber`] only enables the [`INFO`] level, the &quot;child&quot;</span>
+    <span class="doccomment">/// span will be disabled. When the thread is spawned, the</span>
+    <span class="doccomment">/// `child_span.entered()` call will do nothing, since &quot;child&quot; is not</span>
+    <span class="doccomment">/// enabled. In this case, the &quot;spawned a thread!&quot; event occurs outside of</span>
+    <span class="doccomment">/// *any* span, since the &quot;child&quot; span was responsible for propagating its</span>
+    <span class="doccomment">/// parent to the spawned thread.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If this is not the desired behavior, `Span::or_current` can be used to</span>
+    <span class="doccomment">/// ensure that the &quot;parent&quot; span is propagated in both cases, either as a</span>
+    <span class="doccomment">/// parent of &quot;child&quot; _or_ directly. For example:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// let _parent_span = tracing::info_span!(&quot;parent&quot;).entered();</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// // ...</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// // If DEBUG is enabled, then &quot;child&quot; will be enabled, and `or_current`</span>
+    <span class="doccomment">/// // returns &quot;child&quot;. Otherwise, if DEBUG is not enabled, &quot;child&quot; will be</span>
+    <span class="doccomment">/// // disabled, and `or_current` returns &quot;parent&quot;.</span>
+    <span class="doccomment">/// let child_span = tracing::debug_span!(&quot;child&quot;).or_current();</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// std::thread::spawn(move || {</span>
+    <span class="doccomment">///     let _entered = child_span.entered();</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     tracing::info!(&quot;spawned a thread!&quot;);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     // ...</span>
+    <span class="doccomment">/// });</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// When spawning [asynchronous tasks][async tasks], `Span::or_current` can</span>
+    <span class="doccomment">/// be used similarly, in combination with [`instrument`]:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use tracing::Instrument;</span>
+    <span class="doccomment">/// # // lol</span>
+    <span class="doccomment">/// # mod tokio {</span>
+    <span class="doccomment">/// #     pub(super) fn spawn(_: impl std::future::Future) {}</span>
+    <span class="doccomment">/// # }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let _parent_span = tracing::info_span!(&quot;parent&quot;).entered();</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// // ...</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let child_span = tracing::debug_span!(&quot;child&quot;);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// tokio::spawn(</span>
+    <span class="doccomment">///     async {</span>
+    <span class="doccomment">///         tracing::info!(&quot;spawned a task!&quot;);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///         // ...</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     }.instrument(child_span.or_current())</span>
+    <span class="doccomment">/// );</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// In general, `or_current` should be preferred over nesting an</span>
+    <span class="doccomment">/// [`instrument`]  call inside of an [`in_current_span`] call, as using</span>
+    <span class="doccomment">/// `or_current` will be more efficient.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use tracing::Instrument;</span>
+    <span class="doccomment">/// # // lol</span>
+    <span class="doccomment">/// # mod tokio {</span>
+    <span class="doccomment">/// #     pub(super) fn spawn(_: impl std::future::Future) {}</span>
+    <span class="doccomment">/// # }</span>
+    <span class="doccomment">/// async fn my_async_fn() {</span>
+    <span class="doccomment">///     // ...</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let _parent_span = tracing::info_span!(&quot;parent&quot;).entered();</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// // Do this:</span>
+    <span class="doccomment">/// tokio::spawn(</span>
+    <span class="doccomment">///     my_async_fn().instrument(tracing::debug_span!(&quot;child&quot;).or_current())</span>
+    <span class="doccomment">/// );</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// // ...rather than this:</span>
+    <span class="doccomment">/// tokio::spawn(</span>
+    <span class="doccomment">///     my_async_fn()</span>
+    <span class="doccomment">///         .instrument(tracing::debug_span!(&quot;child&quot;))</span>
+    <span class="doccomment">///         .in_current_span()</span>
+    <span class="doccomment">/// );</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [enabled]: crate::Subscriber::enabled</span>
+    <span class="doccomment">/// [`Subscriber`]: crate::Subscriber</span>
+    <span class="doccomment">/// [current span]: Span::current</span>
+    <span class="doccomment">/// [is disabled]: Span::is_disabled</span>
+    <span class="doccomment">/// [`INFO`]: crate::Level::INFO</span>
+    <span class="doccomment">/// [`DEBUG`]: crate::Level::DEBUG</span>
+    <span class="doccomment">/// [async tasks]: std::task</span>
+    <span class="doccomment">/// [`instrument`]: crate::instrument::Instrument::instrument</span>
+    <span class="doccomment">/// [`in_current_span`]: crate::instrument::Instrument::in_current_span</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">or_current</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_disabled</span>() {
+            <span class="kw">return</span> <span class="self">Self</span><span class="ident">::current</span>();
+        }
+        <span class="self">self</span>
+    }
+
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">do_enter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">inner</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">as_ref</span>() {
@@ -2444,8 +2678,8 @@
         }
 
         <span class="macro">if_log_enabled!</span> { <span class="kw">crate</span><span class="ident">::Level::TRACE</span>, {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">meta</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">meta</span> {
-                <span class="self">self</span>.<span class="ident">log</span>(<span class="ident">ACTIVITY_LOG_TARGET</span>, <span class="ident">log::Level::Trace</span>, <span class="macro">format_args!</span>(<span class="string">&quot;-&gt; {}&quot;</span>, <span class="ident">meta</span>.<span class="ident">name</span>()));
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">_meta</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">meta</span> {
+                <span class="self">self</span>.<span class="ident">log</span>(<span class="ident">ACTIVITY_LOG_TARGET</span>, <span class="ident">log::Level::Trace</span>, <span class="macro">format_args!</span>(<span class="string">&quot;-&gt; {}&quot;</span>, <span class="ident">_meta</span>.<span class="ident">name</span>()));
             }
         }}
     }
@@ -2461,7 +2695,7 @@
         }
 
         <span class="macro">if_log_enabled!</span> { <span class="kw">crate</span><span class="ident">::Level::TRACE</span>, {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">_meta</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">meta</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">_meta</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">meta</span> {
                 <span class="self">self</span>.<span class="ident">log</span>(<span class="ident">ACTIVITY_LOG_TARGET</span>, <span class="ident">log::Level::Trace</span>, <span class="macro">format_args!</span>(<span class="string">&quot;&lt;- {}&quot;</span>, <span class="ident">_meta</span>.<span class="ident">name</span>()));
             }
         }}
@@ -2566,17 +2800,15 @@
     <span class="doccomment">/// }</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// &lt;div class=&quot;information&quot;&gt;</span>
-    <span class="doccomment">///     &lt;div class=&quot;tooltip ignore&quot; style=&quot;&quot;&gt;ⓘ&lt;span class=&quot;tooltiptext&quot;&gt;Note&lt;/span&gt;&lt;/div&gt;</span>
-    <span class="doccomment">/// &lt;/div&gt;</span>
-    <span class="doccomment">/// &lt;div class=&quot;example-wrap&quot; style=&quot;display:inline-block&quot;&gt;</span>
     <span class="doccomment">/// &lt;pre class=&quot;ignore&quot; style=&quot;white-space:normal;font:inherit;&quot;&gt;</span>
-    <span class="doccomment">/// &lt;strong&gt;Note&lt;/strong&gt;: The fields associated with a span are part of its</span>
-    <span class="doccomment">/// &lt;a href=&quot;../struct.Metadata.html&quot;&gt;&lt;code&gt;Metadata&lt;/code&gt;&lt;/a&gt;.</span>
-    <span class="doccomment">/// The &lt;a href=&quot;../struct.Metadata.html&quot;&gt;&lt;code&gt;Metadata&lt;/code&gt;&lt;/a&gt;. describing a particular</span>
-    <span class="doccomment">/// span is constructed statically when the span is created and cannot be extended later to</span>
-    <span class="doccomment">/// add new fields. Therefore, you cannot record a value for a field that was not specified</span>
-    <span class="doccomment">/// when the span was created:&lt;/pre&gt;&lt;/div&gt;</span>
+    <span class="doccomment">///     &lt;strong&gt;Note&lt;/strong&gt;: The fields associated with a span are part</span>
+    <span class="doccomment">///     of its &lt;a href=&quot;../struct.Metadata.html&quot;&gt;&lt;code&gt;Metadata&lt;/code&gt;&lt;/a&gt;.</span>
+    <span class="doccomment">///     The &lt;a href=&quot;../struct.Metadata.html&quot;&gt;&lt;code&gt;Metadata&lt;/code&gt;&lt;/a&gt;</span>
+    <span class="doccomment">///     describing a particular span is constructed statically when the span</span>
+    <span class="doccomment">///     is created and cannot be extended later to add new fields. Therefore,</span>
+    <span class="doccomment">///     you cannot record a value for a field that was not specified when the</span>
+    <span class="doccomment">///     span was created:</span>
+    <span class="doccomment">/// &lt;/pre&gt;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">/// use tracing::{trace_span, field};</span>
@@ -2605,7 +2837,7 @@
         <span class="ident">Q</span>: <span class="ident">field::AsField</span>,
         <span class="ident">V</span>: <span class="ident">field::Value</span>,
     {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">meta</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">meta</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">meta</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">meta</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">field</span>) <span class="op">=</span> <span class="ident">field</span>.<span class="ident">as_field</span>(<span class="ident">meta</span>) {
                 <span class="self">self</span>.<span class="ident">record_all</span>(
                     <span class="kw-2">&amp;</span><span class="ident">meta</span>
@@ -2625,7 +2857,7 @@
             <span class="ident">inner</span>.<span class="ident">record</span>(<span class="kw-2">&amp;</span><span class="ident">record</span>);
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">_meta</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">meta</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">_meta</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">meta</span> {
             <span class="macro">if_log_enabled!</span> { <span class="kw-2">*</span><span class="ident">_meta</span>.<span class="ident">level</span>(), {
                 <span class="kw">let</span> <span class="ident">target</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">record</span>.<span class="ident">is_empty</span>() {
                     <span class="ident">LIFECYCLE_LOG_TARGET</span>
@@ -2734,7 +2966,7 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;log&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">log</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">target</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">level</span>: <span class="ident">log::Level</span>, <span class="ident">message</span>: <span class="ident">fmt::Arguments</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">meta</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">meta</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">meta</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">meta</span> {
             <span class="kw">if</span> <span class="macro">level_to_log!</span>(<span class="kw-2">*</span><span class="ident">meta</span>.<span class="ident">level</span>()) <span class="op">&lt;</span><span class="op">=</span> <span class="ident">log::max_level</span>() {
                 <span class="kw">let</span> <span class="ident">logger</span> <span class="op">=</span> <span class="ident">log::logger</span>();
                 <span class="kw">let</span> <span class="ident">log_meta</span> <span class="op">=</span> <span class="ident">log::Metadata::builder</span>().<span class="ident">level</span>(<span class="ident">level</span>).<span class="ident">target</span>(<span class="ident">target</span>).<span class="ident">build</span>();
@@ -2797,7 +3029,7 @@
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Span</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;Span&quot;</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">meta</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">meta</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">meta</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">meta</span> {
             <span class="ident">span</span>.<span class="ident">field</span>(<span class="string">&quot;name&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">meta</span>.<span class="ident">name</span>())
                 .<span class="ident">field</span>(<span class="string">&quot;level&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">meta</span>.<span class="ident">level</span>())
                 .<span class="ident">field</span>(<span class="string">&quot;target&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">meta</span>.<span class="ident">target</span>());
@@ -2867,7 +3099,7 @@
             <span class="ident">subscriber</span>.<span class="ident">try_close</span>(<span class="ident">id</span>.<span class="ident">clone</span>());
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">_meta</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">meta</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">_meta</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">meta</span> {
             <span class="macro">if_log_enabled!</span> { <span class="kw">crate</span><span class="ident">::Level::TRACE</span>, {
                 <span class="self">self</span>.<span class="ident">log</span>(
                     <span class="ident">LIFECYCLE_LOG_TARGET</span>,
@@ -2898,7 +3130,7 @@
     <span class="doccomment">/// returns `Ok(())` if the other span was added as a precedent of this</span>
     <span class="doccomment">/// span, or an error if this was not possible.</span>
     <span class="kw">fn</span> <span class="ident">follows_from</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">from</span>: <span class="kw-2">&amp;</span><span class="ident">Id</span>) {
-        <span class="self">self</span>.<span class="ident">subscriber</span>.<span class="ident">record_follows_from</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">from</span>)
+        <span class="self">self</span>.<span class="ident">subscriber</span>.<span class="ident">record_follows_from</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">id</span>, <span class="ident">from</span>)
     }
 
     <span class="doccomment">/// Returns the span&#39;s ID.</span>

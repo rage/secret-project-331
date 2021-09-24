@@ -14,7 +14,7 @@
     .<span class="ident">with_target</span>(<span class="bool-val">false</span>)
     .<span class="ident">with_timer</span>(<span class="ident">tracing_subscriber::fmt::time::uptime</span>())
     .<span class="ident">with_level</span>(<span class="bool-val">true</span>)
-    <span class="comment">// Set the collector as the default.</span>
+    <span class="comment">// Set the subscriber as the default.</span>
     .<span class="ident">init</span>();</pre></div>
 <p><a href="struct.SubscriberBuilder.html#method.try_init"><code>try_init</code></a> returns an error if the default subscriber could not be set:</p>
 
@@ -23,11 +23,11 @@
 
 <span class="kw">fn</span> <span class="ident">init_subscriber</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Error</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="ident">tracing_subscriber::fmt</span>()
-        <span class="comment">// Configure the collector to emit logs in JSON format.</span>
+        <span class="comment">// Configure the subscriber to emit logs in JSON format.</span>
         .<span class="ident">json</span>()
-        <span class="comment">// Configure the collector to flatten event fields in the output JSON objects.</span>
+        <span class="comment">// Configure the subscriber to flatten event fields in the output JSON objects.</span>
         .<span class="ident">flatten_event</span>(<span class="bool-val">true</span>)
-        <span class="comment">// Set the collector as the default, returning an error if this fails.</span>
+        <span class="comment">// Set the subscriber as the default, returning an error if this fails.</span>
         .<span class="ident">try_init</span>()<span class="question-mark">?</span>;
 
     <span class="prelude-val">Ok</span>(())

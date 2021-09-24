@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;openssl-0.10.35&#x2F;src&#x2F;sha.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>sha.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../openssl/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;openssl-0.10.36&#x2F;src&#x2F;sha.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>sha.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../openssl/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -440,28 +440,13 @@
 <span id="440">440</span>
 <span id="441">441</span>
 <span id="442">442</span>
-<span id="443">443</span>
-<span id="444">444</span>
-<span id="445">445</span>
-<span id="446">446</span>
-<span id="447">447</span>
-<span id="448">448</span>
-<span id="449">449</span>
-<span id="450">450</span>
-<span id="451">451</span>
-<span id="452">452</span>
-<span id="453">453</span>
-<span id="454">454</span>
-<span id="455">455</span>
-<span id="456">456</span>
-<span id="457">457</span>
 </pre><pre class="rust">
 <span class="doccomment">//! The SHA family of hashes.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! SHA, or Secure Hash Algorithms, are a family of cryptographic hashing algorithms published by</span>
 <span class="doccomment">//! the National Institute of Standards and Technology (NIST).  Hash algorithms such as those in</span>
 <span class="doccomment">//! the SHA family are used to map data of an arbitrary size to a fixed-size string of bytes.</span>
-<span class="doccomment">//! As cryptographic hashing algorithms, these mappings have the property of being irreversable.</span>
+<span class="doccomment">//! As cryptographic hashing algorithms, these mappings have the property of being irreversible.</span>
 <span class="doccomment">//! This property makes hash algorithms like these excellent for uses such as verifying the</span>
 <span class="doccomment">//! contents of a file- if you know the hash you expect beforehand, then you can verify that the</span>
 <span class="doccomment">//! data you have is correct if it hashes to the same value.</span>
@@ -483,7 +468,7 @@
 <span class="doccomment">//! println!(&quot;Hashed \&quot;Hello, world\&quot; to {}&quot;, hex::encode(hash));</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! On the other hand, if you already have access to all of the data you woud like to hash, you</span>
+<span class="doccomment">//! On the other hand, if you already have access to all of the data you would like to hash, you</span>
 <span class="doccomment">//! may prefer to use the slightly simpler method of simply calling the hash function corresponding</span>
 <span class="doccomment">//! to the algorithm you want to use.</span>
 <span class="doccomment">//!</span>
@@ -495,7 +480,7 @@
 <span class="doccomment">//! ```</span>
 <span class="kw">use</span> <span class="ident">cfg_if::cfg_if</span>;
 <span class="kw">use</span> <span class="ident">libc::c_void</span>;
-<span class="kw">use</span> <span class="ident">std::mem</span>;
+<span class="kw">use</span> <span class="ident">std::mem::MaybeUninit</span>;
 
 <span class="doccomment">/// Computes the SHA1 hash of some data.</span>
 <span class="doccomment">///</span>
@@ -504,56 +489,51 @@
 <span class="doccomment">/// SHA1 is known to be insecure - it should not be used unless required for</span>
 <span class="doccomment">/// compatibility with existing systems.</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span> <span class="comment">// https://github.com/rust-lang/rust/issues/63566</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sha1</span>(<span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> [<span class="ident">u8</span>; <span class="number">20</span>] {
     <span class="kw">unsafe</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hash</span>: [<span class="ident">u8</span>; <span class="number">20</span>] <span class="op">=</span> <span class="ident">mem::uninitialized</span>();
-        <span class="ident">ffi::SHA1</span>(<span class="ident">data</span>.<span class="ident">as_ptr</span>(), <span class="ident">data</span>.<span class="ident">len</span>(), <span class="ident">hash</span>.<span class="ident">as_mut_ptr</span>());
-        <span class="ident">hash</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hash</span> <span class="op">=</span> <span class="ident">MaybeUninit</span>::<span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">20</span>]<span class="op">&gt;</span><span class="ident">::uninit</span>();
+        <span class="ident">ffi::SHA1</span>(<span class="ident">data</span>.<span class="ident">as_ptr</span>(), <span class="ident">data</span>.<span class="ident">len</span>(), <span class="ident">hash</span>.<span class="ident">as_mut_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>);
+        <span class="ident">hash</span>.<span class="ident">assume_init</span>()
     }
 }
 
 <span class="doccomment">/// Computes the SHA224 hash of some data.</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span> <span class="comment">// https://github.com/rust-lang/rust/issues/63566</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sha224</span>(<span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> [<span class="ident">u8</span>; <span class="number">28</span>] {
     <span class="kw">unsafe</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hash</span>: [<span class="ident">u8</span>; <span class="number">28</span>] <span class="op">=</span> <span class="ident">mem::uninitialized</span>();
-        <span class="ident">ffi::SHA224</span>(<span class="ident">data</span>.<span class="ident">as_ptr</span>(), <span class="ident">data</span>.<span class="ident">len</span>(), <span class="ident">hash</span>.<span class="ident">as_mut_ptr</span>());
-        <span class="ident">hash</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hash</span> <span class="op">=</span> <span class="ident">MaybeUninit</span>::<span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">28</span>]<span class="op">&gt;</span><span class="ident">::uninit</span>();
+        <span class="ident">ffi::SHA224</span>(<span class="ident">data</span>.<span class="ident">as_ptr</span>(), <span class="ident">data</span>.<span class="ident">len</span>(), <span class="ident">hash</span>.<span class="ident">as_mut_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>);
+        <span class="ident">hash</span>.<span class="ident">assume_init</span>()
     }
 }
 
 <span class="doccomment">/// Computes the SHA256 hash of some data.</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span> <span class="comment">// https://github.com/rust-lang/rust/issues/63566</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sha256</span>(<span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> [<span class="ident">u8</span>; <span class="number">32</span>] {
     <span class="kw">unsafe</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hash</span>: [<span class="ident">u8</span>; <span class="number">32</span>] <span class="op">=</span> <span class="ident">mem::uninitialized</span>();
-        <span class="ident">ffi::SHA256</span>(<span class="ident">data</span>.<span class="ident">as_ptr</span>(), <span class="ident">data</span>.<span class="ident">len</span>(), <span class="ident">hash</span>.<span class="ident">as_mut_ptr</span>());
-        <span class="ident">hash</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hash</span> <span class="op">=</span> <span class="ident">MaybeUninit</span>::<span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span><span class="ident">::uninit</span>();
+        <span class="ident">ffi::SHA256</span>(<span class="ident">data</span>.<span class="ident">as_ptr</span>(), <span class="ident">data</span>.<span class="ident">len</span>(), <span class="ident">hash</span>.<span class="ident">as_mut_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>);
+        <span class="ident">hash</span>.<span class="ident">assume_init</span>()
     }
 }
 
 <span class="doccomment">/// Computes the SHA384 hash of some data.</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span> <span class="comment">// https://github.com/rust-lang/rust/issues/63566</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sha384</span>(<span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> [<span class="ident">u8</span>; <span class="number">48</span>] {
     <span class="kw">unsafe</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hash</span>: [<span class="ident">u8</span>; <span class="number">48</span>] <span class="op">=</span> <span class="ident">mem::uninitialized</span>();
-        <span class="ident">ffi::SHA384</span>(<span class="ident">data</span>.<span class="ident">as_ptr</span>(), <span class="ident">data</span>.<span class="ident">len</span>(), <span class="ident">hash</span>.<span class="ident">as_mut_ptr</span>());
-        <span class="ident">hash</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hash</span> <span class="op">=</span> <span class="ident">MaybeUninit</span>::<span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">48</span>]<span class="op">&gt;</span><span class="ident">::uninit</span>();
+        <span class="ident">ffi::SHA384</span>(<span class="ident">data</span>.<span class="ident">as_ptr</span>(), <span class="ident">data</span>.<span class="ident">len</span>(), <span class="ident">hash</span>.<span class="ident">as_mut_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>);
+        <span class="ident">hash</span>.<span class="ident">assume_init</span>()
     }
 }
 
 <span class="doccomment">/// Computes the SHA512 hash of some data.</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span> <span class="comment">// https://github.com/rust-lang/rust/issues/63566</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sha512</span>(<span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> [<span class="ident">u8</span>; <span class="number">64</span>] {
     <span class="kw">unsafe</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hash</span>: [<span class="ident">u8</span>; <span class="number">64</span>] <span class="op">=</span> <span class="ident">mem::uninitialized</span>();
-        <span class="ident">ffi::SHA512</span>(<span class="ident">data</span>.<span class="ident">as_ptr</span>(), <span class="ident">data</span>.<span class="ident">len</span>(), <span class="ident">hash</span>.<span class="ident">as_mut_ptr</span>());
-        <span class="ident">hash</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hash</span> <span class="op">=</span> <span class="ident">MaybeUninit</span>::<span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">64</span>]<span class="op">&gt;</span><span class="ident">::uninit</span>();
+        <span class="ident">ffi::SHA512</span>(<span class="ident">data</span>.<span class="ident">as_ptr</span>(), <span class="ident">data</span>.<span class="ident">len</span>(), <span class="ident">hash</span>.<span class="ident">as_mut_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>);
+        <span class="ident">hash</span>.<span class="ident">assume_init</span>()
     }
 }
 
@@ -578,12 +558,11 @@
         <span class="kw">impl</span> <span class="ident">Sha1</span> {
             <span class="doccomment">/// Creates a new hasher.</span>
             <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span> <span class="comment">// https://github.com/rust-lang/rust/issues/63566</span>
             <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Sha1</span> {
                 <span class="kw">unsafe</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">mem::uninitialized</span>();
-                    <span class="ident">ffi::SHA1_Init</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>);
-                    <span class="ident">Sha1</span>(<span class="ident">ctx</span>)
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">MaybeUninit::uninit</span>();
+                    <span class="ident">ffi::SHA1_Init</span>( <span class="ident">ctx</span>.<span class="ident">as_mut_ptr</span>());
+                    <span class="ident">Sha1</span>(<span class="ident">ctx</span>.<span class="ident">assume_init</span>())
                 }
             }
 
@@ -599,12 +578,11 @@
 
             <span class="doccomment">/// Returns the hash of the data.</span>
             <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span> <span class="comment">// https://github.com/rust-lang/rust/issues/63566</span>
             <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">finish</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> [<span class="ident">u8</span>; <span class="number">20</span>] {
                 <span class="kw">unsafe</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hash</span>: [<span class="ident">u8</span>; <span class="number">20</span>] <span class="op">=</span> <span class="ident">mem::uninitialized</span>();
-                    <span class="ident">ffi::SHA1_Final</span>(<span class="ident">hash</span>.<span class="ident">as_mut_ptr</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="number">0</span>);
-                    <span class="ident">hash</span>
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hash</span> <span class="op">=</span> <span class="ident">MaybeUninit</span>::<span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">20</span>]<span class="op">&gt;</span><span class="ident">::uninit</span>();
+                    <span class="ident">ffi::SHA1_Final</span>(<span class="ident">hash</span>.<span class="ident">as_mut_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="number">0</span>);
+                    <span class="ident">hash</span>.<span class="ident">assume_init</span>()
                 }
             }
         }
@@ -623,12 +601,11 @@
         <span class="kw">impl</span> <span class="ident">Sha224</span> {
             <span class="doccomment">/// Creates a new hasher.</span>
             <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span> <span class="comment">// https://github.com/rust-lang/rust/issues/63566</span>
             <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Sha224</span> {
                 <span class="kw">unsafe</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">mem::uninitialized</span>();
-                    <span class="ident">ffi::SHA224_Init</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>);
-                    <span class="ident">Sha224</span>(<span class="ident">ctx</span>)
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">MaybeUninit::uninit</span>();
+                    <span class="ident">ffi::SHA224_Init</span>(<span class="ident">ctx</span>.<span class="ident">as_mut_ptr</span>());
+                    <span class="ident">Sha224</span>(<span class="ident">ctx</span>.<span class="ident">assume_init</span>())
                 }
             }
 
@@ -644,12 +621,11 @@
 
             <span class="doccomment">/// Returns the hash of the data.</span>
             <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span> <span class="comment">// https://github.com/rust-lang/rust/issues/63566</span>
             <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">finish</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> [<span class="ident">u8</span>; <span class="number">28</span>] {
                 <span class="kw">unsafe</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hash</span>: [<span class="ident">u8</span>; <span class="number">28</span>] <span class="op">=</span> <span class="ident">mem::uninitialized</span>();
-                    <span class="ident">ffi::SHA224_Final</span>(<span class="ident">hash</span>.<span class="ident">as_mut_ptr</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="number">0</span>);
-                    <span class="ident">hash</span>
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hash</span> <span class="op">=</span> <span class="ident">MaybeUninit</span>::<span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">28</span>]<span class="op">&gt;</span><span class="ident">::uninit</span>();
+                    <span class="ident">ffi::SHA224_Final</span>(<span class="ident">hash</span>.<span class="ident">as_mut_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="number">0</span>);
+                    <span class="ident">hash</span>.<span class="ident">assume_init</span>()
                 }
             }
         }
@@ -668,12 +644,11 @@
         <span class="kw">impl</span> <span class="ident">Sha256</span> {
             <span class="doccomment">/// Creates a new hasher.</span>
             <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span> <span class="comment">// https://github.com/rust-lang/rust/issues/63566</span>
             <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Sha256</span> {
                 <span class="kw">unsafe</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">mem::uninitialized</span>();
-                    <span class="ident">ffi::SHA256_Init</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>);
-                    <span class="ident">Sha256</span>(<span class="ident">ctx</span>)
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">MaybeUninit::uninit</span>();
+                    <span class="ident">ffi::SHA256_Init</span>(<span class="ident">ctx</span>.<span class="ident">as_mut_ptr</span>());
+                    <span class="ident">Sha256</span>(<span class="ident">ctx</span>.<span class="ident">assume_init</span>())
                 }
             }
 
@@ -689,12 +664,11 @@
 
             <span class="doccomment">/// Returns the hash of the data.</span>
             <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span> <span class="comment">// https://github.com/rust-lang/rust/issues/63566</span>
             <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">finish</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> [<span class="ident">u8</span>; <span class="number">32</span>] {
                 <span class="kw">unsafe</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hash</span>: [<span class="ident">u8</span>; <span class="number">32</span>] <span class="op">=</span> <span class="ident">mem::uninitialized</span>();
-                    <span class="ident">ffi::SHA256_Final</span>(<span class="ident">hash</span>.<span class="ident">as_mut_ptr</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="number">0</span>);
-                    <span class="ident">hash</span>
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hash</span> <span class="op">=</span> <span class="ident">MaybeUninit</span>::<span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span><span class="ident">::uninit</span>();
+                    <span class="ident">ffi::SHA256_Final</span>(<span class="ident">hash</span>.<span class="ident">as_mut_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="number">0</span>);
+                    <span class="ident">hash</span>.<span class="ident">assume_init</span>()
                 }
             }
         }
@@ -713,12 +687,11 @@
         <span class="kw">impl</span> <span class="ident">Sha384</span> {
             <span class="doccomment">/// Creates a new hasher.</span>
             <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span> <span class="comment">// https://github.com/rust-lang/rust/issues/63566</span>
             <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Sha384</span> {
                 <span class="kw">unsafe</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">mem::uninitialized</span>();
-                    <span class="ident">ffi::SHA384_Init</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>);
-                    <span class="ident">Sha384</span>(<span class="ident">ctx</span>)
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">MaybeUninit::uninit</span>();
+                    <span class="ident">ffi::SHA384_Init</span>(<span class="ident">ctx</span>.<span class="ident">as_mut_ptr</span>());
+                    <span class="ident">Sha384</span>(<span class="ident">ctx</span>.<span class="ident">assume_init</span>())
                 }
             }
 
@@ -734,12 +707,11 @@
 
             <span class="doccomment">/// Returns the hash of the data.</span>
             <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span> <span class="comment">// https://github.com/rust-lang/rust/issues/63566</span>
             <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">finish</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> [<span class="ident">u8</span>; <span class="number">48</span>] {
                 <span class="kw">unsafe</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hash</span>: [<span class="ident">u8</span>; <span class="number">48</span>] <span class="op">=</span> <span class="ident">mem::uninitialized</span>();
-                    <span class="ident">ffi::SHA384_Final</span>(<span class="ident">hash</span>.<span class="ident">as_mut_ptr</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="number">0</span>);
-                    <span class="ident">hash</span>
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hash</span> <span class="op">=</span> <span class="ident">MaybeUninit</span>::<span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">48</span>]<span class="op">&gt;</span><span class="ident">::uninit</span>();
+                    <span class="ident">ffi::SHA384_Final</span>(<span class="ident">hash</span>.<span class="ident">as_mut_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="number">0</span>);
+                    <span class="ident">hash</span>.<span class="ident">assume_init</span>()
                 }
             }
         }
@@ -758,12 +730,11 @@
         <span class="kw">impl</span> <span class="ident">Sha512</span> {
             <span class="doccomment">/// Creates a new hasher.</span>
             <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span> <span class="comment">// https://github.com/rust-lang/rust/issues/63566</span>
             <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Sha512</span> {
                 <span class="kw">unsafe</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">mem::uninitialized</span>();
-                    <span class="ident">ffi::SHA512_Init</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>);
-                    <span class="ident">Sha512</span>(<span class="ident">ctx</span>)
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">MaybeUninit::uninit</span>();
+                    <span class="ident">ffi::SHA512_Init</span>(<span class="ident">ctx</span>.<span class="ident">as_mut_ptr</span>());
+                    <span class="ident">Sha512</span>(<span class="ident">ctx</span>.<span class="ident">assume_init</span>())
                 }
             }
 
@@ -779,12 +750,11 @@
 
             <span class="doccomment">/// Returns the hash of the data.</span>
             <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span> <span class="comment">// https://github.com/rust-lang/rust/issues/63566</span>
             <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">finish</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> [<span class="ident">u8</span>; <span class="number">64</span>] {
                 <span class="kw">unsafe</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hash</span>: [<span class="ident">u8</span>; <span class="number">64</span>] <span class="op">=</span> <span class="ident">mem::uninitialized</span>();
-                <span class="ident">ffi::SHA512_Final</span>(<span class="ident">hash</span>.<span class="ident">as_mut_ptr</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="number">0</span>);
-                <span class="ident">hash</span>
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hash</span><span class="op">=</span> <span class="ident">MaybeUninit</span>::<span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">64</span>]<span class="op">&gt;</span><span class="ident">::uninit</span>();
+                <span class="ident">ffi::SHA512_Final</span>(<span class="ident">hash</span>.<span class="ident">as_mut_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="number">0</span>);
+                <span class="ident">hash</span>.<span class="ident">assume_init</span>()
             }
         }
     }

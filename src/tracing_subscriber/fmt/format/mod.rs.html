@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;tracing-subscriber-0.2.19&#x2F;src&#x2F;fmt&#x2F;format&#x2F;mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../tracing_subscriber/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;tokio-rs&#x2F;tracing&#x2F;master&#x2F;assets&#x2F;logo-type.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;tracing-subscriber-0.2.24&#x2F;src&#x2F;fmt&#x2F;format&#x2F;mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../tracing_subscriber/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;tokio-rs&#x2F;tracing&#x2F;master&#x2F;assets&#x2F;logo-type.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -1527,6 +1527,41 @@
 <span id="1527">1527</span>
 <span id="1528">1528</span>
 <span id="1529">1529</span>
+<span id="1530">1530</span>
+<span id="1531">1531</span>
+<span id="1532">1532</span>
+<span id="1533">1533</span>
+<span id="1534">1534</span>
+<span id="1535">1535</span>
+<span id="1536">1536</span>
+<span id="1537">1537</span>
+<span id="1538">1538</span>
+<span id="1539">1539</span>
+<span id="1540">1540</span>
+<span id="1541">1541</span>
+<span id="1542">1542</span>
+<span id="1543">1543</span>
+<span id="1544">1544</span>
+<span id="1545">1545</span>
+<span id="1546">1546</span>
+<span id="1547">1547</span>
+<span id="1548">1548</span>
+<span id="1549">1549</span>
+<span id="1550">1550</span>
+<span id="1551">1551</span>
+<span id="1552">1552</span>
+<span id="1553">1553</span>
+<span id="1554">1554</span>
+<span id="1555">1555</span>
+<span id="1556">1556</span>
+<span id="1557">1557</span>
+<span id="1558">1558</span>
+<span id="1559">1559</span>
+<span id="1560">1560</span>
+<span id="1561">1561</span>
+<span id="1562">1562</span>
+<span id="1563">1563</span>
+<span id="1564">1564</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Formatters for logging `tracing` events.</span>
 <span class="kw">use</span> <span class="kw">super</span><span class="ident">::time</span>::{<span class="ident">FormatTime</span>, <span class="ident">SystemTime</span>};
@@ -2166,7 +2201,7 @@
         <span class="kw">let</span> <span class="ident">fmt_ctx</span> <span class="op">=</span> {
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ansi&quot;</span>)]</span>
             {
-                <span class="ident">FmtCtx::new</span>(<span class="kw-2">&amp;</span><span class="ident">ctx</span>, <span class="ident">event</span>.<span class="ident">parent</span>(), <span class="self">self</span>.<span class="ident">ansi</span>)
+                <span class="ident">FmtCtx::new</span>(<span class="ident">ctx</span>, <span class="ident">event</span>.<span class="ident">parent</span>(), <span class="self">self</span>.<span class="ident">ansi</span>)
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ansi&quot;</span>))]</span>
             {
@@ -2178,10 +2213,27 @@
             <span class="macro">write!</span>(<span class="ident">writer</span>, <span class="string">&quot;{}:&quot;</span>, <span class="ident">meta</span>.<span class="ident">target</span>())<span class="question-mark">?</span>;
         }
         <span class="ident">ctx</span>.<span class="ident">format_fields</span>(<span class="ident">writer</span>, <span class="ident">event</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">ctx</span>.<span class="ident">current_span</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">span</span>.<span class="ident">id</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">span</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">ctx</span>.<span class="ident">metadata</span>(<span class="ident">id</span>) {
-                <span class="macro">write!</span>(<span class="ident">writer</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">span</span>.<span class="ident">fields</span>()).<span class="ident">unwrap_or</span>(());
+
+        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">event</span>
+            .<span class="ident">parent</span>()
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">ctx</span>.<span class="ident">ctx</span>.<span class="ident">span</span>(<span class="ident">id</span>))
+            .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">ctx</span>.<span class="ident">ctx</span>.<span class="ident">lookup_current</span>());
+
+        <span class="kw">let</span> <span class="ident">scope</span> <span class="op">=</span> <span class="ident">span</span>.<span class="ident">into_iter</span>().<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">span</span><span class="op">|</span> <span class="ident">span</span>.<span class="ident">scope</span>());
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ansi&quot;</span>)]</span>
+        <span class="kw">let</span> <span class="ident">dimmed</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">ansi</span> {
+            <span class="ident">Style::new</span>().<span class="ident">dimmed</span>()
+        } <span class="kw">else</span> {
+            <span class="ident">Style::new</span>()
+        };
+        <span class="kw">for</span> <span class="ident">span</span> <span class="kw">in</span> <span class="ident">scope</span> {
+            <span class="kw">let</span> <span class="ident">exts</span> <span class="op">=</span> <span class="ident">span</span>.<span class="ident">extensions</span>();
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">fields</span>) <span class="op">=</span> <span class="ident">exts</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">FormattedFields</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span><span class="op">&gt;</span>() {
+                <span class="kw">if</span> <span class="op">!</span><span class="ident">fields</span>.<span class="ident">is_empty</span>() {
+                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ansi&quot;</span>)]</span>
+                    <span class="kw">let</span> <span class="ident">fields</span> <span class="op">=</span> <span class="ident">dimmed</span>.<span class="ident">paint</span>(<span class="ident">fields</span>.<span class="ident">as_str</span>());
+                    <span class="macro">write!</span>(<span class="ident">writer</span>, <span class="string">&quot; {}&quot;</span>, <span class="ident">fields</span>)<span class="question-mark">?</span>;
+                }
             }
         }
         <span class="macro">writeln!</span>(<span class="ident">writer</span>)
@@ -2291,7 +2343,10 @@
 
     <span class="kw">fn</span> <span class="ident">record_error</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span>(<span class="kw">dyn</span> <span class="ident">std::error::Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>)) {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">source</span>) <span class="op">=</span> <span class="ident">value</span>.<span class="ident">source</span>() {
-            <span class="self">self</span>.<span class="ident">record_debug</span>(<span class="ident">field</span>, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;{}, {}: {}&quot;</span>, <span class="ident">value</span>, <span class="ident">field</span>, <span class="ident">source</span>))
+            <span class="self">self</span>.<span class="ident">record_debug</span>(
+                <span class="ident">field</span>,
+                <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;{} {}.sources={}&quot;</span>, <span class="ident">value</span>, <span class="ident">field</span>, <span class="ident">ErrorSourceList</span>(<span class="ident">source</span>)),
+            )
         } <span class="kw">else</span> {
             <span class="self">self</span>.<span class="ident">record_debug</span>(<span class="ident">field</span>, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">value</span>))
         }
@@ -2333,6 +2388,21 @@
             .<span class="ident">field</span>(<span class="string">&quot;is_empty&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">is_empty</span>)
             .<span class="ident">field</span>(<span class="string">&quot;result&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">result</span>)
             .<span class="ident">finish</span>()
+    }
+}
+
+<span class="doccomment">/// Renders an error into a list of sources, *including* the error</span>
+<span class="kw">struct</span> <span class="ident">ErrorSourceList</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> (<span class="kw">dyn</span> <span class="ident">std::error::Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>));
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">ErrorSourceList</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">f</span>.<span class="ident">debug_list</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">curr</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="number">0</span>);
+        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">curr_err</span>) <span class="op">=</span> <span class="ident">curr</span> {
+            <span class="ident">list</span>.<span class="ident">entry</span>(<span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">curr_err</span>));
+            <span class="ident">curr</span> <span class="op">=</span> <span class="ident">curr_err</span>.<span class="ident">source</span>();
+        }
+        <span class="ident">list</span>.<span class="ident">finish</span>()
     }
 }
 
@@ -2385,7 +2455,7 @@
 
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">span</span>
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">ctx</span>.<span class="ident">ctx</span>.<span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>))
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">ctx</span>.<span class="ident">ctx</span>.<span class="ident">span</span>(<span class="ident">id</span>))
             .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">ctx</span>.<span class="ident">ctx</span>.<span class="ident">lookup_current</span>());
 
         <span class="kw">let</span> <span class="ident">scope</span> <span class="op">=</span> <span class="ident">span</span>.<span class="ident">into_iter</span>().<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">span</span><span class="op">|</span> <span class="ident">span</span>.<span class="ident">scope</span>().<span class="ident">from_root</span>());
@@ -2455,7 +2525,7 @@
 
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">span</span>
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">ctx</span>.<span class="ident">ctx</span>.<span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>))
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">ctx</span>.<span class="ident">ctx</span>.<span class="ident">span</span>(<span class="ident">id</span>))
             .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">ctx</span>.<span class="ident">ctx</span>.<span class="ident">lookup_current</span>());
 
         <span class="kw">let</span> <span class="ident">scope</span> <span class="op">=</span> <span class="ident">span</span>.<span class="ident">into_iter</span>().<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">span</span><span class="op">|</span> <span class="ident">span</span>.<span class="ident">scope</span>().<span class="ident">from_root</span>());

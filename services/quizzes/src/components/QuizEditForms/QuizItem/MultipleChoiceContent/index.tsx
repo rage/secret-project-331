@@ -112,9 +112,9 @@ const MultipleChoiceContent: React.FC<MultipleChoiceContentProps> = ({ item }) =
         text={storeItem.title ?? ""}
       />
       <QuizContentLineContainer>
-        {storeItem.options.map((option) => (
+        {storeItem.options.map((option, i) => (
           <QuizContent key={option}>
-            <MultipleChoiceButton option={storeOptions[option]} />
+            <MultipleChoiceButton index={i + 1} option={storeOptions[option]} />
           </QuizContent>
         ))}
         <QuizContent>

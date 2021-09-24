@@ -55,13 +55,16 @@ const IncorrectButton = styled(Button)`
 
 interface MultipleChoiceButtonProps {
   option: NormalizedQuizItemOption
+  index: number
 }
 
-const MultipleChoiceButton: React.FC<MultipleChoiceButtonProps> = ({ option }) => {
+const MultipleChoiceButton: React.FC<MultipleChoiceButtonProps> = ({ option, index }) => {
   const storeOption = useTypedSelector((state) => state.editor.options[option.id])
   const storeItem = useTypedSelector((state) => state.editor.items[option.quizItemId])
   const variables = useTypedSelector((state) => state.editor.optionVariables[option.id])
   const dispatch = useDispatch()
+
+  const ariaLablel = `Option ${index}`
 
   return (
     <>
@@ -89,6 +92,7 @@ const MultipleChoiceButton: React.FC<MultipleChoiceButtonProps> = ({ option }) =
       {storeItem.allAnswersCorrect ? (
         <>
           <CorrectButton
+            aria-label={ariaLablel}
             onClick={() => dispatch(setOptionEditing(storeOption.id, true))}
             variant="outlined"
           >
@@ -100,6 +104,7 @@ const MultipleChoiceButton: React.FC<MultipleChoiceButtonProps> = ({ option }) =
           {storeOption.correct ? (
             <>
               <CorrectButton
+                aria-label={ariaLablel}
                 onClick={() => dispatch(setOptionEditing(storeOption.id, true))}
                 variant="outlined"
               >
@@ -109,6 +114,7 @@ const MultipleChoiceButton: React.FC<MultipleChoiceButtonProps> = ({ option }) =
           ) : (
             <>
               <IncorrectButton
+                aria-label={ariaLablel}
                 onClick={() => dispatch(setOptionEditing(storeOption.id, true))}
                 variant="outlined"
               >

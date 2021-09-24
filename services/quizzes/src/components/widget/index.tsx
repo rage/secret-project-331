@@ -5,6 +5,7 @@ import HeightTrackingContainer from "../../shared-module/components/HeightTracki
 import { PublicQuiz, PublicQuizItem, QuizAnswer, QuizItemAnswer } from "../../types/types"
 
 import MultipleChoice from "./MultipleChoice"
+import Open from "./Open"
 import Scale from "./Scale"
 import Unsupported from "./Unsupported"
 
@@ -28,7 +29,7 @@ const componentsByTypeNames = (typeName: QuizItemType) => {
     "multiple-choice": MultipleChoice,
     scale: Scale,
     checkbox: Unsupported,
-    open: Unsupported,
+    open: Open,
     "custom-frontend-accept-data": Unsupported,
     "multiple-choice-dropdown": Unsupported,
     "clickable-multiple-choice": Unsupported,

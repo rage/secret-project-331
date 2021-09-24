@@ -55,7 +55,14 @@ Vagrant.configure("2") do |config|
 
     # Customize the amount of memory on the VM:
     vb.memory = "16096"
-    vb.cpus = 8
+    vb.cpus = 4  
+
+    # CPU usage and virtual cpus
+    vb.customize ["modifyvm", :id, "--cpuexecutioncap", "50"]
+    vb.customize ["modifyvm", :id, "--ioapic", "on"]
+    # Network access
+    vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+    vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
   end
   #
   # View the documentation for the provider you are using for more
@@ -66,7 +73,7 @@ Vagrant.configure("2") do |config|
   # documentation for more information about their specific syntax and use.
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
     sudo pacman -Syu --noconfirm
-    sudo pacman -S --noconfirm --needed base-devel skaffold kubernetes-tools minikube kustomize docker postgresql sudo patch fakeroot git htop
+    sudo pacman -S --noconfirm --needed base-devel skaffold kubernetes-tools minikube kustomize docker postgresql sudo patch fakeroot git htop duf nginx
     sudo systemctl enable docker
     sudo usermod -a -G docker vagrant
     # nvm

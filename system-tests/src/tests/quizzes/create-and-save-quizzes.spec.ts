@@ -1,7 +1,7 @@
-import { expect, test } from "@playwright/test"
+import { test } from "@playwright/test"
 
-import expectPath from "../../../utils/expect"
-import waitForFunction from "../../../utils/waitForFunction"
+import expectPath from "../../utils/expect"
+import waitForFunction from "../../utils/waitForFunction"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -144,7 +144,9 @@ test.describe("quizzes tests", () => {
     // Click text=grant_only_when_fully_complete
     await frame.click("text=grant_only_when_fully_complete")
 
-    await frame.click(`button:right-of([placeholder="dd-mm-yyyy, hh:mm:ss"])`)
+    // Choose date button seems not to react clicks right away
+    await page.waitForTimeout(100)
+    await frame.click(`[aria-label^="Choose date, selected date is"]`)
 
     // Click text=10
     await frame.click("text=10")
@@ -251,9 +253,8 @@ test.describe("quizzes tests", () => {
       page.waitForNavigation(),
       await page.click("text=University of Helsinki, Department of Computer Science"),
     ])
-    expect(page.url()).toBe(
-      "http://project-331.local/organizations/8bb12295-53ac-4099-9644-ac0ff5e34d92",
-    )
+
+    expectPath(page, "/organizations/[id]")
 
     // Click text=Add course
     await page.click("text=Add course")
@@ -357,7 +358,7 @@ test.describe("quizzes tests", () => {
     await frame.click("button[title='add option']")
 
     // Click .MuiButton-root.MuiButton-outlined
-    await frame.click(".MuiButton-root.MuiButton-outlined")
+    await frame.click(`[aria-label="Option 1"]`)
 
     // Click text=Option title *Option title * >> textarea
 
@@ -377,11 +378,13 @@ test.describe("quizzes tests", () => {
       "text=Editing OptionCorrectSourcePreviewThis is markdown editor. You can write your te >> button",
     )
 
+    await page.waitForTimeout(100)
+
     // Click .sc-GvhzO div:nth-child(2) .MuiButton-root
     await frame.click("button[title='add option']")
 
     // Click .MuiButton-root.MuiButton-outlined.MuiButton-outlinedPrimary.MuiButton-sizeMedium.MuiButton-outlinedSizeMedium.MuiButtonBase-root.sc-hOPeYd
-    await frame.click(".MuiButton-root.MuiButton-outlined >> nth=1")
+    await frame.click(`[aria-label="Option 2"]`)
 
     // Click text=Option title *Option title * >> textarea
     await page.evaluate(() => window.scrollTo(0, 800))

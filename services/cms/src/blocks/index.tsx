@@ -16,8 +16,7 @@ import UnsupportedBlock from "./UnsupportedBlock"
 /**
  * List of custom blocks to be passed on to Gutenberg.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const blockTypeMapForPages: Array<[string, BlockConfiguration<any>]> = [
+export const blockTypeMapForPages = [
   ["moocfi/exercise", Exercise],
   ["moocfi/exercise-task", ExerciseTask],
   ["moocfi/course-chapter-grid", CourseChapterGrid],
@@ -28,14 +27,15 @@ export const blockTypeMapForPages: Array<[string, BlockConfiguration<any>]> = [
   ["moocfi/unsupported-block-type", UnsupportedBlock],
   ["moocfi/latex", Latex],
   ["moocfi/hero-section", HeroSection],
-]
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+] as Array<[string, BlockConfiguration<Record<string, any>>]>
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const blockTypeMapForTopLevelPages: Array<[string, BlockConfiguration<any>]> = [
+export const blockTypeMapForTopLevelPages = [
   ["moocfi/course-chapter-grid", CourseChapterGrid],
   ["moocfi/course-progress", CourseProgress],
   ["moocfi/unsupported-block-type", UnsupportedBlock],
   ["moocfi/latex", Latex],
   ["moocfi/landing-page-hero-section", LandingPageHeroSection],
   ["moocfi/course-objective-section", CourseObjectiveSection],
-]
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+] as Array<[string, BlockConfiguration<Record<string, any>>]>

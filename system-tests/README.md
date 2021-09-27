@@ -41,6 +41,7 @@ Once you've recorded, copy the code automatically written by the recorder to you
 
 - [login.spec.ts](src/tests/login/login.spec.ts) &mdash; Basic examples
 - [mediaUpload.spec.ts](src/tests/cms/mediaUpload.spec.ts) &mdash; Screenshot comparison example
+- [multiple-choice-widget.spec.ts](src/tests/cms/quizzes/widget/multiple-choice-widget.spec.ts) &mdash; Iframe example
 
 ### Screenshots / Visual snapshots
 
@@ -59,17 +60,25 @@ Example usage of `expectScreenshotsToMatchSnapshots`:
 ```js
 test("test with screenshots", async ({ headless, page }) => {
   // navigate somewhere, do actions until we want to take a screenshot
-    await expectScreenshotsToMatchSnapshots(
+    await expectScreenshotsToMatchSnapshots({
       page,
       headless,
       // a unique name for the image
-      "model-solutions-in-submissions",
+      snapshotName: "model-solutions-in-submissions",
       // a element, or selector, or an array of elements and selectors
       // that need to be visible and not moving before taking the screenshot
       // it is important to choose this carefully, because otherwise we might take the screenshot
       // before the UI is ready for it
-      "text=Welcome to the course",
-    )
+      waitForThisToBeVisibleAndStable: "text=Welcome to the course",
+    })
+
+  await expectScreenshotsToMatchSnapshots({
+    headless,
+    snapshotName: "widget-multiple-choice",
+    // working with iframes
+    waitForThisToBeVisibleAndStable: await frame.frameElement(),
+    frame,
+  })
 }
 ```
 

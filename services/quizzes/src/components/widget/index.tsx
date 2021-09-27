@@ -40,6 +40,7 @@ const componentsByTypeNames = (typeName: QuizItemType) => {
 export interface State {
   quiz: PublicQuiz
   quiz_answer: QuizAnswer
+  quiz_answer_is_valid: boolean
 }
 
 type QuizItemAnswerWithoutId = Omit<QuizItemAnswer, "quiz_item_id">

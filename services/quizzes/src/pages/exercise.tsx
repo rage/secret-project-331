@@ -85,6 +85,7 @@ const ExercisePage: React.FC = () => {
         }
       }),
     },
+    quiz_answer_is_valid: true,
   }
 
   return <Widget port={port} maxWidth={maxWidth} initialState={state} />

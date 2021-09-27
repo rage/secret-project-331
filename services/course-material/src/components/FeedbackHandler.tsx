@@ -15,6 +15,8 @@ interface Props {
   pageId: string
   onEnterEditProposalMode: () => void
   onExitEditProposalMode: () => void
+  selectedBlockId: string | null
+  setSelectedBlockId: (blockId: string | null) => void
   edits: Map<string, NewProposedBlockEdit>
 }
 
@@ -23,6 +25,8 @@ const FeedbackHandler: React.FC<Props> = ({
   pageId,
   onEnterEditProposalMode,
   onExitEditProposalMode,
+  selectedBlockId,
+  setSelectedBlockId,
   edits,
 }) => {
   const [feedbackMenuAnchor, setFeedbackMenuAnchor] = useState<Element | null>(null)
@@ -142,6 +146,8 @@ const FeedbackHandler: React.FC<Props> = ({
             onExitEditProposalMode()
           }}
           onSubmitSuccess={onSubmitSuccess}
+          selectedBlockId={selectedBlockId}
+          setSelectedBlockId={setSelectedBlockId}
           edits={edits}
         />
       )}

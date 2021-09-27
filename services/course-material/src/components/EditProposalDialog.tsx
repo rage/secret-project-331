@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
-import React, { useState } from "react"
+import React from "react"
+import { useMutation } from "react-query"
 
 import { postProposedEdits } from "../services/backend"
 import { NewProposedBlockEdit } from "../shared-module/bindings"
@@ -10,37 +11,79 @@ interface Props {
   pageId: string
   onSubmitSuccess: () => void
   close: () => unknown
+  selectedBlockId: string | null
+  setSelectedBlockId: (blockId: string | null) => void
   edits: Map<string, NewProposedBlockEdit>
 }
 
-const FeedbackDialog: React.FC<Props> = ({ courseId, pageId, onSubmitSuccess, close, edits }) => {
-  const [error, setError] = useState<string | null>(null)
+const EditProposalDialog: React.FC<Props> = ({
+  courseId,
+  pageId,
+  onSubmitSuccess,
+  close,
+  selectedBlockId,
+  setSelectedBlockId,
+  edits,
+}) => {
+  const mutation = useMutation(
+    (block_edits: NewProposedBlockEdit[]) => {
+      return postProposedEdits(courseId, { page_id: pageId, block_edits })
+    },
+    {
+      onSuccess: () => {
+        onSubmitSuccess()
+        close()
+      },
+    },
+  )
 
-  async function send() {
-    setError("")
-
-    try {
-      const block_edits = Array.from(edits.values())
-      postProposedEdits(courseId, { page_id: pageId, block_edits })
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(`Failed to send proposed edits: ${err.toString()}`)
-      } else {
-        setError("Failed to send proposed edits")
-      }
-      return
-    }
-
-    onSubmitSuccess()
-    close()
+  let topMessage
+  let bottomMessage
+  let leftButton
+  if (selectedBlockId !== null) {
+    // currently editing block
+    topMessage = "You've selected material for editing."
+    bottomMessage = "Preview your changes or make more edits."
+    leftButton = (
+      <Button
+        variant="primary"
+        size="medium"
+        onClick={() => setSelectedBlockId(null)}
+        className={css`
+          margin: 4px;
+        `}
+      >
+        Preview
+      </Button>
+    )
+  } else if (edits.size === 0) {
+    // not editing a block and no existing edits
+    topMessage = "Click on material to make it editable!"
+    bottomMessage = null
+    leftButton = null
+  } else {
+    // not editing and have existing edits
+    topMessage = "You've made changes!"
+    bottomMessage = "Do you want to send your changes?"
+    leftButton = (
+      <Button
+        variant="primary"
+        size="medium"
+        onClick={() => mutation.mutate(Array.from(edits.values()))}
+        className={css`
+          margin: 4px;
+        `}
+      >
+        Send
+      </Button>
+    )
   }
 
   return (
     <>
       <div
         className={css`
-          width: 533px;
-          height: 120px;
+          max-width: 533px;
           background: #ffffff;
           border: 1px solid #c4c4c4;
           box-sizing: border-box;
@@ -49,13 +92,15 @@ const FeedbackDialog: React.FC<Props> = ({ courseId, pageId, onSubmitSuccess, cl
           position: fixed;
           right: 20px;
           bottom: 20px;
+          margin-left: 20px;
           z-index: 100;
+          display: flex;
+          flex-direction: column;
         `}
       >
         <div
           className={css`
             font-family: Josefin Sans, sans-serif;
-            font-style: normal;
             font-weight: 600;
             font-size: 22px;
             line-height: 22px;
@@ -64,38 +109,50 @@ const FeedbackDialog: React.FC<Props> = ({ courseId, pageId, onSubmitSuccess, cl
             margin: 16px;
           `}
         >
-          You&apos;ve made a change!
+          {topMessage}
         </div>
-        <div
-          className={css`
-            height: 0px;
-            border: 1px solid #eaeaea;
-          `}
-        />
-        {error && <div>Error: {error}</div>}
-        <span
-          className={css`
-            font-family: Lato, sans-serif;
-            font-style: normal;
-            font-weight: normal;
-            font-size: 16px;
-            line-height: 19px;
-            color: rgba(117, 117, 117, 0.8);
+        {mutation.isError && <div>Failed to submit: {mutation.error}</div>}
+        <>
+          <div
+            className={css`
+              height: 0px;
+              border: 1px solid #eaeaea;
+            `}
+          />
+          <div
+            className={css`
+              display: flex;
+              flex-direction: row;
+            `}
+          >
+            <div
+              className={css`
+                line-height: 19px;
+                color: rgba(117, 117, 117, 0.8);
 
-            margin: 15px;
-          `}
-        >
-          Do you want to save these changes?
-        </span>
-        <Button variant="primary" size="medium" onClick={send}>
-          Send
-        </Button>
-        <Button variant="secondary" size="medium" onClick={close}>
-          Exit
-        </Button>
+                margin: 15px;
+                flex-grow: 1;
+              `}
+            >
+              {bottomMessage}
+            </div>
+            {leftButton}
+            <Button
+              variant="secondary"
+              size="medium"
+              onClick={close}
+              className={css`
+                margin: 4px;
+                margin-right: 8px;
+              `}
+            >
+              Exit
+            </Button>
+          </div>
+        </>
       </div>
     </>
   )
 }
 
-export default FeedbackDialog
+export default EditProposalDialog

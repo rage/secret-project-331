@@ -15,7 +15,7 @@ use crate::{
 };
 use actix_web::web::{self, Json, ServiceConfig};
 use chrono::Utc;
-use sqlx::PgPool;
+use sqlx::{Connection, PgPool};
 use uuid::Uuid;
 
 /**
@@ -398,33 +398,44 @@ POST `/api/v0/course-material/courses/:course_id/feedback` - Creates new feedbac
 */
 pub async fn feedback(
     course_id: web::Path<Uuid>,
-    new_feedback: web::Json<NewFeedback>,
+    new_feedback: web::Json<Vec<NewFeedback>>,
     pool: web::Data<PgPool>,
     user: Option<AuthUser>,
-) -> ControllerResult<String> {
+) -> ControllerResult<Json<Vec<String>>> {
     let mut conn = pool.acquire().await?;
-    let f = new_feedback.into_inner();
+    let fs = new_feedback.into_inner();
 
-    if f.feedback_given.len() > 1000 {
-        return Err(ControllerError::BadRequest(
-            "Feedback given too long: max 1000".to_string(),
-        ));
-    }
-    if f.related_blocks.len() > 100 {
-        return Err(ControllerError::BadRequest(
-            "Too many related blocks: max 100".to_string(),
-        ));
-    }
-    for block in &f.related_blocks {
-        if block.text.as_ref().map(|t| t.len()).unwrap_or_default() > 10000 {
+    // validate
+    for f in &fs {
+        if f.feedback_given.len() > 1000 {
             return Err(ControllerError::BadRequest(
-                "Block text too long: max 10000".to_string(),
+                "Feedback given too long: max 1000".to_string(),
             ));
+        }
+        if f.related_blocks.len() > 100 {
+            return Err(ControllerError::BadRequest(
+                "Too many related blocks: max 100".to_string(),
+            ));
+        }
+        for block in &f.related_blocks {
+            if block.text.as_ref().map(|t| t.len()).unwrap_or_default() > 10000 {
+                return Err(ControllerError::BadRequest(
+                    "Block text too long: max 10000".to_string(),
+                ));
+            }
         }
     }
 
-    let id = feedback::insert(&mut conn, user.map(|u| u.id), course_id.into_inner(), f).await?;
-    Ok(id.to_string())
+    let mut tx = conn.begin().await?;
+    let user_id = user.as_ref().map(|u| u.id);
+    let course_id = course_id.into_inner();
+    let mut ids = vec![];
+    for f in fs {
+        let id = feedback::insert(&mut tx, user_id, course_id, f).await?;
+        ids.push(id.to_string());
+    }
+    tx.commit().await?;
+    Ok(Json(ids))
 }
 
 /**

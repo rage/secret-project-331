@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import { TextField } from "@material-ui/core"
 import React, { useState } from "react"
+import { useMutation } from "react-query"
 
 import { postFeedback } from "../services/backend"
 import { FeedbackBlock } from "../shared-module/bindings"
@@ -31,35 +32,24 @@ const FeedbackDialog: React.FC<Props> = ({
   const [comments, setComments] = useState<Array<Comment>>([])
   const [comment, setComment] = useState("")
   const [error, setError] = useState<string | null>(null)
-
-  // try to send the feedback to the server
-  async function send() {
-    setError("")
-
-    if (comments.length === 0) {
-      setError("Feedback has to contain at least one comment")
-      return
-    }
-
-    try {
-      for (const c of comments) {
-        const selected_text = c.selectedText.length > 0 ? c.selectedText : null
-        await postFeedback(courseId, {
+  const mutation = useMutation(
+    (comments: Comment[]) => {
+      const feedback = comments.map((c) => {
+        return {
           feedback_given: c.comment,
-          selected_text,
+          selected_text: c.selectedText.length > 0 ? c.selectedText : null,
           related_blocks: c.relatedBlocks,
-        })
-      }
-    } catch (e: unknown) {
-      console.error(e)
-      if (e instanceof Error) {
-        setError(e.toString())
-      }
-      return
-    }
-    onSubmitSuccess()
-    close()
-  }
+        }
+      })
+      return postFeedback(courseId, feedback)
+    },
+    {
+      onSuccess: () => {
+        onSubmitSuccess()
+        close()
+      },
+    },
+  )
 
   // attach a single comment to the feedback
   async function addComment() {
@@ -277,6 +267,15 @@ const FeedbackDialog: React.FC<Props> = ({
               {error}
             </div>
           )}
+          {mutation.isError && (
+            <div
+              className={css`
+                color: Crimson;
+              `}
+            >
+              Failed to submit: {mutation.error}
+            </div>
+          )}
           <Button
             className={css`
               margin-top: 27px;
@@ -296,7 +295,7 @@ const FeedbackDialog: React.FC<Props> = ({
             `}
             variant="primary"
             size="medium"
-            onClick={send}
+            onClick={() => mutation.mutate(comments)}
           >
             Send
           </Button>

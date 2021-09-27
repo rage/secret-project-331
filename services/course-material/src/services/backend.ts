@@ -165,7 +165,13 @@ export const searchPagesWithWords = async (
   ).data
 }
 
-export const postFeedback = async (courseId: string, newFeedback: NewFeedback): Promise<string> => {
+export const postFeedback = async (
+  courseId: string,
+  newFeedback: NewFeedback[],
+): Promise<string> => {
+  if (newFeedback.length === 0) {
+    throw "Feedback has to contain at least one comment"
+  }
   return (await courseMaterialClient.post(`/courses/${courseId}/feedback`, newFeedback)).data
 }
 

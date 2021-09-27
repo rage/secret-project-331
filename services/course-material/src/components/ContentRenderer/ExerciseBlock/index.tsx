@@ -113,6 +113,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
         <ContentRenderer
           data={currentExerciseTaskAssignment}
           editing={false}
+          selectedBlockId={null}
           setEdits={(map) => map}
         />
       )}

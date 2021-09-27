@@ -1,7 +1,8 @@
 import { css } from "@emotion/css"
+import { diffChars } from "diff"
 import KaTex from "katex"
 import dynamic from "next/dynamic"
-import React from "react"
+import React, { useMemo, useState } from "react"
 import sanitizeHtml from "sanitize-html"
 
 import { BlockRendererProps } from "../"
@@ -51,6 +52,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
   data,
   id,
   editing,
+  selectedBlockId,
   setEdits,
 }) => {
   const {
@@ -69,44 +71,101 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
   // If background color is undefined, it indicates a transparent background
   // and we let the background color property unset in CSS.
   const bgColor = colorMapper(backgroundColor, "unset")
+  const [editedContent, setEditedContent] = useState(data.attributes.content)
+  if (!editing && editedContent !== data.attributes.content) {
+    setEditedContent(data.attributes.content)
+  }
+
+  // this value only changes when the selection changes, making sure the content of the div being edited isn't constantly changed under the user
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const memoizedContent = useMemo(() => editedContent, [selectedBlockId])
 
   if (editing) {
-    return (
-      <p
-        className={css`
-          ${normalWidthCenteredComponentStyles}
-          white-space: pre-line;
-          min-width: 1px;
-          color: ${textColor};
-          background-color: ${backgroundColor};
-          font-size: ${fontSize};
-          ${backgroundColor && `padding: 1.25em 2.375em;`}
-        `}
-        contentEditable
-        onInput={(ev) => {
-          const changed = ev.currentTarget.innerText
-          if (content !== changed) {
-            setEdits((edits) => {
-              edits.set(id, {
-                block_id: id,
-                block_attribute: "content",
-                original_text: content,
-                changed_text: changed,
+    if (selectedBlockId === id) {
+      // block focused, editing
+      return (
+        <p
+          className={css`
+            ${normalWidthCenteredComponentStyles}
+            white-space: pre-line;
+            min-width: 1px;
+            color: ${textColor};
+            background-color: ${backgroundColor};
+            font-size: ${fontSize};
+            ${backgroundColor && `padding: 1.25em 2.375em;`}
+            border: 1px;
+            border-style: dotted;
+          `}
+          contentEditable
+          onInput={(ev) => {
+            const changed = ev.currentTarget.innerText
+            setEditedContent(changed)
+            if (content !== changed) {
+              setEdits((edits) => {
+                edits.set(id, {
+                  block_id: id,
+                  block_attribute: "content",
+                  original_text: content,
+                  changed_text: changed,
+                })
+                return new Map(edits)
               })
-              return new Map(edits)
-            })
-          } else {
-            // returned to original
-            setEdits((edits) => {
-              edits.delete(id)
-              return new Map(edits)
-            })
-          }
-        }}
-      >
-        {content}
-      </p>
-    )
+            } else {
+              // returned to original
+              setEdits((edits) => {
+                edits.delete(id)
+                return new Map(edits)
+              })
+            }
+          }}
+        >
+          {memoizedContent}
+        </p>
+      )
+    } else {
+      const spans: JSX.Element[] = []
+      for (const diff of diffChars(data.attributes.content, editedContent)) {
+        // the diff spans should have the block id so the click handler can find it
+        if (diff.added) {
+          spans.push(
+            <span
+              className={css`
+                background: LightGreen;
+              `}
+            >
+              {diff.value}
+            </span>,
+          )
+        } else if (diff.removed) {
+          spans.push(
+            <span
+              className={css`
+                background: Salmon;
+              `}
+            >
+              {diff.value}
+            </span>,
+          )
+        } else {
+          spans.push(<span>{diff.value}</span>)
+        }
+      }
+      return (
+        <p
+          className={css`
+            ${normalWidthCenteredComponentStyles}
+            white-space: pre-line;
+            min-width: 1px;
+            color: ${textColor};
+            background-color: ${backgroundColor};
+            font-size: ${fontSize};
+            ${backgroundColor && `padding: 1.25em 2.375em;`}
+          `}
+        >
+          {spans}
+        </p>
+      )
+    }
   }
 
   const sanitizedHTML = sanitizeHtml(content)

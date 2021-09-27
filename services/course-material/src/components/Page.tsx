@@ -1,10 +1,11 @@
 import { css } from "@emotion/css"
-import React, { useContext, useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
 
 import CoursePageContext, { CoursePageDispatch } from "../contexts/CoursePageContext"
 import { Block } from "../services/backend"
 import { NewProposedBlockEdit } from "../shared-module/bindings"
 import DebugModal from "../shared-module/components/DebugModal"
+import { courseMaterialBlockClass } from "../utils/constants"
 
 import ContentRenderer from "./ContentRenderer"
 import NavigationContainer from "./ContentRenderer/NavigationContainer"
@@ -25,6 +26,31 @@ const Page: React.FC<Props> = ({ onRefresh }) => {
 
   const courseId = pageContext?.pageData?.course_id
   const pageId = pageContext?.pageData?.id
+
+  const [selectedBlockId, setSelectedBlockId] = useState(document.activeElement?.id ?? null)
+  useEffect(() => {
+    const handler = (ev: MouseEvent) => {
+      if (ev.target instanceof Element) {
+        // go through the clicked element's parents until we find a block
+        let blockId = null
+        let element: Element | null = ev.target
+        while (element !== null) {
+          if (element.classList.contains(courseMaterialBlockClass)) {
+            blockId = element.id
+            break
+          }
+          element = element.parentElement
+        }
+        setSelectedBlockId(blockId)
+      } else {
+        setSelectedBlockId(null)
+      }
+    }
+    document.addEventListener("click", handler)
+    return () => {
+      document.removeEventListener("click", handler)
+    }
+  }, [])
 
   return (
     <>
@@ -60,6 +86,8 @@ const Page: React.FC<Props> = ({ onRefresh }) => {
             setEditingMaterial(false)
             setEdits(new Map())
           }}
+          selectedBlockId={selectedBlockId}
+          setSelectedBlockId={setSelectedBlockId}
           edits={edits}
         />
       )}
@@ -68,6 +96,7 @@ const Page: React.FC<Props> = ({ onRefresh }) => {
         <ContentRenderer
           data={(pageContext.pageData?.content as Array<Block<unknown>>) ?? []}
           editing={editingMaterial}
+          selectedBlockId={selectedBlockId}
           setEdits={setEdits}
         />
       </div>

@@ -35,12 +35,14 @@ import VerseBlock from "./VerseBlock"
 export interface ContentRendererProps {
   data: Block<unknown>[]
   editing: boolean
+  selectedBlockId: string | null
   setEdits: (m: Map<string, NewProposedBlockEdit>) => void
 }
 
 export interface BlockRendererProps<T> {
   data: Block<T>
   editing: boolean
+  selectedBlockId: string | null
   setEdits: React.Dispatch<React.SetStateAction<Map<string, NewProposedBlockEdit>>>
   id: string
 }
@@ -105,6 +107,7 @@ const ContentRenderer: React.FC<ContentRendererProps> = (props) => {
               id={block.clientId}
               data={block}
               editing={props.editing}
+              selectedBlockId={props.selectedBlockId}
               setEdits={props.setEdits}
             />
           </div>

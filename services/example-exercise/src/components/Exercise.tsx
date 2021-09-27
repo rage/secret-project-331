@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
 import { PublicAlternative } from "../util/stateInterfaces"
@@ -14,19 +14,27 @@ interface Props {
 const Exercise: React.FC<Props> = ({ port, maxWidth, state }) => {
   const [selectedId, _setSelectedId] = useState<string | null>(null)
 
-  const setSelectedId: typeof _setSelectedId = (value) => {
-    const res = _setSelectedId(value)
-    if (!port) {
-      console.error("Cannot send current state to parent because I don't have a port")
-      return
-    }
-    console.log("Posting current state to parent")
-    port.postMessage({
-      message: "current-state",
-      data: { answer: { selectedOptionId: value }, valid: true },
-    })
-    return res
-  }
+  const setSelectedId: typeof _setSelectedId = useCallback(
+    (value) => {
+      const res = _setSelectedId(value)
+      if (!port) {
+        console.error("Cannot send current state to parent because I don't have a port")
+        return
+      }
+      console.log("Posting current state to parent")
+      port.postMessage({
+        message: "current-state",
+        data: { answer: { selectedOptionId: value }, valid: true },
+      })
+      return res
+    },
+    [port],
+  )
+
+  useEffect(() => {
+    // Post initial state so that the answer is "valid".
+    setSelectedId(null)
+  }, [setSelectedId])
 
   return (
     <HeightTrackingContainer port={port}>

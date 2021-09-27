@@ -38,6 +38,7 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
       newItemAnswer = {
         ...quizItemAnswerState,
         optionAnswers: [selectedOptionId],
+        valid: true,
       }
     }
     setQuizItemAnswerState(newItemAnswer)

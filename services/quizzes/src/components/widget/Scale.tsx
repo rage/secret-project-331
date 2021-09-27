@@ -19,7 +19,7 @@ const Scale: React.FC<QuizItemComponentProps> = ({
       return
     }
 
-    setQuizItemAnswerState({ ...quizItemAnswerState, optionAnswers: [option] })
+    setQuizItemAnswerState({ ...quizItemAnswerState, optionAnswers: [option], valid: true })
   }
 
   return (

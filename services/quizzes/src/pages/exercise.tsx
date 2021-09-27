@@ -79,6 +79,7 @@ const ExercisePage: React.FC = () => {
           quizItemId: qi.id,
           quizAnswerId: quiz_answer_id,
           correct: false,
+          valid: true,
           intData: null,
           textData: null,
           optionAnswers: null,

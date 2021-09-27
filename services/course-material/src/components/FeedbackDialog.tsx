@@ -95,15 +95,16 @@ const FeedbackDialog: React.FC<Props> = ({
       <div
         className={css`
           position: fixed;
-          width: 447px;
+          max-width: 447px;
           background: #ffffff;
           border: 1px solid #c4c4c4;
           box-sizing: border-box;
           border-radius: 4px;
 
-          bottom: 200px;
+          bottom: 100px;
           right: 20px;
           z-index: 100;
+          margin-left: 20px;
         `}
       >
         <div

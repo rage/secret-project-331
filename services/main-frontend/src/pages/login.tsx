@@ -1,15 +1,16 @@
 import { useRouter } from "next/router"
 import { useContext, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import Layout from "../components/Layout"
 import LoginStateContext from "../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../shared-module/hooks/useQueryParameter"
 import { login } from "../shared-module/services/backend/auth"
 import { wideWidthCenteredComponentStyles } from "../shared-module/styles/componentStyles"
-import basePath from "../shared-module/utils/base-path"
 import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 
 const Login: React.FC = () => {
+  const { t } = useTranslation()
   const loginStateContext = useContext(LoginStateContext)
 
   const router = useRouter()
@@ -50,22 +51,22 @@ const Login: React.FC = () => {
             router.push(returnTo)
           }}
         >
-          <h1>Log in</h1>
-          <p>Email</p>
+          <h1>{t("login")}</h1>
+          <p>{t("label-email")}</p>
           <input
             type="text"
             name="email"
             value={email}
             onChange={(ev) => setEmail(ev.target.value)}
           />
-          <p>Password</p>
+          <p>{t("label-password")}</p>
           <input
             type="password"
             name="password"
             value={password}
             onChange={(ev) => setPassword(ev.target.value)}
           />
-          <button name="login">Submit</button>
+          <button name="login">{t("button-text-submit")}</button>
         </form>
         {notification && <p>{notification}</p>}
       </div>

@@ -92,8 +92,7 @@ const CourseInstanceEmailTemplates: React.FC<CourseInstanceEmailTemplatesProps> 
           {courseInstanceEmailTemplates.map((template) => {
             return (
               <li key={template.id}>
-                {template.name}{" "}
-                <a href={`/cms/email-templates/${template.id}/edit`}>{t("button-text-edit")}</a>{" "}
+                {template.name} <a href={`/cms/email-templates/${template.id}/edit`}>{t("edit")}</a>{" "}
                 <Button
                   size="medium"
                   variant="secondary"

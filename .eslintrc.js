@@ -55,6 +55,18 @@ module.exports = {
           },
           {
             name: "@material-ui/core",
+            importNames: ["Container"],
+            message:
+              "Don't use Container from @material-ui. Please use normalWidthCenteredComponentStyles.",
+          },
+          {
+            name: "@material-ui/core/Container",
+            importNames: ["default"],
+            message:
+              "Don't use Container from @material-ui. Please use normalWidthCenteredComponentStyles.",
+          },
+          {
+            name: "@material-ui/core",
             importNames: ["Typography"],
             message: "Don't use Typography from @material-ui. Please use p, h1, h2, h3...",
           },
@@ -142,9 +154,21 @@ module.exports = {
       "error",
       {
         validateTemplate: true,
-        ignoreAttribute: ["variant", "size", "href", "severity", "navVariant"],
+        // only add attributes here that are guranteed to never contain traslatable strings
+        ignoreAttribute: [
+          "variant",
+          "size",
+          "href",
+          "severity",
+          "navVariant",
+          "aria-labelledby",
+          "aria-describedby",
+          "url",
+          "labelId",
+          "defaultLanguage",
+        ],
         ignore: [DETECT_CSS_REGEX],
-        ignoreCallee: ["useQuery", "useQueryParameter"],
+        ignoreCallee: ["useQuery", "useQueryParameter", "get", "post", "put", "delete", "create"],
       },
     ],
     curly: "error",

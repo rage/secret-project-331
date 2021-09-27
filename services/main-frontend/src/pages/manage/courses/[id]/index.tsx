@@ -87,7 +87,7 @@ const ManageCoursePage: React.FC<ManageCoursePageProps> = ({ query }) => {
           {t("button-text-delete")}
         </Button>
         <Button variant="primary" size="medium" onClick={() => setShowForm(!showForm)}>
-          {t("button-text-edit")}
+          {t("edit")}
         </Button>
         <Dialog open={showForm} onClose={() => setShowForm(!showForm)}>
           <div

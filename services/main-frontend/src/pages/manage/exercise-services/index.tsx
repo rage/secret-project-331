@@ -71,6 +71,7 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
   exercise_service,
   refetch,
 }) => {
+  const { t } = useTranslation()
   const [editing, setEditing] = useState<boolean>(false)
   const [service, setService] = useState<ExerciseServiceNewOrUpdate | ExerciseService>(
     exercise_service,
@@ -157,8 +158,8 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
         `}
       >
         <CardHeader
-          title={editing ? "Edit exercise service" : service.name}
-          subheader={editing || `Slug: ${service.slug}`}
+          title={editing ? t("edit") : service.name}
+          subheader={editing || t("header-slug", { slug: service.slug })}
           action={
             editing ? (
               <>
@@ -185,7 +186,7 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
           {editing && (
             <>
               <ContentArea
-                title={"Name"}
+                title={t("text-field-label-name")}
                 text={service.name}
                 editing={editing}
                 onChange={onChangeName}
@@ -193,9 +194,10 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
                 error={false}
               />
               <ContentArea
-                title={"Slug"}
+                title={t("text-field-label-or-header-slug")}
                 text={service.slug}
                 editing={editing}
+                // eslint-disable-next-line i18next/no-literal-string
                 onChange={onChange("slug")}
                 type={"text"}
                 error={false}
@@ -203,25 +205,28 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
             </>
           )}
           <ContentArea
-            title={"Public URL"}
+            title={t("title-public-url")}
             text={service.public_url}
             editing={editing}
+            // eslint-disable-next-line i18next/no-literal-string
             onChange={onChange("public_url")}
             type={"text"}
             error={!validURL(service.public_url)}
           />
           <ContentArea
-            title={"Internal URL"}
+            title={t("title-internal-url")}
             text={service.internal_url}
             editing={editing}
+            // eslint-disable-next-line i18next/no-literal-string
             onChange={onChange("internal_url")}
             type={"text"}
             error={!validURL(service.internal_url ?? "")}
           />
           <ContentArea
-            title={"Reprocessing submissions"}
+            title={t("title-reprocessing-submissions")}
             text={service.max_reprocessing_submissions_at_once}
             editing={editing}
+            // eslint-disable-next-line i18next/no-literal-string
             onChange={onChange("max_reprocessing_submissions_at_once")}
             type={"number"}
             error={service.max_reprocessing_submissions_at_once < 0}
@@ -229,23 +234,31 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
         </CardContent>
 
         <CardContent>
-          <TimeComponent name={"Created: "} date={exercise_service.created_at} right={false} />
-          <TimeComponent name={"Updated: "} date={exercise_service.updated_at} right={true} />
+          <TimeComponent
+            name={`${t("label-created")} `}
+            date={exercise_service.created_at}
+            right={false}
+          />
+          <TimeComponent
+            name={`${t("label-updated")} `}
+            date={exercise_service.updated_at}
+            right={true}
+          />
         </CardContent>
       </Card>
       <Dialog open={deleteDialogOpen} onClose={handleCloseDeleteDialog}>
-        <DialogTitle id="alert-dialog-title">{"Delete exercise service"}</DialogTitle>
+        <DialogTitle id="alert-dialog-title">{t("button-text-delete")}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Are you sure you want to delete &quot;{service.name}&quot;?
+            {t("delete-confirmation", { name: service.name })}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button variant="primary" size="medium" onClick={handleCloseDeleteDialog}>
-            Cancel
+            {t("button-text-cancel")}
           </Button>
           <Button variant="secondary" size="medium" onClick={deleteContent}>
-            Delete
+            {t("button-text-delete")}
           </Button>
         </DialogActions>
       </Dialog>
@@ -290,10 +303,10 @@ const ExerciseServiceCreationModal: React.FC<ExerciseServiceCreationModelProps> 
           width: 60%;
         `}
       >
-        <CardHeader title={"Create exercise service"} />
+        <CardHeader title={t("button-text-create")} />
         <CardContent>
           <ContentArea
-            title={"Name"}
+            title={t("text-field-label-name")}
             text={exercise_service.name}
             editing={true}
             onChange={onChangeName}
@@ -301,33 +314,37 @@ const ExerciseServiceCreationModal: React.FC<ExerciseServiceCreationModelProps> 
             error={false}
           />
           <ContentArea
-            title={"Slug"}
+            title={t("text-field-label-or-header-slug")}
             text={exercise_service.slug}
             editing={true}
+            // eslint-disable-next-line i18next/no-literal-string
             onChange={onChange("slug")}
             type={"text"}
             error={false}
           />
           <ContentArea
-            title={"Public URL"}
+            title={t("title-public-url")}
             text={exercise_service.public_url}
             editing={true}
+            // eslint-disable-next-line i18next/no-literal-string
             onChange={onChange("public_url")}
             type={"text"}
             error={!validURL(exercise_service.public_url)}
           />
           <ContentArea
-            title={"Internal URL"}
+            title={t("title-internal-url")}
             text={exercise_service.internal_url}
             editing={true}
+            // eslint-disable-next-line i18next/no-literal-string
             onChange={onChange("internal_url")}
             type={"text"}
             error={!validURL(exercise_service.internal_url ?? "")}
           />
           <ContentArea
-            title={"Reprocessing submissions"}
+            title={t("title-reprocessing-submissions")}
             text={exercise_service.max_reprocessing_submissions_at_once}
             editing={true}
+            // eslint-disable-next-line i18next/no-literal-string
             onChange={onChange("max_reprocessing_submissions_at_once")}
             type={"number"}
             error={exercise_service.max_reprocessing_submissions_at_once < 0}
@@ -338,7 +355,7 @@ const ExerciseServiceCreationModal: React.FC<ExerciseServiceCreationModelProps> 
             {t("button-text-create")}
           </Button>
           <Button variant="secondary" size="medium" onClick={handleClose}>
-            Cancel
+            {t("button-text-cancel")}
           </Button>
         </CardContent>
       </Card>

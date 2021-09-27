@@ -21,7 +21,7 @@ const OrganizationsList: React.FC = () => {
     return <div>{t("error-loading-organizations")}</div>
   }
 
-  if (isLoading) {
+  if (isLoading || !data) {
     return <div>{t("loading-text")}</div>
   }
 

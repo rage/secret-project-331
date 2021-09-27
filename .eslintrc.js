@@ -147,5 +147,6 @@ module.exports = {
         ignoreCallee: ["useQuery", "useQueryParameter"],
       },
     ],
+    curly: "error",
   },
 }

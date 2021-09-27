@@ -91,6 +91,7 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<CourseSubmissionsByWeekdayAndH
               // eslint-disable-next-line i18next/no-literal-string
               textBaseline: "middle",
               top: ((i + 0.5) * 100) / 7 + "%",
+              // @ts-expect-error: todo
               text: isodowToWeekdayName[weekdayNumber],
             }
           }),
@@ -99,7 +100,9 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<CourseSubmissionsByWeekdayAndH
             position: "top",
             formatter: (a) => {
               return t("hourly-submissions-visualization-tooltip", {
+                // @ts-expect-error: todo
                 day: a.data[0],
+                // @ts-expect-error: todo
                 submissions: a.data[1],
               })
             },

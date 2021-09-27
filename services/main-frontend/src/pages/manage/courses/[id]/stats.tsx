@@ -5,15 +5,21 @@ import { useTranslation } from "react-i18next"
 import Layout from "../../../../components/Layout"
 import CourseSubmissionsByDay from "../../../../components/stats/CourseSubmissionsByDay"
 import CourseSubmissionsByWeekdayAndHour from "../../../../components/stats/CourseSubmissionsByWeekdayAndHour"
-import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
 import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
-import { dontRenderUntilQueryParametersReady } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import basePath from "../../../../shared-module/utils/base-path"
+import {
+  dontRenderUntilQueryParametersReady,
+  SimplifiedUrlQuery,
+} from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
-const StatsPage: React.FC<unknown> = () => {
-  const { t } = useTranslation()
-  const id = useQueryParameter("id")
+interface StatsPageProps {
+  query: SimplifiedUrlQuery<"id">
+}
 
+const StatsPage: React.FC<StatsPageProps> = ({ query }) => {
+  const { t } = useTranslation()
+  const id = query.id
   return (
     <Layout navVariant="complex">
       <div

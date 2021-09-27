@@ -1,17 +1,18 @@
+import { ThemeProvider } from "@material-ui/core"
 import type { AppProps } from "next/app"
 import { useRouter } from "next/router"
 import React, { useEffect } from "react"
 import { QueryClientProvider } from "react-query"
-// import { ReactQueryDevtools } from "react-query/devtools"
-// import { RecoilRoot } from "recoil"
 
 import { LoginStateContextProvider } from "../shared-module/contexts/LoginStateContext"
 import { queryClient } from "../shared-module/services/appQueryClient"
 import GlobalStyles from "../shared-module/styles/GlobalStyles"
 import initI18n from "../shared-module/utils/initI18n"
+import muiTheme from "../shared-module/styles/muiTheme"
 
 // eslint-disable-next-line i18next/no-literal-string
 const i18n = initI18n("main-frontend")
+
 
 const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
   const router = useRouter()
@@ -36,14 +37,12 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* <RecoilRoot> */}
-      {/* <Devtools /> */}
-      <GlobalStyles />
-      <LoginStateContextProvider>
-        <Component {...pageProps} />
-      </LoginStateContextProvider>
-      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
-      {/* </RecoilRoot> */}
+        <ThemeProvider theme={muiTheme}>
+          <GlobalStyles />
+          <LoginStateContextProvider>
+            <Component {...pageProps} />
+          </LoginStateContextProvider>
+        </ThemeProvider>
     </QueryClientProvider>
   )
 }

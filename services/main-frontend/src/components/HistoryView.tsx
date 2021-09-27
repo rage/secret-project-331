@@ -6,6 +6,8 @@ import { useQuery } from "react-query"
 
 import { fetchHistoryForPage } from "../services/backend/pages"
 import { PageHistory } from "../shared-module/bindings"
+import { monospaceFont } from "../shared-module/styles"
+import monacoFontFixer from "../shared-module/styles/monacoFontFixer"
 import replaceUuidsWithPlaceholdersInText from "../shared-module/utils/testing/replaceUuidsWithPlaceholders"
 
 import HistoryList from "./lists/HistoryList"
@@ -72,7 +74,7 @@ const HistoryView: React.FC<Props> = ({ pageId }) => {
   }
 
   return (
-    <>
+    <div className={monacoFontFixer}>
       <p
         className={css`
           text-align: center;
@@ -89,7 +91,7 @@ const HistoryView: React.FC<Props> = ({ pageId }) => {
         language="json"
         original={currentRevision || t("loading-text")}
         modified={selectedRevision || t("loading-text")}
-        options={{ readOnly: true }}
+        options={{ readOnly: true, fontFamily: monospaceFont }}
       />
       <HistoryList
         pageId={pageId}
@@ -97,7 +99,7 @@ const HistoryView: React.FC<Props> = ({ pageId }) => {
         onCompare={onCompare}
         onRestore={onRestore}
       />
-    </>
+    </div>
   )
 }
 

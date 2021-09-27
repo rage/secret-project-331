@@ -13,7 +13,7 @@ import ErrorIcon from "@material-ui/icons/Error"
 import SaveIcon from "@material-ui/icons/Save"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
+import { QueryObserverResult, useQuery } from "react-query"
 
 import Layout from "../../../components/Layout"
 import {
@@ -33,35 +33,35 @@ import ContentArea from "./ContentArea"
 
 interface ExerciseServiceEditorProps {
   exercise_services: ExerciseService[]
-  refetch()
+  refetch(): Promise<QueryObserverResult<[ExerciseService], unknown>>
 }
 
 interface ExerciseServiceCardProps {
   key: string
   exercise_service: ExerciseService
-  refetch()
+  refetch(): Promise<QueryObserverResult<[ExerciseService], unknown>>
 }
 
 interface ExerciseServiceCreationModelProps {
-  onChange: (key: unknown) => (event: unknown) => void
-  onChangeName: (event: unknown) => void
+  onChange: (key: string) => (event: React.ChangeEvent<HTMLInputElement>) => void
+  onChangeName: (event: React.ChangeEvent<HTMLInputElement>) => void
   exercise_service: ExerciseServiceNewOrUpdate
-  handleSubmit()
-  handleClose()
+  handleSubmit(): Promise<void>
+  handleClose(): void
   open: boolean
 }
 
-type updateStatus = null | "saved" | "failed"
+type UpdateStatus = null | "saved" | "failed"
 
-const convertToSlug = (name) => {
+const convertToSlug = (name: string) => {
   return name.toLowerCase().trim().replaceAll(" ", "-")
 }
 
-const canSave = (service) => {
+const canSave = (service: ExerciseServiceNewOrUpdate) => {
   return (
-    validNumber(service.max_reprocessing_submissions_at_once) &&
+    validNumber(service.max_reprocessing_submissions_at_once.toString()) &&
     service.max_reprocessing_submissions_at_once > 0 &&
-    validURL(service.internal_url) &&
+    validURL(service.internal_url ?? "") &&
     validURL(service.public_url)
   )
 }
@@ -71,23 +71,25 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
   exercise_service,
   refetch,
 }) => {
-  const [editing, setEditing] = useState(false)
-  const [service, setService] = useState(exercise_service)
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [status, setStatus] = useState<updateStatus>(null)
+  const [editing, setEditing] = useState<boolean>(false)
+  const [service, setService] = useState<ExerciseServiceNewOrUpdate | ExerciseService>(
+    exercise_service,
+  )
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false)
+  const [status, setStatus] = useState<UpdateStatus>(null)
 
   const toggleEdit = () => {
     setEditing(!editing)
   }
 
-  const onChange = (key) => (event) => {
+  const onChange = (key: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
     setService({
       ...service,
       [key]: event.target.type === "number" ? parseInt(event.target.value) : event.target.value,
     })
   }
 
-  const onChangeName = (event) => {
+  const onChangeName = (event: React.ChangeEvent<HTMLInputElement>) => {
     setService({
       ...service,
       name: event.target.value,
@@ -105,11 +107,13 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
       return
     }
     try {
-      const updated = await updateExerciseService(service.id, service)
-      setService(updated)
-      // eslint-disable-next-line i18next/no-literal-string
-      setStatus("saved")
-      await refetch()
+      if ("id" in service) {
+        const updated = await updateExerciseService(service.id, service)
+        setService(updated)
+        // eslint-disable-next-line i18next/no-literal-string
+        setStatus("saved")
+        await refetch()
+      }
     } catch (e) {
       // eslint-disable-next-line i18next/no-literal-string
       setStatus("failed")
@@ -130,8 +134,10 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
 
   const deleteContent = async () => {
     try {
-      await deleteExerciseService(service.id)
-      await refetch()
+      if ("id" in service) {
+        await deleteExerciseService(service.id)
+        await refetch()
+      }
     } catch (e) {
       // eslint-disable-next-line i18next/no-literal-string
       setStatus("failed")
@@ -210,7 +216,7 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
             editing={editing}
             onChange={onChange("internal_url")}
             type={"text"}
-            error={!validURL(service.internal_url)}
+            error={!validURL(service.internal_url ?? "")}
           />
           <ContentArea
             title={"Reprocessing submissions"}
@@ -266,6 +272,7 @@ const ExerciseServiceCreationModal: React.FC<ExerciseServiceCreationModelProps> 
   onChangeName,
   handleSubmit,
 }) => {
+  const { t } = useTranslation()
   return (
     <Modal
       className={css`
@@ -315,7 +322,7 @@ const ExerciseServiceCreationModal: React.FC<ExerciseServiceCreationModelProps> 
             editing={true}
             onChange={onChange("internal_url")}
             type={"text"}
-            error={!validURL(exercise_service.internal_url)}
+            error={!validURL(exercise_service.internal_url ?? "")}
           />
           <ContentArea
             title={"Reprocessing submissions"}
@@ -360,7 +367,7 @@ const ExerciseServicePage: React.FC = () => {
     })
   }
 
-  const onChangeName = (event) => {
+  const onChangeName = (event: React.ChangeEvent<HTMLInputElement>) => {
     setExerciseService({
       ...exerciseService,
       name: event.target.value,
@@ -368,7 +375,7 @@ const ExerciseServicePage: React.FC = () => {
     })
   }
 
-  const onChangeCreationModal = (key) => (event) => {
+  const onChangeCreationModal = (key: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
     setExerciseService({
       ...exerciseService,
       [key]: event.target.type === "number" ? parseInt(event.target.value) : event.target.value,

@@ -79,14 +79,14 @@ const ExercisePage: React.FC = () => {
           quizItemId: qi.id,
           quizAnswerId: quiz_answer_id,
           correct: false,
-          valid: true,
+          valid: false,
           intData: null,
           textData: null,
           optionAnswers: null,
         }
       }),
     },
-    quiz_answer_is_valid: true,
+    quiz_answer_is_valid: false,
   }
 
   return <Widget port={port} maxWidth={maxWidth} initialState={state} />

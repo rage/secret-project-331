@@ -23,13 +23,14 @@ const Open: React.FC<QuizItemComponentProps> = ({
       return setQuizItemAnswerState({ ...quizItemAnswerState, textData: newValue })
     }
 
-    const newValueIsValid =
-      newValue && quizItem.formatRegex
-        ? answerFormatIsValidAgainstRegex(newValue, quizItem.formatRegex)
-        : true
+    const newValueIsValid = newValue
+      ? answerFormatIsValidAgainstRegex(newValue, quizItem.formatRegex)
+      : true
     setValid(newValueIsValid)
     setQuizItemAnswerState({ ...quizItemAnswerState, textData: newValue })
   }
+
+  const formatErrorVisible = showFormatError && !valid
 
   return (
     <div
@@ -51,10 +52,12 @@ const Open: React.FC<QuizItemComponentProps> = ({
       </div>
       <div
         className={css`
-          opacity: ${showFormatError && !valid ? 1 : 0};
+          min-height: 1.5rem;
         `}
       >
-        The answer does not match the answer format specified for this exercise.
+        {formatErrorVisible ? (
+          <>The answer does not match the answer format specified for this exercise.</>
+        ) : null}
       </div>
     </div>
   )

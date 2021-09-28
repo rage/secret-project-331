@@ -1,10 +1,10 @@
-import { CssBaseline, ThemeProvider } from "@material-ui/core"
+import { ThemeProvider } from "@material-ui/core"
 import type { AppProps } from "next/app"
 import React, { useEffect } from "react"
 import { Provider } from "react-redux"
 
 import GlobalStyles from "../shared-module/styles/GlobalStyles"
-import { theme } from "../shared-module/styles/muiTheme"
+import muiTheme from "../shared-module/styles/muiTheme"
 import store from "../store/store"
 
 const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
@@ -20,8 +20,7 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
     <>
       <Provider store={store}>
         <GlobalStyles />
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
+        <ThemeProvider theme={muiTheme}>
           <Component {...pageProps} />
         </ThemeProvider>
       </Provider>

@@ -7,15 +7,15 @@ test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test("widget, scale", async ({ page, headless }) => {
+test("widget, checkbox", async ({ page, headless }) => {
   // Go to http://project-331.local/playground
   await page.goto("http://project-331.local/playground")
 
   // Click div[role="button"]:has-text("")
   await page.click('div[role="button"]:has-text("​")')
 
-  // Click text=Quizzes example, scale
-  await page.click("text=Quizzes example, scale")
+  // Click text=Quizzes, example, checkbox
+  await page.click("text=Quizzes, example, checkbox")
 
   const frame = await waitForFunction(page, () =>
     page.frames().find((f) => {
@@ -25,8 +25,8 @@ test("widget, scale", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
-    snapshotName: "widget-scale",
-    waitForThisToBeVisibleAndStable: [`text="Regex can be useful"`, `text="15"`],
+    snapshotName: "widget-checkbox",
+    waitForThisToBeVisibleAndStable: `text="The s in https stands for secure."`,
     frame,
   })
 })

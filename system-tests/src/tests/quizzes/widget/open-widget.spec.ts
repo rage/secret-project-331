@@ -26,8 +26,31 @@ test("widget, open", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
-    snapshotName: "widget-open",
-    waitForThisToBeVisibleAndStable: await frame.frameElement(),
+    snapshotName: "widget-open-empty",
+    waitForThisToBeVisibleAndStable: `text="Enter the date of the next leap day in ISO 8601 format"`,
+    frame,
+  })
+
+  // Click input[type="text"]
+  await frame.click('input[type="text"]')
+
+  // Fill input[type="text"]
+  await frame.fill('input[type="text"]', "2024")
+
+  await expectScreenshotsToMatchSnapshots({
+    headless,
+    snapshotName: "widget-open-invalid",
+    waitForThisToBeVisibleAndStable: `text="The answer does not match the answer format specified for this exercise."`,
+    frame,
+  })
+
+  // Fill input[type="text"]
+  await frame.fill('input[type="text"]', "2024-02-29")
+
+  await expectScreenshotsToMatchSnapshots({
+    headless,
+    snapshotName: "widget-open-valid",
+    waitForThisToBeVisibleAndStable: `text="2024-02-29"`,
     frame,
   })
 })

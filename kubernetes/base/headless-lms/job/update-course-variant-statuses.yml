@@ -1,4 +1,4 @@
-apiVersion: batch/v1beta1
+apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: update-course-variant-statuses
@@ -13,14 +13,14 @@ spec:
         spec:
           restartPolicy: OnFailure
           containers:
-          - name: update-course-variant-statuses
-            image: headless-lms
-            imagePullPolicy: IfNotPresent
-            command:
-            - cargo
-            - run
-            - --bin
-            - update-course-variant-statuses
-            envFrom:
-            - secretRef:
-                name: headless-lms-secrets
+            - name: update-course-variant-statuses
+              image: headless-lms
+              imagePullPolicy: IfNotPresent
+              command:
+                - cargo
+                - run
+                - --bin
+                - update-course-variant-statuses
+              envFrom:
+                - secretRef:
+                    name: headless-lms-secrets

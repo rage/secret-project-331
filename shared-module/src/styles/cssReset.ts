@@ -15,6 +15,8 @@ const cssReset = css`
   h2,
   h3,
   h4,
+  h5,
+  h6,
   p,
   figure,
   blockquote,
@@ -54,11 +56,12 @@ const cssReset = css`
   }
 
   /* Inherit fonts for inputs and buttons */
+  /* Add !important to override MuiTheme Roboto */
   input,
   button,
   textarea,
   select {
-    font: inherit;
+    font: inherit !important;
   }
 
   /* Remove all animations and transitions for people that prefer not to see them */

@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 
-import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
+import { courseMaterialCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import { BlockAttributes } from "../../types/GutenbergBlockAttributes"
 
 import { BlockRendererProps } from "."
@@ -9,7 +9,7 @@ const DefaultBlock: React.FC<BlockRendererProps<BlockAttributes>> = ({ data }) =
   return (
     <pre
       className={css`
-        ${normalWidthCenteredComponentStyles}
+        ${courseMaterialCenteredComponentStyles}
       `}
     >
       {JSON.stringify(data, undefined, 2)}

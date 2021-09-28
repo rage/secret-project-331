@@ -4,7 +4,6 @@ import { useRouter } from "next/router"
 import HistoryView from "../../../../components/HistoryView"
 import Layout from "../../../../components/Layout"
 import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
-import basePath from "../../../../shared-module/utils/base-path"
 
 const History: React.FC<unknown> = () => {
   const router = useRouter()
@@ -20,7 +19,7 @@ const History: React.FC<unknown> = () => {
   }
 
   return (
-    <Layout frontPageUrl={basePath()} navVariant="complex">
+    <Layout navVariant="complex">
       <div
         className={css`
           ${normalWidthCenteredComponentStyles}

@@ -24,7 +24,8 @@ const Exercise: React.FC<Props> = ({ port, maxWidth, state }) => {
       console.log("Posting current state to parent")
       port.postMessage({
         message: "current-state",
-        data: { answer: { selectedOptionId: value }, valid: true },
+        data: { selectedOptionId: value },
+        valid: true,
       })
       return res
     },

@@ -36,8 +36,10 @@ const ExerciseTaskIframe: React.FC<ExerciseTaskIframeProps> = ({
         if (uncheckedMessage === "current-state") {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const uncheckedData = (messageContainer as any).data
-          setAnswer(uncheckedData.answer)
-          setAnswerValid(!!uncheckedData.valid)
+          setAnswer(uncheckedData)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const dataIsValid = (messageContainer as any).valid
+          setAnswerValid(!!dataIsValid)
         }
       }}
     />

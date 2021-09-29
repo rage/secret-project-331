@@ -14,6 +14,7 @@ const YoutubeEmbeddedBlock: React.FC<EmbedAttributes> = (props) => {
     <iframe
       src={`https://www.youtube.com/embed/${video}`}
       title="YouTube video player"
+      sandbox="allow-scripts"
       frameBorder="0"
       allowFullScreen
       className={css`
@@ -35,6 +36,7 @@ const SpotifyEmbeddedBlock: React.FC<EmbedAttributes> = (props) => {
       src={`https://open.spotify.com/embed/${type}/${spotifyId}`}
       frameBorder="0"
       title="Spotify"
+      sandbox="allow-scripts"
       allowTransparency={true}
       allow="encrypted-media"
       className={css`
@@ -63,6 +65,7 @@ const TwitterEmbeddedBlock: React.FC<EmbedAttributes> = (props) => {
     <iframe
       src={window.URL.createObjectURL(blob)}
       title="Tweet"
+      sandbox="allow-scripts"
       frameBorder="0"
       className={css`
         display: block;

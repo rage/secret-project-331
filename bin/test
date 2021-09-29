@@ -6,5 +6,6 @@ ensure_program_in_path "skaffold"
 ensure_program_in_path "kubectl"
 ensure_program_in_path "minikube"
 ensure_program_in_path "kustomize"
+check_minikube_version
 
 run_command skaffold dev --force --port-forward -p test "$@"

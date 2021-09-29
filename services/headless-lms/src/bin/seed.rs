@@ -264,6 +264,60 @@ async fn main() -> Result<()> {
     playground_examples::insert_playground_example(
         &mut conn,
         PlaygroundExampleData {
+            name: "Quizzes, example, checkbox".to_string(),
+            url: "http://project-331.local/quizzes/exercise".to_string(),
+            width: 500,
+            data: serde_json::json!({
+                "id": "57f03d8e-e768-485c-b0c3-a3e485a3e18a",
+                "title": "Internet safety quizz",
+                "body": "Answer the following guestions about staying safe on the internet.",
+                "deadline": Utc.ymd(2121, 9, 1).and_hms(23, 59, 59).to_string(),
+                "open": Utc.ymd(2021, 9, 1).and_hms(23, 59, 59).to_string(),
+                "part": 1,
+                "section": 1,
+                "items": [
+                    {
+                        "id": "5f09bd92-6e33-415b-b356-227563a02816",
+                        "body": "",
+                        "type": "checkbox",
+                        "multi": false,
+                        "order": 1,
+                        "title": "The s in https stands for secure.",
+                        "quizId": "57f03d8e-e768-485c-b0c3-a3e485a3e18a",
+                        "options": [],
+                        "maxValue": null,
+                        "maxWords": null,
+                        "minValue": null,
+                        "minWords": null,
+                        "direction": "row"
+                    },
+                    {
+                        "id": "818fc326-ed38-4fe5-95d3-0f9d15032d01",
+                        "body": "",
+                        "type": "checkbox",
+                        "multi": false,
+                        "order": 2,
+                        "title": "I use a strong, unique password that can't easily be guessed by those who knows me.",
+                        "quizId": "57f03d8e-e768-485c-b0c3-a3e485a3e18a",
+                        "options": [],
+                        "maxValue": null,
+                        "maxWords": null,
+                        "minValue": null,
+                        "minWords": null,
+                        "direction": "row"
+                    },
+                ],
+                "tries": 1,
+                "courseId": "51ee97a7-684f-4cba-8a01-8c558803c4f7",
+                "triesLimited": true,
+            }),
+        },
+    )
+    .await?;
+
+    playground_examples::insert_playground_example(
+        &mut conn,
+        PlaygroundExampleData {
             name: "Quizzes example, multiple-choice".to_string(),
             url: "http://project-331.local/quizzes/exercise".to_string(),
             width: 500,
@@ -336,6 +390,75 @@ async fn main() -> Result<()> {
                 ]
               }
             ),
+        },
+    )
+    .await?;
+
+    playground_examples::insert_playground_example(
+        &mut conn,
+        PlaygroundExampleData {
+            name: "Quizzes example, scale".to_string(),
+            url: "http://project-331.local/quizzes/exercise".to_string(),
+            width: 500,
+            data: serde_json::json!({
+                "id": "3d3c633d-ea60-412f-8c85-8cab7742a5b8",
+                "title": "The regex quiz",
+                "body": "Please answer to the following guestions based on your feelings about using regex. Use the scale 1 = completely disagree, 7 = completely agree",
+                "deadline": Utc.ymd(2121, 9, 1).and_hms(23, 59, 59).to_string(),
+                "open": Utc.ymd(2021, 9, 1).and_hms(23, 59, 59).to_string(),
+                "part": 1,
+                "items": [
+                  {
+                    "id": "d2422f0c-2378-4099-bde7-e1231ceac220",
+                    "body": "",
+                    "type": "scale",
+                    "multi": false,
+                    "order": 1,
+                    "title": "Regex is generally readable.",
+                    "quizId": "3d3c633d-ea60-412f-8c85-8cab7742a5b8",
+                    "options": [],
+                    "maxValue": 4,
+                    "maxWords": null,
+                    "minValue": 1,
+                    "minWords": null,
+                    "direction": "row",
+                  },
+                  {
+                    "id": "b3ce858c-a5ed-4cf7-a9ee-62ef91d1a75a",
+                    "body": "",
+                    "type": "scale",
+                    "multi": false,
+                    "order": 2,
+                    "title": "Regex is what some people consider to be a 'write-only' language.",
+                    "quizId": "3d3c633d-ea60-412f-8c85-8cab7742a5b8",
+                    "options": [],
+                    "maxValue": 7,
+                    "maxWords": null,
+                    "minValue": 1,
+                    "minWords": null,
+                    "direction": "row"
+                  },
+                  {
+                    "id": "eb7f6898-7ba5-4f89-8e24-a17f57381131",
+                    "body": "",
+                    "type": "scale",
+                    "multi": false,
+                    "order": 3,
+                    "title": "Regex can be useful when parsing HTML.",
+                    "quizId": "3d3c633d-ea60-412f-8c85-8cab7742a5b8",
+                    "options": [],
+                    "maxValue": 15,
+                    "maxWords": null,
+                    "minValue": 1,
+                    "minWords": null,
+                    "direction": "row"
+                  }
+                ],
+                "tries": 1,
+                "section": 1,
+                "courseId": "f5bed4ff-63ec-44cd-9056-86eb00df84ca",
+                "triesLimited": true
+              }),
         },
     )
     .await?;

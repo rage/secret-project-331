@@ -75,7 +75,6 @@ const Essay: React.FunctionComponent<QuizItemComponentProps> = ({
         `}
       >
         <textarea
-          id="answer"
           onChange={handleTextChange}
           placeholder="Answer"
           className={css`

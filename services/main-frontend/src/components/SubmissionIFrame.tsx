@@ -3,6 +3,7 @@ import React from "react"
 
 import { Submission } from "../shared-module/bindings"
 import MessageChannelIFrame from "../shared-module/components/MessageChannelIFrame"
+import { SetStateMessage } from "../shared-module/iframe-protocol-types"
 
 interface SubmissionIFrameProps {
   url: string
@@ -38,7 +39,8 @@ const SubmissionIFrame: React.FC<SubmissionIFrameProps> = ({
       url={url}
       onCommunicationChannelEstabilished={(port) => {
         console.log("posting " + JSON.stringify(state))
-        port.postMessage({ message: "set-state", data: state })
+        const message: SetStateMessage = { message: "set-state", data: state }
+        port.postMessage(message)
       }}
       onMessageFromIframe={(messageContainer, _responsePort) => {
         console.log(messageContainer)

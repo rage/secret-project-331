@@ -2,6 +2,7 @@ import styled from "@emotion/styled"
 import { useEffect, useRef, useState } from "react"
 import { v4 } from "uuid"
 
+import { isHeightChangedMessage } from "../shared-module/iframe-protocol-types.guard"
 import basePath from "../shared-module/utils/base-path"
 
 const Title = styled.h1`
@@ -91,7 +92,7 @@ const handleMessageCreator = (
         "*",
       )
     }
-    if (event.data.message === "height-changed") {
+    if (isHeightChangedMessage(event.data)) {
       onHeightChange(event.data.data)
     }
   }

@@ -2,6 +2,8 @@ import { Alert } from "@material-ui/lab"
 import React, { Dispatch } from "react"
 
 import MessageChannelIFrame from "../../../shared-module/components/MessageChannelIFrame"
+import { SetStateMessage } from "../../../shared-module/iframe-protocol-types"
+import { isCurrentStateMessage } from "../../../shared-module/iframe-protocol-types.guard"
 
 interface ExerciseTaskIframeProps {
   url: string
@@ -24,22 +26,15 @@ const ExerciseTaskIframe: React.FC<ExerciseTaskIframeProps> = ({
     <MessageChannelIFrame
       url={url}
       onCommunicationChannelEstabilished={(port) => {
-        port.postMessage({ message: "set-state", data: public_spec })
+        const message: SetStateMessage = { message: "set-state", data: public_spec }
+        port.postMessage(message)
       }}
       onMessageFromIframe={(messageContainer, _responsePort) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const uncheckedMessage = (messageContainer as any).message
-        if (!uncheckedMessage) {
-          console.error("Invalid message. No message field")
-          return
-        }
-        if (uncheckedMessage === "current-state") {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const uncheckedData = (messageContainer as any).data
-          setAnswer(uncheckedData)
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const dataIsValid = (messageContainer as any).valid
-          setAnswerValid(!!dataIsValid)
+        if (isCurrentStateMessage(messageContainer)) {
+          setAnswer(messageContainer.data)
+          setAnswerValid(messageContainer.valid)
+        } else {
+          console.error("Unexpected message or structure is not valid.")
         }
       }}
     />

@@ -25,7 +25,7 @@ test("widget, essay", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
-    snapshotName: "widget-scale",
+    snapshotName: "widget-essay",
     waitForThisToBeVisibleAndStable: [`text="Of the lamps of Fëanor"`],
     frame,
   })
@@ -47,11 +47,14 @@ test("widget, essay with an answer", async ({ page, headless }) => {
     }),
   )
 
-  await frame.fill("#Answer", "I think I enrolled in the wrong course XD")
+  await frame.fill(
+    `textarea:below(:text("Word count"))`,
+    "I think I enrolled in the wrong course XD",
+  )
 
   await expectScreenshotsToMatchSnapshots({
     headless,
-    snapshotName: "widget-scale",
+    snapshotName: "widget-essay-answered",
     waitForThisToBeVisibleAndStable: [`text="Of the lamps of Fëanor"`],
     frame,
   })

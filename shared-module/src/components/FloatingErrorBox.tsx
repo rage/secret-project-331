@@ -18,8 +18,8 @@ const ErrorWrapper = styled.div`
   align-items: center;
   position: relative;
 
-  @media (max-width: 600px) {
-  }
+  /*   @media (max-width: 600px) {
+  } */
 `
 const ButtonWrapper = styled.div`
   display: flex;

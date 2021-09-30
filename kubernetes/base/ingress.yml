@@ -5,6 +5,7 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-dev
     nginx.org/websocket-services: "ws"
+    nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/limit-connections: "100"
     nginx.ingress.kubernetes.io/limit-rps: "100"
     nginx.ingress.kubernetes.io/limit-rpm: "2000"
@@ -16,6 +17,8 @@ metadata:
       location /oembed/1.0/proxy {
          return 301 /api/v0/cms/oembed/preview?$args;
        }
+
+# Note that \w{2,3}([-]\w+)* will match IETF language tags e.g. en, fi, en-US, fi-FI, etc.
 spec:
   rules:
     - http:
@@ -42,6 +45,13 @@ spec:
                 port:
                   number: 3000
           - path: /courses
+            pathType: Prefix
+            backend:
+              service:
+                name: course-material
+                port:
+                  number: 3003
+          - path: /\w{2,3}([-]\w+)*/courses
             pathType: Prefix
             backend:
               service:

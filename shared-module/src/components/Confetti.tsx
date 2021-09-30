@@ -16,7 +16,7 @@ const StyledDiv = styled.div`
   }
 `
 
-const Confetti = () => {
+const Confetti: React.FC<any> = () => {
   const particlesInit = (main: unknown) => {
     console.log(main)
 

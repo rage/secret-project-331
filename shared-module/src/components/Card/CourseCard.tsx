@@ -1,11 +1,9 @@
-import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { useState } from "react"
 
 import UK from "../../img/flags/UK.png"
 import SettingIcon from "../../img/setting.svg"
 import { headingFont } from "../../styles"
-import { cardHeight, cardMaxWidth } from "../../styles/constants"
 import Confetti from "../Confetti"
 
 import LanguageSelector from "./LanguageSelector"

@@ -338,6 +338,7 @@ async fn main() -> Result<()> {
                         "id": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
                         "body": "Which of the color codes represent the color **red**?",
                         "direction": "row",
+                        "formatRegex": null,
                         "maxLabel": null,
                         "maxValue": null,
                         "maxWords": null,
@@ -397,6 +398,46 @@ async fn main() -> Result<()> {
     playground_examples::insert_playground_example(
         &mut conn,
         PlaygroundExampleData {
+            name: "Quizzes example, open".to_string(),
+            url: "http://project-331.local/quizzes/exercise".to_string(),
+            width: 500,
+            data: serde_json::json!({
+                "id": "801b9275-5034-438d-922f-104af517468a",
+                "title": "Open answer question",
+                "body": "",
+                "open": Utc.ymd(2021, 9, 1).and_hms(23, 59, 59).to_string(),
+                "deadline": Utc.ymd(2121, 9, 1).and_hms(23, 59, 59).to_string(),
+                "part": 1,
+                "items": [
+                    {
+                        "id": "30cc054a-8efb-4242-9a0d-9acc6ae2ca57",
+                        "body": "Enter the date of the next leap day in ISO 8601 format (YYYY-MM-DD).",
+                        "type": "open",
+                        "multi": false,
+                        "order": 0,
+                        "title": "Date formats",
+                        "quizId": "801b9275-5034-438d-922f-104af517468a",
+                        "options": [],
+                        "maxValue": null,
+                        "maxWords": null,
+                        "minValue": null,
+                        "minWords": null,
+                        "direction": "row",
+                        "formatRegex": "\\d{4}-\\d{2}-\\d{2}",
+                    }
+                ],
+                "tries": 1,
+                "section": 1,
+                "courseId": "f6b6a606-e1f8-4ded-a458-01f541c06019",
+                "triesLimited": true,
+            }),
+        },
+    )
+    .await?;
+
+    playground_examples::insert_playground_example(
+        &mut conn,
+        PlaygroundExampleData {
             name: "Quizzes example, scale".to_string(),
             url: "http://project-331.local/quizzes/exercise".to_string(),
             width: 500,
@@ -422,6 +463,7 @@ async fn main() -> Result<()> {
                     "minValue": 1,
                     "minWords": null,
                     "direction": "row",
+                    "formatRegex": null,
                   },
                   {
                     "id": "b3ce858c-a5ed-4cf7-a9ee-62ef91d1a75a",
@@ -436,7 +478,8 @@ async fn main() -> Result<()> {
                     "maxWords": null,
                     "minValue": 1,
                     "minWords": null,
-                    "direction": "row"
+                    "direction": "row",
+                    "formatRegex": null,
                   },
                   {
                     "id": "eb7f6898-7ba5-4f89-8e24-a17f57381131",
@@ -451,7 +494,8 @@ async fn main() -> Result<()> {
                     "maxWords": null,
                     "minValue": 1,
                     "minWords": null,
-                    "direction": "row"
+                    "direction": "row",
+                    "formatRegex": null,
                   }
                 ],
                 "tries": 1,

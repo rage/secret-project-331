@@ -26,7 +26,7 @@ test("widget, multiple-choice screenshot test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "widget-multiple-choice",
-    waitForThisToBeVisibleAndStable: await frame.frameElement(),
+    waitForThisToBeVisibleAndStable: `text="Which of the color codes represent the color"`,
     frame,
   })
 })

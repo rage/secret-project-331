@@ -89,10 +89,11 @@ tracing-log = "0.1"
 # This library provides a convenient derive macro for the standard library's std::error::Error trait.
 thiserror = "1"
 # generate typescript bindings from rust types
-ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "9a997fe", features = [
-  "uuid-impl",
+ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "67f765076b9d0eaf8283a9374b4a3ecd814c75e2", features = [
   "chrono-impl",
-  "serde-json-impl"
+  "serde-compat",
+  "serde-json-impl",
+  "uuid-impl",
 ] }
 # restricting the transitive dependencies of actix-web during beta.
 # HTTP primitives for the Actix ecosystem .

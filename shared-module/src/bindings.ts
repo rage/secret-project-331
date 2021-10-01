@@ -35,8 +35,8 @@ export interface EmailTemplate {
 
 export interface CourseStructure {
   course: Course
-  pages: Page[]
-  chapters: Chapter[]
+  pages: Array<Page>
+  chapters: Array<Chapter>
 }
 
 export interface Page {
@@ -68,7 +68,7 @@ export interface PageWithExercises {
   title: string
   order_number: number
   deleted_at: Date | null
-  exercises: Exercise[]
+  exercises: Array<Exercise>
 }
 
 export interface UserProgress {
@@ -212,7 +212,7 @@ export interface SubmissionCountByExercise {
 }
 
 export interface ExerciseSubmissions {
-  data: Submission[]
+  data: Array<Submission>
   total_pages: number
 }
 
@@ -333,7 +333,7 @@ export interface Feedback {
   feedback_given: string
   marked_as_read: boolean
   created_at: Date
-  blocks: FeedbackBlock[]
+  blocks: Array<FeedbackBlock>
 }
 
 export interface MarkAsRead {
@@ -342,7 +342,7 @@ export interface MarkAsRead {
 
 export interface NewFeedback {
   feedback_given: string
-  related_blocks: FeedbackBlock[]
+  related_blocks: Array<FeedbackBlock>
 }
 
 export interface FeedbackBlock {
@@ -456,7 +456,7 @@ export interface ExerciseWithExerciseTasks {
   name: string
   deadline: Date | null
   page_id: string
-  exercise_tasks: ExerciseTask[]
+  exercise_tasks: Array<ExerciseTask>
   score_maximum: number
 }
 
@@ -464,7 +464,7 @@ export interface NormalizedCmsExercise {
   id: string
   name: string
   order_number: number
-  exercise_tasks: NormalizedCmsExerciseTask[]
+  exercise_tasks: Array<NormalizedCmsExerciseTask>
 }
 
 export interface NormalizedCmsExerciseTask {

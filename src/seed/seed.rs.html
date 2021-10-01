@@ -1244,6 +1244,50 @@
 <span id="1244">1244</span>
 <span id="1245">1245</span>
 <span id="1246">1246</span>
+<span id="1247">1247</span>
+<span id="1248">1248</span>
+<span id="1249">1249</span>
+<span id="1250">1250</span>
+<span id="1251">1251</span>
+<span id="1252">1252</span>
+<span id="1253">1253</span>
+<span id="1254">1254</span>
+<span id="1255">1255</span>
+<span id="1256">1256</span>
+<span id="1257">1257</span>
+<span id="1258">1258</span>
+<span id="1259">1259</span>
+<span id="1260">1260</span>
+<span id="1261">1261</span>
+<span id="1262">1262</span>
+<span id="1263">1263</span>
+<span id="1264">1264</span>
+<span id="1265">1265</span>
+<span id="1266">1266</span>
+<span id="1267">1267</span>
+<span id="1268">1268</span>
+<span id="1269">1269</span>
+<span id="1270">1270</span>
+<span id="1271">1271</span>
+<span id="1272">1272</span>
+<span id="1273">1273</span>
+<span id="1274">1274</span>
+<span id="1275">1275</span>
+<span id="1276">1276</span>
+<span id="1277">1277</span>
+<span id="1278">1278</span>
+<span id="1279">1279</span>
+<span id="1280">1280</span>
+<span id="1281">1281</span>
+<span id="1282">1282</span>
+<span id="1283">1283</span>
+<span id="1284">1284</span>
+<span id="1285">1285</span>
+<span id="1286">1286</span>
+<span id="1287">1287</span>
+<span id="1288">1288</span>
+<span id="1289">1289</span>
+<span id="1290">1290</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">TimeZone</span>, <span class="ident">Utc</span>};
@@ -1585,6 +1629,7 @@
                         <span class="string">&quot;id&quot;</span>: <span class="string">&quot;a6bc7e17-dc82-409e-b0d4-08bb8d24dc76&quot;</span>,
                         <span class="string">&quot;body&quot;</span>: <span class="string">&quot;Which of the color codes represent the color **red**?&quot;</span>,
                         <span class="string">&quot;direction&quot;</span>: <span class="string">&quot;row&quot;</span>,
+                        <span class="string">&quot;formatRegex&quot;</span>: <span class="ident">null</span>,
                         <span class="string">&quot;maxLabel&quot;</span>: <span class="ident">null</span>,
                         <span class="string">&quot;maxValue&quot;</span>: <span class="ident">null</span>,
                         <span class="string">&quot;maxWords&quot;</span>: <span class="ident">null</span>,
@@ -1644,6 +1689,46 @@
     <span class="ident">playground_examples::insert_playground_example</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
         <span class="ident">PlaygroundExampleData</span> {
+            <span class="ident">name</span>: <span class="string">&quot;Quizzes example, open&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">url</span>: <span class="string">&quot;http://project-331.local/quizzes/exercise&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">width</span>: <span class="number">500</span>,
+            <span class="ident">data</span>: <span class="macro">serde_json::json!</span>({
+                <span class="string">&quot;id&quot;</span>: <span class="string">&quot;801b9275-5034-438d-922f-104af517468a&quot;</span>,
+                <span class="string">&quot;title&quot;</span>: <span class="string">&quot;Open answer question&quot;</span>,
+                <span class="string">&quot;body&quot;</span>: <span class="string">&quot;&quot;</span>,
+                <span class="string">&quot;open&quot;</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2021</span>, <span class="number">9</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).<span class="ident">to_string</span>(),
+                <span class="string">&quot;deadline&quot;</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2121</span>, <span class="number">9</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).<span class="ident">to_string</span>(),
+                <span class="string">&quot;part&quot;</span>: <span class="number">1</span>,
+                <span class="string">&quot;items&quot;</span>: [
+                    {
+                        <span class="string">&quot;id&quot;</span>: <span class="string">&quot;30cc054a-8efb-4242-9a0d-9acc6ae2ca57&quot;</span>,
+                        <span class="string">&quot;body&quot;</span>: <span class="string">&quot;Enter the date of the next leap day in ISO 8601 format (YYYY-MM-DD).&quot;</span>,
+                        <span class="string">&quot;type&quot;</span>: <span class="string">&quot;open&quot;</span>,
+                        <span class="string">&quot;multi&quot;</span>: <span class="bool-val">false</span>,
+                        <span class="string">&quot;order&quot;</span>: <span class="number">0</span>,
+                        <span class="string">&quot;title&quot;</span>: <span class="string">&quot;Date formats&quot;</span>,
+                        <span class="string">&quot;quizId&quot;</span>: <span class="string">&quot;801b9275-5034-438d-922f-104af517468a&quot;</span>,
+                        <span class="string">&quot;options&quot;</span>: [],
+                        <span class="string">&quot;maxValue&quot;</span>: <span class="ident">null</span>,
+                        <span class="string">&quot;maxWords&quot;</span>: <span class="ident">null</span>,
+                        <span class="string">&quot;minValue&quot;</span>: <span class="ident">null</span>,
+                        <span class="string">&quot;minWords&quot;</span>: <span class="ident">null</span>,
+                        <span class="string">&quot;direction&quot;</span>: <span class="string">&quot;row&quot;</span>,
+                        <span class="string">&quot;formatRegex&quot;</span>: <span class="string">&quot;\\d{4}-\\d{2}-\\d{2}&quot;</span>,
+                    }
+                ],
+                <span class="string">&quot;tries&quot;</span>: <span class="number">1</span>,
+                <span class="string">&quot;section&quot;</span>: <span class="number">1</span>,
+                <span class="string">&quot;courseId&quot;</span>: <span class="string">&quot;f6b6a606-e1f8-4ded-a458-01f541c06019&quot;</span>,
+                <span class="string">&quot;triesLimited&quot;</span>: <span class="bool-val">true</span>,
+            }),
+        },
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="ident">playground_examples::insert_playground_example</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+        <span class="ident">PlaygroundExampleData</span> {
             <span class="ident">name</span>: <span class="string">&quot;Quizzes example, scale&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">url</span>: <span class="string">&quot;http://project-331.local/quizzes/exercise&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">width</span>: <span class="number">500</span>,
@@ -1669,6 +1754,7 @@
                     <span class="string">&quot;minValue&quot;</span>: <span class="number">1</span>,
                     <span class="string">&quot;minWords&quot;</span>: <span class="ident">null</span>,
                     <span class="string">&quot;direction&quot;</span>: <span class="string">&quot;row&quot;</span>,
+                    <span class="string">&quot;formatRegex&quot;</span>: <span class="ident">null</span>,
                   },
                   {
                     <span class="string">&quot;id&quot;</span>: <span class="string">&quot;b3ce858c-a5ed-4cf7-a9ee-62ef91d1a75a&quot;</span>,
@@ -1683,7 +1769,8 @@
                     <span class="string">&quot;maxWords&quot;</span>: <span class="ident">null</span>,
                     <span class="string">&quot;minValue&quot;</span>: <span class="number">1</span>,
                     <span class="string">&quot;minWords&quot;</span>: <span class="ident">null</span>,
-                    <span class="string">&quot;direction&quot;</span>: <span class="string">&quot;row&quot;</span>
+                    <span class="string">&quot;direction&quot;</span>: <span class="string">&quot;row&quot;</span>,
+                    <span class="string">&quot;formatRegex&quot;</span>: <span class="ident">null</span>,
                   },
                   {
                     <span class="string">&quot;id&quot;</span>: <span class="string">&quot;eb7f6898-7ba5-4f89-8e24-a17f57381131&quot;</span>,
@@ -1698,7 +1785,8 @@
                     <span class="string">&quot;maxWords&quot;</span>: <span class="ident">null</span>,
                     <span class="string">&quot;minValue&quot;</span>: <span class="number">1</span>,
                     <span class="string">&quot;minWords&quot;</span>: <span class="ident">null</span>,
-                    <span class="string">&quot;direction&quot;</span>: <span class="string">&quot;row&quot;</span>
+                    <span class="string">&quot;direction&quot;</span>: <span class="string">&quot;row&quot;</span>,
+                    <span class="string">&quot;formatRegex&quot;</span>: <span class="ident">null</span>,
                   }
                 ],
                 <span class="string">&quot;tries&quot;</span>: <span class="number">1</span>,

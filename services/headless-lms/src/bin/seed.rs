@@ -507,6 +507,17 @@ async fn main() -> Result<()> {
     )
     .await?;
 
+    playground_examples::insert_playground_example(
+        &mut conn,
+        PlaygroundExampleData {
+            name: "Quizzes example, multiple-choice clickable".to_string(),
+            url: "http://project-331.local/quizzes/exercise".to_string(),
+            width: 500,
+            data: serde_json::json!({}),
+        },
+    )
+    .await?;
+
     Ok(())
 }
 

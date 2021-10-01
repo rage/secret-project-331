@@ -47,12 +47,20 @@ test("Widget, multiple-choice-dropdown screenshot test, answered", async ({ page
     }),
   )
 
-  await frame.selectOption("select", { label: "at least two" })
+  await frame.selectOption(
+    `select:right-of(:text("How many different CSS hexadecimal color codes there are?"))`,
+    { label: "at least two" },
+  )
+
+  await frame.selectOption(
+    `select:right-of(:text("What other ways there are to represent colors in CSS?"))`,
+    { label: "RGB -color system" },
+  )
 
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "widget-multiple-choice-dropdown",
-    waitForThisToBeVisibleAndStable: `text="Hexadecimal color codes"`,
+    waitForThisToBeVisibleAndStable: `text="How many different CSS hexadecimal color codes there are?"`,
     frame,
   })
 })

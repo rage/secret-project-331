@@ -409,13 +409,13 @@ async fn main() -> Result<()> {
             "open": Utc.ymd(2021, 9, 1).and_hms(23, 59, 59).to_string(),
             "part": 1,
             "section": 1,
-            "title": "Something about CSS and color codes",
+            "title": "Questions about CSS and color codes",
             "tries": 1,
             "triesLimited": false,
             "items": [
                 {
                     "id": "37469182-8220-46d3-b3c2-7d215a1bfc03",
-                    "body": "How many different CSS hexadecimal color codes there are",
+                    "body": "How many different CSS hexadecimal color codes there are?",
                     "direction": "row",
                     "formatRegex": null,
                     "maxLabel": null,
@@ -427,7 +427,7 @@ async fn main() -> Result<()> {
                     "multi": false,
                     "order": 1,
                     "quizId": "1af3cc18-d8d8-4cc6-9bf9-be63d79e19a4",
-                    "title": "Hexadecimal color codes",
+                    "title": null,
                     "type": "multiple-choice-dropdown",
                     "options": [
                         {
@@ -450,6 +450,46 @@ async fn main() -> Result<()> {
                             "order": 3,
                             "title": null,
                             "quizItemId": "37469182-8220-46d3-b3c2-7d215a1bfc03",
+                        },
+                    ]
+                },
+                {
+                    "id": "da705796-f8e3-420c-a717-a3064e351eed",
+                    "body": "What other ways there are to represent colors in CSS?",
+                    "direction": "row",
+                    "formatRegex": null,
+                    "maxLabel": null,
+                    "maxValue": null,
+                    "maxWords": null,
+                    "minLabel": null,
+                    "minValue": null,
+                    "minWords": null,
+                    "multi": false,
+                    "order": 1,
+                    "quizId": "1af3cc18-d8d8-4cc6-9bf9-be63d79e19a4",
+                    "title": null,
+                    "type": "multiple-choice-dropdown",
+                    "options": [
+                        {
+                            "id": "dd31dfda-2bf0-4f66-af45-de6ee8ded54a",
+                            "body": "RGB -color system",
+                            "order": 1,
+                            "title": null,
+                            "quizItemId": "da705796-f8e3-420c-a717-a3064e351eed",
+                        },
+                        {
+                            "id": "af864a7e-46d5-46c4-b027-413cb4e5fa68",
+                            "body": "Human readable text representation",
+                            "order": 2,
+                            "title": null,
+                            "quizItemId": "da705796-f8e3-420c-a717-a3064e351eed",
+                        },
+                        {
+                            "id": "66df5778-f80c-42b4-a544-4fb35d44a80f",
+                            "body": "I'm colorblind, so I don't really care :/",
+                            "order": 3,
+                            "title": null,
+                            "quizItemId": "da705796-f8e3-420c-a717-a3064e351eed",
                         },
                     ]
                 }

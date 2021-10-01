@@ -29,6 +29,7 @@ function handlePost(req: NextApiRequest, res: NextApiResponse) {
         id: i.id,
         body: i.body,
         direction: i.direction,
+        formatRegex: i.formatRegex,
         maxLabel: i.maxLabel,
         maxValue: i.maxValue,
         maxWords: i.maxWords,

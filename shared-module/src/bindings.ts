@@ -35,8 +35,8 @@ export interface EmailTemplate {
 
 export interface CourseStructure {
   course: Course
-  pages: Page[]
-  chapters: Chapter[]
+  pages: Array<Page>
+  chapters: Array<Chapter>
 }
 
 export interface Page {
@@ -68,7 +68,7 @@ export interface PageWithExercises {
   title: string
   order_number: number
   deleted_at: Date | null
-  exercises: Exercise[]
+  exercises: Array<Exercise>
 }
 
 export interface UserProgress {
@@ -212,7 +212,7 @@ export interface SubmissionCountByExercise {
 }
 
 export interface ExerciseSubmissions {
-  data: Submission[]
+  data: Array<Submission>
   total_pages: number
 }
 
@@ -334,7 +334,7 @@ export interface Feedback {
   selected_text: string | null
   marked_as_read: boolean
   created_at: Date
-  blocks: FeedbackBlock[]
+  blocks: Array<FeedbackBlock>
 }
 
 export interface MarkAsRead {
@@ -344,7 +344,7 @@ export interface MarkAsRead {
 export interface NewFeedback {
   feedback_given: string
   selected_text: string | null
-  related_blocks: FeedbackBlock[]
+  related_blocks: Array<FeedbackBlock>
 }
 
 export interface FeedbackBlock {
@@ -369,7 +369,7 @@ export interface PageProposal {
   user_id: string | null
   pending: boolean
   created_at: Date
-  block_proposals: BlockProposal[]
+  block_proposals: Array<BlockProposal>
 }
 
 export interface BlockProposal {
@@ -389,7 +389,7 @@ export interface ProposalCount {
 export interface BlockProposalInfo {
   page_id: string
   page_proposal_id: string
-  block_proposal_ids: string[]
+  block_proposal_ids: Array<string>
 }
 
 export interface GetEditProposalsQuery {
@@ -400,7 +400,7 @@ export interface GetEditProposalsQuery {
 
 export interface NewProposedPageEdits {
   page_id: string
-  block_edits: NewProposedBlockEdit[]
+  block_edits: Array<NewProposedBlockEdit>
 }
 
 export type VariantStatus = "Draft" | "Upcoming" | "Active" | "Ended"
@@ -507,7 +507,7 @@ export interface ExerciseWithExerciseTasks {
   name: string
   deadline: Date | null
   page_id: string
-  exercise_tasks: ExerciseTask[]
+  exercise_tasks: Array<ExerciseTask>
   score_maximum: number
 }
 
@@ -515,7 +515,7 @@ export interface NormalizedCmsExercise {
   id: string
   name: string
   order_number: number
-  exercise_tasks: NormalizedCmsExerciseTask[]
+  exercise_tasks: Array<NormalizedCmsExerciseTask>
 }
 
 export interface NormalizedCmsExerciseTask {

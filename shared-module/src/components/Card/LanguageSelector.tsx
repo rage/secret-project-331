@@ -1,7 +1,6 @@
 import styled from "@emotion/styled"
 import React, { useState } from "react"
 
-import Check from "../../img/check.svg"
 import Close from "../../img/close.svg"
 import Austria from "../../img/flags/Austria.png"
 import Belgium from "../../img/flags/Belgium.png"
@@ -26,6 +25,8 @@ import Slovenia from "../../img/flags/Slovenia.png"
 import Spain from "../../img/flags/Spain.png"
 import Sweden from "../../img/flags/Sweden.png"
 import USA from "../../img/flags/USA.png"
+import Tick from "../../img/tick-03.svg"
+import Check from "../../img/tick.svg"
 import { headingFont } from "../../styles"
 
 const arr = {
@@ -36,7 +37,7 @@ const arr = {
   portugal: ["portugal", Portugal],
   denmark: ["danish", Denmark],
   germany: ["german", Germany],
-  sweden: ["swedidh", Sweden],
+  sweden: ["swedish", Sweden],
   USA: ["english", USA],
   netherland: ["dutch", Netherland],
   czech: ["czech", Czech],
@@ -86,7 +87,7 @@ const StyledClose = styled(Close)`
   cursor: pointer;
   color: red;
 `
-const StCheck = styled(Check)`
+const StCheck = styled(Tick)`
   position: absolute;
   top: 0px;
   right: 21px;
@@ -105,7 +106,7 @@ const Country = styled.div`
   display: flex;
   flex-direction: column;
   width: 100px;
-  height: 80px;
+  height: 90px;
   align-items: center;
   z-index: 100;
 
@@ -125,9 +126,10 @@ const Country = styled.div`
   }
 
   span {
-    word-wrap: break-word;
+    margin-top: 5px;
     font-size: 14px;
     font-family: ${headingFont};
+    opacity: 0.7;
   }
 `
 

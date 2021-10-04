@@ -46,7 +46,10 @@ const BaseButton = styled.button`
   }
 
   &:disabled {
-    cursor: default;
+    color: ${theme.primary.disabledText};
+    background-color: ${theme.primary.disabledBg};
+    border-color: ${theme.primary.disabledBorder};
+    cursor: not-allowed;
   }
   ${border}
   ${color}
@@ -59,23 +62,22 @@ const PrimaryButton = styled(BaseButton)`
   border-color: ${theme.primary.hoverBorder};
 
   &:hover {
-    color: ${theme.primary.hoverText};
+    color: ${theme.primary.hoverBorder};
     background-color: ${theme.primary.hoverBg};
     border-color: ${theme.primary.hoverBorder};
   }
 
-  ,
   &:active {
     color: ${theme.primary.hoverText};
     background-color: ${theme.primary.hoverBg};
     border-color: ${theme.primary.hoverBorder};
   }
 
-  ,
   &:disabled {
     color: ${theme.primary.disabledText};
     background-color: ${theme.primary.disabledBg};
     border-color: ${theme.primary.disabledBorder};
+    cursor: not-allowed;
   }
 `
 
@@ -100,11 +102,12 @@ const SecondaryButton = styled(BaseButton)`
     color: ${theme.secondary.disabledText};
     background-color: ${theme.secondary.disabledBg};
     border-color: ${theme.secondary.disabledBorder};
+    cursor: not-allowed;
   }
 `
 
 const TertiaryButton = styled(BaseButton)`
-  color: ${theme.secondary.text};
+  color: ${theme.tertiary.text};
   background-color: #333;
 
   &:hover {
@@ -123,6 +126,7 @@ const TertiaryButton = styled(BaseButton)`
     color: ${theme.secondary.disabledText};
     background-color: ${theme.secondary.disabledBg};
     border-color: ${theme.secondary.disabledBorder};
+    cursor: not-allowed;
   }
 `
 

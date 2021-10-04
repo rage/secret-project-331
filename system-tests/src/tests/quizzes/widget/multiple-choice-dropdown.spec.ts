@@ -59,7 +59,7 @@ test("Widget, multiple-choice-dropdown screenshot test, answered", async ({ page
 
   await expectScreenshotsToMatchSnapshots({
     headless,
-    snapshotName: "widget-multiple-choice-dropdown",
+    snapshotName: "widget-multiple-choice-dropdown-answered",
     waitForThisToBeVisibleAndStable: `text="How many different CSS hexadecimal color codes there are?"`,
     frame,
   })

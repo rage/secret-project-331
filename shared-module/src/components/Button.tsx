@@ -84,12 +84,13 @@ const PrimaryButton = styled(BaseButton)`
 
 const SecondaryButton = styled(BaseButton)`
   color: ${theme.secondary.text};
-  background-color: ${theme.secondary.bg};
+  border-color: ${theme.secondary.hoverBorder};
+  border: 1.8px solid ${theme.secondary.text};
 
-  &:hover {
+  &:hover,
+  &:focus {
     color: ${theme.secondary.hoverText};
-    background-color: ${theme.secondary.hoverBg};
-    border-color: ${theme.secondary.hoverBorder};
+    box-shadow: 0 0 0 1px ${theme.secondary.text};
   }
 
   ,

@@ -12,7 +12,7 @@ interface Props {
   onSubmitSuccess: () => void
   close: () => unknown
   selectedBlockId: string | null
-  setSelectedBlockId: (blockId: string | null) => void
+  clearSelectedBlockId: () => void
   edits: Map<string, NewProposedBlockEdit>
 }
 
@@ -22,7 +22,7 @@ const EditProposalDialog: React.FC<Props> = ({
   onSubmitSuccess,
   close,
   selectedBlockId,
-  setSelectedBlockId,
+  clearSelectedBlockId,
   edits,
 }) => {
   const mutation = useMutation(
@@ -48,7 +48,7 @@ const EditProposalDialog: React.FC<Props> = ({
       <Button
         variant="primary"
         size="medium"
-        onClick={() => setSelectedBlockId(null)}
+        onClick={clearSelectedBlockId}
         className={css`
           margin: 4px;
         `}

@@ -1,12 +1,19 @@
-use super::proposed_block_edits::{BlockProposal, NewProposedBlockEdit};
+use super::{
+    pages::PageUpdate,
+    proposed_block_edits::{BlockProposal, BlockProposalInfo, NewProposedBlockEdit},
+};
 use crate::{
     domain::merge_edits,
-    models::{proposed_block_edits::ProposalStatus, ModelError, ModelResult},
+    models::{
+        proposed_block_edits::{BlockProposalAction, ProposalStatus},
+        ModelError, ModelResult,
+    },
     utils::{document_schema_processor::GutenbergBlock, pagination::Pagination},
 };
 use anyhow::Context;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use sqlx::{Connection, PgConnection};
 use std::collections::{hash_map::Entry, HashMap};
 use ts_rs::TS;
@@ -26,6 +33,13 @@ pub struct PageProposal {
     pub pending: bool,
     pub created_at: DateTime<Utc>,
     pub block_proposals: Vec<BlockProposal>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
+pub struct EditProposalInfo {
+    pub page_id: Uuid,
+    pub page_proposal_id: Uuid,
+    pub block_proposals: Vec<BlockProposalInfo>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
@@ -219,6 +233,93 @@ AND proposed_page_edits.deleted_at IS NULL
     Ok(count)
 }
 
+pub async fn process_proposal(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+    page_proposal_id: Uuid,
+    block_proposals: Vec<BlockProposalInfo>,
+    author: Uuid,
+) -> ModelResult<()> {
+    if block_proposals.is_empty() {
+        return Err(ModelError::Generic(
+            "No block proposals to process".to_string(),
+        ));
+    }
+
+    let mut tx = conn.begin().await?;
+    let page = crate::models::pages::get_page_with_exercises(&mut tx, page_id).await?;
+    let mut blocks = page.blocks_cloned()?;
+    for BlockProposalInfo { id, action } in block_proposals {
+        match action {
+            BlockProposalAction::Accept(contents) => {
+                let res = sqlx::query!(
+                    "
+UPDATE proposed_block_edits
+SET status = 'accepted'
+WHERE id = $1
+RETURNING block_id,
+    block_attribute,
+    original_text,
+    changed_text
+",
+                    id
+                )
+                .fetch_one(&mut tx)
+                .await?;
+                let block = blocks
+                    .iter_mut()
+                    .find(|b| b.client_id == res.block_id)
+                    .context("Failed to find block for edit proposal")?;
+                let current_content =
+                    block
+                        .attributes
+                        .get_mut(&res.block_attribute)
+                        .ok_or_else(|| {
+                            anyhow::anyhow!(
+                                "Edited block has no attribute {}",
+                                &res.block_attribute
+                            )
+                        })?;
+                if let Value::String(s) = current_content {
+                    *s = contents;
+                } else {
+                    return Err(anyhow::anyhow!(
+                        "Block attribute {} did not contain a string",
+                        res.block_attribute
+                    )
+                    .into());
+                }
+            }
+            BlockProposalAction::Reject => {
+                sqlx::query!(
+                    "
+UPDATE proposed_block_edits
+SET status = 'rejected'
+WHERE id = $1
+",
+                    id
+                )
+                .execute(&mut tx)
+                .await?;
+            }
+        }
+    }
+
+    let updated_content = serde_json::to_value(&blocks)?;
+    let page_update = PageUpdate {
+        content: updated_content,
+        url_path: page.url_path,
+        title: page.title,
+        chapter_id: page.chapter_id,
+    };
+    crate::models::pages::update_page(&mut tx, page.id, page_update, author, true).await?;
+
+    update_page_edit_status(&mut tx, page_proposal_id).await?;
+
+    tx.commit().await?;
+    Ok(())
+}
+
 pub async fn update_page_edit_status(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     let block_proposals = sqlx::query!(
         r#"
@@ -313,9 +414,18 @@ mod test {
         let mut p = ps.pop().unwrap();
         let b = p.block_proposals.pop().unwrap();
         assert_eq!(b.accept_preview.unwrap(), "Content with a typo in it.");
-        accept_block_edits(tx.as_mut(), data.page, p.id, &[b.id], data.user)
-            .await
-            .unwrap();
+        process_proposal(
+            tx.as_mut(),
+            data.page,
+            p.id,
+            vec![BlockProposalInfo {
+                id: b.id,
+                action: BlockProposalAction::Accept("Content with a typo in it.".to_string()),
+            }],
+            data.user,
+        )
+        .await
+        .unwrap();
 
         let mut ps =
             get_proposals_for_course(tx.as_mut(), data.course, false, &Pagination::default())
@@ -352,9 +462,18 @@ mod test {
         assert_eq!(b.accept_preview.unwrap(), "Content with a typo in it.");
         assert_eq!(b.status, ProposalStatus::Pending);
 
-        reject_block_edits(tx.as_mut(), p.id, &[b.id])
-            .await
-            .unwrap();
+        process_proposal(
+            tx.as_mut(),
+            data.page,
+            p.id,
+            vec![BlockProposalInfo {
+                id: b.id,
+                action: BlockProposalAction::Reject,
+            }],
+            data.user,
+        )
+        .await
+        .unwrap();
 
         let mut ps =
             get_proposals_for_course(tx.as_mut(), data.course, false, &Pagination::default())

@@ -2,8 +2,9 @@ import { css } from "@emotion/css"
 import { diffChars } from "diff"
 import KaTex from "katex"
 import dynamic from "next/dynamic"
-import React, { useMemo, useState } from "react"
+import React, { useEffect, useState } from "react"
 import sanitizeHtml from "sanitize-html"
+import { useMemo } from "use-memo-one"
 
 import { BlockRendererProps } from "../"
 import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
@@ -72,9 +73,14 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
   // and we let the background color property unset in CSS.
   const bgColor = colorMapper(backgroundColor, "unset")
   const [editedContent, setEditedContent] = useState(data.attributes.content)
-  if (!editing && editedContent !== data.attributes.content) {
-    setEditedContent(data.attributes.content)
-  }
+
+  // edited content should not persist between edit proposals
+  // reset edited content when no longer editing
+  useEffect(() => {
+    if (!editing && editedContent !== data.attributes.content) {
+      setEditedContent(data.attributes.content)
+    }
+  }, [data.attributes.content, editedContent, editing])
 
   // this value only changes when the selection changes, making sure the content of the div being edited isn't constantly changed under the user
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -129,8 +135,9 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
         if (diff.added) {
           spans.push(
             <span
+              aria-roledescription={"Removed text"}
               className={css`
-                background: LightGreen;
+                background: ${colorMapper("pale-cyan-blue")};
               `}
             >
               {diff.value}
@@ -139,8 +146,9 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
         } else if (diff.removed) {
           spans.push(
             <span
+              aria-roledescription={"Added text"}
               className={css`
-                background: Salmon;
+                background: ${colorMapper("luminous-vivid-orange")};
               `}
             >
               {diff.value}

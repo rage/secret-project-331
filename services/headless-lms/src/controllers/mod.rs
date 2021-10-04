@@ -5,6 +5,9 @@ This documents all endpoints. Select a module below for a namespace.
 
 */
 
+// tracing::instrument seems to have issues with this
+#![allow(clippy::suspicious_else_formatting)]
+
 pub mod auth;
 pub mod cms;
 pub mod course_material;

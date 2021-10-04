@@ -1,10 +1,7 @@
 use crate::{
     controllers::ControllerResult,
     domain::authorization::AuthUser,
-    models::{
-        proposed_block_edits::{self, BlockProposalInfo},
-        proposed_page_edits::{self, PageProposal, ProposalCount},
-    },
+    models::proposed_page_edits::{self, EditProposalInfo, PageProposal, ProposalCount},
     utils::pagination::Pagination,
 };
 use actix_web::{
@@ -62,40 +59,22 @@ pub async fn get_edit_proposal_count(
 }
 
 /**
-POST `/api/v0/main-frontend/proposed-edits/accept-block-proposals` - Accepts the given block proposals.
+POST `/api/v0/main-frontend/proposed-edits/process-edit-proposal` - Processes the given edit proposal.
 */
 #[instrument(skip(pool))]
-pub async fn accept_block_proposals(
-    block_proposals: Json<BlockProposalInfo>,
+pub async fn process_edit_proposal(
+    proposal: Json<EditProposalInfo>,
     auth: AuthUser,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    proposed_block_edits::accept_block_edits(
+    let proposal = proposal.into_inner();
+    proposed_page_edits::process_proposal(
         &mut conn,
-        block_proposals.page_id,
-        block_proposals.page_proposal_id,
-        &block_proposals.block_proposal_ids,
+        proposal.page_id,
+        proposal.page_proposal_id,
+        proposal.block_proposals,
         auth.id,
-    )
-    .await?;
-    Ok(HttpResponse::Ok().finish())
-}
-
-/**
-POST `/api/v0/main-frontend/proposed-edits/reject-block-proposals` - Rejects the given block proposals.
-*/
-#[instrument(skip(pool))]
-pub async fn reject_block_proposals(
-    block_proposals: Json<BlockProposalInfo>,
-    auth: AuthUser,
-    pool: web::Data<PgPool>,
-) -> ControllerResult<HttpResponse> {
-    let mut conn = pool.acquire().await?;
-    proposed_block_edits::reject_block_edits(
-        &mut conn,
-        block_proposals.page_proposal_id,
-        &block_proposals.block_proposal_ids,
     )
     .await?;
     Ok(HttpResponse::Ok().finish())
@@ -115,11 +94,7 @@ pub fn _add_proposed_edits_routes(cfg: &mut ServiceConfig) {
             web::get().to(get_edit_proposal_count),
         )
         .route(
-            "/accept-block-proposals",
-            web::post().to(accept_block_proposals),
-        )
-        .route(
-            "/reject-block-proposals",
-            web::post().to(reject_block_proposals),
+            "/process-edit-proposal",
+            web::post().to(process_edit_proposal),
         );
 }

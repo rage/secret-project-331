@@ -1,11 +1,7 @@
 import { useQuery } from "react-query"
 
-import {
-  acceptEditProposalBlocks,
-  fetchEditProposals,
-  rejectEditProposalBlocks,
-} from "../services/backend/proposedEdits"
-import { BlockProposal } from "../shared-module/bindings"
+import { fetchEditProposals, processProposal } from "../services/backend/proposedEdits"
+import { BlockProposal, BlockProposalInfo } from "../shared-module/bindings"
 
 import EditProposalView from "./EditProposalView"
 
@@ -41,30 +37,12 @@ const EditProposalPage: React.FC<Props> = ({ courseId, page, limit, pending, onC
     return <div>Nothing here!</div>
   }
 
-  async function handleAcceptBlocks(
+  async function handleProposal(
     pageId: string,
     pageProposalId: string,
-    blockProposals: BlockProposal[],
+    blockProposals: BlockProposalInfo[],
   ) {
-    await acceptEditProposalBlocks(
-      pageId,
-      pageProposalId,
-      blockProposals.map((b) => b.id),
-    )
-    await refetch()
-    await onChange()
-  }
-
-  async function handleRejectBlocks(
-    pageId: string,
-    pageProposalId: string,
-    blockProposals: BlockProposal[],
-  ) {
-    await rejectEditProposalBlocks(
-      pageId,
-      pageProposalId,
-      blockProposals.map((b) => b.id),
-    )
+    await processProposal(pageId, pageProposalId, blockProposals)
     await refetch()
     await onChange()
   }
@@ -73,11 +51,7 @@ const EditProposalPage: React.FC<Props> = ({ courseId, page, limit, pending, onC
     <ul>
       {proposals.map((p) => (
         <li key={p.id}>
-          <EditProposalView
-            proposal={p}
-            handleAcceptBlocks={handleAcceptBlocks}
-            handleRejectBlocks={handleRejectBlocks}
-          />
+          <EditProposalView proposal={p} handleProposal={handleProposal} />
         </li>
       ))}
     </ul>

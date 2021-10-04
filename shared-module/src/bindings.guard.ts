@@ -8,6 +8,7 @@
 import {
   ActivityProgress,
   BlockProposal,
+  BlockProposalAction,
   BlockProposalInfo,
   Chapter,
   ChapterStatus,
@@ -22,6 +23,7 @@ import {
   CoursePageWithUserData,
   CourseStructure,
   CourseUpdate,
+  EditProposalInfo,
   EmailTemplate,
   EmailTemplateNew,
   EmailTemplateUpdate,
@@ -635,13 +637,13 @@ export function isProposalCount(obj: any, _argumentName?: string): obj is Propos
   )
 }
 
-export function isBlockProposalInfo(obj: any, _argumentName?: string): obj is BlockProposalInfo {
+export function isEditProposalInfo(obj: any, _argumentName?: string): obj is EditProposalInfo {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.page_id === "string" &&
     typeof obj.page_proposal_id === "string" &&
-    Array.isArray(obj.block_proposal_ids) &&
-    obj.block_proposal_ids.every((e: any) => typeof e === "string")
+    Array.isArray(obj.block_proposals) &&
+    obj.block_proposals.every((e: any) => isBlockProposalInfo(e) as boolean)
   )
 }
 
@@ -796,6 +798,27 @@ export function isNewProposedBlockEdit(
     typeof obj.block_attribute === "string" &&
     typeof obj.original_text === "string" &&
     typeof obj.changed_text === "string"
+  )
+}
+
+export function isBlockProposalInfo(obj: any, _argumentName?: string): obj is BlockProposalInfo {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    (isBlockProposalAction(obj.action) as boolean)
+  )
+}
+
+export function isBlockProposalAction(
+  obj: any,
+  _argumentName?: string,
+): obj is BlockProposalAction {
+  return (
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.tag === "Accept" &&
+      typeof obj.data === "string") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.tag === "Reject")
   )
 }
 

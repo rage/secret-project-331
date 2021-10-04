@@ -3,7 +3,7 @@ import { useRouter } from "next/router"
 import React, { useState } from "react"
 
 import Layout from "../../../../components/Layout"
-import FeedbackList from "../../../../components/lists/FeedbackList"
+import EditProposalList from "../../../../components/lists/EditProposalList"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import {
@@ -12,11 +12,11 @@ import {
 } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
-export interface FeedbackProps {
+export interface ChangeRequestsProps {
   query: SimplifiedUrlQuery<"id">
 }
 
-const FeedbackPage: React.FC<FeedbackProps> = ({ query }) => {
+const ChangeRequestsPage: React.FC<ChangeRequestsProps> = ({ query }) => {
   const router = useRouter()
 
   const courseId = query.id
@@ -35,7 +35,7 @@ const FeedbackPage: React.FC<FeedbackProps> = ({ query }) => {
   return (
     <Layout navVariant={"complex"}>
       <div className={wideWidthCenteredComponentStyles}>
-        <h3>Feedback</h3>
+        <h3>Change requests</h3>
         <Paper square>
           <Tabs
             value={pending}
@@ -46,14 +46,16 @@ const FeedbackPage: React.FC<FeedbackProps> = ({ query }) => {
               setPending(value)
             }}
           >
-            <Tab label="Unread" value={true} />
-            <Tab label="Read" value={false} />
+            <Tab label="Pending" value={true} />
+            <Tab label="Old" value={false} />
           </Tabs>
         </Paper>
-        <FeedbackList courseId={courseId} pending={pending} perPage={4} />
+        <EditProposalList courseId={courseId} pending={pending} perPage={4} />
       </div>
     </Layout>
   )
 }
 
-export default withErrorBoundary(withSignedIn(dontRenderUntilQueryParametersReady(FeedbackPage)))
+export default withErrorBoundary(
+  withSignedIn(dontRenderUntilQueryParametersReady(ChangeRequestsPage)),
+)

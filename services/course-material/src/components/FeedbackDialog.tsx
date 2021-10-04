@@ -285,6 +285,7 @@ const FeedbackDialog: React.FC<Props> = ({
             variant="tertiary"
             size="medium"
             onClick={addComment}
+            disabled={comment.length === 0}
           >
             Add comment
           </Button>
@@ -297,6 +298,7 @@ const FeedbackDialog: React.FC<Props> = ({
             variant="primary"
             size="medium"
             onClick={() => mutation.mutate(comments)}
+            disabled={comments.length === 0}
           >
             Send
           </Button>

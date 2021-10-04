@@ -32,9 +32,12 @@ use crate::{
         },
         playground_examples::{PlaygroundExample, PlaygroundExampleData},
         proposed_block_edits::{
-            BlockProposal, BlockProposalInfo, NewProposedBlockEdit, ProposalStatus,
+            BlockProposal, BlockProposalAction, BlockProposalInfo, NewProposedBlockEdit,
+            ProposalStatus,
         },
-        proposed_page_edits::{NewProposedPageEdits, PageProposal, ProposalCount},
+        proposed_page_edits::{
+            EditProposalInfo, NewProposedPageEdits, PageProposal, ProposalCount,
+        },
         submissions::{
             NewSubmission, Submission, SubmissionCount, SubmissionCountByExercise,
             SubmissionCountByWeekAndHour, SubmissionInfo, SubmissionResult,
@@ -94,7 +97,7 @@ ts_rs::export! {
   PageProposal,
   BlockProposal,
   ProposalCount,
-  BlockProposalInfo,
+  EditProposalInfo,
   GetEditProposalsQuery,
   NewProposedPageEdits,
   // dependencies
@@ -111,6 +114,8 @@ ts_rs::export! {
   Pagination,
   ProposalStatus,
   NewProposedBlockEdit,
+  BlockProposalInfo,
+  BlockProposalAction,
   // returned from the API as serde_json::Value
   ExerciseTask,
   ExerciseWithExerciseTasks,

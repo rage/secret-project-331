@@ -5075,37 +5075,6 @@
       "nullable": [false, false, false, false, false, true, false, null, false, true, false]
     }
   },
-  "a9a3d42858671322486da46b93d3aa54e983769faa599fe7e486faf2e64b7be0": {
-    "query": "\nUPDATE proposed_block_edits\nSET status = 'accepted'\nWHERE id = $1\nRETURNING block_id,\n  block_attribute,\n  original_text,\n  changed_text\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "block_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "block_attribute",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 2,
-          "name": "original_text",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 3,
-          "name": "changed_text",
-          "type_info": "Text"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, false, false]
-    }
-  },
   "a9e271cada9f2f343a30090ab395a3a921c69ae488694b9cf483dfffa9920d75": {
     "query": "\nSELECT *\nFROM submissions\nWHERE exercise_id = $1\n  AND deleted_at IS NULL\nLIMIT $2\nOFFSET $3;\n        ",
     "describe": {
@@ -5532,6 +5501,16 @@
       "nullable": [null, null]
     }
   },
+  "c1077b721fbdb17d2e726008507f9ddb90eb026821339890bdda90e4de4f68d2": {
+    "query": "\nUPDATE proposed_block_edits\nSET status = 'rejected'\nWHERE id = $1\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": []
+    }
+  },
   "c2342a617190439d369a3ae3764d9941e40a7dd6f428fe5b49cd50fa33af471d": {
     "query": "\nSELECT *\nFROM exercises\nWHERE page_id = $1\n",
     "describe": {
@@ -5601,6 +5580,37 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, false, true, false, true, false, false, false, false, true]
+    }
+  },
+  "c41883ff57f67f01814525030af67d4a3bc472010ee6871a3191dcd0ee3e8f53": {
+    "query": "\nUPDATE proposed_block_edits\nSET status = 'accepted'\nWHERE id = $1\nRETURNING block_id,\n    block_attribute,\n    original_text,\n    changed_text\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "block_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "block_attribute",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 2,
+          "name": "original_text",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 3,
+          "name": "changed_text",
+          "type_info": "Text"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false]
     }
   },
   "c4db451cf0d08b2fca14976798e0883a3961533b35d7dd4d5057e1662d482592": {
@@ -6520,16 +6530,6 @@
         "Left": []
       },
       "nullable": [false, false, false, true, false, false, false, true, false]
-    }
-  },
-  "e62156fa58a1de12db014ce7f241ca810e4f7c6a2221c18ac376d6e13fcbc9b3": {
-    "query": "\nUPDATE proposed_block_edits\nSET status = 'rejected'\nWHERE id = $1\n  ",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": []
     }
   },
   "e6f687f777bbf1f390fd79b39ebe2f71adc27844198a74a5370382ba150abb44": {

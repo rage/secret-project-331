@@ -386,10 +386,10 @@ export interface ProposalCount {
   handled: number
 }
 
-export interface BlockProposalInfo {
+export interface EditProposalInfo {
   page_id: string
   page_proposal_id: string
-  block_proposal_ids: Array<string>
+  block_proposals: Array<BlockProposalInfo>
 }
 
 export interface GetEditProposalsQuery {
@@ -482,6 +482,17 @@ export interface NewProposedBlockEdit {
   original_text: string
   changed_text: string
 }
+
+export interface BlockProposalInfo {
+  id: string
+  action: BlockProposalAction
+}
+
+export type BlockProposalAction =
+  | { tag: "Accept"; data: string }
+  | {
+      tag: "Reject"
+    }
 
 export interface ExerciseTask {
   id: string

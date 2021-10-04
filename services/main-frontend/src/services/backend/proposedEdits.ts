@@ -1,5 +1,6 @@
 import {
   BlockProposalInfo,
+  EditProposalInfo,
   GetEditProposalsQuery,
   PageProposal,
   ProposalCount,
@@ -25,32 +26,17 @@ export const fetchEditProposalCount = async (courseId: string): Promise<Proposal
   return response.data
 }
 
-export const acceptEditProposalBlocks = async (
+export const processProposal = async (
   pageId: string,
   pageProposalId: string,
-  blockProposalIds: string[],
+  blockProposals: BlockProposalInfo[],
 ): Promise<void> => {
-  const data: BlockProposalInfo = {
+  const data: EditProposalInfo = {
     page_id: pageId,
     page_proposal_id: pageProposalId,
-    block_proposal_ids: blockProposalIds,
+    block_proposals: blockProposals,
   }
-  await mainFrontendClient.post(`/proposed-edits/accept-block-proposals`, data, {
-    headers: { "Content-Type": "application/json" },
-  })
-}
-
-export const rejectEditProposalBlocks = async (
-  pageId: string,
-  pageProposalId: string,
-  blockProposalIds: string[],
-): Promise<void> => {
-  const data: BlockProposalInfo = {
-    page_id: pageId,
-    page_proposal_id: pageProposalId,
-    block_proposal_ids: blockProposalIds,
-  }
-  await mainFrontendClient.post(`/proposed-edits/reject-block-proposals`, data, {
+  await mainFrontendClient.post(`/proposed-edits/process-edit-proposal`, data, {
     headers: { "Content-Type": "application/json" },
   })
 }

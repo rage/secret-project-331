@@ -1,51 +1,132 @@
-import React from "react"
+import { css } from "@emotion/css"
+import { FormControl, FormControlLabel, Radio, RadioGroup, TextField } from "@material-ui/core"
+import React, { useState } from "react"
 
-import { BlockProposal, PageProposal } from "../shared-module/bindings"
+import {
+  BlockProposal,
+  BlockProposalAction,
+  BlockProposalInfo,
+  PageProposal,
+} from "../shared-module/bindings"
 import Button from "../shared-module/components/Button"
 
 export interface Props {
   proposal: PageProposal
-  handleAcceptBlocks: (
+  handleProposal: (
     pageId: string,
     pageProposalId: string,
-    blockProposals: BlockProposal[],
-  ) => Promise<void>
-  handleRejectBlocks: (
-    pageId: string,
-    pageProposalId: string,
-    blockProposals: BlockProposal[],
+    blockProposals: BlockProposalInfo[],
   ) => Promise<void>
 }
 
-const EditProposalView: React.FC<Props> = ({
-  proposal,
-  handleAcceptBlocks,
-  handleRejectBlocks,
-}) => {
+const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
+  const [blockActions, setBlockActions] = useState<Map<string, BlockProposalAction>>(new Map())
+  const [editingBlocks, setEditingBlocks] = useState<Set<string>>(new Set())
+
   const pendingBlock = (block: BlockProposal) => {
     return (
       <>
         <div>{`Block: ${block.block_id}`}</div>
-        <div>{`Current: "${block.current_text}"`}</div>
-        <div>{`Proposal: "${block.changed_text}"`}</div>
-        <div>{`Preview: "${block.accept_preview}"`}</div>
-        <Button
-          variant={"primary"}
-          size={"medium"}
-          onClick={() => handleAcceptBlocks(proposal.page_id, proposal.id, [block])}
-        >
-          Accept
-        </Button>{" "}
-        <Button
-          variant={"secondary"}
-          size={"medium"}
-          onClick={() => handleRejectBlocks(proposal.page_id, proposal.id, [block])}
-        >
-          Reject
-        </Button>
+        <div
+          className={css`
+            max-height: 100px;
+            overflow: scroll;
+          `}
+        >{`Current: "${block.current_text}"`}</div>
+        <div
+          className={css`
+            max-height: 100px;
+            overflow: scroll;
+          `}
+        >{`Proposal: "${block.changed_text}"`}</div>
+        {editingBlocks.has(block.id) && (
+          <>
+            <TextField
+              className={css`
+                width: 100%;
+              `}
+              multiline
+              maxRows={4}
+              defaultValue={block.accept_preview}
+              onChange={(ev) =>
+                setBlockActions((ba) => {
+                  if (block.accept_preview !== null) {
+                    ba.set(block.id, { tag: "Accept", data: ev.currentTarget.value })
+                  }
+                  return new Map(ba)
+                })
+              }
+            ></TextField>
+            <br />
+          </>
+        )}
+        {!editingBlocks.has(block.id) && (
+          <div
+            className={css`
+              max-height: 100px;
+              overflow: scroll;
+            `}
+          >{`Result: "${block.accept_preview}"`}</div>
+        )}
+        <FormControl component="fieldset">
+          <RadioGroup row aria-label="accept or reject proposal" name="radio-buttons-group">
+            {block.accept_preview !== null && (
+              <FormControlLabel
+                value="accept"
+                control={<Radio />}
+                label="Accept"
+                onChange={() => {
+                  setEditingBlocks((eb) => {
+                    eb.delete(block.id)
+                    return new Set(eb)
+                  })
+                  setBlockActions((ba) => {
+                    if (block.accept_preview !== null) {
+                      ba.set(block.id, { tag: "Accept", data: block.accept_preview })
+                    }
+                    return new Map(ba)
+                  })
+                }}
+              />
+            )}
+            <FormControlLabel
+              value="edit"
+              control={<Radio />}
+              label="Edit and accept"
+              onChange={() => {
+                setEditingBlocks((eb) => {
+                  eb.add(block.id)
+                  return new Set(eb)
+                })
+                setBlockActions((ba) => {
+                  if (block.accept_preview !== null) {
+                    ba.set(block.id, { tag: "Accept", data: block.accept_preview })
+                  }
+                  return new Map(ba)
+                })
+              }}
+            />
+            <FormControlLabel
+              value="reject"
+              control={<Radio />}
+              label="Reject"
+              onChange={() => {
+                setEditingBlocks((eb) => {
+                  eb.delete(block.id)
+                  return new Set(eb)
+                })
+                setBlockActions((ba) => {
+                  ba.set(block.id, { tag: "Reject" })
+                  return new Map(ba)
+                })
+              }}
+            />
+          </RadioGroup>
+        </FormControl>
       </>
     )
   }
+
   const acceptedBlock = (block: BlockProposal) => {
     return (
       <>
@@ -56,6 +137,14 @@ const EditProposalView: React.FC<Props> = ({
       </>
     )
   }
+
+  const onSend = async (): Promise<void> => {
+    const blockInfo: Array<BlockProposalInfo> = Array.from(blockActions).map(([id, action]) => {
+      return { id, action }
+    })
+    await handleProposal(proposal.page_id, proposal.id, blockInfo)
+  }
+
   return (
     <>
       <div>{`Page: "${proposal.page_id}"`}</div>
@@ -67,33 +156,18 @@ const EditProposalView: React.FC<Props> = ({
       <div>
         Sent by {proposal.user_id} at {proposal.created_at.toISOString()}
       </div>
+      {blockActions.size < proposal.block_proposals.length && (
+        <div>You have not selected an action for every change yet.</div>
+      )}
       {proposal.pending && (
         <>
           <Button
             variant={"primary"}
             size={"medium"}
-            onClick={() =>
-              handleAcceptBlocks(
-                proposal.page_id,
-                proposal.id,
-                proposal.block_proposals.filter((p) => p.status === "Pending"),
-              )
-            }
+            onClick={onSend}
+            disabled={blockActions.size < proposal.block_proposals.length}
           >
-            Accept all
-          </Button>
-          <Button
-            variant={"secondary"}
-            size={"medium"}
-            onClick={() =>
-              handleRejectBlocks(
-                proposal.page_id,
-                proposal.id,
-                proposal.block_proposals.filter((p) => p.status === "Pending"),
-              )
-            }
-          >
-            Reject all
+            Send
           </Button>
         </>
       )}

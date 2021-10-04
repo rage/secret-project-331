@@ -43,7 +43,7 @@ const FeedbackList: React.FC<Props> = ({ courseId, pending, perPage }) => {
   if (items <= 0) {
     return <div>No feedback</div>
   }
-  const pageCount = Math.floor(items / perPage)
+  const pageCount = Math.ceil(items / perPage)
   if (page > pageCount) {
     setPage(pageCount)
   }

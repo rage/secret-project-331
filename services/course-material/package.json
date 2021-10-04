@@ -40,6 +40,7 @@
     "sanitize-html": "^2.5.1",
     "styled-system": "^5.1.5",
     "use-debounce": "^7.0.0",
+    "use-memo-one": "^1.1.2",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

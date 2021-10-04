@@ -51,7 +51,7 @@ const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
               onChange={(ev) =>
                 setBlockActions((ba) => {
                   if (block.accept_preview !== null) {
-                    ba.set(block.id, { tag: "Accept", data: ev.currentTarget.value })
+                    ba.set(block.id, { tag: "Accept", data: ev.target.value })
                   }
                   return new Map(ba)
                 })

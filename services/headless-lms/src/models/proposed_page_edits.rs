@@ -203,7 +203,10 @@ WHERE proposed_block_edits.deleted_at IS NULL
             status: block_proposal_status,
         });
     }
-    Ok(proposals.into_values().collect())
+
+    let mut proposals = proposals.into_values().collect::<Vec<_>>();
+    proposals.sort_by(|left, right| left.created_at.cmp(&right.created_at).reverse());
+    Ok(proposals)
 }
 
 pub async fn get_proposal_count_for_course(

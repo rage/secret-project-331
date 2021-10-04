@@ -27,14 +27,11 @@ const initI18n = (defaultNS: string): typeof i18n => {
       },
     })
     .init({
-      // cimode language used to prevent an extra import before the language is set. The user should never see the dev fallback
-      // eslint-disable-next-line i18next/no-literal-string
-      // lng: "cimode",
       // eslint-disable-next-line i18next/no-literal-string
       ns: [defaultNS, "shared-module"],
       defaultNS,
       // eslint-disable-next-line i18next/no-literal-string
-      fallbackLng: "en-US",
+      fallbackLng: "en",
       interpolation: {
         escapeValue: false, // react does the escaping
       },

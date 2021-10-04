@@ -3,6 +3,7 @@ const configTemplate = require("./src/shared-module/utils/i18next-parser.config.
 
 const config = {
   ...configTemplate,
+  // eslint-disable-next-line i18next/no-literal-string
   defaultNamespace: "main-frontend",
 }
 

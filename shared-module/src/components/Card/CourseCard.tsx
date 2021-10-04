@@ -34,9 +34,6 @@ const Content = styled.div`
     line-height: 24px;
   }
 `
-const StyledConfetti = styled(Confetti)`
-  position: absolute !important;
-`
 const StyledSettingIcon = styled(SettingIcon)`
   position: absolute;
   top: 30px;

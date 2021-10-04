@@ -25,7 +25,27 @@ test("widget, multiple-choice screenshot test", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
-    snapshotName: "widget-multiple-choice",
+    snapshotName: "widget-multiple-choice-initial",
+    waitForThisToBeVisibleAndStable: `text="Which of the color codes represent the color"`,
+    frame,
+  })
+
+  // Click text=#00ff00
+  await frame.click("text=#00ff00")
+
+  await expectScreenshotsToMatchSnapshots({
+    headless,
+    snapshotName: "widget-multiple-choice-#00ff00",
+    waitForThisToBeVisibleAndStable: `text="Which of the color codes represent the color"`,
+    frame,
+  })
+
+  // Click text=#ff0000
+  await frame.click("text=#ff0000")
+
+  await expectScreenshotsToMatchSnapshots({
+    headless,
+    snapshotName: "widget-multiple-choice-#ff0000",
     waitForThisToBeVisibleAndStable: `text="Which of the color codes represent the color"`,
     frame,
   })

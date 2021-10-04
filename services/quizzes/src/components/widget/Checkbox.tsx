@@ -14,7 +14,7 @@ const Checkbox: React.FC<QuizItemComponentProps> = ({
     if (!quizItemAnswerState) {
       return
     }
-    setQuizItemAnswerState({ ...quizItemAnswerState, intData: enabled ? 1 : 0 })
+    setQuizItemAnswerState({ ...quizItemAnswerState, intData: enabled ? 1 : 0, valid: true })
   }
 
   return (

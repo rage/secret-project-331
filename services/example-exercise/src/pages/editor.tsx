@@ -3,6 +3,8 @@ import { useEffect, useState } from "react"
 
 import Editor from "../components/Editor"
 import useStateWithOnChange from "../hooks/useStateWithOnChange"
+import { CurrentStateMessage, HeightChangedMessage } from "../shared-module/iframe-protocol-types"
+import { isSetStateMessage } from "../shared-module/iframe-protocol-types.guard"
 import { Alternative } from "../util/stateInterfaces"
 
 const EditorPage: React.FC = () => {
@@ -11,9 +13,10 @@ const EditorPage: React.FC = () => {
     if (!port) {
       return
     }
-    const message = {
+    const message: CurrentStateMessage = {
       message: "current-state",
       data: { private_spec: newValue },
+      valid: true,
     }
     console.info("Sending current data", JSON.stringify(message))
     port.postMessage(message)
@@ -38,9 +41,9 @@ const EditorPage: React.FC = () => {
         port.onmessage = (message: WindowEventMap["message"]) => {
           console.log("Frame received a message from port", JSON.stringify(message.data))
           const data = message.data
-          if (data.message === "set-state") {
+          if (isSetStateMessage(data)) {
             console.log("Frame: setting state from message")
-            setState(data.data || [])
+            setState((data.data as Alternative[]) || [])
           } else {
             console.error("Frame received an unknown message from message port")
           }
@@ -83,10 +86,8 @@ const EditorPage: React.FC = () => {
 }
 
 function onHeightChange(newHeight: number, port: MessagePort) {
-  port.postMessage({
-    message: "height-changed",
-    data: newHeight,
-  })
+  const message: HeightChangedMessage = { message: "height-changed", data: newHeight }
+  port.postMessage(message)
 }
 
 export default EditorPage

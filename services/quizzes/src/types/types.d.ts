@@ -216,6 +216,8 @@ export interface QuizItemAnswer {
   createdAt: string
   updatedAt: string
   correct: boolean
+  /** Whether or not the provided answer can be submitted. */
+  valid: boolean
   /** Only contains an id of a selected option */
   optionAnswers: string[] | null
 }

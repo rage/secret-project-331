@@ -12,7 +12,6 @@ const Open: React.FC<QuizItemComponentProps> = ({
   setQuizItemAnswerState,
 }) => {
   const [showFormatError, setShowFormatError] = useState(false)
-  const [valid, setValid] = useState(true)
 
   const handleChange = (newValue: string) => {
     if (!quizItemAnswerState) {
@@ -20,17 +19,17 @@ const Open: React.FC<QuizItemComponentProps> = ({
     }
 
     if (!quizItem.formatRegex) {
-      return setQuizItemAnswerState({ ...quizItemAnswerState, textData: newValue })
+      return setQuizItemAnswerState({ ...quizItemAnswerState, textData: newValue, valid: true })
     }
 
     const newValueIsValid = newValue
       ? answerFormatIsValidAgainstRegex(newValue, quizItem.formatRegex)
       : true
-    setValid(newValueIsValid)
-    setQuizItemAnswerState({ ...quizItemAnswerState, textData: newValue })
+    setQuizItemAnswerState({ ...quizItemAnswerState, textData: newValue, valid: newValueIsValid })
   }
 
-  const formatErrorVisible = showFormatError && !valid
+  const formatErrorVisible =
+    showFormatError && quizItemAnswerState?.textData && !quizItemAnswerState?.valid
 
   return (
     <div

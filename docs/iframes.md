@@ -66,20 +66,20 @@ from: IFrame
 
 to: parent
 
-IFrame posts its updated state. The IFrame is supposed to post this message whenever its internal state changes. The data posted will contain the following things:
+IFrame posts its updated state. The IFrame is supposed to post this message whenever its internal state changes. The data posted will contain one of the following things depending on the use case:
 
-1. Private spec. This can be anything that defines the exercise. This gets saved and will be passed to the exercise service when loading the editor again and when grading a submission.
-2. Public spec. Specification that hides the correct answer that will be used to render an exercise to the student when they start doing the exercise. This will not be passed back to the editor when loading it again because the exercise service is supposed to be able to derive this again from the private spec.
+- Private spec. This can be anything that defines the exercise. This gets saved and will be passed to the exercise service when loading the editor again and when grading a submission.
+- Public spec. Specification that hides the correct answer that will be used to render an exercise to the student when they start doing the exercise. This will not be passed back to the editor when loading it again because the exercise service is supposed to be able to derive this again from the private spec.
+
+The data is also accompanied by a validity status that indicates whether it should be able to be stored in its current form.
 
 Example 1:
 
 ```js
 {
   message: "current-state",
-  data: {
-    private_spec: [{ name: "yes", correct: true }, { name: "no", correct: false }],
-    public_spec: [{ name: "yes" }, { name: "no" }]
-  },
+  data: [{ name: "yes", correct: true }, { name: "no", correct: false }],
+  valid: true
 }
 ```
 
@@ -88,9 +88,7 @@ Example 2:
 ```js
 {
   message: "current-state",
-  data: {
-    private_spec: { password: "dasdasd9" },
-    public_spec: {}
-  },
+  data: { password: "dasdasd9" },
+  valid: true
 }
 ```

@@ -58,7 +58,7 @@ const BaseButton = styled.button`
 `
 
 const PrimaryButton = styled(BaseButton)`
-  color: ${theme.primary.text};
+  color: ${baseTheme.colors.neutral[900]};
   background-color: ${theme.primary.bg};
   border-color: ${theme.primary.hoverBorder};
 
@@ -85,12 +85,12 @@ const PrimaryButton = styled(BaseButton)`
 const SecondaryButton = styled(BaseButton)`
   color: ${theme.secondary.text};
   border-color: ${theme.secondary.hoverBorder};
-  border: 1.8px solid ${theme.secondary.text};
+  border: 1.5px solid ${theme.secondary.text};
 
   &:hover,
   &:focus {
     color: ${theme.secondary.hoverText};
-    box-shadow: 0 0 0 1px ${theme.secondary.text};
+    box-shadow: 0 0 0 0.5px ${theme.secondary.text};
   }
 
   ,

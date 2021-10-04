@@ -1,5 +1,4 @@
 // import the original type declarations
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Reacti18Next from "react-i18next"
 
 import mainFrontend from "../src/shared-module/locales/en-US/main-frontend.json"

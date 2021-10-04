@@ -1,19 +1,19 @@
 import React, { useCallback, useEffect, useReducer } from "react"
 import { useQuery } from "react-query"
 
-import Layout from "../../../../components/Layout"
-import Page from "../../../../components/Page"
-import PageNotFound from "../../../../components/PageNotFound"
+import Layout from "../../components/Layout"
+import Page from "../../components/Page"
+import PageNotFound from "../../components/PageNotFound"
 import CoursePageContext, {
   CoursePageDispatch,
   defaultCoursePageState,
-} from "../../../../contexts/CoursePageContext"
-import useQueryParameter from "../../../../hooks/useQueryParameter"
-import coursePageStateReducer from "../../../../reducers/coursePageStateReducer"
-import { fetchCoursePageByPath } from "../../../../services/backend"
-import dontRenderUntilQueryParametersReady from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
-import { tryToScrollToSelector } from "../../../../utils/dom"
+} from "../../contexts/CoursePageContext"
+import useQueryParameter from "../../hooks/useQueryParameter"
+import coursePageStateReducer from "../../reducers/coursePageStateReducer"
+import { fetchCoursePageByPath } from "../../services/backend"
+import dontRenderUntilQueryParametersReady from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
+import { tryToScrollToSelector } from "../../utils/dom"
 
 const PagePage: React.FC = () => {
   const courseSlug = useQueryParameter("courseSlug")

@@ -45,7 +45,6 @@
   },
   "devDependencies": {
     "@emotion/babel-plugin": "^11.3.0",
-    "@next/bundle-analyzer": "^11.1.2",
     "@types/date-fns": "^2.6.0",
     "@types/node": "^16.9.6",
     "@types/react": "^17.0.24",

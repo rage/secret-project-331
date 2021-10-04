@@ -35,7 +35,7 @@ const BaseButton = styled.button`
   font-size: ${({ transform }: ButtonProps) => (transform == "normal" ? "18px" : "14px")};
   letter-spacing: 0.02em;
   transition: all 150ms linear;
-  border: 3px solid transparent;
+  border: 2.5px solid transparent;
   z-index: 1;
 
   &:hover {
@@ -90,7 +90,7 @@ const SecondaryButton = styled(BaseButton)`
   &:hover,
   &:focus {
     color: ${theme.secondary.hoverText};
-    box-shadow: 0 0 0 0.5px ${theme.secondary.text};
+    box-shadow: 0 0 0 1px ${theme.secondary.text};
   }
 
   ,

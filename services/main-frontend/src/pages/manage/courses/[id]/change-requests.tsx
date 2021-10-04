@@ -30,24 +30,28 @@ const ChangeRequestsPage: React.FC<ChangeRequestsProps> = ({ query }) => {
     })
     initialPending = true
   }
-  const [pending, setPending] = useState(initialPending)
 
+  // 0 == first tab, pending
+  // 1 == second tab, old
+  const intialTab = initialPending ? 0 : 1
+  const [tab, setTab] = useState(intialTab)
+  const pending = tab == 0
   return (
     <Layout navVariant={"complex"}>
       <div className={wideWidthCenteredComponentStyles}>
         <h3>Change requests</h3>
         <Paper square>
           <Tabs
-            value={pending}
+            value={tab}
             onChange={(_, value) => {
-              router.replace({ query: { ...router.query, pending: value } }, undefined, {
+              router.replace({ query: { ...router.query, pending: value == 0 } }, undefined, {
                 shallow: true,
               })
-              setPending(value)
+              setTab(value)
             }}
           >
-            <Tab label="Pending" value={true} />
-            <Tab label="Old" value={false} />
+            <Tab label="Pending" value={0} />
+            <Tab label="Old" value={1} />
           </Tabs>
         </Paper>
         <EditProposalList courseId={courseId} pending={pending} perPage={4} />

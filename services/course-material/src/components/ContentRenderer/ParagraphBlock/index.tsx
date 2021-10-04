@@ -7,7 +7,7 @@ import sanitizeHtml from "sanitize-html"
 import { useMemo } from "use-memo-one"
 
 import { BlockRendererProps } from "../"
-import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
+import { courseMaterialCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import colorMapper from "../../../styles/colorMapper"
 import fontSizeMapper from "../../../styles/fontSizeMapper"
 import { ParagraphAttributes } from "../../../types/GutenbergBlockAttributes"
@@ -92,7 +92,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
       return (
         <p
           className={css`
-            ${normalWidthCenteredComponentStyles}
+            ${courseMaterialCenteredComponentStyles}
             white-space: pre-line;
             min-width: 1px;
             color: ${textColor};
@@ -161,7 +161,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
       return (
         <p
           className={css`
-            ${normalWidthCenteredComponentStyles}
+            ${courseMaterialCenteredComponentStyles}
             white-space: pre-line;
             min-width: 1px;
             color: ${textColor};
@@ -183,7 +183,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
   return (
     <P
       className={css`
-        ${normalWidthCenteredComponentStyles}
+        ${courseMaterialCenteredComponentStyles}
         ${dropCap ? hasDropCap : null}
         white-space: pre-line;
         min-width: 1px;

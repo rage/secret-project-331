@@ -23,25 +23,16 @@ test("test", async ({ headless, page }) => {
     "http://project-331.local/organizations/8bb12295-53ac-4099-9644-ac0ff5e34d92",
   )
 
-  // Click text=Introduction to Course Material
-  await Promise.all([page.waitForNavigation(), page.click("text=Introduction to Course Material")])
+  await Promise.all([page.waitForNavigation(), page.click("text=Introduction to feedback")])
+
+  await page.click('label:has-text("default")')
 
   // Click button:has-text("Continue")
   await page.click('button:has-text("Continue")')
 
-  // Click a:has-text("CHAPTER 1User Interface")
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-course-material/chapter-1' }*/),
-    page.click('a:has-text("CHAPTER 1User Interface")'),
-  ])
-
-  // Triple click text=In the industrial design field of human–computer interaction, a user interface i
-  await page.click(
-    "text=In the industrial design field of human–computer interaction, a user interface i",
-    {
-      clickCount: 3,
-    },
-  )
+  await page.click("text=Neque", {
+    clickCount: 3,
+  })
 
   await expectScreenshotsToMatchSnapshots({
     page,
@@ -86,17 +77,18 @@ test("test", async ({ headless, page }) => {
   ])
   expectPath(page, "/organizations/[id]")
 
-  // Click text=Introduction to Course Material Manage >> :nth-match(a, 2)
+  // Click text=Introduction to feedback Manage >> :nth-match(a, 2)
   await Promise.all([
     page.waitForNavigation(),
-    await page.click("text=Introduction to Course Material Manage >> :nth-match(a, 2)"),
+    await page.click("text=Introduction to feedback Manage >> :nth-match(a, 2)"),
   ])
   expectPath(page, "/manage/courses/[id]")
 
   // Click text=Manage feedback
 
   await Promise.all([page.waitForNavigation(), await page.click("text=Manage feedback")])
-  expectPath(page, "/manage/courses/[id]/feedback")
+  await page.waitForURL((url) => url.searchParams.has("read"))
+  expectPath(page, "/manage/courses/[id]/feedback?read=false")
 
   await page.waitForSelector("text=Sent by")
   await page.evaluate(() => {
@@ -118,6 +110,9 @@ test("test", async ({ headless, page }) => {
   })
 
   // Click text=Mark as read
+  await page.click("text=Mark as read")
+  await page.click("text=Mark as read")
+  await page.click("text=Mark as read")
   await page.click("text=Mark as read")
   await expectScreenshotsToMatchSnapshots({
     page,

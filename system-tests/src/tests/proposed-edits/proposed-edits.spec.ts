@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test"
+import { Page } from "playwright"
 
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
@@ -131,6 +132,7 @@ test("test", async ({ page, headless }) => {
     "http://project-331.local/manage/courses/cae7da38-9486-47da-9106-bff9b6a280f2/change-requests?pending=true",
   )
 
+  await replaceIds(page)
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,
@@ -144,6 +146,7 @@ test("test", async ({ page, headless }) => {
   await page.fill('textarea:has-text("Like this!")', "Like this!!!!!")
   await page.click(':nth-match(:text("Reject"), 3)')
 
+  await replaceIds(page)
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,
@@ -155,6 +158,7 @@ test("test", async ({ page, headless }) => {
 
   await page.click('text="Change requests"')
 
+  await replaceIds(page)
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,
@@ -164,11 +168,12 @@ test("test", async ({ page, headless }) => {
 
   await page.click('text="Old"')
 
+  await replaceIds(page)
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,
     snapshotName: "manage-old-after-send",
-    waitForThisToBeVisibleAndStable: "text=Accepted",
+    waitForThisToBeVisibleAndStable: ".MuiTabs-indicator",
   })
 
   // Go to http://project-331.local/
@@ -206,3 +211,31 @@ test("test", async ({ page, headless }) => {
     waitForThisToBeVisibleAndStable: "text=Like this!!!!!",
   })
 })
+
+async function replaceIds(page: Page): Promise<void> {
+  await page.evaluate(() => {
+    const divs = document.querySelectorAll("div")
+    for (const div of divs) {
+      if (div.children.length === 0 && div.textContent.includes('Page: "')) {
+        div.innerHTML = 'Page: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"'
+      }
+    }
+  })
+  await page.evaluate(() => {
+    const divs = document.querySelectorAll("div")
+    for (const div of divs) {
+      if (div.children.length === 0 && div.textContent.includes("Block: ")) {
+        div.innerHTML = "Block: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      }
+    }
+  })
+  await page.waitForSelector("text=Sent by")
+  await page.evaluate(() => {
+    const divs = document.querySelectorAll("div")
+    for (const div of divs) {
+      if (div.children.length === 0 && div.textContent.includes("Sent by")) {
+        div.innerHTML = "Sent by xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx at yyyy-mm-ddThh:mm:ss.xxxZ"
+      }
+    }
+  })
+}

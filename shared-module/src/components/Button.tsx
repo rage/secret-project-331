@@ -141,9 +141,9 @@ const Button: React.FC<ButtonProps> = (props) => {
   return (
     <ThemeProvider theme={theme}>
       {props.variant === "primary" ? (
-        <PrimaryButton {...props} disabled={true}></PrimaryButton>
+        <PrimaryButton {...props}></PrimaryButton>
       ) : props.variant === "secondary" ? (
-        <SecondaryButton title="button" {...props} disabled></SecondaryButton>
+        <SecondaryButton title="button" {...props}></SecondaryButton>
       ) : (
         <TertiaryButton title="button" {...props} disabled />
       )}

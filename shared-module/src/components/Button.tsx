@@ -3,13 +3,14 @@ import styled from "@emotion/styled"
 import React from "react"
 import { border, color, space } from "styled-system"
 
-import { fontWeights, headingFont, theme, typography } from "../styles"
+import { baseTheme, fontWeights, headingFont, theme, typograph } from "../styles"
 
 export interface ButtonExtraProps {
   variant: "primary" | "secondary" | "tertiary"
   size: "medium" | "large"
   transform: "normal" | "uppercase"
   children: React.ReactNode
+  disabled: boolean
 }
 
 export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & ButtonExtraProps
@@ -46,9 +47,9 @@ const BaseButton = styled.button`
   }
 
   &:disabled {
-    color: ${theme.primary.disabledText};
-    background-color: ${theme.primary.disabledBg};
-    border-color: ${theme.primary.disabledBorder};
+    color: ${baseTheme.colors.neutral[600]};
+    background-color: ${baseTheme.colors.neutral[500]};
+    border-color: ${baseTheme.colors.neutral[500]};
     cursor: not-allowed;
   }
   ${border}
@@ -74,9 +75,9 @@ const PrimaryButton = styled(BaseButton)`
   }
 
   &:disabled {
-    color: ${theme.primary.disabledText};
-    background-color: ${theme.primary.disabledBg};
-    border-color: ${theme.primary.disabledBorder};
+    color: ${baseTheme.colors.neutral[600]};
+    background-color: ${baseTheme.colors.neutral[500]};
+    border-color: ${baseTheme.colors.neutral[500]};
     cursor: not-allowed;
   }
 `
@@ -97,11 +98,10 @@ const SecondaryButton = styled(BaseButton)`
     background-color: ${theme.secondary.hoverBg};
   }
 
-  ,
   &:disabled {
-    color: ${theme.secondary.disabledText};
-    background-color: ${theme.secondary.disabledBg};
-    border-color: ${theme.secondary.disabledBorder};
+    color: ${baseTheme.colors.neutral[600]};
+    background-color: ${baseTheme.colors.neutral[500]};
+    border-color: ${baseTheme.colors.neutral[500]};
     cursor: not-allowed;
   }
 `
@@ -121,11 +121,10 @@ const TertiaryButton = styled(BaseButton)`
     background-color: #fff;
   }
 
-  ,
   &:disabled {
-    color: ${theme.secondary.disabledText};
-    background-color: ${theme.secondary.disabledBg};
-    border-color: ${theme.secondary.disabledBorder};
+    color: ${baseTheme.colors.neutral[600]};
+    background-color: ${baseTheme.colors.neutral[500]};
+    border-color: ${baseTheme.colors.neutral[500]};
     cursor: not-allowed;
   }
 `
@@ -142,11 +141,11 @@ const Button: React.FC<ButtonProps> = (props) => {
   return (
     <ThemeProvider theme={theme}>
       {props.variant === "primary" ? (
-        <PrimaryButton {...props}></PrimaryButton>
+        <PrimaryButton {...props} disabled={true}></PrimaryButton>
       ) : props.variant === "secondary" ? (
-        <SecondaryButton title="button" {...props}></SecondaryButton>
+        <SecondaryButton title="button" {...props} disabled></SecondaryButton>
       ) : (
-        <TertiaryButton title="button" {...props} />
+        <TertiaryButton title="button" {...props} disabled />
       )}
     </ThemeProvider>
   )

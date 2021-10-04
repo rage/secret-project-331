@@ -47,9 +47,9 @@ export const theme = {
     hoverBorder: baseTheme.colors.green[100],
     focusBorder: baseTheme.colors.neutral[100],
     activeBg: baseTheme.colors.neutral[100],
-    disabledText: baseTheme.colors.neutral[100],
+    /*     disabledText: baseTheme.colors.neutral[100],
     disabledBg: baseTheme.colors.neutral[100],
-    disabledBorder: baseTheme.colors.neutral[100],
+    disabledBorder: baseTheme.colors.neutral[100], */
   },
   secondary: {
     text: baseTheme.colors.neutral[800],
@@ -60,9 +60,9 @@ export const theme = {
     hoverBorder: baseTheme.colors.neutral[600],
     focusBorder: baseTheme.colors.neutral[100],
     activeBg: baseTheme.colors.neutral[100],
-    disabledText: baseTheme.colors.neutral[100],
+    /*     disabledText: baseTheme.colors.neutral[100],
     disabledBg: baseTheme.colors.neutral[100],
-    disabledBorder: baseTheme.colors.neutral[100],
+    disabledBorder: baseTheme.colors.neutral[100], */
   },
   tertiary: {
     text: baseTheme.colors.neutral[100],
@@ -73,9 +73,9 @@ export const theme = {
     hoverBorder: baseTheme.colors.neutral[100],
     focusBorder: baseTheme.colors.neutral[100],
     activeBg: baseTheme.colors.neutral[100],
-    disabledText: baseTheme.colors.neutral[100],
+    /*     disabledText: baseTheme.colors.neutral[100],
     disabledBg: baseTheme.colors.neutral[100],
-    disabledBorder: baseTheme.colors.neutral[100],
+    disabledBorder: baseTheme.colors.neutral[100], */
   },
   buttonSizes: {
     medium: {
@@ -84,7 +84,7 @@ export const theme = {
     },
     large: {
       fontSize: baseTheme.fontSizes[4],
-      padding: `18px 36px`,
+      padding: `16px 34px`,
     },
   },
 }

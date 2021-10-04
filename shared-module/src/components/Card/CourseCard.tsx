@@ -1,7 +1,7 @@
 import styled from "@emotion/styled"
 import React, { useState } from "react"
 
-import UK from "../../img/flags/UK.png"
+import Finland from "../../img/flags/Finland.png"
 import SettingIcon from "../../img/setting.svg"
 import { headingFont } from "../../styles"
 import Confetti from "../Confetti"
@@ -44,6 +44,7 @@ const StyledSettingIcon = styled(SettingIcon)`
 `
 const StyledLanguageSelector = styled(LanguageSelector)`
   position: absolute !important;
+  top: 0px;
 `
 
 const Languages = styled.div`
@@ -92,7 +93,7 @@ const CourseCard: React.FC<CardProps> = ({ title, description }) => {
 
   return (
     <CourseGridWrapper>
-      <StyledConfetti />
+      <Confetti />
       <StyledSettingIcon />
       <Content>
         <h2>{title}</h2>
@@ -100,7 +101,7 @@ const CourseCard: React.FC<CardProps> = ({ title, description }) => {
         <Languages onClick={handleClick}>
           <span>Choose language </span>
           <div>
-            <img src={UK} alt="flag" />
+            <img src={Finland} alt="flag" />
             <p>English-US</p>
           </div>
         </Languages>

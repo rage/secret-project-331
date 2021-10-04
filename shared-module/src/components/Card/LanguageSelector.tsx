@@ -1,32 +1,58 @@
 import styled from "@emotion/styled"
 import React, { useState } from "react"
 
+import Check from "../../img/check.svg"
 import Close from "../../img/close.svg"
-import UK from "../../img/flags/UK.png"
-import Belgium from "../../img/flags/belgium.png"
-import China from "../../img/flags/china.png"
-import Finland from "../../img/flags/finland.png"
-import Germany from "../../img/flags/germany.png"
-import Holland from "../../img/flags/netherlands.png"
-import Russia from "../../img/flags/russia.png"
-import SK from "../../img/flags/southkorea.png"
-import Spain from "../../img/flags/spain.png"
-import Swiss from "../../img/flags/switzerland.png"
-import US from "../../img/flags/unitedstates.png"
-import Check from "../../img/tick.svg"
+import Austria from "../../img/flags/Austria.png"
+import Belgium from "../../img/flags/Belgium.png"
+import Croatia from "../../img/flags/Croatia.png"
+import Czech from "../../img/flags/Czech.png"
+import Denmark from "../../img/flags/Denmark.png"
+import Estonia from "../../img/flags/Estonia.png"
+import Finland from "../../img/flags/Finland.png"
+import France from "../../img/flags/France.png"
+import Germany from "../../img/flags/Germany.png"
+import Greece from "../../img/flags/Greece.png"
+import Ireland from "../../img/flags/Ireland.png"
+import Italy from "../../img/flags/Italy.png"
+import Latvia from "../../img/flags/Latvia.png"
+import Lithuania from "../../img/flags/Lithuania.png"
+import Netherland from "../../img/flags/Netherland.png"
+import Norway from "../../img/flags/Norway.png"
+import Poland from "../../img/flags/Poland.png"
+import Portugal from "../../img/flags/Portugal.png"
+import Romania from "../../img/flags/Romania.png"
+import Slovenia from "../../img/flags/Slovenia.png"
+import Spain from "../../img/flags/Spain.png"
+import Sweden from "../../img/flags/Sweden.png"
+import USA from "../../img/flags/USA.png"
+import { headingFont } from "../../styles"
 
 const arr = {
-  belgium: ["belgium-dutch", Belgium],
-  chinese: ["chinese", China],
+  belgium: ["belgium", Belgium],
   finland: ["finnish", Finland],
-  english: ["english", UK],
-  german: ["german", Germany],
-  dutch: ["dutch", Holland],
-  russian: ["russian", Russia],
-  korean: ["korean", SK],
-  spanish: ["spanish", Spain],
-  swiss: ["swiss-german", Swiss],
-  unitedState: ["us-english", US],
+  belgiumFrench: ["belgium-french", Belgium],
+  austria: ["german", Austria],
+  portugal: ["portugal", Portugal],
+  denmark: ["danish", Denmark],
+  germany: ["german", Germany],
+  sweden: ["swedidh", Sweden],
+  USA: ["english", USA],
+  netherland: ["dutch", Netherland],
+  czech: ["czech", Czech],
+  slovenia: ["slovenia", Slovenia],
+  lithuania: ["lithuania", Lithuania],
+  italy: ["italian", Italy],
+  croatia: ["croatia", Croatia],
+  greece: ["greece", Greece],
+  poland: ["polish", Poland],
+  norway: ["norway", Norway],
+  latvia: ["latvia", Latvia],
+  ireland: ["english", Ireland],
+  romania: ["romanian", Romania],
+  spain: ["spanish", Spain],
+  estonia: ["estonian", Estonia],
+  france: ["french", France],
 }
 
 const SelectorWrapper = styled.div`
@@ -64,7 +90,7 @@ const StCheck = styled(Check)`
   position: absolute;
   top: 0px;
   right: 21px;
-  fill: red;
+  fill: black;
 `
 
 const Content = styled.div`
@@ -84,6 +110,7 @@ const Country = styled.div`
   z-index: 100;
 
   img {
+    object-fit: cover;
     width: 50px;
     height: 50px;
     border-radius: 50px;
@@ -99,7 +126,8 @@ const Country = styled.div`
 
   span {
     word-wrap: break-word;
-    font-size: 12px;
+    font-size: 14px;
+    font-family: ${headingFont};
   }
 `
 

@@ -72,7 +72,8 @@ test("test", async ({ headless, page }) => {
   })
 
   // Click text=Submit
-  await page.click('text="Submit"')
+  await page.click('text="Add comment"')
+  await page.click('text="Send"')
   await page.waitForSelector("text=Feedback submitted successfully")
 
   await logout(page)
@@ -95,8 +96,7 @@ test("test", async ({ headless, page }) => {
   // Click text=Manage feedback
 
   await Promise.all([page.waitForNavigation(), await page.click("text=Manage feedback")])
-  await page.waitForURL((url) => url.searchParams.has("read"))
-  expectPath(page, "/manage/courses/[id]/feedback?read=false")
+  expectPath(page, "/manage/courses/[id]/feedback")
 
   await page.waitForSelector("text=Sent by")
   await page.evaluate(() => {

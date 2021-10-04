@@ -95,7 +95,7 @@ const FeedbackDialog: React.FC<Props> = ({
       <div
         className={css`
           position: fixed;
-          max-width: 447px;
+          max-width: 400px;
           background: #ffffff;
           border: 1px solid #c4c4c4;
           box-sizing: border-box;

@@ -21,16 +21,16 @@ const FeedbackPage: React.FC<FeedbackProps> = ({ query }) => {
 
   const courseId = query.id
 
-  let initialPending: boolean
-  if (router.query.pending) {
-    initialPending = router.query.pending === "true"
+  let initialRead: boolean
+  if (router.query.read) {
+    initialRead = router.query.read === "true"
   } else {
-    router.replace({ query: { ...router.query, pending: true } }, undefined, {
+    router.replace({ query: { ...router.query, read: false } }, undefined, {
       shallow: true,
     })
-    initialPending = true
+    initialRead = false
   }
-  const [pending, setPending] = useState(initialPending)
+  const [read, setRead] = useState(initialRead)
 
   return (
     <Layout navVariant={"complex"}>
@@ -38,19 +38,19 @@ const FeedbackPage: React.FC<FeedbackProps> = ({ query }) => {
         <h3>Feedback</h3>
         <Paper square>
           <Tabs
-            value={pending}
+            value={read}
             onChange={(_, value) => {
-              router.replace({ query: { ...router.query, pending: value } }, undefined, {
+              router.replace({ query: { ...router.query, read: value } }, undefined, {
                 shallow: true,
               })
-              setPending(value)
+              setRead(value)
             }}
           >
-            <Tab label="Unread" value={true} />
-            <Tab label="Read" value={false} />
+            <Tab label="Unread" value={false} />
+            <Tab label="Read" value={true} />
           </Tabs>
         </Paper>
-        <FeedbackList courseId={courseId} pending={pending} perPage={4} />
+        <FeedbackList courseId={courseId} read={read} perPage={4} />
       </div>
     </Layout>
   )

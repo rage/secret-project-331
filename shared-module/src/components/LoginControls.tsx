@@ -36,7 +36,7 @@ const LoginControls: React.FC<LoginControlsProps> = ({ styles, returnToPath }) =
       <li className={cx(styles)}>
         <Button size="medium" variant="primary">
           <StyledIcon icon={profileIcon} />
-          E-mail
+          Email
         </Button>
       </li>
       <li className={cx(styles)}>

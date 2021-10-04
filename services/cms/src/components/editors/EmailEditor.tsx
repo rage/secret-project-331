@@ -16,7 +16,7 @@ interface EmailEditorProps {
   handleSave: (updatedTemplate: EmailTemplateUpdate) => Promise<EmailTemplate>
 }
 
-const EditorLoading = <div>Loading e-mail editor...</div>
+const EditorLoading = <div>Loading email editor...</div>
 
 const EmailGutenbergEditor = dynamic(() => import("./GutenbergEditor"), {
   ssr: false,

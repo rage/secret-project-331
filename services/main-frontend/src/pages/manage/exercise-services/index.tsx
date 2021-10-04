@@ -194,7 +194,7 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
                 error={false}
               />
               <ContentArea
-                title={t("text-field-label-or-header-slug")}
+                title={t("text-field-label-or-header-slug-or-short-name")}
                 text={service.slug}
                 editing={editing}
                 // eslint-disable-next-line i18next/no-literal-string
@@ -314,7 +314,7 @@ const ExerciseServiceCreationModal: React.FC<ExerciseServiceCreationModelProps> 
             error={false}
           />
           <ContentArea
-            title={t("text-field-label-or-header-slug")}
+            title={t("text-field-label-or-header-slug-or-short-name")}
             text={exercise_service.slug}
             editing={true}
             // eslint-disable-next-line i18next/no-literal-string

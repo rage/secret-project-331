@@ -96,7 +96,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
             required
             fullWidth
             id="outlined-required"
-            label={t("text-field-label-or-header-slug")}
+            label={t("text-field-label-or-header-slug-or-short-name")}
             variant="outlined"
             value={slug}
             onChange={(e) => {

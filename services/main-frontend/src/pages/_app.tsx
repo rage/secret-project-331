@@ -1,10 +1,10 @@
 import { ThemeProvider } from "@material-ui/core"
 import type { AppProps } from "next/app"
-import { useRouter } from "next/router"
 import React, { useEffect } from "react"
 import { QueryClientProvider } from "react-query"
 
 import { LoginStateContextProvider } from "../shared-module/contexts/LoginStateContext"
+import useLanguage from "../shared-module/hooks/useLanguage"
 import { queryClient } from "../shared-module/services/appQueryClient"
 import GlobalStyles from "../shared-module/styles/GlobalStyles"
 import muiTheme from "../shared-module/styles/muiTheme"
@@ -14,8 +14,7 @@ import initI18n from "../shared-module/utils/initI18n"
 const i18n = initI18n("main-frontend")
 
 const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
-  const router = useRouter()
-  const locale = router?.locale
+  const language = useLanguage()
   useEffect(() => {
     // Remove the server-side injected CSS.
     // eslint-disable-next-line i18next/no-literal-string
@@ -26,12 +25,16 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
   }, [])
 
   useEffect(() => {
-    if (!locale) {
+    if (!language) {
       return
     }
+
+    // eslint-disable-next-line i18next/no-literal-string
+    console.info(`Setting language to: ${language}`)
+
     // We init 18n here, because locale is available
-    i18n.changeLanguage(locale)
-  }, [locale])
+    i18n.changeLanguage(language)
+  }, [language])
 
   return (
     <QueryClientProvider client={queryClient}>

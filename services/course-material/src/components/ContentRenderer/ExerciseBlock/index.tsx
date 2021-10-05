@@ -34,6 +34,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
     enabled: showExercise,
   })
   const [answer, setAnswer] = useState<unknown>(null)
+  const [answerValid, setAnswerValid] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [submissionResponse, setSubmissionResponse] = useState<SubmissionResult | null>(null)
   const [submissionError, setSubmissionError] = useState<unknown | null>(null)
@@ -122,6 +123,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
           public_spec={data.current_exercise_task.public_spec}
           url={`${url}?width=${defaultContainerWidth}`}
           setAnswer={setAnswer}
+          setAnswerValid={setAnswerValid}
         />
       ) : (
         "Don't know how to render this assignment"
@@ -137,7 +139,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
         <Button
           size="medium"
           variant="primary"
-          disabled={submitting || !courseInstanceId}
+          disabled={submitting || !courseInstanceId || !answerValid}
           onClick={async () => {
             if (!courseInstanceId) {
               console.error("Tried to submit without a current course instance id")

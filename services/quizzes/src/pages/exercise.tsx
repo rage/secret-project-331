@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import { v4 } from "uuid"
 
 import Widget, { State } from "../components/widget"
+import { isSetStateMessage } from "../shared-module/iframe-protocol-types.guard"
 import { PublicQuiz } from "../types/types"
 
 const ExercisePage: React.FC = () => {
@@ -28,11 +29,10 @@ const ExercisePage: React.FC = () => {
         port.onmessage = (message: WindowEventMap["message"]) => {
           console.log("Frame received a message from port", JSON.stringify(message.data))
           const data = message.data
-          console.log(data.data)
-          if (data.message === "set-state") {
+          if (isSetStateMessage(data)) {
             console.log("Frame: setting state from message")
             // Quiz should be sent to the widget as a quiz object, not as a list containing the quiz object
-            setQuiz(data.data)
+            setQuiz(data.data as PublicQuiz)
           } else {
             console.error("Frame received an unknown message from message port")
           }
@@ -79,12 +79,14 @@ const ExercisePage: React.FC = () => {
           quizItemId: qi.id,
           quizAnswerId: quiz_answer_id,
           correct: false,
+          valid: false,
           intData: null,
           textData: null,
           optionAnswers: null,
         }
       }),
     },
+    quiz_answer_is_valid: false,
   }
 
   return <Widget port={port} maxWidth={maxWidth} initialState={state} />

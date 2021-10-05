@@ -7,7 +7,7 @@ test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test("widget, multiple-choice screenshot test", async ({ page, headless }) => {
+test("widget, multiple-choice-clickable screenshot test", async ({ page, headless }) => {
   // Go to http://project-331.local/
   await page.goto("http://project-331.local/playground")
 
@@ -15,7 +15,7 @@ test("widget, multiple-choice screenshot test", async ({ page, headless }) => {
 
   await page.click('div[role="button"]:has-text("​")')
   // Click text=Quizzes example, multiple-choice
-  await page.click("text=Quizzes example, multiple-choice")
+  await page.click("text=Quizzes example, multiple-choice clickable")
 
   const frame = await waitForFunction(page, () =>
     page.frames().find((f) => {
@@ -25,28 +25,31 @@ test("widget, multiple-choice screenshot test", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
-    snapshotName: "widget-multiple-choice-initial",
-    waitForThisToBeVisibleAndStable: `text="Which of the color codes represent the color"`,
+    snapshotName: "widget-multiple-choice-clickable",
+    waitForThisToBeVisibleAndStable: [
+      `text="Choose your favorite colors"`,
+      `text=Cyan`,
+      `text=Sienna`,
+      `text=LawnGreen`,
+    ],
     frame,
   })
 
-  // Click text=#00ff00
-  await frame.click("text=#00ff00")
+  await Promise.all([
+    frame.click(`button:text("Cyan")`),
+    frame.click(`button:text("Sienna")`),
+    frame.click(`button:text("LawnGreen")`),
+  ])
 
   await expectScreenshotsToMatchSnapshots({
     headless,
-    snapshotName: "widget-multiple-choice-#00ff00",
-    waitForThisToBeVisibleAndStable: `text="Which of the color codes represent the color"`,
-    frame,
-  })
-
-  // Click text=#ff0000
-  await frame.click("text=#ff0000")
-
-  await expectScreenshotsToMatchSnapshots({
-    headless,
-    snapshotName: "widget-multiple-choice-#ff0000",
-    waitForThisToBeVisibleAndStable: `text="Which of the color codes represent the color"`,
+    snapshotName: "widget-multiple-choice-clickable-answered",
+    waitForThisToBeVisibleAndStable: [
+      `text="Choose your favorite colors"`,
+      `text=Cyan`,
+      `text=Sienna`,
+      `text=LawnGreen`,
+    ],
     frame,
   })
 })

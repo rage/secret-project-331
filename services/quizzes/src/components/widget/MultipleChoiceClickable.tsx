@@ -16,12 +16,14 @@ export const MultipleChoiceClickable: React.FunctionComponent<QuizItemComponentP
     if (!quizItemAnswerState) {
       return
     }
-
     const selectedOptionId = event.currentTarget.value
+    const selectedIds = _.xor(quizItemAnswerState.optionAnswers, [selectedOptionId])
+    const validAnswer = selectedIds.length > 0
 
     const newItemAnswer: QuizItemAnswer = {
       ...quizItemAnswerState,
-      optionAnswers: _.xor(quizItemAnswerState.optionAnswers, [selectedOptionId]),
+      optionAnswers: selectedIds,
+      valid: validAnswer,
     }
 
     setQuizItemAnswerState(newItemAnswer)

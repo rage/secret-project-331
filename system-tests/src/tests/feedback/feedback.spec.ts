@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test"
+import { Page } from "playwright"
 
 import { feedbackTooltipClass } from "../../shared-module/styles/constants"
 import expectPath from "../../utils/expect"
@@ -30,7 +31,9 @@ test("test", async ({ headless, page }) => {
   // Click button:has-text("Continue")
   await page.click('button:has-text("Continue")')
 
-  await page.click("text=Neque", {
+  await page.click("text=The Basics")
+
+  await page.click("text=Insert chapter heading...", {
     clickCount: 3,
   })
 
@@ -90,15 +93,7 @@ test("test", async ({ headless, page }) => {
   await page.waitForURL((url) => url.searchParams.has("read"))
   expectPath(page, "/manage/courses/[id]/feedback?read=false")
 
-  await page.waitForSelector("text=Sent by")
-  await page.evaluate(() => {
-    const divs = document.querySelectorAll("div")
-    for (const div of divs) {
-      if (div.children.length === 0 && div.textContent.includes("Sent by")) {
-        div.innerHTML = "Sent by xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx at yyyy-mm-ddThh:mm:ss.xxxZ"
-      }
-    }
-  })
+  await replaceIds(page)
 
   // Unread feedback view
   await expectScreenshotsToMatchSnapshots({
@@ -132,3 +127,25 @@ test("test", async ({ headless, page }) => {
   // Click text=Unread
   await page.click("text=Unread")
 })
+
+async function replaceIds(page: Page): Promise<void> {
+  await page.waitForSelector("text=Sent by")
+  await page.evaluate(() => {
+    const divs = document.querySelectorAll("div")
+    for (const div of divs) {
+      if (div.children.length === 0 && div.textContent.includes("Sent by")) {
+        div.innerHTML = "Sent by xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx at yyyy-mm-ddThh:mm:ss.xxxZ"
+      }
+    }
+  })
+
+  await page.waitForSelector("text=Block id: ")
+  await page.evaluate(() => {
+    const divs = document.querySelectorAll("div")
+    for (const div of divs) {
+      if (div.children.length === 0 && div.textContent.includes("Block id: ")) {
+        div.innerHTML = "Block id: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      }
+    }
+  })
+}

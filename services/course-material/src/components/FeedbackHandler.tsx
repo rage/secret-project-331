@@ -20,6 +20,11 @@ interface Props {
   edits: Map<string, NewProposedBlockEdit>
 }
 
+export interface SelectionPosition {
+  x: number
+  y: number
+}
+
 const FeedbackHandler: React.FC<Props> = ({
   courseId,
   pageId,
@@ -35,10 +40,10 @@ const FeedbackHandler: React.FC<Props> = ({
   const [lastSelection, setLastSelection] = useState("")
   const [showFeedbackTooltipTimeout, setShowFeedbackTooltipTimeout] =
     useState<NodeJS.Timeout | null>(null)
-  const [selectionRect, setSelectionRect] = useState<DOMRect | null>(null)
+  const [selectionRect, setSelectionRect] = useState<SelectionPosition | null>(null)
   const [showSubmitSuccess, setShowSubmitSuccess] = useState(false)
 
-  async function handleSelectionChange(newSelection: string, rect: DOMRect | null) {
+  function handleSelectionChange(newSelection: string, rect: DOMRect | null) {
     if (showFeedbackTooltipTimeout !== null) {
       clearTimeout(showFeedbackTooltipTimeout)
     }
@@ -54,6 +59,12 @@ const FeedbackHandler: React.FC<Props> = ({
       }
     }, 200)
     setShowFeedbackTooltipTimeout(timeout)
+  }
+
+  function updateSelectionRect(pos: { x: number; y: number }) {
+    if (selectionRect !== null) {
+      setSelectionRect({ x: pos.x, y: pos.y })
+    }
   }
 
   function openFeedbackDialog() {
@@ -152,10 +163,13 @@ const FeedbackHandler: React.FC<Props> = ({
         />
       )}
 
-      {!feedbackDialogOpen && !editProposalDialogOpen && (
+      {!feedbackDialogOpen && !editProposalDialogOpen && selectionRect && (
         <FeedbackTooltip selectionRect={selectionRect} onClick={openFeedbackDialog} />
       )}
-      <SelectionListener onSelectionChange={handleSelectionChange} />
+      <SelectionListener
+        onSelectionChange={handleSelectionChange}
+        updateSelectionPosition={updateSelectionRect}
+      />
     </>
   )
 }

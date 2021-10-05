@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 
 import Exercise from "../components/Exercise"
 import useStateWithOnChange from "../hooks/useStateWithOnChange"
+import { isSetStateMessage } from "../shared-module/iframe-protocol-types.guard"
 import { PublicAlternative } from "../util/stateInterfaces"
 
 const ExercisePage: React.FC = () => {
@@ -35,9 +36,9 @@ const ExercisePage: React.FC = () => {
         port.onmessage = (message: WindowEventMap["message"]) => {
           console.log("Frame received a message from port", JSON.stringify(message.data))
           const data = message.data
-          if (data.message === "set-state") {
+          if (isSetStateMessage(data)) {
             console.log("Frame: setting state from message")
-            setState(data.data)
+            setState(data.data as PublicAlternative[])
           } else {
             console.error("Frame received an unknown message from message port")
           }

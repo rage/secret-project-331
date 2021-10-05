@@ -43,6 +43,7 @@ const componentsByTypeNames = (typeName: QuizItemType) => {
 export interface State {
   quiz: PublicQuiz
   quiz_answer: QuizAnswer
+  quiz_answer_is_valid: boolean
 }
 
 type QuizItemAnswerWithoutId = Omit<QuizItemAnswer, "quiz_item_id">
@@ -60,19 +61,22 @@ export interface QuizItemComponentProps {
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
-    case "set-answer-state":
+    case "set-answer-state": {
+      const itemAnswers = state.quiz_answer.itemAnswers.map((qia) => {
+        if (qia.quizItemId !== action.quiz_item_answer.quizItemId) {
+          return qia
+        }
+        return action.quiz_item_answer
+      })
       return {
         ...state,
         quiz_answer: {
           ...state.quiz_answer,
-          itemAnswers: state.quiz_answer.itemAnswers.map((qia) => {
-            if (qia.quizItemId !== action.quiz_item_answer.quizItemId) {
-              return qia
-            }
-            return action.quiz_item_answer
-          }),
+          itemAnswers,
         },
+        quiz_answer_is_valid: itemAnswers.every((x) => x.valid),
       }
+    }
     default:
       return state
   }

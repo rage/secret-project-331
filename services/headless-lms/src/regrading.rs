@@ -494,9 +494,12 @@ mod test {
         } = test_helper::insert_data(tx.as_mut(), "test-exercise-1")
             .await
             .unwrap();
+        let slide_2 = models::exercise_slides::insert(tx.as_mut(), exercise, 0)
+            .await
+            .unwrap();
         let task_2 = models::exercise_tasks::insert(
             tx.as_mut(),
-            exercise,
+            slide_2,
             "test-exercise-2",
             vec![],
             Value::Null,

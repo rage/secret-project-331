@@ -318,8 +318,8 @@ mod test {
         models::{
             chapters,
             course_instance_enrollments::{self, NewCourseInstanceEnrollment},
-            course_instances, course_language_groups, courses, exercise_tasks, organizations,
-            pages, users,
+            course_instances, course_language_groups, courses, exercise_slides, exercise_tasks,
+            organizations, pages, users,
         },
         test_helper::Conn,
         utils::document_schema_processor::GutenbergBlock,
@@ -384,9 +384,12 @@ mod test {
         let exercise_id = super::insert(tx.as_mut(), course_id, "", page_id, chapter_id, 0)
             .await
             .unwrap();
+        let exercise_slide_id = exercise_slides::insert(tx.as_mut(), exercise_id, 0)
+            .await
+            .unwrap();
         let exercise_task_id = exercise_tasks::insert(
             tx.as_mut(),
-            exercise_id,
+            exercise_slide_id,
             "",
             vec![GutenbergBlock {
                 attributes: Value::Null,

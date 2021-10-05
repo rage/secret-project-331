@@ -3,6 +3,8 @@ import { BlockEditProps } from "@wordpress/blocks"
 import React, { PropsWithChildren, useState } from "react"
 
 import MessageChannelIFrame from "../../shared-module/components/MessageChannelIFrame"
+import { SetStateMessage } from "../../shared-module/iframe-protocol-types"
+import { isCurrentStateMessage } from "../../shared-module/iframe-protocol-types.guard"
 
 import { ExerciseTaskAttributes } from "."
 
@@ -37,25 +39,17 @@ const IFrameEditor: React.FC<IFrameEditorProps> = ({ url, props }) => {
           setSpecParseable(false)
           return
         }
-        port.postMessage({ message: "set-state", data: parsedPrivateSpec })
+        const message: SetStateMessage = { message: "set-state", data: parsedPrivateSpec }
+        port.postMessage(message)
       }}
       onMessageFromIframe={(messageContainer, _responsePort) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const uncheckedMessage = (messageContainer as any).message
-        if (!uncheckedMessage) {
-          console.error("Invalid message. No message field")
-          return
-        }
-        if (uncheckedMessage === "current-state") {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const uncheckedData = (messageContainer as any).data
-          if (!uncheckedData || !uncheckedData.private_spec) {
-            console.error("Invalid message: missing message.data or message.data.private_spec")
-            return
-          }
+        if (isCurrentStateMessage(messageContainer)) {
           props.setAttributes({
-            private_spec: JSON.stringify(uncheckedData.private_spec),
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            private_spec: JSON.stringify((messageContainer.data as any).private_spec),
           })
+        } else {
+          console.error("Unexpected message or structure is not valid.")
         }
       }}
     />

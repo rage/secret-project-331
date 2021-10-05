@@ -25,7 +25,30 @@ test("widget, checkbox", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
-    snapshotName: "widget-checkbox",
+    snapshotName: "widget-checkbox-initial",
+    waitForThisToBeVisibleAndStable: `text="The s in https stands for secure."`,
+    frame,
+  })
+
+  // Check input[type="checkbox"]
+  await frame.check('input[type="checkbox"]')
+
+  // Check :nth-match(input[type="checkbox"], 2)
+  await frame.check(':nth-match(input[type="checkbox"], 2)')
+
+  await expectScreenshotsToMatchSnapshots({
+    headless,
+    snapshotName: "widget-checkbox-both-checked",
+    waitForThisToBeVisibleAndStable: `text="The s in https stands for secure."`,
+    frame,
+  })
+
+  // Uncheck :nth-match(input[type="checkbox"], 2)
+  await frame.uncheck(':nth-match(input[type="checkbox"], 2)')
+
+  await expectScreenshotsToMatchSnapshots({
+    headless,
+    snapshotName: "widget-checkbox-other-unchecked",
     waitForThisToBeVisibleAndStable: `text="The s in https stands for secure."`,
     frame,
   })

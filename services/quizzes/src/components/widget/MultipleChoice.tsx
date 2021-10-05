@@ -33,11 +33,13 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
       newItemAnswer = {
         ...quizItemAnswerState,
         optionAnswers: _.xor(quizItemAnswerState.optionAnswers, [selectedOptionId]),
+        valid: true,
       }
     } else {
       newItemAnswer = {
         ...quizItemAnswerState,
         optionAnswers: [selectedOptionId],
+        valid: true,
       }
     }
     setQuizItemAnswerState(newItemAnswer)

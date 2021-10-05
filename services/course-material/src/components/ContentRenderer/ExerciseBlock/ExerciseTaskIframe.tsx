@@ -2,14 +2,22 @@ import { Alert } from "@material-ui/lab"
 import React, { Dispatch } from "react"
 
 import MessageChannelIFrame from "../../../shared-module/components/MessageChannelIFrame"
+import { SetStateMessage } from "../../../shared-module/iframe-protocol-types"
+import { isCurrentStateMessage } from "../../../shared-module/iframe-protocol-types.guard"
 
 interface ExerciseTaskIframeProps {
   url: string
   public_spec: unknown
   setAnswer: Dispatch<unknown>
+  setAnswerValid: Dispatch<boolean>
 }
 
-const ExerciseTaskIframe: React.FC<ExerciseTaskIframeProps> = ({ url, public_spec, setAnswer }) => {
+const ExerciseTaskIframe: React.FC<ExerciseTaskIframeProps> = ({
+  url,
+  public_spec,
+  setAnswer,
+  setAnswerValid,
+}) => {
   if (!url || url.trim() === "") {
     return <Alert severity="error">Cannot render exercise task, missing url.</Alert>
   }
@@ -18,19 +26,15 @@ const ExerciseTaskIframe: React.FC<ExerciseTaskIframeProps> = ({ url, public_spe
     <MessageChannelIFrame
       url={url}
       onCommunicationChannelEstabilished={(port) => {
-        port.postMessage({ message: "set-state", data: public_spec })
+        const message: SetStateMessage = { message: "set-state", data: public_spec }
+        port.postMessage(message)
       }}
       onMessageFromIframe={(messageContainer, _responsePort) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const uncheckedMessage = (messageContainer as any).message
-        if (!uncheckedMessage) {
-          console.error("Invalid message. No message field")
-          return
-        }
-        if (uncheckedMessage === "current-state") {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const uncheckedData = (messageContainer as any).data
-          setAnswer(uncheckedData)
+        if (isCurrentStateMessage(messageContainer)) {
+          setAnswer(messageContainer.data)
+          setAnswerValid(messageContainer.valid)
+        } else {
+          console.error("Unexpected message or structure is not valid.")
         }
       }}
     />

@@ -20,6 +20,7 @@ export const MultipleChoiceDropdown: React.FunctionComponent<QuizItemComponentPr
     const newItemAnswer: QuizItemAnswer = {
       ...quizItemAnswerState,
       optionAnswers: [selectedOptionId],
+      valid: true,
     }
     setQuizItemAnswerState(newItemAnswer)
   }

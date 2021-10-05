@@ -15,8 +15,6 @@ export const MultipleChoiceDropdown: React.FunctionComponent<QuizItemComponentPr
       return
     }
 
-    console.log(event)
-
     const selectedOptionId = event.currentTarget.value
 
     const newItemAnswer: QuizItemAnswer = {

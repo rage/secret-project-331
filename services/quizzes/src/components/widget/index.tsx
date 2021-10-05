@@ -6,6 +6,7 @@ import { PublicQuiz, PublicQuizItem, QuizAnswer, QuizItemAnswer } from "../../ty
 
 import Checkbox from "./Checkbox"
 import MultipleChoice from "./MultipleChoice"
+import { MultipleChoiceClickable } from "./MultipleChoiceClickable"
 import Open from "./Open"
 import Scale from "./Scale"
 import Unsupported from "./Unsupported"
@@ -33,7 +34,7 @@ const componentsByTypeNames = (typeName: QuizItemType) => {
     open: Open,
     "custom-frontend-accept-data": Unsupported,
     "multiple-choice-dropdown": Unsupported,
-    "clickable-multiple-choice": Unsupported,
+    "clickable-multiple-choice": MultipleChoiceClickable,
   }
 
   return mapTypeToComponent[typeName]

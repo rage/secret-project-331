@@ -26,7 +26,12 @@ test("widget, multiple-choice-clickable screenshot test", async ({ page, headles
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "widget-multiple-choice-clickable",
-    waitForThisToBeVisibleAndStable: `text="Choose your favorite colors"`,
+    waitForThisToBeVisibleAndStable: [
+      `text="Choose your favorite colors"`,
+      `text=Cyan`,
+      `text=Sienna`,
+      `text=LawnGreen`,
+    ],
     frame,
   })
 
@@ -39,7 +44,12 @@ test("widget, multiple-choice-clickable screenshot test", async ({ page, headles
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "widget-multiple-choice-clickable-answered",
-    waitForThisToBeVisibleAndStable: `text="Choose your favorite colors"`,
+    waitForThisToBeVisibleAndStable: [
+      `text="Choose your favorite colors"`,
+      `text=Cyan`,
+      `text=Sienna`,
+      `text=LawnGreen`,
+    ],
     frame,
   })
 })

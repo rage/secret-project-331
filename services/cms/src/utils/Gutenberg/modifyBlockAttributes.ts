@@ -1,4 +1,3 @@
-import { SettingsSuggestSharp } from "@material-ui/icons"
 import { assign } from "lodash"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types

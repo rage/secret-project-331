@@ -59,13 +59,16 @@ import {
   Pagination,
   PlaygroundExample,
   PlaygroundExampleData,
+  ScheduleUpdate,
   Submission,
   SubmissionCount,
   SubmissionCountByExercise,
   SubmissionCountByWeekAndHour,
   SubmissionInfo,
   SubmissionResult,
+  SupervisorUpdate,
   UploadResult,
+  User,
   UserCourseSettings,
   UserPointsUpdateStrategy,
   UserProgress,
@@ -193,7 +196,9 @@ export function isCourseInstance(obj: any, _argumentName?: string): obj is Cours
     (obj.ends_at === null || obj.ends_at instanceof Date) &&
     (obj.name === null || typeof obj.name === "string") &&
     (obj.description === null || typeof obj.description === "string") &&
-    (isVariantStatus(obj.variant_status) as boolean)
+    (isVariantStatus(obj.variant_status) as boolean) &&
+    (obj.supervisor_name === null || typeof obj.supervisor_name === "string") &&
+    (obj.supervisor_email === null || typeof obj.supervisor_email === "string")
   )
 }
 
@@ -589,6 +594,34 @@ export function isGetFeedbackQuery(obj: any, _argumentName?: string): obj is Get
     typeof obj.read === "boolean" &&
     (typeof obj.page === "undefined" || typeof obj.page === "number") &&
     (typeof obj.limit === "undefined" || typeof obj.limit === "number")
+  )
+}
+
+export function isUser(obj: any, _argumentName?: string): obj is User {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    (obj.upstream_id === null || typeof obj.upstream_id === "number") &&
+    typeof obj.email === "string"
+  )
+}
+
+export function isSupervisorUpdate(obj: any, _argumentName?: string): obj is SupervisorUpdate {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (obj.name === null || typeof obj.name === "string") &&
+    (obj.email === null || typeof obj.email === "string")
+  )
+}
+
+export function isScheduleUpdate(obj: any, _argumentName?: string): obj is ScheduleUpdate {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (obj.opening_time === null || obj.opening_time instanceof Date) &&
+    (obj.closing_time === null || obj.closing_time instanceof Date)
   )
 }
 

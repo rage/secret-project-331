@@ -191,6 +191,8 @@ async fn main() -> Result<()> {
         cs_course.id,
         Some("non-default instance"),
         Some(VariantStatus::Upcoming),
+        Some("admin"),
+        Some("admin@example.com"),
     )
     .await?;
 
@@ -222,6 +224,8 @@ async fn main() -> Result<()> {
         statistics_course.id,
         Some("non-default instance"),
         Some(VariantStatus::Active),
+        Some("admin"),
+        Some("admin@example.com"),
     )
     .await?;
 
@@ -783,8 +787,15 @@ async fn seed_sample_course(
     };
     let (course, _front_page, _default_instance) =
         courses::insert_course(conn, course_id, new_course, admin).await?;
-    let course_instance =
-        course_instances::insert(conn, course.id, Some("non-default instance"), None).await?;
+    let course_instance = course_instances::insert(
+        conn,
+        course.id,
+        Some("non-default instance"),
+        None,
+        Some("admin"),
+        Some("admin@example.com"),
+    )
+    .await?;
 
     // chapters and pages
 

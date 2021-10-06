@@ -4,7 +4,8 @@ use crate::{
     controllers::ControllerResult,
     domain::{authorization::AuthUser, csv_export},
     models::{
-        course_instances, courses,
+        course_instances::{self, CourseInstance},
+        courses,
         email_templates::{EmailTemplate, EmailTemplateNew},
     },
 };
@@ -13,12 +14,31 @@ use actix_web::{
     HttpResponse,
 };
 use bytes::Bytes;
-use chrono::Utc;
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use std::io::{self, Write};
 use tokio::sync::mpsc::UnboundedSender;
 use tokio_stream::wrappers::UnboundedReceiverStream;
+use ts_rs::TS;
 use uuid::Uuid;
+
+/**
+GET /course-instances/:id
+*/
+#[instrument(skip(pool))]
+async fn get_course_instance(
+    request_course_instance_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<Json<CourseInstance>> {
+    let mut conn = pool.acquire().await?;
+    let course_instance = crate::models::course_instances::get_course_instance(
+        &mut conn,
+        request_course_instance_id.into_inner(),
+    )
+    .await?;
+    Ok(Json(course_instance))
+}
 
 #[instrument(skip(payload, pool))]
 async fn post_new_email_template(
@@ -112,6 +132,59 @@ pub async fn point_export(
         .streaming(UnboundedReceiverStream::new(receiver)))
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, TS)]
+pub struct SupervisorUpdate {
+    name: Option<String>,
+    email: Option<String>,
+}
+
+/**
+POST /course-instances/:id/edit-supervisor
+*/
+#[instrument(skip(pool))]
+pub async fn edit_supervisor(
+    update: web::Json<SupervisorUpdate>,
+    course_instance_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<HttpResponse> {
+    let mut conn = pool.acquire().await?;
+    // let update = update.into_inner();
+    course_instances::edit_supervisor(
+        &mut conn,
+        course_instance_id.into_inner(),
+        update.name.as_deref(),
+        update.email.as_deref(),
+    )
+    .await?;
+    Ok(HttpResponse::Ok().finish())
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, TS)]
+pub struct ScheduleUpdate {
+    opening_time: Option<DateTime<Utc>>,
+    closing_time: Option<DateTime<Utc>>,
+}
+
+/**
+POST /course-instances/:id/edit-schedule
+*/
+#[instrument(skip(pool))]
+pub async fn edit_schedule(
+    update: web::Json<ScheduleUpdate>,
+    course_instance_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<HttpResponse> {
+    let mut conn = pool.acquire().await?;
+    course_instances::edit_schedule(
+        &mut conn,
+        course_instance_id.into_inner(),
+        update.opening_time.as_ref(),
+        update.closing_time.as_ref(),
+    )
+    .await?;
+    Ok(HttpResponse::Ok().finish())
+}
+
 /**
 Add a route for each controller in this module.
 
@@ -120,16 +193,25 @@ The name starts with an underline in order to appear before other functions in t
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
 pub fn _add_course_instances_routes(cfg: &mut ServiceConfig) {
-    cfg.route(
-        "/{course_instance_id}/email-templates",
-        web::post().to(post_new_email_template),
-    )
-    .route(
-        "/{course_instance_id}/email-templates",
-        web::get().to(get_email_templates_by_course_instance_id),
-    )
-    .route(
-        "/{course_instance_id}/point_export",
-        web::get().to(point_export),
-    );
+    cfg.route("/{course_instance_id}", web::get().to(get_course_instance))
+        .route(
+            "/{course_instance_id}/email-templates",
+            web::post().to(post_new_email_template),
+        )
+        .route(
+            "/{course_instance_id}/email-templates",
+            web::get().to(get_email_templates_by_course_instance_id),
+        )
+        .route(
+            "/{course_instance_id}/point_export",
+            web::get().to(point_export),
+        )
+        .route(
+            "/{course_instance_id}/edit-supervisor",
+            web::post().to(edit_supervisor),
+        )
+        .route(
+            "/{course_instance_id}/edit-schedule",
+            web::post().to(edit_schedule),
+        );
 }

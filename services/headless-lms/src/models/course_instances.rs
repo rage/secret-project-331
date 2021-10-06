@@ -32,6 +32,8 @@ pub struct CourseInstance {
     pub name: Option<String>,
     pub description: Option<String>,
     pub variant_status: VariantStatus,
+    pub supervisor_name: Option<String>,
+    pub supervisor_email: Option<String>,
 }
 
 pub async fn insert(
@@ -39,12 +41,14 @@ pub async fn insert(
     course_id: Uuid,
     name: Option<&str>,
     variant_status: Option<VariantStatus>,
+    supervisor_name: Option<&str>,
+    supervisor_email: Option<&str>,
 ) -> ModelResult<CourseInstance> {
     let course_instance = sqlx::query_as!(
         CourseInstance,
         r#"
-INSERT INTO course_instances (course_id, name, variant_status)
-VALUES ($1, $2, $3)
+INSERT INTO course_instances (course_id, name, variant_status, supervisor_name, supervisor_email)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING id,
   created_at,
   updated_at,
@@ -54,11 +58,15 @@ RETURNING id,
   ends_at,
   name,
   description,
-  variant_status AS "variant_status: VariantStatus"
+  variant_status AS "variant_status: VariantStatus",
+  supervisor_name,
+  supervisor_email
 "#,
         course_id,
         name,
         variant_status.unwrap_or_default() as VariantStatus,
+        supervisor_name,
+        supervisor_email,
     )
     .fetch_one(conn)
     .await?;
@@ -81,7 +89,9 @@ SELECT id,
   ends_at,
   name,
   description,
-  variant_status AS "variant_status: VariantStatus"
+  variant_status AS "variant_status: VariantStatus",
+  supervisor_name,
+  supervisor_email
 FROM course_instances
 WHERE id = $1
   AND deleted_at IS NULL;
@@ -110,7 +120,9 @@ SELECT i.id,
   i.ends_at,
   i.name,
   i.description,
-  i.variant_status AS "variant_status: VariantStatus"
+  i.variant_status AS "variant_status: VariantStatus",
+  i.supervisor_name,
+  i.supervisor_email
 FROM user_course_settings ucs
   JOIN course_instances i ON (ucs.current_course_instance_id = i.id)
 WHERE ucs.user_id = $1
@@ -142,7 +154,9 @@ SELECT i.id,
   i.ends_at,
   i.name,
   i.description,
-  i.variant_status AS "variant_status: VariantStatus"
+  i.variant_status AS "variant_status: VariantStatus",
+  i.supervisor_name,
+  i.supervisor_email
 FROM course_instances i
   JOIN course_instance_enrollments ie ON (i.id = ie.course_id)
 WHERE i.course_id = $1
@@ -163,10 +177,20 @@ pub async fn get_all_course_instances(conn: &mut PgConnection) -> ModelResult<Ve
     let course_instances = sqlx::query_as!(
         CourseInstance,
         r#"
-SELECT
-    id, created_at, updated_at, deleted_at, course_id, starts_at, ends_at, name, description, variant_status as "variant_status: VariantStatus"
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  course_id,
+  starts_at,
+  ends_at,
+  name,
+  description,
+  variant_status as "variant_status: VariantStatus",
+  supervisor_name,
+  supervisor_email
 FROM course_instances
-WHERE deleted_at IS NULL;
+WHERE deleted_at IS NULL
 "#
     )
     .fetch_all(conn)
@@ -190,7 +214,9 @@ SELECT id,
   ends_at,
   name,
   description,
-  variant_status as "variant_status: VariantStatus"
+  variant_status as "variant_status: VariantStatus",
+  supervisor_name,
+  supervisor_email
 FROM course_instances
 WHERE course_id = $1
   AND deleted_at IS NULL;
@@ -221,11 +247,53 @@ WHERE id = $2;
     Ok(())
 }
 
+pub async fn edit_supervisor(
+    conn: &mut PgConnection,
+    instance_id: Uuid,
+    name: Option<&str>,
+    email: Option<&str>,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE course_instances
+SET supervisor_email = $1, supervisor_name = $2
+WHERE id = $3
+",
+        email,
+        name,
+        instance_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+pub async fn edit_schedule(
+    conn: &mut PgConnection,
+    instance_id: Uuid,
+    opening_time: Option<&DateTime<Utc>>,
+    closing_time: Option<&DateTime<Utc>>,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE course_instances
+SET starts_at = $1, ends_at = $2
+WHERE id = $3
+",
+        opening_time,
+        closing_time,
+        instance_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
     use crate::{
-        models::{course_language_groups, courses, organizations},
+        models::{course_language_groups, courses, organizations, users},
         test_helper::Conn,
     };
 
@@ -269,12 +337,17 @@ mod test {
         )
         .await
         .unwrap();
+        let user = users::insert(tx.as_mut(), "user@example.com")
+            .await
+            .unwrap();
 
-        let _course_1_instance_1 = insert(tx.as_mut(), course_1_id, None, None).await.unwrap();
-        let course_2_instance_1 = insert(tx.as_mut(), course_2_id, None, None).await;
+        let _course_1_instance_1 = insert(tx.as_mut(), course_1_id, None, None, None, None)
+            .await
+            .unwrap();
+        let course_2_instance_1 = insert(tx.as_mut(), course_2_id, None, None, None, None).await;
         assert!(course_2_instance_1.is_ok());
 
-        let course_1_instance_2 = insert(tx.as_mut(), course_1_id, None, None).await;
+        let course_1_instance_2 = insert(tx.as_mut(), course_1_id, None, None, None, None).await;
         assert!(course_1_instance_2.is_err());
     }
 }

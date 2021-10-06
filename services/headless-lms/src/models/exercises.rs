@@ -362,9 +362,10 @@ mod test {
         )
         .await
         .unwrap();
-        let course_instance = course_instances::insert(tx.as_mut(), course_id, None, None)
-            .await
-            .unwrap();
+        let course_instance =
+            course_instances::insert(tx.as_mut(), course_id, None, None, None, None)
+                .await
+                .unwrap();
         course_instance_enrollments::insert_enrollment_and_set_as_current(
             tx.as_mut(),
             NewCourseInstanceEnrollment {

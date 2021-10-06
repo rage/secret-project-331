@@ -146,6 +146,8 @@ mod test {
             course,
             Some("instance-2"),
             Some(VariantStatus::Draft),
+            None,
+            None,
         )
         .await
         .unwrap()

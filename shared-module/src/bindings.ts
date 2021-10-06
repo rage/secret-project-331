@@ -98,6 +98,8 @@ export interface CourseInstance {
   name: string | null
   description: string | null
   variant_status: VariantStatus
+  supervisor_name: string | null
+  supervisor_email: string | null
 }
 
 export interface ChapterWithStatus {
@@ -359,6 +361,25 @@ export interface GetFeedbackQuery {
   read: boolean
   page?: number
   limit?: number
+}
+
+export interface User {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  upstream_id: number | null
+  email: string
+}
+
+export interface SupervisorUpdate {
+  name: string | null
+  email: string | null
+}
+
+export interface ScheduleUpdate {
+  opening_time: Date | null
+  closing_time: Date | null
 }
 
 export type VariantStatus = "Draft" | "Upcoming" | "Active" | "Ended"

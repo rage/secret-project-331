@@ -385,7 +385,15 @@ WHERE exercise_id IN (
     .await?;
 
     // Create default instance for copied course.
-    course_instances::insert(&mut tx, copied_course.id, None, Some(VariantStatus::Draft)).await?;
+    course_instances::insert(
+        &mut tx,
+        copied_course.id,
+        None,
+        Some(VariantStatus::Draft),
+        None,
+        None,
+    )
+    .await?;
 
     tx.commit().await?;
     Ok(copied_course)
@@ -541,6 +549,8 @@ RETURNING id,
         course.id,
         None,
         Some(VariantStatus::Draft),
+        None,
+        None,
     )
     .await?;
 

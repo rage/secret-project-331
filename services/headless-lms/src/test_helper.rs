@@ -115,7 +115,8 @@ pub async fn insert_data(conn: &mut PgConnection, exercise_type: &str) -> Result
     .await?;
     let course =
         models::courses::insert(&mut *conn, "", org, clg_id, &random_string, "en-US").await?;
-    let instance = models::course_instances::insert(&mut *conn, course, None, None).await?;
+    let instance =
+        models::course_instances::insert(&mut *conn, course, None, None, None, None).await?;
     let chapter = models::chapters::insert(&mut *conn, "", course, 1).await?;
     let (page, page_history) = models::pages::insert(&mut *conn, course, "", "", 0, user).await?;
     let exercise = models::exercises::insert(conn, course, "", page, chapter, 0).await?;

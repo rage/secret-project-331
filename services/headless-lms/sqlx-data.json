@@ -362,22 +362,6 @@
       "nullable": [false, false, false, false, false, true, false, null, false, true, false]
     }
   },
-  "064da6be3e21c10c6da7b49afda6165b6b0504553998917b33cb7bb8bc8bc5ec": {
-    "query": "\nINSERT INTO exercise_slides (id, exercise_id, order_number)\nVALUES ($1, $2, $3) ON CONFLICT (id) DO\nUPDATE\nSET exercise_id = $2,\n  order_number = $3,\n  deleted_at = NULL\nRETURNING id;\n                    ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid", "Int4"]
-      },
-      "nullable": [false]
-    }
-  },
   "072ecb29b589e56f6fc04bb0787efd82beab771ae9d87752f80b0734b16c56e4": {
     "query": "\nINSERT INTO exercise_services (\n    name,\n    slug,\n    public_url,\n    internal_url,\n    max_reprocessing_submissions_at_once\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING *\n  ",
     "describe": {
@@ -5126,6 +5110,22 @@
         "Left": ["Uuid", "Int8", "Int8"]
       },
       "nullable": [false, false, false, true, false, false, false, true, true, true, false, false]
+    }
+  },
+  "aabbcdc5984f0c7fc03acf0c2f53ebb8f0ff5f2b8993a81bd988be4bbf240a70": {
+    "query": "\nINSERT INTO exercise_slides (id, exercise_id, order_number)\nVALUES ($1, $2, $3) ON CONFLICT (id) DO\nUPDATE\nSET exercise_id = $2,\n    order_number = $3,\n    deleted_at = NULL\nRETURNING id;\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Int4"]
+      },
+      "nullable": [false]
     }
   },
   "af3cc7251e94a36c15dd0d43cdf914d6aab499480d6992ac001be602d4b06d73": {

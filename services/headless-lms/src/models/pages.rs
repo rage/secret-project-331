@@ -789,26 +789,15 @@ RETURNING *;
                     .flatten(),
             )
             .await?;
-            // Use existing exercise slide or
+            // Use existing exercise slide or create new record.
             let exercise_slide_id = if let Some(existing_task) = existing_exercise_task {
-                let exercise_slide_id = sqlx::query!(
-                    "
-INSERT INTO exercise_slides (id, exercise_id, order_number)
-VALUES ($1, $2, $3) ON CONFLICT (id) DO
-UPDATE
-SET exercise_id = $2,
-  order_number = $3,
-  deleted_at = NULL
-RETURNING id;
-                    ",
+                exercise_slides::upsert(
+                    &mut *conn,
                     existing_task.exercise_slide_id,
                     safe_for_db_exercise_id,
                     0,
                 )
-                .fetch_one(&mut *conn)
                 .await?
-                .id;
-                exercise_slide_id
             } else {
                 exercise_slides::insert(&mut *conn, safe_for_db_exercise_id, 0).await?
             };

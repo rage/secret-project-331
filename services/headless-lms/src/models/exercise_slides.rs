@@ -79,6 +79,31 @@ RETURNING *;
     Ok(res)
 }
 
+pub async fn upsert(
+    conn: &mut PgConnection,
+    id: Uuid,
+    exercise_id: Uuid,
+    order_number: i32,
+) -> ModelResult<Uuid> {
+    let res = sqlx::query!(
+        "
+INSERT INTO exercise_slides (id, exercise_id, order_number)
+VALUES ($1, $2, $3) ON CONFLICT (id) DO
+UPDATE
+SET exercise_id = $2,
+    order_number = $3,
+    deleted_at = NULL
+RETURNING id;
+    ",
+        id,
+        exercise_id,
+        order_number
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.id)
+}
+
 pub async fn get_exercise_slides(conn: &mut PgConnection) -> ModelResult<Vec<ExerciseSlide>> {
     let res = sqlx::query_as!(
         ExerciseSlide,

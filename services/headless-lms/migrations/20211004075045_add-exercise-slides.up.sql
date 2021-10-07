@@ -9,8 +9,9 @@ CREATE TABLE exercise_slides (
 );
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON exercise_slides FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
--- CREATE UNIQUE INDEX exercise_slides_order_number_per_exercise ON exercise_slides(exercise_id, number);
-COMMENT ON TABLE exercise_slides IS 'Ordered or randomly selected part of an exercise that can contain multiple individual tasks.';
+CREATE UNIQUE INDEX exercise_slides_order_number_per_exercise ON exercise_slides(exercise_id, number)
+WHERE deleted_at IS NULL;
+COMMENT ON TABLE exercise_slides IS 'Ordered or randomly selected part of an exercise. A slide can contain multiple individual tasks that are shown to the student at once and submitted at the same time.';
 COMMENT ON COLUMN exercise_slides.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN exercise_slides.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN exercise_slides.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';

@@ -56,10 +56,10 @@ pub async fn get_course_metrics(
     let res = sqlx::query_as!(
         CourseMetrics,
         r#"
-SELECT COUNT(e.id) as total_exercises,
-  COALESCE(0, SUM(e.score_maximum)) as score_maximum
-FROM course_instances ci
-  LEFT JOIN exercises e on ci.course_id = e.course_id
+SELECT COUNT(e.id) AS total_exercises,
+  SUM(e.score_maximum) AS score_maximum
+FROM course_instances AS ci
+  LEFT JOIN exercises AS e ON ci.course_id = e.course_id
 WHERE e.deleted_at IS NULL
   AND ci.id = $1;
         "#,
@@ -79,9 +79,9 @@ pub async fn get_user_metrics(
     let res = sqlx::query_as!(
         UserMetrics,
         r#"
-SELECT COUNT(ues.exercise_id) as completed_exercises,
-  COALESCE(0, SUM(ues.score_given)) as score_given
-FROM user_exercise_states ues
+SELECT COUNT(ues.exercise_id) AS completed_exercises,
+  COALESCE(SUM(ues.score_given), 0) AS score_given
+FROM user_exercise_states AS ues
 WHERE ues.course_instance_id = $1
   AND ues.user_id = $2
   AND ues.deleted_at IS NULL
@@ -102,7 +102,7 @@ pub async fn get_user_progress(
 ) -> ModelResult<UserProgress> {
     let (course_metrics, user_metrics) = future::try_join(
         get_course_metrics(pool, course_instance_id),
-        get_user_metrics(pool, user_id, course_instance_id),
+        get_user_metrics(pool, course_instance_id, user_id),
     )
     .await?;
     let result = UserProgress {

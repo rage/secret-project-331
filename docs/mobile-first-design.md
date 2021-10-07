@@ -2,7 +2,7 @@
 
 ## Idea
 
-[Read the article](https://www.invisionapp.com/inside-design/mobile-first-design/)
+[Read the article](https://zellwk.com/blog/how-to-write-mobile-first-css/)
 
 In summary mobile first design is to start the design process from the smallest device that people use, which is typically a mobile device, and gradually move to a bigger screen sizes.
 

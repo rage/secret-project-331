@@ -5255,6 +5255,27 @@
       "nullable": [false, false, false, true, false, true, true, true, true, false]
     }
   },
+  "b6edee8bc3c8fb23d985c026e8709dc7c06105f69f82f0bacd7ee44cd714d42a": {
+    "query": "\nSELECT ues.score_given AS score_given,\n  e.score_maximum AS score_maximum\nFROM user_exercise_states AS ues\n  LEFT JOIN exercises AS e ON ues.exercise_id = e.id\nWHERE ues.deleted_at IS NULL\n  AND e.deleted_at IS NULL\n  AND ues.exercise_id = $1\n  AND ues.course_instance_id = $2\n  AND ues.user_id = $3;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "score_given",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 1,
+          "name": "score_maximum",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid"]
+      },
+      "nullable": [true, false]
+    }
+  },
   "b9159ddd17dc391f0bd7b726633dff02d1530aa2b0b270b4947d749442850451": {
     "query": "UPDATE chapters SET front_page_id = $1 WHERE id = $2",
     "describe": {

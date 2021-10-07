@@ -407,12 +407,12 @@ mod test {
 
         let res = sqlx::query!(
             "
-SELECT selected_exercise_task_id AS id
+SELECT selected_exercise_slide_id AS id
 FROM user_exercise_states
 WHERE user_id = $1
   AND exercise_id = $2
   AND course_instance_id = $3
-",
+            ",
             user_id,
             exercise_id,
             course_instance.id
@@ -429,7 +429,7 @@ WHERE user_id = $1
 
         let res = sqlx::query!(
             "
-SELECT selected_exercise_task_id AS id
+SELECT selected_exercise_slide_id AS id
 FROM user_exercise_states
 WHERE user_id = $1
   AND exercise_id = $2
@@ -442,6 +442,6 @@ WHERE user_id = $1
         .fetch_one(tx.as_mut())
         .await
         .unwrap();
-        assert_eq!(res.id.unwrap(), exercise_task_id);
+        assert_eq!(res.id.unwrap(), exercise_slide_id);
     }
 }

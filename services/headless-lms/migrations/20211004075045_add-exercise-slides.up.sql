@@ -19,8 +19,9 @@ COMMENT ON COLUMN exercise_slides.deleted_at IS 'Timestamp when the record was d
 COMMENT ON COLUMN exercise_slides.exercise_id IS 'The exercise that this slide belongs to.';
 COMMENT ON COLUMN exercise_slides.order_number IS 'The order in which this slide appears in.';
 -- Turn old style tasks into slides with single tasks.
-INSERT INTO exercise_slides (exercise_id)
-SELECT exercise_id
+INSERT INTO exercise_slides (exercise_id, order_number)
+SELECT exercise_id,
+  0
 FROM exercise_tasks;
 ALTER TABLE exercise_tasks
 ADD COLUMN exercise_slide_id UUID REFERENCES exercise_slides(id);
@@ -33,4 +34,13 @@ ALTER TABLE exercise_tasks
 ALTER COLUMN exercise_slide_id
 SET NOT NULL,
   DROP COLUMN exercise_id;
--- ALTER TABLE user_exercise_states ADD COLUMN exercise_slide_id UUID REFERENCES exercise_slides(id);
+-- Change user_exercise_states to point to slides instead of tasks.
+ALTER TABLE user_exercise_states
+ADD COLUMN selected_exercise_slide_id UUID REFERENCES exercise_slides(id);
+UPDATE user_exercise_states ues
+SET selected_exercise_slide_id = (
+    SELECT t.exercise_slide_id
+    FROM exercise_tasks t
+    WHERE t.id = ues.selected_exercise_task_id
+  );
+ALTER TABLE user_exercise_states DROP COLUMN selected_exercise_task_id;

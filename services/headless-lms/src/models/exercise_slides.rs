@@ -137,6 +137,26 @@ WHERE id = $1
     Ok(res)
 }
 
+pub async fn get_random_exercise_slide_for_exercise(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+) -> ModelResult<ExerciseSlide> {
+    let res = sqlx::query_as!(
+        ExerciseSlide,
+        "
+SELECT *
+FROM exercise_slides
+WHERE exercise_id = $1
+  AND deleted_at IS NULL
+ORDER BY random();
+        ",
+        exercise_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_exercise_slide_by_exercise_task_id(
     conn: &mut PgConnection,
     exercise_task_id: Uuid,

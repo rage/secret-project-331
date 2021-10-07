@@ -1,4 +1,4 @@
-use super::{exercise_tasks, user_exercise_states, ModelResult};
+use super::{exercise_slides, exercise_tasks, user_exercise_states, ModelError, ModelResult};
 use crate::utils::document_schema_processor::GutenbergBlock;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -140,6 +140,25 @@ pub async fn get_exercise_task_by_id(
     Ok(exercise_task)
 }
 
+pub async fn get_exercise_tasks_by_exercise_slide_id(
+    conn: &mut PgConnection,
+    exercise_slide_id: Uuid,
+) -> ModelResult<Vec<ExerciseTask>> {
+    let exercise_tasks = sqlx::query_as!(
+        ExerciseTask,
+        "
+SELECT *
+FROM exercise_tasks
+WHERE exercise_slide_id = $1
+  AND deleted_at IS NULL;
+        ",
+        exercise_slide_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(exercise_tasks)
+}
+
 pub async fn get_existing_user_exercise_task_for_course_instance(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -154,7 +173,7 @@ pub async fn get_existing_user_exercise_task_for_course_instance(
     )
     .await?;
     let exercise_task = if let Some(user_exercise_state) = user_exercise_state {
-        if let Some(selected_exercise_task_id) = user_exercise_state.selected_exercise_task_id {
+        if let Some(selected_exercise_task_id) = user_exercise_state.selected_exercise_slide_id {
             let exercise_task =
                 exercise_tasks::get_exercise_task_by_id(conn, selected_exercise_task_id).await?;
             Some(exercise_task.into())
@@ -180,22 +199,31 @@ pub async fn get_or_select_user_exercise_task_for_course_instance(
         course_instance_id,
     )
     .await?;
-    if let Some(selected_exercise_task_id) = user_exercise_state.selected_exercise_task_id {
-        let exercise_task =
-            exercise_tasks::get_exercise_task_by_id(conn, selected_exercise_task_id).await?;
-        Ok(exercise_task.into())
-    } else {
-        let exercise_task = get_random_exercise_task(conn, exercise_id).await?;
-        user_exercise_states::upsert_selected_exercise_task_id(
-            conn,
-            user_id,
-            exercise_id,
-            course_instance_id,
-            Some(exercise_task.id),
-        )
-        .await?;
-        Ok(exercise_task)
-    }
+    let selected_exercise_slide_id =
+        if let Some(selected_exercise_slide_id) = user_exercise_state.selected_exercise_slide_id {
+            selected_exercise_slide_id
+        } else {
+            let exercise_slide_id =
+                exercise_slides::get_random_exercise_slide_for_exercise(conn, exercise_id)
+                    .await?
+                    .id;
+            user_exercise_states::upsert_selected_exercise_slide_id(
+                conn,
+                user_id,
+                exercise_id,
+                course_instance_id,
+                Some(exercise_slide_id),
+            )
+            .await?;
+            exercise_slide_id
+        };
+    let exercise_tasks =
+        get_exercise_tasks_by_exercise_slide_id(conn, selected_exercise_slide_id).await?;
+    // TODO: Return all tasks in the slide but for now we're still legacy mode.
+    let exercise_task = exercise_tasks.into_iter().next().ok_or_else(|| {
+        ModelError::PreconditionFailed("Missing exercise definition.".to_string())
+    })?;
+    Ok(exercise_task.into())
 }
 
 pub async fn get_exercise_tasks_by_exercise_id(

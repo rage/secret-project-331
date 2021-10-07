@@ -138,7 +138,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
             <mark
               aria-roledescription={"Removed text"}
               className={css`
-                background: ${baseTheme.colors.red[300]};
+                background: ${baseTheme.colors.red[0]};
               `}
             >
               {diff.value}
@@ -149,7 +149,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
             <mark
               aria-roledescription={"Added text"}
               className={css`
-                background: ${baseTheme.colors.blue[100]};
+                background: ${baseTheme.colors.blue[0]};
               `}
             >
               {diff.value}

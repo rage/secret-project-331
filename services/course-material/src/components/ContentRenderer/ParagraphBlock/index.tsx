@@ -134,25 +134,25 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
         // the diff spans should have the block id so the click handler can find it
         if (diff.added) {
           spans.push(
-            <span
+            <mark
               aria-roledescription={"Removed text"}
               className={css`
                 background: ${colorMapper("pale-cyan-blue")};
               `}
             >
               {diff.value}
-            </span>,
+            </mark>,
           )
         } else if (diff.removed) {
           spans.push(
-            <span
+            <mark
               aria-roledescription={"Added text"}
               className={css`
                 background: ${colorMapper("luminous-vivid-orange")};
               `}
             >
               {diff.value}
-            </span>,
+            </mark>,
           )
         } else {
           spans.push(<span>{diff.value}</span>)

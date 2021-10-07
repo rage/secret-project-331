@@ -412,6 +412,109 @@ async fn main() -> Result<()> {
     playground_examples::insert_playground_example(
         &mut conn,
         PlaygroundExampleData {
+            name: "Quizzes example, multiple-choice dropdown".to_string(),
+            url: "http://project-331.local/quizzes/exercise".to_string(),
+            width: 500,
+            data: serde_json::json!({
+            "id": "1af3cc18-d8d8-4cc6-9bf9-be63d79e19a4",
+            "courseId": "32b060d5-78e8-4b97-a933-7458319f30a2",
+            "body": null,
+            "deadline": Utc.ymd(2121, 9, 1).and_hms(23, 59, 59).to_string(),
+            "open": Utc.ymd(2021, 9, 1).and_hms(23, 59, 59).to_string(),
+            "part": 1,
+            "section": 1,
+            "title": "Questions about CSS and color codes",
+            "tries": 1,
+            "triesLimited": false,
+            "items": [
+                {
+                    "id": "37469182-8220-46d3-b3c2-7d215a1bfc03",
+                    "body": "How many different CSS hexadecimal color codes there are?",
+                    "direction": "row",
+                    "formatRegex": null,
+                    "maxLabel": null,
+                    "maxValue": null,
+                    "maxWords": null,
+                    "minLabel": null,
+                    "minValue": null,
+                    "minWords": null,
+                    "multi": false,
+                    "order": 1,
+                    "quizId": "1af3cc18-d8d8-4cc6-9bf9-be63d79e19a4",
+                    "title": null,
+                    "type": "multiple-choice-dropdown",
+                    "options": [
+                        {
+                            "id": "d0514fbb-1081-4602-b564-22dd5374dd46",
+                            "body": "at least two",
+                            "order": 1,
+                            "title": null,
+                            "quizItemId": "37469182-8220-46d3-b3c2-7d215a1bfc03",
+                        },
+                        {
+                            "id": "a7a58b81-bd76-4b9a-9060-1516597cb9b7",
+                            "body": "more than 2.546 * 10^56",
+                            "order": 2,
+                            "title": null,
+                            "quizItemId": "37469182-8220-46d3-b3c2-7d215a1bfc03",
+                        },
+                        {
+                            "id": "255ff119-1705-4f79-baed-cf8f0c3ca214",
+                            "body": "I don't believe in hexadecimal color codes",
+                            "order": 3,
+                            "title": null,
+                            "quizItemId": "37469182-8220-46d3-b3c2-7d215a1bfc03",
+                        },
+                    ]
+                },
+                {
+                    "id": "da705796-f8e3-420c-a717-a3064e351eed",
+                    "body": "What other ways there are to represent colors in CSS?",
+                    "direction": "row",
+                    "formatRegex": null,
+                    "maxLabel": null,
+                    "maxValue": null,
+                    "maxWords": null,
+                    "minLabel": null,
+                    "minValue": null,
+                    "minWords": null,
+                    "multi": false,
+                    "order": 1,
+                    "quizId": "1af3cc18-d8d8-4cc6-9bf9-be63d79e19a4",
+                    "title": null,
+                    "type": "multiple-choice-dropdown",
+                    "options": [
+                        {
+                            "id": "dd31dfda-2bf0-4f66-af45-de6ee8ded54a",
+                            "body": "RGB -color system",
+                            "order": 1,
+                            "title": null,
+                            "quizItemId": "da705796-f8e3-420c-a717-a3064e351eed",
+                        },
+                        {
+                            "id": "af864a7e-46d5-46c4-b027-413cb4e5fa68",
+                            "body": "Human readable text representation",
+                            "order": 2,
+                            "title": null,
+                            "quizItemId": "da705796-f8e3-420c-a717-a3064e351eed",
+                        },
+                        {
+                            "id": "66df5778-f80c-42b4-a544-4fb35d44a80f",
+                            "body": "I'm colorblind, so I don't really care :/",
+                            "order": 3,
+                            "title": null,
+                            "quizItemId": "da705796-f8e3-420c-a717-a3064e351eed",
+                        },
+                    ]
+                }
+            ]}),
+        },
+    )
+    .await?;
+
+    playground_examples::insert_playground_example(
+        &mut conn,
+        PlaygroundExampleData {
             name: "Quizzes example, open".to_string(),
             url: "http://project-331.local/quizzes/exercise".to_string(),
             width: 500,

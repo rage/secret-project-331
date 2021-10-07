@@ -38,7 +38,10 @@ test("widget, essay", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "widget-essay-answered",
-    waitForThisToBeVisibleAndStable: [`text="Of the lamps of Fëanor"`],
+    waitForThisToBeVisibleAndStable: [
+      `text="Of the lamps of Fëanor"`,
+      `text="I think I enrolled in the wrong course XD"`,
+    ],
     frame,
   })
 })

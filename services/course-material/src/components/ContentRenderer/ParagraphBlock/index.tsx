@@ -7,6 +7,7 @@ import sanitizeHtml from "sanitize-html"
 import { useMemo } from "use-memo-one"
 
 import { BlockRendererProps } from "../"
+import { baseTheme } from "../../../shared-module/styles"
 import { courseMaterialCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import colorMapper from "../../../styles/colorMapper"
 import fontSizeMapper from "../../../styles/fontSizeMapper"
@@ -137,7 +138,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
             <mark
               aria-roledescription={"Removed text"}
               className={css`
-                background: ${colorMapper("pale-cyan-blue")};
+                background: ${baseTheme.colors.red[300]};
               `}
             >
               {diff.value}
@@ -148,7 +149,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
             <mark
               aria-roledescription={"Added text"}
               className={css`
-                background: ${colorMapper("luminous-vivid-orange")};
+                background: ${baseTheme.colors.blue[100]};
               `}
             >
               {diff.value}

@@ -30,8 +30,10 @@ const Home: React.FC = () => {
           href={{
             pathname: `/manage/exercise-services`,
           }}
+          passHref
         >
-          <p
+          <a
+            href="replace"
             className={css`
               cursor: pointer;
               color: blue;
@@ -39,7 +41,7 @@ const Home: React.FC = () => {
             `}
           >
             {t("link-manage-exercise-services")}
-          </p>
+          </a>
         </Link>
       </div>
     </Layout>

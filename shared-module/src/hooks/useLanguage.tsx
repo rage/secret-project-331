@@ -2,13 +2,15 @@ import { useRouter } from "next/router"
 
 import { getValueFromCookieString } from "../utils/cookies"
 
-const LANGUAGE_QUERY_KEY = "lng"
+const LANGUAGE_QUERY_KEY = "lang"
 const IS_SERVER = typeof window === "undefined"
 const LANGUAGE_COOKIE_KEY = "selected-language"
 
 const SUPPORTED_LANGUAGES = ["en", "fi"]
 const DEFAULT_LANGUAGE = "en"
 
+// If language is specified with the `lang` query param, use that and save that as a langauge preference.
+// Otherwise use either the saved language preference or detect the desired language
 export default function useLanguage(): string | null {
   const router = useRouter()
   if (!router || !router.isReady) {
@@ -25,11 +27,13 @@ export default function useLanguage(): string | null {
   const selectedLanguage =
     mapLanguageCadidateToSupportedLanguage(languageCandidate) ?? DEFAULT_LANGUAGE
 
-  // Replace the selected language in the current URL's query string
-  if (!IS_SERVER && "URLSearchParams" in window) {
-    const queryString = new URLSearchParams(window.location.search)
-    queryString.set(LANGUAGE_QUERY_KEY, selectedLanguage)
-    history.replaceState(null, "", `${window.location.pathname}?${queryString}`)
+  if (!IS_SERVER) {
+    // Remember the selected language in a cookie
+    // eslint-disable-next-line i18next/no-literal-string
+    document.cookie = `${LANGUAGE_COOKIE_KEY}=${selectedLanguage}; path=/; SameSite=Strict; max-age=31536000;`
+
+    // Set html lang=lang attribute
+    document.documentElement.lang = selectedLanguage
   }
 
   return selectedLanguage

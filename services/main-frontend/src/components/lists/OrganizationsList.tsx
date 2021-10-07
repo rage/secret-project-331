@@ -56,10 +56,14 @@ const OrganizationsList: React.FC = () => {
               query: { id: organization.id },
             }}
             aria-label={organization.name}
+            passHref
           >
-            <div
+            <a
+              href="replace"
               className={css`
                 padding: 0em 1em;
+                text-decoration: none;
+                color: #707070;
               `}
             >
               <div
@@ -129,7 +133,7 @@ const OrganizationsList: React.FC = () => {
                   <span>{organization.description}</span>
                 </div>
               </div>
-            </div>
+            </a>
           </Link>
         ))}
       </div>

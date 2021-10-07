@@ -1,5 +1,6 @@
 import { ThemeProvider } from "@material-ui/core"
 import type { AppProps } from "next/app"
+import Head from "next/head"
 import React, { useEffect } from "react"
 import { QueryClientProvider } from "react-query"
 
@@ -37,14 +38,21 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
   }, [language])
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={muiTheme}>
-        <GlobalStyles />
-        <LoginStateContextProvider>
-          <Component {...pageProps} />
-        </LoginStateContextProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
+    <>
+      {language && (
+        <Head>
+          <html lang={language} />
+        </Head>
+      )}
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider theme={muiTheme}>
+          <GlobalStyles />
+          <LoginStateContextProvider>
+            <Component {...pageProps} />
+          </LoginStateContextProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </>
   )
 }
 

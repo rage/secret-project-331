@@ -7,6 +7,9 @@ import { PublicQuiz, PublicQuizItem, QuizAnswer, QuizItemAnswer } from "../../ty
 import Checkbox from "./Checkbox"
 import Essay from "./Essay"
 import MultipleChoice from "./MultipleChoice"
+import { MultipleChoiceClickable } from "./MultipleChoiceClickable"
+import { MultipleChoiceDropdown } from "./MultipleChoiceDropdown"
+import Open from "./Open"
 import Scale from "./Scale"
 import Unsupported from "./Unsupported"
 
@@ -30,10 +33,10 @@ const componentsByTypeNames = (typeName: QuizItemType) => {
     "multiple-choice": MultipleChoice,
     checkbox: Checkbox,
     scale: Scale,
-    open: Unsupported,
+    open: Open,
     "custom-frontend-accept-data": Unsupported,
-    "multiple-choice-dropdown": Unsupported,
-    "clickable-multiple-choice": Unsupported,
+    "multiple-choice-dropdown": MultipleChoiceDropdown,
+    "clickable-multiple-choice": MultipleChoiceClickable,
   }
 
   return mapTypeToComponent[typeName]
@@ -42,6 +45,7 @@ const componentsByTypeNames = (typeName: QuizItemType) => {
 export interface State {
   quiz: PublicQuiz
   quiz_answer: QuizAnswer
+  quiz_answer_is_valid: boolean
 }
 
 type QuizItemAnswerWithoutId = Omit<QuizItemAnswer, "quiz_item_id">
@@ -59,19 +63,22 @@ export interface QuizItemComponentProps {
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
-    case "set-answer-state":
+    case "set-answer-state": {
+      const itemAnswers = state.quiz_answer.itemAnswers.map((qia) => {
+        if (qia.quizItemId !== action.quiz_item_answer.quizItemId) {
+          return qia
+        }
+        return action.quiz_item_answer
+      })
       return {
         ...state,
         quiz_answer: {
           ...state.quiz_answer,
-          itemAnswers: state.quiz_answer.itemAnswers.map((qia) => {
-            if (qia.quizItemId !== action.quiz_item_answer.quizItemId) {
-              return qia
-            }
-            return action.quiz_item_answer
-          }),
+          itemAnswers,
         },
+        quiz_answer_is_valid: itemAnswers.every((x) => x.valid),
       }
+    }
     default:
       return state
   }

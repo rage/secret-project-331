@@ -146,6 +146,7 @@ export interface PublicQuizItem {
   quizId: string
   type: string
   order: number
+  formatRegex: string | null
   multi: boolean
   minWords: number | null
   maxWords: number | null
@@ -215,7 +216,9 @@ export interface QuizItemAnswer {
   createdAt: string
   updatedAt: string
   correct: boolean
-  // Only contains an id of a selected option
+  /** Whether or not the provided answer can be submitted. */
+  valid: boolean
+  /** Only contains an id of a selected option */
   optionAnswers: string[] | null
 }
 

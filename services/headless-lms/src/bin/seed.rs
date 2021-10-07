@@ -338,6 +338,7 @@ async fn main() -> Result<()> {
                         "id": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
                         "body": "Which of the color codes represent the color **red**?",
                         "direction": "row",
+                        "formatRegex": null,
                         "maxLabel": null,
                         "maxValue": null,
                         "maxWords": null,
@@ -431,13 +432,155 @@ async fn main() -> Result<()> {
                   }
               ]
             })
-        }
+        }).await?;
+
+    playground_examples::insert_playground_example(
+        &mut conn,
+        PlaygroundExampleData {
+            name: "Quizzes example, multiple-choice dropdown".to_string(),
+            url: "http://project-331.local/quizzes/exercise".to_string(),
+            width: 500,
+            data: serde_json::json!({
+            "id": "1af3cc18-d8d8-4cc6-9bf9-be63d79e19a4",
+            "courseId": "32b060d5-78e8-4b97-a933-7458319f30a2",
+            "body": null,
+            "deadline": Utc.ymd(2121, 9, 1).and_hms(23, 59, 59).to_string(),
+            "open": Utc.ymd(2021, 9, 1).and_hms(23, 59, 59).to_string(),
+            "part": 1,
+            "section": 1,
+            "title": "Questions about CSS and color codes",
+            "tries": 1,
+            "triesLimited": false,
+            "items": [
+                {
+                    "id": "37469182-8220-46d3-b3c2-7d215a1bfc03",
+                    "body": "How many different CSS hexadecimal color codes there are?",
+                    "direction": "row",
+                    "formatRegex": null,
+                    "maxLabel": null,
+                    "maxValue": null,
+                    "maxWords": null,
+                    "minLabel": null,
+                    "minValue": null,
+                    "minWords": null,
+                    "multi": false,
+                    "order": 1,
+                    "quizId": "1af3cc18-d8d8-4cc6-9bf9-be63d79e19a4",
+                    "title": null,
+                    "type": "multiple-choice-dropdown",
+                    "options": [
+                        {
+                            "id": "d0514fbb-1081-4602-b564-22dd5374dd46",
+                            "body": "at least two",
+                            "order": 1,
+                            "title": null,
+                            "quizItemId": "37469182-8220-46d3-b3c2-7d215a1bfc03",
+                        },
+                        {
+                            "id": "a7a58b81-bd76-4b9a-9060-1516597cb9b7",
+                            "body": "more than 2.546 * 10^56",
+                            "order": 2,
+                            "title": null,
+                            "quizItemId": "37469182-8220-46d3-b3c2-7d215a1bfc03",
+                        },
+                        {
+                            "id": "255ff119-1705-4f79-baed-cf8f0c3ca214",
+                            "body": "I don't believe in hexadecimal color codes",
+                            "order": 3,
+                            "title": null,
+                            "quizItemId": "37469182-8220-46d3-b3c2-7d215a1bfc03",
+                        },
+                    ]
+                },
+                {
+                    "id": "da705796-f8e3-420c-a717-a3064e351eed",
+                    "body": "What other ways there are to represent colors in CSS?",
+                    "direction": "row",
+                    "formatRegex": null,
+                    "maxLabel": null,
+                    "maxValue": null,
+                    "maxWords": null,
+                    "minLabel": null,
+                    "minValue": null,
+                    "minWords": null,
+                    "multi": false,
+                    "order": 1,
+                    "quizId": "1af3cc18-d8d8-4cc6-9bf9-be63d79e19a4",
+                    "title": null,
+                    "type": "multiple-choice-dropdown",
+                    "options": [
+                        {
+                            "id": "dd31dfda-2bf0-4f66-af45-de6ee8ded54a",
+                            "body": "RGB -color system",
+                            "order": 1,
+                            "title": null,
+                            "quizItemId": "da705796-f8e3-420c-a717-a3064e351eed",
+                        },
+                        {
+                            "id": "af864a7e-46d5-46c4-b027-413cb4e5fa68",
+                            "body": "Human readable text representation",
+                            "order": 2,
+                            "title": null,
+                            "quizItemId": "da705796-f8e3-420c-a717-a3064e351eed",
+                        },
+                        {
+                            "id": "66df5778-f80c-42b4-a544-4fb35d44a80f",
+                            "body": "I'm colorblind, so I don't really care :/",
+                            "order": 3,
+                            "title": null,
+                            "quizItemId": "da705796-f8e3-420c-a717-a3064e351eed",
+                        },
+                    ]
+                }
+            ]}),
+        },
     )
     .await?;
 
     playground_examples::insert_playground_example(
         &mut conn,
-        PlaygroundExampleData{
+
+        PlaygroundExampleData {
+            name: "Quizzes example, open".to_string(),
+            url: "http://project-331.local/quizzes/exercise".to_string(),
+            width: 500,
+            data: serde_json::json!({
+                "id": "801b9275-5034-438d-922f-104af517468a",
+                "title": "Open answer question",
+                "body": "",
+                "open": Utc.ymd(2021, 9, 1).and_hms(23, 59, 59).to_string(),
+                "deadline": Utc.ymd(2121, 9, 1).and_hms(23, 59, 59).to_string(),
+                "part": 1,
+                "items": [
+                    {
+                        "id": "30cc054a-8efb-4242-9a0d-9acc6ae2ca57",
+                        "body": "Enter the date of the next leap day in ISO 8601 format (YYYY-MM-DD).",
+                        "type": "open",
+                        "multi": false,
+                        "order": 0,
+                        "title": "Date formats",
+                        "quizId": "801b9275-5034-438d-922f-104af517468a",
+                        "options": [],
+                        "maxValue": null,
+                        "maxWords": null,
+                        "minValue": null,
+                        "minWords": null,
+                        "direction": "row",
+                        "formatRegex": "\\d{4}-\\d{2}-\\d{2}",
+                    }
+                ],
+                "tries": 1,
+                "section": 1,
+                "courseId": "f6b6a606-e1f8-4ded-a458-01f541c06019",
+                "triesLimited": true,
+            }),
+        },
+    )
+    .await?;
+
+    playground_examples::insert_playground_example(
+        &mut conn,
+        PlaygroundExampleData {
             name: "Quizzes example, scale".to_string(),
             url: "http://project-331.local/quizzes/exercise".to_string(),
             width: 500,
@@ -463,6 +606,7 @@ async fn main() -> Result<()> {
                     "minValue": 1,
                     "minWords": null,
                     "direction": "row",
+                    "formatRegex": null,
                   },
                   {
                     "id": "b3ce858c-a5ed-4cf7-a9ee-62ef91d1a75a",
@@ -477,7 +621,8 @@ async fn main() -> Result<()> {
                     "maxWords": null,
                     "minValue": 1,
                     "minWords": null,
-                    "direction": "row"
+                    "direction": "row",
+                    "formatRegex": null,
                   },
                   {
                     "id": "eb7f6898-7ba5-4f89-8e24-a17f57381131",
@@ -492,7 +637,8 @@ async fn main() -> Result<()> {
                     "maxWords": null,
                     "minValue": 1,
                     "minWords": null,
-                    "direction": "row"
+                    "direction": "row",
+                    "formatRegex": null,
                   }
                 ],
                 "tries": 1,
@@ -500,6 +646,117 @@ async fn main() -> Result<()> {
                 "courseId": "f5bed4ff-63ec-44cd-9056-86eb00df84ca",
                 "triesLimited": true
               }),
+        },
+    )
+    .await?;
+
+    playground_examples::insert_playground_example(
+        &mut conn,
+        PlaygroundExampleData {
+            name: "Quizzes example, multiple-choice clickable".to_string(),
+            url: "http://project-331.local/quizzes/exercise".to_string(),
+            width: 500,
+            data: serde_json::json!({
+              "id": "3562f83c-4d5d-41a9-aceb-a8f98511dd5d",
+              "title": "Of favorite colors",
+              "body": null,
+              "deadline": Utc.ymd(2121,9,1).and_hms(23,59,59).to_string(),
+              "open": Utc.ymd(2021,9,1).and_hms(23,59,59).to_string(),
+              "part": 1,
+              "items": [
+                {
+                  "id": "d2422f0c-2378-4099-bde7-e1231ceac220",
+                  "body": "",
+                  "type": "clickable-multiple-choice",
+                  "multi": false,
+                  "order": 1,
+                  "title": "Choose your favorite colors",
+                  "quizId": "3562f83c-4d5d-41a9-aceb-a8f98511dd5d",
+                  "options": [
+                    {
+                      "id": "f4ef5add-cfed-4819-b1a7-b1c7a72330ea",
+                      "body": "AliceBlue",
+                      "order": 1,
+                      "title": null,
+                      "quizItemId": "d2422f0c-2378-4099-bde7-e1231ceac220",
+                    },
+                    {
+                      "id": "ee6535ca-fed6-4d22-9988-bed91e3decb4",
+                      "body": "AntiqueWhite",
+                      "order": 1,
+                      "title": null,
+                      "quizItemId": "d2422f0c-2378-4099-bde7-e1231ceac220",
+                    },
+                    {
+                      "id": "404c62f0-44f2-492c-a6cf-522e5cff492b",
+                      "body": "Aqua",
+                      "order": 1,
+                      "title": null,
+                      "quizItemId": "d2422f0c-2378-4099-bde7-e1231ceac220",
+                    },
+                    {
+                      "id": "74e09ced-233e-4db6-a67f-d4835a596956",
+                      "body": "Cyan",
+                      "order": 1,
+                      "title": null,
+                      "quizItemId": "d2422f0c-2378-4099-bde7-e1231ceac220",
+                    },
+                    {
+                      "id": "797463cf-9592-46f8-9018-7d2b3d2c0882",
+                      "body": "Cornsilk",
+                      "order": 1,
+                      "title": null,
+                      "quizItemId": "d2422f0c-2378-4099-bde7-e1231ceac220",
+                    },
+                    {
+                      "id": "f5e46e15-cb14-455f-8b72-472fed50d6f8",
+                      "body": "LawnGreen",
+                      "order": 1,
+                      "title": null,
+                      "quizItemId": "d2422f0c-2378-4099-bde7-e1231ceac220",
+                    },
+                    {
+                      "id": "2bfea5dd-ad64-456a-8518-c6754bd40a90",
+                      "body": "LightGoldenRodYellow",
+                      "order": 1,
+                      "title": null,
+                      "quizItemId": "d2422f0c-2378-4099-bde7-e1231ceac220",
+                    },
+                    {
+                      "id": "d045ec97-a89a-4964-9bea-a5baab69786f",
+                      "body": "MediumSpringGreen",
+                      "order": 1,
+                      "title": null,
+                      "quizItemId": "d2422f0c-2378-4099-bde7-e1231ceac220",
+                    },
+                    {
+                      "id": "fc901148-7d65-4150-b077-5dc53947ee7a",
+                      "body": "Sienna",
+                      "order": 1,
+                      "title": null,
+                      "quizItemId": "d2422f0c-2378-4099-bde7-e1231ceac220",
+                    },
+                    {
+                      "id": "73a8f612-7bd4-48ca-9dae-2baa1a55a1da",
+                      "body": "WhiteSmoke",
+                      "order": 1,
+                      "title": null,
+                      "quizItemId": "d2422f0c-2378-4099-bde7-e1231ceac220",
+                    },
+                  ],
+                  "maxValue": 4,
+                  "maxWords": null,
+                  "minValue": 1,
+                  "minWords": null,
+                  "direction": "row",
+                  "formatRegex": null,
+                },
+              ],
+              "tries": 1,
+              "section": 1,
+              "courseId": "f5bed4ff-63ec-44cd-9056-86eb00df84ca",
+              "triesLimited": true
+            }),
         },
     )
     .await?;

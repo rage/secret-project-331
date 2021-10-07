@@ -81,6 +81,8 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
 
   // Media upload gallery not yet supported, uncommenting this will add a button besides the "Upload" button.
   // addFilter("editor.MediaUpload", "moocfi/cms/replace-media-upload", mediaUploadGallery)
+
+  // Ensure that type core/image has some attributes set to a value, so that the CMS/image block doesn't crash when uploading image.
   addFilter("blocks.registerBlockType", "moocfi/cms/modify-blockAttributes", modifyBlockAttributes)
 
   useEffect(() => {

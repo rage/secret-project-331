@@ -6,20 +6,11 @@ import { TableAttributes } from "../../types/GutenbergBlockAttributes"
 
 import { BlockRendererProps } from "."
 
-interface CellContainer {
-  cells: Cell[]
-}
-
-interface Cell {
-  tag: string
-  content: string
-}
-
 const TableBlock: React.FC<BlockRendererProps<TableAttributes>> = ({ data }) => {
-  const innerBlocks = data.attributes
-  const body = innerBlocks.body as CellContainer[]
-  const head = innerBlocks.head[0] as CellContainer
-  const foot = innerBlocks.foot[0] as CellContainer
+  const body = data.attributes.body
+  const head = data.attributes.head
+  const foot = data.attributes.foot
+  // TODO: Styling for table
   return (
     <table
       className={css`
@@ -27,29 +18,29 @@ const TableBlock: React.FC<BlockRendererProps<TableAttributes>> = ({ data }) => 
       `}
     >
       {head && (
-        <tr>
-          {head.cells.map((cell, index) => (
-            <th key={index}>{cell.content}</th>
+        <>
+          {head.map((cellRows, j) => (
+            <tr key={j}>
+              {cellRows.cells && cellRows.cells.map((cell, i) => <th key={i}>{cell.content}</th>)}
+            </tr>
           ))}
-        </tr>
+        </>
       )}
       <tbody>
-        {body.map((obj, rowIndex) => {
-          return (
-            <tr key={rowIndex}>
-              {obj.cells.map((o, index) => (
-                <td key={index}>{o.content}</td>
-              ))}
-            </tr>
-          )
-        })}
+        {body.map((cellRows, j) => (
+          <tr key={j}>
+            {cellRows.cells && cellRows.cells.map((cell, i) => <td key={i}>{cell.content}</td>)}
+          </tr>
+        ))}
       </tbody>
       {foot && (
-        <tr>
-          {foot.cells.map((cell, index) => (
-            <th key={index}>{cell.content}</th>
+        <>
+          {foot.map((cellRows, j) => (
+            <tr key={j}>
+              {cellRows.cells && cellRows.cells.map((cell, i) => <th key={i}>{cell.content}</th>)}
+            </tr>
           ))}
-        </tr>
+        </>
       )}
     </table>
   )

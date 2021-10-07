@@ -63,6 +63,60 @@ async function main() {
 
   const blockTypes: Array<Block<Record<string, unknown>>> = blocks.getBlockTypes()
   const jsonSchemaTypes = blockTypes.map((block) => {
+    // Fetch core/table head, foot, body types
+    if (block.name === "core/table") {
+      const tableBlockJSON = require("@wordpress/block-library/src/table/block.json")
+      const tableAttributes = tableBlockJSON.attributes
+      return {
+        title: sanitizeNames(block.name),
+        type: "object" as JSONSchemaTypeName,
+        properties: {
+          ...block.attributes,
+          // We can use same cells ref, as they seem to be same for head, foot, body
+          head: {
+            items: {
+              $ref: "#/$defs/cells",
+            },
+          },
+          foot: {
+            items: {
+              $ref: "#/$defs/cells",
+            },
+          },
+          body: {
+            items: {
+              $ref: "#/$defs/cells",
+            },
+          },
+        },
+        additionalProperties: false,
+        required: Object.entries(block.attributes)
+          .filter(([_key, value]) => (value as { default: unknown }).default !== undefined)
+          .map(([key, _value]) => key),
+        $defs: {
+          // Cells and CellAttributes are equal for all three in block.json that is imported from block-library
+          cells: {
+            type: "object" as JSONSchemaTypeName,
+            properties: {
+              cells: {
+                ...tableAttributes.head.query.cells,
+                items: {
+                  $ref: "#/$defs/cellAttributes",
+                },
+              },
+            },
+            additionalProperties: false,
+          },
+          cellAttributes: {
+            type: "object" as JSONSchemaTypeName,
+            properties: {
+              ...tableAttributes.head.query.cells.query,
+            },
+            additionalProperties: false,
+          },
+        },
+      }
+    }
     return {
       title: sanitizeNames(block.name),
       type: "object" as JSONSchemaTypeName,

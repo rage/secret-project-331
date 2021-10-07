@@ -136,9 +136,9 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
         if (diff.added) {
           spans.push(
             <mark
-              aria-roledescription={"Removed text"}
+              aria-roledescription={"Added text"}
               className={css`
-                background: ${baseTheme.colors.red[0]};
+                background: ${baseTheme.colors.blue[0]};
               `}
             >
               {diff.value}
@@ -147,9 +147,9 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
         } else if (diff.removed) {
           spans.push(
             <mark
-              aria-roledescription={"Added text"}
+              aria-roledescription={"Removed text"}
               className={css`
-                background: ${baseTheme.colors.blue[0]};
+                background: ${baseTheme.colors.red[0]};
               `}
             >
               {diff.value}

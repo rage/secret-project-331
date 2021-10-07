@@ -7,6 +7,7 @@ import { fetchOrganizations } from "../../services/backend/organizations"
 import DebugModal from "../../shared-module/components/DebugModal"
 import UHNoBG from "../../shared-module/img/uh_without_background.svg"
 import { wideWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
+import { respondToOrLarger } from "../../shared-module/styles/respond"
 import basePath from "../../shared-module/utils/base-path"
 
 const OrganizationsList: React.FC = () => {
@@ -18,7 +19,7 @@ const OrganizationsList: React.FC = () => {
     return <div>Error loading organizations.</div>
   }
 
-  if (isLoading) {
+  if (isLoading || !data) {
     return <div>Loading...</div>
   }
 
@@ -56,51 +57,75 @@ const OrganizationsList: React.FC = () => {
           >
             <div
               className={css`
-                width: 100%;
-                height: 185px;
-                display: flex;
-                align-items: center;
-                background-color: rgb(216, 216, 216, 0.7);
-                margin-bottom: 1em;
-                &:hover {
-                  cursor: pointer;
-                  background-color: rgb(216, 216, 216);
-                }
+                padding: 0em 1em;
               `}
             >
               <div
                 className={css`
-                  width: 20%;
-                  background: #b5b5b5;
-                  height: 100%;
+                  flex-direction: column;
                   display: flex;
                   align-items: center;
+                  background-color: rgb(216, 216, 216, 0.7);
+                  margin-bottom: 1em;
+                  &:hover {
+                    cursor: pointer;
+                    background-color: rgb(216, 216, 216);
+                  }
+                  ${respondToOrLarger.lg} {
+                    flex-direction: row;
+                    max-height: 15rem;
+                  }
                 `}
               >
-                {/* <img src={organization.organization_image_url} /> */}
-                <UHNoBG
+                <div
                   className={css`
-                    margin: 0 auto;
-                    display: block;
-                  `}
-                />
-              </div>
-              <div
-                className={css`
-                  width: 80%;
-                  margin: 1em 1em;
-                `}
-              >
-                <h2
-                  className={css`
-                    color: #707070;
-                    font-weight: 600;
-                    font-size: 1.5em;
+                    background: #b5b5b5;
+                    display: flex;
+                    align-items: center;
+                    width: 100%;
+                    padding: 1em 1em;
+                    ${respondToOrLarger.lg} {
+                      width: 20%;
+                      height: 10rem;
+                    }
                   `}
                 >
-                  {organization.name}
-                </h2>
-                <span>{organization.description}</span>
+                  {organization.organization_image_url ? (
+                    <img
+                      alt={organization.name}
+                      className={css`
+                        margin: 0 auto;
+                        display: block;
+                        max-height: 10rem;
+                      `}
+                      src={organization.organization_image_url}
+                    />
+                  ) : (
+                    <UHNoBG
+                      className={css`
+                        margin: 0 auto;
+                        display: block;
+                      `}
+                    />
+                  )}
+                </div>
+                <div
+                  className={css`
+                    width: 80%;
+                    margin: 1em;
+                  `}
+                >
+                  <h2
+                    className={css`
+                      color: #707070;
+                      font-weight: 600;
+                      font-size: 1.5em;
+                    `}
+                  >
+                    {organization.name}
+                  </h2>
+                  <span>{organization.description}</span>
+                </div>
               </div>
             </div>
           </Link>

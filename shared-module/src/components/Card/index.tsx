@@ -1,13 +1,8 @@
-import { ThemeProvider } from "@emotion/react"
 import React from "react"
-
-import { theme } from "../../styles"
 
 import CourseCard from "./CourseCard"
 import IllustrationCard from "./IllustrationCard"
 import SimpleCard from "./SimpleCard"
-
-/* import { border, color, space } from "styled-system" */
 
 type CourseCardProps = {
   title: string
@@ -32,7 +27,7 @@ export type CardProps = React.ButtonHTMLAttributes<HTMLDivElement> & CardExtraPr
 
 const Card: React.FC<CardProps> = (props) => {
   return (
-    <ThemeProvider theme={theme}>
+    <>
       {props.variant === "simple" ? (
         <SimpleCard {...props}></SimpleCard>
       ) : props.variant === "course" ? (
@@ -40,7 +35,7 @@ const Card: React.FC<CardProps> = (props) => {
       ) : (
         <IllustrationCard {...props} />
       )}
-    </ThemeProvider>
+    </>
   )
 }
 

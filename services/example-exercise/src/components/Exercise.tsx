@@ -1,9 +1,10 @@
 import { useState } from "react"
 
+import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
+import { CurrentStateMessage } from "../shared-module/iframe-protocol-types"
 import { PublicAlternative } from "../util/stateInterfaces"
 
 import ExerciseBase from "./ExerciseBase"
-import HeightTrackingContainer from "./HeightTrackingContainer"
 
 interface Props {
   state: PublicAlternative[]
@@ -21,7 +22,12 @@ const Exercise: React.FC<Props> = ({ port, maxWidth, state }) => {
       return
     }
     console.log("Posting current state to parent")
-    port.postMessage({ message: "current-state", data: { selectedOptionId: value } })
+    const message: CurrentStateMessage = {
+      message: "current-state",
+      data: { selectedOptionId: value },
+      valid: true,
+    }
+    port.postMessage(message)
     return res
   }
 

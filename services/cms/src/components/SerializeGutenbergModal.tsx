@@ -5,6 +5,8 @@ import dynamic from "next/dynamic"
 import { useState } from "react"
 
 import Button from "../shared-module/components/Button"
+import { monospaceFont } from "../shared-module/styles"
+import monacoFontFixer from "../shared-module/styles/monacoFontFixer"
 
 export interface SerializeGutenbergModalProps {
   content: BlockInstance[]
@@ -21,7 +23,7 @@ const SerializeGutenbergModal: React.FC<SerializeGutenbergModalProps> = ({ conte
   const [serialized, setSerialized] = useState<string | null>(null)
 
   return (
-    <>
+    <div className={monacoFontFixer}>
       <Button size="medium" variant="primary" onClick={() => setSerialized(serialize(content))}>
         Serialize to HTML
       </Button>
@@ -32,7 +34,7 @@ const SerializeGutenbergModal: React.FC<SerializeGutenbergModalProps> = ({ conte
           `}
         >
           <MonacoEditor
-            options={{ wordWrap: "on" }}
+            options={{ wordWrap: "on", fontFamily: monospaceFont }}
             height="90vh"
             width="80vw"
             defaultLanguage="html"
@@ -40,7 +42,7 @@ const SerializeGutenbergModal: React.FC<SerializeGutenbergModalProps> = ({ conte
           />
         </Paper>
       </Dialog>
-    </>
+    </div>
   )
 }
 

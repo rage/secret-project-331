@@ -1,5 +1,13 @@
 import { css } from "@emotion/css"
-import { Alert, Grow, MenuItem, Select, SelectChangeEvent } from "@material-ui/core"
+import {
+  Alert,
+  FormControl,
+  Grow,
+  InputLabel,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+} from "@material-ui/core"
 import TextField from "@material-ui/core/TextField"
 import dynamic from "next/dynamic"
 import React, { useEffect, useState } from "react"
@@ -16,6 +24,7 @@ import { PlaygroundExample } from "../shared-module/bindings"
 import Button from "../shared-module/components/Button"
 import MessageChannelIFrame from "../shared-module/components/MessageChannelIFrame"
 import { normalWidthCenteredComponentStyles } from "../shared-module/styles/componentStyles"
+import { defaultContainerWidth } from "../shared-module/styles/constants"
 
 const MonacoLoading = <div>Loading editor...</div>
 const Editor = dynamic(() => import("@monaco-editor/react"), {
@@ -24,11 +33,11 @@ const Editor = dynamic(() => import("@monaco-editor/react"), {
 })
 
 const Home: React.FC = () => {
-  const [exampleUrl, setExampleUrl] = useState<string | null>(null)
-  const [exampleWidth, setExampleWidth] = useState<number | null>(null)
-  const [exampleData, setExampleData] = useState<string | null>(null)
-  const [exampleName, setExampleName] = useState<string | null>(null)
-  const [combinedUrl, setCombinedUrl] = useState<string | null>(null)
+  const [exampleUrl, setExampleUrl] = useState<string>("")
+  const [exampleWidth, setExampleWidth] = useState<number>(defaultContainerWidth)
+  const [exampleData, setExampleData] = useState<string>("")
+  const [exampleName, setExampleName] = useState<string>("")
+  const [combinedUrl, setCombinedUrl] = useState<string>("")
   const [invalidUrl, setInvalidUrl] = useState<boolean>(false)
   const [selectedExample, setSelectedExample] = useState<PlaygroundExample | null>(null)
   const [msg, setMsg] = useState<string>("")
@@ -85,7 +94,9 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     setCombinedUrl("")
-    if (!exampleUrl || !exampleWidth) return
+    if (!exampleUrl || !exampleWidth) {
+      return
+    }
     try {
       const newUrl = new URL(exampleUrl + `?width=${exampleWidth}`)
       setCombinedUrl(newUrl.toString())
@@ -109,15 +120,16 @@ const Home: React.FC = () => {
   }
 
   const handleDataChange = (e: string) => {
-    if (e) setExampleData(e)
+    if (e) {
+      setExampleData(e)
+    }
   }
 
   const handleExampleChange = (event: SelectChangeEvent) => {
     const example: PlaygroundExample = JSON.parse(event.target.value) as PlaygroundExample
     setExampleUrl(example.url)
     setExampleWidth(example.width)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    setExampleData(JSON.stringify(example.data as any, undefined, 2))
+    setExampleData(JSON.stringify(example.data as unknown, undefined, 2))
     setExampleName(example.name)
     setSelectedExample(example)
   }
@@ -132,6 +144,9 @@ const Home: React.FC = () => {
   }
 
   const handleExampleUpdate = async () => {
+    if (!selectedExample) {
+      return
+    }
     updateMutation.mutate({
       ...selectedExample,
       name: exampleName,
@@ -142,6 +157,9 @@ const Home: React.FC = () => {
   }
 
   const handleExampleDeletion = async () => {
+    if (!selectedExample) {
+      return
+    }
     deleteMutation.mutate(selectedExample.id)
   }
 
@@ -150,11 +168,11 @@ const Home: React.FC = () => {
   }
 
   if (error) {
-    return <pre>{error}</pre>
+    return <pre>{JSON.stringify(error)}</pre>
   }
 
   return (
-    <Layout frontPageUrl="/" navVariant="simple">
+    <Layout>
       <div className={normalWidthCenteredComponentStyles}>
         <Grow
           in={
@@ -186,20 +204,30 @@ const Home: React.FC = () => {
         {data.length > 0 && (
           <div>
             <h4>List of examples</h4>
-            <Select
-              onChange={handleExampleChange}
-              defaultValue={data[0].name}
-              fullWidth
+            <div
               className={css`
                 margin-bottom: 1rem;
+                margin-top: 0.5rem;
               `}
             >
-              {data.map((example) => (
-                <MenuItem key={JSON.stringify(example)} value={JSON.stringify(example)}>
-                  {example.name}
-                </MenuItem>
-              ))}
-            </Select>
+              <FormControl fullWidth>
+                <InputLabel id="playground-examples-label-id">Examples</InputLabel>
+                <Select
+                  id="playground-examples"
+                  labelId="playground-examples-label-id"
+                  label="Examples"
+                  onChange={handleExampleChange}
+                  fullWidth
+                  value={selectedExample ? JSON.stringify(selectedExample) : ""}
+                >
+                  {data.map((example) => (
+                    <MenuItem key={JSON.stringify(example)} value={JSON.stringify(example)}>
+                      {example.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
           </div>
         )}
         <TextField
@@ -224,7 +252,7 @@ const Home: React.FC = () => {
           `}
         />
         <TextField
-          value={exampleName || ""}
+          value={exampleName}
           placeholder="Example name"
           label="Example name"
           fullWidth
@@ -246,7 +274,7 @@ const Home: React.FC = () => {
             tabSize: 2,
           }}
           value={exampleData}
-          onChange={(value) => handleDataChange(value)}
+          onChange={(value) => value && handleDataChange(value)}
           height="50vh"
           className={css`
             border: 1px solid black;

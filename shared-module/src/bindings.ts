@@ -35,8 +35,8 @@ export interface EmailTemplate {
 
 export interface CourseStructure {
   course: Course
-  pages: Page[]
-  chapters: Chapter[]
+  pages: Array<Page>
+  chapters: Array<Chapter>
 }
 
 export interface Page {
@@ -68,7 +68,7 @@ export interface PageWithExercises {
   title: string
   order_number: number
   deleted_at: Date | null
-  exercises: Exercise[]
+  exercises: Array<Exercise>
 }
 
 export interface UserProgress {
@@ -82,7 +82,6 @@ export interface CourseInstanceEnrollment {
   user_id: string
   course_id: string
   course_instance_id: string
-  current: boolean
   created_at: Date
   updated_at: Date
   deleted_at: Date | null
@@ -136,6 +135,26 @@ export interface SubmissionResult {
   grading: Grading
 }
 
+export interface ExerciseService {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  name: string
+  slug: string
+  public_url: string
+  internal_url: string | null
+  max_reprocessing_submissions_at_once: number
+}
+
+export interface ExerciseServiceNewOrUpdate {
+  name: string
+  slug: string
+  public_url: string
+  internal_url: string | null
+  max_reprocessing_submissions_at_once: number
+}
+
 export interface Course {
   id: string
   slug: string
@@ -146,8 +165,8 @@ export interface Course {
   deleted_at: Date | null
   language_code: string
   copied_from: string | null
-  language_version_of_course_id: string | null
   content_search_language: string | null
+  course_language_group_id: string
 }
 
 export interface Exercise {
@@ -193,7 +212,7 @@ export interface SubmissionCountByExercise {
 }
 
 export interface ExerciseSubmissions {
-  data: Submission[]
+  data: Array<Submission>
   total_pages: number
 }
 
@@ -314,7 +333,7 @@ export interface Feedback {
   feedback_given: string
   marked_as_read: boolean
   created_at: Date
-  blocks: FeedbackBlock[]
+  blocks: Array<FeedbackBlock>
 }
 
 export interface MarkAsRead {
@@ -323,7 +342,7 @@ export interface MarkAsRead {
 
 export interface NewFeedback {
   feedback_given: string
-  related_blocks: FeedbackBlock[]
+  related_blocks: Array<FeedbackBlock>
 }
 
 export interface FeedbackBlock {
@@ -437,7 +456,7 @@ export interface ExerciseWithExerciseTasks {
   name: string
   deadline: Date | null
   page_id: string
-  exercise_tasks: ExerciseTask[]
+  exercise_tasks: Array<ExerciseTask>
   score_maximum: number
 }
 
@@ -445,7 +464,7 @@ export interface NormalizedCmsExercise {
   id: string
   name: string
   order_number: number
-  exercise_tasks: NormalizedCmsExerciseTask[]
+  exercise_tasks: Array<NormalizedCmsExerciseTask>
 }
 
 export interface NormalizedCmsExerciseTask {
@@ -453,6 +472,16 @@ export interface NormalizedCmsExerciseTask {
   exercise_type: string
   assignment: unknown
   private_spec: unknown | null
+}
+
+export interface UserCourseSettings {
+  user_id: string
+  course_language_group_id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  current_course_id: string
+  current_course_instance_id: string
 }
 
 export interface PlaygroundExample {
@@ -471,4 +500,10 @@ export interface PlaygroundExampleData {
   url: string
   width: number
   data: unknown
+}
+
+export interface CoursePageWithUserData {
+  page: Page
+  instance: CourseInstance | null
+  settings: UserCourseSettings | null
 }

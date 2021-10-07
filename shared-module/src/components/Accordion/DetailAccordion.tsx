@@ -2,6 +2,9 @@ import { css, cx, keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
+import { baseTheme } from "../../styles"
+import { respondToOrLarger } from "../../styles/respond"
+
 const openAnimation = keyframes`
 0% { opacity: 0; }
 100% { opacity: 1; }
@@ -18,7 +21,7 @@ const TextWrapper = styled.div`
 
   details[open] summary ~ * {
     animation: ${openAnimation} 0.3s ease-in-out;
-    color: #333;
+    color: ${baseTheme.colors.grey[800]};
   }
 
   details[open] > div {
@@ -34,10 +37,10 @@ const TextWrapper = styled.div`
     font-size: 1.3rem;
     font-weight: medium;
     list-style: none;
-    color: #333;
+    color: ${baseTheme.colors.grey[800]};
     outline: 0;
     background: rgba(0, 0, 0, 0.1);
-    @media (min-width: 600px) {
+    ${respondToOrLarger.sm} {
       padding: 1rem 1rem 1rem 2rem;
     }
   }
@@ -76,7 +79,7 @@ const TextWrapper = styled.div`
     padding: 14px;
     margin: 0;
 
-    @media (min-width: 600px) {
+    ${respondToOrLarger.sm} {
       background: #f9f9f9;
       padding: 25px 35px 30px 35px;
     }

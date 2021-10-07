@@ -1,4 +1,4 @@
-import { ThemeProvider } from "@material-ui/core/styles"
+import { ThemeProvider } from "@material-ui/core"
 import type { AppProps } from "next/app"
 import React from "react"
 import { QueryClientProvider } from "react-query"
@@ -24,14 +24,13 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
   return (
     <QueryClientProvider client={queryClient}>
       <RecoilRoot>
-        {/* <Devtools /> */}
+        <GlobalStyles />
         <ThemeProvider theme={muiTheme}>
-          <GlobalStyles />
           <LoginStateContextProvider>
             <Component {...pageProps} />
           </LoginStateContextProvider>
-          <ReactQueryDevtools initialIsOpen={false} />
         </ThemeProvider>
+        <ReactQueryDevtools initialIsOpen={false} />
       </RecoilRoot>
     </QueryClientProvider>
   )

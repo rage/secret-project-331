@@ -2,32 +2,45 @@ import { css } from "@emotion/css"
 import { Dialog } from "@material-ui/core"
 import Link from "next/link"
 import React, { useState } from "react"
-import { useQuery } from "react-query"
+import { useQuery, useQueryClient } from "react-query"
 
 import Layout from "../../../../components/Layout"
 import NewCourseForm from "../../../../components/forms/NewCourseForm"
 import UpdateCourseForm from "../../../../components/forms/UpdateCourseForm"
 import CourseInstancesList from "../../../../components/lists/CourseInstancesList"
-import CourseTranslationsList from "../../../../components/lists/CourseTranslationsList"
+import CourseLanguageVersionsList, {
+  formatQueryKey as formatLanguageVersionsQueryKey,
+} from "../../../../components/lists/CourseLanguageVersionsList"
 import ExerciseList from "../../../../components/lists/ExerciseList"
 import {
   deleteCourse,
   getCourse,
   postNewCourseTranslation,
 } from "../../../../services/backend/courses"
+import { NewCourse } from "../../../../shared-module/bindings"
 import Button from "../../../../shared-module/components/Button"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
-import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
 import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
-import basePath from "../../../../shared-module/utils/base-path"
-import { dontRenderUntilQueryParametersReady } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import {
+  dontRenderUntilQueryParametersReady,
+  SimplifiedUrlQuery,
+} from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
-const ManageCoursePage: React.FC<unknown> = () => {
-  const id = useQueryParameter("id")
-  const { isLoading, error, data: course, refetch } = useQuery(`course-${id}`, () => getCourse(id))
+interface ManageCoursePageProps {
+  query: SimplifiedUrlQuery<"id">
+}
+
+const ManageCoursePage: React.FC<ManageCoursePageProps> = ({ query }) => {
+  const queryClient = useQueryClient()
+  const {
+    isLoading,
+    error,
+    data: course,
+    refetch,
+  } = useQuery(`course-${query.id}`, () => getCourse(query.id))
   const [showForm, setShowForm] = useState(false)
-  const [showDuplicateForm, setShowDuplicateForm] = useState(false)
+  const [showNewLanguageVersionForm, setShowNewLanguageVersionForm] = useState(false)
 
   if (error) {
     return <div>Error fetching course data.</div>
@@ -47,8 +60,15 @@ const ManageCoursePage: React.FC<unknown> = () => {
     await refetch()
   }
 
+  const handleCreateNewLanguageVersion = async (newCourse: NewCourse) => {
+    await postNewCourseTranslation(course.id, newCourse)
+    await refetch()
+    setShowNewLanguageVersionForm(false)
+    queryClient.invalidateQueries(formatLanguageVersionsQueryKey(course.id))
+  }
+
   return (
-    <Layout frontPageUrl={basePath()} navVariant="complex">
+    <Layout navVariant="complex">
       <div
         className={css`
           ${wideWidthCenteredComponentStyles}
@@ -76,29 +96,32 @@ const ManageCoursePage: React.FC<unknown> = () => {
               Close
             </Button>
             <UpdateCourseForm
-              courseId={id}
+              courseId={query.id}
               courseName={course.name}
               onSubmitForm={handleOnUpdateCourse}
             />
           </div>
         </Dialog>
-        <Dialog open={showDuplicateForm} onClose={() => setShowDuplicateForm(true)}>
+        <Dialog
+          open={showNewLanguageVersionForm}
+          onClose={() => setShowNewLanguageVersionForm(true)}
+        >
           <div
             className={css`
               margin: 1rem;
             `}
           >
-            <Button size="medium" variant="secondary" onClick={() => setShowDuplicateForm(false)}>
+            <Button
+              size="medium"
+              variant="secondary"
+              onClick={() => setShowNewLanguageVersionForm(false)}
+            >
               Close
             </Button>
             <div>Create new language version of {course.name}</div>
             <NewCourseForm
               organizationId={course.organization_id}
-              onSubmitForm={async (newCourse) => {
-                await postNewCourseTranslation(course.id, newCourse)
-                await refetch()
-                setShowDuplicateForm(false)
-              }}
+              onSubmitForm={handleCreateNewLanguageVersion}
             />
           </div>
         </Dialog>
@@ -120,14 +143,14 @@ const ManageCoursePage: React.FC<unknown> = () => {
           Manage feedback
         </Link>
         <h3>All course language versions</h3>
-        <CourseTranslationsList courseId={id} />
-        <Button size="medium" variant="primary" onClick={() => setShowDuplicateForm(true)}>
+        <CourseLanguageVersionsList courseId={query.id} />
+        <Button size="medium" variant="primary" onClick={() => setShowNewLanguageVersionForm(true)}>
           New language version
         </Button>
         <h3>All course instances</h3>
-        <CourseInstancesList courseId={id} />
+        <CourseInstancesList courseId={query.id} />
         <h3>All exercises</h3>
-        <ExerciseList courseId={id} />
+        <ExerciseList courseId={query.id} />
       </div>
     </Layout>
   )

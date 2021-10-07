@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next"
 
-import { PublicItem, PublicOption, PublicQuiz, Quiz } from "../../types/types"
+import { PublicQuiz, PublicQuizItem, PublicQuizItemOption, Quiz } from "../../types/types"
 
 export default (req: NextApiRequest, res: NextApiResponse): void => {
   if (req.method !== "POST") {
@@ -25,10 +25,11 @@ function handlePost(req: NextApiRequest, res: NextApiResponse) {
     tries: quiz.tries,
     triesLimited: quiz.triesLimited,
     items: quiz.items.map((i) => {
-      const pi: PublicItem = {
+      const pi: PublicQuizItem = {
         id: i.id,
         body: i.body,
         direction: i.direction,
+        formatRegex: i.formatRegex,
         maxLabel: i.maxLabel,
         maxValue: i.maxValue,
         maxWords: i.maxWords,
@@ -41,7 +42,7 @@ function handlePost(req: NextApiRequest, res: NextApiResponse) {
         title: i.title,
         type: i.type,
         options: i.options.map((o) => {
-          const po: PublicOption = {
+          const po: PublicQuizItemOption = {
             id: o.id,
             body: o.body,
             order: o.order,

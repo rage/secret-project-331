@@ -5,8 +5,10 @@ import { v4 } from "uuid"
 
 import StatelessEditor from "../components/StatelessEditor"
 import { normalizedQuiz } from "../schemas"
+import { CurrentStateMessage, HeightChangedMessage } from "../shared-module/iframe-protocol-types"
+import { isSetStateMessage } from "../shared-module/iframe-protocol-types.guard"
 import { initializedEditor } from "../store/editor/editorActions"
-import { storeState, useTypedSelector } from "../store/store"
+import { StoreState, useTypedSelector } from "../store/store"
 import { Entities, Quiz } from "../types/types"
 
 const Editor: React.FC = () => {
@@ -19,9 +21,10 @@ const Editor: React.FC = () => {
     if (!port) {
       return
     }
-    const message = {
+    const message: CurrentStateMessage = {
       message: "current-state",
       data: { private_spec: denormalizeData(state) },
+      valid: true,
     }
     console.info("Sending current data", JSON.stringify(message))
     port.postMessage(message)
@@ -39,9 +42,10 @@ const Editor: React.FC = () => {
         port.onmessage = (message: WindowEventMap["message"]) => {
           console.log("Frame received a message from port", JSON.stringify(message.data))
           const data = message.data
-          if (data.message === "set-state") {
+          if (isSetStateMessage(data)) {
             console.log("Frame: setting state from message")
-            dispatch(initializedEditor(normalizeData(data.data), data))
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            dispatch(initializedEditor(normalizeData(data.data as any), data as any))
           } else {
             console.error("Frame received an unknown message from message port")
           }
@@ -73,13 +77,11 @@ const Editor: React.FC = () => {
 }
 
 function onHeightChange(newHeight: number, port: MessagePort) {
-  port.postMessage({
-    message: "height-changed",
-    data: newHeight,
-  })
+  const message: HeightChangedMessage = { message: "height-changed", data: newHeight }
+  port.postMessage(message)
 }
 
-const normalizeData = (data: storeState) => {
+const normalizeData = (data: StoreState) => {
   const normalizedInputData = normalize(data === null ? emptyQuiz : data, normalizedQuiz)
   return {
     quizzes: normalizedInputData.entities.quizzes ?? {},
@@ -91,7 +93,7 @@ const normalizeData = (data: storeState) => {
   }
 }
 
-const denormalizeData = (state: storeState) => {
+const denormalizeData = (state: StoreState) => {
   const entities: Entities = {
     quizzes: state.editor.quizzes,
     items: state.editor.items,

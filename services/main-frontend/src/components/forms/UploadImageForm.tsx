@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { createRef, useState } from "react"
 
@@ -14,6 +15,7 @@ export interface UploadImageFormProps {
 const UploadImageForm: React.FC<UploadImageFormProps> = ({ onSubmit }) => {
   const fileInput = createRef<HTMLInputElement>()
   const [allowSubmit, setAllowSubmit] = useState(true)
+  const [showUploadButton, setShowUploadButton] = useState(false)
 
   const uploadImage = () => {
     const file = fileInput.current?.files?.[0]
@@ -24,15 +26,27 @@ const UploadImageForm: React.FC<UploadImageFormProps> = ({ onSubmit }) => {
   }
 
   return (
-    <div>
+    <div
+      className={css`
+        margin: 2rem 0rem;
+      `}
+    >
       <FieldContainer>
-        <input accept="image" ref={fileInput} type="file" />
+        <h4>Upload an image</h4>
+        <input
+          accept="image"
+          ref={fileInput}
+          type="file"
+          onChange={() => setShowUploadButton(true)}
+        />
       </FieldContainer>
-      <div>
-        <Button size="medium" variant="primary" onClick={uploadImage} disabled={!allowSubmit}>
-          Upload image
-        </Button>
-      </div>
+      {showUploadButton && (
+        <div>
+          <Button size="medium" variant="primary" onClick={uploadImage} disabled={!allowSubmit}>
+            Upload image
+          </Button>
+        </div>
+      )}
     </div>
   )
 }

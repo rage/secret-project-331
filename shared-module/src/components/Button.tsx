@@ -10,7 +10,6 @@ export interface ButtonExtraProps {
   size: "medium" | "large"
   transform: "normal" | "uppercase"
   children: React.ReactNode
-  disabled: boolean
 }
 
 export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & ButtonExtraProps

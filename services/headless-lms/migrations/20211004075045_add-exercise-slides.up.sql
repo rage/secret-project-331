@@ -43,4 +43,5 @@ SET selected_exercise_slide_id = (
     FROM exercise_tasks t
     WHERE t.id = ues.selected_exercise_task_id
   );
+COMMENT ON COLUMN user_exercise_states.selected_exercise_slide_id IS 'The current exercise slide of the exercise that has been chosen for the student. It is also used for checking during submission to ensure the user can not post an answer to a task that has not been given to them.';
 ALTER TABLE user_exercise_states DROP COLUMN selected_exercise_task_id;

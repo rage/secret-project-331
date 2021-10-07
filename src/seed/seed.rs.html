@@ -1399,6 +1399,109 @@
 <span id="1399">1399</span>
 <span id="1400">1400</span>
 <span id="1401">1401</span>
+<span id="1402">1402</span>
+<span id="1403">1403</span>
+<span id="1404">1404</span>
+<span id="1405">1405</span>
+<span id="1406">1406</span>
+<span id="1407">1407</span>
+<span id="1408">1408</span>
+<span id="1409">1409</span>
+<span id="1410">1410</span>
+<span id="1411">1411</span>
+<span id="1412">1412</span>
+<span id="1413">1413</span>
+<span id="1414">1414</span>
+<span id="1415">1415</span>
+<span id="1416">1416</span>
+<span id="1417">1417</span>
+<span id="1418">1418</span>
+<span id="1419">1419</span>
+<span id="1420">1420</span>
+<span id="1421">1421</span>
+<span id="1422">1422</span>
+<span id="1423">1423</span>
+<span id="1424">1424</span>
+<span id="1425">1425</span>
+<span id="1426">1426</span>
+<span id="1427">1427</span>
+<span id="1428">1428</span>
+<span id="1429">1429</span>
+<span id="1430">1430</span>
+<span id="1431">1431</span>
+<span id="1432">1432</span>
+<span id="1433">1433</span>
+<span id="1434">1434</span>
+<span id="1435">1435</span>
+<span id="1436">1436</span>
+<span id="1437">1437</span>
+<span id="1438">1438</span>
+<span id="1439">1439</span>
+<span id="1440">1440</span>
+<span id="1441">1441</span>
+<span id="1442">1442</span>
+<span id="1443">1443</span>
+<span id="1444">1444</span>
+<span id="1445">1445</span>
+<span id="1446">1446</span>
+<span id="1447">1447</span>
+<span id="1448">1448</span>
+<span id="1449">1449</span>
+<span id="1450">1450</span>
+<span id="1451">1451</span>
+<span id="1452">1452</span>
+<span id="1453">1453</span>
+<span id="1454">1454</span>
+<span id="1455">1455</span>
+<span id="1456">1456</span>
+<span id="1457">1457</span>
+<span id="1458">1458</span>
+<span id="1459">1459</span>
+<span id="1460">1460</span>
+<span id="1461">1461</span>
+<span id="1462">1462</span>
+<span id="1463">1463</span>
+<span id="1464">1464</span>
+<span id="1465">1465</span>
+<span id="1466">1466</span>
+<span id="1467">1467</span>
+<span id="1468">1468</span>
+<span id="1469">1469</span>
+<span id="1470">1470</span>
+<span id="1471">1471</span>
+<span id="1472">1472</span>
+<span id="1473">1473</span>
+<span id="1474">1474</span>
+<span id="1475">1475</span>
+<span id="1476">1476</span>
+<span id="1477">1477</span>
+<span id="1478">1478</span>
+<span id="1479">1479</span>
+<span id="1480">1480</span>
+<span id="1481">1481</span>
+<span id="1482">1482</span>
+<span id="1483">1483</span>
+<span id="1484">1484</span>
+<span id="1485">1485</span>
+<span id="1486">1486</span>
+<span id="1487">1487</span>
+<span id="1488">1488</span>
+<span id="1489">1489</span>
+<span id="1490">1490</span>
+<span id="1491">1491</span>
+<span id="1492">1492</span>
+<span id="1493">1493</span>
+<span id="1494">1494</span>
+<span id="1495">1495</span>
+<span id="1496">1496</span>
+<span id="1497">1497</span>
+<span id="1498">1498</span>
+<span id="1499">1499</span>
+<span id="1500">1500</span>
+<span id="1501">1501</span>
+<span id="1502">1502</span>
+<span id="1503">1503</span>
+<span id="1504">1504</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">TimeZone</span>, <span class="ident">Utc</span>};
@@ -1793,6 +1896,109 @@
                 ]
               }
             ),
+        },
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="ident">playground_examples::insert_playground_example</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+        <span class="ident">PlaygroundExampleData</span> {
+            <span class="ident">name</span>: <span class="string">&quot;Quizzes example, multiple-choice dropdown&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">url</span>: <span class="string">&quot;http://project-331.local/quizzes/exercise&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">width</span>: <span class="number">500</span>,
+            <span class="ident">data</span>: <span class="macro">serde_json::json!</span>({
+            <span class="string">&quot;id&quot;</span>: <span class="string">&quot;1af3cc18-d8d8-4cc6-9bf9-be63d79e19a4&quot;</span>,
+            <span class="string">&quot;courseId&quot;</span>: <span class="string">&quot;32b060d5-78e8-4b97-a933-7458319f30a2&quot;</span>,
+            <span class="string">&quot;body&quot;</span>: <span class="ident">null</span>,
+            <span class="string">&quot;deadline&quot;</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2121</span>, <span class="number">9</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).<span class="ident">to_string</span>(),
+            <span class="string">&quot;open&quot;</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2021</span>, <span class="number">9</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).<span class="ident">to_string</span>(),
+            <span class="string">&quot;part&quot;</span>: <span class="number">1</span>,
+            <span class="string">&quot;section&quot;</span>: <span class="number">1</span>,
+            <span class="string">&quot;title&quot;</span>: <span class="string">&quot;Questions about CSS and color codes&quot;</span>,
+            <span class="string">&quot;tries&quot;</span>: <span class="number">1</span>,
+            <span class="string">&quot;triesLimited&quot;</span>: <span class="bool-val">false</span>,
+            <span class="string">&quot;items&quot;</span>: [
+                {
+                    <span class="string">&quot;id&quot;</span>: <span class="string">&quot;37469182-8220-46d3-b3c2-7d215a1bfc03&quot;</span>,
+                    <span class="string">&quot;body&quot;</span>: <span class="string">&quot;How many different CSS hexadecimal color codes there are?&quot;</span>,
+                    <span class="string">&quot;direction&quot;</span>: <span class="string">&quot;row&quot;</span>,
+                    <span class="string">&quot;formatRegex&quot;</span>: <span class="ident">null</span>,
+                    <span class="string">&quot;maxLabel&quot;</span>: <span class="ident">null</span>,
+                    <span class="string">&quot;maxValue&quot;</span>: <span class="ident">null</span>,
+                    <span class="string">&quot;maxWords&quot;</span>: <span class="ident">null</span>,
+                    <span class="string">&quot;minLabel&quot;</span>: <span class="ident">null</span>,
+                    <span class="string">&quot;minValue&quot;</span>: <span class="ident">null</span>,
+                    <span class="string">&quot;minWords&quot;</span>: <span class="ident">null</span>,
+                    <span class="string">&quot;multi&quot;</span>: <span class="bool-val">false</span>,
+                    <span class="string">&quot;order&quot;</span>: <span class="number">1</span>,
+                    <span class="string">&quot;quizId&quot;</span>: <span class="string">&quot;1af3cc18-d8d8-4cc6-9bf9-be63d79e19a4&quot;</span>,
+                    <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                    <span class="string">&quot;type&quot;</span>: <span class="string">&quot;multiple-choice-dropdown&quot;</span>,
+                    <span class="string">&quot;options&quot;</span>: [
+                        {
+                            <span class="string">&quot;id&quot;</span>: <span class="string">&quot;d0514fbb-1081-4602-b564-22dd5374dd46&quot;</span>,
+                            <span class="string">&quot;body&quot;</span>: <span class="string">&quot;at least two&quot;</span>,
+                            <span class="string">&quot;order&quot;</span>: <span class="number">1</span>,
+                            <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                            <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;37469182-8220-46d3-b3c2-7d215a1bfc03&quot;</span>,
+                        },
+                        {
+                            <span class="string">&quot;id&quot;</span>: <span class="string">&quot;a7a58b81-bd76-4b9a-9060-1516597cb9b7&quot;</span>,
+                            <span class="string">&quot;body&quot;</span>: <span class="string">&quot;more than 2.546 * 10^56&quot;</span>,
+                            <span class="string">&quot;order&quot;</span>: <span class="number">2</span>,
+                            <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                            <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;37469182-8220-46d3-b3c2-7d215a1bfc03&quot;</span>,
+                        },
+                        {
+                            <span class="string">&quot;id&quot;</span>: <span class="string">&quot;255ff119-1705-4f79-baed-cf8f0c3ca214&quot;</span>,
+                            <span class="string">&quot;body&quot;</span>: <span class="string">&quot;I don&#39;t believe in hexadecimal color codes&quot;</span>,
+                            <span class="string">&quot;order&quot;</span>: <span class="number">3</span>,
+                            <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                            <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;37469182-8220-46d3-b3c2-7d215a1bfc03&quot;</span>,
+                        },
+                    ]
+                },
+                {
+                    <span class="string">&quot;id&quot;</span>: <span class="string">&quot;da705796-f8e3-420c-a717-a3064e351eed&quot;</span>,
+                    <span class="string">&quot;body&quot;</span>: <span class="string">&quot;What other ways there are to represent colors in CSS?&quot;</span>,
+                    <span class="string">&quot;direction&quot;</span>: <span class="string">&quot;row&quot;</span>,
+                    <span class="string">&quot;formatRegex&quot;</span>: <span class="ident">null</span>,
+                    <span class="string">&quot;maxLabel&quot;</span>: <span class="ident">null</span>,
+                    <span class="string">&quot;maxValue&quot;</span>: <span class="ident">null</span>,
+                    <span class="string">&quot;maxWords&quot;</span>: <span class="ident">null</span>,
+                    <span class="string">&quot;minLabel&quot;</span>: <span class="ident">null</span>,
+                    <span class="string">&quot;minValue&quot;</span>: <span class="ident">null</span>,
+                    <span class="string">&quot;minWords&quot;</span>: <span class="ident">null</span>,
+                    <span class="string">&quot;multi&quot;</span>: <span class="bool-val">false</span>,
+                    <span class="string">&quot;order&quot;</span>: <span class="number">1</span>,
+                    <span class="string">&quot;quizId&quot;</span>: <span class="string">&quot;1af3cc18-d8d8-4cc6-9bf9-be63d79e19a4&quot;</span>,
+                    <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                    <span class="string">&quot;type&quot;</span>: <span class="string">&quot;multiple-choice-dropdown&quot;</span>,
+                    <span class="string">&quot;options&quot;</span>: [
+                        {
+                            <span class="string">&quot;id&quot;</span>: <span class="string">&quot;dd31dfda-2bf0-4f66-af45-de6ee8ded54a&quot;</span>,
+                            <span class="string">&quot;body&quot;</span>: <span class="string">&quot;RGB -color system&quot;</span>,
+                            <span class="string">&quot;order&quot;</span>: <span class="number">1</span>,
+                            <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                            <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;da705796-f8e3-420c-a717-a3064e351eed&quot;</span>,
+                        },
+                        {
+                            <span class="string">&quot;id&quot;</span>: <span class="string">&quot;af864a7e-46d5-46c4-b027-413cb4e5fa68&quot;</span>,
+                            <span class="string">&quot;body&quot;</span>: <span class="string">&quot;Human readable text representation&quot;</span>,
+                            <span class="string">&quot;order&quot;</span>: <span class="number">2</span>,
+                            <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                            <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;da705796-f8e3-420c-a717-a3064e351eed&quot;</span>,
+                        },
+                        {
+                            <span class="string">&quot;id&quot;</span>: <span class="string">&quot;66df5778-f80c-42b4-a544-4fb35d44a80f&quot;</span>,
+                            <span class="string">&quot;body&quot;</span>: <span class="string">&quot;I&#39;m colorblind, so I don&#39;t really care :/&quot;</span>,
+                            <span class="string">&quot;order&quot;</span>: <span class="number">3</span>,
+                            <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                            <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;da705796-f8e3-420c-a717-a3064e351eed&quot;</span>,
+                        },
+                    ]
+                }
+            ]}),
         },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;

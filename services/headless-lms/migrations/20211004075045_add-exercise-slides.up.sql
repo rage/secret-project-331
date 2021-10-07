@@ -5,11 +5,11 @@ CREATE TABLE exercise_slides (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE,
   exercise_id UUID NOT NULL REFERENCES exercises(id),
-  order_number INTEGER NOT NULL DEFAULT 0
+  order_number INTEGER NOT NULL
 );
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON exercise_slides FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
-CREATE UNIQUE INDEX exercise_slides_order_number_per_exercise ON exercise_slides(exercise_id, number)
+CREATE UNIQUE INDEX exercise_slides_order_number_per_exercise ON exercise_slides(exercise_id, order_number)
 WHERE deleted_at IS NULL;
 COMMENT ON TABLE exercise_slides IS 'Ordered or randomly selected part of an exercise. A slide can contain multiple individual tasks that are shown to the student at once and submitted at the same time.';
 COMMENT ON COLUMN exercise_slides.id IS 'A unique, stable identifier for the record.';

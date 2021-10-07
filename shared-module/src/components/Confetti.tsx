@@ -1,6 +1,7 @@
 import styled from "@emotion/styled"
 import React from "react"
 import Particles from "react-tsparticles"
+import type { Container, ISourceOptions, Main } from "tsparticles"
 
 import Tick from "../img/tick.svg"
 
@@ -17,13 +18,13 @@ const StyledDiv = styled.div`
 `
 
 const Confetti: React.FC<any> = () => {
-  const particlesInit = (main: unknown) => {
+  const particlesInit = (main: Main) => {
     console.log(main)
 
     // you can initialize the tsParticles instance (main) here, adding custom shapes or presets
   }
 
-  const particlesLoaded = (container: unknown) => {
+  const particlesLoaded = (container: Container) => {
     console.log(container)
   }
 
@@ -39,9 +40,6 @@ const Confetti: React.FC<any> = () => {
               value: "transparent",
             },
           },
-          /*           fullScreen: {
-            enable: true,
-          }, */
           interactivity: {
             detectsOn: "window",
           },

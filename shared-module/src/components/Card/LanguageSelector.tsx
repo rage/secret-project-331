@@ -30,30 +30,31 @@ import Check from "../../img/tick.svg"
 import { headingFont } from "../../styles"
 
 const arr = {
-  belgium: ["belgium", Belgium],
-  finland: ["finnish", Finland],
-  belgiumFrench: ["belgium-french", Belgium],
-  austria: ["german", Austria],
-  portugal: ["portugal", Portugal],
-  denmark: ["danish", Denmark],
-  germany: ["german", Germany],
-  sweden: ["swedish", Sweden],
-  USA: ["english", USA],
-  netherland: ["dutch", Netherland],
-  czech: ["czech", Czech],
-  slovenia: ["slovenia", Slovenia],
-  lithuania: ["lithuania", Lithuania],
-  italy: ["italian", Italy],
-  croatia: ["croatia", Croatia],
-  greece: ["greece", Greece],
-  poland: ["polish", Poland],
-  norway: ["norway", Norway],
-  latvia: ["latvia", Latvia],
-  ireland: ["english", Ireland],
-  romania: ["romanian", Romania],
-  spain: ["spanish", Spain],
-  estonia: ["estonian", Estonia],
-  france: ["french", France],
+  "bg-BG": { humanReadableName: "belgium", image: Belgium },
+  "fi-FI": { humanReadableName: "finnish", image: Finland },
+  "fr-BE": { humanReadableName: "belgium-french", image: Belgium },
+  "de-AT": { humanReadableName: "german", image: Austria },
+  "pt-PT": { humanReadableName: "portugal", image: Portugal },
+  "da-DK": { humanReadableName: "danish", image: Denmark },
+  "de-DE": { humanReadableName: "german", image: Germany },
+  "sv-SE": { humanReadableName: "swedish", image: Sweden },
+  "en-US": { humanReadableName: "english", image: USA },
+  "nl-NL": { humanReadableName: "dutch", image: Netherland },
+  "nl-BE": { humanReadableName: "dutch-belgium", image: Netherland },
+  "cs-CZ": { humanReadableName: "czech", image: Czech },
+  "sk-SK": { humanReadableName: "slovenia", image: Slovenia },
+  "lt-LT": { humanReadableName: "lithuania", image: Lithuania },
+  "it-IT": { humanReadableName: "italian", image: Italy },
+  "hr-HR": { humanReadableName: "croatia", image: Croatia },
+  "el-GR": { humanReadableName: "greece", image: Greece },
+  "pl-PL": { humanReadableName: "polish", image: Poland },
+  "nb-NO": { humanReadableName: "norway", image: Norway },
+  "lv-LV": { humanReadableName: "latvia", image: Latvia },
+  "en-IE": { humanReadableName: "english", image: Ireland },
+  "ro-RO": { humanReadableName: "romanian", image: Romania },
+  "es-ES": { humanReadableName: "spanish", image: Spain },
+  "et-EE": { humanReadableName: "estonian", image: Estonia },
+  "fr-FR": { humanReadableName: "french", image: France },
 }
 
 const SelectorWrapper = styled.div`
@@ -134,8 +135,6 @@ const Country = styled.div`
 `
 
 export interface LanguageSelectorExtraProps {
-  /*   variant: "text" | "link" | "read-only"
-  content: string */
   click: any
 }
 
@@ -143,12 +142,10 @@ export type LanguageSelectorProps = React.HTMLAttributes<HTMLDivElement> &
   LanguageSelectorExtraProps
 
 const LanguageSelector: React.FC<LanguageSelectorProps> = (props) => {
-  const [checked, setChecked] = useState<string>("")
+  const [checked, setChecked] = useState<number | null>(null)
 
-  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.preventDefault()
-    console.log("flag-handler", e.currentTarget.id)
-    setChecked(e.currentTarget.id)
+  const handleClick = (index: number) => {
+    setChecked(index)
   }
 
   return (
@@ -160,12 +157,23 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = (props) => {
       <Content>
         {Object.values(arr).map((o, index) => (
           <>
-            <Country key={o[0]} id={JSON.stringify(index)} onClick={handleClick}>
+            <Country
+              key={o.humanReadableName}
+              id={JSON.stringify(index)}
+              onClick={() => {
+                handleClick(index)
+              }}
+            >
               <div>
-                {checked === JSON.stringify(index) && <StCheck />}
-                <img src={o[1]} data-attribute={o[1]} id={JSON.stringify(index)} alt="flag" />
+                {checked === index && <StCheck />}
+                <img
+                  src={o.image}
+                  data-attribute={o.image}
+                  id={JSON.stringify(index)}
+                  alt={`${o.humanReadableName} flag`}
+                />
               </div>
-              <span>{o[0]}</span>
+              <span>{o.humanReadableName}</span>
             </Country>
           </>
         ))}

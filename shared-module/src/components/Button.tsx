@@ -50,7 +50,6 @@ const BaseButton = styled.button`
     color: ${baseTheme.colors.neutral[600]};
     background-color: ${baseTheme.colors.neutral[500]};
     border-color: ${baseTheme.colors.neutral[500]};
-    cursor: not-allowed;
   }
   ${border}
   ${color}
@@ -78,7 +77,6 @@ const PrimaryButton = styled(BaseButton)`
     color: ${baseTheme.colors.neutral[600]};
     background-color: ${baseTheme.colors.neutral[500]};
     border-color: ${baseTheme.colors.neutral[500]};
-    cursor: not-allowed;
   }
 `
 
@@ -103,7 +101,6 @@ const SecondaryButton = styled(BaseButton)`
     color: ${baseTheme.colors.neutral[600]};
     background-color: ${baseTheme.colors.neutral[500]};
     border-color: ${baseTheme.colors.neutral[500]};
-    cursor: not-allowed;
   }
 `
 
@@ -126,7 +123,6 @@ const TertiaryButton = styled(BaseButton)`
     color: ${baseTheme.colors.neutral[600]};
     background-color: ${baseTheme.colors.neutral[500]};
     border-color: ${baseTheme.colors.neutral[500]};
-    cursor: not-allowed;
   }
 `
 

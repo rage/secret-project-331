@@ -19,9 +19,6 @@ const CourseGridWrapper = styled.div`
   position: relative;
   display: grid;
   align-items: center;
-
-  /*   @media (max-width: 600px) {
-  } */
 `
 const Content = styled.div`
   h2 {

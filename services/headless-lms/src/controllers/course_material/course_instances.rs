@@ -40,19 +40,26 @@ async fn get_user_progress_for_course_instance(
 
 async fn get_user_progress_for_course_instance_exercise(
     user: AuthUser,
-    request_course_instance_id: web::Path<Uuid>,
-    request_exercise_id: web::Path<Uuid>,
+    params: web::Path<(Uuid, Uuid)>,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<Json<UserCourseInstanceExerciseProgress>> {
+    let (course_instance_id, exercise_id) = params.into_inner();
     let user_course_instance_exercise_progress =
         crate::models::user_exercise_states::get_user_course_instance_exercise_progress(
             pool.get_ref(),
-            &request_course_instance_id,
-            &request_exercise_id,
+            &course_instance_id,
+            &exercise_id,
             &user.id,
         )
         .await?;
-    Ok(Json(user_course_instance_exercise_progress))
+    match user_course_instance_exercise_progress {
+        Some(result) => Ok(Json(result)),
+        None => Ok(Json({
+            UserCourseInstanceExerciseProgress {
+                score_given: Some(0.0),
+            }
+        })),
+    }
 }
 
 /**

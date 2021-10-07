@@ -12,8 +12,8 @@ import {
   PageSearchResult,
   PageWithExercises,
   SubmissionResult,
+  UserCourseInstanceProgress,
   UserCourseSettings,
-  UserProgress,
 } from "../shared-module/bindings"
 
 import { courseMaterialClient } from "./courseMaterialClient"
@@ -95,7 +95,9 @@ export const fetchAllCoursePages = async (courseId: string): Promise<Page[]> => 
   return data
 }
 
-export const fetchUserCourseProgress = async (courseInstanceId: string): Promise<UserProgress> => {
+export const fetchUserCourseProgress = async (
+  courseInstanceId: string,
+): Promise<UserCourseInstanceProgress> => {
   const data = (await courseMaterialClient.get(`/course-instances/${courseInstanceId}/progress`))
     .data
   return data

@@ -9,7 +9,10 @@ import GenericLoading from "../../GenericLoading"
 
 import PageExerciseList from "./PageExerciseList"
 
-const ExercisesInChapter: React.FC<{ chapterId: string }> = ({ chapterId }) => {
+const ExercisesInChapter: React.FC<{ chapterId: string; courseInstanceId: string }> = ({
+  chapterId,
+  courseInstanceId,
+}) => {
   const { isLoading, error, data } = useQuery(`chapter-${chapterId}-pages-with-exercises`, () =>
     fetchChaptersPagesWithExercises(chapterId),
   )
@@ -39,7 +42,11 @@ const ExercisesInChapter: React.FC<{ chapterId: string }> = ({ chapterId }) => {
       </h4>
       {data.map((page) => (
         <div key={page.id}>
-          <PageExerciseList page={page} courseSlug={courseSlug} />
+          <PageExerciseList
+            page={page}
+            courseSlug={courseSlug}
+            courseInstanceId={courseInstanceId}
+          />
         </div>
       ))}
     </div>

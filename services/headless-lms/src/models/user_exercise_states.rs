@@ -37,8 +37,7 @@ pub struct UserCourseInstanceProgress {
 }
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
 pub struct UserCourseInstanceExerciseProgress {
-    score_given: Option<f32>,
-    score_maximum: i32,
+    pub score_given: Option<f32>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
@@ -124,17 +123,14 @@ pub async fn get_user_course_instance_exercise_progress(
     course_instance_id: &Uuid,
     exercise_id: &Uuid,
     user_id: &Uuid,
-) -> ModelResult<UserCourseInstanceExerciseProgress> {
+) -> ModelResult<Option<UserCourseInstanceExerciseProgress>> {
     let mut connection = pool.acquire().await?;
     let res = sqlx::query_as!(
         UserCourseInstanceExerciseProgress,
         r#"
-SELECT ues.score_given AS score_given,
-  e.score_maximum AS score_maximum
+SELECT COALESCE(ues.score_given, 0) AS score_given
 FROM user_exercise_states AS ues
-  LEFT JOIN exercises AS e ON ues.exercise_id = e.id
 WHERE ues.deleted_at IS NULL
-  AND e.deleted_at IS NULL
   AND ues.exercise_id = $1
   AND ues.course_instance_id = $2
   AND ues.user_id = $3;
@@ -143,7 +139,7 @@ WHERE ues.deleted_at IS NULL
         course_instance_id,
         user_id,
     )
-    .fetch_one(&mut connection)
+    .fetch_optional(&mut connection)
     .await?;
     Ok(res)
 }

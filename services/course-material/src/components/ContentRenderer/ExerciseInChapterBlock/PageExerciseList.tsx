@@ -5,9 +5,14 @@ import PageBox from "../../../shared-module/components/ExerciseList/PageBox"
 export interface PageExerciseListProps {
   page: PageWithExercises
   courseSlug: string
+  courseInstanceId: string
 }
 
-const PageExerciseList: React.FC<PageExerciseListProps> = ({ page, courseSlug }) => {
+const PageExerciseList: React.FC<PageExerciseListProps> = ({
+  page,
+  courseSlug,
+  courseInstanceId,
+}) => {
   return (
     <>
       {page.exercises.length !== 0 && (
@@ -22,7 +27,8 @@ const PageExerciseList: React.FC<PageExerciseListProps> = ({ page, courseSlug })
                   exerciseTitle={e.name}
                   scoreMaximum={e.score_maximum}
                   // userPoints={TODO: Fetch user points from API here for each exercise_id?}
-                  userPoints={1}
+                  courseInstanceId={courseInstanceId}
+                  exerciseId={e.id}
                 />
               </div>
             ))}

@@ -8,7 +8,10 @@ use crate::{
         UploadResult,
     },
     models::{
-        chapters::{Chapter, ChapterStatus, ChapterUpdate, ChapterWithStatus, NewChapter},
+        chapters::{
+            Chapter, ChapterStatus, ChapterUpdate, ChapterWithStatus, NewChapter,
+            UserChapterProgress,
+        },
         course_instance_enrollments::CourseInstanceEnrollment,
         course_instances::{CourseInstance, VariantStatus},
         courses::{Course, CourseStructure, CourseUpdate, NewCourse},
@@ -47,6 +50,7 @@ ts_rs::export! {
   Page,
   UploadResult,
   PageWithExercises,
+  UserChapterProgress,
   UserCourseInstanceProgress,
   UserCourseInstanceExerciseProgress,
   CourseInstanceEnrollment,

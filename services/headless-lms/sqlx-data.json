@@ -5271,6 +5271,77 @@
       "nullable": [false, false, false, true, false, true, true, true, true, false]
     }
   },
+  "b6def96f6973719237ce93811fd8a9215bf24529cab71d262f22f11d13ddf526": {
+    "query": "\nSELECT *\nFROM exercises\nWHERE chapter_id = $1\n  AND deleted_at IS NULL\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 5,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "deadline",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 7,
+          "name": "page_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 8,
+          "name": "score_maximum",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 10,
+          "name": "chapter_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 11,
+          "name": "copied_from",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false, true, false, true, false, false, false, false, true]
+    }
+  },
   "b9159ddd17dc391f0bd7b726633dff02d1530aa2b0b270b4947d749442850451": {
     "query": "UPDATE chapters SET front_page_id = $1 WHERE id = $2",
     "describe": {
@@ -6528,6 +6599,22 @@
         "Left": ["Uuid", "Uuid", "Uuid"]
       },
       "nullable": [false, false, false, false, false, true, true, false, false, true]
+    }
+  },
+  "effcdc15bd079db028baee525a56453528901b1209e88b90084fa39342966f38": {
+    "query": "\nSELECT COALESCE(SUM(ues.score_given), 0) AS score_given\nFROM user_exercise_states AS ues\nWHERE ues.exercise_id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND ues.deleted_at IS NULL\n  AND ues.user_id = $2\n  AND ues.activity_progress IN ('submitted', 'completed');\n                ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "score_given",
+          "type_info": "Float4"
+        }
+      ],
+      "parameters": {
+        "Left": ["UuidArray", "Uuid"]
+      },
+      "nullable": [null]
     }
   },
   "f2a546b8283eeeca75a1ff205d1a2e836b1c40dff0b0ac8bb47e1639138484e7": {

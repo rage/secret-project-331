@@ -66,6 +66,7 @@ import {
   SubmissionInfo,
   SubmissionResult,
   UploadResult,
+  UserChapterProgress,
   UserCourseInstanceExerciseProgress,
   UserCourseInstanceProgress,
   UserCourseSettings,
@@ -154,6 +155,17 @@ export function isPageWithExercises(obj: any, _argumentName?: string): obj is Pa
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
     Array.isArray(obj.exercises) &&
     obj.exercises.every((e: any) => isExercise(e) as boolean)
+  )
+}
+
+export function isUserChapterProgress(
+  obj: any,
+  _argumentName?: string,
+): obj is UserChapterProgress {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (obj.score_given === null || typeof obj.score_given === "number") &&
+    typeof obj.score_maximum === "number"
   )
 }
 

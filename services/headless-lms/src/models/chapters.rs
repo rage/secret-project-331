@@ -1,11 +1,14 @@
 use super::{pages::Page, ModelResult};
-use crate::{models::pages::NewPage, utils::document_schema_processor::GutenbergBlock};
+use crate::{
+    models::{pages::NewPage, user_exercise_states::get_user_chapter_metrics},
+    utils::document_schema_processor::GutenbergBlock,
+};
 use std::path::PathBuf;
 
 use crate::{utils::file_store::FileStore, ApplicationConfiguration};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::{Acquire, PgConnection};
+use sqlx::{Acquire, PgConnection, PgPool};
 use ts_rs::TS;
 use uuid::Uuid;
 
@@ -256,6 +259,11 @@ pub struct ChapterWithStatus {
     pub opens_at: Option<DateTime<Utc>>,
     pub status: ChapterStatus,
 }
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
+pub struct UserChapterProgress {
+    score_given: Option<f32>,
+    score_maximum: i32,
+}
 
 pub async fn course_chapters(
     conn: &mut PgConnection,
@@ -344,4 +352,27 @@ RETURNING *;
     .fetch_one(conn)
     .await?;
     Ok(deleted)
+}
+
+pub async fn get_user_chapter_progress(
+    pool: &PgPool,
+    chapter_id: &Uuid,
+    user_id: &Uuid,
+) -> ModelResult<UserChapterProgress> {
+    let mut connection = pool.acquire().await?;
+
+    let mut exercises =
+        crate::models::exercises::get_exercises_by_chapter_id(&mut connection, chapter_id).await?;
+
+    let exercise_ids: Vec<Uuid> = exercises.iter_mut().map(|e| e.id).collect();
+    let exercise_points: Vec<i32> = exercises.into_iter().map(|e| e.score_maximum).collect();
+
+    let score_maximum: i32 = exercise_points.iter().sum();
+    let user_chapter_metrics = get_user_chapter_metrics(pool, &exercise_ids, user_id).await?;
+
+    let result = UserChapterProgress {
+        score_given: user_chapter_metrics.score_given,
+        score_maximum,
+    };
+    Ok(result)
 }

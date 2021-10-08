@@ -41,6 +41,11 @@ pub struct UserCourseInstanceExerciseProgress {
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
+pub struct UserChapterMetrics {
+    pub score_given: Option<f32>,
+}
+
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 pub struct UserCourseInstanceMetrics {
     score_given: Option<f32>,
     completed_exercises: Option<i64>,
@@ -93,6 +98,32 @@ WHERE ues.course_instance_id = $1
         "#,
         course_instance_id,
         user_id
+    )
+    .fetch_one(&mut connection)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_user_chapter_metrics(
+    pool: &PgPool,
+    exercise_ids: &[Uuid],
+    user_id: &Uuid,
+) -> ModelResult<UserChapterMetrics> {
+    let mut connection = pool.acquire().await?;
+    let res = sqlx::query_as!(
+        UserChapterMetrics,
+        r#"
+SELECT COALESCE(SUM(ues.score_given), 0) AS score_given
+FROM user_exercise_states AS ues
+WHERE ues.exercise_id IN (
+    SELECT UNNEST($1::uuid [])
+  )
+  AND ues.deleted_at IS NULL
+  AND ues.user_id = $2
+  AND ues.activity_progress IN ('submitted', 'completed');
+                "#,
+        &exercise_ids,
+        user_id,
     )
     .fetch_one(&mut connection)
     .await?;

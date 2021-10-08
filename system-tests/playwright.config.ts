@@ -12,6 +12,7 @@ const config: PlaywrightTestConfig = {
   globalSetup: require.resolve("./src/setup/globalSetup.ts"),
   globalTeardown: require.resolve("./src/setup/globalTeardown.ts"),
   reporter: "./src/utils/customReporter",
+  timeout: 60000,
   use: {
     headless: true,
     trace: "retain-on-failure",
@@ -20,7 +21,6 @@ const config: PlaywrightTestConfig = {
     screenshot: "only-on-failure",
   },
 }
-config.timeout = 60000
 
 if (process.env.SLOWMO) {
   const launchOptions = config.use.launchOptions as LaunchOptions
@@ -31,4 +31,5 @@ if (process.env.SLOWMO) {
 if (process.env.RECORD_VIDEO) {
   config.use.video = "on"
 }
+
 export default config

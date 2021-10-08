@@ -398,6 +398,45 @@ async fn main() -> Result<()> {
     playground_examples::insert_playground_example(
         &mut conn,
         PlaygroundExampleData {
+            name: "Quizzes example, essay".to_string(),
+            url: "http://project-331.local/quizzes/exercise".to_string(),
+            width: 500,
+            data: serde_json::json!(              {
+              "id": "47cbd36c-0c32-41f2-8a4a-b008de7d3494",
+              "courseId": "fdf0fed9-7665-4712-9cca-652d5bfe5233",
+              "body": "Of CSS and system design of the Noldor",
+              "deadline": Utc.ymd(2121, 9, 1).and_hms(23, 59, 59).to_string(),
+              "open": Utc.ymd(2021, 9, 1).and_hms(23, 59, 59).to_string(),
+              "part": 1,
+              "section": 1,
+              "title": "Of CSS and system design of the Noldor",
+              "tries": 1,
+              "triesLimited": false,
+              "items": [
+                  {
+                      "id": "371b59cb-735d-4202-b8cb-bed967945ffd",
+                      "body": "Which colour did the Fëanorian lamps emit when Tuor met Gelmir and Arminas at the gate of Annon-in-Gelydh? Give your answer in colours colourname, hexadecimal colour code and in RGB colour code. Could this have deeper contextual meaning considering the events of the previous chapter? Explain in 500 words.",
+                      "direction": "row",
+                      "maxLabel": null,
+                      "maxValue": null,
+                      "maxWords": 600,
+                      "minLabel": null,
+                      "minValue": null,
+                      "minWords": 500,
+                      "multi": false,
+                      "order": 1,
+                      "quizId": "47cbd36c-0c32-41f2-8a4a-b008de7d3494",
+                      "title": "Of the lamps of Fëanor",
+                      "type": "essay",
+                      "options": []
+                  }
+              ]
+            })
+        }).await?;
+
+    playground_examples::insert_playground_example(
+        &mut conn,
+        PlaygroundExampleData {
             name: "Quizzes example, multiple-choice dropdown".to_string(),
             url: "http://project-331.local/quizzes/exercise".to_string(),
             width: 500,
@@ -500,6 +539,7 @@ async fn main() -> Result<()> {
 
     playground_examples::insert_playground_example(
         &mut conn,
+
         PlaygroundExampleData {
             name: "Quizzes example, open".to_string(),
             url: "http://project-331.local/quizzes/exercise".to_string(),

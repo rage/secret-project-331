@@ -38,6 +38,18 @@ async fn get_user_progress_for_course_instance(
     Ok(Json(user_course_instance_progress))
 }
 
+/**
+GET /api/v0/course-material/course-instance/:course_instance_id/exercises/:exercise_id/progress - Returns user progress for an exercise in given course instance.
+
+# Example
+
+Response:
+```json
+{
+    "score_given":1.0
+}
+ ```
+*/
 async fn get_user_progress_for_course_instance_exercise(
     user: AuthUser,
     params: web::Path<(Uuid, Uuid)>,

@@ -168,6 +168,20 @@ async fn get_chapters_pages_without_main_frontpage(
     Ok(Json(chapter_pages))
 }
 
+/**
+GET `/api/v0/course-material/chapters/:chapter_id/progress - Returns user progress for chapter.
+
+# Example
+
+Response:
+```json
+{
+  "score_given":1.0,
+  "score_maximum":4
+}
+```
+*/
+
 #[instrument(skip(pool))]
 async fn get_user_chapter_progress(
     user: AuthUser,

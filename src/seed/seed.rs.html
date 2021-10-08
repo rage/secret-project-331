@@ -1502,6 +1502,46 @@
 <span id="1502">1502</span>
 <span id="1503">1503</span>
 <span id="1504">1504</span>
+<span id="1505">1505</span>
+<span id="1506">1506</span>
+<span id="1507">1507</span>
+<span id="1508">1508</span>
+<span id="1509">1509</span>
+<span id="1510">1510</span>
+<span id="1511">1511</span>
+<span id="1512">1512</span>
+<span id="1513">1513</span>
+<span id="1514">1514</span>
+<span id="1515">1515</span>
+<span id="1516">1516</span>
+<span id="1517">1517</span>
+<span id="1518">1518</span>
+<span id="1519">1519</span>
+<span id="1520">1520</span>
+<span id="1521">1521</span>
+<span id="1522">1522</span>
+<span id="1523">1523</span>
+<span id="1524">1524</span>
+<span id="1525">1525</span>
+<span id="1526">1526</span>
+<span id="1527">1527</span>
+<span id="1528">1528</span>
+<span id="1529">1529</span>
+<span id="1530">1530</span>
+<span id="1531">1531</span>
+<span id="1532">1532</span>
+<span id="1533">1533</span>
+<span id="1534">1534</span>
+<span id="1535">1535</span>
+<span id="1536">1536</span>
+<span id="1537">1537</span>
+<span id="1538">1538</span>
+<span id="1539">1539</span>
+<span id="1540">1540</span>
+<span id="1541">1541</span>
+<span id="1542">1542</span>
+<span id="1543">1543</span>
+<span id="1544">1544</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">TimeZone</span>, <span class="ident">Utc</span>};
@@ -1903,6 +1943,45 @@
     <span class="ident">playground_examples::insert_playground_example</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
         <span class="ident">PlaygroundExampleData</span> {
+            <span class="ident">name</span>: <span class="string">&quot;Quizzes example, essay&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">url</span>: <span class="string">&quot;http://project-331.local/quizzes/exercise&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">width</span>: <span class="number">500</span>,
+            <span class="ident">data</span>: <span class="macro">serde_json::json!</span>(              {
+              <span class="string">&quot;id&quot;</span>: <span class="string">&quot;47cbd36c-0c32-41f2-8a4a-b008de7d3494&quot;</span>,
+              <span class="string">&quot;courseId&quot;</span>: <span class="string">&quot;fdf0fed9-7665-4712-9cca-652d5bfe5233&quot;</span>,
+              <span class="string">&quot;body&quot;</span>: <span class="string">&quot;Of CSS and system design of the Noldor&quot;</span>,
+              <span class="string">&quot;deadline&quot;</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2121</span>, <span class="number">9</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).<span class="ident">to_string</span>(),
+              <span class="string">&quot;open&quot;</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2021</span>, <span class="number">9</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).<span class="ident">to_string</span>(),
+              <span class="string">&quot;part&quot;</span>: <span class="number">1</span>,
+              <span class="string">&quot;section&quot;</span>: <span class="number">1</span>,
+              <span class="string">&quot;title&quot;</span>: <span class="string">&quot;Of CSS and system design of the Noldor&quot;</span>,
+              <span class="string">&quot;tries&quot;</span>: <span class="number">1</span>,
+              <span class="string">&quot;triesLimited&quot;</span>: <span class="bool-val">false</span>,
+              <span class="string">&quot;items&quot;</span>: [
+                  {
+                      <span class="string">&quot;id&quot;</span>: <span class="string">&quot;371b59cb-735d-4202-b8cb-bed967945ffd&quot;</span>,
+                      <span class="string">&quot;body&quot;</span>: <span class="string">&quot;Which colour did the Fëanorian lamps emit when Tuor met Gelmir and Arminas at the gate of Annon-in-Gelydh? Give your answer in colours colourname, hexadecimal colour code and in RGB colour code. Could this have deeper contextual meaning considering the events of the previous chapter? Explain in 500 words.&quot;</span>,
+                      <span class="string">&quot;direction&quot;</span>: <span class="string">&quot;row&quot;</span>,
+                      <span class="string">&quot;maxLabel&quot;</span>: <span class="ident">null</span>,
+                      <span class="string">&quot;maxValue&quot;</span>: <span class="ident">null</span>,
+                      <span class="string">&quot;maxWords&quot;</span>: <span class="number">600</span>,
+                      <span class="string">&quot;minLabel&quot;</span>: <span class="ident">null</span>,
+                      <span class="string">&quot;minValue&quot;</span>: <span class="ident">null</span>,
+                      <span class="string">&quot;minWords&quot;</span>: <span class="number">500</span>,
+                      <span class="string">&quot;multi&quot;</span>: <span class="bool-val">false</span>,
+                      <span class="string">&quot;order&quot;</span>: <span class="number">1</span>,
+                      <span class="string">&quot;quizId&quot;</span>: <span class="string">&quot;47cbd36c-0c32-41f2-8a4a-b008de7d3494&quot;</span>,
+                      <span class="string">&quot;title&quot;</span>: <span class="string">&quot;Of the lamps of Fëanor&quot;</span>,
+                      <span class="string">&quot;type&quot;</span>: <span class="string">&quot;essay&quot;</span>,
+                      <span class="string">&quot;options&quot;</span>: []
+                  }
+              ]
+            })
+        }).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="ident">playground_examples::insert_playground_example</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+        <span class="ident">PlaygroundExampleData</span> {
             <span class="ident">name</span>: <span class="string">&quot;Quizzes example, multiple-choice dropdown&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">url</span>: <span class="string">&quot;http://project-331.local/quizzes/exercise&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">width</span>: <span class="number">500</span>,
@@ -2005,6 +2084,7 @@
 
     <span class="ident">playground_examples::insert_playground_example</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+
         <span class="ident">PlaygroundExampleData</span> {
             <span class="ident">name</span>: <span class="string">&quot;Quizzes example, open&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">url</span>: <span class="string">&quot;http://project-331.local/quizzes/exercise&quot;</span>.<span class="ident">to_string</span>(),

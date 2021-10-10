@@ -38,6 +38,7 @@
     "recoil": "^0.4.1",
     "sanitize-html": "^2.5.1",
     "styled-system": "^5.1.5",
+    "tsparticles": "^1.35.4",
     "use-debounce": "^7.0.0",
     "uuid": "^8.3.2"
   },

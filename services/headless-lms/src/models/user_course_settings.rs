@@ -106,7 +106,7 @@ mod test {
     use crate::{
         models::{
             course_instance_enrollments::{self, NewCourseInstanceEnrollment},
-            course_instances::{self, VariantStatus},
+            course_instances::{self, NewCourseInstance, VariantStatus},
         },
         test_helper::{insert_data, Conn, Data},
     };
@@ -143,11 +143,13 @@ mod test {
 
         let instance_2 = course_instances::insert(
             tx.as_mut(),
-            course,
-            Some("instance-2"),
-            Some(VariantStatus::Draft),
-            None,
-            None,
+            NewCourseInstance {
+                id: Uuid::new_v4(),
+                course_id: course,
+                name: Some("instance-2"),
+                variant_status: Some(VariantStatus::Draft),
+                ..Default::default()
+            },
         )
         .await
         .unwrap()

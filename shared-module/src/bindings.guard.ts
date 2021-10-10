@@ -197,6 +197,7 @@ export function isCourseInstance(obj: any, _argumentName?: string): obj is Cours
     (obj.name === null || typeof obj.name === "string") &&
     (obj.description === null || typeof obj.description === "string") &&
     (isVariantStatus(obj.variant_status) as boolean) &&
+    (obj.contact_email === null || typeof obj.contact_email === "string") &&
     (obj.supervisor_name === null || typeof obj.supervisor_name === "string") &&
     (obj.supervisor_email === null || typeof obj.supervisor_email === "string")
   )
@@ -612,8 +613,9 @@ export function isUser(obj: any, _argumentName?: string): obj is User {
 export function isSupervisorUpdate(obj: any, _argumentName?: string): obj is SupervisorUpdate {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (obj.name === null || typeof obj.name === "string") &&
-    (obj.email === null || typeof obj.email === "string")
+    (obj.contact_email === null || typeof obj.contact_email === "string") &&
+    (obj.supervisor_name === null || typeof obj.supervisor_name === "string") &&
+    (obj.supervisor_email === null || typeof obj.supervisor_email === "string")
   )
 }
 

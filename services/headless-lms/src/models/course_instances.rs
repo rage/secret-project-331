@@ -32,23 +32,31 @@ pub struct CourseInstance {
     pub name: Option<String>,
     pub description: Option<String>,
     pub variant_status: VariantStatus,
+    pub contact_email: Option<String>,
     pub supervisor_name: Option<String>,
     pub supervisor_email: Option<String>,
 }
 
+#[derive(Debug, Clone, Copy, Default)]
+pub struct NewCourseInstance<'a> {
+    pub id: Uuid,
+    pub course_id: Uuid,
+    pub name: Option<&'a str>,
+    pub variant_status: Option<VariantStatus>,
+    pub contact_email: Option<&'a str>,
+    pub supervisor_name: Option<&'a str>,
+    pub supervisor_email: Option<&'a str>,
+}
+
 pub async fn insert(
     conn: &mut PgConnection,
-    course_id: Uuid,
-    name: Option<&str>,
-    variant_status: Option<VariantStatus>,
-    supervisor_name: Option<&str>,
-    supervisor_email: Option<&str>,
+    new_course_instance: NewCourseInstance<'_>,
 ) -> ModelResult<CourseInstance> {
     let course_instance = sqlx::query_as!(
         CourseInstance,
         r#"
-INSERT INTO course_instances (course_id, name, variant_status, supervisor_name, supervisor_email)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO course_instances (id, course_id, name, variant_status, contact_email, supervisor_name, supervisor_email)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING id,
   created_at,
   updated_at,
@@ -59,14 +67,17 @@ RETURNING id,
   name,
   description,
   variant_status AS "variant_status: VariantStatus",
+  contact_email,
   supervisor_name,
   supervisor_email
 "#,
-        course_id,
-        name,
-        variant_status.unwrap_or_default() as VariantStatus,
-        supervisor_name,
-        supervisor_email,
+        new_course_instance.id,
+        new_course_instance.course_id,
+        new_course_instance.name,
+        new_course_instance.variant_status.unwrap_or_default() as VariantStatus,
+        new_course_instance.contact_email,
+        new_course_instance.supervisor_name,
+        new_course_instance.supervisor_email,
     )
     .fetch_one(conn)
     .await?;
@@ -90,6 +101,7 @@ SELECT id,
   name,
   description,
   variant_status AS "variant_status: VariantStatus",
+  contact_email,
   supervisor_name,
   supervisor_email
 FROM course_instances
@@ -121,6 +133,7 @@ SELECT i.id,
   i.name,
   i.description,
   i.variant_status AS "variant_status: VariantStatus",
+  i.contact_email,
   i.supervisor_name,
   i.supervisor_email
 FROM user_course_settings ucs
@@ -155,6 +168,7 @@ SELECT i.id,
   i.name,
   i.description,
   i.variant_status AS "variant_status: VariantStatus",
+  i.contact_email,
   i.supervisor_name,
   i.supervisor_email
 FROM course_instances i
@@ -187,6 +201,7 @@ SELECT id,
   name,
   description,
   variant_status as "variant_status: VariantStatus",
+  contact_email,
   supervisor_name,
   supervisor_email
 FROM course_instances
@@ -215,6 +230,7 @@ SELECT id,
   name,
   description,
   variant_status as "variant_status: VariantStatus",
+  contact_email,
   supervisor_name,
   supervisor_email
 FROM course_instances
@@ -247,20 +263,22 @@ WHERE id = $2;
     Ok(())
 }
 
-pub async fn edit_supervisor(
+pub async fn edit_contact_info(
     conn: &mut PgConnection,
     instance_id: Uuid,
-    name: Option<&str>,
-    email: Option<&str>,
+    contact_email: Option<&str>,
+    supervisor_name: Option<&str>,
+    supervisor_email: Option<&str>,
 ) -> ModelResult<()> {
     sqlx::query!(
         "
 UPDATE course_instances
-SET supervisor_email = $1, supervisor_name = $2
-WHERE id = $3
+SET contact_email = $1, supervisor_email = $2, supervisor_name = $3
+WHERE id = $4
 ",
-        email,
-        name,
+        contact_email,
+        supervisor_email,
+        supervisor_name,
         instance_id
     )
     .execute(conn)
@@ -283,6 +301,20 @@ WHERE id = $3
         opening_time,
         closing_time,
         instance_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE course_instances
+SET deleted_at = now()
+WHERE id = $1
+",
+        id
     )
     .execute(conn)
     .await?;
@@ -337,17 +369,40 @@ mod test {
         )
         .await
         .unwrap();
-        let user = users::insert(tx.as_mut(), "user@example.com")
+        users::insert(tx.as_mut(), "user@example.com")
             .await
             .unwrap();
 
-        let _course_1_instance_1 = insert(tx.as_mut(), course_1_id, None, None, None, None)
-            .await
-            .unwrap();
-        let course_2_instance_1 = insert(tx.as_mut(), course_2_id, None, None, None, None).await;
+        let _course_1_instance_1 = insert(
+            tx.as_mut(),
+            NewCourseInstance {
+                id: Uuid::new_v4(),
+                course_id: course_1_id,
+                ..Default::default()
+            },
+        )
+        .await
+        .unwrap();
+        let course_2_instance_1 = insert(
+            tx.as_mut(),
+            NewCourseInstance {
+                id: Uuid::new_v4(),
+                course_id: course_2_id,
+                ..Default::default()
+            },
+        )
+        .await;
         assert!(course_2_instance_1.is_ok());
 
-        let course_1_instance_2 = insert(tx.as_mut(), course_1_id, None, None, None, None).await;
+        let course_1_instance_2 = insert(
+            tx.as_mut(),
+            NewCourseInstance {
+                id: Uuid::new_v4(),
+                course_id: course_1_id,
+                ..Default::default()
+            },
+        )
+        .await;
         assert!(course_1_instance_2.is_err());
     }
 }

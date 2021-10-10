@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use super::{course_instances::CourseInstance, ModelResult};
 use crate::{
     models::{
-        course_instances::{self, VariantStatus},
+        course_instances::{self, NewCourseInstance, VariantStatus},
         course_language_groups,
         pages::NewPage,
         ModelError,
@@ -387,11 +387,15 @@ WHERE exercise_id IN (
     // Create default instance for copied course.
     course_instances::insert(
         &mut tx,
-        copied_course.id,
-        None,
-        Some(VariantStatus::Draft),
-        None,
-        None,
+        NewCourseInstance {
+            id: Uuid::new_v4(),
+            course_id: copied_course.id,
+            name: None,
+            variant_status: Some(VariantStatus::Draft),
+            contact_email: None,
+            supervisor_name: None,
+            supervisor_email: None,
+        },
     )
     .await?;
 
@@ -493,6 +497,7 @@ pub struct NewCourse {
 pub async fn insert_course(
     conn: &mut PgConnection,
     id: Uuid,
+    default_instance_id: Uuid,
     course: NewCourse,
     user: Uuid,
 ) -> ModelResult<(Course, Page, CourseInstance)> {
@@ -546,11 +551,15 @@ RETURNING id,
     // Create default course instance
     let default_course_instance = crate::models::course_instances::insert(
         &mut tx,
-        course.id,
-        None,
-        Some(VariantStatus::Draft),
-        None,
-        None,
+        NewCourseInstance {
+            id: default_instance_id,
+            course_id: course.id,
+            name: None,
+            variant_status: Some(VariantStatus::Draft),
+            contact_email: None,
+            supervisor_name: None,
+            supervisor_email: None,
+        },
     )
     .await?;
 
@@ -763,6 +772,7 @@ mod test {
         let (course, _page, _instance) = courses::insert_course(
             tx.as_mut(),
             Uuid::parse_str("86ede846-db97-4204-94c3-29cc2e71818e").unwrap(),
+            Uuid::new_v4(),
             NewCourse {
                 language_code: "en-US".to_string(),
                 name: "Course".to_string(),

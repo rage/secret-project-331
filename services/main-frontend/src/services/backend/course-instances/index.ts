@@ -40,12 +40,17 @@ export const fetchCourseInstanceEmailTemplates = async (
   return response.data
 }
 
-export const editSupervisor = async (
+export const editContactInfo = async (
   courseInstanceId: string,
-  name: string | null,
-  email: string | null,
+  contactEmail: string | null,
+  supervisorName: string | null,
+  supervisorEmail: string | null,
 ): Promise<void> => {
-  const data: SupervisorUpdate = { name, email }
+  const data: SupervisorUpdate = {
+    contact_email: contactEmail,
+    supervisor_name: supervisorName,
+    supervisor_email: supervisorEmail,
+  }
   const response = await mainFrontendClient.post(
     `/course-instances/${courseInstanceId}/edit-supervisor`,
     data,
@@ -65,5 +70,10 @@ export const editSchedule = async (
     data,
     { responseType: "json" },
   )
+  return response.data
+}
+
+export const deleteCourseInstance = async (courseInstanceId: string): Promise<void> => {
+  const response = await mainFrontendClient.post(`/course-instances/${courseInstanceId}/delete`)
   return response.data
 }

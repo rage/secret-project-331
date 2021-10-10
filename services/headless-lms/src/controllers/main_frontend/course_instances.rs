@@ -134,8 +134,9 @@ pub async fn point_export(
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, TS)]
 pub struct SupervisorUpdate {
-    name: Option<String>,
-    email: Option<String>,
+    contact_email: Option<String>,
+    supervisor_name: Option<String>,
+    supervisor_email: Option<String>,
 }
 
 /**
@@ -149,11 +150,12 @@ pub async fn edit_supervisor(
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     // let update = update.into_inner();
-    course_instances::edit_supervisor(
+    course_instances::edit_contact_info(
         &mut conn,
         course_instance_id.into_inner(),
-        update.name.as_deref(),
-        update.email.as_deref(),
+        update.contact_email.as_deref(),
+        update.supervisor_name.as_deref(),
+        update.supervisor_email.as_deref(),
     )
     .await?;
     Ok(HttpResponse::Ok().finish())
@@ -186,6 +188,16 @@ pub async fn edit_schedule(
 }
 
 /**
+POST /course-instances/:id/delete
+*/
+#[instrument(skip(pool))]
+async fn delete(id: web::Path<Uuid>, pool: web::Data<PgPool>) -> ControllerResult<HttpResponse> {
+    let mut conn = pool.acquire().await?;
+    crate::models::course_instances::delete(&mut conn, *id).await?;
+    Ok(HttpResponse::Ok().finish())
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -213,5 +225,6 @@ pub fn _add_course_instances_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_instance_id}/edit-schedule",
             web::post().to(edit_schedule),
-        );
+        )
+        .route("/{course_instance_id}/delete", web::post().to(delete));
 }

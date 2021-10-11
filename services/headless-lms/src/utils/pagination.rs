@@ -54,6 +54,15 @@ impl Pagination {
     }
 }
 
+impl Default for Pagination {
+    fn default() -> Self {
+        Self {
+            page: 1,
+            limit: 100,
+        }
+    }
+}
+
 impl<'de> Deserialize<'de> for Pagination {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -133,8 +142,8 @@ impl<'de> Deserialize<'de> for Pagination {
                     }
                 }
                 Ok(Pagination {
-                    page: page.unwrap_or(1),
-                    limit: limit.unwrap_or(100),
+                    page: page.unwrap_or(Pagination::default().page),
+                    limit: limit.unwrap_or(Pagination::default().limit),
                 })
             }
         }

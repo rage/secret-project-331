@@ -3,6 +3,7 @@ export const baseTheme = {
   fontSizes: [14, 16, 18, 24, 32],
   colors: {
     blue: {
+      0: "#36A5F24D",
       100: "#36A5F2",
       200: "#55B3F5",
       300: "#77C1F5",
@@ -25,6 +26,7 @@ export const baseTheme = {
       800: "#333333",
     },
     red: {
+      0: "#FF000033",
       100: "#da4453",
       200: "#ed5565",
       300: "#f76d82",

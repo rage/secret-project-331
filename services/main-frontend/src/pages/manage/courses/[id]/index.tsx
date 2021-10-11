@@ -142,6 +142,15 @@ const ManageCoursePage: React.FC<ManageCoursePageProps> = ({ query }) => {
         >
           Manage feedback
         </Link>
+        <br />
+        <Link
+          href={{
+            pathname: "/manage/courses/[id]/change-requests",
+            query: { id: course.id },
+          }}
+        >
+          Manage change requests
+        </Link>
         <h3>All course language versions</h3>
         <CourseLanguageVersionsList courseId={query.id} />
         <Button size="medium" variant="primary" onClick={() => setShowNewLanguageVersionForm(true)}>

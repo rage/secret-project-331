@@ -3,7 +3,7 @@ import { useRouter } from "next/router"
 import React, { useState } from "react"
 
 import Layout from "../../../../components/Layout"
-import FeedbackList from "../../../../components/lists/FeedbackList"
+import EditProposalList from "../../../../components/lists/EditProposalList"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import {
@@ -12,52 +12,54 @@ import {
 } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
-export interface FeedbackProps {
+export interface ChangeRequestsProps {
   query: SimplifiedUrlQuery<"id">
 }
 
-const FeedbackPage: React.FC<FeedbackProps> = ({ query }) => {
+const ChangeRequestsPage: React.FC<ChangeRequestsProps> = ({ query }) => {
   const router = useRouter()
 
   const courseId = query.id
 
-  let initialRead: boolean
-  if (router.query.read) {
-    initialRead = router.query.read === "true"
+  let initialPending: boolean
+  if (router.query.pending) {
+    initialPending = router.query.pending === "true"
   } else {
-    router.replace({ query: { ...router.query, read: false } }, undefined, {
+    router.replace({ query: { ...router.query, pending: true } }, undefined, {
       shallow: true,
     })
-    initialRead = false
+    initialPending = true
   }
 
-  // 0 == first tab, unread
-  // 1 == second tab, read
-  const intialTab = initialRead ? 1 : 0
+  // 0 == first tab, pending
+  // 1 == second tab, old
+  const intialTab = initialPending ? 0 : 1
   const [tab, setTab] = useState(intialTab)
-  const read = tab == 1
+  const pending = tab == 0
   return (
     <Layout navVariant={"complex"}>
       <div className={wideWidthCenteredComponentStyles}>
-        <h3>Feedback</h3>
+        <h3>Change requests</h3>
         <Paper square>
           <Tabs
             value={tab}
             onChange={(_, value) => {
-              router.replace({ query: { ...router.query, read: value == 1 } }, undefined, {
+              router.replace({ query: { ...router.query, pending: value == 0 } }, undefined, {
                 shallow: true,
               })
               setTab(value)
             }}
           >
-            <Tab label="Unread" value={0} />
-            <Tab label="Read" value={1} />
+            <Tab label="Pending" value={0} />
+            <Tab label="Old" value={1} />
           </Tabs>
         </Paper>
-        <FeedbackList courseId={courseId} read={read} perPage={4} />
+        <EditProposalList courseId={courseId} pending={pending} perPage={4} />
       </div>
     </Layout>
   )
 }
 
-export default withErrorBoundary(withSignedIn(dontRenderUntilQueryParametersReady(FeedbackPage)))
+export default withErrorBoundary(
+  withSignedIn(dontRenderUntilQueryParametersReady(ChangeRequestsPage)),
+)

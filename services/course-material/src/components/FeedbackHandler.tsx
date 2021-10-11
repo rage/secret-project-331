@@ -1,33 +1,55 @@
 import { css } from "@emotion/css"
+import { Menu, MenuItem } from "@material-ui/core"
 import React, { useState } from "react"
 
+import { NewProposedBlockEdit } from "../shared-module/bindings"
 import Button from "../shared-module/components/Button"
 
+import EditProposalDialog from "./EditProposalDialog"
 import FeedbackDialog from "./FeedbackDialog"
 import FeedbackTooltip from "./FeedbackTooltip"
 import SelectionListener from "./SelectionListener"
 
 interface Props {
-  courseSlug: string
+  courseId: string
+  pageId: string
+  onEnterEditProposalMode: () => void
+  onExitEditProposalMode: () => void
+  selectedBlockId: string | null
+  clearSelectedBlockId: () => void
+  edits: Map<string, NewProposedBlockEdit>
 }
 
-const FeedbackHandler: React.FC<Props> = ({ courseSlug }) => {
+export interface SelectionPosition {
+  x: number
+  y: number
+}
+
+const FeedbackHandler: React.FC<Props> = ({
+  courseId,
+  pageId,
+  onEnterEditProposalMode,
+  onExitEditProposalMode,
+  selectedBlockId,
+  clearSelectedBlockId,
+  edits,
+}) => {
+  const [feedbackMenuAnchor, setFeedbackMenuAnchor] = useState<Element | null>(null)
   const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false)
-  const [previousSelection, setPreviousSelection] = useState("")
-  const [currentSelection, setCurrentSelection] = useState("")
-  const [feedbackSelection, setFeedbackSelection] = useState("")
+  const [editProposalDialogOpen, setEditProposalDialogOpen] = useState(false)
+  const [lastSelection, setLastSelection] = useState("")
   const [showFeedbackTooltipTimeout, setShowFeedbackTooltipTimeout] =
     useState<NodeJS.Timeout | null>(null)
-  const [selectionRect, setSelectionRect] = useState<DOMRect | null>(null)
+  const [selectionRect, setSelectionRect] = useState<SelectionPosition | null>(null)
   const [showSubmitSuccess, setShowSubmitSuccess] = useState(false)
 
-  async function handleSelectionChange(newSelection: string, rect: DOMRect | null) {
-    console.log(newSelection)
+  function handleSelectionChange(newSelection: string, rect: DOMRect | null) {
     if (showFeedbackTooltipTimeout !== null) {
       clearTimeout(showFeedbackTooltipTimeout)
     }
-    setPreviousSelection(currentSelection)
-    setCurrentSelection(newSelection)
+    if (newSelection.length > 0) {
+      setLastSelection(newSelection)
+    }
 
     const timeout = setTimeout(() => {
       if (newSelection.length > 0) {
@@ -39,14 +61,15 @@ const FeedbackHandler: React.FC<Props> = ({ courseSlug }) => {
     setShowFeedbackTooltipTimeout(timeout)
   }
 
-  function openFeedbackDialog(feedbackSelection: string) {
-    setSelectionRect(null)
-    setFeedbackSelection(feedbackSelection)
-    setFeedbackDialogOpen(true)
+  function updateSelectionRect(pos: { x: number; y: number }) {
+    if (selectionRect !== null) {
+      setSelectionRect({ x: pos.x, y: pos.y })
+    }
   }
 
-  function closeFeedbackDialog() {
-    setFeedbackDialogOpen(false)
+  function openFeedbackDialog() {
+    setSelectionRect(null)
+    setFeedbackDialogOpen(true)
   }
 
   function onSubmitSuccess() {
@@ -58,50 +81,95 @@ const FeedbackHandler: React.FC<Props> = ({ courseSlug }) => {
 
   return (
     <>
-      <div
-        hidden={!showSubmitSuccess}
-        className={css`
-          position: fixed;
-          text-align: center;
-          width: 120px;
-          height: 80px;
-          bottom: 10px;
-          right: 200px;
-          background-color: LightGreen;
-          z-index: 100;
-        `}
-      >
-        Feedback submitted successfully
-      </div>
-      <div
-        className={css`
-          position: fixed;
-          bottom: 10px;
-          right: 10px;
-          z-index: 100;
-        `}
-      >
-        <Button
-          variant={"primary"}
-          size={"medium"}
-          onClick={() => openFeedbackDialog(currentSelection)}
+      {showSubmitSuccess && (
+        <div
+          className={css`
+            position: fixed;
+            text-align: center;
+            width: 120px;
+            height: 80px;
+            bottom: 10px;
+            right: 200px;
+            background-color: LightGreen;
+            z-index: 100;
+          `}
         >
-          Give feedback
-        </Button>
-      </div>
+          Feedback submitted successfully
+        </div>
+      )}
+      {!feedbackDialogOpen && !editProposalDialogOpen && (
+        <div
+          className={css`
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            z-index: 100;
+          `}
+        >
+          <Menu
+            open={feedbackMenuAnchor !== null}
+            anchorEl={feedbackMenuAnchor}
+            onClose={() => setFeedbackMenuAnchor(null)}
+          >
+            <MenuItem
+              onClick={() => {
+                setFeedbackMenuAnchor(null)
+                setFeedbackDialogOpen(true)
+                setLastSelection("")
+              }}
+            >
+              Written feedback
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                setFeedbackMenuAnchor(null)
+                setEditProposalDialogOpen(true)
+                onEnterEditProposalMode()
+              }}
+            >
+              Improve material
+            </MenuItem>
+          </Menu>
+          <Button
+            variant={"primary"}
+            size={"medium"}
+            onClick={(ev) => setFeedbackMenuAnchor(ev.currentTarget)}
+          >
+            Give feedback
+          </Button>
+        </div>
+      )}
+      {feedbackDialogOpen && (
+        <FeedbackDialog
+          courseId={courseId}
+          close={() => setFeedbackDialogOpen(false)}
+          lastSelection={lastSelection}
+          setLastSelection={setLastSelection}
+          onSubmitSuccess={onSubmitSuccess}
+        />
+      )}
+      {editProposalDialogOpen && (
+        <EditProposalDialog
+          courseId={courseId}
+          pageId={pageId}
+          close={() => {
+            setEditProposalDialogOpen(false)
+            onExitEditProposalMode()
+          }}
+          onSubmitSuccess={onSubmitSuccess}
+          selectedBlockId={selectedBlockId}
+          clearSelectedBlockId={clearSelectedBlockId}
+          edits={edits}
+        />
+      )}
 
-      <FeedbackTooltip
-        selectionRect={selectionRect}
-        onClick={() => openFeedbackDialog(previousSelection)}
+      {!feedbackDialogOpen && !editProposalDialogOpen && selectionRect && (
+        <FeedbackTooltip selectionRect={selectionRect} onClick={openFeedbackDialog} />
+      )}
+      <SelectionListener
+        onSelectionChange={handleSelectionChange}
+        updateSelectionPosition={updateSelectionRect}
       />
-      <FeedbackDialog
-        courseSlug={courseSlug}
-        open={feedbackDialogOpen}
-        close={closeFeedbackDialog}
-        selection={feedbackSelection}
-        onSubmitSuccess={onSubmitSuccess}
-      />
-      <SelectionListener onSelectionChange={handleSelectionChange} />
     </>
   )
 }

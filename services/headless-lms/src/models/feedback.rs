@@ -8,6 +8,7 @@ use uuid::Uuid;
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, TS)]
 pub struct NewFeedback {
     pub feedback_given: String,
+    pub selected_text: Option<String>,
     pub related_blocks: Vec<FeedbackBlock>,
 }
 
@@ -26,13 +27,14 @@ pub async fn insert(
     let mut tx = conn.begin().await?;
     let res = sqlx::query!(
         "
-INSERT INTO feedback(user_id, course_id, feedback_given)
-VALUES ($1, $2, $3)
+INSERT INTO feedback(user_id, course_id, feedback_given, selected_text)
+VALUES ($1, $2, $3, $4)
 RETURNING id
 ",
         user_id,
         course_id,
         new_feedback.feedback_given,
+        new_feedback.selected_text
     )
     .fetch_one(&mut tx)
     .await?;
@@ -74,6 +76,7 @@ pub struct Feedback {
     user_id: Option<Uuid>,
     course_id: Uuid,
     feedback_given: String,
+    selected_text: Option<String>,
     marked_as_read: bool,
     created_at: DateTime<Utc>,
     blocks: Vec<FeedbackBlock>,
@@ -91,10 +94,15 @@ SELECT feedback.id,
   feedback.user_id,
   feedback.course_id,
   feedback.feedback_given,
+  feedback.selected_text,
   feedback.marked_as_read,
   feedback.created_at,
-  array_agg(block_feedback.block_id) filter (where block_feedback.block_id IS NOT NULL) AS "block_ids: Vec<Uuid>",
-  array_agg(block_feedback.block_text) filter (where block_feedback.block_id IS NOT NULL) AS "block_texts: Vec<Option<String>>"
+  array_agg(block_feedback.block_id) filter (
+    where block_feedback.block_id IS NOT NULL
+  ) AS "block_ids: Vec<Uuid>",
+  array_agg(block_feedback.block_text) filter (
+    where block_feedback.block_id IS NOT NULL
+  ) AS "block_texts: Vec<Option<String>>"
 FROM feedback
   LEFT JOIN block_feedback ON block_feedback.feedback_id = feedback.id
 WHERE course_id = $1
@@ -107,8 +115,9 @@ GROUP BY feedback.id,
   feedback.feedback_given,
   feedback.marked_as_read,
   feedback.created_at
-LIMIT $3
-OFFSET $4
+ORDER BY feedback.created_at DESC,
+  feedback.id
+LIMIT $3 OFFSET $4
 "#,
         course_id,
         read,
@@ -120,6 +129,7 @@ OFFSET $4
         user_id: r.user_id,
         course_id: r.course_id,
         feedback_given: r.feedback_given,
+        selected_text: r.selected_text,
         marked_as_read: r.marked_as_read,
         created_at: r.created_at,
         blocks: r

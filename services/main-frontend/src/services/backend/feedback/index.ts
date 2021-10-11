@@ -10,8 +10,6 @@ export const fetchFeedback = async (
   const params: GetFeedbackQuery = { read }
   params.page = page
   params.limit = limit
-  console.log(page)
-  console.log(limit)
 
   const response = await mainFrontendClient.get(`/courses/${courseId}/feedback`, {
     params,

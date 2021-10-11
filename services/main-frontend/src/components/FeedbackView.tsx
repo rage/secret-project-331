@@ -20,13 +20,15 @@ const FeedbackView: React.FC<FeedbackViewProps> = ({ feedback, setRead }) => {
   return (
     <>
       <div>{`Feedback: "${feedback.feedback_given}"`}</div>
+      {feedback.selected_text && <div>{`Selected text: "${feedback.selected_text}"`}</div>}
+      {!feedback.selected_text && <div>{`No selected text`}</div>}
       <div>
         Blocks:{" "}
         <ul>
           {feedback.blocks.map((b) => (
             <li key={b.id}>
               <div>Block id: {b.id}</div>
-              <div>Selected contents: {b.text}</div>
+              <div>Block contents: {b.text}</div>
             </li>
           ))}
         </ul>

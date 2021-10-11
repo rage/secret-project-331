@@ -110,7 +110,14 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
           {data.exercise_status?.score_given ?? 0}/{data.exercise.score_maximum}
         </div>
       </div>
-      {currentExerciseTaskAssignment && <ContentRenderer data={currentExerciseTaskAssignment} />}
+      {currentExerciseTaskAssignment && (
+        <ContentRenderer
+          data={currentExerciseTaskAssignment}
+          editing={false}
+          selectedBlockId={null}
+          setEdits={(map) => map}
+        />
+      )}
       {url ? (
         <ExerciseTaskIframe
           public_spec={data.current_exercise_task.public_spec}

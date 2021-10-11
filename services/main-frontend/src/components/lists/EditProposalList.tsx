@@ -3,16 +3,16 @@ import { useRouter } from "next/router"
 import { useState } from "react"
 import { useQuery } from "react-query"
 
-import { fetchFeedbackCount } from "../../services/backend/feedback"
-import FeedbackPage from "../FeedbackPage"
+import { fetchEditProposalCount } from "../../services/backend/proposedEdits"
+import EditProposalPage from "../EditProposalPage"
 
 interface Props {
   courseId: string
-  read: boolean
+  pending: boolean
   perPage: number
 }
 
-const FeedbackList: React.FC<Props> = ({ courseId, read, perPage }) => {
+const EditProposalList: React.FC<Props> = ({ courseId, pending, perPage }) => {
   const router = useRouter()
 
   let initialPage: number
@@ -23,8 +23,8 @@ const FeedbackList: React.FC<Props> = ({ courseId, read, perPage }) => {
   }
   const [page, setPage] = useState(initialPage)
 
-  const { isLoading, error, data, refetch } = useQuery(`feedback-count-${courseId}`, () => {
-    return fetchFeedbackCount(courseId)
+  const { isLoading, error, data, refetch } = useQuery(`edit-proposal-count-${courseId}`, () => {
+    return fetchEditProposalCount(courseId)
   })
 
   if (error) {
@@ -37,12 +37,13 @@ const FeedbackList: React.FC<Props> = ({ courseId, read, perPage }) => {
   }
 
   if (isLoading || !data) {
-    return <div>Loading feedback...</div>
+    return <div>Loading change requests...</div>
   }
-  const items = read ? data.read : data.unread
+  const items = pending ? data.pending : data.handled
   if (items <= 0) {
-    return <div>No feedback</div>
+    return <div>No change requests</div>
   }
+
   const pageCount = Math.ceil(items / perPage)
   if (page > pageCount) {
     setPage(pageCount)
@@ -50,10 +51,10 @@ const FeedbackList: React.FC<Props> = ({ courseId, read, perPage }) => {
 
   return (
     <div>
-      <FeedbackPage
+      <EditProposalPage
         courseId={courseId}
         page={page}
-        read={read}
+        pending={pending}
         limit={perPage}
         onChange={refetch}
       />
@@ -69,4 +70,4 @@ const FeedbackList: React.FC<Props> = ({ courseId, read, perPage }) => {
   )
 }
 
-export default FeedbackList
+export default EditProposalList

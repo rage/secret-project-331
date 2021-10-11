@@ -331,6 +331,7 @@ export interface Feedback {
   user_id: string | null
   course_id: string
   feedback_given: string
+  selected_text: string | null
   marked_as_read: boolean
   created_at: Date
   blocks: Array<FeedbackBlock>
@@ -342,6 +343,7 @@ export interface MarkAsRead {
 
 export interface NewFeedback {
   feedback_given: string
+  selected_text: string | null
   related_blocks: Array<FeedbackBlock>
 }
 
@@ -359,6 +361,46 @@ export interface GetFeedbackQuery {
   read: boolean
   page?: number
   limit?: number
+}
+
+export interface PageProposal {
+  id: string
+  page_id: string
+  user_id: string | null
+  pending: boolean
+  created_at: Date
+  block_proposals: Array<BlockProposal>
+}
+
+export interface BlockProposal {
+  id: string
+  block_id: string
+  current_text: string
+  changed_text: string
+  status: ProposalStatus
+  accept_preview: string | null
+}
+
+export interface ProposalCount {
+  pending: number
+  handled: number
+}
+
+export interface EditProposalInfo {
+  page_id: string
+  page_proposal_id: string
+  block_proposals: Array<BlockProposalInfo>
+}
+
+export interface GetEditProposalsQuery {
+  pending: boolean
+  page?: number
+  limit?: number
+}
+
+export interface NewProposedPageEdits {
+  page_id: string
+  block_edits: Array<NewProposedBlockEdit>
 }
 
 export type VariantStatus = "Draft" | "Upcoming" | "Active" | "Ended"
@@ -431,6 +473,26 @@ export interface Pagination {
   page?: number
   limit?: number
 }
+
+export type ProposalStatus = "Pending" | "Accepted" | "Rejected"
+
+export interface NewProposedBlockEdit {
+  block_id: string
+  block_attribute: string
+  original_text: string
+  changed_text: string
+}
+
+export interface BlockProposalInfo {
+  id: string
+  action: BlockProposalAction
+}
+
+export type BlockProposalAction =
+  | { tag: "Accept"; data: string }
+  | {
+      tag: "Reject"
+    }
 
 export interface ExerciseTask {
   id: string

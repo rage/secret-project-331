@@ -7,8 +7,10 @@ const ScrollIndicator: React.FC = () => {
 
   useEffect(() => {
     window.addEventListener("scroll", scrollProgress)
+    window.addEventListener("resize", scrollProgress)
     return () => {
       window.removeEventListener("scroll", scrollProgress)
+      window.removeEventListener("resize", scrollProgress)
     }
   }, [])
 
@@ -16,9 +18,10 @@ const ScrollIndicator: React.FC = () => {
     const scrollPx = document.documentElement.scrollTop
     const winHeightPx =
       document.documentElement.scrollHeight - document.documentElement.clientHeight
-    const scrolled = `${(scrollPx / winHeightPx) * 100}%`
+    const scrolled = (scrollPx / winHeightPx) * 100
+    const scrolledPercent = `${Math.round(scrolled)}%`
 
-    setScrolled(scrolled)
+    setScrolled(scrolledPercent)
   }
 
   return (

@@ -1,8 +1,10 @@
 import { css } from "@emotion/css"
-import React, { useContext } from "react"
+import React, { useContext, useState } from "react"
 
 import CoursePageContext, { CoursePageDispatch } from "../contexts/CoursePageContext"
+import useSelectedBlockId from "../hooks/useSelectedBlockId"
 import { Block } from "../services/backend"
+import { NewProposedBlockEdit } from "../shared-module/bindings"
 import DebugModal from "../shared-module/components/DebugModal"
 
 import ContentRenderer from "./ContentRenderer"
@@ -12,13 +14,20 @@ import SelectCourseInstanceModal from "./modals/SelectCourseInstanceModal"
 import UserOnWrongCourseNotification from "./notifications/UserOnWrongCourseNotification"
 
 interface Props {
-  courseSlug: string
   onRefresh: () => void
 }
 
-const Page: React.FC<Props> = ({ courseSlug, onRefresh }) => {
+const Page: React.FC<Props> = ({ onRefresh }) => {
+  // block id -> new block contents
+  const [edits, setEdits] = useState<Map<string, NewProposedBlockEdit>>(new Map())
   const pageContext = useContext(CoursePageContext)
   const pageDispatch = useContext(CoursePageDispatch)
+  const [editingMaterial, setEditingMaterial] = useState(false)
+
+  const courseId = pageContext?.pageData?.course_id
+  const pageId = pageContext?.pageData?.id
+
+  const [selectedBlockId, clearSelectedBlockId] = useSelectedBlockId()
 
   return (
     <>
@@ -43,10 +52,30 @@ const Page: React.FC<Props> = ({ courseSlug, onRefresh }) => {
         />
       </div>
       <SelectCourseInstanceModal onClose={onRefresh} />
-      <FeedbackHandler courseSlug={courseSlug} />
+      {courseId && pageId && (
+        <FeedbackHandler
+          courseId={courseId}
+          pageId={pageId}
+          onEnterEditProposalMode={() => {
+            setEditingMaterial(true)
+          }}
+          onExitEditProposalMode={() => {
+            setEditingMaterial(false)
+            setEdits(new Map())
+          }}
+          selectedBlockId={selectedBlockId}
+          clearSelectedBlockId={clearSelectedBlockId}
+          edits={edits}
+        />
+      )}
       {/* TODO: Better type for Page.content in bindings. */}
       <div id="content">
-        <ContentRenderer data={(pageContext.pageData?.content as Array<Block<unknown>>) ?? []} />
+        <ContentRenderer
+          data={(pageContext.pageData?.content as Array<Block<unknown>>) ?? []}
+          editing={editingMaterial}
+          selectedBlockId={selectedBlockId}
+          setEdits={setEdits}
+        />
       </div>
       {pageContext.pageData?.chapter_id && <NavigationContainer />}
     </>

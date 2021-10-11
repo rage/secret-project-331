@@ -4,9 +4,10 @@ import { courseMaterialBlockClass } from "../utils/constants"
 
 interface Props {
   onSelectionChange: (selection: string, rect: DOMRect | null) => void
+  updateSelectionPosition: (pos: { x: number; y: number }) => void
 }
 
-const SelectionListener: React.FC<Props> = ({ onSelectionChange }) => {
+const SelectionListener: React.FC<Props> = ({ onSelectionChange, updateSelectionPosition }) => {
   function isChildOfCourseMaterialBlock(node: Node | null | undefined): boolean {
     if (node === null || node === undefined) {
       return false
@@ -22,30 +23,51 @@ const SelectionListener: React.FC<Props> = ({ onSelectionChange }) => {
     return closest !== null && closest !== undefined
   }
 
+  function getRect(selection: Selection): DOMRect | null {
+    if (selection.rangeCount === 0) {
+      return null
+    }
+    const range = selection.getRangeAt(0)
+    const rects = range?.getClientRects()
+    const rect = rects !== undefined && rects.length > 0 ? rects[0] : null
+    return rect
+  }
+
+  function selectedCourseBlocks(selection: Selection): boolean {
+    const firstNode = selection.anchorNode
+    const lastNode = selection.focusNode
+    return isChildOfCourseMaterialBlock(firstNode) && isChildOfCourseMaterialBlock(lastNode)
+  }
+
   function selectionHandler(this: Document) {
-    const docSelection = this.getSelection()
-    const firstNode = docSelection?.anchorNode
-    const lastNode = docSelection?.focusNode
-    if (
-      docSelection !== null &&
-      isChildOfCourseMaterialBlock(firstNode) &&
-      isChildOfCourseMaterialBlock(lastNode)
-    ) {
-      const range = docSelection?.getRangeAt(0)
-      const rects = range?.getClientRects()
-      const newSelection = docSelection?.toString()
-      const rect = rects !== undefined && rects.length > 0 ? rects[0] : null
+    const selection = this.getSelection()
+    if (selection && selectedCourseBlocks(selection)) {
+      const newSelection = selection.toString()
+      const rect = getRect(selection)
       onSelectionChange(newSelection, rect)
     } else {
       onSelectionChange("", null)
     }
   }
 
+  function handleWindowChange(this: Document) {
+    const selection = this.getSelection()
+    if (selection && selectedCourseBlocks(selection)) {
+      const rect = getRect(selection)
+      if (rect) {
+        updateSelectionPosition({ x: rect.x, y: rect.y })
+      }
+    }
+  }
+
   useEffect(() => {
     document.addEventListener("selectionchange", selectionHandler)
-
-    return function cleanup() {
+    window.addEventListener("scroll", handleWindowChange)
+    window.addEventListener("resize", handleWindowChange)
+    return () => {
       document.removeEventListener("selectionchange", selectionHandler)
+      window.removeEventListener("scroll", handleWindowChange)
+      window.removeEventListener("resize", handleWindowChange)
     }
   })
 

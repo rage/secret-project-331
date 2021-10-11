@@ -184,7 +184,7 @@ that callsite. If all active subscribers return <code>Never</code>, a callsite w
 never be enabled unless a new subscriber expresses interest in it.</p>
 <p><code>Subscriber</code>s which require their filters to be run every time an event
 occurs or a span is entered/exited should return <code>Interest::sometimes</code>.
-If a subscriber returns <code>Interest::sometimes</code>, then its’ <a href="#method.enabled"><code>enabled</code></a> method
+If a subscriber returns <code>Interest::sometimes</code>, then its <a href="#method.enabled"><code>enabled</code></a> method
 will be called every time an event or span is created from that callsite.</p>
 <p>For example, suppose a sampling subscriber is implemented by
 incrementing a counter every time <code>enabled</code> is called and only returning
@@ -249,7 +249,7 @@ what that means for the specified pointer.</p>
 <code>tracing-subscriber</code> crate’s <code>Layer</code> trait from observing close events.
 Use <a href="trait.Subscriber.html#method.try_close"><code>try_close</code></a> instead.</p>
 <p>The default implementation of this function does nothing.</p>
-</div></details><details class="rustdoc-toggle" open><summary><div id="method.try_close" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/tracing_core/subscriber.rs.html#402-406" title="goto source code">[src]</a></div><h4 class="code-header">fn <a href="#method.try_close" class="fnname">try_close</a>(&amp;self, id: <a class="struct" href="../span/struct.Id.html" title="struct tracing_core::span::Id">Id</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.55.0/std/primitive.bool.html">bool</a></h4></div></summary><div class="docblock"><p>Notifies the subscriber that a [<code>span ID</code>] has been dropped, and returns
+</div></details><details class="rustdoc-toggle" open><summary><div id="method.try_close" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/tracing_core/subscriber.rs.html#402-406" title="goto source code">[src]</a></div><h4 class="code-header">fn <a href="#method.try_close" class="fnname">try_close</a>(&amp;self, id: <a class="struct" href="../span/struct.Id.html" title="struct tracing_core::span::Id">Id</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.55.0/std/primitive.bool.html">bool</a></h4></div></summary><div class="docblock"><p>Notifies the subscriber that a <a href="../span/struct.Id.html">span ID</a> has been dropped, and returns
 <code>true</code> if there are now 0 IDs that refer to that span.</p>
 <p>Higher-level libraries providing functionality for composing multiple
 subscriber implementations may use this return value to notify any

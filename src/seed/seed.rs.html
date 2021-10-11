@@ -1542,16 +1542,67 @@
 <span id="1542">1542</span>
 <span id="1543">1543</span>
 <span id="1544">1544</span>
+<span id="1545">1545</span>
+<span id="1546">1546</span>
+<span id="1547">1547</span>
+<span id="1548">1548</span>
+<span id="1549">1549</span>
+<span id="1550">1550</span>
+<span id="1551">1551</span>
+<span id="1552">1552</span>
+<span id="1553">1553</span>
+<span id="1554">1554</span>
+<span id="1555">1555</span>
+<span id="1556">1556</span>
+<span id="1557">1557</span>
+<span id="1558">1558</span>
+<span id="1559">1559</span>
+<span id="1560">1560</span>
+<span id="1561">1561</span>
+<span id="1562">1562</span>
+<span id="1563">1563</span>
+<span id="1564">1564</span>
+<span id="1565">1565</span>
+<span id="1566">1566</span>
+<span id="1567">1567</span>
+<span id="1568">1568</span>
+<span id="1569">1569</span>
+<span id="1570">1570</span>
+<span id="1571">1571</span>
+<span id="1572">1572</span>
+<span id="1573">1573</span>
+<span id="1574">1574</span>
+<span id="1575">1575</span>
+<span id="1576">1576</span>
+<span id="1577">1577</span>
+<span id="1578">1578</span>
+<span id="1579">1579</span>
+<span id="1580">1580</span>
+<span id="1581">1581</span>
+<span id="1582">1582</span>
+<span id="1583">1583</span>
+<span id="1584">1584</span>
+<span id="1585">1585</span>
+<span id="1586">1586</span>
+<span id="1587">1587</span>
+<span id="1588">1588</span>
+<span id="1589">1589</span>
+<span id="1590">1590</span>
+<span id="1591">1591</span>
+<span id="1592">1592</span>
+<span id="1593">1593</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">TimeZone</span>, <span class="ident">Utc</span>};
+<span class="kw">use</span> <span class="ident">headless_lms_actix::attributes</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models::chapters::NewChapter</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models::courses::NewCourse</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models::exercises::GradingProgress</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models::feedback</span>::{<span class="ident">FeedbackBlock</span>, <span class="ident">NewFeedback</span>};
-<span class="kw">use</span> <span class="ident">headless_lms_actix::models::gradings</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models::pages</span>::{<span class="ident">NewPage</span>, <span class="ident">PageUpdate</span>};
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models::playground_examples::PlaygroundExampleData</span>;
+<span class="kw">use</span> <span class="ident">headless_lms_actix::models::proposed_block_edits::NewProposedBlockEdit</span>;
+<span class="kw">use</span> <span class="ident">headless_lms_actix::models::proposed_page_edits::NewProposedPageEdits</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models::submissions::GradingResult</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models</span>::{
     <span class="ident">chapters</span>, <span class="ident">course_instances</span>, <span class="ident">course_instances::VariantStatus</span>, <span class="ident">courses</span>, <span class="ident">exercise_services</span>,
@@ -1559,6 +1610,7 @@
     <span class="ident">users</span>,
 };
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models</span>::{<span class="ident">feedback</span>, <span class="ident">playground_examples</span>};
+<span class="kw">use</span> <span class="ident">headless_lms_actix::models</span>::{<span class="ident">gradings</span>, <span class="ident">proposed_page_edits</span>};
 <span class="kw">use</span> <span class="ident">headless_lms_actix::setup_tracing</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_actix::utils::document_schema_processor::GutenbergBlock</span>;
 <span class="kw">use</span> <span class="ident">serde_json::Value</span>;
@@ -1692,6 +1744,17 @@
         <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;0ab2c4c5-3aad-4daa-a8fe-c26e956fde35&quot;</span>)<span class="question-mark">?</span>,
         <span class="string">&quot;Introduction to history&quot;</span>,
         <span class="string">&quot;introduction-to-history&quot;</span>,
+        <span class="ident">admin</span>,
+        <span class="ident">teacher</span>,
+        <span class="ident">student</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">seed_sample_course</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+        <span class="ident">uh_cs</span>,
+        <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;cae7da38-9486-47da-9106-bff9b6a280f2&quot;</span>)<span class="question-mark">?</span>,
+        <span class="string">&quot;Introduction to edit proposals&quot;</span>,
+        <span class="string">&quot;introduction-to-edit-proposals&quot;</span>,
         <span class="ident">admin</span>,
         <span class="ident">teacher</span>,
         <span class="ident">student</span>,
@@ -2402,7 +2465,7 @@
     <span class="kw">let</span> <span class="ident">spec_c1p1e1t1_1</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;5f6b7850-5034-4cef-9dcf-e3fd4831067f&quot;</span>);
     <span class="kw">let</span> <span class="ident">spec_c1p1e1t1_2</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;c713bbfc-86bf-4877-bd39-53afaf4444b5&quot;</span>);
     <span class="kw">let</span> <span class="ident">spec_c1p1e1t1_3</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;4027d508-4fad-422e-bb7f-15c613a02cc6&quot;</span>);
-    <span class="ident">create_page</span>(
+    <span class="kw">let</span> <span class="ident">page_c1_1</span> <span class="op">=</span> <span class="ident">create_page</span>(
         <span class="ident">conn</span>,
         <span class="ident">course</span>.<span class="ident">id</span>,
         <span class="string">&quot;/chapter-1/page-1&quot;</span>,
@@ -2690,6 +2753,7 @@
     <span class="comment">// feedback</span>
     <span class="kw">let</span> <span class="ident">new_feedback</span> <span class="op">=</span> <span class="ident">NewFeedback</span> {
         <span class="ident">feedback_given</span>: <span class="string">&quot;this part was unclear to me&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">selected_text</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;blanditiis&quot;</span>.<span class="ident">to_string</span>()),
         <span class="ident">related_blocks</span>: <span class="macro">vec!</span>[<span class="ident">FeedbackBlock</span> {
             <span class="ident">id</span>: <span class="ident">block_id_4</span>,
             <span class="ident">text</span>: <span class="prelude-val">Some</span>(
@@ -2702,6 +2766,7 @@
     <span class="ident">feedback::mark_as_read</span>(<span class="ident">conn</span>, <span class="ident">feedback</span>, <span class="bool-val">true</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">new_feedback</span> <span class="op">=</span> <span class="ident">NewFeedback</span> {
         <span class="ident">feedback_given</span>: <span class="string">&quot;I dont think we need these paragraphs&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">selected_text</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;verything&quot;</span>.<span class="ident">to_string</span>()),
         <span class="ident">related_blocks</span>: <span class="macro">vec!</span>[
             <span class="ident">FeedbackBlock</span> {
                 <span class="ident">id</span>: <span class="ident">block_id_1</span>,
@@ -2724,6 +2789,7 @@
         <span class="ident">course</span>.<span class="ident">id</span>,
         <span class="ident">NewFeedback</span> {
             <span class="ident">feedback_given</span>: <span class="string">&quot;Anonymous feedback&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">selected_text</span>: <span class="prelude-val">None</span>,
             <span class="ident">related_blocks</span>: <span class="macro">vec!</span>[<span class="ident">FeedbackBlock</span> {
                 <span class="ident">id</span>: <span class="ident">block_id_1</span>,
                 <span class="ident">text</span>: <span class="prelude-val">None</span>,
@@ -2737,10 +2803,41 @@
         <span class="ident">course</span>.<span class="ident">id</span>,
         <span class="ident">NewFeedback</span> {
             <span class="ident">feedback_given</span>: <span class="string">&quot;Anonymous unrelated feedback&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">selected_text</span>: <span class="prelude-val">None</span>,
             <span class="ident">related_blocks</span>: <span class="macro">vec!</span>[],
         },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="comment">// edit proposals</span>
+    <span class="kw">let</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">NewProposedPageEdits</span> {
+        <span class="ident">page_id</span>: <span class="ident">page_c1_1</span>,
+        <span class="ident">block_edits</span>: <span class="macro">vec!</span>[<span class="ident">NewProposedBlockEdit</span> {
+            <span class="ident">block_id</span>: <span class="ident">block_id_4</span>,
+            <span class="ident">block_attribute</span>: <span class="string">&quot;content&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">original_text</span>: <span class="string">&quot;So bg, that we need many paragraphs.&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">changed_text</span>: <span class="string">&quot;So bg, that we need many, many paragraphs.&quot;</span>.<span class="ident">to_string</span>(),
+        }],
+    };
+    <span class="ident">proposed_page_edits::insert</span>(<span class="ident">conn</span>, <span class="ident">course</span>.<span class="ident">id</span>, <span class="prelude-val">Some</span>(<span class="ident">student</span>), <span class="kw-2">&amp;</span><span class="ident">edits</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">NewProposedPageEdits</span> {
+        <span class="ident">page_id</span>: <span class="ident">page_c1_1</span>,
+        <span class="ident">block_edits</span>: <span class="macro">vec!</span>[
+            <span class="ident">NewProposedBlockEdit</span> {
+                <span class="ident">block_id</span>: <span class="ident">block_id_1</span>,
+                <span class="ident">block_attribute</span>: <span class="string">&quot;content&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">original_text</span>: <span class="string">&quot;Everything is a big topic.&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">changed_text</span>: <span class="string">&quot;Everything is a very big topic.&quot;</span>.<span class="ident">to_string</span>(),
+            },
+            <span class="ident">NewProposedBlockEdit</span> {
+                <span class="ident">block_id</span>: <span class="ident">block_id_5</span>,
+                <span class="ident">block_attribute</span>: <span class="string">&quot;content&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">original_text</span>: <span class="string">&quot;Like this.&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">changed_text</span>: <span class="string">&quot;Like this!&quot;</span>.<span class="ident">to_string</span>(),
+            },
+        ],
+    };
+    <span class="ident">proposed_page_edits::insert</span>(<span class="ident">conn</span>, <span class="ident">course</span>.<span class="ident">id</span>, <span class="prelude-val">Some</span>(<span class="ident">student</span>), <span class="kw-2">&amp;</span><span class="ident">edits</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="prelude-val">Ok</span>(<span class="ident">course</span>.<span class="ident">id</span>)
 }
@@ -2852,26 +2949,26 @@
                 .<span class="ident">with_id</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;98729704-9dd8-4309-aa08-402f9b2a6071&quot;</span>)<span class="question-mark">?</span>),
             <span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(
                 <span class="string">&quot;core/paragraph&quot;</span>,
-                <span class="macro">serde_json::json!</span>({
+                <span class="macro">attributes!</span>{
                   <span class="string">&quot;content&quot;</span>: <span class="string">&quot;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum felis nisi, vitae commodo mi venenatis in. Mauris hendrerit lacinia augue ut hendrerit. Vestibulum non tellus mattis, convallis magna vel, semper mauris. Maecenas porta, arcu eget porttitor sagittis, nulla magna auctor dolor, sed tempus sem lacus eu tortor. Ut id diam quam. Etiam quis sagittis justo. Quisque sagittis dolor vitae felis facilisis, ut suscipit ipsum malesuada. Nulla tempor ultricies erat ut venenatis. Ut pulvinar lectus non mollis efficitur.&quot;</span>,
                   <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>
-                }),
+                },
             )
                 .<span class="ident">with_id</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;9ebddb78-23f6-4440-8d8f-5e4b33abb16f&quot;</span>)<span class="question-mark">?</span>),
             <span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(
                 <span class="string">&quot;core/paragraph&quot;</span>,
-                <span class="macro">serde_json::json!</span>( {
+                <span class="macro">attributes!</span>{
                   <span class="string">&quot;content&quot;</span>: <span class="string">&quot;Sed quis fermentum mi. Integer commodo turpis a fermentum tristique. Integer convallis, nunc sed scelerisque varius, mi tellus molestie metus, eu ultrices justo tellus non arcu. Cras euismod, lectus eu scelerisque mattis, odio ex ornare ipsum, a dapibus nulla leo maximus orci. Etiam laoreet venenatis lorem, vitae iaculis mauris. Nullam lobortis, tortor eget ullamcorper lobortis, tellus odio tincidunt dolor, vitae gravida nibh turpis ac sem. Integer non sodales eros.&quot;</span>,
                   <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>
-                }),
+                },
             )
                 .<span class="ident">with_id</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;029ae4b5-08b0-49f7-8baf-d916b5f879a2&quot;</span>)<span class="question-mark">?</span>),
             <span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(
                 <span class="string">&quot;core/paragraph&quot;</span>,
-                <span class="macro">serde_json::json!</span>({
+                <span class="macro">attributes!</span>{
                   <span class="string">&quot;content&quot;</span>: <span class="string">&quot;Vestibulum a scelerisque ante. Fusce interdum eros elit, posuere mattis sapien tristique id. Integer commodo mi orci, sit amet tempor libero vulputate in. Ut id gravida quam. Proin massa dolor, posuere nec metus eu, dignissim viverra nulla. Vestibulum quis neque bibendum, hendrerit diam et, fermentum diam. Sed risus nibh, suscipit in neque nec, bibendum interdum nibh. Aliquam ut enim a mi ultricies finibus. Nam tristique felis ac risus interdum molestie. Nulla venenatis, augue sed porttitor ultrices, lacus ante sollicitudin dui, vel vehicula ex enim ac mi.&quot;</span>,
                   <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>
-                }),
+                },
             )
             .<span class="ident">with_id</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;3693e92b-9cf0-485a-b026-2851de58e9cf&quot;</span>)<span class="question-mark">?</span>),
         ]).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -2889,26 +2986,26 @@
                 .<span class="ident">with_id</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;ae22ae64-c0e5-42e1-895a-4a49411a72e8&quot;</span>)<span class="question-mark">?</span>),
             <span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(
                 <span class="string">&quot;core/paragraph&quot;</span>,
-                <span class="macro">serde_json::json!</span>({
+                <span class="macro">attributes!</span>{
                   <span class="string">&quot;content&quot;</span>: <span class="string">&quot;Sed venenatis, magna in ornare suscipit, orci ipsum consequat nulla, ut pulvinar libero metus et metus. Maecenas nec bibendum est. Donec quis ante elit. Nam in eros vitae urna aliquet vestibulum. Donec posuere laoreet facilisis. Aliquam auctor a tellus a tempus. Sed molestie leo eget commodo pellentesque. Curabitur lacinia odio nisl, eu sodales nunc placerat sit amet. Vivamus venenatis, risus vitae lobortis eleifend, odio nisi faucibus tortor, sed aliquet leo arcu et tellus. Donec ultrices consectetur nunc, non rhoncus sapien malesuada et. Nulla tempus ipsum vitae justo scelerisque, sed pretium neque fermentum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur accumsan et ex pellentesque dignissim. Integer viverra libero quis tortor dignissim elementum.&quot;</span>,
                   <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>
-                }),
+                },
             )
                 .<span class="ident">with_id</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;b05a62ad-e5f7-432c-8c88-2976d971e7e1&quot;</span>)<span class="question-mark">?</span>),
             <span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(
                 <span class="string">&quot;core/paragraph&quot;</span>,
-                <span class="macro">serde_json::json!</span>( {
-                  <span class="string">&quot;content&quot;</span>: <span class="string">&quot;Sed quis fermentum mi. Integer commodo turpis a fermentum tristique. Integer convallis, nunc sed scelerisque varius, mi tellus molestie metus, eu ultrices banana justo tellus non arcu. Cras euismod, cat lectus eu scelerisque mattis, odio ex ornare ipsum, a dapibus nulla leo maximus orci. Etiam laoreet venenatis lorem, vitae iaculis mauris. Nullam lobortis, tortor eget ullamcorper lobortis, tellus odio tincidunt dolor, vitae gravida nibh turpis ac sem. Integer non sodales eros.&quot;</span>,
-                  <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>
-                }),
+                <span class="macro">attributes!</span>{
+                    <span class="string">&quot;content&quot;</span>: <span class="string">&quot;Sed quis fermentum mi. Integer commodo turpis a fermentum tristique. Integer convallis, nunc sed scelerisque varius, mi tellus molestie metus, eu ultrices banana justo tellus non arcu. Cras euismod, cat lectus eu scelerisque mattis, odio ex ornare ipsum, a dapibus nulla leo maximus orci. Etiam laoreet venenatis lorem, vitae iaculis mauris. Nullam lobortis, tortor eget ullamcorper lobortis, tellus odio tincidunt dolor, vitae gravida nibh turpis ac sem. Integer non sodales eros.&quot;</span>,
+                    <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>
+                },
             )
                 .<span class="ident">with_id</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;db20e302-d4e2-4f56-a0b9-e48a4fbd5fa8&quot;</span>)<span class="question-mark">?</span>),
             <span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(
                 <span class="string">&quot;core/paragraph&quot;</span>,
-                <span class="macro">serde_json::json!</span>({
+                <span class="macro">attributes!</span>{
                   <span class="string">&quot;content&quot;</span>: <span class="string">&quot;Vestibulum a scelerisque ante. Fusce interdum eros elit, posuere mattis sapien tristique id. Integer commodo mi orci, sit amet tempor libero vulputate in. Ut id gravida quam. Proin massa dolor, posuere nec metus eu, dignissim viverra nulla. Vestibulum quis neque bibendum, hendrerit diam et, fermentum diam. Sed risus nibh, suscipit in neque nec, bibendum interdum nibh. Aliquam ut enim a mi ultricies finibus. Nam tristique felis ac risus interdum molestie. Nulla venenatis, augue sed porttitor ultrices, lacus ante sollicitudin dui, vel vehicula ex enim ac mi.&quot;</span>,
                   <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>
-                }),
+                },
             )
             .<span class="ident">with_id</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;c96f56d5-ea35-4aae-918a-72a36847a49c&quot;</span>)<span class="question-mark">?</span>),
         ]
@@ -2961,26 +3058,26 @@
                 .<span class="ident">with_id</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;a43f5460-b588-44ac-84a3-5fdcabd5d3f7&quot;</span>)<span class="question-mark">?</span>),
             <span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(
                 <span class="string">&quot;core/paragraph&quot;</span>,
-                <span class="macro">serde_json::json!</span>({
+                <span class="macro">attributes!</span>{
                   <span class="string">&quot;content&quot;</span>: <span class="string">&quot;Sed venenatis, magna in ornare suscipit, orci ipsum consequat nulla, ut pulvinar libero metus et metus. Maecenas nec bibendum est. Donec quis ante elit. Nam in eros vitae urna aliquet vestibulum. Donec posuere laoreet facilisis. Aliquam auctor a tellus a tempus. Sed molestie leo eget commodo pellentesque. Curabitur lacinia odio nisl, eu sodales nunc placerat sit amet. Vivamus venenatis, risus vitae lobortis eleifend, odio nisi faucibus tortor, sed aliquet leo arcu et tellus. Donec ultrices consectetur nunc, non rhoncus sapien malesuada et. Nulla tempus ipsum vitae justo scelerisque, sed pretium neque fermentum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur accumsan et ex pellentesque dignissim. Integer viverra libero quis tortor dignissim elementum.&quot;</span>,
                   <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>
-                }),
+                },
             )
                 .<span class="ident">with_id</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;816310e3-bbd7-44ae-87cb-3f40633a4b08&quot;</span>)<span class="question-mark">?</span>),
             <span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(
                 <span class="string">&quot;core/paragraph&quot;</span>,
-                <span class="macro">serde_json::json!</span>( {
+                <span class="macro">attributes!</span>{
                   <span class="string">&quot;content&quot;</span>: <span class="string">&quot;Sed quis fermentum mi. Integer commodo turpis a fermentum tristique. Integer convallis, nunc sed scelerisque varius, mi tellus molestie metus, eu ultrices justo tellus non arcu. Cras euismod, lectus eu scelerisque mattis, odio ex ornare ipsum, a dapibus nulla leo maximus orci. Etiam laoreet venenatis lorem, vitae iaculis mauris. Nullam lobortis, tortor eget ullamcorper lobortis, tellus odio tincidunt dolor, vitae gravida nibh turpis ac sem. Integer non sodales eros.&quot;</span>,
                   <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>
-                }),
+                },
             )
                 .<span class="ident">with_id</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;37aa6421-768e-49b9-b447-5f457e5192bc&quot;</span>)<span class="question-mark">?</span>),
             <span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(
                 <span class="string">&quot;core/paragraph&quot;</span>,
-                <span class="macro">serde_json::json!</span>({
-                  <span class="string">&quot;content&quot;</span>: <span class="string">&quot;Vestibulum a scelerisque ante. Fusce interdum eros elit, posuere mattis sapien tristique id. Integer commodo mi orci, sit amet tempor libero vulputate in. Ut id gravida quam. Proin massa dolor, posuere nec metus eu, dignissim viverra nulla. Vestibulum quis neque bibendum, hendrerit diam et, fermentum diam. Sed risus nibh, suscipit in neque nec, bibendum interdum nibh. Aliquam ut banana cat enim a mi ultricies finibus. Nam tristique felis ac risus interdum molestie. Nulla venenatis, augue sed porttitor ultrices, lacus ante sollicitudin dui, vel vehicula ex enim ac mi.&quot;</span>,
+                <span class="macro">attributes!</span>{
+                    <span class="string">&quot;content&quot;</span>: <span class="string">&quot;Vestibulum a scelerisque ante. Fusce interdum eros elit, posuere mattis sapien tristique id. Integer commodo mi orci, sit amet tempor libero vulputate in. Ut id gravida quam. Proin massa dolor, posuere nec metus eu, dignissim viverra nulla. Vestibulum quis neque bibendum, hendrerit diam et, fermentum diam. Sed risus nibh, suscipit in neque nec, bibendum interdum nibh. Aliquam ut banana cat enim a mi ultricies finibus. Nam tristique felis ac risus interdum molestie. Nulla venenatis, augue sed porttitor ultrices, lacus ante sollicitudin dui, vel vehicula ex enim ac mi.&quot;</span>,
                   <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>
-                }),
+                },
             )
             .<span class="ident">with_id</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;cf11a0fb-f56e-4e0d-bc12-51d920dbc278&quot;</span>)<span class="question-mark">?</span>),
         ]
@@ -3029,11 +3126,11 @@
     <span class="ident">GutenbergBlock</span> {
         <span class="ident">name</span>: <span class="string">&quot;core/paragraph&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-        <span class="ident">client_id</span>: <span class="ident">block</span>.<span class="ident">to_string</span>(),
-        <span class="ident">attributes</span>: <span class="macro">serde_json::json!</span>({
+        <span class="ident">client_id</span>: <span class="ident">block</span>,
+        <span class="ident">attributes</span>: <span class="macro">attributes!</span> {
             <span class="string">&quot;content&quot;</span>: <span class="ident">content</span>,
             <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>,
-        }),
+        },
         <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
     }
 }
@@ -3052,18 +3149,19 @@
     <span class="ident">GutenbergBlock</span> {
         <span class="ident">name</span>: <span class="string">&quot;moocfi/exercise&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-        <span class="ident">client_id</span>: <span class="ident">block_1</span>.<span class="ident">to_string</span>(),
-        <span class="ident">attributes</span>: <span class="macro">serde_json::json!</span>({
+        <span class="ident">client_id</span>: <span class="ident">block_1</span>,
+        <span class="ident">attributes</span>: <span class="macro">attributes!</span> {
             <span class="string">&quot;id&quot;</span>: <span class="ident">ex</span>,
             <span class="string">&quot;name&quot;</span>: <span class="string">&quot;Best exercise&quot;</span>,
             <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>,
-        }),
+        },
         <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[<span class="ident">GutenbergBlock</span> {
             <span class="ident">name</span>: <span class="string">&quot;moocfi/exercise-task&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-            <span class="ident">client_id</span>: <span class="ident">block_2</span>.<span class="ident">to_string</span>(),
-            <span class="ident">attributes</span>: <span class="macro">serde_json::json!</span>({
+            <span class="ident">client_id</span>: <span class="ident">block_2</span>,
+            <span class="ident">attributes</span>: <span class="macro">attributes!</span> {
                 <span class="string">&quot;id&quot;</span>: <span class="ident">task</span>,
+                <span class="string">&quot;name&quot;</span>: <span class="string">&quot;Best exercise task&quot;</span>,
                 <span class="string">&quot;exercise_type&quot;</span>: <span class="string">&quot;example-exercise&quot;</span>,
                 <span class="string">&quot;private_spec&quot;</span>: <span class="macro">serde_json::json!</span>([
                     {
@@ -3082,7 +3180,7 @@
                         <span class="string">&quot;id&quot;</span>: <span class="ident">spec_3</span>,
                     },
                 ]).<span class="ident">to_string</span>(),
-            }),
+            },
             <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[<span class="ident">paragraph</span>(<span class="string">&quot;Answer this question.&quot;</span>, <span class="ident">block_3</span>)],
         }],
     }

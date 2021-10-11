@@ -3,9 +3,9 @@
 the <a href="../subscriber/trait.Subscriber.html#method.new_span"><code>new_span</code></a> trait method. See the documentation for that method for
 more information on span ID generation.</p>
 </div></details><h2 id="implementations" class="small-section-header">Implementations<a href="#implementations" class="anchor"></a></h2><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl" class="impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/tracing_core/span.rs.html#61-96" title="goto source code">[src]</a></div><a href="#impl" class="anchor"></a><h3 class="code-header in-band">impl <a class="struct" href="struct.Id.html" title="struct tracing_core::span::Id">Id</a></h3></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.from_u64" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/tracing_core/span.rs.html#70-72" title="goto source code">[src]</a></div><a href="#method.from_u64" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.from_u64" class="fnname">from_u64</a>(u: <a class="primitive" href="https://doc.rust-lang.org/1.55.0/std/primitive.u64.html">u64</a>) -&gt; Self</h4></div></summary><div class="docblock"><p>Constructs a new span ID from the given <code>u64</code>.</p>
-<div class="example-wrap" style="display:inline-block">
 <pre class="ignore" style="white-space:normal;font:inherit;">
-<strong>Note</strong>: Span IDs must be greater than zero.</pre></div>
+    <strong>Note</strong>: Span IDs must be greater than zero.
+</pre>
 <h1 id="panics" class="section-header"><a href="#panics">Panics</a></h1>
 <ul>
 <li>If the provided <code>u64</code> is 0.</li>

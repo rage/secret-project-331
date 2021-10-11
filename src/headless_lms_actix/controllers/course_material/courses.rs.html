@@ -464,6 +464,39 @@
 <span id="464">464</span>
 <span id="465">465</span>
 <span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/courses`.</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -474,6 +507,7 @@
         <span class="ident">courses::Course</span>,
         <span class="ident">feedback</span>,
         <span class="ident">pages</span>::{<span class="ident">CoursePageWithUserData</span>, <span class="ident">PageSearchRequest</span>},
+        <span class="ident">proposed_page_edits</span>::{<span class="self">self</span>, <span class="ident">NewProposedPageEdits</span>},
         <span class="ident">user_course_settings::UserCourseSettings</span>,
     },
     <span class="ident">models</span>::{<span class="ident">course_instances::CourseInstance</span>, <span class="ident">courses</span>, <span class="ident">pages::PageSearchResult</span>},
@@ -481,7 +515,7 @@
 };
 <span class="kw">use</span> <span class="ident">actix_web::web</span>::{<span class="self">self</span>, <span class="ident">Json</span>, <span class="ident">ServiceConfig</span>};
 <span class="kw">use</span> <span class="ident">chrono::Utc</span>;
-<span class="kw">use</span> <span class="ident">sqlx::PgPool</span>;
+<span class="kw">use</span> <span class="ident">sqlx</span>::{<span class="ident">Connection</span>, <span class="ident">PgPool</span>};
 <span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
 
 <span class="doccomment">/**
@@ -534,7 +568,7 @@ GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//par
     };
 
     <span class="kw">let</span> <span class="ident">page_with_user_data</span> <span class="op">=</span>
-        <span class="kw">crate</span><span class="ident">::models::pages::get_page_with_user_data_by_path</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">user</span>, <span class="ident">course_slug</span>, <span class="kw-2">&amp;</span><span class="ident">path</span>)
+        <span class="kw">crate</span><span class="ident">::models::pages::get_page_with_user_data_by_path</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">user</span>, <span class="kw-2">&amp;</span><span class="ident">course_slug</span>, <span class="kw-2">&amp;</span><span class="ident">path</span>)
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">page_with_user_data</span>))
@@ -860,37 +894,68 @@ Response:
 }
 
 <span class="doccomment">/**
-POST `/api/v0/course-material/courses/:course_slug/feedback` - Creates new feedback.
+POST `/api/v0/course-material/courses/:course_id/feedback` - Creates new feedback.
 */</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">feedback</span>(
+    <span class="ident">course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">new_feedback</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">NewFeedback</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+    <span class="ident">user</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AuthUser</span><span class="op">&gt;</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">fs</span> <span class="op">=</span> <span class="ident">new_feedback</span>.<span class="ident">into_inner</span>();
+
+    <span class="comment">// validate</span>
+    <span class="kw">for</span> <span class="ident">f</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">fs</span> {
+        <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">feedback_given</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1000</span> {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::BadRequest</span>(
+                <span class="string">&quot;Feedback given too long: max 1000&quot;</span>.<span class="ident">to_string</span>(),
+            ));
+        }
+        <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">related_blocks</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">100</span> {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::BadRequest</span>(
+                <span class="string">&quot;Too many related blocks: max 100&quot;</span>.<span class="ident">to_string</span>(),
+            ));
+        }
+        <span class="kw">for</span> <span class="ident">block</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">f</span>.<span class="ident">related_blocks</span> {
+            <span class="kw">if</span> <span class="ident">block</span>.<span class="ident">text</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">len</span>()).<span class="ident">unwrap_or_default</span>() <span class="op">&gt;</span> <span class="number">10000</span> {
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::BadRequest</span>(
+                    <span class="string">&quot;Block text too long: max 10000&quot;</span>.<span class="ident">to_string</span>(),
+                ));
+            }
+        }
+    }
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">user_id</span> <span class="op">=</span> <span class="ident">user</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">u</span><span class="op">|</span> <span class="ident">u</span>.<span class="ident">id</span>);
+    <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="ident">course_id</span>.<span class="ident">into_inner</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ids</span> <span class="op">=</span> <span class="macro">vec!</span>[];
+    <span class="kw">for</span> <span class="ident">f</span> <span class="kw">in</span> <span class="ident">fs</span> {
+        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">feedback::insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="ident">user_id</span>, <span class="ident">course_id</span>, <span class="ident">f</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">ids</span>.<span class="ident">push</span>(<span class="ident">id</span>.<span class="ident">to_string</span>());
+    }
+    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">ids</span>))
+}
+
+<span class="doccomment">/**
+POST `/api/v0/course-material/courses/:course_slug/edit` - Creates a new edit proposal.
+*/</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">propose_edit</span>(
     <span class="ident">course_slug</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">new_feedback</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">NewFeedback</span><span class="op">&gt;</span>,
+    <span class="ident">edits</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">NewProposedPageEdits</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AuthUser</span><span class="op">&gt;</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">new_feedback</span>.<span class="ident">into_inner</span>();
-
-    <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">feedback_given</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1000</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::BadRequest</span>(
-            <span class="string">&quot;Feedback given too long: max 1000&quot;</span>.<span class="ident">to_string</span>(),
-        ));
-    }
-    <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">related_blocks</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">100</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::BadRequest</span>(
-            <span class="string">&quot;Too many related blocks: max 100&quot;</span>.<span class="ident">to_string</span>(),
-        ));
-    }
-    <span class="kw">for</span> <span class="ident">block</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">f</span>.<span class="ident">related_blocks</span> {
-        <span class="kw">if</span> <span class="ident">block</span>.<span class="ident">text</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">len</span>()).<span class="ident">unwrap_or_default</span>() <span class="op">&gt;</span> <span class="number">10000</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::BadRequest</span>(
-                <span class="string">&quot;Block text too long: max 10000&quot;</span>.<span class="ident">to_string</span>(),
-            ));
-        }
-    }
-
     <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident">courses::get_course_by_slug</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">course_slug</span>.<span class="ident">as_str</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">feedback::insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">user</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">u</span><span class="op">|</span> <span class="ident">u</span>.<span class="ident">id</span>), <span class="ident">course</span>.<span class="ident">id</span>, <span class="ident">f</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> (<span class="ident">id</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">proposed_page_edits::insert</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+        <span class="ident">course</span>.<span class="ident">id</span>,
+        <span class="ident">user</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">u</span><span class="op">|</span> <span class="ident">u</span>.<span class="ident">id</span>),
+        <span class="kw-2">&amp;</span><span class="ident">edits</span>.<span class="ident">into_inner</span>(),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">id</span>.<span class="ident">to_string</span>())
 }
 
@@ -929,7 +994,8 @@ We add the routes by calling the route method instead of using the route annotat
         .<span class="ident">route</span>(
             <span class="string">&quot;/{course_id}/user-settings&quot;</span>,
             <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_user_course_settings</span>),
-        );
+        )
+        .<span class="ident">route</span>(<span class="string">&quot;/{course_id}/propose-edit&quot;</span>, <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">propose_edit</span>));
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_actix" data-search-index-js="../../../../search-index.js" data-search-js="../../../../search.js"></div>

@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["_add_proposed_edits_routes","Add a route for each controller in this module."],["post_proposed_edits","POST `/api/v0/course-material/proposed-edits/:course-id`"]]});

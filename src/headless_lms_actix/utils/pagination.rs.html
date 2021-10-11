@@ -160,6 +160,15 @@
 <span id="160">160</span>
 <span id="161">161</span>
 <span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{
@@ -213,6 +222,15 @@
             <span class="ident">total_count</span> <span class="op">/</span> <span class="self">self</span>.<span class="ident">limit</span>
         } <span class="kw">else</span> {
             <span class="ident">total_count</span> <span class="op">/</span> <span class="self">self</span>.<span class="ident">limit</span> <span class="op">+</span> <span class="number">1</span>
+        }
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Pagination</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">page</span>: <span class="number">1</span>,
+            <span class="ident">limit</span>: <span class="number">100</span>,
         }
     }
 }
@@ -296,8 +314,8 @@
                     }
                 }
                 <span class="prelude-val">Ok</span>(<span class="ident">Pagination</span> {
-                    <span class="ident">page</span>: <span class="ident">page</span>.<span class="ident">unwrap_or</span>(<span class="number">1</span>),
-                    <span class="ident">limit</span>: <span class="ident">limit</span>.<span class="ident">unwrap_or</span>(<span class="number">100</span>),
+                    <span class="ident">page</span>: <span class="ident">page</span>.<span class="ident">unwrap_or</span>(<span class="ident">Pagination::default</span>().<span class="ident">page</span>),
+                    <span class="ident">limit</span>: <span class="ident">limit</span>.<span class="ident">unwrap_or</span>(<span class="ident">Pagination::default</span>().<span class="ident">limit</span>),
                 })
             }
         }

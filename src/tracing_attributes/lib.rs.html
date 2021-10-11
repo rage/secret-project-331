@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;tracing-attributes-0.1.16&#x2F;src&#x2F;lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../tracing_attributes/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;tokio-rs&#x2F;tracing&#x2F;master&#x2F;assets&#x2F;logo-type.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;tracing-attributes-0.1.17&#x2F;src&#x2F;lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../tracing_attributes/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;tokio-rs&#x2F;tracing&#x2F;master&#x2F;assets&#x2F;logo-type.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -1388,6 +1388,35 @@
 <span id="1388">1388</span>
 <span id="1389">1389</span>
 <span id="1390">1390</span>
+<span id="1391">1391</span>
+<span id="1392">1392</span>
+<span id="1393">1393</span>
+<span id="1394">1394</span>
+<span id="1395">1395</span>
+<span id="1396">1396</span>
+<span id="1397">1397</span>
+<span id="1398">1398</span>
+<span id="1399">1399</span>
+<span id="1400">1400</span>
+<span id="1401">1401</span>
+<span id="1402">1402</span>
+<span id="1403">1403</span>
+<span id="1404">1404</span>
+<span id="1405">1405</span>
+<span id="1406">1406</span>
+<span id="1407">1407</span>
+<span id="1408">1408</span>
+<span id="1409">1409</span>
+<span id="1410">1410</span>
+<span id="1411">1411</span>
+<span id="1412">1412</span>
+<span id="1413">1413</span>
+<span id="1414">1414</span>
+<span id="1415">1415</span>
+<span id="1416">1416</span>
+<span id="1417">1417</span>
+<span id="1418">1418</span>
+<span id="1419">1419</span>
 </pre><pre class="rust">
 <span class="doccomment">//! A procedural macro attribute for instrumenting functions with [`tracing`].</span>
 <span class="doccomment">//!</span>
@@ -1407,7 +1436,7 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ```toml</span>
 <span class="doccomment">//! [dependencies]</span>
-<span class="doccomment">//! tracing-attributes = &quot;0.1.16&quot;</span>
+<span class="doccomment">//! tracing-attributes = &quot;0.1.17&quot;</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! The [`#[instrument]`][instrument] attribute can now be added to a function</span>
@@ -1443,7 +1472,7 @@
 <span class="doccomment">//! supported compiler version is not considered a semver breaking change as</span>
 <span class="doccomment">//! long as doing so complies with this policy.</span>
 <span class="doccomment">//!</span>
-<span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_root_url</span> <span class="op">=</span> <span class="string">&quot;https://docs.rs/tracing-attributes/0.1.16&quot;</span>)]</span>
+<span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_root_url</span> <span class="op">=</span> <span class="string">&quot;https://docs.rs/tracing-attributes/0.1.17&quot;</span>)]</span>
 <span class="attribute">#![<span class="ident">doc</span>(
     <span class="ident">html_logo_url</span> <span class="op">=</span> <span class="string">&quot;https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png&quot;</span>,
     <span class="ident">issue_tracker_base_url</span> <span class="op">=</span> <span class="string">&quot;https://github.com/tokio-rs/tracing/issues/&quot;</span>
@@ -1992,6 +2021,8 @@
         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">name</span><span class="op">|</span> <span class="macro">quote!</span>(#<span class="ident">name</span>))
         .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">quote!</span>(#<span class="ident">instrumented_function_name</span>));
 
+    <span class="kw">let</span> <span class="ident">level</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">level</span>();
+
     <span class="comment">// generate this inside a closure, so we can return early on errors.</span>
     <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> (<span class="op">|</span><span class="op">|</span> {
         <span class="comment">// Pull out the arguments-to-be-skipped first, so we can filter results</span>
@@ -2037,7 +2068,6 @@
             }
         }
 
-        <span class="kw">let</span> <span class="ident">level</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">level</span>();
         <span class="kw">let</span> <span class="ident">target</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">target</span>();
 
         <span class="comment">// filter out skipped fields</span>
@@ -2101,10 +2131,9 @@
     <span class="comment">// enter the span and then perform the rest of the body.</span>
     <span class="comment">// If `err` is in args, instrument any resulting `Err`s.</span>
     <span class="kw">if</span> <span class="ident">async_context</span> {
-        <span class="kw">if</span> <span class="ident">err</span> {
+        <span class="kw">let</span> <span class="ident">mk_fut</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">err</span> {
             <span class="macro">quote_spanned!</span>(<span class="ident">block</span>.<span class="ident">span</span>()<span class="op">=</span><span class="op">&gt;</span>
-                <span class="kw">let</span> <span class="ident">__tracing_attr_span</span> <span class="op">=</span> #<span class="ident">span</span>;
-                <span class="ident">tracing::Instrument::instrument</span>(<span class="kw">async</span> <span class="kw">move</span> {
+                <span class="kw">async</span> <span class="kw">move</span> {
                     <span class="kw">match</span> <span class="kw">async</span> <span class="kw">move</span> { #<span class="ident">block</span> }.<span class="kw">await</span> {
                         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::unit_arg</span>)]</span>
                         <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>),
@@ -2113,22 +2142,52 @@
                             <span class="prelude-val">Err</span>(<span class="ident">e</span>)
                         }
                     }
-                }, <span class="ident">__tracing_attr_span</span>).<span class="kw">await</span>
+                }
             )
         } <span class="kw">else</span> {
             <span class="macro">quote_spanned!</span>(<span class="ident">block</span>.<span class="ident">span</span>()<span class="op">=</span><span class="op">&gt;</span>
-                <span class="kw">let</span> <span class="ident">__tracing_attr_span</span> <span class="op">=</span> #<span class="ident">span</span>;
-                    <span class="ident">tracing::Instrument::instrument</span>(
-                        <span class="kw">async</span> <span class="kw">move</span> { #<span class="ident">block</span> },
-                        <span class="ident">__tracing_attr_span</span>
-                    )
-                    .<span class="kw">await</span>
+                <span class="kw">async</span> <span class="kw">move</span> { #<span class="ident">block</span> }
             )
+        };
+
+        <span class="kw">return</span> <span class="macro">quote_spanned!</span>(<span class="ident">block</span>.<span class="ident">span</span>()<span class="op">=</span><span class="op">&gt;</span>
+            <span class="kw">if</span> <span class="macro">tracing::level_enabled!</span>(#<span class="ident">level</span>) {
+                <span class="kw">let</span> <span class="ident">__tracing_attr_span</span> <span class="op">=</span> #<span class="ident">span</span>;
+                <span class="ident">tracing::Instrument::instrument</span>(
+                    #<span class="ident">mk_fut</span>,
+                    <span class="ident">__tracing_attr_span</span>
+                )
+                .<span class="kw">await</span>
+            } <span class="kw">else</span> {
+                #<span class="ident">mk_fut</span>.<span class="kw">await</span>
+            }
+        );
+    }
+
+    <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="macro">quote_spanned!</span>(<span class="ident">block</span>.<span class="ident">span</span>()<span class="op">=</span><span class="op">&gt;</span>
+        <span class="comment">// These variables are left uninitialized and initialized only</span>
+        <span class="comment">// if the tracing level is statically enabled at this point.</span>
+        <span class="comment">// While the tracing level is also checked at span creation</span>
+        <span class="comment">// time, that will still create a dummy span, and a dummy guard</span>
+        <span class="comment">// and drop the dummy guard later. By lazily initializing these</span>
+        <span class="comment">// variables, Rust will generate a drop flag for them and thus</span>
+        <span class="comment">// only drop the guard if it was created. This creates code that</span>
+        <span class="comment">// is very straightforward for LLVM to optimize out if the tracing</span>
+        <span class="comment">// level is statically disabled, while not causing any performance</span>
+        <span class="comment">// regression in case the level is enabled.</span>
+        <span class="kw">let</span> <span class="ident">__tracing_attr_span</span>;
+        <span class="kw">let</span> <span class="ident">__tracing_attr_guard</span>;
+        <span class="kw">if</span> <span class="macro">tracing::level_enabled!</span>(#<span class="ident">level</span>) {
+            <span class="ident">__tracing_attr_span</span> <span class="op">=</span> #<span class="ident">span</span>;
+            <span class="ident">__tracing_attr_guard</span> <span class="op">=</span> <span class="ident">__tracing_attr_span</span>.<span class="ident">enter</span>();
         }
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">err</span> {
-        <span class="macro">quote_spanned!</span>(<span class="ident">block</span>.<span class="ident">span</span>()<span class="op">=</span><span class="op">&gt;</span>
-            <span class="kw">let</span> <span class="ident">__tracing_attr_span</span> <span class="op">=</span> #<span class="ident">span</span>;
-            <span class="kw">let</span> <span class="ident">__tracing_attr_guard</span> <span class="op">=</span> <span class="ident">__tracing_attr_span</span>.<span class="ident">enter</span>();
+        <span class="comment">// pacify clippy::suspicious_else_formatting</span>
+        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> ();
+    );
+
+    <span class="kw">if</span> <span class="ident">err</span> {
+        <span class="kw">return</span> <span class="macro">quote_spanned!</span>(<span class="ident">block</span>.<span class="ident">span</span>()<span class="op">=</span><span class="op">&gt;</span>
+            #<span class="ident">span</span>
             <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::redundant_closure_call</span>)]</span>
             <span class="kw">match</span> (<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> #<span class="ident">block</span>)() {
                 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::unit_arg</span>)]</span>
@@ -2138,14 +2197,13 @@
                     <span class="prelude-val">Err</span>(<span class="ident">e</span>)
                 }
             }
-        )
-    } <span class="kw">else</span> {
-        <span class="macro">quote_spanned!</span>(<span class="ident">block</span>.<span class="ident">span</span>()<span class="op">=</span><span class="op">&gt;</span>
-            <span class="kw">let</span> <span class="ident">__tracing_attr_span</span> <span class="op">=</span> #<span class="ident">span</span>;
-            <span class="kw">let</span> <span class="ident">__tracing_attr_guard</span> <span class="op">=</span> <span class="ident">__tracing_attr_span</span>.<span class="ident">enter</span>();
-            #<span class="ident">block</span>
-        )
+        );
     }
+
+    <span class="macro">quote_spanned!</span>(<span class="ident">block</span>.<span class="ident">span</span>()<span class="op">=</span><span class="op">&gt;</span>
+        #<span class="ident">span</span>
+        #<span class="ident">block</span>
+    )
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>, <span class="ident">Debug</span>)]</span>

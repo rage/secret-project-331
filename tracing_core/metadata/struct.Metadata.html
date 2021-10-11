@@ -26,15 +26,15 @@ particular event or span is constructed statically and exists as a single
 static instance. Thus, the overhead of creating the metadata is
 <em>significantly</em> lower than that of creating the actual span. Therefore,
 filtering is based on metadata, rather than on the constructed span.</p>
-<div class="example-wrap" style="display:inline-block">
 <pre class="ignore" style="white-space:normal;font:inherit;">
-<strong>Note</strong>: Although instances of <code>Metadata</code> cannot
-be compared directly, they provide a method <a href="struct.Metadata.html#method.id">
-<code>id</code></a>, returning an opaque <a href="../callsite/struct.Identifier.html">
-callsite identifier</a>  which uniquely identifies the callsite where the metadata
-originated. This can be used to determine if two <code>Metadata</code> correspond to
-the same callsite.
-</pre></div>
+    <strong>Note</strong>: Although instances of <code>Metadata</code>
+    cannot be compared directly, they provide a method
+    <a href="struct.Metadata.html#method.id"><code>id</code></a>, returning
+    an opaque <a href="../callsite/struct.Identifier.html">callsite
+    identifier</a>which uniquely identifies the callsite where the metadata
+    originated. This can be used to determine if two <code>Metadata</code>
+    correspond to the same callsite.
+</pre>
 </div></details><h2 id="implementations" class="small-section-header">Implementations<a href="#implementations" class="anchor"></a></h2><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl" class="impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/tracing_core/metadata.rs.html#250-333" title="goto source code">[src]</a></div><a href="#impl" class="anchor"></a><h3 class="code-header in-band">impl&lt;'a&gt; <a class="struct" href="../struct.Metadata.html" title="struct tracing_core::Metadata">Metadata</a>&lt;'a&gt;</h3></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.new" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/tracing_core/metadata.rs.html#253-273" title="goto source code">[src]</a></div><a href="#method.new" class="anchor"></a><h4 class="code-header">pub const fn <a href="#method.new" class="fnname">new</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;name: &amp;'static <a class="primitive" href="https://doc.rust-lang.org/1.55.0/std/primitive.str.html">str</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;target: &amp;'a <a class="primitive" href="https://doc.rust-lang.org/1.55.0/std/primitive.str.html">str</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;level: <a class="struct" href="../struct.Level.html" title="struct tracing_core::Level">Level</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;file: <a class="enum" href="https://doc.rust-lang.org/1.55.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;&amp;'a <a class="primitive" href="https://doc.rust-lang.org/1.55.0/std/primitive.str.html">str</a>&gt;, <br>&nbsp;&nbsp;&nbsp;&nbsp;line: <a class="enum" href="https://doc.rust-lang.org/1.55.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.55.0/std/primitive.u32.html">u32</a>&gt;, <br>&nbsp;&nbsp;&nbsp;&nbsp;module_path: <a class="enum" href="https://doc.rust-lang.org/1.55.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;&amp;'a <a class="primitive" href="https://doc.rust-lang.org/1.55.0/std/primitive.str.html">str</a>&gt;, <br>&nbsp;&nbsp;&nbsp;&nbsp;fields: <a class="struct" href="../field/struct.FieldSet.html" title="struct tracing_core::field::FieldSet">FieldSet</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;kind: <a class="struct" href="struct.Kind.html" title="struct tracing_core::metadata::Kind">Kind</a><br>) -&gt; Self</h4></div></summary><div class="docblock"><p>Construct new metadata for a span or event, with a name, target, level, field
 names, and optional source code location.</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.fields" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/tracing_core/metadata.rs.html#276-278" title="goto source code">[src]</a></div><a href="#method.fields" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.fields" class="fnname">fields</a>(&amp;self) -&gt; &amp;<a class="struct" href="../field/struct.FieldSet.html" title="struct tracing_core::field::FieldSet">FieldSet</a></h4></div></summary><div class="docblock"><p>Returns the names of the fields on the described span or event.</p>

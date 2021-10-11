@@ -108,6 +108,24 @@
 <span id="108">108</span>
 <span id="109">109</span>
 <span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
 </pre><pre class="rust">
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -115,6 +133,7 @@
         <span class="ident">auth::Login</span>,
         <span class="ident">main_frontend</span>::{
             <span class="ident">courses::GetFeedbackQuery</span>, <span class="ident">exercises::ExerciseSubmissions</span>, <span class="ident">feedback::MarkAsRead</span>,
+            <span class="ident">proposed_edits::GetEditProposalsQuery</span>,
         },
         <span class="ident">UploadResult</span>,
     },
@@ -141,6 +160,13 @@
             <span class="ident">PageWithExercises</span>,
         },
         <span class="ident">playground_examples</span>::{<span class="ident">PlaygroundExample</span>, <span class="ident">PlaygroundExampleData</span>},
+        <span class="ident">proposed_block_edits</span>::{
+            <span class="ident">BlockProposal</span>, <span class="ident">BlockProposalAction</span>, <span class="ident">BlockProposalInfo</span>, <span class="ident">NewProposedBlockEdit</span>,
+            <span class="ident">ProposalStatus</span>,
+        },
+        <span class="ident">proposed_page_edits</span>::{
+            <span class="ident">EditProposalInfo</span>, <span class="ident">NewProposedPageEdits</span>, <span class="ident">PageProposal</span>, <span class="ident">ProposalCount</span>,
+        },
         <span class="ident">submissions</span>::{
             <span class="ident">NewSubmission</span>, <span class="ident">Submission</span>, <span class="ident">SubmissionCount</span>, <span class="ident">SubmissionCountByExercise</span>,
             <span class="ident">SubmissionCountByWeekAndHour</span>, <span class="ident">SubmissionInfo</span>, <span class="ident">SubmissionResult</span>,
@@ -197,6 +223,12 @@
   <span class="ident">FeedbackBlock</span>,
   <span class="ident">FeedbackCount</span>,
   <span class="ident">GetFeedbackQuery</span>,
+  <span class="ident">PageProposal</span>,
+  <span class="ident">BlockProposal</span>,
+  <span class="ident">ProposalCount</span>,
+  <span class="ident">EditProposalInfo</span>,
+  <span class="ident">GetEditProposalsQuery</span>,
+  <span class="ident">NewProposedPageEdits</span>,
   <span class="comment">// dependencies</span>
   <span class="ident">VariantStatus</span>,
   <span class="ident">ChapterStatus</span>,
@@ -209,6 +241,10 @@
   <span class="ident">GradingProgress</span>,
   <span class="ident">UserPointsUpdateStrategy</span>,
   <span class="ident">Pagination</span>,
+  <span class="ident">ProposalStatus</span>,
+  <span class="ident">NewProposedBlockEdit</span>,
+  <span class="ident">BlockProposalInfo</span>,
+  <span class="ident">BlockProposalAction</span>,
   <span class="comment">// returned from the API as serde_json::Value</span>
   <span class="ident">ExerciseTask</span>,
   <span class="ident">ExerciseWithExerciseTasks</span>,

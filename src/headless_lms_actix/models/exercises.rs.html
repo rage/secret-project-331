@@ -756,7 +756,7 @@ WHERE page_id = $1
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="ident">serde_json::Value</span>;
+    <span class="kw">use</span> <span class="ident">serde_json</span>::{<span class="ident">Map</span>, <span class="ident">Value</span>};
 
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
     <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -834,8 +834,8 @@ WHERE page_id = $1
             <span class="ident">exercise_id</span>,
             <span class="string">&quot;&quot;</span>,
             <span class="macro">vec!</span>[<span class="ident">GutenbergBlock</span> {
-                <span class="ident">attributes</span>: <span class="ident">Value::Null</span>,
-                <span class="ident">client_id</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">attributes</span>: <span class="ident">Map::new</span>(),
+                <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>(),
                 <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
                 <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
                 <span class="ident">name</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),

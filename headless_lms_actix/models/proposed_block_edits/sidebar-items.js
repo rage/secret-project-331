@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["BlockProposalAction",""],["ProposalStatus",""]],"struct":[["BlockProposal",""],["BlockProposalInfo",""],["NewProposedBlockEdit",""]]});

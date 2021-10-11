@@ -1,5 +1,21 @@
 {
   "db": "PostgreSQL",
+  "003aaa33eabe8108221375d0a45b87f1e908134d5a2a011623383fb8c8b3a90a": {
+    "query": "\nSELECT COALESCE(SUM(ues.score_given), 0) AS score_given\nFROM user_exercise_states AS ues\nWHERE ues.exercise_id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND ues.deleted_at IS NULL\n  AND ues.user_id = $2\n  AND ues.course_instance_id = $3;\n                ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "score_given",
+          "type_info": "Float4"
+        }
+      ],
+      "parameters": {
+        "Left": ["UuidArray", "Uuid", "Uuid"]
+      },
+      "nullable": [null]
+    }
+  },
   "0126aff55bba1d467391b9f51bd71afaaee6de715d563aa5a7cc6fe2d250e346": {
     "query": "\nSELECT *\nFROM submissions\nWHERE exercise_id = $1\n  AND user_id = $2\n  AND deleted_at IS NULL\nLIMIT $3\nOFFSET $4;\n        ",
     "describe": {
@@ -3221,27 +3237,6 @@
       "nullable": []
     }
   },
-  "6c8abc32ba415f5b704d114501ebecde8eef8d63d6d947d8a22a667d613a72b5": {
-    "query": "\nSELECT COUNT(ues.exercise_id) AS completed_exercises,\n  COALESCE(SUM(ues.score_given), 0) AS score_given\nFROM user_exercise_states AS ues\nWHERE ues.course_instance_id = $1\n  AND ues.user_id = $2\n  AND ues.deleted_at IS NULL\n  AND ues.activity_progress IN ('submitted', 'completed');\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "completed_exercises",
-          "type_info": "Int8"
-        },
-        {
-          "ordinal": 1,
-          "name": "score_given",
-          "type_info": "Float4"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      },
-      "nullable": [null, null]
-    }
-  },
   "6f5ab6a5fb0636d714701ea1c4d6c01ca9b3a54efc33322c8bf81d98d356d8e6": {
     "query": "\nSELECT *\nfrom playground_examples\nWHERE deleted_at IS NULL;\n  ",
     "describe": {
@@ -5203,6 +5198,27 @@
       "nullable": [false, false, false, true, false, false, false, false]
     }
   },
+  "b4d12f09eb6fa6d8b9381f1f2c0bc7451683f3695eb0b4329ed8984adcb345c4": {
+    "query": "\nSELECT COUNT(ues.exercise_id) AS completed_exercises,\n  COALESCE(SUM(ues.score_given), 0) AS score_given\nFROM user_exercise_states AS ues\nWHERE ues.course_instance_id = $1\n  AND ues.user_id = $2\n  AND ues.deleted_at IS NULL;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "completed_exercises",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 1,
+          "name": "score_given",
+          "type_info": "Float4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": [null, null]
+    }
+  },
   "b4f5a52e896eba983c4002aa6c4ad7b6560079a8b7573c43315562e8bd3fb03b": {
     "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_id,\n  starts_at,\n  ends_at,\n  name,\n  description,\n  variant_status AS \"variant_status: VariantStatus\"\nFROM course_instances\nWHERE id = $1\n  AND deleted_at IS NULL;\n    ",
     "describe": {
@@ -6599,22 +6615,6 @@
         "Left": ["Uuid", "Uuid", "Uuid"]
       },
       "nullable": [false, false, false, false, false, true, true, false, false, true]
-    }
-  },
-  "effcdc15bd079db028baee525a56453528901b1209e88b90084fa39342966f38": {
-    "query": "\nSELECT COALESCE(SUM(ues.score_given), 0) AS score_given\nFROM user_exercise_states AS ues\nWHERE ues.exercise_id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND ues.deleted_at IS NULL\n  AND ues.user_id = $2\n  AND ues.activity_progress IN ('submitted', 'completed');\n                ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "score_given",
-          "type_info": "Float4"
-        }
-      ],
-      "parameters": {
-        "Left": ["UuidArray", "Uuid"]
-      },
-      "nullable": [null]
     }
   },
   "f2a546b8283eeeca75a1ff205d1a2e836b1c40dff0b0ac8bb47e1639138484e7": {

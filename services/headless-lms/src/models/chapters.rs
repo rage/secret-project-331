@@ -1,8 +1,7 @@
-use super::{pages::Page, ModelResult};
-use crate::{
-    models::{pages::NewPage, user_exercise_states::get_user_chapter_metrics},
-    utils::document_schema_processor::GutenbergBlock,
+use super::{
+    pages::Page, user_exercise_states::get_user_course_instance_chapter_metrics, ModelResult,
 };
+use crate::{models::pages::NewPage, utils::document_schema_processor::GutenbergBlock};
 use std::path::PathBuf;
 
 use crate::{utils::file_store::FileStore, ApplicationConfiguration};
@@ -260,9 +259,9 @@ pub struct ChapterWithStatus {
     pub status: ChapterStatus,
 }
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
-pub struct UserChapterProgress {
-    score_given: Option<f32>,
-    score_maximum: i32,
+pub struct UserCourseInstanceChapterProgress {
+    pub score_given: Option<f32>,
+    pub score_maximum: i32,
 }
 
 pub async fn course_chapters(
@@ -354,23 +353,25 @@ RETURNING *;
     Ok(deleted)
 }
 
-pub async fn get_user_chapter_progress(
+pub async fn get_user_course_instance_chapter_progress(
     pool: &PgPool,
+    course_instance_id: &Uuid,
     chapter_id: &Uuid,
     user_id: &Uuid,
-) -> ModelResult<UserChapterProgress> {
+) -> ModelResult<UserCourseInstanceChapterProgress> {
     let mut connection = pool.acquire().await?;
 
     let mut exercises =
         crate::models::exercises::get_exercises_by_chapter_id(&mut connection, chapter_id).await?;
 
     let exercise_ids: Vec<Uuid> = exercises.iter_mut().map(|e| e.id).collect();
-    let exercise_points: Vec<i32> = exercises.into_iter().map(|e| e.score_maximum).collect();
+    let score_maximum: i32 = exercises.into_iter().map(|e| e.score_maximum).sum();
 
-    let score_maximum: i32 = exercise_points.iter().sum();
-    let user_chapter_metrics = get_user_chapter_metrics(pool, &exercise_ids, user_id).await?;
+    let user_chapter_metrics =
+        get_user_course_instance_chapter_metrics(pool, course_instance_id, &exercise_ids, user_id)
+            .await?;
 
-    let result = UserChapterProgress {
+    let result = UserCourseInstanceChapterProgress {
         score_given: user_chapter_metrics.score_given,
         score_maximum,
     };

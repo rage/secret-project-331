@@ -2,13 +2,13 @@ import { PageWithExercises } from "../../../shared-module/bindings"
 import ExerciseBox from "../../../shared-module/components/ExerciseList/ExerciseBox"
 import PageBox from "../../../shared-module/components/ExerciseList/PageBox"
 
-export interface PageExerciseListProps {
+export interface ChapterExerciseListGroupedByPageProps {
   page: PageWithExercises
   courseSlug: string
   courseInstanceId: string
 }
 
-const PageExerciseList: React.FC<PageExerciseListProps> = ({
+const ChapterExerciseListGroupedByPage: React.FC<ChapterExerciseListGroupedByPageProps> = ({
   page,
   courseSlug,
   courseInstanceId,
@@ -39,4 +39,4 @@ const PageExerciseList: React.FC<PageExerciseListProps> = ({
   )
 }
 
-export default PageExerciseList
+export default ChapterExerciseListGroupedByPage

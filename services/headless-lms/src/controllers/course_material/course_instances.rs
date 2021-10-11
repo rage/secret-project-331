@@ -3,6 +3,7 @@ use crate::{
     controllers::ControllerResult,
     domain::authorization::AuthUser,
     models::{
+        chapters::UserCourseInstanceChapterProgress,
         course_instance_enrollments::{CourseInstanceEnrollment, NewCourseInstanceEnrollment},
         user_exercise_states::{UserCourseInstanceExerciseProgress, UserCourseInstanceProgress},
     },
@@ -36,6 +37,38 @@ async fn get_user_progress_for_course_instance(
         )
         .await?;
     Ok(Json(user_course_instance_progress))
+}
+
+/**
+GET `/api/v0/course-material/course-instance/:course_instance_id/chapters/:chapter_id/progress - Returns user progress for chapter in course instance.
+
+# Example
+
+Response:
+```json
+{
+  "score_given":1.0,
+  "score_maximum":4
+}
+```
+*/
+
+#[instrument(skip(pool))]
+async fn get_user_progress_for_course_instance_chapter(
+    user: AuthUser,
+    params: web::Path<(Uuid, Uuid)>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<Json<UserCourseInstanceChapterProgress>> {
+    let (course_instance_id, chapter_id) = params.into_inner();
+    let user_course_instance_chapter_progress =
+        crate::models::chapters::get_user_course_instance_chapter_progress(
+            pool.get_ref(),
+            &course_instance_id,
+            &chapter_id,
+            &user.id,
+        )
+        .await?;
+    Ok(Json(user_course_instance_chapter_progress))
 }
 
 /**
@@ -131,5 +164,9 @@ pub fn _add_user_progress_routes(cfg: &mut ServiceConfig) {
     .route(
         "/{course_instance_id}/exercises/{exercise_id}/progress",
         web::get().to(get_user_progress_for_course_instance_exercise),
+    )
+    .route(
+        "/{course_instance_id}/chapters/{chapter_id}/progress",
+        web::get().to(get_user_progress_for_course_instance_chapter),
     );
 }

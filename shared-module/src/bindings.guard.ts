@@ -66,7 +66,7 @@ import {
   SubmissionInfo,
   SubmissionResult,
   UploadResult,
-  UserChapterProgress,
+  UserCourseInstanceChapterProgress,
   UserCourseInstanceExerciseProgress,
   UserCourseInstanceProgress,
   UserCourseSettings,
@@ -158,17 +158,6 @@ export function isPageWithExercises(obj: any, _argumentName?: string): obj is Pa
   )
 }
 
-export function isUserChapterProgress(
-  obj: any,
-  _argumentName?: string,
-): obj is UserChapterProgress {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (obj.score_given === null || typeof obj.score_given === "number") &&
-    typeof obj.score_maximum === "number"
-  )
-}
-
 export function isUserCourseInstanceProgress(
   obj: any,
   _argumentName?: string,
@@ -179,6 +168,17 @@ export function isUserCourseInstanceProgress(
     (obj.score_maximum === null || typeof obj.score_maximum === "number") &&
     (obj.total_exercises === null || typeof obj.total_exercises === "number") &&
     (obj.completed_exercises === null || typeof obj.completed_exercises === "number")
+  )
+}
+
+export function isUserCourseInstanceChapterProgress(
+  obj: any,
+  _argumentName?: string,
+): obj is UserCourseInstanceChapterProgress {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (obj.score_given === null || typeof obj.score_given === "number") &&
+    typeof obj.score_maximum === "number"
   )
 }
 

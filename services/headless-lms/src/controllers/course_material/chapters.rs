@@ -1,8 +1,6 @@
 //! Controllers for requests starting with `/api/v0/course_material/chapters`.
 
 use crate::controllers::ControllerResult;
-use crate::domain::authorization::AuthUser;
-use crate::models::chapters::UserChapterProgress;
 use crate::models::pages::Page;
 use crate::models::pages::PageWithExercises;
 use actix_web::web::ServiceConfig;
@@ -169,35 +167,6 @@ async fn get_chapters_pages_without_main_frontpage(
 }
 
 /**
-GET `/api/v0/course-material/chapters/:chapter_id/progress - Returns user progress for chapter.
-
-# Example
-
-Response:
-```json
-{
-  "score_given":1.0,
-  "score_maximum":4
-}
-```
-*/
-
-#[instrument(skip(pool))]
-async fn get_user_chapter_progress(
-    user: AuthUser,
-    request_chapter_id: web::Path<Uuid>,
-    pool: web::Data<PgPool>,
-) -> ControllerResult<Json<UserChapterProgress>> {
-    let user_chapter_progress = crate::models::chapters::get_user_chapter_progress(
-        pool.get_ref(),
-        &request_chapter_id,
-        &user.id,
-    )
-    .await?;
-    Ok(Json(user_chapter_progress))
-}
-
-/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -213,9 +182,5 @@ pub fn _add_chapters_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{chapter_id}/pages-exclude-mainfrontpage",
             web::get().to(get_chapters_pages_without_main_frontpage),
-        )
-        .route(
-            "/{chapter_id}/progress",
-            web::get().to(get_user_chapter_progress),
         );
 }

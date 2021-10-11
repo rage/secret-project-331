@@ -2,18 +2,20 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useQuery } from "react-query"
 
-import { fetchUserChapterProgress } from "../../../services/backend"
+import { fetchUserChapterInstanceChapterProgress } from "../../../services/backend"
 import CircularProgress from "../../../shared-module/components/CourseProgress/CircularProgress"
 import { courseMaterialCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import GenericLoading from "../../GenericLoading"
 
 interface ChapterProgressProps {
   chapterId: string
+  courseInstanceId: string
 }
 
-const ChapterProgress: React.FC<ChapterProgressProps> = ({ chapterId }) => {
-  const { isLoading, error, data } = useQuery(`chapter-${chapterId}-progress`, () =>
-    fetchUserChapterProgress(chapterId),
+const ChapterProgress: React.FC<ChapterProgressProps> = ({ chapterId, courseInstanceId }) => {
+  const { isLoading, error, data } = useQuery(
+    `course-instance-${courseInstanceId}-chapter-${chapterId}-progress`,
+    () => fetchUserChapterInstanceChapterProgress(courseInstanceId, chapterId),
   )
 
   if (error) {

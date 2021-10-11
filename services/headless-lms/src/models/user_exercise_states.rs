@@ -93,8 +93,7 @@ SELECT COUNT(ues.exercise_id) AS completed_exercises,
 FROM user_exercise_states AS ues
 WHERE ues.course_instance_id = $1
   AND ues.user_id = $2
-  AND ues.deleted_at IS NULL
-  AND ues.activity_progress IN ('submitted', 'completed');
+  AND ues.deleted_at IS NULL;
         "#,
         course_instance_id,
         user_id
@@ -104,8 +103,9 @@ WHERE ues.course_instance_id = $1
     Ok(res)
 }
 
-pub async fn get_user_chapter_metrics(
+pub async fn get_user_course_instance_chapter_metrics(
     pool: &PgPool,
+    course_instance_id: &Uuid,
     exercise_ids: &[Uuid],
     user_id: &Uuid,
 ) -> ModelResult<UserChapterMetrics> {
@@ -120,10 +120,11 @@ WHERE ues.exercise_id IN (
   )
   AND ues.deleted_at IS NULL
   AND ues.user_id = $2
-  AND ues.activity_progress IN ('submitted', 'completed');
+  AND ues.course_instance_id = $3;
                 "#,
         &exercise_ids,
         user_id,
+        course_instance_id
     )
     .fetch_one(&mut connection)
     .await?;

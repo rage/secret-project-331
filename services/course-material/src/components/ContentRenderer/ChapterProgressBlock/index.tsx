@@ -30,7 +30,12 @@ const ChapterProgressBlock: React.FC<BlockRendererProps<unknown>> = () => {
   if (!pageContext.pageData.chapter_id) {
     return <div>Chapter ID undefined in Chapter Progress Block</div>
   }
-  return <ChapterProgress chapterId={pageContext.pageData.chapter_id} />
+  return (
+    <ChapterProgress
+      courseInstanceId={pageContext.instance.id}
+      chapterId={pageContext.pageData.chapter_id}
+    />
+  )
 }
 
 export default withErrorBoundary(ChapterProgressBlock)

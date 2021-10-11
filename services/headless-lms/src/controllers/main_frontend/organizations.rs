@@ -75,6 +75,21 @@ async fn get_organization_courses(
     Ok(Json(courses))
 }
 
+#[instrument(skip(pool))]
+async fn get_organization_active_courses(
+    request_organization_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<Json<Vec<Course>>> {
+    let mut conn = pool.acquire().await?;
+    let course_instances =
+        crate::models::course_instances::get_active_course_instances_for_organization(
+            &mut conn,
+            &*request_organization_id,
+        )
+        .await?;
+    Ok(Json(course_instances))
+}
+
 /**
 PUT `/api/v0/main-frontend/organizations/:organizations_id/image` - Sets or updates the chapter image.
 

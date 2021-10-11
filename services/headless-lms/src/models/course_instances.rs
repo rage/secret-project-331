@@ -174,6 +174,37 @@ WHERE deleted_at IS NULL;
     Ok(course_instances)
 }
 
+pub async fn get_active_course_instances_for_organization(
+    conn: &mut PgConnection,
+    organization_id: Uuid,
+) -> ModelResult<Vec<CourseInstance>> {
+    let course_instances = sqlx::query_as!(
+        CourseInstance,
+        r#"
+SELECT
+    ci.id,
+    ci.created_at,
+    ci.updated_at,
+    ci.deleted_at,
+    ci.course_id,
+    ci.starts_at,
+    ci.ends_at,
+    ci.name,
+    ci.description,
+    ci.variant_status as "variant_status: VariantStatus"
+FROM courses as c
+    LEFT JOIN course_instances as ci on c.id = ci.course_id
+WHERE
+    c.organization_id = $1 AND
+    ci.starts_at < NOW() AND ci.ends_at > NOW();
+        "#,
+        organization_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(course_instances)
+}
+
 pub async fn get_course_instances_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,

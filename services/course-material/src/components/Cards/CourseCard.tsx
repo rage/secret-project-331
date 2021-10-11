@@ -3,12 +3,14 @@ import React, { useState } from "react"
 
 import Finland from "../../img/flags/Finland.png"
 import SettingIcon from "../../img/setting.svg"
-import { headingFont } from "../../styles"
-import Confetti from "../Confetti"
 
+import Confetti from "./Confetti"
 import LanguageSelector from "./LanguageSelector"
 
-import { CardExtraProps } from "."
+interface CardExtraProps {
+  title: string
+  description: string
+}
 
 const CourseGridWrapper = styled.div`
   max-width: 450px;
@@ -52,7 +54,7 @@ const Languages = styled.div`
   }
 
   span {
-    font-family: ${headingFont};
+    font-family: "Josefin Sans", sans-serif;
     font-size: 18px;
     opacity: 0.7;
   }
@@ -66,7 +68,7 @@ const Languages = styled.div`
 `
 
 const Info = styled.p`
-  font-family: ${headingFont};
+  font-family: "Josefin Sans", sans-serif;
   font-size: 18px;
   color: #1d9cf3;
   line-height: 24px;

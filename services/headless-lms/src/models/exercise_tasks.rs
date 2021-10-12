@@ -1,4 +1,4 @@
-use super::{exercise_tasks, user_exercise_states, ModelResult};
+use super::{exercise_slides, exercise_tasks, user_exercise_states, ModelError, ModelResult};
 use crate::utils::document_schema_processor::GutenbergBlock;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -10,7 +10,7 @@ use uuid::Uuid;
 #[derive(Debug, Serialize, Deserialize, TS)]
 pub struct CourseMaterialExerciseTask {
     pub id: Uuid,
-    pub exercise_id: Uuid,
+    pub exercise_slide_id: Uuid,
     pub exercise_type: String,
     pub assignment: serde_json::Value,
     pub public_spec: Option<serde_json::Value>,
@@ -21,7 +21,7 @@ impl From<ExerciseTask> for CourseMaterialExerciseTask {
         CourseMaterialExerciseTask {
             id: exercise_task.id,
             assignment: exercise_task.assignment,
-            exercise_id: exercise_task.exercise_id,
+            exercise_slide_id: exercise_task.exercise_slide_id,
             exercise_type: exercise_task.exercise_type,
             public_spec: exercise_task.public_spec,
         }
@@ -33,7 +33,7 @@ pub struct ExerciseTask {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
-    pub exercise_id: Uuid,
+    pub exercise_slide_id: Uuid,
     pub exercise_type: String,
     pub assignment: serde_json::Value,
     pub deleted_at: Option<DateTime<Utc>>,
@@ -46,7 +46,7 @@ pub struct ExerciseTask {
 
 pub async fn insert(
     conn: &mut PgConnection,
-    exercise_id: Uuid,
+    exercise_slide_id: Uuid,
     exercise_type: &str,
     assignment: Vec<GutenbergBlock>,
     private_spec: Value,
@@ -56,7 +56,7 @@ pub async fn insert(
     let res = sqlx::query!(
         "
 INSERT INTO exercise_tasks (
-    exercise_id,
+    exercise_slide_id,
     exercise_type,
     assignment,
     private_spec,
@@ -66,7 +66,7 @@ INSERT INTO exercise_tasks (
 VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id
 ",
-        exercise_id,
+        exercise_slide_id,
         exercise_type,
         serde_json::to_value(assignment).unwrap(),
         private_spec,
@@ -79,10 +79,24 @@ RETURNING id
 }
 
 pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
-    let course_id = sqlx::query!("SELECT course_id FROM exercises WHERE id = (SELECT exercise_id FROM exercise_tasks WHERE id = $1)", id)
-        .fetch_one(conn)
-        .await?
-        .course_id;
+    let course_id = sqlx::query!(
+        "
+SELECT course_id
+FROM exercises
+WHERE id = (
+    SELECT s.exercise_id
+    FROM exercise_slides s
+      JOIN exercise_tasks t ON (s.id = t.exercise_slide_id)
+    WHERE s.deleted_at IS NULL
+      AND t.id = $1
+      AND t.deleted_at IS NULL
+  );
+        ",
+        id
+    )
+    .fetch_one(conn)
+    .await?
+    .course_id;
     Ok(course_id)
 }
 
@@ -93,14 +107,16 @@ pub async fn get_random_exercise_task(
     let exercise_task = sqlx::query_as!(
         CourseMaterialExerciseTask,
         r#"
-SELECT id,
-  exercise_id,
-  exercise_type,
-  assignment,
-  public_spec
-FROM exercise_tasks
-WHERE exercise_id = $1
-  AND deleted_at IS NULL
+SELECT t.id,
+  t.exercise_slide_id,
+  t.exercise_type,
+  t.assignment,
+  t.public_spec
+FROM exercise_tasks t
+  JOIN exercise_slides s ON (t.exercise_slide_id = s.id)
+WHERE s.exercise_id = $1
+  AND s.deleted_at IS NULL
+  AND t.deleted_at IS NULL
 ORDER BY random();
         "#,
         exercise_id
@@ -124,6 +140,25 @@ pub async fn get_exercise_task_by_id(
     Ok(exercise_task)
 }
 
+pub async fn get_exercise_tasks_by_exercise_slide_id(
+    conn: &mut PgConnection,
+    exercise_slide_id: Uuid,
+) -> ModelResult<Vec<ExerciseTask>> {
+    let exercise_tasks = sqlx::query_as!(
+        ExerciseTask,
+        "
+SELECT *
+FROM exercise_tasks
+WHERE exercise_slide_id = $1
+  AND deleted_at IS NULL;
+        ",
+        exercise_slide_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(exercise_tasks)
+}
+
 pub async fn get_existing_user_exercise_task_for_course_instance(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -138,7 +173,7 @@ pub async fn get_existing_user_exercise_task_for_course_instance(
     )
     .await?;
     let exercise_task = if let Some(user_exercise_state) = user_exercise_state {
-        if let Some(selected_exercise_task_id) = user_exercise_state.selected_exercise_task_id {
+        if let Some(selected_exercise_task_id) = user_exercise_state.selected_exercise_slide_id {
             let exercise_task =
                 exercise_tasks::get_exercise_task_by_id(conn, selected_exercise_task_id).await?;
             Some(exercise_task.into())
@@ -164,22 +199,31 @@ pub async fn get_or_select_user_exercise_task_for_course_instance(
         course_instance_id,
     )
     .await?;
-    if let Some(selected_exercise_task_id) = user_exercise_state.selected_exercise_task_id {
-        let exercise_task =
-            exercise_tasks::get_exercise_task_by_id(conn, selected_exercise_task_id).await?;
-        Ok(exercise_task.into())
-    } else {
-        let exercise_task = get_random_exercise_task(conn, exercise_id).await?;
-        user_exercise_states::upsert_selected_exercise_task_id(
-            conn,
-            user_id,
-            exercise_id,
-            course_instance_id,
-            Some(exercise_task.id),
-        )
-        .await?;
-        Ok(exercise_task)
-    }
+    let selected_exercise_slide_id =
+        if let Some(selected_exercise_slide_id) = user_exercise_state.selected_exercise_slide_id {
+            selected_exercise_slide_id
+        } else {
+            let exercise_slide_id =
+                exercise_slides::get_random_exercise_slide_for_exercise(conn, exercise_id)
+                    .await?
+                    .id;
+            user_exercise_states::upsert_selected_exercise_slide_id(
+                conn,
+                user_id,
+                exercise_id,
+                course_instance_id,
+                Some(exercise_slide_id),
+            )
+            .await?;
+            exercise_slide_id
+        };
+    let exercise_tasks =
+        get_exercise_tasks_by_exercise_slide_id(conn, selected_exercise_slide_id).await?;
+    // TODO: Return all tasks in the slide but for now we're still legacy mode.
+    let exercise_task = exercise_tasks.into_iter().next().ok_or_else(|| {
+        ModelError::PreconditionFailed("Missing exercise definition.".to_string())
+    })?;
+    Ok(exercise_task.into())
 }
 
 pub async fn get_exercise_tasks_by_exercise_id(
@@ -189,10 +233,13 @@ pub async fn get_exercise_tasks_by_exercise_id(
     let exercise_tasks = sqlx::query_as!(
         ExerciseTask,
         "
-SELECT *
-FROM exercise_tasks
-WHERE exercise_id = $1
-  AND deleted_at IS NULL;",
+SELECT t.*
+FROM exercise_tasks t
+  JOIN exercise_slides s ON (t.exercise_slide_id = s.id)
+WHERE s.exercise_id = $1
+  AND s.deleted_at IS NULL
+  AND t.deleted_at IS NULL;
+        ",
         exercise_id
     )
     .fetch_all(conn)

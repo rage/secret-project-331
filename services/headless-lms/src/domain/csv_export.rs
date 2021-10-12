@@ -142,7 +142,7 @@ mod test {
     use super::*;
     use crate::{
         models::{
-            exercise_tasks,
+            exercise_slides, exercise_tasks,
             exercises::{self, GradingProgress},
             gradings,
             submissions::{self, GradingResult},
@@ -176,9 +176,10 @@ mod test {
         let e2 = exercises::insert(tx.as_mut(), course, "", page, c2, 0)
             .await
             .unwrap();
+        let s2 = exercise_slides::insert(tx.as_mut(), e2, 0).await.unwrap();
         let et2 = exercise_tasks::insert(
             tx.as_mut(),
-            e2,
+            s2,
             "",
             vec![],
             Value::Null,
@@ -190,9 +191,10 @@ mod test {
         let e3 = exercises::insert(tx.as_mut(), course, "", page, c2, 1)
             .await
             .unwrap();
+        let s3 = exercise_slides::insert(tx.as_mut(), e3, 0).await.unwrap();
         let et3 = exercise_tasks::insert(
             tx.as_mut(),
-            e3,
+            s3,
             "",
             vec![],
             Value::Null,

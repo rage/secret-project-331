@@ -318,8 +318,8 @@ mod test {
         models::{
             chapters,
             course_instance_enrollments::{self, NewCourseInstanceEnrollment},
-            course_instances, course_language_groups, courses, exercise_tasks, organizations,
-            pages, users,
+            course_instances, course_language_groups, courses, exercise_slides, exercise_tasks,
+            organizations, pages, users,
         },
         test_helper::Conn,
         utils::document_schema_processor::GutenbergBlock,
@@ -384,9 +384,12 @@ mod test {
         let exercise_id = super::insert(tx.as_mut(), course_id, "", page_id, chapter_id, 0)
             .await
             .unwrap();
+        let exercise_slide_id = exercise_slides::insert(tx.as_mut(), exercise_id, 0)
+            .await
+            .unwrap();
         let exercise_task_id = exercise_tasks::insert(
             tx.as_mut(),
-            exercise_id,
+            exercise_slide_id,
             "",
             vec![GutenbergBlock {
                 attributes: Map::new(),
@@ -404,12 +407,12 @@ mod test {
 
         let res = sqlx::query!(
             "
-SELECT selected_exercise_task_id AS id
+SELECT selected_exercise_slide_id AS id
 FROM user_exercise_states
 WHERE user_id = $1
   AND exercise_id = $2
   AND course_instance_id = $3
-",
+            ",
             user_id,
             exercise_id,
             course_instance.id
@@ -426,7 +429,7 @@ WHERE user_id = $1
 
         let res = sqlx::query!(
             "
-SELECT selected_exercise_task_id AS id
+SELECT selected_exercise_slide_id AS id
 FROM user_exercise_states
 WHERE user_id = $1
   AND exercise_id = $2
@@ -439,6 +442,6 @@ WHERE user_id = $1
         .fetch_one(tx.as_mut())
         .await
         .unwrap();
-        assert_eq!(res.id.unwrap(), exercise_task_id);
+        assert_eq!(res.id.unwrap(), exercise_slide_id);
     }
 }

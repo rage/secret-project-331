@@ -7,6 +7,7 @@ use crate::{
         courses::Course,
         feedback,
         pages::{CoursePageWithUserData, PageSearchRequest},
+        proposed_page_edits::{self, NewProposedPageEdits},
         user_course_settings::UserCourseSettings,
     },
     models::{course_instances::CourseInstance, courses, pages::PageSearchResult},
@@ -14,7 +15,7 @@ use crate::{
 };
 use actix_web::web::{self, Json, ServiceConfig};
 use chrono::Utc;
-use sqlx::PgPool;
+use sqlx::{Connection, PgPool};
 use uuid::Uuid;
 
 /**
@@ -67,7 +68,7 @@ async fn get_course_page_by_path(
     };
 
     let page_with_user_data =
-        crate::models::pages::get_page_with_user_data_by_path(&mut conn, user, course_slug, &path)
+        crate::models::pages::get_page_with_user_data_by_path(&mut conn, user, &course_slug, &path)
             .await?;
 
     Ok(Json(page_with_user_data))
@@ -393,37 +394,68 @@ async fn search_pages_with_words(
 }
 
 /**
-POST `/api/v0/course-material/courses/:course_slug/feedback` - Creates new feedback.
+POST `/api/v0/course-material/courses/:course_id/feedback` - Creates new feedback.
 */
 pub async fn feedback(
+    course_id: web::Path<Uuid>,
+    new_feedback: web::Json<Vec<NewFeedback>>,
+    pool: web::Data<PgPool>,
+    user: Option<AuthUser>,
+) -> ControllerResult<Json<Vec<String>>> {
+    let mut conn = pool.acquire().await?;
+    let fs = new_feedback.into_inner();
+
+    // validate
+    for f in &fs {
+        if f.feedback_given.len() > 1000 {
+            return Err(ControllerError::BadRequest(
+                "Feedback given too long: max 1000".to_string(),
+            ));
+        }
+        if f.related_blocks.len() > 100 {
+            return Err(ControllerError::BadRequest(
+                "Too many related blocks: max 100".to_string(),
+            ));
+        }
+        for block in &f.related_blocks {
+            if block.text.as_ref().map(|t| t.len()).unwrap_or_default() > 10000 {
+                return Err(ControllerError::BadRequest(
+                    "Block text too long: max 10000".to_string(),
+                ));
+            }
+        }
+    }
+
+    let mut tx = conn.begin().await?;
+    let user_id = user.as_ref().map(|u| u.id);
+    let course_id = course_id.into_inner();
+    let mut ids = vec![];
+    for f in fs {
+        let id = feedback::insert(&mut tx, user_id, course_id, f).await?;
+        ids.push(id.to_string());
+    }
+    tx.commit().await?;
+    Ok(Json(ids))
+}
+
+/**
+POST `/api/v0/course-material/courses/:course_slug/edit` - Creates a new edit proposal.
+*/
+async fn propose_edit(
     course_slug: web::Path<String>,
-    new_feedback: web::Json<NewFeedback>,
+    edits: web::Json<NewProposedPageEdits>,
     pool: web::Data<PgPool>,
     user: Option<AuthUser>,
 ) -> ControllerResult<String> {
     let mut conn = pool.acquire().await?;
-    let f = new_feedback.into_inner();
-
-    if f.feedback_given.len() > 1000 {
-        return Err(ControllerError::BadRequest(
-            "Feedback given too long: max 1000".to_string(),
-        ));
-    }
-    if f.related_blocks.len() > 100 {
-        return Err(ControllerError::BadRequest(
-            "Too many related blocks: max 100".to_string(),
-        ));
-    }
-    for block in &f.related_blocks {
-        if block.text.as_ref().map(|t| t.len()).unwrap_or_default() > 10000 {
-            return Err(ControllerError::BadRequest(
-                "Block text too long: max 10000".to_string(),
-            ));
-        }
-    }
-
     let course = courses::get_course_by_slug(&mut conn, course_slug.as_str()).await?;
-    let id = feedback::insert(&mut conn, user.map(|u| u.id), course.id, f).await?;
+    let (id, _) = proposed_page_edits::insert(
+        &mut conn,
+        course.id,
+        user.map(|u| u.id),
+        &edits.into_inner(),
+    )
+    .await?;
     Ok(id.to_string())
 }
 
@@ -462,5 +494,6 @@ pub fn _add_courses_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/user-settings",
             web::get().to(get_user_course_settings),
-        );
+        )
+        .route("/{course_id}/propose-edit", web::post().to(propose_edit));
 }

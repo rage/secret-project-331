@@ -5,6 +5,9 @@ This documents all endpoints. Select a module below for a namespace.
 
 */
 
+// tracing::instrument seems to have issues with this
+#![allow(clippy::suspicious_else_formatting)]
+
 pub mod auth;
 pub mod cms;
 pub mod course_material;
@@ -76,6 +79,16 @@ impl std::error::Error for ControllerError {}
 
 impl error::ResponseError for ControllerError {
     fn error_response(&self) -> HttpResponse {
+        if let ControllerError::InternalServerError(_) = &self {
+            let mut err_string = String::new();
+            let mut source = Some(&self as &dyn Error);
+            while let Some(err) = source {
+                err_string += &format!("{}\n    ", err);
+                source = err.source();
+            }
+            error!("Internal server error: {}", err_string);
+        }
+
         let status = self.status_code();
         let detail = if let ControllerError::InternalServerError(reason)
         | ControllerError::BadRequest(reason)

@@ -4,6 +4,7 @@ use crate::{
         auth::Login,
         main_frontend::{
             courses::GetFeedbackQuery, exercises::ExerciseSubmissions, feedback::MarkAsRead,
+            proposed_edits::GetEditProposalsQuery,
         },
         UploadResult,
     },
@@ -31,6 +32,13 @@ use crate::{
             PageWithExercises,
         },
         playground_examples::{PlaygroundExample, PlaygroundExampleData},
+        proposed_block_edits::{
+            BlockProposal, BlockProposalAction, BlockProposalInfo, NewProposedBlockEdit,
+            ProposalStatus,
+        },
+        proposed_page_edits::{
+            EditProposalInfo, NewProposedPageEdits, PageProposal, ProposalCount,
+        },
         submissions::{
             NewSubmission, Submission, SubmissionCount, SubmissionCountByExercise,
             SubmissionCountByWeekAndHour, SubmissionInfo, SubmissionResult,
@@ -88,6 +96,12 @@ ts_rs::export! {
   FeedbackBlock,
   FeedbackCount,
   GetFeedbackQuery,
+  PageProposal,
+  BlockProposal,
+  ProposalCount,
+  EditProposalInfo,
+  GetEditProposalsQuery,
+  NewProposedPageEdits,
   // dependencies
   VariantStatus,
   ChapterStatus,
@@ -100,6 +114,10 @@ ts_rs::export! {
   GradingProgress,
   UserPointsUpdateStrategy,
   Pagination,
+  ProposalStatus,
+  NewProposedBlockEdit,
+  BlockProposalInfo,
+  BlockProposalAction,
   // returned from the API as serde_json::Value
   ExerciseTask,
   ExerciseWithExerciseTasks,

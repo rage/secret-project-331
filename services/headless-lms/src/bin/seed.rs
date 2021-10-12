@@ -1,12 +1,14 @@
 use anyhow::Result;
 use chrono::{TimeZone, Utc};
+use headless_lms_actix::attributes;
 use headless_lms_actix::models::chapters::NewChapter;
 use headless_lms_actix::models::courses::NewCourse;
 use headless_lms_actix::models::exercises::GradingProgress;
 use headless_lms_actix::models::feedback::{FeedbackBlock, NewFeedback};
-use headless_lms_actix::models::gradings;
 use headless_lms_actix::models::pages::{NewPage, PageUpdate};
 use headless_lms_actix::models::playground_examples::PlaygroundExampleData;
+use headless_lms_actix::models::proposed_block_edits::NewProposedBlockEdit;
+use headless_lms_actix::models::proposed_page_edits::NewProposedPageEdits;
 use headless_lms_actix::models::submissions::GradingResult;
 use headless_lms_actix::models::{
     chapters, course_instances, course_instances::VariantStatus, courses, exercise_services,
@@ -14,6 +16,7 @@ use headless_lms_actix::models::{
     users,
 };
 use headless_lms_actix::models::{feedback, playground_examples};
+use headless_lms_actix::models::{gradings, proposed_page_edits};
 use headless_lms_actix::setup_tracing;
 use headless_lms_actix::utils::document_schema_processor::GutenbergBlock;
 use serde_json::Value;
@@ -147,6 +150,17 @@ async fn main() -> Result<()> {
         Uuid::parse_str("0ab2c4c5-3aad-4daa-a8fe-c26e956fde35")?,
         "Introduction to history",
         "introduction-to-history",
+        admin,
+        teacher,
+        student,
+    )
+    .await?;
+    seed_sample_course(
+        &mut conn,
+        uh_cs,
+        Uuid::parse_str("cae7da38-9486-47da-9106-bff9b6a280f2")?,
+        "Introduction to edit proposals",
+        "introduction-to-edit-proposals",
         admin,
         teacher,
         student,
@@ -398,6 +412,45 @@ async fn main() -> Result<()> {
     playground_examples::insert_playground_example(
         &mut conn,
         PlaygroundExampleData {
+            name: "Quizzes example, essay".to_string(),
+            url: "http://project-331.local/quizzes/exercise".to_string(),
+            width: 500,
+            data: serde_json::json!(              {
+              "id": "47cbd36c-0c32-41f2-8a4a-b008de7d3494",
+              "courseId": "fdf0fed9-7665-4712-9cca-652d5bfe5233",
+              "body": "Of CSS and system design of the Noldor",
+              "deadline": Utc.ymd(2121, 9, 1).and_hms(23, 59, 59).to_string(),
+              "open": Utc.ymd(2021, 9, 1).and_hms(23, 59, 59).to_string(),
+              "part": 1,
+              "section": 1,
+              "title": "Of CSS and system design of the Noldor",
+              "tries": 1,
+              "triesLimited": false,
+              "items": [
+                  {
+                      "id": "371b59cb-735d-4202-b8cb-bed967945ffd",
+                      "body": "Which colour did the Fëanorian lamps emit when Tuor met Gelmir and Arminas at the gate of Annon-in-Gelydh? Give your answer in colours colourname, hexadecimal colour code and in RGB colour code. Could this have deeper contextual meaning considering the events of the previous chapter? Explain in 500 words.",
+                      "direction": "row",
+                      "maxLabel": null,
+                      "maxValue": null,
+                      "maxWords": 600,
+                      "minLabel": null,
+                      "minValue": null,
+                      "minWords": 500,
+                      "multi": false,
+                      "order": 1,
+                      "quizId": "47cbd36c-0c32-41f2-8a4a-b008de7d3494",
+                      "title": "Of the lamps of Fëanor",
+                      "type": "essay",
+                      "options": []
+                  }
+              ]
+            })
+        }).await?;
+
+    playground_examples::insert_playground_example(
+        &mut conn,
+        PlaygroundExampleData {
             name: "Quizzes example, multiple-choice dropdown".to_string(),
             url: "http://project-331.local/quizzes/exercise".to_string(),
             width: 500,
@@ -500,6 +553,7 @@ async fn main() -> Result<()> {
 
     playground_examples::insert_playground_example(
         &mut conn,
+
         PlaygroundExampleData {
             name: "Quizzes example, open".to_string(),
             url: "http://project-331.local/quizzes/exercise".to_string(),
@@ -817,7 +871,7 @@ async fn seed_sample_course(
     let spec_c1p1e1t1_1 = Uuid::new_v5(&course_id, b"5f6b7850-5034-4cef-9dcf-e3fd4831067f");
     let spec_c1p1e1t1_2 = Uuid::new_v5(&course_id, b"c713bbfc-86bf-4877-bd39-53afaf4444b5");
     let spec_c1p1e1t1_3 = Uuid::new_v5(&course_id, b"4027d508-4fad-422e-bb7f-15c613a02cc6");
-    create_page(
+    let page_c1_1 = create_page(
         conn,
         course.id,
         "/chapter-1/page-1",
@@ -1105,6 +1159,7 @@ async fn seed_sample_course(
     // feedback
     let new_feedback = NewFeedback {
         feedback_given: "this part was unclear to me".to_string(),
+        selected_text: Some("blanditiis".to_string()),
         related_blocks: vec![FeedbackBlock {
             id: block_id_4,
             text: Some(
@@ -1117,6 +1172,7 @@ async fn seed_sample_course(
     feedback::mark_as_read(conn, feedback, true).await?;
     let new_feedback = NewFeedback {
         feedback_given: "I dont think we need these paragraphs".to_string(),
+        selected_text: Some("verything".to_string()),
         related_blocks: vec![
             FeedbackBlock {
                 id: block_id_1,
@@ -1139,6 +1195,7 @@ async fn seed_sample_course(
         course.id,
         NewFeedback {
             feedback_given: "Anonymous feedback".to_string(),
+            selected_text: None,
             related_blocks: vec![FeedbackBlock {
                 id: block_id_1,
                 text: None,
@@ -1152,10 +1209,41 @@ async fn seed_sample_course(
         course.id,
         NewFeedback {
             feedback_given: "Anonymous unrelated feedback".to_string(),
+            selected_text: None,
             related_blocks: vec![],
         },
     )
     .await?;
+
+    // edit proposals
+    let edits = NewProposedPageEdits {
+        page_id: page_c1_1,
+        block_edits: vec![NewProposedBlockEdit {
+            block_id: block_id_4,
+            block_attribute: "content".to_string(),
+            original_text: "So bg, that we need many paragraphs.".to_string(),
+            changed_text: "So bg, that we need many, many paragraphs.".to_string(),
+        }],
+    };
+    proposed_page_edits::insert(conn, course.id, Some(student), &edits).await?;
+    let edits = NewProposedPageEdits {
+        page_id: page_c1_1,
+        block_edits: vec![
+            NewProposedBlockEdit {
+                block_id: block_id_1,
+                block_attribute: "content".to_string(),
+                original_text: "Everything is a big topic.".to_string(),
+                changed_text: "Everything is a very big topic.".to_string(),
+            },
+            NewProposedBlockEdit {
+                block_id: block_id_5,
+                block_attribute: "content".to_string(),
+                original_text: "Like this.".to_string(),
+                changed_text: "Like this!".to_string(),
+            },
+        ],
+    };
+    proposed_page_edits::insert(conn, course.id, Some(student), &edits).await?;
 
     Ok(course.id)
 }
@@ -1267,26 +1355,26 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                 .with_id(Uuid::parse_str("98729704-9dd8-4309-aa08-402f9b2a6071")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
-                serde_json::json!({
+                attributes!{
                   "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum felis nisi, vitae commodo mi venenatis in. Mauris hendrerit lacinia augue ut hendrerit. Vestibulum non tellus mattis, convallis magna vel, semper mauris. Maecenas porta, arcu eget porttitor sagittis, nulla magna auctor dolor, sed tempus sem lacus eu tortor. Ut id diam quam. Etiam quis sagittis justo. Quisque sagittis dolor vitae felis facilisis, ut suscipit ipsum malesuada. Nulla tempor ultricies erat ut venenatis. Ut pulvinar lectus non mollis efficitur.",
                   "dropCap": false
-                }),
+                },
             )
                 .with_id(Uuid::parse_str("9ebddb78-23f6-4440-8d8f-5e4b33abb16f")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
-                serde_json::json!( {
+                attributes!{
                   "content": "Sed quis fermentum mi. Integer commodo turpis a fermentum tristique. Integer convallis, nunc sed scelerisque varius, mi tellus molestie metus, eu ultrices justo tellus non arcu. Cras euismod, lectus eu scelerisque mattis, odio ex ornare ipsum, a dapibus nulla leo maximus orci. Etiam laoreet venenatis lorem, vitae iaculis mauris. Nullam lobortis, tortor eget ullamcorper lobortis, tellus odio tincidunt dolor, vitae gravida nibh turpis ac sem. Integer non sodales eros.",
                   "dropCap": false
-                }),
+                },
             )
                 .with_id(Uuid::parse_str("029ae4b5-08b0-49f7-8baf-d916b5f879a2")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
-                serde_json::json!({
+                attributes!{
                   "content": "Vestibulum a scelerisque ante. Fusce interdum eros elit, posuere mattis sapien tristique id. Integer commodo mi orci, sit amet tempor libero vulputate in. Ut id gravida quam. Proin massa dolor, posuere nec metus eu, dignissim viverra nulla. Vestibulum quis neque bibendum, hendrerit diam et, fermentum diam. Sed risus nibh, suscipit in neque nec, bibendum interdum nibh. Aliquam ut enim a mi ultricies finibus. Nam tristique felis ac risus interdum molestie. Nulla venenatis, augue sed porttitor ultrices, lacus ante sollicitudin dui, vel vehicula ex enim ac mi.",
                   "dropCap": false
-                }),
+                },
             )
             .with_id(Uuid::parse_str("3693e92b-9cf0-485a-b026-2851de58e9cf")?),
         ]).await?;
@@ -1304,26 +1392,26 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                 .with_id(Uuid::parse_str("ae22ae64-c0e5-42e1-895a-4a49411a72e8")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
-                serde_json::json!({
+                attributes!{
                   "content": "Sed venenatis, magna in ornare suscipit, orci ipsum consequat nulla, ut pulvinar libero metus et metus. Maecenas nec bibendum est. Donec quis ante elit. Nam in eros vitae urna aliquet vestibulum. Donec posuere laoreet facilisis. Aliquam auctor a tellus a tempus. Sed molestie leo eget commodo pellentesque. Curabitur lacinia odio nisl, eu sodales nunc placerat sit amet. Vivamus venenatis, risus vitae lobortis eleifend, odio nisi faucibus tortor, sed aliquet leo arcu et tellus. Donec ultrices consectetur nunc, non rhoncus sapien malesuada et. Nulla tempus ipsum vitae justo scelerisque, sed pretium neque fermentum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur accumsan et ex pellentesque dignissim. Integer viverra libero quis tortor dignissim elementum.",
                   "dropCap": false
-                }),
+                },
             )
                 .with_id(Uuid::parse_str("b05a62ad-e5f7-432c-8c88-2976d971e7e1")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
-                serde_json::json!( {
-                  "content": "Sed quis fermentum mi. Integer commodo turpis a fermentum tristique. Integer convallis, nunc sed scelerisque varius, mi tellus molestie metus, eu ultrices banana justo tellus non arcu. Cras euismod, cat lectus eu scelerisque mattis, odio ex ornare ipsum, a dapibus nulla leo maximus orci. Etiam laoreet venenatis lorem, vitae iaculis mauris. Nullam lobortis, tortor eget ullamcorper lobortis, tellus odio tincidunt dolor, vitae gravida nibh turpis ac sem. Integer non sodales eros.",
-                  "dropCap": false
-                }),
+                attributes!{
+                    "content": "Sed quis fermentum mi. Integer commodo turpis a fermentum tristique. Integer convallis, nunc sed scelerisque varius, mi tellus molestie metus, eu ultrices banana justo tellus non arcu. Cras euismod, cat lectus eu scelerisque mattis, odio ex ornare ipsum, a dapibus nulla leo maximus orci. Etiam laoreet venenatis lorem, vitae iaculis mauris. Nullam lobortis, tortor eget ullamcorper lobortis, tellus odio tincidunt dolor, vitae gravida nibh turpis ac sem. Integer non sodales eros.",
+                    "dropCap": false
+                },
             )
                 .with_id(Uuid::parse_str("db20e302-d4e2-4f56-a0b9-e48a4fbd5fa8")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
-                serde_json::json!({
+                attributes!{
                   "content": "Vestibulum a scelerisque ante. Fusce interdum eros elit, posuere mattis sapien tristique id. Integer commodo mi orci, sit amet tempor libero vulputate in. Ut id gravida quam. Proin massa dolor, posuere nec metus eu, dignissim viverra nulla. Vestibulum quis neque bibendum, hendrerit diam et, fermentum diam. Sed risus nibh, suscipit in neque nec, bibendum interdum nibh. Aliquam ut enim a mi ultricies finibus. Nam tristique felis ac risus interdum molestie. Nulla venenatis, augue sed porttitor ultrices, lacus ante sollicitudin dui, vel vehicula ex enim ac mi.",
                   "dropCap": false
-                }),
+                },
             )
             .with_id(Uuid::parse_str("c96f56d5-ea35-4aae-918a-72a36847a49c")?),
         ]
@@ -1376,26 +1464,26 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                 .with_id(Uuid::parse_str("a43f5460-b588-44ac-84a3-5fdcabd5d3f7")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
-                serde_json::json!({
+                attributes!{
                   "content": "Sed venenatis, magna in ornare suscipit, orci ipsum consequat nulla, ut pulvinar libero metus et metus. Maecenas nec bibendum est. Donec quis ante elit. Nam in eros vitae urna aliquet vestibulum. Donec posuere laoreet facilisis. Aliquam auctor a tellus a tempus. Sed molestie leo eget commodo pellentesque. Curabitur lacinia odio nisl, eu sodales nunc placerat sit amet. Vivamus venenatis, risus vitae lobortis eleifend, odio nisi faucibus tortor, sed aliquet leo arcu et tellus. Donec ultrices consectetur nunc, non rhoncus sapien malesuada et. Nulla tempus ipsum vitae justo scelerisque, sed pretium neque fermentum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur accumsan et ex pellentesque dignissim. Integer viverra libero quis tortor dignissim elementum.",
                   "dropCap": false
-                }),
+                },
             )
                 .with_id(Uuid::parse_str("816310e3-bbd7-44ae-87cb-3f40633a4b08")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
-                serde_json::json!( {
+                attributes!{
                   "content": "Sed quis fermentum mi. Integer commodo turpis a fermentum tristique. Integer convallis, nunc sed scelerisque varius, mi tellus molestie metus, eu ultrices justo tellus non arcu. Cras euismod, lectus eu scelerisque mattis, odio ex ornare ipsum, a dapibus nulla leo maximus orci. Etiam laoreet venenatis lorem, vitae iaculis mauris. Nullam lobortis, tortor eget ullamcorper lobortis, tellus odio tincidunt dolor, vitae gravida nibh turpis ac sem. Integer non sodales eros.",
                   "dropCap": false
-                }),
+                },
             )
                 .with_id(Uuid::parse_str("37aa6421-768e-49b9-b447-5f457e5192bc")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
-                serde_json::json!({
-                  "content": "Vestibulum a scelerisque ante. Fusce interdum eros elit, posuere mattis sapien tristique id. Integer commodo mi orci, sit amet tempor libero vulputate in. Ut id gravida quam. Proin massa dolor, posuere nec metus eu, dignissim viverra nulla. Vestibulum quis neque bibendum, hendrerit diam et, fermentum diam. Sed risus nibh, suscipit in neque nec, bibendum interdum nibh. Aliquam ut banana cat enim a mi ultricies finibus. Nam tristique felis ac risus interdum molestie. Nulla venenatis, augue sed porttitor ultrices, lacus ante sollicitudin dui, vel vehicula ex enim ac mi.",
+                attributes!{
+                    "content": "Vestibulum a scelerisque ante. Fusce interdum eros elit, posuere mattis sapien tristique id. Integer commodo mi orci, sit amet tempor libero vulputate in. Ut id gravida quam. Proin massa dolor, posuere nec metus eu, dignissim viverra nulla. Vestibulum quis neque bibendum, hendrerit diam et, fermentum diam. Sed risus nibh, suscipit in neque nec, bibendum interdum nibh. Aliquam ut banana cat enim a mi ultricies finibus. Nam tristique felis ac risus interdum molestie. Nulla venenatis, augue sed porttitor ultrices, lacus ante sollicitudin dui, vel vehicula ex enim ac mi.",
                   "dropCap": false
-                }),
+                },
             )
             .with_id(Uuid::parse_str("cf11a0fb-f56e-4e0d-bc12-51d920dbc278")?),
         ]
@@ -1444,11 +1532,11 @@ fn paragraph(content: &str, block: Uuid) -> GutenbergBlock {
     GutenbergBlock {
         name: "core/paragraph".to_string(),
         is_valid: true,
-        client_id: block.to_string(),
-        attributes: serde_json::json!({
+        client_id: block,
+        attributes: attributes! {
             "content": content,
             "dropCap": false,
-        }),
+        },
         inner_blocks: vec![],
     }
 }
@@ -1467,18 +1555,19 @@ fn example_exercise(
     GutenbergBlock {
         name: "moocfi/exercise".to_string(),
         is_valid: true,
-        client_id: block_1.to_string(),
-        attributes: serde_json::json!({
+        client_id: block_1,
+        attributes: attributes! {
             "id": ex,
             "name": "Best exercise",
             "dropCap": false,
-        }),
+        },
         inner_blocks: vec![GutenbergBlock {
             name: "moocfi/exercise-task".to_string(),
             is_valid: true,
-            client_id: block_2.to_string(),
-            attributes: serde_json::json!({
+            client_id: block_2,
+            attributes: attributes! {
                 "id": task,
+                "name": "Best exercise task",
                 "exercise_type": "example-exercise",
                 "private_spec": serde_json::json!([
                     {
@@ -1497,7 +1586,7 @@ fn example_exercise(
                         "id": spec_3,
                     },
                 ]).to_string(),
-            }),
+            },
             inner_blocks: vec![paragraph("Answer this question.", block_3)],
         }],
     }

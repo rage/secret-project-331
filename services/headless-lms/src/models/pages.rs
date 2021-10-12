@@ -19,10 +19,11 @@ use crate::{
     },
     utils::document_schema_processor::{
         self, contains_blocks_not_allowed_in_top_level_pages, denormalize, normalize_from_json,
-        NormalizedDocument,
+        GutenbergBlock, NormalizedDocument,
     },
 };
 
+use anyhow::Context;
 use chrono::{DateTime, Utc};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
@@ -46,6 +47,12 @@ pub struct Page {
     pub content: serde_json::Value,
     pub order_number: i32,
     pub copied_from: Option<Uuid>,
+}
+
+impl Page {
+    pub fn blocks_cloned(&self) -> ModelResult<Vec<GutenbergBlock>> {
+        serde_json::from_value(self.content.clone()).map_err(Into::into)
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -326,7 +333,7 @@ WHERE id = $1;
 
 pub async fn get_page_by_path(
     conn: &mut PgConnection,
-    course_slug: String,
+    course_slug: &str,
     url_path: &str,
 ) -> ModelResult<Page> {
     let page = sqlx::query_as!(
@@ -361,7 +368,7 @@ WHERE courses.slug = $1
 pub async fn get_page_with_user_data_by_path(
     conn: &mut PgConnection,
     user: Option<AuthUser>,
-    course_slug: String,
+    course_slug: &str,
     url_path: &str,
 ) -> ModelResult<CoursePageWithUserData> {
     let page = get_page_by_path(conn, course_slug, url_path).await?;
@@ -500,7 +507,7 @@ WHERE t.deleted_at IS NULL
     };
 
     let denormalized_content = denormalize(normalized_document)?;
-    let content_json = serde_json::to_value(denormalized_content)?;
+    let content_json = serde_json::to_value(&denormalized_content)?;
     page.content = content_json;
 
     Ok(page)
@@ -517,7 +524,8 @@ pub async fn update_page(
     author: Uuid,
     retain_exercise_ids: bool,
 ) -> ModelResult<Page> {
-    let normalized_document = normalize_from_json(page_update.content)?;
+    let normalized_document = normalize_from_json(page_update.content)
+        .context("Failed to normalize page update content")?;
 
     if page_update.chapter_id.is_none()
         && contains_blocks_not_allowed_in_top_level_pages(&normalized_document.content)
@@ -563,12 +571,14 @@ RETURNING id,
 
     let (result_exercises, new_content) =
         upsert_exercises_and_exercise_tasks(&exercises, &page, &mut tx, retain_exercise_ids)
-            .await?;
+            .await
+            .context("Failed to upser exercises and tasks")?;
 
     let denormalized_content = denormalize(NormalizedDocument {
         content: serde_json::from_value(new_content)?,
         exercises: result_exercises,
-    })?;
+    })
+    .context("Failed to denormalize content")?;
     let history_content = serde_json::to_value(&denormalized_content)?;
     crate::models::page_history::insert(
         &mut tx,
@@ -579,7 +589,8 @@ RETURNING id,
         author,
         None,
     )
-    .await?;
+    .await
+    .context("Failed to create a page history entry")?;
 
     tx.commit().await?;
 

@@ -4,7 +4,10 @@ use super::{
     submissions::Submission,
     ModelResult,
 };
-use crate::models::{gradings::UserPointsUpdateStrategy, ModelError};
+use crate::{
+    models::{gradings::UserPointsUpdateStrategy, ModelError},
+    utils::numbers::option_f32_to_f32_two_decimals,
+};
 use chrono::{DateTime, Utc};
 use core::f32;
 use futures::{future, Stream};
@@ -30,13 +33,19 @@ pub struct UserExerciseState {
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
 pub struct UserCourseInstanceProgress {
-    score_given: Option<f32>,
+    score_given: f32,
     score_maximum: Option<i64>,
     total_exercises: Option<i64>,
     completed_exercises: Option<i64>,
 }
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
-pub struct UserCourseInstanceExerciseProgress {
+pub struct UserCourseInstanceChapterExerciseProgress {
+    pub exercise_id: Uuid,
+    pub score_given: f32,
+}
+
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
+pub struct DatabaseUserCourseInstanceChapterExerciseProgress {
     pub exercise_id: Uuid,
     pub score_given: Option<f32>,
 }
@@ -143,7 +152,7 @@ pub async fn get_user_course_instance_progress(
     )
     .await?;
     let result = UserCourseInstanceProgress {
-        score_given: user_metrics.score_given,
+        score_given: option_f32_to_f32_two_decimals(user_metrics.score_given),
         completed_exercises: user_metrics.completed_exercises,
         score_maximum: course_metrics.score_maximum,
         total_exercises: course_metrics.total_exercises,
@@ -151,15 +160,15 @@ pub async fn get_user_course_instance_progress(
     Ok(result)
 }
 
-pub async fn get_user_course_instance_exercise_progress(
+pub async fn get_user_course_instance_chapter_exercises_progress(
     pool: &PgPool,
     course_instance_id: &Uuid,
     exercise_ids: &[Uuid],
     user_id: &Uuid,
-) -> ModelResult<Vec<UserCourseInstanceExerciseProgress>> {
+) -> ModelResult<Vec<DatabaseUserCourseInstanceChapterExerciseProgress>> {
     let mut connection = pool.acquire().await?;
     let res = sqlx::query_as!(
-        UserCourseInstanceExerciseProgress,
+        DatabaseUserCourseInstanceChapterExerciseProgress,
         r#"
 SELECT COALESCE(ues.score_given, 0) AS score_given,
   ues.exercise_id AS exercise_id

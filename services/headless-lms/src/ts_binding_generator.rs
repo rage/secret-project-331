@@ -38,7 +38,9 @@ use crate::{
             SubmissionCountByWeekAndHour, SubmissionInfo, SubmissionResult,
         },
         user_course_settings::UserCourseSettings,
-        user_exercise_states::{UserCourseInstanceExerciseProgress, UserCourseInstanceProgress},
+        user_exercise_states::{
+            UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress,
+        },
     },
     utils::pagination::Pagination,
 };
@@ -52,7 +54,7 @@ ts_rs::export! {
   PageWithExercises,
   UserCourseInstanceProgress,
   UserCourseInstanceChapterProgress,
-  UserCourseInstanceExerciseProgress,
+  UserCourseInstanceChapterExerciseProgress,
   CourseInstanceEnrollment,
   CourseInstance,
   ChapterWithStatus,

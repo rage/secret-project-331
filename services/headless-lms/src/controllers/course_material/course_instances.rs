@@ -5,8 +5,11 @@ use crate::{
     models::{
         chapters::UserCourseInstanceChapterProgress,
         course_instance_enrollments::{CourseInstanceEnrollment, NewCourseInstanceEnrollment},
-        user_exercise_states::{UserCourseInstanceExerciseProgress, UserCourseInstanceProgress},
+        user_exercise_states::{
+            UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress,
+        },
     },
+    utils::numbers::option_f32_to_f32_two_decimals,
 };
 use actix_web::web::{self, Json, ServiceConfig};
 use sqlx::PgPool;
@@ -24,6 +27,7 @@ use uuid::Uuid;
 }
 ```
 */
+#[instrument(skip(pool))]
 async fn get_user_progress_for_course_instance(
     user: AuthUser,
     request_course_instance_id: web::Path<Uuid>,
@@ -80,15 +84,16 @@ Response:
 ```json
 {
     "exercise_id": "uuid"
-    "score_given":1.0
+    "score_given": 1.0
 }
  ```
 */
-async fn get_user_progress_for_course_instance_chapter_exercise(
+#[instrument(skip(pool))]
+async fn get_user_progress_for_course_instance_chapter_exercises(
     user: AuthUser,
     params: web::Path<(Uuid, Uuid)>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<Json<Vec<UserCourseInstanceExerciseProgress>>> {
+) -> ControllerResult<Json<Vec<UserCourseInstanceChapterExerciseProgress>>> {
     let mut conn = pool.acquire().await?;
     let (course_instance_id, chapter_id) = params.into_inner();
     let chapter_exercises =
@@ -96,14 +101,22 @@ async fn get_user_progress_for_course_instance_chapter_exercise(
     let exercise_ids: Vec<Uuid> = chapter_exercises.into_iter().map(|e| e.id).collect();
 
     let user_course_instance_exercise_progress =
-        crate::models::user_exercise_states::get_user_course_instance_exercise_progress(
+        crate::models::user_exercise_states::get_user_course_instance_chapter_exercises_progress(
             pool.get_ref(),
             &course_instance_id,
             &exercise_ids,
             &user.id,
         )
         .await?;
-    Ok(Json(user_course_instance_exercise_progress))
+    let rounded_score_given_instances: Vec<UserCourseInstanceChapterExerciseProgress> =
+        user_course_instance_exercise_progress
+            .into_iter()
+            .map(|i| UserCourseInstanceChapterExerciseProgress {
+                score_given: option_f32_to_f32_two_decimals(i.score_given),
+                exercise_id: i.exercise_id,
+            })
+            .collect();
+    Ok(Json(rounded_score_given_instances))
 }
 
 /**
@@ -162,7 +175,7 @@ pub fn _add_user_progress_routes(cfg: &mut ServiceConfig) {
     )
     .route(
         "/{course_instance_id}/chapters/{chapter_id}/exercises/progress",
-        web::get().to(get_user_progress_for_course_instance_chapter_exercise),
+        web::get().to(get_user_progress_for_course_instance_chapter_exercises),
     )
     .route(
         "/{course_instance_id}/chapters/{chapter_id}/progress",

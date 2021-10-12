@@ -66,8 +66,8 @@ import {
   SubmissionInfo,
   SubmissionResult,
   UploadResult,
+  UserCourseInstanceChapterExerciseProgress,
   UserCourseInstanceChapterProgress,
-  UserCourseInstanceExerciseProgress,
   UserCourseInstanceProgress,
   UserCourseSettings,
   UserPointsUpdateStrategy,
@@ -164,7 +164,7 @@ export function isUserCourseInstanceProgress(
 ): obj is UserCourseInstanceProgress {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (obj.score_given === null || typeof obj.score_given === "number") &&
+    typeof obj.score_given === "number" &&
     (obj.score_maximum === null || typeof obj.score_maximum === "number") &&
     (obj.total_exercises === null || typeof obj.total_exercises === "number") &&
     (obj.completed_exercises === null || typeof obj.completed_exercises === "number")
@@ -177,19 +177,19 @@ export function isUserCourseInstanceChapterProgress(
 ): obj is UserCourseInstanceChapterProgress {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (obj.score_given === null || typeof obj.score_given === "number") &&
+    typeof obj.score_given === "number" &&
     typeof obj.score_maximum === "number"
   )
 }
 
-export function isUserCourseInstanceExerciseProgress(
+export function isUserCourseInstanceChapterExerciseProgress(
   obj: any,
   _argumentName?: string,
-): obj is UserCourseInstanceExerciseProgress {
+): obj is UserCourseInstanceChapterExerciseProgress {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.exercise_id === "string" &&
-    (obj.score_given === null || typeof obj.score_given === "number")
+    typeof obj.score_given === "number"
   )
 }
 

@@ -1,7 +1,10 @@
 use super::{
     pages::Page, user_exercise_states::get_user_course_instance_chapter_metrics, ModelResult,
 };
-use crate::{models::pages::NewPage, utils::document_schema_processor::GutenbergBlock};
+use crate::{
+    models::pages::NewPage,
+    utils::{document_schema_processor::GutenbergBlock, numbers::option_f32_to_f32_two_decimals},
+};
 use std::path::PathBuf;
 
 use crate::{utils::file_store::FileStore, ApplicationConfiguration};
@@ -260,7 +263,7 @@ pub struct ChapterWithStatus {
 }
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
 pub struct UserCourseInstanceChapterProgress {
-    pub score_given: Option<f32>,
+    pub score_given: f32,
     pub score_maximum: i32,
 }
 
@@ -372,7 +375,7 @@ pub async fn get_user_course_instance_chapter_progress(
             .await?;
 
     let result = UserCourseInstanceChapterProgress {
-        score_given: user_chapter_metrics.score_given,
+        score_given: option_f32_to_f32_two_decimals(user_chapter_metrics.score_given),
         score_maximum,
     };
     Ok(result)

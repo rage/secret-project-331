@@ -6,7 +6,7 @@ use crate::{
         helpers::media::upload_image_for_organization, ControllerError, ControllerResult,
     },
     domain::authorization::{authorize, Action, AuthUser, Resource},
-    models::{courses::Course, organizations::Organization},
+    models::{course_instances::CourseInstance, courses::Course, organizations::Organization},
     utils::file_store::FileStore,
     ApplicationConfiguration,
 };
@@ -79,12 +79,12 @@ async fn get_organization_courses(
 async fn get_organization_active_courses(
     request_organization_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<Json<Vec<Course>>> {
+) -> ControllerResult<Json<Vec<CourseInstance>>> {
     let mut conn = pool.acquire().await?;
     let course_instances =
         crate::models::course_instances::get_active_course_instances_for_organization(
             &mut conn,
-            &*request_organization_id,
+            *request_organization_id,
         )
         .await?;
     Ok(Json(course_instances))

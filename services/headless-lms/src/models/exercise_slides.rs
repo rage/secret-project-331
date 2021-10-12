@@ -148,7 +148,8 @@ SELECT *
 FROM exercise_slides
 WHERE exercise_id = $1
   AND deleted_at IS NULL
-ORDER BY random();
+ORDER BY random()
+LIMIT 1;
         ",
         exercise_id
     )

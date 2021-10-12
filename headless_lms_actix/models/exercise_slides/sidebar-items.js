@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["get_exercise_slide",""],["get_exercise_slide_by_exercise_task_id",""],["get_exercise_slides",""],["get_exercise_slides_by_exercise_id",""],["get_random_exercise_slide_for_exercise",""],["insert",""],["insert_exercise_slide",""],["insert_with_id",""],["upsert",""]],"struct":[["ExerciseSlide",""],["NewExerciseSlide",""]]});

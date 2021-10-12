@@ -283,6 +283,8 @@
 <span id="283">283</span>
 <span id="284">284</span>
 <span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::models</span>::{<span class="ident">chapters</span>, <span class="ident">course_instances</span>, <span class="ident">user_exercise_states</span>};
 <span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">Context</span>, <span class="prelude-ty">Result</span>};
@@ -428,7 +430,7 @@
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
     <span class="kw">use</span> <span class="kw">crate</span>::{
         <span class="ident">models</span>::{
-            <span class="ident">exercise_tasks</span>,
+            <span class="ident">exercise_slides</span>, <span class="ident">exercise_tasks</span>,
             <span class="ident">exercises</span>::{<span class="self">self</span>, <span class="ident">GradingProgress</span>},
             <span class="ident">gradings</span>,
             <span class="ident">submissions</span>::{<span class="self">self</span>, <span class="ident">GradingResult</span>},
@@ -462,9 +464,10 @@
         <span class="kw">let</span> <span class="ident">e2</span> <span class="op">=</span> <span class="ident">exercises::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>, <span class="string">&quot;&quot;</span>, <span class="ident">page</span>, <span class="ident">c2</span>, <span class="number">0</span>)
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">s2</span> <span class="op">=</span> <span class="ident">exercise_slides::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">e2</span>, <span class="number">0</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">et2</span> <span class="op">=</span> <span class="ident">exercise_tasks::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">e2</span>,
+            <span class="ident">s2</span>,
             <span class="string">&quot;&quot;</span>,
             <span class="macro">vec!</span>[],
             <span class="ident">Value::Null</span>,
@@ -476,9 +479,10 @@
         <span class="kw">let</span> <span class="ident">e3</span> <span class="op">=</span> <span class="ident">exercises::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>, <span class="string">&quot;&quot;</span>, <span class="ident">page</span>, <span class="ident">c2</span>, <span class="number">1</span>)
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">s3</span> <span class="op">=</span> <span class="ident">exercise_slides::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">e3</span>, <span class="number">0</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">et3</span> <span class="op">=</span> <span class="ident">exercise_tasks::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">e3</span>,
+            <span class="ident">s3</span>,
             <span class="string">&quot;&quot;</span>,
             <span class="macro">vec!</span>[],
             <span class="ident">Value::Null</span>,

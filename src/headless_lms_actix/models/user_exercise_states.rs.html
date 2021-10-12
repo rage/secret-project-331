@@ -659,7 +659,7 @@
     <span class="kw">pub</span> <span class="ident">score_given</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">grading_progress</span>: <span class="ident">GradingProgress</span>,
     <span class="kw">pub</span> <span class="ident">activity_progress</span>: <span class="ident">ActivityProgress</span>,
-    <span class="kw">pub</span> <span class="ident">selected_exercise_task_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">selected_exercise_slide_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">FromRow</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">TS</span>)]</span>
@@ -769,7 +769,7 @@ RETURNING user_id,
   score_given,
   grading_progress as &quot;grading_progress: _&quot;,
   activity_progress as &quot;activity_progress: _&quot;,
-  selected_exercise_task_id;
+  selected_exercise_slide_id;
   &quot;#</span>,
         <span class="ident">user_id</span>,
         <span class="ident">exercise_id</span>,
@@ -811,7 +811,7 @@ SELECT user_id,
   score_given,
   grading_progress as &quot;grading_progress: _&quot;,
   activity_progress as &quot;activity_progress: _&quot;,
-  selected_exercise_task_id
+  selected_exercise_slide_id
 FROM user_exercise_states
 WHERE user_id = $1
   AND exercise_id = $2
@@ -826,12 +826,12 @@ WHERE user_id = $1
     <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upsert_selected_exercise_task_id</span>(
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upsert_selected_exercise_slide_id</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">selected_exercise_task_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">selected_exercise_slide_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
@@ -839,16 +839,16 @@ INSERT INTO user_exercise_states (
     user_id,
     exercise_id,
     course_instance_id,
-    selected_exercise_task_id
+    selected_exercise_slide_id
   )
 VALUES ($1, $2, $3, $4) ON CONFLICT (user_id, exercise_id, course_instance_id) DO
 UPDATE
-SET selected_exercise_task_id = $4
+SET selected_exercise_slide_id = $4
 &quot;</span>,
         <span class="ident">user_id</span>,
         <span class="ident">exercise_id</span>,
         <span class="ident">course_instance_id</span>,
-        <span class="ident">selected_exercise_task_id</span>,
+        <span class="ident">selected_exercise_slide_id</span>,
     )
     .<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -992,7 +992,7 @@ RETURNING user_id,
   score_given,
   grading_progress as &quot;grading_progress: _&quot;,
   activity_progress as &quot;activity_progress: _&quot;,
-  selected_exercise_task_id;
+  selected_exercise_slide_id;
     &quot;#</span>,
         <span class="ident">user_id</span>,
         <span class="ident">exercise_id</span>,

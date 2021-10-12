@@ -899,6 +899,40 @@
 <span id="899">899</span>
 <span id="900">900</span>
 <span id="901">901</span>
+<span id="902">902</span>
+<span id="903">903</span>
+<span id="904">904</span>
+<span id="905">905</span>
+<span id="906">906</span>
+<span id="907">907</span>
+<span id="908">908</span>
+<span id="909">909</span>
+<span id="910">910</span>
+<span id="911">911</span>
+<span id="912">912</span>
+<span id="913">913</span>
+<span id="914">914</span>
+<span id="915">915</span>
+<span id="916">916</span>
+<span id="917">917</span>
+<span id="918">918</span>
+<span id="919">919</span>
+<span id="920">920</span>
+<span id="921">921</span>
+<span id="922">922</span>
+<span id="923">923</span>
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
+<span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
+<span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
+<span id="935">935</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
@@ -1250,12 +1284,30 @@ WHERE id = $2;
         }
     }
 
+    <span class="comment">// Copy exercise slides</span>
+    <span class="macro">sqlx::query!</span>(
+        <span class="string">&quot;
+INSERT INTO exercise_slides (
+    id, exercise_id, order_number
+)
+SELECT uuid_generate_v5($1, id::text),
+    uuid_generate_v5($1, exercise_id::text),
+    order_number
+FROM exercise_slides
+WHERE exercise_id IN (SELECT id FROM exercises WHERE course_id = $2);
+        &quot;</span>,
+        <span class="ident">copied_course</span>.<span class="ident">id</span>,
+        <span class="ident">parent_course</span>.<span class="ident">id</span>
+    )
+    .<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
     <span class="comment">// Copy exercise tasks</span>
     <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 INSERT INTO exercise_tasks (
     id,
-    exercise_id,
+    exercise_slide_id,
     exercise_type,
     assignment,
     private_spec,
@@ -1265,7 +1317,7 @@ INSERT INTO exercise_tasks (
     copied_from
   )
 SELECT uuid_generate_v5($1, id::text),
-  uuid_generate_v5($1, exercise_id::text),
+  uuid_generate_v5($1, exercise_slide_id::text),
   exercise_type,
   assignment,
   private_spec,
@@ -1274,10 +1326,11 @@ SELECT uuid_generate_v5($1, id::text),
   model_solution_spec,
   id
 FROM exercise_tasks
-WHERE exercise_id IN (
-    SELECT id
-    FROM exercises
-    WHERE course_id = $2
+WHERE exercise_slide_id IN (
+    SELECT s.id
+    FROM exercise_slides s
+      JOIN exercises e ON (e.id = s.exercise_id)
+    WHERE e.course_id = $2
   );
     &quot;</span>,
         <span class="ident">copied_course</span>.<span class="ident">id</span>,
@@ -1541,13 +1594,15 @@ WHERE slug = $1
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">test</span> {
+    <span class="kw">use</span> <span class="ident">std::str::FromStr</span>;
+
     <span class="kw">use</span> <span class="ident">serde_json::Value</span>;
 
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
     <span class="kw">use</span> <span class="kw">crate</span>::{
         <span class="ident">models</span>::{
             <span class="ident">chapters</span>::{<span class="self">self</span>, <span class="ident">DatabaseChapter</span>, <span class="ident">NewChapter</span>},
-            <span class="ident">courses</span>,
+            <span class="ident">courses</span>, <span class="ident">exercise_slides</span>,
             <span class="ident">exercise_tasks</span>::{<span class="self">self</span>, <span class="ident">ExerciseTask</span>},
             <span class="ident">exercises</span>::{<span class="self">self</span>, <span class="ident">Exercise</span>},
             <span class="ident">organizations</span>,
@@ -1687,9 +1742,17 @@ WHERE slug = $1
         )
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">exercise_slide_id</span> <span class="op">=</span> <span class="ident">exercise_slides::insert_with_id</span>(
+            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="ident">Uuid::from_str</span>(<span class="string">&quot;a676876f-1827-4db6-abbb-f41079cc0315&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">exercise_id</span>,
+            <span class="number">0</span>,
+        )
+        .<span class="kw">await</span>
+        .<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">exercise_task_id</span> <span class="op">=</span> <span class="ident">exercise_tasks::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">exercise_id</span>,
+            <span class="ident">exercise_slide_id</span>,
             <span class="string">&quot;Exercise&quot;</span>,
             <span class="macro">vec!</span>[],
             <span class="ident">Value::Null</span>,
@@ -1792,7 +1855,12 @@ WHERE chapter_id = $1;&quot;</span>,
         <span class="comment">// Assuming there&#39;s only one exercise task per exercise in test data.</span>
         <span class="kw">let</span> <span class="ident">copied_exercise_task</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
             <span class="ident">ExerciseTask</span>,
-            <span class="string">&quot;SELECT * FROM exercise_tasks WHERE exercise_id = $1;&quot;</span>,
+            <span class="string">&quot;
+SELECT t.*
+FROM exercise_tasks t
+  JOIN exercise_slides s ON (t.exercise_slide_id = s.id)
+WHERE s.exercise_id = $1;
+            &quot;</span>,
             <span class="ident">copied_exercise</span>.<span class="ident">id</span>
         )
         .<span class="ident">fetch_one</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>())

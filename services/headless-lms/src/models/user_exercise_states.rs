@@ -28,7 +28,7 @@ pub struct UserExerciseState {
     pub score_given: Option<f32>,
     pub grading_progress: GradingProgress,
     pub activity_progress: ActivityProgress,
-    pub selected_exercise_task_id: Option<Uuid>,
+    pub selected_exercise_slide_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
@@ -210,7 +210,7 @@ RETURNING user_id,
   score_given,
   grading_progress as "grading_progress: _",
   activity_progress as "activity_progress: _",
-  selected_exercise_task_id;
+  selected_exercise_slide_id;
   "#,
         user_id,
         exercise_id,
@@ -252,7 +252,7 @@ SELECT user_id,
   score_given,
   grading_progress as "grading_progress: _",
   activity_progress as "activity_progress: _",
-  selected_exercise_task_id
+  selected_exercise_slide_id
 FROM user_exercise_states
 WHERE user_id = $1
   AND exercise_id = $2
@@ -267,12 +267,12 @@ WHERE user_id = $1
     Ok(res)
 }
 
-pub async fn upsert_selected_exercise_task_id(
+pub async fn upsert_selected_exercise_slide_id(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
     course_instance_id: Uuid,
-    selected_exercise_task_id: Option<Uuid>,
+    selected_exercise_slide_id: Option<Uuid>,
 ) -> ModelResult<()> {
     sqlx::query!(
         "
@@ -280,16 +280,16 @@ INSERT INTO user_exercise_states (
     user_id,
     exercise_id,
     course_instance_id,
-    selected_exercise_task_id
+    selected_exercise_slide_id
   )
 VALUES ($1, $2, $3, $4) ON CONFLICT (user_id, exercise_id, course_instance_id) DO
 UPDATE
-SET selected_exercise_task_id = $4
+SET selected_exercise_slide_id = $4
 ",
         user_id,
         exercise_id,
         course_instance_id,
-        selected_exercise_task_id,
+        selected_exercise_slide_id,
     )
     .execute(&mut *conn)
     .await?;
@@ -433,7 +433,7 @@ RETURNING user_id,
   score_given,
   grading_progress as "grading_progress: _",
   activity_progress as "activity_progress: _",
-  selected_exercise_task_id;
+  selected_exercise_slide_id;
     "#,
         user_id,
         exercise_id,

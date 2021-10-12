@@ -12,7 +12,7 @@ const config: PlaywrightTestConfig = {
   globalSetup: require.resolve("./src/setup/globalSetup.ts"),
   globalTeardown: require.resolve("./src/setup/globalTeardown.ts"),
   reporter: "./src/utils/customReporter",
-  timeout: 60000,
+  timeout: 100000,
   use: {
     headless: true,
     trace: "retain-on-failure",

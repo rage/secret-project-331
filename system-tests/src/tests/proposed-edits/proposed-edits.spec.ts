@@ -101,7 +101,11 @@ test("test", async ({ page, headless }) => {
     page,
     headless,
     snapshotName: "preview",
-    waitForThisToBeVisibleAndStable: "text=Send",
+    waitForThisToBeVisibleAndStable: [
+      `text="Send"`,
+      `text="You've made changes!"`,
+      `text="Do you want to send your changes?"`,
+    ],
   })
 
   // Click button:has-text("Send")

@@ -31,6 +31,7 @@ import {
   ExerciseService,
   ExerciseServiceInfoApi,
   ExerciseServiceNewOrUpdate,
+  ExerciseSlide,
   ExerciseStatus,
   ExerciseSubmissions,
   ExerciseTask,
@@ -349,6 +350,18 @@ export function isExercise(obj: any, _argumentName?: string): obj is Exercise {
     typeof obj.score_maximum === "number" &&
     typeof obj.order_number === "number" &&
     (obj.copied_from === null || typeof obj.copied_from === "string")
+  )
+}
+
+export function isExerciseSlide(obj: any, _argumentName?: string): obj is ExerciseSlide {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    typeof obj.exercise_id === "string" &&
+    typeof obj.order_number === "number"
   )
 }
 
@@ -713,7 +726,7 @@ export function isCourseMaterialExerciseTask(
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
-    typeof obj.exercise_id === "string" &&
+    typeof obj.exercise_slide_id === "string" &&
     typeof obj.exercise_type === "string"
   )
 }
@@ -855,7 +868,7 @@ export function isExerciseTask(obj: any, _argumentName?: string): obj is Exercis
     typeof obj.id === "string" &&
     obj.created_at instanceof Date &&
     obj.updated_at instanceof Date &&
-    typeof obj.exercise_id === "string" &&
+    typeof obj.exercise_slide_id === "string" &&
     typeof obj.exercise_type === "string" &&
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
     (obj.spec_file_id === null || typeof obj.spec_file_id === "string") &&

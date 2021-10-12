@@ -194,6 +194,15 @@ export interface Exercise {
   copied_from: string | null
 }
 
+export interface ExerciseSlide {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  exercise_id: string
+  order_number: number
+}
+
 export interface ExerciseServiceInfoApi {
   service_name: string
   editor_iframe_path: string
@@ -419,7 +428,7 @@ export type ChapterStatus = "open" | "closed"
 
 export interface CourseMaterialExerciseTask {
   id: string
-  exercise_id: string
+  exercise_slide_id: string
   exercise_type: string
   assignment: unknown
   public_spec: unknown | null
@@ -508,7 +517,7 @@ export interface ExerciseTask {
   id: string
   created_at: Date
   updated_at: Date
-  exercise_id: string
+  exercise_slide_id: string
   exercise_type: string
   assignment: unknown
   deleted_at: Date | null

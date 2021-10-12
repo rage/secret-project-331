@@ -5,8 +5,10 @@ import HeightTrackingContainer from "../../shared-module/components/HeightTracki
 import { PublicQuiz, PublicQuizItem, QuizAnswer, QuizItemAnswer } from "../../types/types"
 
 import Checkbox from "./Checkbox"
+import Essay from "./Essay"
 import MultipleChoice from "./MultipleChoice"
 import { MultipleChoiceClickable } from "./MultipleChoiceClickable"
+import { MultipleChoiceDropdown } from "./MultipleChoiceDropdown"
 import Open from "./Open"
 import Scale from "./Scale"
 import Unsupported from "./Unsupported"
@@ -27,13 +29,13 @@ type QuizItemType =
 
 const componentsByTypeNames = (typeName: QuizItemType) => {
   const mapTypeToComponent: { [key: string]: React.FC<QuizItemComponentProps> } = {
-    essay: Unsupported,
+    essay: Essay,
     "multiple-choice": MultipleChoice,
     checkbox: Checkbox,
     scale: Scale,
     open: Open,
     "custom-frontend-accept-data": Unsupported,
-    "multiple-choice-dropdown": Unsupported,
+    "multiple-choice-dropdown": MultipleChoiceDropdown,
     "clickable-multiple-choice": MultipleChoiceClickable,
   }
 

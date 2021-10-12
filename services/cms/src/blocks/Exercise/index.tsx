@@ -13,6 +13,8 @@ export interface ExerciseAttributes {
 const ExerciseConfiguration: BlockConfiguration<ExerciseAttributes> = {
   title: "Exercise",
   description: "Exercise",
+  // Enforce exercise can't be InnerBlock - https://github.com/WordPress/gutenberg/issues/7845
+  parent: ["core/post-content"],
   category: "embed",
   attributes: {
     id: {

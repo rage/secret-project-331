@@ -1,7 +1,7 @@
 //! Controllers for requests starting with `/api/v0/course-material/submissions`.
 
 use crate::{
-    controllers::ControllerResult,
+    controllers::{ControllerError, ControllerResult},
     domain::authorization::AuthUser,
     models::submissions::{NewSubmission, SubmissionResult},
 };
@@ -75,10 +75,14 @@ async fn post_submission(
 ) -> ControllerResult<Json<SubmissionResult>> {
     let mut conn = pool.acquire().await?;
     let exercise_task_id = payload.0.exercise_task_id;
-    let exercise_task =
-        crate::models::exercise_tasks::get_exercise_task_by_id(&mut conn, exercise_task_id).await?;
+    let exercise_slide = crate::models::exercise_slides::get_exercise_slide_by_exercise_task_id(
+        &mut conn,
+        exercise_task_id,
+    )
+    .await?
+    .ok_or_else(|| ControllerError::NotFound("Exercise definition not found.".to_string()))?;
     let exercise =
-        crate::models::exercises::get_by_id(&mut conn, exercise_task.exercise_id).await?;
+        crate::models::exercises::get_by_id(&mut conn, exercise_slide.exercise_id).await?;
     let submission =
         crate::models::submissions::insert_submission(&mut conn, payload.0, user.id, exercise)
             .await?;

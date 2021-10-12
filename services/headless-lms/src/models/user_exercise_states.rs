@@ -37,6 +37,7 @@ pub struct UserCourseInstanceProgress {
 }
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
 pub struct UserCourseInstanceExerciseProgress {
+    pub exercise_id: Uuid,
     pub score_given: Option<f32>,
 }
 
@@ -153,25 +154,28 @@ pub async fn get_user_course_instance_progress(
 pub async fn get_user_course_instance_exercise_progress(
     pool: &PgPool,
     course_instance_id: &Uuid,
-    exercise_id: &Uuid,
+    exercise_ids: &[Uuid],
     user_id: &Uuid,
-) -> ModelResult<Option<UserCourseInstanceExerciseProgress>> {
+) -> ModelResult<Vec<UserCourseInstanceExerciseProgress>> {
     let mut connection = pool.acquire().await?;
     let res = sqlx::query_as!(
         UserCourseInstanceExerciseProgress,
         r#"
-SELECT COALESCE(ues.score_given, 0) AS score_given
+SELECT COALESCE(ues.score_given, 0) AS score_given,
+  ues.exercise_id AS exercise_id
 FROM user_exercise_states AS ues
 WHERE ues.deleted_at IS NULL
-  AND ues.exercise_id = $1
+  AND ues.exercise_id IN (
+    SELECT UNNEST($1::uuid [])
+  )
   AND ues.course_instance_id = $2
   AND ues.user_id = $3;
         "#,
-        exercise_id,
+        exercise_ids,
         course_instance_id,
         user_id,
     )
-    .fetch_optional(&mut connection)
+    .fetch_all(&mut connection)
     .await?;
     Ok(res)
 }

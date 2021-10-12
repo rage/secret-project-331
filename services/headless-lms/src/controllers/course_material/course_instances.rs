@@ -72,39 +72,38 @@ async fn get_user_progress_for_course_instance_chapter(
 }
 
 /**
-GET /api/v0/course-material/course-instance/:course_instance_id/exercises/:exercise_id/progress - Returns user progress for an exercise in given course instance.
+GET /api/v0/course-material/course-instance/:course_instance_id/chapters/:chapter_id/exercises/progress - Returns user progress for an exercise in given course instance.
 
 # Example
 
 Response:
 ```json
 {
+    "exercise_id": "uuid"
     "score_given":1.0
 }
  ```
 */
-async fn get_user_progress_for_course_instance_exercise(
+async fn get_user_progress_for_course_instance_chapter_exercise(
     user: AuthUser,
     params: web::Path<(Uuid, Uuid)>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<Json<UserCourseInstanceExerciseProgress>> {
-    let (course_instance_id, exercise_id) = params.into_inner();
+) -> ControllerResult<Json<Vec<UserCourseInstanceExerciseProgress>>> {
+    let mut conn = pool.acquire().await?;
+    let (course_instance_id, chapter_id) = params.into_inner();
+    let chapter_exercises =
+        crate::models::exercises::get_exercises_by_chapter_id(&mut conn, &chapter_id).await?;
+    let exercise_ids: Vec<Uuid> = chapter_exercises.into_iter().map(|e| e.id).collect();
+
     let user_course_instance_exercise_progress =
         crate::models::user_exercise_states::get_user_course_instance_exercise_progress(
             pool.get_ref(),
             &course_instance_id,
-            &exercise_id,
+            &exercise_ids,
             &user.id,
         )
         .await?;
-    match user_course_instance_exercise_progress {
-        Some(result) => Ok(Json(result)),
-        None => Ok(Json({
-            UserCourseInstanceExerciseProgress {
-                score_given: Some(0.0),
-            }
-        })),
-    }
+    Ok(Json(user_course_instance_exercise_progress))
 }
 
 /**
@@ -162,8 +161,8 @@ pub fn _add_user_progress_routes(cfg: &mut ServiceConfig) {
         web::get().to(get_user_progress_for_course_instance),
     )
     .route(
-        "/{course_instance_id}/exercises/{exercise_id}/progress",
-        web::get().to(get_user_progress_for_course_instance_exercise),
+        "/{course_instance_id}/chapters/{chapter_id}/exercises/progress",
+        web::get().to(get_user_progress_for_course_instance_chapter_exercise),
     )
     .route(
         "/{course_instance_id}/chapters/{chapter_id}/progress",

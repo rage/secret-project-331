@@ -818,22 +818,6 @@
       "nullable": []
     }
   },
-  "13dd71b4868b371c66aec0ead4759e47c72eca2c8ab851b017af7df60dd006ab": {
-    "query": "\nSELECT COALESCE(ues.score_given, 0) AS score_given\nFROM user_exercise_states AS ues\nWHERE ues.deleted_at IS NULL\n  AND ues.exercise_id = $1\n  AND ues.course_instance_id = $2\n  AND ues.user_id = $3;\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "score_given",
-          "type_info": "Float4"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid"]
-      },
-      "nullable": [null]
-    }
-  },
   "154577d6eb687de28cba5811dbfeb0660cfc10e838577fe8a94c3b7dc6cc41e9": {
     "query": "SELECT course_id FROM exercises WHERE id = (SELECT exercise_id FROM exercise_tasks WHERE id = $1)",
     "describe": {
@@ -2060,6 +2044,27 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, false, false, false, true, true, true, true, true]
+    }
+  },
+  "3a3fa537038bdbeb11c9454487111b56afaa5230c97546dc0b29554446bfa27d": {
+    "query": "\nSELECT COALESCE(ues.score_given, 0) AS score_given,\n  ues.exercise_id AS exercise_id\nFROM user_exercise_states AS ues\nWHERE ues.deleted_at IS NULL\n  AND ues.exercise_id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND ues.course_instance_id = $2\n  AND ues.user_id = $3;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "score_given",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 1,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["UuidArray", "Uuid", "Uuid"]
+      },
+      "nullable": [null, false]
     }
   },
   "3c5b30ac7bad3459a0102d31d75bc0c7b6f8b9d62db3ce39be9c26cb318af8a9": {

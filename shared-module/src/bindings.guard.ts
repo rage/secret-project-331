@@ -188,6 +188,7 @@ export function isUserCourseInstanceExerciseProgress(
 ): obj is UserCourseInstanceExerciseProgress {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.exercise_id === "string" &&
     (obj.score_given === null || typeof obj.score_given === "number")
   )
 }

@@ -46,6 +46,7 @@ const ExercisesInChapter: React.FC<{ chapterId: string; courseInstanceId: string
             page={page}
             courseSlug={courseSlug}
             courseInstanceId={courseInstanceId}
+            chapterId={chapterId}
           />
         </div>
       ))}

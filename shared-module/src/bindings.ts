@@ -84,6 +84,7 @@ export interface UserCourseInstanceChapterProgress {
 }
 
 export interface UserCourseInstanceExerciseProgress {
+  exercise_id: string
   score_given: number | null
 }
 

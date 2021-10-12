@@ -1,9 +1,7 @@
 import styled from "@emotion/styled"
 import Link from "next/link"
 import React from "react"
-import { useQuery } from "react-query"
 
-import { fetchUserCourseInstanceExerciseProgress } from "../../services/backend/courseInstance"
 import { baseTheme } from "../../styles"
 import CircularProgressBar from "../CircularProgressBar"
 
@@ -97,8 +95,7 @@ export interface ExerciseBoxExtraProps {
   exerciseTitle: string
   url: string
   scoreMaximum: number
-  courseInstanceId: string
-  exerciseId: string
+  userPoints: number
 }
 
 export type ExerciseBox = React.HTMLAttributes<HTMLDivElement> & ExerciseBoxExtraProps
@@ -108,27 +105,8 @@ const ExerciseBox: React.FC<ExerciseBox> = ({
   exerciseTitle,
   url,
   scoreMaximum,
-  courseInstanceId,
-  exerciseId,
+  userPoints,
 }) => {
-  const { isLoading, error, data } = useQuery(
-    `user-course-instance-${courseInstanceId}-exercise-${exerciseId}`,
-    () => fetchUserCourseInstanceExerciseProgress(courseInstanceId, exerciseId),
-  )
-
-  if (error) {
-    return (
-      <div>
-        <h1>Error</h1>
-        <pre>{JSON.stringify(error, undefined, 2)}</pre>
-      </div>
-    )
-  }
-
-  if (isLoading || !data) {
-    return <div>Loading exercise user progress...</div>
-  }
-
   return (
     <Wrapper>
       <StyledLink>
@@ -142,7 +120,7 @@ const ExerciseBox: React.FC<ExerciseBox> = ({
             <span>{exerciseTitle}</span>
             <CircularProgressBar
               scoreMaximum={scoreMaximum}
-              userPoints={data.score_given !== null ? data.score_given : 0}
+              userPoints={userPoints}
               className="progress"
             />
           </ExercisePart>

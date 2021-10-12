@@ -13,6 +13,7 @@ import {
   PageWithExercises,
   SubmissionResult,
   UserCourseInstanceChapterProgress,
+  UserCourseInstanceExerciseProgress,
   UserCourseInstanceProgress,
   UserCourseSettings,
 } from "../shared-module/bindings"
@@ -111,6 +112,18 @@ export const fetchUserChapterInstanceChapterProgress = async (
   const data = (
     await courseMaterialClient.get(
       `/course-instances/${courseInstanceId}/chapters/${chapterId}/progress`,
+    )
+  ).data
+  return data
+}
+
+export const fetchUserCourseInstanceExerciseProgress = async (
+  courseInstanceId: string,
+  chapterId: string,
+): Promise<UserCourseInstanceExerciseProgress[]> => {
+  const data = (
+    await courseMaterialClient.get(
+      `/course-instances/${courseInstanceId}/chapters/${chapterId}/exercises/progress`,
     )
   ).data
   return data

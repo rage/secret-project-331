@@ -26,6 +26,8 @@ Database: [https://github.com/rage/secret-project-331-db-docs#headless_lms_dev](
 
 Shared module storybook: [https://rage.github.io/secret-project-storybook/](https://rage.github.io/secret-project-storybook/)
 
+Mobile first design: [https://github.com/rage/secret-project-331/tree/master/docs/mobile-first-design.md](https://github.com/rage/secret-project-331/tree/master/docs/mobile-first-design.md)
+
 For other documentation, check out the docs folder.
 
 # License

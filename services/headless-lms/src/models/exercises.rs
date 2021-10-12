@@ -330,7 +330,7 @@ pub async fn get_course_material_exercise(
 
 #[cfg(test)]
 mod test {
-    use serde_json::Value;
+    use serde_json::{Map, Value};
 
     use super::*;
     use crate::{
@@ -408,8 +408,8 @@ mod test {
             exercise_id,
             "",
             vec![GutenbergBlock {
-                attributes: Value::Null,
-                client_id: "".to_string(),
+                attributes: Map::new(),
+                client_id: Uuid::new_v4(),
                 inner_blocks: vec![],
                 is_valid: true,
                 name: "".to_string(),

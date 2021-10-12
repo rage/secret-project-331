@@ -56,6 +56,14 @@ export function formatIETFLanguageTagWithRegion(
   return `${language}${separator}${script}${separator}${region}`
 }
 
+export const wordCount = (text: string | null): number => {
+  if (!text) {
+    return 0
+  }
+  const matches = text.match(/[^\s]+/g)
+  return matches ? matches.length : 0
+}
+
 export function stripNonPrintableCharacters(string: string): string {
   return string.replace(/\0/g, "").replace(NON_PRINTING_CHAR_REGEX, "")
 }

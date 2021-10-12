@@ -2,6 +2,7 @@ import dynamic from "next/dynamic"
 import React from "react"
 
 import { Block } from "../../services/backend"
+import { NewProposedBlockEdit } from "../../shared-module/bindings"
 import { courseMaterialBlockClass } from "../../utils/constants"
 
 import AudioBlock from "./AudioBlock"
@@ -34,10 +35,17 @@ import TableBlock from "./TableBlock"
 import VerseBlock from "./VerseBlock"
 export interface ContentRendererProps {
   data: Block<unknown>[]
+  editing: boolean
+  selectedBlockId: string | null
+  setEdits: (m: Map<string, NewProposedBlockEdit>) => void
 }
 
 export interface BlockRendererProps<T> {
   data: Block<T>
+  editing: boolean
+  selectedBlockId: string | null
+  setEdits: React.Dispatch<React.SetStateAction<Map<string, NewProposedBlockEdit>>>
+  id: string
 }
 
 const LatexBlock = dynamic(() => import("./LatexBlock"))
@@ -96,7 +104,13 @@ const ContentRenderer: React.FC<ContentRendererProps> = (props) => {
         const Component = blockToRendererMap[block.name] ?? DefaultBlock
         return (
           <div key={block.clientId} id={block.clientId} className={courseMaterialBlockClass}>
-            <Component data={block} />
+            <Component
+              id={block.clientId}
+              data={block}
+              editing={props.editing}
+              selectedBlockId={props.selectedBlockId}
+              setEdits={props.setEdits}
+            />
           </div>
         )
       })}

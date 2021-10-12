@@ -6,7 +6,6 @@ import Layout from "../../../../components/Layout"
 import FeedbackList from "../../../../components/lists/FeedbackList"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
-import basePath from "../../../../shared-module/utils/base-path"
 import {
   dontRenderUntilQueryParametersReady,
   SimplifiedUrlQuery,
@@ -22,34 +21,40 @@ const FeedbackPage: React.FC<FeedbackProps> = ({ query }) => {
 
   const courseId = query.id
 
-  let initialRead
+  let initialRead: boolean
   if (router.query.read) {
     initialRead = router.query.read === "true"
   } else {
-    router.replace({ query: { ...router.query, read: false } }, undefined, { shallow: true })
+    router.replace({ query: { ...router.query, read: false } }, undefined, {
+      shallow: true,
+    })
     initialRead = false
   }
-  const [read, setRead] = useState(initialRead)
 
+  // 0 == first tab, unread
+  // 1 == second tab, read
+  const intialTab = initialRead ? 1 : 0
+  const [tab, setTab] = useState(intialTab)
+  const read = tab == 1
   return (
     <Layout navVariant={"complex"}>
       <div className={wideWidthCenteredComponentStyles}>
         <h3>Feedback</h3>
         <Paper square>
           <Tabs
-            value={read}
+            value={tab}
             onChange={(_, value) => {
-              router.replace({ query: { ...router.query, read: value } }, undefined, {
+              router.replace({ query: { ...router.query, read: value == 1 } }, undefined, {
                 shallow: true,
               })
-              setRead(value)
+              setTab(value)
             }}
           >
-            <Tab label="Unread" value={false} />
-            <Tab label="Read" value={true} />
+            <Tab label="Unread" value={0} />
+            <Tab label="Read" value={1} />
           </Tabs>
         </Paper>
-        <FeedbackList courseId={courseId} read={read} perPage={1} />
+        <FeedbackList courseId={courseId} read={read} perPage={4} />
       </div>
     </Layout>
   )

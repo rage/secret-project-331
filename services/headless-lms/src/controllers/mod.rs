@@ -68,7 +68,7 @@ pub enum ControllerError {
 }
 
 /// The format all error messages from the API is in
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, TS)]
 pub struct ErrorResponse {
     pub title: String,
     pub message: String,

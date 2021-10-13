@@ -20,6 +20,8 @@ interface NewCourseFormProps {
 const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitForm }) => {
   const [name, setName] = useState("")
   const [slug, setSlug] = useState("")
+  const [teacherInChargeName, setTeacherInChargeName] = useState("")
+  const [teacherInChargeEmail, setTeacherInChargeEmail] = useState("")
   const [languageCode, setLanguageCode] = useState("en-US")
   const [showCustomLanguageCode, setShowCustomLanguageCode] = useState(false)
   const [languageCodeValidationError, setLanguageCodeValidationError] = useState<string | null>(
@@ -37,6 +39,8 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
         slug,
         organization_id: organizationId,
         language_code: normalizedLanguageCode,
+        teacher_in_charge_name: teacherInChargeName,
+        teacher_in_charge_email: teacherInChargeEmail,
       })
       setName("")
       setSlug("")
@@ -94,6 +98,32 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
             value={slug}
             onChange={(e) => {
               setSlug(e.target.value)
+            }}
+          />
+        </FieldContainer>
+        <FieldContainer>
+          <TextField
+            required
+            fullWidth
+            id="teacher-in-charge-name"
+            label="Teacher-in-charge name"
+            variant="outlined"
+            value={teacherInChargeName}
+            onChange={(e) => {
+              setTeacherInChargeName(e.target.value)
+            }}
+          />
+        </FieldContainer>
+        <FieldContainer>
+          <TextField
+            required
+            fullWidth
+            id="teacher-in-charge-email"
+            label="Teacher-in-charge email"
+            variant="outlined"
+            value={teacherInChargeEmail}
+            onChange={(e) => {
+              setTeacherInChargeEmail(e.target.value)
             }}
           />
         </FieldContainer>

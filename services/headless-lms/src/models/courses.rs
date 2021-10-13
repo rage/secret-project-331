@@ -392,9 +392,9 @@ WHERE exercise_id IN (
             course_id: copied_course.id,
             name: None,
             variant_status: Some(VariantStatus::Draft),
-            contact_email: None,
-            supervisor_name: None,
-            supervisor_email: None,
+            support_email: None,
+            teacher_in_charge_name: &new_course.teacher_in_charge_name,
+            teacher_in_charge_email: &new_course.teacher_in_charge_email,
         },
     )
     .await?;
@@ -492,13 +492,15 @@ pub struct NewCourse {
     pub slug: String,
     pub organization_id: Uuid,
     pub language_code: String,
+    pub teacher_in_charge_name: String,
+    pub teacher_in_charge_email: String,
 }
 
 pub async fn insert_course(
     conn: &mut PgConnection,
     id: Uuid,
     default_instance_id: Uuid,
-    course: NewCourse,
+    new_course: NewCourse,
     user: Uuid,
 ) -> ModelResult<(Course, Page, CourseInstance)> {
     let mut tx = conn.begin().await?;
@@ -522,10 +524,10 @@ RETURNING id,
   course_language_group_id;
             "#,
         id,
-        course.name,
-        course.slug,
-        course.organization_id,
-        course.language_code,
+        new_course.name,
+        new_course.slug,
+        new_course.organization_id,
+        new_course.language_code,
         course_language_group_id
     )
     .fetch_one(&mut tx)
@@ -556,9 +558,9 @@ RETURNING id,
             course_id: course.id,
             name: None,
             variant_status: Some(VariantStatus::Draft),
-            contact_email: None,
-            supervisor_name: None,
-            supervisor_email: None,
+            support_email: None,
+            teacher_in_charge_name: &new_course.teacher_in_charge_name,
+            teacher_in_charge_email: &new_course.teacher_in_charge_email,
         },
     )
     .await?;
@@ -778,6 +780,8 @@ mod test {
                 name: "Course".to_string(),
                 organization_id,
                 slug: "course".to_string(),
+                teacher_in_charge_name: "admin".to_string(),
+                teacher_in_charge_email: "admin@example.org".to_string(),
             },
             user_id,
         )
@@ -851,6 +855,8 @@ mod test {
                 name: "Kurssi".to_string(),
                 organization_id,
                 slug: "kurssi".to_string(),
+                teacher_in_charge_name: "admin".to_string(),
+                teacher_in_charge_email: "admin@example.org".to_string(),
             },
         )
         .await

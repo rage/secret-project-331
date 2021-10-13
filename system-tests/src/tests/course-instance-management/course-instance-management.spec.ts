@@ -36,8 +36,36 @@ test("test", async ({ page, headless }) => {
     page,
   })
 
-  // Click text=Default Manage Manage emails Export points >> a
+  await Promise.all([page.waitForNavigation(), page.click("text=New course instance")])
+  await expect(page).toHaveURL(
+    "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4/new-course-instance",
+  )
 
+  await expectScreenshotsToMatchSnapshots({
+    headless,
+    snapshotName: "new-course-instance-form",
+    waitForThisToBeVisibleAndStable: "text=New course instance",
+    page,
+  })
+
+  await page.fill("#name", "some name")
+  await page.fill("#description", "some description")
+  await page.fill("#teacher-name", "some teacher")
+  await page.fill("#teacher-email", "teacher@example.com")
+  await page.fill("#support-email", "support@example.com")
+  await Promise.all([page.waitForNavigation(), page.click("text=Submit")])
+  await expect(page).toHaveURL(
+    "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4",
+  )
+
+  await expectScreenshotsToMatchSnapshots({
+    headless,
+    snapshotName: "course-management-page-with-new-instance",
+    waitForThisToBeVisibleAndStable: "text=New course instance",
+    page,
+  })
+
+  // Click text=Default Manage Manage emails Export points >> a
   await Promise.all([
     page.waitForNavigation(),
     page.click("text=Default Manage Manage emails Export points >> a"),
@@ -49,25 +77,28 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "initial-management-page",
-    waitForThisToBeVisibleAndStable: "text=Edit contact details",
+    waitForThisToBeVisibleAndStable: "text=Course instance default",
     page,
   })
 
   // Click text=Edit contact details
-  await page.click("text=Edit contact details")
+  await page.click("text=Edit")
 
-  await page.fill('[id="contact email"]', "contact@example.com")
-  await page.fill('[id="supervisor name"]', "Admin Example")
-  await page.fill('[id="supervisor email"]', "admin@example.org")
+  await expectScreenshotsToMatchSnapshots({
+    headless,
+    snapshotName: "initial-management-page-editing",
+    waitForThisToBeVisibleAndStable: "text=Save",
+    page,
+  })
 
-  // Click text=Save
-  await page.click("text=Save")
+  await page.fill('[id="name"]', "new name")
+  await page.fill('[id="description"]', "new description")
+  await page.fill('[id="support-email"]', "newsupport@example.com")
+  await page.fill('[id="teacher-name"]', "new teacher")
+  await page.fill('[id="teacher-email"]', "newteacher@example.com")
 
-  // Click text=Change schedule
-  await page.click("text=Change schedule")
-
-  await page.fill("input", "01/01/2000 00:00")
-  await page.fill("input:nth-match(input, 2)", "01/01/2099 00:00")
+  await page.fill("input:nth-match(input, 6)", "01/01/2000 00:00")
+  await page.fill("input:nth-match(input, 7)", "01/01/2099 00:00")
 
   // Click text=Save
   await page.click("text=Save")
@@ -81,17 +112,19 @@ test("test", async ({ page, headless }) => {
     }
   })
 
+  await page.click("text=Course instance new name") // scroll to top
+
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "management-page-after-changes",
-    waitForThisToBeVisibleAndStable: "text=Edit contact details",
+    waitForThisToBeVisibleAndStable: "text=Edit",
     page,
   })
 
   // Click text=Delete course instance
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4' }*/),
-    page.click("text=Delete course instance"),
+    page.click("text=Delete"),
   ])
 
   await expectScreenshotsToMatchSnapshots({

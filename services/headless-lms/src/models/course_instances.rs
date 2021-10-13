@@ -32,9 +32,9 @@ pub struct CourseInstance {
     pub name: Option<String>,
     pub description: Option<String>,
     pub variant_status: VariantStatus,
-    pub contact_email: Option<String>,
-    pub supervisor_name: Option<String>,
-    pub supervisor_email: Option<String>,
+    pub teacher_in_charge_name: String,
+    pub teacher_in_charge_email: String,
+    pub support_email: Option<String>,
 }
 
 #[derive(Debug, Clone, Copy, Default)]
@@ -43,9 +43,9 @@ pub struct NewCourseInstance<'a> {
     pub course_id: Uuid,
     pub name: Option<&'a str>,
     pub variant_status: Option<VariantStatus>,
-    pub contact_email: Option<&'a str>,
-    pub supervisor_name: Option<&'a str>,
-    pub supervisor_email: Option<&'a str>,
+    pub teacher_in_charge_name: &'a str,
+    pub teacher_in_charge_email: &'a str,
+    pub support_email: Option<&'a str>,
 }
 
 pub async fn insert(
@@ -55,7 +55,7 @@ pub async fn insert(
     let course_instance = sqlx::query_as!(
         CourseInstance,
         r#"
-INSERT INTO course_instances (id, course_id, name, variant_status, contact_email, supervisor_name, supervisor_email)
+INSERT INTO course_instances (id, course_id, name, variant_status, teacher_in_charge_name, teacher_in_charge_email, support_email)
 VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING id,
   created_at,
@@ -67,17 +67,17 @@ RETURNING id,
   name,
   description,
   variant_status AS "variant_status: VariantStatus",
-  contact_email,
-  supervisor_name,
-  supervisor_email
+  teacher_in_charge_name,
+  teacher_in_charge_email,
+  support_email
 "#,
         new_course_instance.id,
         new_course_instance.course_id,
         new_course_instance.name,
         new_course_instance.variant_status.unwrap_or_default() as VariantStatus,
-        new_course_instance.contact_email,
-        new_course_instance.supervisor_name,
-        new_course_instance.supervisor_email,
+        new_course_instance.teacher_in_charge_name,
+        new_course_instance.teacher_in_charge_email,
+        new_course_instance.support_email,
     )
     .fetch_one(conn)
     .await?;
@@ -101,9 +101,9 @@ SELECT id,
   name,
   description,
   variant_status AS "variant_status: VariantStatus",
-  contact_email,
-  supervisor_name,
-  supervisor_email
+  teacher_in_charge_name,
+  teacher_in_charge_email,
+  support_email
 FROM course_instances
 WHERE id = $1
   AND deleted_at IS NULL;
@@ -133,9 +133,9 @@ SELECT i.id,
   i.name,
   i.description,
   i.variant_status AS "variant_status: VariantStatus",
-  i.contact_email,
-  i.supervisor_name,
-  i.supervisor_email
+  i.teacher_in_charge_name,
+  i.teacher_in_charge_email,
+  i.support_email
 FROM user_course_settings ucs
   JOIN course_instances i ON (ucs.current_course_instance_id = i.id)
 WHERE ucs.user_id = $1
@@ -168,9 +168,9 @@ SELECT i.id,
   i.name,
   i.description,
   i.variant_status AS "variant_status: VariantStatus",
-  i.contact_email,
-  i.supervisor_name,
-  i.supervisor_email
+  i.teacher_in_charge_name,
+  i.teacher_in_charge_email,
+  i.support_email
 FROM course_instances i
   JOIN course_instance_enrollments ie ON (i.id = ie.course_id)
 WHERE i.course_id = $1
@@ -201,9 +201,9 @@ SELECT id,
   name,
   description,
   variant_status as "variant_status: VariantStatus",
-  contact_email,
-  supervisor_name,
-  supervisor_email
+  teacher_in_charge_name,
+  teacher_in_charge_email,
+  support_email
 FROM course_instances
 WHERE deleted_at IS NULL
 "#
@@ -230,9 +230,9 @@ SELECT id,
   name,
   description,
   variant_status as "variant_status: VariantStatus",
-  contact_email,
-  supervisor_name,
-  supervisor_email
+  teacher_in_charge_name,
+  teacher_in_charge_email,
+  support_email
 FROM course_instances
 WHERE course_id = $1
   AND deleted_at IS NULL;
@@ -263,43 +263,41 @@ WHERE id = $2;
     Ok(())
 }
 
-pub async fn edit_contact_info(
-    conn: &mut PgConnection,
-    instance_id: Uuid,
-    contact_email: Option<&str>,
-    supervisor_name: Option<&str>,
-    supervisor_email: Option<&str>,
-) -> ModelResult<()> {
-    sqlx::query!(
-        "
-UPDATE course_instances
-SET contact_email = $1, supervisor_email = $2, supervisor_name = $3
-WHERE id = $4
-",
-        contact_email,
-        supervisor_email,
-        supervisor_name,
-        instance_id
-    )
-    .execute(conn)
-    .await?;
-    Ok(())
+#[derive(Debug, Clone, Copy)]
+pub struct CourseInstanceUpdate<'a> {
+    pub name: Option<&'a str>,
+    pub description: Option<&'a str>,
+    pub teacher_in_charge_name: &'a str,
+    pub teacher_in_charge_email: &'a str,
+    pub support_email: Option<&'a str>,
+    pub opening_time: Option<DateTime<Utc>>,
+    pub closing_time: Option<DateTime<Utc>>,
 }
 
-pub async fn edit_schedule(
+pub async fn edit(
     conn: &mut PgConnection,
     instance_id: Uuid,
-    opening_time: Option<&DateTime<Utc>>,
-    closing_time: Option<&DateTime<Utc>>,
+    update: CourseInstanceUpdate<'_>,
 ) -> ModelResult<()> {
     sqlx::query!(
         "
 UPDATE course_instances
-SET starts_at = $1, ends_at = $2
-WHERE id = $3
+SET name = $1,
+  description = $2,
+  teacher_in_charge_name = $3,
+  teacher_in_charge_email = $4,
+  support_email = $5,
+  starts_at = $6,
+  ends_at = $7
+WHERE id = $8
 ",
-        opening_time,
-        closing_time,
+        update.name,
+        update.description,
+        update.teacher_in_charge_name,
+        update.teacher_in_charge_email,
+        update.support_email,
+        update.opening_time,
+        update.closing_time,
         instance_id
     )
     .execute(conn)

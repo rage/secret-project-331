@@ -3,8 +3,8 @@ use crate::{
     controllers::{
         auth::Login,
         main_frontend::{
-            course_instances::{ScheduleUpdate, SupervisorUpdate},
-            courses::GetFeedbackQuery,
+            course_instances::CourseInstanceUpdate,
+            courses::{GetFeedbackQuery, NewCourseInstanceForm},
             exercises::ExerciseSubmissions,
             feedback::MarkAsRead,
         },
@@ -39,7 +39,6 @@ use crate::{
         },
         user_course_settings::UserCourseSettings,
         user_exercise_states::UserProgress,
-        users::User,
     },
     utils::pagination::Pagination,
 };
@@ -90,9 +89,8 @@ ts_rs::export! {
   FeedbackBlock,
   FeedbackCount,
   GetFeedbackQuery,
-  User,
-  SupervisorUpdate,
-  ScheduleUpdate,
+  CourseInstanceUpdate,
+  NewCourseInstanceForm,
   // dependencies
   VariantStatus,
   ChapterStatus,

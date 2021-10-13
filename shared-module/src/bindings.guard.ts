@@ -14,6 +14,7 @@ import {
   Course,
   CourseInstance,
   CourseInstanceEnrollment,
+  CourseInstanceUpdate,
   CourseMaterialExercise,
   CourseMaterialExerciseServiceInfo,
   CourseMaterialExerciseTask,
@@ -43,6 +44,7 @@ import {
   MarkAsRead,
   NewChapter,
   NewCourse,
+  NewCourseInstanceForm,
   NewFeedback,
   NewPage,
   NewSubmission,
@@ -59,16 +61,13 @@ import {
   Pagination,
   PlaygroundExample,
   PlaygroundExampleData,
-  ScheduleUpdate,
   Submission,
   SubmissionCount,
   SubmissionCountByExercise,
   SubmissionCountByWeekAndHour,
   SubmissionInfo,
   SubmissionResult,
-  SupervisorUpdate,
   UploadResult,
-  User,
   UserCourseSettings,
   UserPointsUpdateStrategy,
   UserProgress,
@@ -197,9 +196,9 @@ export function isCourseInstance(obj: any, _argumentName?: string): obj is Cours
     (obj.name === null || typeof obj.name === "string") &&
     (obj.description === null || typeof obj.description === "string") &&
     (isVariantStatus(obj.variant_status) as boolean) &&
-    (obj.contact_email === null || typeof obj.contact_email === "string") &&
-    (obj.supervisor_name === null || typeof obj.supervisor_name === "string") &&
-    (obj.supervisor_email === null || typeof obj.supervisor_email === "string")
+    typeof obj.teacher_in_charge_name === "string" &&
+    typeof obj.teacher_in_charge_email === "string" &&
+    (obj.support_email === null || typeof obj.support_email === "string")
   )
 }
 
@@ -469,7 +468,9 @@ export function isNewCourse(obj: any, _argumentName?: string): obj is NewCourse 
     typeof obj.name === "string" &&
     typeof obj.slug === "string" &&
     typeof obj.organization_id === "string" &&
-    typeof obj.language_code === "string"
+    typeof obj.language_code === "string" &&
+    typeof obj.teacher_in_charge_name === "string" &&
+    typeof obj.teacher_in_charge_email === "string"
   )
 }
 
@@ -598,32 +599,32 @@ export function isGetFeedbackQuery(obj: any, _argumentName?: string): obj is Get
   )
 }
 
-export function isUser(obj: any, _argumentName?: string): obj is User {
+export function isCourseInstanceUpdate(
+  obj: any,
+  _argumentName?: string,
+): obj is CourseInstanceUpdate {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    (obj.upstream_id === null || typeof obj.upstream_id === "number") &&
-    typeof obj.email === "string"
-  )
-}
-
-export function isSupervisorUpdate(obj: any, _argumentName?: string): obj is SupervisorUpdate {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (obj.contact_email === null || typeof obj.contact_email === "string") &&
-    (obj.supervisor_name === null || typeof obj.supervisor_name === "string") &&
-    (obj.supervisor_email === null || typeof obj.supervisor_email === "string")
-  )
-}
-
-export function isScheduleUpdate(obj: any, _argumentName?: string): obj is ScheduleUpdate {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (obj.name === null || typeof obj.name === "string") &&
+    (obj.description === null || typeof obj.description === "string") &&
+    typeof obj.teacher_in_charge_name === "string" &&
+    typeof obj.teacher_in_charge_email === "string" &&
+    (obj.support_email === null || typeof obj.support_email === "string") &&
     (obj.opening_time === null || obj.opening_time instanceof Date) &&
     (obj.closing_time === null || obj.closing_time instanceof Date)
+  )
+}
+
+export function isNewCourseInstanceForm(
+  obj: any,
+  _argumentName?: string,
+): obj is NewCourseInstanceForm {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (obj.name === null || typeof obj.name === "string") &&
+    typeof obj.teacher_in_charge_name === "string" &&
+    typeof obj.teacher_in_charge_email === "string" &&
+    (obj.support_email === null || typeof obj.support_email === "string")
   )
 }
 

@@ -190,6 +190,8 @@ async fn main() -> Result<()> {
         slug: "introduction-to-computer-science".to_string(),
         organization_id: uh_cs,
         language_code: "en-US".to_string(),
+        teacher_in_charge_name: "admin".to_string(),
+        teacher_in_charge_email: "admin@example.com".to_string(),
     };
     let (cs_course, _cs_front_page, _cs_default_course_instance) = courses::insert_course(
         &mut conn,
@@ -206,9 +208,9 @@ async fn main() -> Result<()> {
             course_id: cs_course.id,
             name: Some("non-default instance"),
             variant_status: Some(VariantStatus::Upcoming),
-            contact_email: Some("contact@example.com"),
-            supervisor_name: Some("admin"),
-            supervisor_email: Some("admin@example.com"),
+            support_email: Some("contact@example.com"),
+            teacher_in_charge_name: "admin",
+            teacher_in_charge_email: "admin@example.com",
         },
     )
     .await?;
@@ -227,6 +229,8 @@ async fn main() -> Result<()> {
         slug: "introduction-to-statistics".to_string(),
         organization_id: uh_mathstat,
         language_code: "en-US".to_string(),
+        teacher_in_charge_name: "admin".to_string(),
+        teacher_in_charge_email: "admin@example.com".to_string(),
     };
     let (statistics_course, _statistics_front_page, _statistics_default_course_instance) =
         courses::insert_course(
@@ -244,9 +248,9 @@ async fn main() -> Result<()> {
             course_id: statistics_course.id,
             name: Some("non-default instance"),
             variant_status: Some(VariantStatus::Active),
-            contact_email: Some("contact@example.com"),
-            supervisor_name: Some("admin"),
-            supervisor_email: Some("admin@example.com"),
+            support_email: Some("contact@example.com"),
+            teacher_in_charge_name: "admin",
+            teacher_in_charge_email: "admin@example.com",
         },
     )
     .await?;
@@ -806,6 +810,8 @@ async fn seed_sample_course(
         organization_id: org,
         slug: course_slug.to_string(),
         language_code: "en-US".to_string(),
+        teacher_in_charge_name: "admin".to_string(),
+        teacher_in_charge_email: "admin@example.com".to_string(),
     };
     let (course, _front_page, _default_instance) = courses::insert_course(
         conn,
@@ -822,9 +828,9 @@ async fn seed_sample_course(
             course_id: course.id,
             name: Some("non-default instance"),
             variant_status: None,
-            contact_email: Some("contact@example.com"),
-            supervisor_name: Some("admin"),
-            supervisor_email: Some("admin@example.com"),
+            support_email: Some("contact@example.com"),
+            teacher_in_charge_name: "admin",
+            teacher_in_charge_email: "admin@example.com",
         },
     )
     .await?;
@@ -1274,6 +1280,8 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         organization_id: org,
         slug: "introduction-to-course-material".to_string(),
         language_code: "en-US".to_string(),
+        teacher_in_charge_name: "admin".to_string(),
+        teacher_in_charge_email: "admin@example.com".to_string(),
     };
     let (course, front_page, _default_instance) = courses::insert_course(
         conn,

@@ -1,9 +1,8 @@
 import {
   CourseInstance,
+  CourseInstanceUpdate,
   EmailTemplate,
   EmailTemplateNew,
-  ScheduleUpdate,
-  SupervisorUpdate,
 } from "../../../shared-module/bindings"
 import { mainFrontendClient } from "../../mainFrontendClient"
 
@@ -40,34 +39,13 @@ export const fetchCourseInstanceEmailTemplates = async (
   return response.data
 }
 
-export const editContactInfo = async (
+export const editCourseInstance = async (
   courseInstanceId: string,
-  contactEmail: string | null,
-  supervisorName: string | null,
-  supervisorEmail: string | null,
+  update: CourseInstanceUpdate,
 ): Promise<void> => {
-  const data: SupervisorUpdate = {
-    contact_email: contactEmail,
-    supervisor_name: supervisorName,
-    supervisor_email: supervisorEmail,
-  }
   const response = await mainFrontendClient.post(
-    `/course-instances/${courseInstanceId}/edit-supervisor`,
-    data,
-    { responseType: "json" },
-  )
-  return response.data
-}
-
-export const editSchedule = async (
-  courseInstanceId: string,
-  openingTime: Date | null,
-  closingTime: Date | null,
-): Promise<void> => {
-  const data: ScheduleUpdate = { opening_time: openingTime, closing_time: closingTime }
-  const response = await mainFrontendClient.post(
-    `/course-instances/${courseInstanceId}/edit-schedule`,
-    data,
+    `/course-instances/${courseInstanceId}/edit`,
+    update,
     { responseType: "json" },
   )
   return response.data

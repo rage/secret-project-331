@@ -4,6 +4,7 @@ use crate::{
     controllers::ControllerResult,
     domain::{authorization::AuthUser, csv_export},
     models::{
+        self,
         course_instances::{self, CourseInstance},
         courses,
         email_templates::{EmailTemplate, EmailTemplateNew},
@@ -133,55 +134,38 @@ pub async fn point_export(
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, TS)]
-pub struct SupervisorUpdate {
-    contact_email: Option<String>,
-    supervisor_name: Option<String>,
-    supervisor_email: Option<String>,
-}
-
-/**
-POST /course-instances/:id/edit-supervisor
-*/
-#[instrument(skip(pool))]
-pub async fn edit_supervisor(
-    update: web::Json<SupervisorUpdate>,
-    course_instance_id: web::Path<Uuid>,
-    pool: web::Data<PgPool>,
-) -> ControllerResult<HttpResponse> {
-    let mut conn = pool.acquire().await?;
-    // let update = update.into_inner();
-    course_instances::edit_contact_info(
-        &mut conn,
-        course_instance_id.into_inner(),
-        update.contact_email.as_deref(),
-        update.supervisor_name.as_deref(),
-        update.supervisor_email.as_deref(),
-    )
-    .await?;
-    Ok(HttpResponse::Ok().finish())
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, TS)]
-pub struct ScheduleUpdate {
+pub struct CourseInstanceUpdate {
+    name: Option<String>,
+    description: Option<String>,
+    teacher_in_charge_name: String,
+    teacher_in_charge_email: String,
+    support_email: Option<String>,
     opening_time: Option<DateTime<Utc>>,
     closing_time: Option<DateTime<Utc>>,
 }
 
 /**
-POST /course-instances/:id/edit-schedule
+POST /course-instances/:id/edit
 */
 #[instrument(skip(pool))]
-pub async fn edit_schedule(
-    update: web::Json<ScheduleUpdate>,
+pub async fn edit(
+    update: web::Json<CourseInstanceUpdate>,
     course_instance_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    course_instances::edit_schedule(
+    course_instances::edit(
         &mut conn,
         course_instance_id.into_inner(),
-        update.opening_time.as_ref(),
-        update.closing_time.as_ref(),
+        models::course_instances::CourseInstanceUpdate {
+            name: update.name.as_deref(),
+            description: update.description.as_deref(),
+            teacher_in_charge_name: &update.teacher_in_charge_name,
+            teacher_in_charge_email: &update.teacher_in_charge_email,
+            support_email: update.support_email.as_deref(),
+            opening_time: update.opening_time,
+            closing_time: update.closing_time,
+        },
     )
     .await?;
     Ok(HttpResponse::Ok().finish())
@@ -218,13 +202,6 @@ pub fn _add_course_instances_routes(cfg: &mut ServiceConfig) {
             "/{course_instance_id}/point_export",
             web::get().to(point_export),
         )
-        .route(
-            "/{course_instance_id}/edit-supervisor",
-            web::post().to(edit_supervisor),
-        )
-        .route(
-            "/{course_instance_id}/edit-schedule",
-            web::post().to(edit_schedule),
-        )
+        .route("/{course_instance_id}/edit", web::post().to(edit))
         .route("/{course_instance_id}/delete", web::post().to(delete));
 }

@@ -5,7 +5,7 @@ use crate::{
     },
     domain::authorization::{authorize, Action, AuthUser, Resource},
     models::{
-        course_instances::CourseInstance,
+        course_instances::{CourseInstance, NewCourseInstance},
         courses::{Course, CourseStructure, CourseUpdate, NewCourse},
         exercises::Exercise,
         feedback::{self, Feedback, FeedbackCount},
@@ -677,6 +677,34 @@ pub async fn get_feedback_count(
     Ok(Json(feedback_count))
 }
 
+#[derive(Debug, Deserialize, TS)]
+pub struct NewCourseInstanceForm {
+    name: Option<String>,
+    teacher_in_charge_name: String,
+    teacher_in_charge_email: String,
+    support_email: Option<String>,
+}
+
+async fn new_course_instance(
+    form: Json<NewCourseInstanceForm>,
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<Json<Uuid>> {
+    let mut conn = pool.acquire().await?;
+    let form = form.into_inner();
+    let new = NewCourseInstance {
+        id: Uuid::new_v4(),
+        course_id: course_id.into_inner(),
+        name: form.name.as_deref(),
+        variant_status: None,
+        support_email: form.support_email.as_deref(),
+        teacher_in_charge_name: &form.teacher_in_charge_name,
+        teacher_in_charge_email: &form.teacher_in_charge_email,
+    };
+    let ci = crate::models::course_instances::insert(&mut conn, new).await?;
+    Ok(Json(ci.id))
+}
+
 /**
 Add a route for each controller in this module.
 
@@ -726,5 +754,9 @@ pub fn _add_courses_routes<T: 'static + FileStore>(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/feedback-count",
             web::get().to(get_feedback_count),
+        )
+        .route(
+            "/{course_id}/new-course-instance",
+            web::post().to(new_course_instance),
         );
 }

@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import { TextField } from "@material-ui/core"
 import { DateTimePicker, LocalizationProvider } from "@material-ui/lab"
 import AdapterDateFns from "@material-ui/lab/AdapterDateFns"
@@ -9,12 +10,13 @@ import { useMutation, useQuery } from "react-query"
 import Layout from "../../../../components/Layout"
 import {
   deleteCourseInstance,
-  editContactInfo,
-  editSchedule,
+  editCourseInstance,
   fetchCourseInstance,
 } from "../../../../services/backend/course-instances"
+import { CourseInstanceUpdate } from "../../../../shared-module/bindings"
 import Button from "../../../../shared-module/components/Button"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
+import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import basePath from "../../../../shared-module/utils/base-path"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
@@ -34,36 +36,28 @@ const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) 
   )
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
-  const [editingSupervisor, setEditingSupervisor] = useState(false)
-  const [newContactEmail, setNewContactEmail] = useState<string | null>(null)
-  const [newSupervisorName, setNewSupervisorName] = useState<string | null>(null)
-  const [newSupervisorEmail, setNewSupervisorEmail] = useState<string | null>(null)
-  const supervisorMutation = useMutation(
-    async (update: {
-      instanceId: string
-      contactEmail: string | null
-      supervisorName: string | null
-      supervisorEmail: string | null
-    }) => {
+  const [editing, setEditing] = useState(false)
+  const [newName, setNewName] = useState<string>("")
+  const [newDescription, setNewDescription] = useState<string>("")
+  const [newSupportEmail, setNewSupportEmail] = useState<string>("")
+  const [newTeacherInChargeName, setNewTeacherInChargeName] = useState<string>("")
+  const [newTeacherInChargeEmail, setNewTeacherInChargeEmail] = useState<string>("")
+  const [newOpeningTime, setNewOpeningTime] = useState<Date | null>(null)
+  const [newClosingTime, setNewClosingTime] = useState<Date | null>(null)
+  const mutation = useMutation(
+    async (update: CourseInstanceUpdate) => {
       setErrorMessage(null)
-      await editContactInfo(
-        update.instanceId,
-        update.contactEmail,
-        update.supervisorName,
-        update.supervisorEmail,
-      )
+      await editCourseInstance(courseInstanceId, update)
     },
     {
       onSuccess: () => {
         refetch()
       },
       onError: (err) => {
-        if (err instanceof Object) {
-          setErrorMessage(`Failed to update supervisor information: ${err.toString()}`)
+        if (err instanceof Error) {
+          setErrorMessage(`Failed to update course instance: ${err.message}`)
         } else {
-          setErrorMessage(
-            `Unexpected error while updating supervisor information: ${JSON.stringify(err)}`,
-          )
+          setErrorMessage(`Unexpected error while updating course instance: ${JSON.stringify(err)}`)
         }
       },
     },
@@ -78,40 +72,10 @@ const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) 
         router.push(`/manage/courses/${courseId}`)
       },
       onError: (err) => {
-        if (err instanceof Object) {
-          setErrorMessage(`Failed to update supervisor information: ${err.toString()}`)
+        if (err instanceof Error) {
+          setErrorMessage(`Failed to delete course instance: ${err.toString()}`)
         } else {
-          setErrorMessage(
-            `Unexpected error while updating supervisor information: ${JSON.stringify(err)}`,
-          )
-        }
-      },
-    },
-  )
-
-  const [editingSchedule, setEditingSchedule] = useState(false)
-  const [newOpeningTime, setNewOpeningTime] = useState<Date | null>(null)
-  const [newClosingTime, setNewClosingTime] = useState<Date | null>(null)
-  const scheduleMutation = useMutation(
-    async (update: {
-      instanceId: string
-      newOpeningTime: Date | null
-      newClosingTime: Date | null
-    }) => {
-      setErrorMessage(null)
-      await editSchedule(update.instanceId, update.newOpeningTime, update.newClosingTime)
-    },
-    {
-      onSuccess: () => {
-        refetch()
-      },
-      onError: (err) => {
-        if (err instanceof Object) {
-          setErrorMessage(`Failed to update supervisor information: ${err.toString()}`)
-        } else {
-          setErrorMessage(
-            `Unexpected error while updating supervisor information: ${JSON.stringify(err)}`,
-          )
+          setErrorMessage(`Unexpected error while deleting course instance: ${JSON.stringify(err)}`)
         }
       },
     },
@@ -129,95 +93,66 @@ const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) 
     )
   }
 
-  let supervisorInfo
-  if (editingSupervisor) {
-    supervisorInfo = (
-      <>
-        <label htmlFor="contact email">Contact email</label> <br />
-        <TextField
-          id="contact email"
-          value={newContactEmail}
-          onChange={(ev) => setNewContactEmail(ev.currentTarget.value)}
-        ></TextField>{" "}
-        <br />
-        <label htmlFor="supervisor name">Supervisor name</label> <br />
-        <TextField
-          id="supervisor name"
-          value={newSupervisorName}
-          onChange={(ev) => setNewSupervisorName(ev.currentTarget.value)}
-        ></TextField>{" "}
-        <br />
-        <label htmlFor="supervisor email">Supervisor email</label> <br />
-        <TextField
-          id="supervisor email"
-          value={newSupervisorEmail}
-          onChange={(ev) => setNewSupervisorEmail(ev.currentTarget.value)}
-        ></TextField>{" "}
-        <br />
-        <Button
-          variant="primary"
-          size="medium"
-          onClick={() => {
-            supervisorMutation.mutate({
-              instanceId: courseInstanceId,
-              contactEmail: newContactEmail,
-              supervisorName: newSupervisorName,
-              supervisorEmail: newSupervisorEmail,
-            })
-            setEditingSupervisor(false)
-          }}
-        >
-          Save
-        </Button>
-        <Button variant="secondary" size="medium" onClick={() => setEditingSupervisor(false)}>
-          Cancel
-        </Button>
-      </>
-    )
-  } else {
-    const contactEmail = data.supervisor_email ? (
-      <div>Contact email: {data.contact_email}</div>
-    ) : (
-      <div>No contact email set</div>
-    )
-    const supervisorName = data.supervisor_name ? (
-      <div>Supervisor name: {data.supervisor_name}</div>
-    ) : (
-      <div>No supervisor name set</div>
-    )
-    const supervisorEmail = data.supervisor_name ? (
-      <div>Supervisor email: {data.supervisor_email}</div>
-    ) : (
-      <div>No supervisor email set</div>
-    )
-    supervisorInfo = (
-      <>
-        {contactEmail}
-        {supervisorName}
-        {supervisorEmail}
-        <Button
-          variant="tertiary"
-          size="medium"
-          onClick={() => {
-            setNewSupervisorEmail(data.supervisor_email)
-            setNewSupervisorName(data.supervisor_name)
-            setEditingSupervisor(true)
-          }}
-        >
-          Edit contact details
-        </Button>
-        <div>
-          Support emails are sent to the contact email if it is set, and to the supervisor email
-          otherwise
-        </div>
-      </>
-    )
+  function submit() {
+    if (!newTeacherInChargeName || newTeacherInChargeName.length === 0) {
+      setErrorMessage("Teacher-in-charge name cannot be empty")
+      return
+    }
+    if (!newTeacherInChargeEmail || newTeacherInChargeEmail.length === 0) {
+      setErrorMessage("Teacher-in-charge email cannot be empty")
+      return
+    }
+    // treat empty strings as null
+    mutation.mutate({
+      name: newName || null,
+      description: newDescription || null,
+      support_email: newSupportEmail || null,
+      teacher_in_charge_name: newTeacherInChargeName,
+      teacher_in_charge_email: newTeacherInChargeEmail,
+      opening_time: newOpeningTime,
+      closing_time: newClosingTime,
+    })
+    setEditing(false)
   }
 
-  let scheduleInfo
-  if (editingSchedule) {
-    scheduleInfo = (
+  let instanceInfo
+  if (editing) {
+    instanceInfo = (
       <>
+        <label htmlFor="name">Name</label> <br />
+        <TextField
+          id="name"
+          value={newName}
+          onChange={(ev) => setNewName(ev.currentTarget.value)}
+        ></TextField>
+        <br />
+        <label htmlFor="description">Description</label> <br />
+        <TextField
+          id="description"
+          value={newDescription}
+          onChange={(ev) => setNewDescription(ev.currentTarget.value)}
+        ></TextField>
+        <br />
+        <label htmlFor="support-email">Support email</label> <br />
+        <TextField
+          id="support-email"
+          value={newSupportEmail}
+          onChange={(ev) => setNewSupportEmail(ev.currentTarget.value)}
+        ></TextField>
+        <br />
+        <label htmlFor="teacher-name">Teacher-in-charge name</label> <br />
+        <TextField
+          id="teacher-name"
+          value={newTeacherInChargeName}
+          onChange={(ev) => setNewTeacherInChargeName(ev.currentTarget.value)}
+        ></TextField>
+        <br />
+        <label htmlFor="teacher-email">Teacher-in-charge email</label> <br />
+        <TextField
+          id="teacher-email"
+          value={newTeacherInChargeEmail}
+          onChange={(ev) => setNewTeacherInChargeEmail(ev.currentTarget.value)}
+        ></TextField>
         <br />
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <DateTimePicker
@@ -244,23 +179,22 @@ const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) 
         <Button
           variant="primary"
           size="medium"
-          onClick={() => {
-            scheduleMutation.mutate({
-              instanceId: courseInstanceId,
-              newClosingTime,
-              newOpeningTime,
-            })
-            setEditingSchedule(false)
-          }}
+          onClick={submit}
+          disabled={newTeacherInChargeName.length === 0 || newTeacherInChargeEmail.length === 0}
         >
           Save
         </Button>
-        <Button variant="secondary" size="medium" onClick={() => setEditingSchedule(false)}>
+        <Button variant="secondary" size="medium" onClick={() => setEditing(false)}>
           Cancel
         </Button>
       </>
     )
   } else {
+    const supportEmail = data.support_email ? (
+      <div>Support email: {data.support_email}</div>
+    ) : (
+      <div>No support email set</div>
+    )
     let schedule
     if (data.ends_at && isPast(data.ends_at)) {
       // instance is over
@@ -278,19 +212,40 @@ const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) 
     } else {
       schedule = <div>Instance has no set opening time</div>
     }
-    scheduleInfo = (
+    instanceInfo = (
       <>
+        <h2>{data.name}</h2>
+        <div>{data.description}</div>
+        <hr />
+        <div>Teacher-in-charge name: {data.teacher_in_charge_name}</div>
+        <div>Teacher-in-charge email: {data.teacher_in_charge_email}</div>
+        {supportEmail}
+        <div>
+          Support emails are sent to this address if it is set, and to the teacher-in-charge email
+          otherwise
+        </div>
         {schedule}
         <Button
           variant="tertiary"
           size="medium"
           onClick={() => {
+            setNewName(data.name || "")
+            setNewDescription(data.description || "")
+            setNewTeacherInChargeName(data.teacher_in_charge_name)
+            setNewTeacherInChargeEmail(data.teacher_in_charge_email)
             setNewOpeningTime(data.starts_at)
             setNewClosingTime(data.ends_at)
-            setEditingSchedule(true)
+            setEditing(true)
           }}
         >
-          Change schedule
+          Edit
+        </Button>
+        <Button
+          variant="secondary"
+          size="medium"
+          onClick={() => deleteMutation.mutate(data.course_id)}
+        >
+          Delete
         </Button>
       </>
     )
@@ -298,21 +253,18 @@ const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) 
 
   return (
     <Layout frontPageUrl={basePath()} navVariant="complex">
-      <h1>
-        Course instance {data.name ?? "default"} ({data.id})
-      </h1>
-      {errorMessage && <div>{errorMessage}</div>}
-      {supervisorInfo}
-      <hr />
-      {scheduleInfo}
-      <hr />
-      <Button
-        variant="secondary"
-        size="medium"
-        onClick={() => deleteMutation.mutate(data.course_id)}
+      <div
+        className={css`
+          ${wideWidthCenteredComponentStyles}
+          margin-bottom: 1rem;
+        `}
       >
-        Delete course instance
-      </Button>
+        <h1>
+          Course instance {data.name ?? "default"} ({data.id})
+        </h1>
+        {errorMessage && <div>{errorMessage}</div>}
+        {instanceInfo}
+      </div>
     </Layout>
   )
 }

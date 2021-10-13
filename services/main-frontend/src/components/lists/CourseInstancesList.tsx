@@ -55,9 +55,13 @@ const CourseInstancesList: React.FC<CourseInstancesListProps> = ({ courseId }) =
           )
         })}
       </ul>
-      <Button variant="primary" size="medium">
-        New course instance
-      </Button>
+      <Link
+        href={{ pathname: "/manage/courses/[id]/new-course-instance", query: { id: courseId } }}
+      >
+        <Button variant="primary" size="medium">
+          New course instance
+        </Button>
+      </Link>
     </>
   )
 }

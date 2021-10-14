@@ -89,10 +89,11 @@ tracing-log = "0.1"
 # This library provides a convenient derive macro for the standard library's std::error::Error trait.
 thiserror = "1"
 # generate typescript bindings from rust types
-ts-rs = { git = "https://github.com/Heliozoa/ts-rs", branch = "ext", features = [
-  "with-uuid",
-  "with-chrono",
-  "with-serde-json"
+ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "67f765076b9d0eaf8283a9374b4a3ecd814c75e2", features = [
+  "chrono-impl",
+  "serde-compat",
+  "serde-json-impl",
+  "uuid-impl",
 ] }
 # restricting the transitive dependencies of actix-web during beta.
 # HTTP primitives for the Actix ecosystem .
@@ -107,6 +108,8 @@ lettre = "0.10.0-rc.3"
 regex = "1.5.4"
 # Single assignment cells and lazy values.
 once_cell = "1.8.0"
+# An LCS based slice and string diffing implementation.
+diff = "0.1"
 
 # Workaround for this issue: https://github.com/tkaitchuck/aHash/issues/95. Once the issue has been resolved, this dependency can be removed.
 indexmap = "=1.6.2"

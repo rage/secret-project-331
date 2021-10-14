@@ -23,34 +23,40 @@ const FeedbackPage: React.FC<FeedbackProps> = ({ query }) => {
 
   const courseId = query.id
 
-  let initialRead
+  let initialRead: boolean
   if (router.query.read) {
     initialRead = router.query.read === "true"
   } else {
-    router.replace({ query: { ...router.query, read: false } }, undefined, { shallow: true })
+    router.replace({ query: { ...router.query, read: false } }, undefined, {
+      shallow: true,
+    })
     initialRead = false
   }
-  const [read, setRead] = useState(initialRead)
 
+  // 0 == first tab, unread
+  // 1 == second tab, read
+  const intialTab = initialRead ? 1 : 0
+  const [tab, setTab] = useState(intialTab)
+  const read = tab == 1
   return (
     <Layout navVariant={"complex"}>
       <div className={wideWidthCenteredComponentStyles}>
         <h3>{t("title-feedback")}</h3>
         <Paper square>
           <Tabs
-            value={read}
+            value={tab}
             onChange={(_, value) => {
-              router.replace({ query: { ...router.query, read: value } }, undefined, {
+              router.replace({ query: { ...router.query, read: value == 1 } }, undefined, {
                 shallow: true,
               })
-              setRead(value)
+              setTab(value)
             }}
           >
-            <Tab label={t("undread")} value={false} />
-            <Tab label={t("read")} value={true} />
+            <Tab label={t("undread")} value={0} />
+            <Tab label={t("read")} value={1} />
           </Tabs>
         </Paper>
-        <FeedbackList courseId={courseId} read={read} perPage={1} />
+        <FeedbackList courseId={courseId} read={read} perPage={4} />
       </div>
     </Layout>
   )

@@ -18,7 +18,7 @@ interface Props {
 const FeedbackPage: React.FC<Props> = ({ courseId, page, limit, read, onChange }) => {
   const { t } = useTranslation()
   const { isLoading, error, data, refetch } = useQuery(
-    `feedback-list-${courseId}-${read}-${page}`,
+    `feedback-list-${courseId}-${read}-${page}-${limit}`,
     () => fetchFeedback(courseId, read, page, limit),
   )
 

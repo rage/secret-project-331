@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import React, { useEffect, useRef } from "react"
 
 import useMessageChannel from "../hooks/useMessageChannel"
+import { isHeightChangedMessage } from "../iframe-protocol-types.guard"
 
 interface MessageChannelIFrameProps {
   url: string
@@ -29,7 +30,7 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
     messageChannel.port1.onmessage = (message: WindowEventMap["message"]) => {
       const data = message.data
       console.info("Received message", JSON.stringify(data))
-      if (data.message === "height-changed") {
+      if (isHeightChangedMessage(data)) {
         if (!iframeRef.current) {
           console.error("Cannot send data to iframe because reference does not exist.")
           return

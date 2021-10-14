@@ -1,12 +1,14 @@
 use anyhow::Result;
 use chrono::{TimeZone, Utc};
+use headless_lms_actix::attributes;
 use headless_lms_actix::models::chapters::NewChapter;
 use headless_lms_actix::models::courses::NewCourse;
 use headless_lms_actix::models::exercises::GradingProgress;
 use headless_lms_actix::models::feedback::{FeedbackBlock, NewFeedback};
-use headless_lms_actix::models::gradings;
 use headless_lms_actix::models::pages::{NewPage, PageUpdate};
 use headless_lms_actix::models::playground_examples::PlaygroundExampleData;
+use headless_lms_actix::models::proposed_block_edits::NewProposedBlockEdit;
+use headless_lms_actix::models::proposed_page_edits::NewProposedPageEdits;
 use headless_lms_actix::models::submissions::GradingResult;
 use headless_lms_actix::models::{
     chapters, course_instances, course_instances::VariantStatus, courses, exercise_services,
@@ -14,6 +16,7 @@ use headless_lms_actix::models::{
     users,
 };
 use headless_lms_actix::models::{feedback, playground_examples};
+use headless_lms_actix::models::{gradings, proposed_page_edits};
 use headless_lms_actix::setup_tracing;
 use headless_lms_actix::utils::document_schema_processor::GutenbergBlock;
 use serde_json::Value;
@@ -152,6 +155,17 @@ async fn main() -> Result<()> {
         student,
     )
     .await?;
+    seed_sample_course(
+        &mut conn,
+        uh_cs,
+        Uuid::parse_str("cae7da38-9486-47da-9106-bff9b6a280f2")?,
+        "Introduction to edit proposals",
+        "introduction-to-edit-proposals",
+        admin,
+        teacher,
+        student,
+    )
+    .await?;
     let introduction_to_localizing = seed_sample_course(
         &mut conn,
         uh_cs,
@@ -264,6 +278,60 @@ async fn main() -> Result<()> {
     playground_examples::insert_playground_example(
         &mut conn,
         PlaygroundExampleData {
+            name: "Quizzes, example, checkbox".to_string(),
+            url: "http://project-331.local/quizzes/exercise".to_string(),
+            width: 500,
+            data: serde_json::json!({
+                "id": "57f03d8e-e768-485c-b0c3-a3e485a3e18a",
+                "title": "Internet safety quizz",
+                "body": "Answer the following guestions about staying safe on the internet.",
+                "deadline": Utc.ymd(2121, 9, 1).and_hms(23, 59, 59).to_string(),
+                "open": Utc.ymd(2021, 9, 1).and_hms(23, 59, 59).to_string(),
+                "part": 1,
+                "section": 1,
+                "items": [
+                    {
+                        "id": "5f09bd92-6e33-415b-b356-227563a02816",
+                        "body": "",
+                        "type": "checkbox",
+                        "multi": false,
+                        "order": 1,
+                        "title": "The s in https stands for secure.",
+                        "quizId": "57f03d8e-e768-485c-b0c3-a3e485a3e18a",
+                        "options": [],
+                        "maxValue": null,
+                        "maxWords": null,
+                        "minValue": null,
+                        "minWords": null,
+                        "direction": "row"
+                    },
+                    {
+                        "id": "818fc326-ed38-4fe5-95d3-0f9d15032d01",
+                        "body": "",
+                        "type": "checkbox",
+                        "multi": false,
+                        "order": 2,
+                        "title": "I use a strong, unique password that can't easily be guessed by those who knows me.",
+                        "quizId": "57f03d8e-e768-485c-b0c3-a3e485a3e18a",
+                        "options": [],
+                        "maxValue": null,
+                        "maxWords": null,
+                        "minValue": null,
+                        "minWords": null,
+                        "direction": "row"
+                    },
+                ],
+                "tries": 1,
+                "courseId": "51ee97a7-684f-4cba-8a01-8c558803c4f7",
+                "triesLimited": true,
+            }),
+        },
+    )
+    .await?;
+
+    playground_examples::insert_playground_example(
+        &mut conn,
+        PlaygroundExampleData {
             name: "Quizzes example, multiple-choice".to_string(),
             url: "http://project-331.local/quizzes/exercise".to_string(),
             width: 500,
@@ -284,6 +352,7 @@ async fn main() -> Result<()> {
                         "id": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
                         "body": "Which of the color codes represent the color **red**?",
                         "direction": "row",
+                        "formatRegex": null,
                         "maxLabel": null,
                         "maxValue": null,
                         "maxWords": null,
@@ -343,6 +412,189 @@ async fn main() -> Result<()> {
     playground_examples::insert_playground_example(
         &mut conn,
         PlaygroundExampleData {
+            name: "Quizzes example, essay".to_string(),
+            url: "http://project-331.local/quizzes/exercise".to_string(),
+            width: 500,
+            data: serde_json::json!(              {
+              "id": "47cbd36c-0c32-41f2-8a4a-b008de7d3494",
+              "courseId": "fdf0fed9-7665-4712-9cca-652d5bfe5233",
+              "body": "Of CSS and system design of the Noldor",
+              "deadline": Utc.ymd(2121, 9, 1).and_hms(23, 59, 59).to_string(),
+              "open": Utc.ymd(2021, 9, 1).and_hms(23, 59, 59).to_string(),
+              "part": 1,
+              "section": 1,
+              "title": "Of CSS and system design of the Noldor",
+              "tries": 1,
+              "triesLimited": false,
+              "items": [
+                  {
+                      "id": "371b59cb-735d-4202-b8cb-bed967945ffd",
+                      "body": "Which colour did the Fëanorian lamps emit when Tuor met Gelmir and Arminas at the gate of Annon-in-Gelydh? Give your answer in colours colourname, hexadecimal colour code and in RGB colour code. Could this have deeper contextual meaning considering the events of the previous chapter? Explain in 500 words.",
+                      "direction": "row",
+                      "maxLabel": null,
+                      "maxValue": null,
+                      "maxWords": 600,
+                      "minLabel": null,
+                      "minValue": null,
+                      "minWords": 500,
+                      "multi": false,
+                      "order": 1,
+                      "quizId": "47cbd36c-0c32-41f2-8a4a-b008de7d3494",
+                      "title": "Of the lamps of Fëanor",
+                      "type": "essay",
+                      "options": []
+                  }
+              ]
+            })
+        }).await?;
+
+    playground_examples::insert_playground_example(
+        &mut conn,
+        PlaygroundExampleData {
+            name: "Quizzes example, multiple-choice dropdown".to_string(),
+            url: "http://project-331.local/quizzes/exercise".to_string(),
+            width: 500,
+            data: serde_json::json!({
+            "id": "1af3cc18-d8d8-4cc6-9bf9-be63d79e19a4",
+            "courseId": "32b060d5-78e8-4b97-a933-7458319f30a2",
+            "body": null,
+            "deadline": Utc.ymd(2121, 9, 1).and_hms(23, 59, 59).to_string(),
+            "open": Utc.ymd(2021, 9, 1).and_hms(23, 59, 59).to_string(),
+            "part": 1,
+            "section": 1,
+            "title": "Questions about CSS and color codes",
+            "tries": 1,
+            "triesLimited": false,
+            "items": [
+                {
+                    "id": "37469182-8220-46d3-b3c2-7d215a1bfc03",
+                    "body": "How many different CSS hexadecimal color codes there are?",
+                    "direction": "row",
+                    "formatRegex": null,
+                    "maxLabel": null,
+                    "maxValue": null,
+                    "maxWords": null,
+                    "minLabel": null,
+                    "minValue": null,
+                    "minWords": null,
+                    "multi": false,
+                    "order": 1,
+                    "quizId": "1af3cc18-d8d8-4cc6-9bf9-be63d79e19a4",
+                    "title": null,
+                    "type": "multiple-choice-dropdown",
+                    "options": [
+                        {
+                            "id": "d0514fbb-1081-4602-b564-22dd5374dd46",
+                            "body": "at least two",
+                            "order": 1,
+                            "title": null,
+                            "quizItemId": "37469182-8220-46d3-b3c2-7d215a1bfc03",
+                        },
+                        {
+                            "id": "a7a58b81-bd76-4b9a-9060-1516597cb9b7",
+                            "body": "more than 2.546 * 10^56",
+                            "order": 2,
+                            "title": null,
+                            "quizItemId": "37469182-8220-46d3-b3c2-7d215a1bfc03",
+                        },
+                        {
+                            "id": "255ff119-1705-4f79-baed-cf8f0c3ca214",
+                            "body": "I don't believe in hexadecimal color codes",
+                            "order": 3,
+                            "title": null,
+                            "quizItemId": "37469182-8220-46d3-b3c2-7d215a1bfc03",
+                        },
+                    ]
+                },
+                {
+                    "id": "da705796-f8e3-420c-a717-a3064e351eed",
+                    "body": "What other ways there are to represent colors in CSS?",
+                    "direction": "row",
+                    "formatRegex": null,
+                    "maxLabel": null,
+                    "maxValue": null,
+                    "maxWords": null,
+                    "minLabel": null,
+                    "minValue": null,
+                    "minWords": null,
+                    "multi": false,
+                    "order": 1,
+                    "quizId": "1af3cc18-d8d8-4cc6-9bf9-be63d79e19a4",
+                    "title": null,
+                    "type": "multiple-choice-dropdown",
+                    "options": [
+                        {
+                            "id": "dd31dfda-2bf0-4f66-af45-de6ee8ded54a",
+                            "body": "RGB -color system",
+                            "order": 1,
+                            "title": null,
+                            "quizItemId": "da705796-f8e3-420c-a717-a3064e351eed",
+                        },
+                        {
+                            "id": "af864a7e-46d5-46c4-b027-413cb4e5fa68",
+                            "body": "Human readable text representation",
+                            "order": 2,
+                            "title": null,
+                            "quizItemId": "da705796-f8e3-420c-a717-a3064e351eed",
+                        },
+                        {
+                            "id": "66df5778-f80c-42b4-a544-4fb35d44a80f",
+                            "body": "I'm colorblind, so I don't really care :/",
+                            "order": 3,
+                            "title": null,
+                            "quizItemId": "da705796-f8e3-420c-a717-a3064e351eed",
+                        },
+                    ]
+                }
+            ]}),
+        },
+    )
+    .await?;
+
+    playground_examples::insert_playground_example(
+        &mut conn,
+
+        PlaygroundExampleData {
+            name: "Quizzes example, open".to_string(),
+            url: "http://project-331.local/quizzes/exercise".to_string(),
+            width: 500,
+            data: serde_json::json!({
+                "id": "801b9275-5034-438d-922f-104af517468a",
+                "title": "Open answer question",
+                "body": "",
+                "open": Utc.ymd(2021, 9, 1).and_hms(23, 59, 59).to_string(),
+                "deadline": Utc.ymd(2121, 9, 1).and_hms(23, 59, 59).to_string(),
+                "part": 1,
+                "items": [
+                    {
+                        "id": "30cc054a-8efb-4242-9a0d-9acc6ae2ca57",
+                        "body": "Enter the date of the next leap day in ISO 8601 format (YYYY-MM-DD).",
+                        "type": "open",
+                        "multi": false,
+                        "order": 0,
+                        "title": "Date formats",
+                        "quizId": "801b9275-5034-438d-922f-104af517468a",
+                        "options": [],
+                        "maxValue": null,
+                        "maxWords": null,
+                        "minValue": null,
+                        "minWords": null,
+                        "direction": "row",
+                        "formatRegex": "\\d{4}-\\d{2}-\\d{2}",
+                    }
+                ],
+                "tries": 1,
+                "section": 1,
+                "courseId": "f6b6a606-e1f8-4ded-a458-01f541c06019",
+                "triesLimited": true,
+            }),
+        },
+    )
+    .await?;
+
+    playground_examples::insert_playground_example(
+        &mut conn,
+        PlaygroundExampleData {
             name: "Quizzes example, scale".to_string(),
             url: "http://project-331.local/quizzes/exercise".to_string(),
             width: 500,
@@ -368,6 +620,7 @@ async fn main() -> Result<()> {
                     "minValue": 1,
                     "minWords": null,
                     "direction": "row",
+                    "formatRegex": null,
                   },
                   {
                     "id": "b3ce858c-a5ed-4cf7-a9ee-62ef91d1a75a",
@@ -382,7 +635,8 @@ async fn main() -> Result<()> {
                     "maxWords": null,
                     "minValue": 1,
                     "minWords": null,
-                    "direction": "row"
+                    "direction": "row",
+                    "formatRegex": null,
                   },
                   {
                     "id": "eb7f6898-7ba5-4f89-8e24-a17f57381131",
@@ -397,7 +651,8 @@ async fn main() -> Result<()> {
                     "maxWords": null,
                     "minValue": 1,
                     "minWords": null,
-                    "direction": "row"
+                    "direction": "row",
+                    "formatRegex": null,
                   }
                 ],
                 "tries": 1,
@@ -405,6 +660,117 @@ async fn main() -> Result<()> {
                 "courseId": "f5bed4ff-63ec-44cd-9056-86eb00df84ca",
                 "triesLimited": true
               }),
+        },
+    )
+    .await?;
+
+    playground_examples::insert_playground_example(
+        &mut conn,
+        PlaygroundExampleData {
+            name: "Quizzes example, multiple-choice clickable".to_string(),
+            url: "http://project-331.local/quizzes/exercise".to_string(),
+            width: 500,
+            data: serde_json::json!({
+              "id": "3562f83c-4d5d-41a9-aceb-a8f98511dd5d",
+              "title": "Of favorite colors",
+              "body": null,
+              "deadline": Utc.ymd(2121,9,1).and_hms(23,59,59).to_string(),
+              "open": Utc.ymd(2021,9,1).and_hms(23,59,59).to_string(),
+              "part": 1,
+              "items": [
+                {
+                  "id": "d2422f0c-2378-4099-bde7-e1231ceac220",
+                  "body": "",
+                  "type": "clickable-multiple-choice",
+                  "multi": false,
+                  "order": 1,
+                  "title": "Choose your favorite colors",
+                  "quizId": "3562f83c-4d5d-41a9-aceb-a8f98511dd5d",
+                  "options": [
+                    {
+                      "id": "f4ef5add-cfed-4819-b1a7-b1c7a72330ea",
+                      "body": "AliceBlue",
+                      "order": 1,
+                      "title": null,
+                      "quizItemId": "d2422f0c-2378-4099-bde7-e1231ceac220",
+                    },
+                    {
+                      "id": "ee6535ca-fed6-4d22-9988-bed91e3decb4",
+                      "body": "AntiqueWhite",
+                      "order": 1,
+                      "title": null,
+                      "quizItemId": "d2422f0c-2378-4099-bde7-e1231ceac220",
+                    },
+                    {
+                      "id": "404c62f0-44f2-492c-a6cf-522e5cff492b",
+                      "body": "Aqua",
+                      "order": 1,
+                      "title": null,
+                      "quizItemId": "d2422f0c-2378-4099-bde7-e1231ceac220",
+                    },
+                    {
+                      "id": "74e09ced-233e-4db6-a67f-d4835a596956",
+                      "body": "Cyan",
+                      "order": 1,
+                      "title": null,
+                      "quizItemId": "d2422f0c-2378-4099-bde7-e1231ceac220",
+                    },
+                    {
+                      "id": "797463cf-9592-46f8-9018-7d2b3d2c0882",
+                      "body": "Cornsilk",
+                      "order": 1,
+                      "title": null,
+                      "quizItemId": "d2422f0c-2378-4099-bde7-e1231ceac220",
+                    },
+                    {
+                      "id": "f5e46e15-cb14-455f-8b72-472fed50d6f8",
+                      "body": "LawnGreen",
+                      "order": 1,
+                      "title": null,
+                      "quizItemId": "d2422f0c-2378-4099-bde7-e1231ceac220",
+                    },
+                    {
+                      "id": "2bfea5dd-ad64-456a-8518-c6754bd40a90",
+                      "body": "LightGoldenRodYellow",
+                      "order": 1,
+                      "title": null,
+                      "quizItemId": "d2422f0c-2378-4099-bde7-e1231ceac220",
+                    },
+                    {
+                      "id": "d045ec97-a89a-4964-9bea-a5baab69786f",
+                      "body": "MediumSpringGreen",
+                      "order": 1,
+                      "title": null,
+                      "quizItemId": "d2422f0c-2378-4099-bde7-e1231ceac220",
+                    },
+                    {
+                      "id": "fc901148-7d65-4150-b077-5dc53947ee7a",
+                      "body": "Sienna",
+                      "order": 1,
+                      "title": null,
+                      "quizItemId": "d2422f0c-2378-4099-bde7-e1231ceac220",
+                    },
+                    {
+                      "id": "73a8f612-7bd4-48ca-9dae-2baa1a55a1da",
+                      "body": "WhiteSmoke",
+                      "order": 1,
+                      "title": null,
+                      "quizItemId": "d2422f0c-2378-4099-bde7-e1231ceac220",
+                    },
+                  ],
+                  "maxValue": 4,
+                  "maxWords": null,
+                  "minValue": 1,
+                  "minWords": null,
+                  "direction": "row",
+                  "formatRegex": null,
+                },
+              ],
+              "tries": 1,
+              "section": 1,
+              "courseId": "f5bed4ff-63ec-44cd-9056-86eb00df84ca",
+              "triesLimited": true
+            }),
         },
     )
     .await?;
@@ -505,7 +871,7 @@ async fn seed_sample_course(
     let spec_c1p1e1t1_1 = Uuid::new_v5(&course_id, b"5f6b7850-5034-4cef-9dcf-e3fd4831067f");
     let spec_c1p1e1t1_2 = Uuid::new_v5(&course_id, b"c713bbfc-86bf-4877-bd39-53afaf4444b5");
     let spec_c1p1e1t1_3 = Uuid::new_v5(&course_id, b"4027d508-4fad-422e-bb7f-15c613a02cc6");
-    create_page(
+    let page_c1_1 = create_page(
         conn,
         course.id,
         "/chapter-1/page-1",
@@ -793,6 +1159,7 @@ async fn seed_sample_course(
     // feedback
     let new_feedback = NewFeedback {
         feedback_given: "this part was unclear to me".to_string(),
+        selected_text: Some("blanditiis".to_string()),
         related_blocks: vec![FeedbackBlock {
             id: block_id_4,
             text: Some(
@@ -805,6 +1172,7 @@ async fn seed_sample_course(
     feedback::mark_as_read(conn, feedback, true).await?;
     let new_feedback = NewFeedback {
         feedback_given: "I dont think we need these paragraphs".to_string(),
+        selected_text: Some("verything".to_string()),
         related_blocks: vec![
             FeedbackBlock {
                 id: block_id_1,
@@ -827,6 +1195,7 @@ async fn seed_sample_course(
         course.id,
         NewFeedback {
             feedback_given: "Anonymous feedback".to_string(),
+            selected_text: None,
             related_blocks: vec![FeedbackBlock {
                 id: block_id_1,
                 text: None,
@@ -840,10 +1209,41 @@ async fn seed_sample_course(
         course.id,
         NewFeedback {
             feedback_given: "Anonymous unrelated feedback".to_string(),
+            selected_text: None,
             related_blocks: vec![],
         },
     )
     .await?;
+
+    // edit proposals
+    let edits = NewProposedPageEdits {
+        page_id: page_c1_1,
+        block_edits: vec![NewProposedBlockEdit {
+            block_id: block_id_4,
+            block_attribute: "content".to_string(),
+            original_text: "So bg, that we need many paragraphs.".to_string(),
+            changed_text: "So bg, that we need many, many paragraphs.".to_string(),
+        }],
+    };
+    proposed_page_edits::insert(conn, course.id, Some(student), &edits).await?;
+    let edits = NewProposedPageEdits {
+        page_id: page_c1_1,
+        block_edits: vec![
+            NewProposedBlockEdit {
+                block_id: block_id_1,
+                block_attribute: "content".to_string(),
+                original_text: "Everything is a big topic.".to_string(),
+                changed_text: "Everything is a very big topic.".to_string(),
+            },
+            NewProposedBlockEdit {
+                block_id: block_id_5,
+                block_attribute: "content".to_string(),
+                original_text: "Like this.".to_string(),
+                changed_text: "Like this!".to_string(),
+            },
+        ],
+    };
+    proposed_page_edits::insert(conn, course.id, Some(student), &edits).await?;
 
     Ok(course.id)
 }
@@ -955,26 +1355,26 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                 .with_id(Uuid::parse_str("98729704-9dd8-4309-aa08-402f9b2a6071")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
-                serde_json::json!({
+                attributes!{
                   "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum felis nisi, vitae commodo mi venenatis in. Mauris hendrerit lacinia augue ut hendrerit. Vestibulum non tellus mattis, convallis magna vel, semper mauris. Maecenas porta, arcu eget porttitor sagittis, nulla magna auctor dolor, sed tempus sem lacus eu tortor. Ut id diam quam. Etiam quis sagittis justo. Quisque sagittis dolor vitae felis facilisis, ut suscipit ipsum malesuada. Nulla tempor ultricies erat ut venenatis. Ut pulvinar lectus non mollis efficitur.",
                   "dropCap": false
-                }),
+                },
             )
                 .with_id(Uuid::parse_str("9ebddb78-23f6-4440-8d8f-5e4b33abb16f")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
-                serde_json::json!( {
+                attributes!{
                   "content": "Sed quis fermentum mi. Integer commodo turpis a fermentum tristique. Integer convallis, nunc sed scelerisque varius, mi tellus molestie metus, eu ultrices justo tellus non arcu. Cras euismod, lectus eu scelerisque mattis, odio ex ornare ipsum, a dapibus nulla leo maximus orci. Etiam laoreet venenatis lorem, vitae iaculis mauris. Nullam lobortis, tortor eget ullamcorper lobortis, tellus odio tincidunt dolor, vitae gravida nibh turpis ac sem. Integer non sodales eros.",
                   "dropCap": false
-                }),
+                },
             )
                 .with_id(Uuid::parse_str("029ae4b5-08b0-49f7-8baf-d916b5f879a2")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
-                serde_json::json!({
+                attributes!{
                   "content": "Vestibulum a scelerisque ante. Fusce interdum eros elit, posuere mattis sapien tristique id. Integer commodo mi orci, sit amet tempor libero vulputate in. Ut id gravida quam. Proin massa dolor, posuere nec metus eu, dignissim viverra nulla. Vestibulum quis neque bibendum, hendrerit diam et, fermentum diam. Sed risus nibh, suscipit in neque nec, bibendum interdum nibh. Aliquam ut enim a mi ultricies finibus. Nam tristique felis ac risus interdum molestie. Nulla venenatis, augue sed porttitor ultrices, lacus ante sollicitudin dui, vel vehicula ex enim ac mi.",
                   "dropCap": false
-                }),
+                },
             )
             .with_id(Uuid::parse_str("3693e92b-9cf0-485a-b026-2851de58e9cf")?),
         ]).await?;
@@ -992,26 +1392,26 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                 .with_id(Uuid::parse_str("ae22ae64-c0e5-42e1-895a-4a49411a72e8")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
-                serde_json::json!({
+                attributes!{
                   "content": "Sed venenatis, magna in ornare suscipit, orci ipsum consequat nulla, ut pulvinar libero metus et metus. Maecenas nec bibendum est. Donec quis ante elit. Nam in eros vitae urna aliquet vestibulum. Donec posuere laoreet facilisis. Aliquam auctor a tellus a tempus. Sed molestie leo eget commodo pellentesque. Curabitur lacinia odio nisl, eu sodales nunc placerat sit amet. Vivamus venenatis, risus vitae lobortis eleifend, odio nisi faucibus tortor, sed aliquet leo arcu et tellus. Donec ultrices consectetur nunc, non rhoncus sapien malesuada et. Nulla tempus ipsum vitae justo scelerisque, sed pretium neque fermentum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur accumsan et ex pellentesque dignissim. Integer viverra libero quis tortor dignissim elementum.",
                   "dropCap": false
-                }),
+                },
             )
                 .with_id(Uuid::parse_str("b05a62ad-e5f7-432c-8c88-2976d971e7e1")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
-                serde_json::json!( {
-                  "content": "Sed quis fermentum mi. Integer commodo turpis a fermentum tristique. Integer convallis, nunc sed scelerisque varius, mi tellus molestie metus, eu ultrices banana justo tellus non arcu. Cras euismod, cat lectus eu scelerisque mattis, odio ex ornare ipsum, a dapibus nulla leo maximus orci. Etiam laoreet venenatis lorem, vitae iaculis mauris. Nullam lobortis, tortor eget ullamcorper lobortis, tellus odio tincidunt dolor, vitae gravida nibh turpis ac sem. Integer non sodales eros.",
-                  "dropCap": false
-                }),
+                attributes!{
+                    "content": "Sed quis fermentum mi. Integer commodo turpis a fermentum tristique. Integer convallis, nunc sed scelerisque varius, mi tellus molestie metus, eu ultrices banana justo tellus non arcu. Cras euismod, cat lectus eu scelerisque mattis, odio ex ornare ipsum, a dapibus nulla leo maximus orci. Etiam laoreet venenatis lorem, vitae iaculis mauris. Nullam lobortis, tortor eget ullamcorper lobortis, tellus odio tincidunt dolor, vitae gravida nibh turpis ac sem. Integer non sodales eros.",
+                    "dropCap": false
+                },
             )
                 .with_id(Uuid::parse_str("db20e302-d4e2-4f56-a0b9-e48a4fbd5fa8")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
-                serde_json::json!({
+                attributes!{
                   "content": "Vestibulum a scelerisque ante. Fusce interdum eros elit, posuere mattis sapien tristique id. Integer commodo mi orci, sit amet tempor libero vulputate in. Ut id gravida quam. Proin massa dolor, posuere nec metus eu, dignissim viverra nulla. Vestibulum quis neque bibendum, hendrerit diam et, fermentum diam. Sed risus nibh, suscipit in neque nec, bibendum interdum nibh. Aliquam ut enim a mi ultricies finibus. Nam tristique felis ac risus interdum molestie. Nulla venenatis, augue sed porttitor ultrices, lacus ante sollicitudin dui, vel vehicula ex enim ac mi.",
                   "dropCap": false
-                }),
+                },
             )
             .with_id(Uuid::parse_str("c96f56d5-ea35-4aae-918a-72a36847a49c")?),
         ]
@@ -1064,26 +1464,26 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                 .with_id(Uuid::parse_str("a43f5460-b588-44ac-84a3-5fdcabd5d3f7")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
-                serde_json::json!({
+                attributes!{
                   "content": "Sed venenatis, magna in ornare suscipit, orci ipsum consequat nulla, ut pulvinar libero metus et metus. Maecenas nec bibendum est. Donec quis ante elit. Nam in eros vitae urna aliquet vestibulum. Donec posuere laoreet facilisis. Aliquam auctor a tellus a tempus. Sed molestie leo eget commodo pellentesque. Curabitur lacinia odio nisl, eu sodales nunc placerat sit amet. Vivamus venenatis, risus vitae lobortis eleifend, odio nisi faucibus tortor, sed aliquet leo arcu et tellus. Donec ultrices consectetur nunc, non rhoncus sapien malesuada et. Nulla tempus ipsum vitae justo scelerisque, sed pretium neque fermentum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur accumsan et ex pellentesque dignissim. Integer viverra libero quis tortor dignissim elementum.",
                   "dropCap": false
-                }),
+                },
             )
                 .with_id(Uuid::parse_str("816310e3-bbd7-44ae-87cb-3f40633a4b08")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
-                serde_json::json!( {
+                attributes!{
                   "content": "Sed quis fermentum mi. Integer commodo turpis a fermentum tristique. Integer convallis, nunc sed scelerisque varius, mi tellus molestie metus, eu ultrices justo tellus non arcu. Cras euismod, lectus eu scelerisque mattis, odio ex ornare ipsum, a dapibus nulla leo maximus orci. Etiam laoreet venenatis lorem, vitae iaculis mauris. Nullam lobortis, tortor eget ullamcorper lobortis, tellus odio tincidunt dolor, vitae gravida nibh turpis ac sem. Integer non sodales eros.",
                   "dropCap": false
-                }),
+                },
             )
                 .with_id(Uuid::parse_str("37aa6421-768e-49b9-b447-5f457e5192bc")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
-                serde_json::json!({
-                  "content": "Vestibulum a scelerisque ante. Fusce interdum eros elit, posuere mattis sapien tristique id. Integer commodo mi orci, sit amet tempor libero vulputate in. Ut id gravida quam. Proin massa dolor, posuere nec metus eu, dignissim viverra nulla. Vestibulum quis neque bibendum, hendrerit diam et, fermentum diam. Sed risus nibh, suscipit in neque nec, bibendum interdum nibh. Aliquam ut banana cat enim a mi ultricies finibus. Nam tristique felis ac risus interdum molestie. Nulla venenatis, augue sed porttitor ultrices, lacus ante sollicitudin dui, vel vehicula ex enim ac mi.",
+                attributes!{
+                    "content": "Vestibulum a scelerisque ante. Fusce interdum eros elit, posuere mattis sapien tristique id. Integer commodo mi orci, sit amet tempor libero vulputate in. Ut id gravida quam. Proin massa dolor, posuere nec metus eu, dignissim viverra nulla. Vestibulum quis neque bibendum, hendrerit diam et, fermentum diam. Sed risus nibh, suscipit in neque nec, bibendum interdum nibh. Aliquam ut banana cat enim a mi ultricies finibus. Nam tristique felis ac risus interdum molestie. Nulla venenatis, augue sed porttitor ultrices, lacus ante sollicitudin dui, vel vehicula ex enim ac mi.",
                   "dropCap": false
-                }),
+                },
             )
             .with_id(Uuid::parse_str("cf11a0fb-f56e-4e0d-bc12-51d920dbc278")?),
         ]
@@ -1132,11 +1532,11 @@ fn paragraph(content: &str, block: Uuid) -> GutenbergBlock {
     GutenbergBlock {
         name: "core/paragraph".to_string(),
         is_valid: true,
-        client_id: block.to_string(),
-        attributes: serde_json::json!({
+        client_id: block,
+        attributes: attributes! {
             "content": content,
             "dropCap": false,
-        }),
+        },
         inner_blocks: vec![],
     }
 }
@@ -1155,18 +1555,19 @@ fn example_exercise(
     GutenbergBlock {
         name: "moocfi/exercise".to_string(),
         is_valid: true,
-        client_id: block_1.to_string(),
-        attributes: serde_json::json!({
+        client_id: block_1,
+        attributes: attributes! {
             "id": ex,
             "name": "Best exercise",
             "dropCap": false,
-        }),
+        },
         inner_blocks: vec![GutenbergBlock {
             name: "moocfi/exercise-task".to_string(),
             is_valid: true,
-            client_id: block_2.to_string(),
-            attributes: serde_json::json!({
+            client_id: block_2,
+            attributes: attributes! {
                 "id": task,
+                "name": "Best exercise task",
                 "exercise_type": "example-exercise",
                 "private_spec": serde_json::json!([
                     {
@@ -1185,7 +1586,7 @@ fn example_exercise(
                         "id": spec_3,
                     },
                 ]).to_string(),
-            }),
+            },
             inner_blocks: vec![paragraph("Answer this question.", block_3)],
         }],
     }

@@ -85,6 +85,7 @@ pub struct Data {
     pub page: Uuid,
     pub page_history: Uuid,
     pub exercise: Uuid,
+    pub exercise_slide: Uuid,
     pub task: Uuid,
 }
 
@@ -127,9 +128,10 @@ pub async fn insert_data(conn: &mut PgConnection, exercise_type: &str) -> Result
     let chapter = models::chapters::insert(&mut *conn, "", course, 1).await?;
     let (page, page_history) = models::pages::insert(&mut *conn, course, "", "", 0, user).await?;
     let exercise = models::exercises::insert(conn, course, "", page, chapter, 0).await?;
+    let exercise_slide = models::exercise_slides::insert(&mut *conn, exercise, 0).await?;
     let exercise_task = models::exercise_tasks::insert(
         conn,
-        exercise,
+        exercise_slide,
         exercise_type,
         vec![],
         Value::Null,
@@ -142,6 +144,7 @@ pub async fn insert_data(conn: &mut PgConnection, exercise_type: &str) -> Result
         course,
         course_language_group: clg_id,
         exercise,
+        exercise_slide,
         instance: instance.id,
         org,
         page,

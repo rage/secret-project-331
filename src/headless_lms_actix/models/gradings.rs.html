@@ -245,6 +245,9 @@
 <span id="245">245</span>
 <span id="246">246</span>
 <span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="kw">super</span>::{
     <span class="ident">exercise_services</span>::{<span class="ident">get_exercise_service_by_exercise_type</span>, <span class="ident">get_internal_grade_url</span>},
@@ -254,9 +257,12 @@
     <span class="ident">user_exercise_states::update_user_exercise_state</span>,
     <span class="ident">ModelResult</span>,
 };
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::models</span>::{
-    <span class="ident">exercise_service_info::get_service_info_by_exercise_type</span>, <span class="ident">submissions::GradingRequest</span>,
-    <span class="ident">ModelError</span>,
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">models</span>::{
+        <span class="ident">exercise_service_info::get_service_info_by_exercise_type</span>, <span class="ident">submissions::GradingRequest</span>,
+        <span class="ident">ModelError</span>,
+    },
+    <span class="ident">utils::numbers::f32_to_two_decimals</span>,
 };
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
 
@@ -463,7 +469,7 @@ WHERE id = $2
         <span class="ident">exercise</span>.<span class="ident">score_maximum</span> <span class="kw">as</span> <span class="ident">f32</span>,
     );
     <span class="comment">// Scores are rounded to two decimals</span>
-    <span class="kw">let</span> <span class="ident">score_given_rounded</span> <span class="op">=</span> (<span class="ident">score_given_with_all_decimals</span> <span class="op">*</span> (<span class="number">100_f32</span>)).<span class="ident">trunc</span>() <span class="op">/</span> (<span class="number">100_f32</span>);
+    <span class="kw">let</span> <span class="ident">score_given_rounded</span> <span class="op">=</span> <span class="ident">f32_to_two_decimals</span>(<span class="ident">score_given_with_all_decimals</span>);
     <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">Grading</span>,
         <span class="string">r#&quot;

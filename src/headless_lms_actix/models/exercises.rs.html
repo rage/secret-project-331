@@ -445,6 +445,25 @@
 <span id="445">445</span>
 <span id="446">446</span>
 <span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="kw">super</span>::{
     <span class="ident">course_instances</span>,
@@ -611,6 +630,25 @@ WHERE course_id = $1
   AND deleted_at IS NULL
 &quot;#</span>,
         <span class="ident">course_id</span>
+    )
+    .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">exercises</span>)
+}
+
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_exercises_by_chapter_id</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">chapter_id</span>: <span class="kw-2">&amp;</span><span class="ident">Uuid</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Exercise</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">exercises</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
+        <span class="ident">Exercise</span>,
+        <span class="string">r#&quot;
+SELECT *
+FROM exercises
+WHERE chapter_id = $1
+  AND deleted_at IS NULL
+&quot;#</span>,
+        <span class="ident">chapter_id</span>
     )
     .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;

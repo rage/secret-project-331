@@ -118,7 +118,7 @@ export const fetchUserChapterInstanceChapterProgress = async (
   return data
 }
 
-export const fetchUserCourseInstanceExerciseProgress = async (
+export const fetchUserCourseInstanceChapterExercisesProgress = async (
   courseInstanceId: string,
   chapterId: string,
 ): Promise<UserCourseInstanceChapterExerciseProgress[]> => {

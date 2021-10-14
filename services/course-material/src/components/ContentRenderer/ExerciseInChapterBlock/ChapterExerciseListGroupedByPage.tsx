@@ -1,6 +1,6 @@
 import { useQuery } from "react-query"
 
-import { fetchUserCourseInstanceExerciseProgress } from "../../../services/backend"
+import { fetchUserCourseInstanceChapterExercisesProgress } from "../../../services/backend"
 import { PageWithExercises } from "../../../shared-module/bindings"
 import ExerciseBox from "../../../shared-module/components/ExerciseList/ExerciseBox"
 import PageBox from "../../../shared-module/components/ExerciseList/PageBox"
@@ -20,7 +20,13 @@ const ChapterExerciseListGroupedByPage: React.FC<ChapterExerciseListGroupedByPag
 }) => {
   const { isLoading, error, data } = useQuery(
     `user-course-instance-${courseInstanceId}-chapter-${page.chapter_id}-exercises`,
-    () => fetchUserCourseInstanceExerciseProgress(courseInstanceId, chapterId),
+    async () => {
+      const data = await fetchUserCourseInstanceChapterExercisesProgress(
+        courseInstanceId,
+        chapterId,
+      )
+      return new Map(data.map((x) => [x.exercise_id, x.score_given]))
+    },
   )
 
   if (error) {
@@ -36,7 +42,6 @@ const ChapterExerciseListGroupedByPage: React.FC<ChapterExerciseListGroupedByPag
     return <div>Loading exercise user progress...</div>
   }
 
-  const mappedExerciseUserScore = new Map(data.map((x) => [x.exercise_id, x.score_given]))
   return (
     <>
       {page.exercises.length !== 0 && (
@@ -50,7 +55,7 @@ const ChapterExerciseListGroupedByPage: React.FC<ChapterExerciseListGroupedByPag
                   exerciseIndex={e.order_number}
                   exerciseTitle={e.name}
                   scoreMaximum={e.score_maximum}
-                  userPoints={mappedExerciseUserScore.get(e.id) ?? 0}
+                  userPoints={data.get(e.id) ?? 0}
                 />
               </div>
             ))}

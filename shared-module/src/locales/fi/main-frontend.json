@@ -23,6 +23,8 @@
   "error-title": "Virhe",
   "export-points-as-csv": "Lataa pisteet CSV-tiedostona",
   "feedback-given": "Palaute: {{feedback-given}}",
+  "selected-text": "Valittu teksti: {{selected-text}}",
+  "no-selected-text": "Ei valittua tekstiä",
   "finnish": "Suomi",
   "header-upload-image": "Lisää kuva",
   "hourly-submissions-visualization-tooltip": "Tunti: {{day}}<br />Palautuksia: {{submissions}}",
@@ -44,7 +46,7 @@
   "other-language": "muu",
   "page-deletion-confirmation-message": "Oletko varma, että haluat poistaa sivun {{name}}?",
   "previous-title-current-title": "Edellinen: {{current-title}} | Nykyinen: {{selected-title}}",
-  "selected-contents": "Valitut sisällöt: {{text}}",
+  "block-contents": "Lohkon sisällöt: {{text}}",
   "sent-by-at": "Lähetetty käyttäjän {{user}} toimesta {{time}}",
   "swedish": "Ruotsi",
   "text-field-label-chapter-number": "Luvun numero",
@@ -119,5 +121,6 @@
   "invalid-url": "Epäkelpo osoite",
   "label-url": "Osoite",
   "label-width": "Leveys",
-  "label-example-name": "Esimerkin nimi"
+  "label-example-name": "Esimerkin nimi",
+  "link-manage-change-requests": "Hallinnoi muutosehdotuksia"
 }

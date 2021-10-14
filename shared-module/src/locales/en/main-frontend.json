@@ -23,6 +23,8 @@
   "error-title": "Error",
   "export-points-as-csv": "Export points as csv",
   "feedback-given": "Feedback: {{feedback-given}}",
+  "selected-text": "Selected text: {{selected-text}}",
+  "no-selected-text": "No selected text",
   "finnish": "Finnish",
   "header-upload-image": "Upload an image",
   "hourly-submissions-visualization-tooltip": "Hour: {{day}}<br />Submissions: {{submissions}}",
@@ -44,7 +46,7 @@
   "other-language": "other",
   "page-deletion-confirmation-message": "Are you sure you want to delete page {{name}}?",
   "previous-title-current-title": "Previous: {{current-title}} | Current: {{selected-title}}",
-  "selected-contents": "Selected contents: {{text}}",
+  "block-contents": "Block contents: {{text}}",
   "sent-by-at": "Sent by {{user}} at {{time}}",
   "swedish": "Swedish",
   "text-field-label-chapter-number": "Chapter number",
@@ -119,5 +121,6 @@
   "invalid-url": "Invalid URL",
   "label-url": "URL",
   "label-width": "Width",
-  "label-example-name": "Example name"
+  "label-example-name": "Example name",
+  "link-manage-change-requests": "Manage change requests"
 }

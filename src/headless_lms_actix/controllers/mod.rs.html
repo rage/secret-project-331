@@ -255,7 +255,7 @@ Represents error messages that are sent in responses.
 }
 
 <span class="doccomment">/// The format all error messages from the API is in</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">TS</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ErrorResponse</span> {
     <span class="kw">pub</span> <span class="ident">title</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">message</span>: <span class="ident">String</span>,

@@ -128,6 +128,7 @@
 <span id="128">128</span>
 <span id="129">129</span>
 <span id="130">130</span>
+<span id="131">131</span>
 </pre><pre class="rust">
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -137,7 +138,7 @@
             <span class="ident">courses::GetFeedbackQuery</span>, <span class="ident">exercises::ExerciseSubmissions</span>, <span class="ident">feedback::MarkAsRead</span>,
             <span class="ident">proposed_edits::GetEditProposalsQuery</span>,
         },
-        <span class="ident">UploadResult</span>,
+        <span class="ident">ErrorResponse</span>, <span class="ident">UploadResult</span>,
     },
     <span class="ident">models</span>::{
         <span class="ident">chapters</span>::{<span class="ident">Chapter</span>, <span class="ident">ChapterStatus</span>, <span class="ident">ChapterUpdate</span>, <span class="ident">ChapterWithStatus</span>, <span class="ident">NewChapter</span>},
@@ -233,6 +234,7 @@
   <span class="ident">EditProposalInfo</span>,
   <span class="ident">GetEditProposalsQuery</span>,
   <span class="ident">NewProposedPageEdits</span>,
+  <span class="ident">ErrorResponse</span>,
   <span class="comment">// dependencies</span>
   <span class="ident">VariantStatus</span>,
   <span class="ident">ChapterStatus</span>,

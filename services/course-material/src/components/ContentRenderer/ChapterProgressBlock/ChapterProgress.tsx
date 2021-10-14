@@ -2,18 +2,20 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useQuery } from "react-query"
 
-import { fetchUserCourseProgress } from "../../../services/backend"
+import { fetchUserChapterInstanceChapterProgress } from "../../../services/backend"
 import CircularProgress from "../../../shared-module/components/CourseProgress/CircularProgress"
 import { courseMaterialCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import GenericLoading from "../../GenericLoading"
 
-interface CourseProgressProps {
+interface ChapterProgressProps {
+  chapterId: string
   courseInstanceId: string
 }
 
-const CourseProgress: React.FC<CourseProgressProps> = ({ courseInstanceId }) => {
-  const { isLoading, error, data } = useQuery(`course-instance-${courseInstanceId}-progress`, () =>
-    fetchUserCourseProgress(courseInstanceId),
+const ChapterProgress: React.FC<ChapterProgressProps> = ({ chapterId, courseInstanceId }) => {
+  const { isLoading, error, data } = useQuery(
+    `course-instance-${courseInstanceId}-chapter-${chapterId}-progress`,
+    () => fetchUserChapterInstanceChapterProgress(courseInstanceId, chapterId),
   )
 
   if (error) {
@@ -39,11 +41,11 @@ const CourseProgress: React.FC<CourseProgressProps> = ({ courseInstanceId }) => 
           max={data.score_maximum}
           given={data.score_given}
           point={50}
-          label="STUDENT PROGRESS"
+          label="CHAPTER PROGRESS"
         />
       </div>
     </div>
   )
 }
 
-export default CourseProgress
+export default ChapterProgress

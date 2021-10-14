@@ -3,6 +3,16 @@ pub fn f32_approx_eq(first: f32, second: f32) -> bool {
     diff.abs() < 0.000001
 }
 
+pub fn option_f32_to_f32_two_decimals(value: Option<f32>) -> f32 {
+    match value {
+        Some(float) => f32_to_two_decimals(float),
+        None => 0.0,
+    }
+}
+pub fn f32_to_two_decimals(value: f32) -> f32 {
+    (value * (100_f32)).trunc() / (100_f32)
+}
+
 #[cfg(test)]
 mod tests {
     use crate::utils::numbers::f32_approx_eq;

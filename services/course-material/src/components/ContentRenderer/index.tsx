@@ -7,6 +7,7 @@ import { courseMaterialBlockClass } from "../../utils/constants"
 
 import AudioBlock from "./AudioBlock"
 import ButtonBlock from "./ButtonBlock"
+import ChapterProgressBlock from "./ChapterProgressBlock"
 import CodeBlock from "./CodeBlock"
 import ColumnBlock from "./ColumnBlock"
 import ColumnsBlock from "./ColumnsBlock"
@@ -85,7 +86,7 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/landing-page-hero-section": LandingPageHeroSectionBlock,
   "moocfi/course-progress": CourseProgressBlock,
   "moocfi/course-objective-section": CourseObjectiveSectionBlock,
-  "moocfi/chapter-progress": CourseProgressBlock,
+  "moocfi/chapter-progress": ChapterProgressBlock,
 }
 
 const ContentRenderer: React.FC<ContentRendererProps> = (props) => {

@@ -71,11 +71,21 @@ export interface PageWithExercises {
   exercises: Array<Exercise>
 }
 
-export interface UserProgress {
-  score_given: number | null
+export interface UserCourseInstanceProgress {
+  score_given: number
   score_maximum: number | null
   total_exercises: number | null
   completed_exercises: number | null
+}
+
+export interface UserCourseInstanceChapterProgress {
+  score_given: number
+  score_maximum: number
+}
+
+export interface UserCourseInstanceChapterExerciseProgress {
+  exercise_id: string
+  score_given: number
 }
 
 export interface CourseInstanceEnrollment {

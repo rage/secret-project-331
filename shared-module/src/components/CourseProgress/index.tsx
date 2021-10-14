@@ -7,7 +7,7 @@ export interface CourseProgressExtraProps {
   variant: "circle" | "bar"
   size: "medium" | "large"
   max: number | null
-  min: number | null
+  given: number | null
   point: number
   n: number
   exercisesDone: number

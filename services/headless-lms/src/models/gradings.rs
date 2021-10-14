@@ -6,9 +6,12 @@ use super::{
     user_exercise_states::update_user_exercise_state,
     ModelResult,
 };
-use crate::models::{
-    exercise_service_info::get_service_info_by_exercise_type, submissions::GradingRequest,
-    ModelError,
+use crate::{
+    models::{
+        exercise_service_info::get_service_info_by_exercise_type, submissions::GradingRequest,
+        ModelError,
+    },
+    utils::numbers::f32_to_two_decimals,
 };
 use chrono::{DateTime, Utc};
 
@@ -215,7 +218,7 @@ pub async fn update_grading(
         exercise.score_maximum as f32,
     );
     // Scores are rounded to two decimals
-    let score_given_rounded = (score_given_with_all_decimals * (100_f32)).trunc() / (100_f32);
+    let score_given_rounded = f32_to_two_decimals(score_given_with_all_decimals);
     let grading = sqlx::query_as!(
         Grading,
         r#"

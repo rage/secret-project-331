@@ -5,34 +5,34 @@ import { Block } from "../../services/backend"
 import { NewProposedBlockEdit } from "../../shared-module/bindings"
 import { courseMaterialBlockClass } from "../../utils/constants"
 
-import AudioBlock from "./AudioBlock"
-import ButtonBlock from "./ButtonBlock"
-import ChapterProgressBlock from "./ChapterProgressBlock"
-import CodeBlock from "./CodeBlock"
-import ColumnBlock from "./ColumnBlock"
-import ColumnsBlock from "./ColumnsBlock"
-import CourseChapterGridBlock from "./CourseChapterGridBlock"
-import CourseObjectiveSectionBlock from "./CourseObjectiveSectionBlock"
-import CourseProgressBlock from "./CourseProgressBlock"
-import CustomHTMLBlock from "./CustomHTMLBlock"
 import DefaultBlock from "./DefaultBlock"
-import EmbedBlock from "./EmbedBlock"
-import ExerciseBlock from "./ExerciseBlock"
-import ExerciseInChapterBlock from "./ExerciseInChapterBlock/index"
-import HeadingBlock from "./Headings/HeadingBlock"
-import HeroSectionBlock from "./HeroSectionBlock"
-import ImageBlock from "./ImageBlock"
-import LandingPageHeroSectionBlock from "./LandingPageHeroSectionBlock"
-import ListBlock from "./ListBlock"
-import PagesInChapterBlock from "./PagesInChapterBlock"
-import ParagraphBlock from "./ParagraphBlock"
-import PreformatterBlock from "./PreformatterBlock"
-import PullquoteBlock from "./PullquoteBlock"
-import QuoteBlock from "./QuoteBlock"
-import SeparatorBlock from "./Separator"
-import SpacerBlock from "./SpacerBlock"
-import TableBlock from "./TableBlock"
-import VerseBlock from "./VerseBlock"
+import AudioBlock from "./core/common/Audio/AudioBlock"
+import HeadingBlock from "./core/common/Heading/HeadingBlock"
+import ImageBlock from "./core/common/Image/ImageBlock"
+import ListBlock from "./core/common/List/ListBlock"
+import ParagraphBlock from "./core/common/Paragraph"
+import QuoteBlock from "./core/common/Quote/QuoteBlock"
+import EmbedBlock from "./core/embeds/EmbedBlock"
+import CodeBlock from "./core/formatting/CodeBlock"
+import CustomHTMLBlock from "./core/formatting/CustomHTMLBlock"
+import PreformattedBlock from "./core/formatting/PreformattedBlock"
+import PullquoteBlock from "./core/formatting/PullquoteBlock"
+import TableBlock from "./core/formatting/TableBlock"
+import VerseBlock from "./core/formatting/VerseBlock"
+import ButtonBlock from "./core/layout/ButtonBlock"
+import ColumnBlock from "./core/layout/ColumnBlock"
+import ColumnsBlock from "./core/layout/ColumnsBlock"
+import SeparatorBlock from "./core/layout/Separator"
+import SpacerBlock from "./core/layout/SpacerBlock"
+import ChapterProgressBlock from "./moocfi/ChapterProgressBlock"
+import CourseChapterGridBlock from "./moocfi/CourseChapterGridBlock"
+import CourseObjectiveSectionBlock from "./moocfi/CourseObjectiveSectionBlock"
+import CourseProgressBlock from "./moocfi/CourseProgressBlock"
+import ExerciseBlock from "./moocfi/ExerciseBlock"
+import ExerciseInChapterBlock from "./moocfi/ExerciseInChapterBlock/index"
+import HeroSectionBlock from "./moocfi/HeroSectionBlock"
+import LandingPageHeroSectionBlock from "./moocfi/LandingPageHeroSectionBlock"
+import PagesInChapterBlock from "./moocfi/PagesInChapterBlock"
 export interface ContentRendererProps {
   data: Block<unknown>[]
   editing: boolean
@@ -48,7 +48,7 @@ export interface BlockRendererProps<T> {
   id: string
 }
 
-const LatexBlock = dynamic(() => import("./LatexBlock"))
+const LatexBlock = dynamic(() => import("./moocfi/LatexBlock"))
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const blockToRendererMap: { [blockName: string]: any } = {
@@ -75,7 +75,7 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "core/html": CustomHTMLBlock,
   "core/verse": VerseBlock,
   "core/pullquote": PullquoteBlock,
-  "core/preformatted": PreformatterBlock,
+  "core/preformatted": PreformattedBlock,
   "core/table": TableBlock,
   "moocfi/exercise": ExerciseBlock,
   "moocfi/exercises-in-chapter": ExerciseInChapterBlock,

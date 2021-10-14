@@ -8,7 +8,7 @@ import { NewProposedBlockEdit } from "../shared-module/bindings"
 import DebugModal from "../shared-module/components/DebugModal"
 
 import ContentRenderer from "./ContentRenderer"
-import NavigationContainer from "./ContentRenderer/NavigationContainer"
+import NavigationContainer from "./ContentRenderer/moocfi/NavigationContainer"
 import FeedbackHandler from "./FeedbackHandler"
 import SelectCourseInstanceModal from "./modals/SelectCourseInstanceModal"
 import UserOnWrongCourseNotification from "./notifications/UserOnWrongCourseNotification"

@@ -14,7 +14,6 @@ export const supportedCoreBlocks: string[] = [
   "core/column",
   "core/embed", // This is used by youtube, twitter etc.
   "core/file",
-  "core/group",
   "core/html",
   "core/preformatted",
   "core/pullquote",
@@ -23,7 +22,6 @@ export const supportedCoreBlocks: string[] = [
   "core/block",
   "core/spacer",
   "core/table",
-  "core/text-columns",
   "core/verse",
 ]
 

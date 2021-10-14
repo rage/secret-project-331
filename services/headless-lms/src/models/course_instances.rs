@@ -37,7 +37,7 @@ pub struct CourseInstance {
     pub support_email: Option<String>,
 }
 
-#[derive(Debug, Clone, Copy, Default)]
+#[derive(Debug, Clone, Copy)]
 pub struct NewCourseInstance<'a> {
     pub id: Uuid,
     pub course_id: Uuid,
@@ -376,7 +376,11 @@ mod test {
             NewCourseInstance {
                 id: Uuid::new_v4(),
                 course_id: course_1_id,
-                ..Default::default()
+                name: None,
+                variant_status: None,
+                teacher_in_charge_name: "teacher",
+                teacher_in_charge_email: "teacher@example.com",
+                support_email: None,
             },
         )
         .await
@@ -386,7 +390,11 @@ mod test {
             NewCourseInstance {
                 id: Uuid::new_v4(),
                 course_id: course_2_id,
-                ..Default::default()
+                name: None,
+                variant_status: None,
+                teacher_in_charge_name: "teacher",
+                teacher_in_charge_email: "teacher@example.com",
+                support_email: None,
             },
         )
         .await;
@@ -397,7 +405,11 @@ mod test {
             NewCourseInstance {
                 id: Uuid::new_v4(),
                 course_id: course_1_id,
-                ..Default::default()
+                name: None,
+                variant_status: None,
+                teacher_in_charge_name: "teacher",
+                teacher_in_charge_email: "teacher@example.com",
+                support_email: None,
             },
         )
         .await;

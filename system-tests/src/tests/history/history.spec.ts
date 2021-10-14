@@ -222,6 +222,9 @@ test("test", async ({ page, headless }) => {
       ".insert-sign",
       ".delete-sign",
     ],
+    beforeScreenshot: async () => {
+      await replaceIdsAndTimesFromHistoryView(page)
+    },
   })
 
   // Click text=Restore

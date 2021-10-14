@@ -31,9 +31,15 @@ test("test", async ({ headless, page }) => {
   // Click button:has-text("Continue")
   await page.click('button:has-text("Continue")')
 
-  await page.click("text=The Basics")
+  await Promise.all([page.waitForNavigation(), await page.click("text=The Basics")])
+  expect(page.url()).toBe("http://project-331.local/courses/introduction-to-feedback/chapter-1")
 
-  await page.click("text=Insert chapter heading...", {
+  await Promise.all([page.waitForNavigation(), await page.click("text=Page One")])
+  expect(page.url()).toBe(
+    "http://project-331.local/courses/introduction-to-feedback/chapter-1/page-1",
+  )
+
+  await page.click("text=So big", {
     clickCount: 3,
   })
 

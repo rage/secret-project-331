@@ -6,7 +6,7 @@ use crate::{
             courses::GetFeedbackQuery, exercises::ExerciseSubmissions, feedback::MarkAsRead,
             proposed_edits::GetEditProposalsQuery,
         },
-        UploadResult,
+        ErrorResponse, UploadResult,
     },
     models::{
         chapters::{Chapter, ChapterStatus, ChapterUpdate, ChapterWithStatus, NewChapter},
@@ -16,6 +16,7 @@ use crate::{
         email_templates::{EmailTemplate, EmailTemplateNew, EmailTemplateUpdate},
         exercise_service_info::{CourseMaterialExerciseServiceInfo, ExerciseServiceInfoApi},
         exercise_services::{ExerciseService, ExerciseServiceNewOrUpdate},
+        exercise_slides::ExerciseSlide,
         exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
         exercises::{
             ActivityProgress, CourseMaterialExercise, Exercise, ExerciseStatus, GradingProgress,
@@ -66,6 +67,7 @@ ts_rs::export! {
   ExerciseServiceNewOrUpdate,
   Course,
   Exercise,
+  ExerciseSlide,
   ExerciseServiceInfoApi,
   SubmissionCount,
   SubmissionCountByWeekAndHour,
@@ -100,6 +102,7 @@ ts_rs::export! {
   EditProposalInfo,
   GetEditProposalsQuery,
   NewProposedPageEdits,
+  ErrorResponse,
   // dependencies
   VariantStatus,
   ChapterStatus,

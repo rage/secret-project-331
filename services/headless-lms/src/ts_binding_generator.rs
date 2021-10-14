@@ -6,7 +6,7 @@ use crate::{
             courses::GetFeedbackQuery, exercises::ExerciseSubmissions, feedback::MarkAsRead,
             proposed_edits::GetEditProposalsQuery,
         },
-        UploadResult,
+        ErrorResponse, UploadResult,
     },
     models::{
         chapters::{Chapter, ChapterStatus, ChapterUpdate, ChapterWithStatus, NewChapter},
@@ -102,6 +102,7 @@ ts_rs::export! {
   EditProposalInfo,
   GetEditProposalsQuery,
   NewProposedPageEdits,
+  ErrorResponse,
   // dependencies
   VariantStatus,
   ChapterStatus,

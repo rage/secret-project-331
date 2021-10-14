@@ -27,6 +27,7 @@ import {
   EmailTemplate,
   EmailTemplateNew,
   EmailTemplateUpdate,
+  ErrorResponse,
   Exercise,
   ExerciseService,
   ExerciseServiceInfoApi,
@@ -681,6 +682,15 @@ export function isNewProposedPageEdits(
     typeof obj.page_id === "string" &&
     Array.isArray(obj.block_edits) &&
     obj.block_edits.every((e: any) => isNewProposedBlockEdit(e) as boolean)
+  )
+}
+
+export function isErrorResponse(obj: any, _argumentName?: string): obj is ErrorResponse {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.title === "string" &&
+    typeof obj.message === "string" &&
+    (obj.source === null || typeof obj.source === "string")
   )
 }
 

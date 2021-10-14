@@ -206,7 +206,8 @@ test("test", async ({ page, headless }) => {
     page.click("text=Page One"),
   ])
 
-  await page.click("text=Like this")
+  await page.click("text=At vero")
+  await page.click("text=So big")
 
   await expectScreenshotsToMatchSnapshots({
     page,

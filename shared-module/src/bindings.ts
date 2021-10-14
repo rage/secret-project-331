@@ -412,6 +412,12 @@ export interface NewProposedPageEdits {
   block_edits: Array<NewProposedBlockEdit>
 }
 
+export interface ErrorResponse {
+  title: string
+  message: string
+  source: string | null
+}
+
 export type VariantStatus = "Draft" | "Upcoming" | "Active" | "Ended"
 
 export type ChapterStatus = "open" | "closed"

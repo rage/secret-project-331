@@ -11,6 +11,7 @@ use crate::{
         chapters::DatabaseChapter,
         exercise_service_info,
         exercise_services::{get_internal_public_spec_url, get_model_solution_url},
+        exercise_slides,
         exercise_tasks::ExerciseTask,
         exercises::Exercise,
         page_history::HistoryChangeReason,
@@ -441,18 +442,22 @@ WHERE page_id = $1
     let exercise_tasks: Vec<NormalizedCmsExerciseTaskWithExerciseId> = sqlx::query_as!(
         NormalizedCmsExerciseTaskWithExerciseId,
         "
-SELECT id,
-  exercise_type,
-  assignment,
-  public_spec,
-  private_spec,
-  exercise_id
-FROM exercise_tasks
-WHERE exercise_id IN (
+SELECT t.id,
+  t.exercise_type,
+  t.assignment,
+  t.public_spec,
+  t.private_spec,
+  s.exercise_id
+FROM exercise_tasks t
+  JOIN exercise_slides s ON (t.exercise_slide_id = s.id)
+WHERE t.deleted_at IS NULL
+  AND s.deleted_at IS NULL
+  AND s.exercise_id IN (
     SELECT id
     FROM exercises
     WHERE page_id = $1
-  )
+      AND deleted_at IS NULL
+  );
 ",
         page_id
     )
@@ -607,6 +612,7 @@ RETURNING id,
 #[derive(Debug)]
 struct ExerciseTaskIdAndSpec {
     id: Uuid,
+    exercise_slide_id: Uuid,
     private_spec: Option<serde_json::Value>,
     public_spec: Option<serde_json::Value>,
     model_solution_spec: Option<serde_json::Value>,
@@ -635,8 +641,30 @@ async fn upsert_exercises_and_exercise_tasks(
     .await?;
 
     sqlx::query!(
+        "
+UPDATE exercise_slides
+SET deleted_at = now()
+WHERE exercise_id IN (
+    SELECT id
+    FROM exercises
+    WHERE page_id = $1
+  );
+        ",
+        page.id
+    )
+    .execute(&mut *conn)
+    .await?;
+
+    sqlx::query!(
         r#"
-        UPDATE exercise_tasks SET deleted_at = now() WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1)
+UPDATE exercise_tasks
+SET deleted_at = now()
+WHERE exercise_slide_id IN (
+    SELECT s.id
+    FROM exercise_slides s
+      JOIN exercises e ON (s.exercise_id = e.id)
+    WHERE e.page_id = $1
+  );
             "#,
         page.id
     )
@@ -658,11 +686,13 @@ async fn upsert_exercises_and_exercise_tasks(
         ExerciseTaskIdAndSpec,
         r#"
 SELECT et.id,
+  et.exercise_slide_id,
   et.private_spec,
   et.public_spec,
   et.model_solution_spec
 from exercise_tasks et
-  JOIN exercises e ON (e.id = et.exercise_id)
+  JOIN exercise_slides es ON (es.id = et.exercise_slide_id)
+  JOIN exercises e ON (es.exercise_id = e.id)
 WHERE page_id = $1
         "#,
         page.id
@@ -770,18 +800,30 @@ RETURNING *;
                     .flatten(),
             )
             .await?;
+            // Use existing exercise slide or create new record.
+            let exercise_slide_id = if let Some(existing_task) = existing_exercise_task {
+                exercise_slides::upsert(
+                    &mut *conn,
+                    existing_task.exercise_slide_id,
+                    safe_for_db_exercise_id,
+                    0,
+                )
+                .await?
+            } else {
+                exercise_slides::insert(&mut *conn, safe_for_db_exercise_id, 0).await?
+            };
             // Upsert
             let exercise_task: NormalizedCmsExerciseTask = sqlx::query_as!(
                 NormalizedCmsExerciseTask,
                 r#"
-INSERT INTO exercise_tasks(id, exercise_id, exercise_type, assignment, public_spec, private_spec, model_solution_spec)
+INSERT INTO exercise_tasks(id, exercise_slide_id, exercise_type, assignment, public_spec, private_spec, model_solution_spec)
 VALUES ($1, $2, $3, $4, $5, $6, $7)
 ON CONFLICT (id) DO UPDATE
-SET exercise_id=$2, exercise_type=$3, assignment=$4, public_spec=$5, private_spec=$6, deleted_at=NULL
+SET exercise_slide_id=$2, exercise_type=$3, assignment=$4, public_spec=$5, private_spec=$6, deleted_at=NULL
 RETURNING id, exercise_type, assignment, private_spec;
         "#,
                 safe_for_db_exercise_task_id,
-                safe_for_db_exercise_id,
+                exercise_slide_id,
                 task_update.exercise_type,
                 task_update.assignment,
                 public_spec,
@@ -1019,12 +1061,32 @@ RETURNING id,
     .await?;
 
     sqlx::query!(
+        "
+UPDATE exercise_slides
+SET deleted_at = now()
+WHERE exercise_id IN (
+    SELECT id
+    FROM exercises
+    WHERE page_id = $1
+  );
+        ",
+        page.id
+    )
+    .execute(&mut tx)
+    .await?;
+
+    sqlx::query!(
         r#"
-  UPDATE exercise_tasks
-  SET deleted_at = now()
-  WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1)
-          "#,
-        page_id,
+UPDATE exercise_tasks
+SET deleted_at = now()
+WHERE exercise_slide_id IN (
+    SELECT s.id
+    FROM exercise_slides s
+      JOIN exercises e ON (s.exercise_id = e.id)
+    WHERE e.page_id = $1
+  );
+            "#,
+        page.id
     )
     .execute(&mut tx)
     .await?;

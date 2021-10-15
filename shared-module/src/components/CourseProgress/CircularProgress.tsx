@@ -31,15 +31,20 @@ const StyledSVG = styled.div`
 `
 export interface CourseProgressExtraProps {
   max: number | null
-  min: number | null
+  given: number | null
   point: number
   label: string
 }
 
-const CircularProgress: React.FC<CourseProgressExtraProps> = ({ point = 10, label, min, max }) => {
+const CircularProgress: React.FC<CourseProgressExtraProps> = ({
+  point = 10,
+  label,
+  given,
+  max,
+}) => {
   const [willAnimate, setWillAnimate] = useState(false)
 
-  const minimum = min ?? 0
+  const givenScore = given ?? 0
   const maximum = max ?? 0
   useLayoutEffect(() => {
     const onScroll = () => {
@@ -88,7 +93,7 @@ const CircularProgress: React.FC<CourseProgressExtraProps> = ({ point = 10, labe
         </svg>
         <p>
           {/* {props.number.interpolate((number: string) => `${Math.floor(number)}/${max}`)} */}
-          {minimum + "/" + maximum}
+          {givenScore + "/" + maximum}
         </p>
       </StyledSVG>
     </>

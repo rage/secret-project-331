@@ -348,12 +348,30 @@ WHERE id = $2;
         }
     }
 
+    // Copy exercise slides
+    sqlx::query!(
+        "
+INSERT INTO exercise_slides (
+    id, exercise_id, order_number
+)
+SELECT uuid_generate_v5($1, id::text),
+    uuid_generate_v5($1, exercise_id::text),
+    order_number
+FROM exercise_slides
+WHERE exercise_id IN (SELECT id FROM exercises WHERE course_id = $2);
+        ",
+        copied_course.id,
+        parent_course.id
+    )
+    .execute(&mut tx)
+    .await?;
+
     // Copy exercise tasks
     sqlx::query!(
         "
 INSERT INTO exercise_tasks (
     id,
-    exercise_id,
+    exercise_slide_id,
     exercise_type,
     assignment,
     private_spec,
@@ -363,7 +381,7 @@ INSERT INTO exercise_tasks (
     copied_from
   )
 SELECT uuid_generate_v5($1, id::text),
-  uuid_generate_v5($1, exercise_id::text),
+  uuid_generate_v5($1, exercise_slide_id::text),
   exercise_type,
   assignment,
   private_spec,
@@ -372,10 +390,11 @@ SELECT uuid_generate_v5($1, id::text),
   model_solution_spec,
   id
 FROM exercise_tasks
-WHERE exercise_id IN (
-    SELECT id
-    FROM exercises
-    WHERE course_id = $2
+WHERE exercise_slide_id IN (
+    SELECT s.id
+    FROM exercise_slides s
+      JOIN exercises e ON (e.id = s.exercise_id)
+    WHERE e.course_id = $2
   );
     ",
         copied_course.id,
@@ -639,13 +658,15 @@ WHERE slug = $1
 
 #[cfg(test)]
 mod test {
+    use std::str::FromStr;
+
     use serde_json::Value;
 
     use super::*;
     use crate::{
         models::{
             chapters::{self, DatabaseChapter, NewChapter},
-            courses,
+            courses, exercise_slides,
             exercise_tasks::{self, ExerciseTask},
             exercises::{self, Exercise},
             organizations,
@@ -785,9 +806,17 @@ mod test {
         )
         .await
         .unwrap();
+        let exercise_slide_id = exercise_slides::insert_with_id(
+            tx.as_mut(),
+            Uuid::from_str("a676876f-1827-4db6-abbb-f41079cc0315").unwrap(),
+            exercise_id,
+            0,
+        )
+        .await
+        .unwrap();
         let exercise_task_id = exercise_tasks::insert(
             tx.as_mut(),
-            exercise_id,
+            exercise_slide_id,
             "Exercise",
             vec![],
             Value::Null,
@@ -890,7 +919,12 @@ WHERE chapter_id = $1;",
         // Assuming there's only one exercise task per exercise in test data.
         let copied_exercise_task = sqlx::query_as!(
             ExerciseTask,
-            "SELECT * FROM exercise_tasks WHERE exercise_id = $1;",
+            "
+SELECT t.*
+FROM exercise_tasks t
+  JOIN exercise_slides s ON (t.exercise_slide_id = s.id)
+WHERE s.exercise_id = $1;
+            ",
             copied_exercise.id
         )
         .fetch_one(tx.as_mut())

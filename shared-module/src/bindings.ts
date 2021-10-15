@@ -71,11 +71,21 @@ export interface PageWithExercises {
   exercises: Array<Exercise>
 }
 
-export interface UserProgress {
-  score_given: number | null
+export interface UserCourseInstanceProgress {
+  score_given: number
   score_maximum: number | null
   total_exercises: number | null
   completed_exercises: number | null
+}
+
+export interface UserCourseInstanceChapterProgress {
+  score_given: number
+  score_maximum: number
+}
+
+export interface UserCourseInstanceChapterExerciseProgress {
+  exercise_id: string
+  score_given: number
 }
 
 export interface CourseInstanceEnrollment {
@@ -182,6 +192,15 @@ export interface Exercise {
   score_maximum: number
   order_number: number
   copied_from: string | null
+}
+
+export interface ExerciseSlide {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  exercise_id: string
+  order_number: number
 }
 
 export interface ExerciseServiceInfoApi {
@@ -403,13 +422,19 @@ export interface NewProposedPageEdits {
   block_edits: Array<NewProposedBlockEdit>
 }
 
+export interface ErrorResponse {
+  title: string
+  message: string
+  source: string | null
+}
+
 export type VariantStatus = "Draft" | "Upcoming" | "Active" | "Ended"
 
 export type ChapterStatus = "open" | "closed"
 
 export interface CourseMaterialExerciseTask {
   id: string
-  exercise_id: string
+  exercise_slide_id: string
   exercise_type: string
   assignment: unknown
   public_spec: unknown | null
@@ -498,7 +523,7 @@ export interface ExerciseTask {
   id: string
   created_at: Date
   updated_at: Date
-  exercise_id: string
+  exercise_slide_id: string
   exercise_type: string
   assignment: unknown
   deleted_at: Date | null

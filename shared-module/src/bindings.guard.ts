@@ -27,10 +27,12 @@ import {
   EmailTemplate,
   EmailTemplateNew,
   EmailTemplateUpdate,
+  ErrorResponse,
   Exercise,
   ExerciseService,
   ExerciseServiceInfoApi,
   ExerciseServiceNewOrUpdate,
+  ExerciseSlide,
   ExerciseStatus,
   ExerciseSubmissions,
   ExerciseTask,
@@ -76,9 +78,11 @@ import {
   SubmissionInfo,
   SubmissionResult,
   UploadResult,
+  UserCourseInstanceChapterExerciseProgress,
+  UserCourseInstanceChapterProgress,
+  UserCourseInstanceProgress,
   UserCourseSettings,
   UserPointsUpdateStrategy,
-  UserProgress,
   VariantStatus,
 } from "./bindings"
 
@@ -166,13 +170,38 @@ export function isPageWithExercises(obj: any, _argumentName?: string): obj is Pa
   )
 }
 
-export function isUserProgress(obj: any, _argumentName?: string): obj is UserProgress {
+export function isUserCourseInstanceProgress(
+  obj: any,
+  _argumentName?: string,
+): obj is UserCourseInstanceProgress {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (obj.score_given === null || typeof obj.score_given === "number") &&
+    typeof obj.score_given === "number" &&
     (obj.score_maximum === null || typeof obj.score_maximum === "number") &&
     (obj.total_exercises === null || typeof obj.total_exercises === "number") &&
     (obj.completed_exercises === null || typeof obj.completed_exercises === "number")
+  )
+}
+
+export function isUserCourseInstanceChapterProgress(
+  obj: any,
+  _argumentName?: string,
+): obj is UserCourseInstanceChapterProgress {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.score_given === "number" &&
+    typeof obj.score_maximum === "number"
+  )
+}
+
+export function isUserCourseInstanceChapterExerciseProgress(
+  obj: any,
+  _argumentName?: string,
+): obj is UserCourseInstanceChapterExerciseProgress {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.exercise_id === "string" &&
+    typeof obj.score_given === "number"
   )
 }
 
@@ -322,6 +351,18 @@ export function isExercise(obj: any, _argumentName?: string): obj is Exercise {
     typeof obj.score_maximum === "number" &&
     typeof obj.order_number === "number" &&
     (obj.copied_from === null || typeof obj.copied_from === "string")
+  )
+}
+
+export function isExerciseSlide(obj: any, _argumentName?: string): obj is ExerciseSlide {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    typeof obj.exercise_id === "string" &&
+    typeof obj.order_number === "number"
   )
 }
 
@@ -671,6 +712,15 @@ export function isNewProposedPageEdits(
   )
 }
 
+export function isErrorResponse(obj: any, _argumentName?: string): obj is ErrorResponse {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.title === "string" &&
+    typeof obj.message === "string" &&
+    (obj.source === null || typeof obj.source === "string")
+  )
+}
+
 export function isVariantStatus(obj: any, _argumentName?: string): obj is VariantStatus {
   return obj === "Draft" || obj === "Upcoming" || obj === "Active" || obj === "Ended"
 }
@@ -686,7 +736,7 @@ export function isCourseMaterialExerciseTask(
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
-    typeof obj.exercise_id === "string" &&
+    typeof obj.exercise_slide_id === "string" &&
     typeof obj.exercise_type === "string"
   )
 }
@@ -828,7 +878,7 @@ export function isExerciseTask(obj: any, _argumentName?: string): obj is Exercis
     typeof obj.id === "string" &&
     obj.created_at instanceof Date &&
     obj.updated_at instanceof Date &&
-    typeof obj.exercise_id === "string" &&
+    typeof obj.exercise_slide_id === "string" &&
     typeof obj.exercise_type === "string" &&
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
     (obj.spec_file_id === null || typeof obj.spec_file_id === "string") &&

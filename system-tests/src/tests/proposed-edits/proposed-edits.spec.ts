@@ -101,7 +101,11 @@ test("test", async ({ page, headless }) => {
     page,
     headless,
     snapshotName: "preview",
-    waitForThisToBeVisibleAndStable: "text=Send",
+    waitForThisToBeVisibleAndStable: [
+      `text="Send"`,
+      `text="You've made changes!"`,
+      `text="Do you want to send your changes?"`,
+    ],
   })
 
   // Click button:has-text("Send")
@@ -202,7 +206,8 @@ test("test", async ({ page, headless }) => {
     page.click("text=Page One"),
   ])
 
-  await page.click("text=Like this")
+  await page.click("text=At vero")
+  await page.click("text=So big")
 
   await expectScreenshotsToMatchSnapshots({
     page,

@@ -7,9 +7,12 @@ import { fetchChaptersPagesWithExercises } from "../../../services/backend"
 import dontRenderUntilQueryParametersReady from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import GenericLoading from "../../GenericLoading"
 
-import PageExerciseList from "./PageExerciseList"
+import ChapterExerciseListGroupedByPage from "./ChapterExerciseListGroupedByPage"
 
-const ExercisesInChapter: React.FC<{ chapterId: string }> = ({ chapterId }) => {
+const ExercisesInChapter: React.FC<{ chapterId: string; courseInstanceId: string }> = ({
+  chapterId,
+  courseInstanceId,
+}) => {
   const { isLoading, error, data } = useQuery(`chapter-${chapterId}-pages-with-exercises`, () =>
     fetchChaptersPagesWithExercises(chapterId),
   )
@@ -39,7 +42,12 @@ const ExercisesInChapter: React.FC<{ chapterId: string }> = ({ chapterId }) => {
       </h4>
       {data.map((page) => (
         <div key={page.id}>
-          <PageExerciseList page={page} courseSlug={courseSlug} />
+          <ChapterExerciseListGroupedByPage
+            page={page}
+            courseSlug={courseSlug}
+            courseInstanceId={courseInstanceId}
+            chapterId={chapterId}
+          />
         </div>
       ))}
     </div>

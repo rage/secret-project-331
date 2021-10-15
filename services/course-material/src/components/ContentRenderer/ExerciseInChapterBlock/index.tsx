@@ -16,14 +16,18 @@ const ExerciseInChapterBlock: React.FC<BlockRendererProps<unknown>> = () => {
   }
 
   const chapterId = pageContext.pageData.chapter_id
+  const courseInstanceId = pageContext.instance?.id
 
   if (!chapterId) {
-    return <pre>ExerciseListBlock: Missing chapter id on this page.</pre>
+    return <pre>ExercisesInChapterBlock: Missing chapter id on this page.</pre>
+  }
+  if (!courseInstanceId) {
+    return <pre>ExercisesInChapterBlock: Missing course instance id on this page.</pre>
   }
 
   return (
     <div className={courseMaterialCenteredComponentStyles}>
-      <ExercisesInChapter chapterId={chapterId} />
+      <ExercisesInChapter chapterId={chapterId} courseInstanceId={courseInstanceId} />
     </div>
   )
 }

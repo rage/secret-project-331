@@ -9,10 +9,13 @@ use crate::{
             feedback::MarkAsRead,
             proposed_edits::GetEditProposalsQuery,
         },
-        UploadResult,
+        ErrorResponse, UploadResult,
     },
     models::{
-        chapters::{Chapter, ChapterStatus, ChapterUpdate, ChapterWithStatus, NewChapter},
+        chapters::{
+            Chapter, ChapterStatus, ChapterUpdate, ChapterWithStatus, NewChapter,
+            UserCourseInstanceChapterProgress,
+        },
         course_instance_enrollments::CourseInstanceEnrollment,
         course_instances::{CourseInstance, VariantStatus},
         courses::{Course, CourseStructure, CourseUpdate, NewCourse},
@@ -47,7 +50,9 @@ use crate::{
             SubmissionCountByWeekAndHour, SubmissionInfo, SubmissionResult,
         },
         user_course_settings::UserCourseSettings,
-        user_exercise_states::UserProgress,
+        user_exercise_states::{
+            UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress,
+        },
     },
     utils::pagination::Pagination,
 };
@@ -59,7 +64,9 @@ ts_rs::export! {
   Page,
   UploadResult,
   PageWithExercises,
-  UserProgress,
+  UserCourseInstanceProgress,
+  UserCourseInstanceChapterProgress,
+  UserCourseInstanceChapterExerciseProgress,
   CourseInstanceEnrollment,
   CourseInstance,
   ChapterWithStatus,
@@ -107,6 +114,7 @@ ts_rs::export! {
   EditProposalInfo,
   GetEditProposalsQuery,
   NewProposedPageEdits,
+  ErrorResponse,
   // dependencies
   VariantStatus,
   ChapterStatus,

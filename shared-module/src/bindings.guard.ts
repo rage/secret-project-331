@@ -28,6 +28,7 @@ import {
   EmailTemplate,
   EmailTemplateNew,
   EmailTemplateUpdate,
+  ErrorResponse,
   Exercise,
   ExerciseService,
   ExerciseServiceInfoApi,
@@ -79,9 +80,11 @@ import {
   SubmissionInfo,
   SubmissionResult,
   UploadResult,
+  UserCourseInstanceChapterExerciseProgress,
+  UserCourseInstanceChapterProgress,
+  UserCourseInstanceProgress,
   UserCourseSettings,
   UserPointsUpdateStrategy,
-  UserProgress,
   VariantStatus,
 } from "./bindings"
 
@@ -169,13 +172,38 @@ export function isPageWithExercises(obj: any, _argumentName?: string): obj is Pa
   )
 }
 
-export function isUserProgress(obj: any, _argumentName?: string): obj is UserProgress {
+export function isUserCourseInstanceProgress(
+  obj: any,
+  _argumentName?: string,
+): obj is UserCourseInstanceProgress {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (obj.score_given === null || typeof obj.score_given === "number") &&
+    typeof obj.score_given === "number" &&
     (obj.score_maximum === null || typeof obj.score_maximum === "number") &&
     (obj.total_exercises === null || typeof obj.total_exercises === "number") &&
     (obj.completed_exercises === null || typeof obj.completed_exercises === "number")
+  )
+}
+
+export function isUserCourseInstanceChapterProgress(
+  obj: any,
+  _argumentName?: string,
+): obj is UserCourseInstanceChapterProgress {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.score_given === "number" &&
+    typeof obj.score_maximum === "number"
+  )
+}
+
+export function isUserCourseInstanceChapterExerciseProgress(
+  obj: any,
+  _argumentName?: string,
+): obj is UserCourseInstanceChapterExerciseProgress {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.exercise_id === "string" &&
+    typeof obj.score_given === "number"
   )
 }
 
@@ -717,6 +745,15 @@ export function isNewProposedPageEdits(
     typeof obj.page_id === "string" &&
     Array.isArray(obj.block_edits) &&
     obj.block_edits.every((e: any) => isNewProposedBlockEdit(e) as boolean)
+  )
+}
+
+export function isErrorResponse(obj: any, _argumentName?: string): obj is ErrorResponse {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.title === "string" &&
+    typeof obj.message === "string" &&
+    (obj.source === null || typeof obj.source === "string")
   )
 }
 

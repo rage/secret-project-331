@@ -71,11 +71,21 @@ export interface PageWithExercises {
   exercises: Array<Exercise>
 }
 
-export interface UserProgress {
-  score_given: number | null
+export interface UserCourseInstanceProgress {
+  score_given: number
   score_maximum: number | null
   total_exercises: number | null
   completed_exercises: number | null
+}
+
+export interface UserCourseInstanceChapterProgress {
+  score_given: number
+  score_maximum: number
+}
+
+export interface UserCourseInstanceChapterExerciseProgress {
+  exercise_id: string
+  score_given: number
 }
 
 export interface CourseInstanceEnrollment {
@@ -432,6 +442,12 @@ export interface GetEditProposalsQuery {
 export interface NewProposedPageEdits {
   page_id: string
   block_edits: Array<NewProposedBlockEdit>
+}
+
+export interface ErrorResponse {
+  title: string
+  message: string
+  source: string | null
 }
 
 export type VariantStatus = "Draft" | "Upcoming" | "Active" | "Ended"

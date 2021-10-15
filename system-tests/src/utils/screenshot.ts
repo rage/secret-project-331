@@ -37,7 +37,6 @@ export default async function expectScreenshotsToMatchSnapshots({
 
   if (page) {
     const originalViewPort = page.viewportSize()
-
     const elementHandle = await waitToBeVisible({ waitForThisToBeVisibleAndStable, page })
 
     await snapshotWithViewPort({
@@ -60,6 +59,7 @@ export default async function expectScreenshotsToMatchSnapshots({
 
     await page.setViewportSize(originalViewPort)
   } else if (frame) {
+    const originalViewPort = frame.page().viewportSize()
     const elementHandle = await frame.frameElement()
 
     await snapshotWithViewPort({
@@ -79,6 +79,7 @@ export default async function expectScreenshotsToMatchSnapshots({
       beforeScreenshot,
       frame,
     })
+    await frame.page().setViewportSize(originalViewPort)
   } else {
     console.warn("no page or frame provided")
     return
@@ -172,7 +173,7 @@ interface WaitToBeVisibleProps {
   page: Page
 }
 
-async function waitToBeVisible({
+export async function waitToBeVisible({
   waitForThisToBeVisibleAndStable,
   page,
 }: WaitToBeVisibleProps): Promise<ElementHandle | ElementHandle[]> {

@@ -23,15 +23,10 @@ test("widget, multiple-choice multi screenshot test", async ({ page, headless })
     }),
   )
 
-  await expectScreenshotsToMatchSnapshots({
-    headless,
-    snapshotName: "widget-multiple-choice-multi-initial",
-    waitForThisToBeVisibleAndStable: `text="Which of the color codes represent the color"`,
-    frame,
-  })
+  await (await frame.frameElement()).scrollIntoViewIfNeeded()
 
-  // Click text=#00ff00
   await frame.click("text=#00ff00")
+
   await frame.click("text=#ff0000")
 
   await expectScreenshotsToMatchSnapshots({

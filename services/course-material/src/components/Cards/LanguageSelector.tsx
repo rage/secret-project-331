@@ -26,6 +26,7 @@ import Spain from "../../img/flags/Spain.png"
 import Sweden from "../../img/flags/Sweden.png"
 import USA from "../../img/flags/USA.png"
 import Tick from "../../img/tick-03.svg"
+import { headingFont } from "../../shared-module/styles"
 
 const arr = {
   "bg-BG": { humanReadableName: "belgium", image: Belgium },
@@ -119,7 +120,7 @@ const Country = styled.div`
   span {
     margin-top: 5px;
     font-size: 14px;
-    font-family: "Josefin Sans", sans-serif;
+    font-family: ${headingFont};
     opacity: 0.7;
   }
 `
@@ -159,7 +160,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = (props) => {
                 <img
                   src={o.image}
                   data-attribute={o.image}
-                  id={JSON.stringify(index)}
+                  id={`country-flag-${index}`}
                   alt={`${o.humanReadableName} flag`}
                 />
               </div>

@@ -182,12 +182,9 @@ async function waitToBeVisible({
   waitForThisToBeVisibleAndStable,
   page,
 }: WaitToBeVisibleProps): Promise<ElementHandle | ElementHandle[]> {
-  console.log("wat")
   let elementHandle: ElementHandle | ElementHandle[] = null
   if (typeof waitForThisToBeVisibleAndStable == "string") {
-    console.log("waitForSelector", waitForThisToBeVisibleAndStable)
     elementHandle = await page.waitForSelector(waitForThisToBeVisibleAndStable)
-    console.log("Selector found")
   } else if (Array.isArray(waitForThisToBeVisibleAndStable)) {
     for (const element of waitForThisToBeVisibleAndStable) {
       // for some reason eslint mistakes recursion as an unsused variable

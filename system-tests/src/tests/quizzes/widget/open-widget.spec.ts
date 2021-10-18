@@ -28,7 +28,7 @@ test("widget, open", async ({ page, headless }) => {
     headless,
     snapshotName: "widget-open-empty",
     waitForThisToBeVisibleAndStable: [
-      `text="Enter the date of the next leap day in ISO 8601 format(YYYY-MM-DD)."`,
+      `text="Enter the date of the next leap day in ISO 8601 format (YYYY-MM-DD)."`,
       `text="Date formats"`,
     ],
     frame,
@@ -45,7 +45,7 @@ test("widget, open", async ({ page, headless }) => {
     snapshotName: "widget-open-invalid",
     waitForThisToBeVisibleAndStable: [
       `text="The answer does not match the answer format specified for this exercise."`,
-      `text="Enter the date of the next leap day in ISO 8601 format(YYYY-MM-DD)."`,
+      `text="Enter the date of the next leap day in ISO 8601 format (YYYY-MM-DD)."`,
       `text="Date formats"`,
     ],
     frame,
@@ -58,8 +58,7 @@ test("widget, open", async ({ page, headless }) => {
     headless,
     snapshotName: "widget-open-valid",
     waitForThisToBeVisibleAndStable: [
-      `text="2024-02-29"`,
-      `text="Enter the date of the next leap day in ISO 8601 format(YYYY-MM-DD)."`,
+      `text="Enter the date of the next leap day in ISO 8601 format (YYYY-MM-DD)."`,
       `text="Date formats"`,
     ],
     frame,

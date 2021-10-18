@@ -26,7 +26,7 @@ test("widget, scale", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "widget-scale-initial",
-    waitForThisToBeVisibleAndStable: [`text="Regex can be useful"`, `text="15"`],
+    waitForThisToBeVisibleAndStable: [`text="Regex is generally readable."`, `text="15"`],
     frame,
   })
 
@@ -42,7 +42,7 @@ test("widget, scale", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "widget-scale-leftmost",
-    waitForThisToBeVisibleAndStable: [`text="Regex can be useful"`, `text="15"`],
+    waitForThisToBeVisibleAndStable: [`text="Regex is generally readable."`, `text="15"`],
     frame,
   })
 
@@ -58,7 +58,7 @@ test("widget, scale", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "widget-scale-mixed",
-    waitForThisToBeVisibleAndStable: [`text="Regex can be useful"`, `text="15"`],
+    waitForThisToBeVisibleAndStable: [`text="Regex is generally readable."`, `text="15"`],
     frame,
   })
 })

@@ -1,11 +1,11 @@
 import {
   Course,
   CourseInstance,
+  CourseInstanceForm,
   CourseStructure,
   CourseUpdate,
   Exercise,
   NewCourse,
-  NewCourseInstanceForm,
   SubmissionCountByExercise,
   SubmissionCountByWeekAndHour,
 } from "../../../shared-module/bindings"
@@ -99,7 +99,7 @@ export const fetchCourseInstances = async (courseId: string): Promise<CourseInst
 
 export const newCourseInstance = async (
   courseId: string,
-  update: NewCourseInstanceForm,
+  update: CourseInstanceForm,
 ): Promise<string> => {
   const response = await mainFrontendClient.post(
     `/courses/${courseId}/new-course-instance`,

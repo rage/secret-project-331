@@ -37,6 +37,17 @@ pub struct CourseInstance {
     pub support_email: Option<String>,
 }
 
+#[derive(Debug, Deserialize, TS)]
+pub struct CourseInstanceForm {
+    pub name: Option<String>,
+    pub description: Option<String>,
+    pub teacher_in_charge_name: String,
+    pub teacher_in_charge_email: String,
+    pub support_email: Option<String>,
+    pub opening_time: Option<DateTime<Utc>>,
+    pub closing_time: Option<DateTime<Utc>>,
+}
+
 #[derive(Debug, Clone, Copy)]
 pub struct NewCourseInstance<'a> {
     pub id: Uuid,
@@ -47,6 +58,8 @@ pub struct NewCourseInstance<'a> {
     pub teacher_in_charge_name: &'a str,
     pub teacher_in_charge_email: &'a str,
     pub support_email: Option<&'a str>,
+    pub opening_time: Option<DateTime<Utc>>,
+    pub closing_time: Option<DateTime<Utc>>,
 }
 
 pub async fn insert(
@@ -274,21 +287,10 @@ WHERE id = $2;
     Ok(())
 }
 
-#[derive(Debug, Clone, Copy)]
-pub struct CourseInstanceUpdate<'a> {
-    pub name: Option<&'a str>,
-    pub description: Option<&'a str>,
-    pub teacher_in_charge_name: &'a str,
-    pub teacher_in_charge_email: &'a str,
-    pub support_email: Option<&'a str>,
-    pub opening_time: Option<DateTime<Utc>>,
-    pub closing_time: Option<DateTime<Utc>>,
-}
-
 pub async fn edit(
     conn: &mut PgConnection,
     instance_id: Uuid,
-    update: CourseInstanceUpdate<'_>,
+    update: CourseInstanceForm,
 ) -> ModelResult<()> {
     sqlx::query!(
         "
@@ -393,6 +395,8 @@ mod test {
                 teacher_in_charge_name: "teacher",
                 teacher_in_charge_email: "teacher@example.com",
                 support_email: None,
+                opening_time: None,
+                closing_time: None,
             },
         )
         .await
@@ -408,6 +412,8 @@ mod test {
                 teacher_in_charge_name: "teacher",
                 teacher_in_charge_email: "teacher@example.com",
                 support_email: None,
+                opening_time: None,
+                closing_time: None,
             },
         )
         .await;
@@ -424,6 +430,8 @@ mod test {
                 teacher_in_charge_name: "teacher",
                 teacher_in_charge_email: "teacher@example.com",
                 support_email: None,
+                opening_time: None,
+                closing_time: None,
             },
         )
         .await;

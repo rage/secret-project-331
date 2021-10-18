@@ -4,8 +4,7 @@ use crate::{
     controllers::ControllerResult,
     domain::{authorization::AuthUser, csv_export},
     models::{
-        self,
-        course_instances::{self, CourseInstance},
+        course_instances::{self, CourseInstance, CourseInstanceForm},
         courses,
         email_templates::{EmailTemplate, EmailTemplateNew},
     },
@@ -15,13 +14,11 @@ use actix_web::{
     HttpResponse,
 };
 use bytes::Bytes;
-use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
+use chrono::Utc;
 use sqlx::PgPool;
 use std::io::{self, Write};
 use tokio::sync::mpsc::UnboundedSender;
 use tokio_stream::wrappers::UnboundedReceiverStream;
-use ts_rs::TS;
 use uuid::Uuid;
 
 /**
@@ -133,23 +130,12 @@ pub async fn point_export(
         .streaming(UnboundedReceiverStream::new(receiver)))
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, TS)]
-pub struct CourseInstanceUpdate {
-    name: Option<String>,
-    description: Option<String>,
-    teacher_in_charge_name: String,
-    teacher_in_charge_email: String,
-    support_email: Option<String>,
-    opening_time: Option<DateTime<Utc>>,
-    closing_time: Option<DateTime<Utc>>,
-}
-
 /**
 POST /course-instances/:id/edit
 */
 #[instrument(skip(pool))]
 pub async fn edit(
-    update: web::Json<CourseInstanceUpdate>,
+    update: web::Json<CourseInstanceForm>,
     course_instance_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<HttpResponse> {
@@ -157,15 +143,7 @@ pub async fn edit(
     course_instances::edit(
         &mut conn,
         course_instance_id.into_inner(),
-        models::course_instances::CourseInstanceUpdate {
-            name: update.name.as_deref(),
-            description: update.description.as_deref(),
-            teacher_in_charge_name: &update.teacher_in_charge_name,
-            teacher_in_charge_email: &update.teacher_in_charge_email,
-            support_email: update.support_email.as_deref(),
-            opening_time: update.opening_time,
-            closing_time: update.closing_time,
-        },
+        update.into_inner(),
     )
     .await?;
     Ok(HttpResponse::Ok().finish())

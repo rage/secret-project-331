@@ -17,7 +17,7 @@ import {
   Course,
   CourseInstance,
   CourseInstanceEnrollment,
-  CourseInstanceUpdate,
+  CourseInstanceForm,
   CourseMaterialExercise,
   CourseMaterialExerciseServiceInfo,
   CourseMaterialExerciseTask,
@@ -51,7 +51,6 @@ import {
   MarkAsRead,
   NewChapter,
   NewCourse,
-  NewCourseInstanceForm,
   NewFeedback,
   NewPage,
   NewProposedBlockEdit,
@@ -652,10 +651,7 @@ export function isGetFeedbackQuery(obj: any, _argumentName?: string): obj is Get
   )
 }
 
-export function isCourseInstanceUpdate(
-  obj: any,
-  _argumentName?: string,
-): obj is CourseInstanceUpdate {
+export function isCourseInstanceForm(obj: any, _argumentName?: string): obj is CourseInstanceForm {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     (obj.name === null || typeof obj.name === "string") &&
@@ -665,20 +661,6 @@ export function isCourseInstanceUpdate(
     (obj.support_email === null || typeof obj.support_email === "string") &&
     (obj.opening_time === null || obj.opening_time instanceof Date) &&
     (obj.closing_time === null || obj.closing_time instanceof Date)
-  )
-}
-
-export function isNewCourseInstanceForm(
-  obj: any,
-  _argumentName?: string,
-): obj is NewCourseInstanceForm {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (obj.name === null || typeof obj.name === "string") &&
-    (obj.description === null || typeof obj.description === "string") &&
-    typeof obj.teacher_in_charge_name === "string" &&
-    typeof obj.teacher_in_charge_email === "string" &&
-    (obj.support_email === null || typeof obj.support_email === "string")
   )
 }
 

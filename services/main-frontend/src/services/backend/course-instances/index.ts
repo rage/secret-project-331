@@ -1,6 +1,6 @@
 import {
   CourseInstance,
-  CourseInstanceUpdate,
+  CourseInstanceForm,
   EmailTemplate,
   EmailTemplateNew,
 } from "../../../shared-module/bindings"
@@ -41,7 +41,7 @@ export const fetchCourseInstanceEmailTemplates = async (
 
 export const editCourseInstance = async (
   courseInstanceId: string,
-  update: CourseInstanceUpdate,
+  update: CourseInstanceForm,
 ): Promise<void> => {
   const response = await mainFrontendClient.post(
     `/course-instances/${courseInstanceId}/edit`,

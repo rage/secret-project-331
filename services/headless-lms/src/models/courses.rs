@@ -415,6 +415,8 @@ WHERE exercise_slide_id IN (
             support_email: None,
             teacher_in_charge_name: &new_course.teacher_in_charge_name,
             teacher_in_charge_email: &new_course.teacher_in_charge_email,
+            opening_time: None,
+            closing_time: None,
         },
     )
     .await?;
@@ -582,6 +584,8 @@ RETURNING id,
             support_email: None,
             teacher_in_charge_name: &new_course.teacher_in_charge_name,
             teacher_in_charge_email: &new_course.teacher_in_charge_email,
+            opening_time: None,
+            closing_time: None,
         },
     )
     .await?;

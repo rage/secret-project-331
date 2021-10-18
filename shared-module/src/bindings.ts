@@ -387,7 +387,7 @@ export interface GetFeedbackQuery {
   limit?: number
 }
 
-export interface CourseInstanceUpdate {
+export interface CourseInstanceForm {
   name: string | null
   description: string | null
   teacher_in_charge_name: string
@@ -395,14 +395,6 @@ export interface CourseInstanceUpdate {
   support_email: string | null
   opening_time: Date | null
   closing_time: Date | null
-}
-
-export interface NewCourseInstanceForm {
-  name: string | null
-  description: string | null
-  teacher_in_charge_name: string
-  teacher_in_charge_email: string
-  support_email: string | null
 }
 
 export interface PageProposal {

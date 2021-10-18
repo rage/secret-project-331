@@ -127,6 +127,8 @@ pub async fn insert_data(conn: &mut PgConnection, exercise_type: &str) -> Result
             teacher_in_charge_name: "teacher",
             teacher_in_charge_email: "teacher@example.com",
             support_email: None,
+            opening_time: None,
+            closing_time: None,
         },
     )
     .await?;

@@ -1,20 +1,17 @@
 import { css } from "@emotion/css"
-import { TextField } from "@material-ui/core"
-import { DateTimePicker, LocalizationProvider } from "@material-ui/lab"
-import AdapterDateFns from "@material-ui/lab/AdapterDateFns"
 import { isPast } from "date-fns"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
-import { useForm } from "react-hook-form"
 import { useMutation, useQuery } from "react-query"
 
 import Layout from "../../../../components/Layout"
+import Form from "../../../../components/forms/CourseInstanceForm"
 import {
   deleteCourseInstance,
   editCourseInstance,
   fetchCourseInstance,
 } from "../../../../services/backend/course-instances"
-import { CourseInstanceUpdate, ErrorResponse } from "../../../../shared-module/bindings"
+import { CourseInstanceForm } from "../../../../shared-module/bindings"
 import { isErrorResponse } from "../../../../shared-module/bindings.guard"
 import Button from "../../../../shared-module/components/Button"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
@@ -29,33 +26,17 @@ interface ManageCourseInstancesProps {
   query: SimplifiedUrlQuery<"id">
 }
 
-interface Fields {
-  name: string
-  description: string
-  supportEmail: string
-  teacherName: string
-  teacherEmail: string
-}
-
 const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) => {
   const courseInstanceId = query.id
   const router = useRouter()
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    setValue,
-    reset,
-  } = useForm<Fields>()
+
   const { isLoading, error, data, refetch } = useQuery(`course-instance-${courseInstanceId}`, () =>
     fetchCourseInstance(courseInstanceId),
   )
-  const [newOpeningTime, setNewOpeningTime] = useState<Date | null>(null)
-  const [newClosingTime, setNewClosingTime] = useState<Date | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [editing, setEditing] = useState(false)
   const mutation = useMutation(
-    async (update: CourseInstanceUpdate) => {
+    async (update: CourseInstanceForm) => {
       setErrorMessage(null)
       await editCourseInstance(courseInstanceId, update)
     },
@@ -64,7 +45,7 @@ const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) 
         refetch()
       },
       onError: (err) => {
-        if (err instanceof Error) {
+        if (isErrorResponse(err)) {
           setErrorMessage(`Failed to update course instance: ${err.message}`)
         } else {
           setErrorMessage(`Unexpected error while updating course instance: ${JSON.stringify(err)}`)
@@ -90,19 +71,6 @@ const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) 
       },
     },
   )
-  const onSubmit = handleSubmit((data) => {
-    console.log(data)
-    mutation.mutate({
-      name: data.name || null,
-      description: data.description || null,
-      support_email: data.supportEmail || null,
-      teacher_in_charge_name: data.teacherName,
-      teacher_in_charge_email: data.teacherEmail,
-      opening_time: newOpeningTime,
-      closing_time: newClosingTime,
-    })
-    setEditing(false)
-  })
 
   if (isLoading) {
     return <div>Loading...</div>
@@ -116,77 +84,17 @@ const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) 
     )
   }
 
-  const field = (
-    id: "name" | "description" | "supportEmail" | "teacherName" | "teacherEmail",
-    placeholder: string,
-    defaultValue: string,
-    required: boolean,
-  ) => {
-    return (
-      <>
-        <label htmlFor={id}>{placeholder}</label>
-        <br />
-        {required && errors[id] && (
-          <>
-            <span>This field is required</span>
-            <br />
-          </>
-        )}
-        <input
-          id={id}
-          placeholder={placeholder}
-          defaultValue={defaultValue}
-          {...register(id, { required })}
-        ></input>
-        <br />
-      </>
-    )
-  }
-
   let instanceInfo
   if (editing) {
     instanceInfo = (
-      <>
-        <form onSubmit={onSubmit}>
-          {field("name", "Instance name", data.name || "", false)}
-          {field("description", "Instance description", data.description || "", false)}
-          {field("supportEmail", "Support email", data.support_email || "", false)}
-          {field("teacherName", "Teacher-in-charge name", data.teacher_in_charge_name || "", true)}
-          {field(
-            "teacherEmail",
-            "Teacher-in-charge email",
-            data.teacher_in_charge_email || "",
-            true,
-          )}
-
-          <br />
-          <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <DateTimePicker
-              label={"Opening time"}
-              inputFormat={"dd/MM/yyyy HH:mm"}
-              renderInput={(props) => <TextField {...props} />}
-              value={newOpeningTime}
-              onChange={(time) => setNewOpeningTime(time)}
-            />
-            <br />
-            <br />
-            <DateTimePicker
-              label={"Closing time"}
-              inputFormat={"dd/MM/yyyy HH:mm"}
-              renderInput={(props) => <TextField {...props} />}
-              value={newClosingTime}
-              onChange={(time) => setNewClosingTime(time)}
-            />
-          </LocalizationProvider>
-          <br />
-          <Button variant="primary" size="medium" type="submit" value="Submit">
-            Submit
-          </Button>
-          <Button variant="secondary" size="medium" onClick={() => setEditing(false)}>
-            Cancel
-          </Button>
-        </form>
-      </>
+      <Form
+        initialData={data}
+        onSubmit={(data) => {
+          mutation.mutate(data)
+          setEditing(false)
+        }}
+        onCancel={() => setEditing(false)}
+      />
     )
   } else {
     const supportEmail = data.support_email ? (
@@ -224,16 +132,7 @@ const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) 
           otherwise
         </div>
         {schedule}
-        <Button
-          variant="tertiary"
-          size="medium"
-          onClick={() => {
-            reset()
-            setNewOpeningTime(data.starts_at)
-            setNewClosingTime(data.ends_at)
-            setEditing(true)
-          }}
-        >
+        <Button variant="tertiary" size="medium" onClick={() => setEditing(true)}>
           Edit
         </Button>
         <Button

@@ -226,6 +226,8 @@ async fn main() -> Result<()> {
             support_email: Some("contact@example.com"),
             teacher_in_charge_name: "admin",
             teacher_in_charge_email: "admin@example.com",
+            opening_time: None,
+            closing_time: None,
         },
     )
     .await?;
@@ -267,6 +269,8 @@ async fn main() -> Result<()> {
             support_email: Some("contact@example.com"),
             teacher_in_charge_name: "admin",
             teacher_in_charge_email: "admin@example.com",
+            opening_time: None,
+            closing_time: None,
         },
     )
     .await?;
@@ -848,6 +852,8 @@ async fn seed_sample_course(
             support_email: Some("contact@example.com"),
             teacher_in_charge_name: "admin",
             teacher_in_charge_email: "admin@example.com",
+            opening_time: None,
+            closing_time: None,
         },
     )
     .await?;

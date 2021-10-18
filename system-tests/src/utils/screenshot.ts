@@ -152,7 +152,7 @@ interface WaitToBeVisibleProps {
   container: Page | Frame
 }
 
-async function waitToBeVisible({
+export async function waitToBeVisible({
   waitForThisToBeVisibleAndStable,
   container: page,
 }: WaitToBeVisibleProps): Promise<ElementHandle | ElementHandle[]> {

@@ -50,9 +50,11 @@ test("test", async ({ page, headless }) => {
 
   await page.fill("#name", "some name")
   await page.fill("#description", "some description")
-  await page.fill("#teacher-name", "some teacher")
-  await page.fill("#teacher-email", "teacher@example.com")
-  await page.fill("#support-email", "support@example.com")
+  await page.fill("#teacherName", "some teacher")
+  await page.fill("#teacherEmail", "teacher@example.com")
+  await page.fill("#supportEmail", "support@example.com")
+  await page.fill("#openingTime", "01/01/2000 00:00")
+  await page.fill("#closingTime", "01/01/2099 00:00")
   await Promise.all([page.waitForNavigation(), page.click("text=Submit")])
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4",
@@ -87,21 +89,18 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "initial-management-page-editing",
-    waitForThisToBeVisibleAndStable: "text=Save",
+    waitForThisToBeVisibleAndStable: "text=Submit",
     page,
   })
 
-  await page.fill('[id="name"]', "new name")
-  await page.fill('[id="description"]', "new description")
-  await page.fill('[id="support-email"]', "newsupport@example.com")
-  await page.fill('[id="teacher-name"]', "new teacher")
-  await page.fill('[id="teacher-email"]', "newteacher@example.com")
-
-  await page.fill("input:nth-match(input, 6)", "01/01/2000 00:00")
-  await page.fill("input:nth-match(input, 7)", "01/01/2099 00:00")
-
-  // Click text=Save
-  await page.click("text=Save")
+  await page.fill("#name", "new name")
+  await page.fill("#description", "new description")
+  await page.fill("#supportEmail", "newsupport@example.com")
+  await page.fill("#teacherName", "new teacher")
+  await page.fill("#teacherEmail", "newteacher@example.com")
+  await page.fill("#openingTime", "01/01/2001 00:00")
+  await page.fill("#closingTime", "01/01/2098 00:00")
+  await page.click("text=Submit")
 
   await page.evaluate(() => {
     const divs = document.querySelectorAll("div")

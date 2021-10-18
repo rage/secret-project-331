@@ -91,7 +91,7 @@ const Form: React.FC<FormProps> = ({ initialData, onSubmit, onCancel }) => {
           <DateTimePicker
             label={"Opening time"}
             inputFormat={"dd/MM/yyyy HH:mm"}
-            renderInput={(props) => <TextField {...props} />}
+            renderInput={(props) => <TextField id={"openingTime"} {...props} />}
             value={newOpeningTime}
             onChange={(time) => setNewOpeningTime(time)}
           />
@@ -100,7 +100,7 @@ const Form: React.FC<FormProps> = ({ initialData, onSubmit, onCancel }) => {
           <DateTimePicker
             label={"Closing time"}
             inputFormat={"dd/MM/yyyy HH:mm"}
-            renderInput={(props) => <TextField {...props} />}
+            renderInput={(props) => <TextField id={"closingTime"} {...props} />}
             value={newClosingTime}
             onChange={(time) => setNewClosingTime(time)}
           />

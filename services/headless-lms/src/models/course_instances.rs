@@ -1,3 +1,5 @@
+use crate::utils::pagination::Pagination;
+
 use super::ModelResult;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -177,6 +179,7 @@ WHERE deleted_at IS NULL;
 pub async fn get_active_course_instances_for_organization(
     conn: &mut PgConnection,
     organization_id: Uuid,
+    pagination: &Pagination,
 ) -> ModelResult<Vec<CourseInstance>> {
     let course_instances = sqlx::query_as!(
         CourseInstance,
@@ -196,9 +199,12 @@ FROM courses as c
     LEFT JOIN course_instances as ci on c.id = ci.course_id
 WHERE
     c.organization_id = $1 AND
-    ci.starts_at < NOW() AND ci.ends_at > NOW();
+    ci.starts_at < NOW() AND ci.ends_at > NOW()
+    LIMIT $2 OFFSET $3;
         "#,
-        organization_id
+        organization_id,
+        pagination.limit(),
+        pagination.offset()
     )
     .fetch_all(conn)
     .await?;

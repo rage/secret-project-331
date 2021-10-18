@@ -23,6 +23,17 @@ export const fetchOrganizationCourses = async (organizationId: string): Promise<
   return data
 }
 
+export const fetchOrganizationActiveCourses = async (
+  organizationId: string,
+): Promise<Array<Course>> => {
+  const data = (
+    await mainFrontendClient.get(`/organizations/${organizationId}/courses/active`, {
+      responseType: "json",
+    })
+  ).data
+  return data
+}
+
 export const setOrganizationImage = async (
   organizationId: string,
   file: File,

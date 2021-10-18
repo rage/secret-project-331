@@ -7,7 +7,7 @@ use crate::{
     },
     domain::authorization::{authorize, Action, AuthUser, Resource},
     models::{course_instances::CourseInstance, courses::Course, organizations::Organization},
-    utils::file_store::FileStore,
+    utils::{file_store::FileStore, pagination::Pagination},
     ApplicationConfiguration,
 };
 use actix_multipart as mp;
@@ -79,12 +79,14 @@ async fn get_organization_courses(
 async fn get_organization_active_courses(
     request_organization_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    pagination: web::Query<Pagination>,
 ) -> ControllerResult<Json<Vec<CourseInstance>>> {
     let mut conn = pool.acquire().await?;
     let course_instances =
         crate::models::course_instances::get_active_course_instances_for_organization(
             &mut conn,
             *request_organization_id,
+            &pagination,
         )
         .await?;
     Ok(Json(course_instances))
@@ -262,6 +264,10 @@ pub fn _add_organizations_routes<T: 'static + FileStore>(cfg: &mut ServiceConfig
         .route(
             "/{organization_id}/courses",
             web::get().to(get_organization_courses),
+        )
+        .route(
+            "/{organization_id}/courses/active",
+            web::get().to(get_organization_active_courses),
         )
         .route(
             "/{organization_id}/image",

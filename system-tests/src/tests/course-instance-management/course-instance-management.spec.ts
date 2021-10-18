@@ -53,8 +53,8 @@ test("test", async ({ page, headless }) => {
   await page.fill("#teacherName", "some teacher")
   await page.fill("#teacherEmail", "teacher@example.com")
   await page.fill("#supportEmail", "support@example.com")
-  await page.fill("#openingTime", "01/01/2000 00:00")
-  await page.fill("#closingTime", "01/01/2099 00:00")
+  await page.fill("#openingTime", "2000-01-01 00:00")
+  await page.fill("#closingTime", "2099-01-01 00:00")
   await Promise.all([page.waitForNavigation(), page.click("text=Submit")])
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4",
@@ -98,8 +98,8 @@ test("test", async ({ page, headless }) => {
   await page.fill("#supportEmail", "newsupport@example.com")
   await page.fill("#teacherName", "new teacher")
   await page.fill("#teacherEmail", "newteacher@example.com")
-  await page.fill("#openingTime", "01/01/2001 00:00")
-  await page.fill("#closingTime", "01/01/2098 00:00")
+  await page.fill("#openingTime", "2001-01-01 00:00")
+  await page.fill("#closingTime", "2098-01-01 00:00")
   await page.click("text=Submit")
 
   await page.evaluate(() => {

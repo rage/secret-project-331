@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form"
 
 import { CourseInstance, CourseInstanceForm } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
+import FormField from "../FormField"
 
 interface FormProps {
   initialData: CourseInstance | null
@@ -41,56 +42,49 @@ const Form: React.FC<FormProps> = ({ initialData, onSubmit, onCancel }) => {
     })
   })
 
-  const field = (
-    id: "name" | "description" | "supportEmail" | "teacherName" | "teacherEmail",
-    placeholder: string,
-    defaultValue: string,
-    required: boolean,
-  ) => {
-    return (
-      <>
-        <label htmlFor={id}>{placeholder}</label>
-        <br />
-        {required && errors[id] && (
-          <>
-            <span>This field is required</span>
-            <br />
-          </>
-        )}
-        <input
-          id={id}
-          placeholder={placeholder}
-          defaultValue={defaultValue}
-          {...register(id, { required })}
-        ></input>
-        <br />
-      </>
-    )
-  }
-
   return (
     <>
       <form onSubmit={onSubmitWrapper}>
-        {field("name", "Instance name", initialData?.name || "", false)}
-        {field("description", "Instance description", initialData?.description || "", false)}
-        {field("supportEmail", "Support email", initialData?.support_email || "", false)}
-        {field(
-          "teacherName",
-          "Teacher-in-charge name",
-          initialData?.teacher_in_charge_name || "",
-          true,
-        )}
-        {field(
-          "teacherEmail",
-          "Teacher-in-charge email",
-          initialData?.teacher_in_charge_email || "",
-          true,
-        )}
+        <FormField
+          id={"name"}
+          error={errors["name"]}
+          defaultValue={initialData?.name}
+          placeholder={"Instance name"}
+          register={register}
+        />
+        <FormField
+          id={"description"}
+          error={errors["description"]}
+          defaultValue={initialData?.description}
+          placeholder={"Instance description"}
+          register={register}
+        />
+        <FormField
+          id={"supportEmail"}
+          error={errors["supportEmail"]}
+          defaultValue={initialData?.support_email}
+          placeholder={"Support email"}
+          register={register}
+        />
+        <FormField
+          id={"teacherName"}
+          error={errors["teacherName"]}
+          defaultValue={initialData?.teacher_in_charge_name}
+          placeholder={"Teacher-in-charge name"}
+          register={register}
+        />
+        <FormField
+          id={"teacherEmail"}
+          error={errors["teacherEmail"]}
+          defaultValue={initialData?.teacher_in_charge_email}
+          placeholder={"Teacher-in-charge email"}
+          register={register}
+        />
         <br />
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <DateTimePicker
             label={"Opening time"}
-            inputFormat={"dd/MM/yyyy HH:mm"}
+            inputFormat={"yyyy-MM-dd HH:mm"}
             renderInput={(props) => <TextField id={"openingTime"} {...props} />}
             value={newOpeningTime}
             onChange={(time) => setNewOpeningTime(time)}
@@ -99,7 +93,7 @@ const Form: React.FC<FormProps> = ({ initialData, onSubmit, onCancel }) => {
           <br />
           <DateTimePicker
             label={"Closing time"}
-            inputFormat={"dd/MM/yyyy HH:mm"}
+            inputFormat={"yyyy-MM-dd HH:mm"}
             renderInput={(props) => <TextField id={"closingTime"} {...props} />}
             value={newClosingTime}
             onChange={(time) => setNewClosingTime(time)}

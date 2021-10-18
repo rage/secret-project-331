@@ -4,7 +4,10 @@ use super::{
     submissions::Submission,
     ModelResult,
 };
-use crate::models::{gradings::UserPointsUpdateStrategy, ModelError};
+use crate::{
+    models::{gradings::UserPointsUpdateStrategy, ModelError},
+    utils::numbers::option_f32_to_f32_two_decimals,
+};
 use chrono::{DateTime, Utc};
 use core::f32;
 use futures::{future, Stream};
@@ -29,37 +32,53 @@ pub struct UserExerciseState {
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
-pub struct UserProgress {
-    score_given: Option<f32>,
+pub struct UserCourseInstanceProgress {
+    score_given: f32,
     score_maximum: Option<i64>,
     total_exercises: Option<i64>,
     completed_exercises: Option<i64>,
 }
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
+pub struct UserCourseInstanceChapterExerciseProgress {
+    pub exercise_id: Uuid,
+    pub score_given: f32,
+}
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-pub struct UserMetrics {
+pub struct DatabaseUserCourseInstanceChapterExerciseProgress {
+    pub exercise_id: Uuid,
+    pub score_given: Option<f32>,
+}
+
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
+pub struct UserChapterMetrics {
+    pub score_given: Option<f32>,
+}
+
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
+pub struct UserCourseInstanceMetrics {
     score_given: Option<f32>,
     completed_exercises: Option<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-pub struct CourseMetrics {
+pub struct CourseInstanceExerciseMetrics {
     total_exercises: Option<i64>,
     score_maximum: Option<i64>,
 }
 
-pub async fn get_course_metrics(
+pub async fn get_course_instance_metrics(
     pool: &PgPool,
     course_instance_id: &Uuid,
-) -> ModelResult<CourseMetrics> {
+) -> ModelResult<CourseInstanceExerciseMetrics> {
     let mut connection = pool.acquire().await?;
     let res = sqlx::query_as!(
-        CourseMetrics,
+        CourseInstanceExerciseMetrics,
         r#"
-SELECT COUNT(e.id) as total_exercises,
-  COALESCE(0, SUM(e.score_maximum)) as score_maximum
-FROM course_instances ci
-  LEFT JOIN exercises e on ci.course_id = e.course_id
+SELECT COUNT(e.id) AS total_exercises,
+  SUM(e.score_maximum) AS score_maximum
+FROM course_instances AS ci
+  LEFT JOIN exercises AS e ON ci.course_id = e.course_id
 WHERE e.deleted_at IS NULL
   AND ci.id = $1;
         "#,
@@ -70,22 +89,21 @@ WHERE e.deleted_at IS NULL
     Ok(res)
 }
 
-pub async fn get_user_metrics(
+pub async fn get_user_course_instance_metrics(
     pool: &PgPool,
     course_instance_id: &Uuid,
     user_id: &Uuid,
-) -> ModelResult<UserMetrics> {
+) -> ModelResult<UserCourseInstanceMetrics> {
     let mut connection = pool.acquire().await?;
     let res = sqlx::query_as!(
-        UserMetrics,
+        UserCourseInstanceMetrics,
         r#"
-SELECT COUNT(ues.exercise_id) as completed_exercises,
-  COALESCE(0, SUM(ues.score_given)) as score_given
-FROM user_exercise_states ues
+SELECT COUNT(ues.exercise_id) AS completed_exercises,
+  COALESCE(SUM(ues.score_given), 0) AS score_given
+FROM user_exercise_states AS ues
 WHERE ues.course_instance_id = $1
   AND ues.user_id = $2
-  AND ues.deleted_at IS NULL
-  AND ues.activity_progress IN ('submitted', 'completed');
+  AND ues.deleted_at IS NULL;
         "#,
         course_instance_id,
         user_id
@@ -95,23 +113,80 @@ WHERE ues.course_instance_id = $1
     Ok(res)
 }
 
-pub async fn get_user_progress(
+pub async fn get_user_course_instance_chapter_metrics(
+    pool: &PgPool,
+    course_instance_id: &Uuid,
+    exercise_ids: &[Uuid],
+    user_id: &Uuid,
+) -> ModelResult<UserChapterMetrics> {
+    let mut connection = pool.acquire().await?;
+    let res = sqlx::query_as!(
+        UserChapterMetrics,
+        r#"
+SELECT COALESCE(SUM(ues.score_given), 0) AS score_given
+FROM user_exercise_states AS ues
+WHERE ues.exercise_id IN (
+    SELECT UNNEST($1::uuid [])
+  )
+  AND ues.deleted_at IS NULL
+  AND ues.user_id = $2
+  AND ues.course_instance_id = $3;
+                "#,
+        &exercise_ids,
+        user_id,
+        course_instance_id
+    )
+    .fetch_one(&mut connection)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_user_course_instance_progress(
     pool: &PgPool,
     course_instance_id: &Uuid,
     user_id: &Uuid,
-) -> ModelResult<UserProgress> {
+) -> ModelResult<UserCourseInstanceProgress> {
     let (course_metrics, user_metrics) = future::try_join(
-        get_course_metrics(pool, course_instance_id),
-        get_user_metrics(pool, user_id, course_instance_id),
+        get_course_instance_metrics(pool, course_instance_id),
+        get_user_course_instance_metrics(pool, course_instance_id, user_id),
     )
     .await?;
-    let result = UserProgress {
-        score_given: user_metrics.score_given,
+    let result = UserCourseInstanceProgress {
+        score_given: option_f32_to_f32_two_decimals(user_metrics.score_given),
         completed_exercises: user_metrics.completed_exercises,
         score_maximum: course_metrics.score_maximum,
         total_exercises: course_metrics.total_exercises,
     };
     Ok(result)
+}
+
+pub async fn get_user_course_instance_chapter_exercises_progress(
+    pool: &PgPool,
+    course_instance_id: &Uuid,
+    exercise_ids: &[Uuid],
+    user_id: &Uuid,
+) -> ModelResult<Vec<DatabaseUserCourseInstanceChapterExerciseProgress>> {
+    let mut connection = pool.acquire().await?;
+    let res = sqlx::query_as!(
+        DatabaseUserCourseInstanceChapterExerciseProgress,
+        r#"
+SELECT COALESCE(ues.score_given, 0) AS score_given,
+  ues.exercise_id AS exercise_id
+FROM user_exercise_states AS ues
+WHERE ues.deleted_at IS NULL
+  AND ues.exercise_id IN (
+    SELECT UNNEST($1::uuid [])
+  )
+  AND ues.course_instance_id = $2
+  AND ues.user_id = $3;
+        "#,
+        exercise_ids,
+        course_instance_id,
+        user_id,
+    )
+    .fetch_all(&mut connection)
+    .await?;
+    Ok(res)
 }
 
 pub async fn get_or_create_user_exercise_state(

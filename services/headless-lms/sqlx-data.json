@@ -1,5 +1,21 @@
 {
   "db": "PostgreSQL",
+  "003aaa33eabe8108221375d0a45b87f1e908134d5a2a011623383fb8c8b3a90a": {
+    "query": "\nSELECT COALESCE(SUM(ues.score_given), 0) AS score_given\nFROM user_exercise_states AS ues\nWHERE ues.exercise_id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND ues.deleted_at IS NULL\n  AND ues.user_id = $2\n  AND ues.course_instance_id = $3;\n                ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "score_given",
+          "type_info": "Float4"
+        }
+      ],
+      "parameters": {
+        "Left": ["UuidArray", "Uuid", "Uuid"]
+      },
+      "nullable": [null]
+    }
+  },
   "0126aff55bba1d467391b9f51bd71afaaee6de715d563aa5a7cc6fe2d250e346": {
     "query": "\nSELECT *\nFROM submissions\nWHERE exercise_id = $1\n  AND user_id = $2\n  AND deleted_at IS NULL\nLIMIT $3\nOFFSET $4;\n        ",
     "describe": {
@@ -736,27 +752,6 @@
         ]
       },
       "nullable": []
-    }
-  },
-  "136f369cc798e92b4620cee20013ec066455939fc7d47f8db1a107317753d4a1": {
-    "query": "\nSELECT COUNT(e.id) as total_exercises,\n  COALESCE(0, SUM(e.score_maximum)) as score_maximum\nFROM course_instances ci\n  LEFT JOIN exercises e on ci.course_id = e.course_id\nWHERE e.deleted_at IS NULL\n  AND ci.id = $1;\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "total_exercises",
-          "type_info": "Int8"
-        },
-        {
-          "ordinal": 1,
-          "name": "score_maximum",
-          "type_info": "Int8"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [null, null]
     }
   },
   "13b0e10930d6dfb86d0ca5bf493c6741ec5faa14fd199a7c407197568f40f3f3": {
@@ -2204,6 +2199,27 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, false, false, false, true, true, true, true, true]
+    }
+  },
+  "3a3fa537038bdbeb11c9454487111b56afaa5230c97546dc0b29554446bfa27d": {
+    "query": "\nSELECT COALESCE(ues.score_given, 0) AS score_given,\n  ues.exercise_id AS exercise_id\nFROM user_exercise_states AS ues\nWHERE ues.deleted_at IS NULL\n  AND ues.exercise_id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND ues.course_instance_id = $2\n  AND ues.user_id = $3;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "score_given",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 1,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["UuidArray", "Uuid", "Uuid"]
+      },
+      "nullable": [null, false]
     }
   },
   "3c5b30ac7bad3459a0102d31d75bc0c7b6f8b9d62db3ce39be9c26cb318af8a9": {
@@ -4321,27 +4337,6 @@
       "nullable": [false, false, false, true, false, false]
     }
   },
-  "8c5a2157f97a81b2ce7489c584aef3cc2c42a4aaedeadc828e0de7bf8afc8706": {
-    "query": "\nSELECT COUNT(ues.exercise_id) as completed_exercises,\n  COALESCE(0, SUM(ues.score_given)) as score_given\nFROM user_exercise_states ues\nWHERE ues.course_instance_id = $1\n  AND ues.user_id = $2\n  AND ues.deleted_at IS NULL\n  AND ues.activity_progress IN ('submitted', 'completed');\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "completed_exercises",
-          "type_info": "Int8"
-        },
-        {
-          "ordinal": 1,
-          "name": "score_given",
-          "type_info": "Float4"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      },
-      "nullable": [null, null]
-    }
-  },
   "8c711ea858481edd56e9dc186e9c256e5109f373b8a8c602cecba26cf75740c7": {
     "query": "\nINSERT INTO users (id, email)\nVALUES ($1, $2)\nRETURNING id\n",
     "describe": {
@@ -5725,6 +5720,27 @@
       "nullable": [false, false, false, false, true]
     }
   },
+  "b4d12f09eb6fa6d8b9381f1f2c0bc7451683f3695eb0b4329ed8984adcb345c4": {
+    "query": "\nSELECT COUNT(ues.exercise_id) AS completed_exercises,\n  COALESCE(SUM(ues.score_given), 0) AS score_given\nFROM user_exercise_states AS ues\nWHERE ues.course_instance_id = $1\n  AND ues.user_id = $2\n  AND ues.deleted_at IS NULL;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "completed_exercises",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 1,
+          "name": "score_given",
+          "type_info": "Float4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": [null, null]
+    }
+  },
   "b4f5a52e896eba983c4002aa6c4ad7b6560079a8b7573c43315562e8bd3fb03b": {
     "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_id,\n  starts_at,\n  ends_at,\n  name,\n  description,\n  variant_status AS \"variant_status: VariantStatus\"\nFROM course_instances\nWHERE id = $1\n  AND deleted_at IS NULL;\n    ",
     "describe": {
@@ -5791,6 +5807,77 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, true, false, true, true, true, true, false]
+    }
+  },
+  "b6def96f6973719237ce93811fd8a9215bf24529cab71d262f22f11d13ddf526": {
+    "query": "\nSELECT *\nFROM exercises\nWHERE chapter_id = $1\n  AND deleted_at IS NULL\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 5,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "deadline",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 7,
+          "name": "page_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 8,
+          "name": "score_maximum",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 10,
+          "name": "chapter_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 11,
+          "name": "copied_from",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false, true, false, true, false, false, false, false, true]
     }
   },
   "b9159ddd17dc391f0bd7b726633dff02d1530aa2b0b270b4947d749442850451": {
@@ -6929,6 +7016,27 @@
         "Left": ["Uuid", "Uuid", "Varchar", "Jsonb", "Jsonb", "Jsonb", "Jsonb"]
       },
       "nullable": [false, false, false, true]
+    }
+  },
+  "e398cd25e0ebe20fbc1cb9bd3d525aacadb8604da50269598f265f9e2f099d49": {
+    "query": "\nSELECT COUNT(e.id) AS total_exercises,\n  SUM(e.score_maximum) AS score_maximum\nFROM course_instances AS ci\n  LEFT JOIN exercises AS e ON ci.course_id = e.course_id\nWHERE e.deleted_at IS NULL\n  AND ci.id = $1;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "total_exercises",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 1,
+          "name": "score_maximum",
+          "type_info": "Int8"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [null, null]
     }
   },
   "e4e5ef6ef0bbf4a234110b8dc2616b1a0483f511e0c6b9b04b9d7440486c3e07": {

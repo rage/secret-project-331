@@ -95,7 +95,7 @@ export interface ExerciseBoxExtraProps {
   exerciseTitle: string
   url: string
   scoreMaximum: number
-  userPoints?: number
+  userPoints: number
 }
 
 export type ExerciseBox = React.HTMLAttributes<HTMLDivElement> & ExerciseBoxExtraProps
@@ -120,7 +120,7 @@ const ExerciseBox: React.FC<ExerciseBox> = ({
             <span>{exerciseTitle}</span>
             <CircularProgressBar
               scoreMaximum={scoreMaximum}
-              userPoints={userPoints ?? 0}
+              userPoints={userPoints}
               className="progress"
             />
           </ExercisePart>

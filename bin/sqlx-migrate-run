@@ -10,4 +10,4 @@ RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
 
 run_command cd "$RELATIVE_PATH" || exit
 
-run_command cargo sqlx --database-url postgres://headless-lms@localhost:54328/headless_lms_dev migrate run "$@"
+run_command cargo sqlx migrate run "$@" --database-url postgres://headless-lms@localhost:54328/headless_lms_dev

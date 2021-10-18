@@ -95,25 +95,29 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
   }
 
   return (
-    <iframe
-      sandbox="allow-scripts"
+    <div
       className={css`
-        overflow: hidden;
-        width: 100%;
-
         /*
-         To see the size of the frame in development
-         Only top and bottom because frame is 100% of window width
-         and extra border would create a scrollbar
+          To see the size of the frame in development
+          Only top and bottom because frame is 100% of window width.
         */
         border: 0;
         border-top: 1px solid black;
         border-bottom: 1px solid black;
       `}
-      title="Exercise type specific content"
-      ref={iframeRef}
-      src={url}
-    />
+    >
+      <iframe
+        sandbox="allow-scripts"
+        className={css`
+          overflow: hidden;
+          width: 100%;
+          border: 0;
+        `}
+        title="Exercise type specific content"
+        ref={iframeRef}
+        src={url}
+      />
+    </div>
   )
 }
 

@@ -10,26 +10,6 @@
   ul,
   ol {
     margin: 0;
-    padding: 0;
-  }
-
-  ul li,
-  ol li {
-    // This overrides a bottom margin globally applied to list items in wp-admin.
-    margin-bottom: initial;
-  }
-
-  ul {
-    list-style-type: disc;
-  }
-
-  ol {
-    list-style-type: decimal;
-  }
-
-  ul ul,
-  ol ul {
-    list-style-type: circle;
   }
 
   img {

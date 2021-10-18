@@ -1,18 +1,53 @@
 import { css } from "@emotion/css"
 
 import { BlockRendererProps } from "../../.."
+import Button from "../../../../../shared-module/components/Button"
 import { courseMaterialCenteredComponentStyles } from "../../../../../shared-module/styles/componentStyles"
 import { FileAttributes } from "../../../../../types/GutenbergBlockAttributes"
 
 const FileBlock: React.FC<BlockRendererProps<FileAttributes>> = ({ data }) => {
+  const {
+    showDownloadButton,
+    // previewHeight,
+    // align,
+    anchor,
+    // className,
+    // displayPreview,
+    downloadButtonText,
+    fileName,
+    href,
+    // textLinkHref,
+    textLinkTarget,
+  } = data.attributes
   return (
-    <pre
+    <div
       className={css`
         ${courseMaterialCenteredComponentStyles}
       `}
     >
-      {JSON.stringify(data, undefined, 2)}
-    </pre>
+      <span>
+        <a
+          href={href}
+          {...(textLinkTarget && { target: textLinkTarget })}
+          {...(anchor && { id: anchor })}
+        >
+          {fileName}
+        </a>
+      </span>
+      {showDownloadButton && (
+        <span
+          className={css`
+            padding: 0 1rem;
+          `}
+        >
+          <a href={href} download={fileName}>
+            <Button size="medium" variant="tertiary">
+              {downloadButtonText}
+            </Button>
+          </a>
+        </span>
+      )}
+    </div>
   )
 }
 

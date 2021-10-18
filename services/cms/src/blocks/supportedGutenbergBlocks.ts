@@ -5,7 +5,6 @@ export const supportedCoreBlocks: string[] = [
   "core/heading",
   "core/list",
   "core/quote",
-  "core/shortcode",
   "core/audio",
   "core/button",
   "core/buttons",

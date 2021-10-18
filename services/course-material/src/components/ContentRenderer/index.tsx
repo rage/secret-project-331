@@ -7,6 +7,7 @@ import { courseMaterialBlockClass } from "../../utils/constants"
 
 import DefaultBlock from "./DefaultBlock"
 import AudioBlock from "./core/common/Audio/AudioBlock"
+import FileBlock from "./core/common/File/FileBlock"
 import HeadingBlock from "./core/common/Heading/HeadingBlock"
 import ImageBlock from "./core/common/Image/ImageBlock"
 import ListBlock from "./core/common/List/ListBlock"
@@ -24,6 +25,7 @@ import ColumnBlock from "./core/layout/ColumnBlock"
 import ColumnsBlock from "./core/layout/ColumnsBlock"
 import SeparatorBlock from "./core/layout/Separator"
 import SpacerBlock from "./core/layout/SpacerBlock"
+import RssBlock from "./core/widgets/RssBlock"
 import ChapterProgressBlock from "./moocfi/ChapterProgressBlock"
 import CourseChapterGridBlock from "./moocfi/CourseChapterGridBlock"
 import CourseObjectiveSectionBlock from "./moocfi/CourseObjectiveSectionBlock"
@@ -52,31 +54,40 @@ const LatexBlock = dynamic(() => import("./moocfi/LatexBlock"))
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const blockToRendererMap: { [blockName: string]: any } = {
-  // "core/shortcode",
-  // "core/button",
-  "core/columns": ColumnsBlock,
-  "core/column": ColumnBlock,
-  "core/embed": EmbedBlock, // This is used by youtube, twitter etc.
-  // "core/file",
-  // "core/group",
-  // "core/rss",
-  "core/separator": SeparatorBlock,
-  // "core/block",
-  "core/spacer": SpacerBlock,
-  // "core/text-columns",
+  "core/block": DefaultBlock,
+
+  // core / common
   "core/audio": AudioBlock,
-  "core/paragraph": ParagraphBlock,
-  "core/list": ListBlock,
-  "core/image": ImageBlock,
+  "core/file": FileBlock,
   "core/heading": HeadingBlock,
-  "core/buttons": ButtonBlock,
-  "core/code": CodeBlock,
+  "core/image": ImageBlock,
+  "core/list": ListBlock,
+  "core/paragraph": ParagraphBlock,
   "core/quote": QuoteBlock,
+
+  // core / embeds
+  "core/embed": EmbedBlock, // This is used by youtube, twitter etc.
+
+  // core / formatting
+  "core/code": CodeBlock,
   "core/html": CustomHTMLBlock,
-  "core/verse": VerseBlock,
-  "core/pullquote": PullquoteBlock,
   "core/preformatted": PreformattedBlock,
+  "core/pullquote": PullquoteBlock,
   "core/table": TableBlock,
+  "core/verse": VerseBlock,
+
+  // core / layout
+  // "core/button",
+  "core/buttons": ButtonBlock,
+  "core/column": ColumnBlock,
+  "core/columns": ColumnsBlock,
+  "core/separator": SeparatorBlock,
+  "core/spacer": SpacerBlock,
+
+  // core / widgets
+  "core/rss": RssBlock,
+
+  // moocfi
   "moocfi/exercise": ExerciseBlock,
   "moocfi/exercises-in-chapter": ExerciseInChapterBlock,
   "moocfi/pages-in-chapter": PagesInChapterBlock,

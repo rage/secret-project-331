@@ -6,24 +6,35 @@ import withErrorBoundary from "../../../../../shared-module/utils/withErrorBound
 import { AudioAttributes } from "../../../../../types/GutenbergBlockAttributes"
 
 const AudioBlock: React.FC<BlockRendererProps<AudioAttributes>> = ({ data }) => {
-  const attributes: AudioAttributes = data.attributes
+  const { anchor, autoplay, caption, loop, preload, src } = data.attributes
   return (
     <figure
       className={css`
         ${courseMaterialCenteredComponentStyles}
       `}
+      {...(anchor && { id: anchor })}
     >
       {/* Gutenberg schema has no support for captions */}
       {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-      <audio controls>
-        <source
-          src={attributes.src}
-          className={css`
-            ${courseMaterialCenteredComponentStyles}
-          `}
-        />
+      <audio
+        className={css`
+          width: 100%;
+        `}
+        controls
+        autoPlay={autoplay}
+        preload={preload}
+        loop={loop}
+      >
+        <source src={src} />
       </audio>
-      <figcaption>{attributes.caption}</figcaption>
+      <figcaption
+        className={css`
+          text-align: center;
+          font-size: 0.8125rem;
+        `}
+      >
+        {caption}
+      </figcaption>
     </figure>
   )
 }

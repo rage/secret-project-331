@@ -6,16 +6,17 @@ import { courseMaterialCenteredComponentStyles } from "../../../../../shared-mod
 import { QuoteAttributes } from "../../../../../types/GutenbergBlockAttributes"
 
 const QuoteBlock: React.FC<BlockRendererProps<QuoteAttributes>> = ({ data }) => {
-  const attributes: QuoteAttributes = data.attributes
+  const { citation, value, anchor } = data.attributes
   return (
     <blockquote
       className={css`
         ${courseMaterialCenteredComponentStyles}
       `}
-      cite={attributes.citation}
+      cite={citation}
+      {...(anchor && { id: anchor })}
     >
-      <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(attributes.value) }} />
-      <cite dangerouslySetInnerHTML={{ __html: sanitizeHtml(attributes.citation) }}></cite>
+      <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(value) }} />
+      <cite dangerouslySetInnerHTML={{ __html: sanitizeHtml(citation) }}></cite>
     </blockquote>
   )
 }

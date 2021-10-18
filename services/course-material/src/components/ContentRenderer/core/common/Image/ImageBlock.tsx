@@ -5,23 +5,68 @@ import { courseMaterialCenteredComponentStyles } from "../../../../../shared-mod
 import { ImageAttributes } from "../../../../../types/GutenbergBlockAttributes"
 
 const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => {
-  const attributes: ImageAttributes = data.attributes
+  const {
+    alt,
+    // blurDataUrl,
+    linkDestination, // is custom if image link defined manually, can send user out from our web page
+    // align,
+    anchor,
+    caption,
+    className,
+    height,
+    href,
+    // linkClass,
+    linkTarget,
+    rel,
+    // sizeSlug,
+    title,
+    url,
+    width,
+  } = data.attributes
+
+  const warnUserIfLinkCustom = () => {
+    if (linkDestination === "custom") {
+      return confirm(
+        `This image link will take you to:\n${href}\n\nAre you sure you want to continue?`,
+      )
+    }
+    return true
+  }
+
   return (
+    // TODO: Should image be full width blockerino in course material and CMS
     <figure
       className={css`
         ${courseMaterialCenteredComponentStyles}
       `}
+      {...(anchor && { id: anchor })}
     >
-      <img
-        height={attributes.height}
-        width={attributes.width}
+      <a
+        onClick={warnUserIfLinkCustom}
+        href={href}
+        target={linkTarget ?? "_blank"}
+        rel={rel ?? "noreferrer"}
+      >
+        <img
+          title={title}
+          height={height}
+          width={width}
+          className={css`
+            max-width: 100%;
+            ${className === "is-style-rounded" && "border-radius: 9999px"}
+          `}
+          src={url}
+          alt={alt}
+        />
+      </a>
+      <figcaption
         className={css`
-          max-width: 100%;
+          text-align: center;
+          font-size: 0.8125rem;
         `}
-        src={attributes.url}
-        alt={attributes.alt}
-      />
-      <figcaption>{attributes.caption}</figcaption>
+      >
+        {caption}
+      </figcaption>
     </figure>
   )
 }

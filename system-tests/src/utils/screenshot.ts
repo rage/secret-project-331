@@ -60,7 +60,13 @@ export default async function expectScreenshotsToMatchSnapshots({
 
     await page.setViewportSize(originalViewPort)
   } else if (frame) {
-    const elementHandle = await frame.frameElement()
+    const frameElement = await frame.frameElement()
+    // The frame is not always visible, and waitForThisToBeVisibleAndStable won't work if the frame is not visible
+    await frameElement.scrollIntoViewIfNeeded()
+    const elementHandle = await waitToBeVisible({
+      waitForThisToBeVisibleAndStable,
+      page: frame,
+    })
 
     await snapshotWithViewPort({
       snapshotName,
@@ -81,7 +87,7 @@ export default async function expectScreenshotsToMatchSnapshots({
     })
   } else {
     console.warn("no page or frame provided")
-    return
+    throw new Error("No page or frame provided to expectScreenshotsToMatchSnapshots")
   }
 }
 
@@ -169,16 +175,19 @@ async function snapshotWithViewPort({
 
 interface WaitToBeVisibleProps {
   waitForThisToBeVisibleAndStable: string | ElementHandle | (string | ElementHandle)[]
-  page: Page
+  page: Page | Frame
 }
 
 async function waitToBeVisible({
   waitForThisToBeVisibleAndStable,
   page,
 }: WaitToBeVisibleProps): Promise<ElementHandle | ElementHandle[]> {
+  console.log("wat")
   let elementHandle: ElementHandle | ElementHandle[] = null
   if (typeof waitForThisToBeVisibleAndStable == "string") {
+    console.log("waitForSelector", waitForThisToBeVisibleAndStable)
     elementHandle = await page.waitForSelector(waitForThisToBeVisibleAndStable)
+    console.log("Selector found")
   } else if (Array.isArray(waitForThisToBeVisibleAndStable)) {
     for (const element of waitForThisToBeVisibleAndStable) {
       // for some reason eslint mistakes recursion as an unsused variable

@@ -89,6 +89,7 @@ interface SnapshotWithViewPortProps {
   page?: Page
   frame?: Frame
   headless: boolean
+  persistMousePosition?: boolean
 }
 
 async function snapshotWithViewPort({
@@ -100,7 +101,12 @@ async function snapshotWithViewPort({
   frame,
   page,
   headless,
+  persistMousePosition,
 }: SnapshotWithViewPortProps) {
+  if (!persistMousePosition && page) {
+    await page.mouse.move(0, 0)
+  }
+
   let pageObjectToUse = page
   let thingBeingScreenshotted: Page | ElementHandle<Node> = page
   let thingBeingScreenshottedObject: Page | Frame = page

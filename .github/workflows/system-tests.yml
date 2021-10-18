@@ -76,9 +76,6 @@ jobs:
           kubectl get pods -o name --selector='waitToBeReady!=false' | xargs kubectl wait --timeout=600s --for=condition=ready
           echo "All pods ready"
 
-      - name: Setup & seed test database
-        run: bin/setup-system-test-db
-
       - name: Configure ingress
         run: echo "$(minikube ip) project-331.local" | sudo tee --append /etc/hosts
 
@@ -87,7 +84,11 @@ jobs:
         working-directory: ./system-tests/
 
       - name: Run system tests
-        run: npm run test-without-database-reset
+        run: npm run test
+        working-directory: ./system-tests/
+
+      - name: Run system tests again to make sure they're stable
+        run: npm run test
         working-directory: ./system-tests/
 
       - uses: actions/upload-artifact@v2

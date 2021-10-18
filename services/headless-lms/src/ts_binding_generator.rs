@@ -14,7 +14,7 @@ use crate::{
             UserCourseInstanceChapterProgress,
         },
         course_instance_enrollments::CourseInstanceEnrollment,
-        course_instances::{CourseInstance, VariantStatus},
+        course_instances::{CourseInstance, Points, VariantStatus},
         courses::{Course, CourseStructure, CourseUpdate, NewCourse},
         email_templates::{EmailTemplate, EmailTemplateNew, EmailTemplateUpdate},
         exercise_service_info::{CourseMaterialExerciseServiceInfo, ExerciseServiceInfoApi},
@@ -110,6 +110,7 @@ ts_rs::export! {
   GetEditProposalsQuery,
   NewProposedPageEdits,
   ErrorResponse,
+  Points,
   // dependencies
   VariantStatus,
   ChapterStatus,

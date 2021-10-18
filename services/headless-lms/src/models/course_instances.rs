@@ -1,7 +1,9 @@
-use super::ModelResult;
+use super::{exercises::Exercise, ModelResult};
+use crate::{models::exercises, utils::pagination::Pagination};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{PgConnection, Type};
+use std::collections::HashMap;
 use ts_rs::TS;
 use uuid::Uuid;
 
@@ -219,6 +221,52 @@ WHERE id = $2;
     .execute(conn)
     .await?;
     Ok(())
+}
+
+#[derive(Debug, Serialize, TS)]
+pub struct Points {
+    exercises: Vec<Exercise>,
+    users: Vec<Uuid>,
+    /// user_id -> exercise_id -> points
+    user_exercise_points: HashMap<Uuid, HashMap<Uuid, f32>>,
+}
+
+pub async fn get_points(
+    conn: &mut PgConnection,
+    instance_id: Uuid,
+    pagination: &Pagination,
+) -> ModelResult<Points> {
+    let exercises = exercises::get_exercises_by_course_instance_id(&mut *conn, instance_id).await?;
+    let states = sqlx::query!(
+        "
+SELECT user_id,
+  exercise_id,
+  score_given
+FROM user_exercise_states
+WHERE course_instance_id = $1
+ORDER BY user_id ASC
+LIMIT $2 OFFSET $3
+",
+        instance_id,
+        pagination.limit(),
+        pagination.offset()
+    )
+    .fetch_all(conn)
+    .await?;
+    let mut users = vec![];
+    let mut user_exercise_points: HashMap<Uuid, HashMap<Uuid, f32>> = HashMap::new();
+    for state in states {
+        users.push(state.user_id);
+        let exercise_points = user_exercise_points.entry(state.user_id).or_default();
+        exercise_points.insert(state.exercise_id, state.score_given.unwrap_or_default());
+    }
+    // the states are ordered by user id so dedup will remove all duplicates
+    users.dedup();
+    Ok(Points {
+        exercises,
+        users,
+        user_exercise_points,
+    })
 }
 
 #[cfg(test)]

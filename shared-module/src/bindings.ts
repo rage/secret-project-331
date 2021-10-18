@@ -428,6 +428,12 @@ export interface ErrorResponse {
   source: string | null
 }
 
+export interface Points {
+  exercises: Array<Exercise>
+  users: Array<string>
+  user_exercise_points: Record<string, Record<string, number>>
+}
+
 export type VariantStatus = "Draft" | "Upcoming" | "Active" | "Ended"
 
 export type ChapterStatus = "open" | "closed"

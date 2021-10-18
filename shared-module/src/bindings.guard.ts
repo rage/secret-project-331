@@ -69,6 +69,7 @@ import {
   Pagination,
   PlaygroundExample,
   PlaygroundExampleData,
+  Points,
   ProposalCount,
   ProposalStatus,
   Submission,
@@ -718,6 +719,26 @@ export function isErrorResponse(obj: any, _argumentName?: string): obj is ErrorR
     typeof obj.title === "string" &&
     typeof obj.message === "string" &&
     (obj.source === null || typeof obj.source === "string")
+  )
+}
+
+export function isPoints(obj: any, _argumentName?: string): obj is Points {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    Array.isArray(obj.exercises) &&
+    obj.exercises.every((e: any) => isExercise(e) as boolean) &&
+    Array.isArray(obj.users) &&
+    obj.users.every((e: any) => typeof e === "string") &&
+    ((obj.user_exercise_points !== null && typeof obj.user_exercise_points === "object") ||
+      typeof obj.user_exercise_points === "function") &&
+    Object.entries(obj.user_exercise_points).every(
+      ([key, value]) =>
+        ((value !== null && typeof value === "object") || typeof value === "function") &&
+        Object.entries(value).every(
+          ([key, value]) => typeof value === "number" && typeof key === "string",
+        ) &&
+        typeof key === "string",
+    )
   )
 }
 

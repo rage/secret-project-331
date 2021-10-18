@@ -1,4 +1,4 @@
-import { EmailTemplate, EmailTemplateNew } from "../../../shared-module/bindings"
+import { EmailTemplate, EmailTemplateNew, Points } from "../../../shared-module/bindings"
 import { mainFrontendClient } from "../../mainFrontendClient"
 
 export const postNewEmailTemplateForCourseInstance = async (
@@ -24,5 +24,12 @@ export const fetchCourseInstanceEmailTemplates = async (
       responseType: "json",
     },
   )
+  return response.data
+}
+
+export const getPoints = async (courseInstanceId: string): Promise<Points> => {
+  const response = await mainFrontendClient.get(`/course-instances/${courseInstanceId}/points`, {
+    responseType: "json",
+  })
   return response.data
 }

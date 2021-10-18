@@ -42,6 +42,7 @@ pub struct NewCourseInstance<'a> {
     pub id: Uuid,
     pub course_id: Uuid,
     pub name: Option<&'a str>,
+    pub description: Option<&'a str>,
     pub variant_status: Option<VariantStatus>,
     pub teacher_in_charge_name: &'a str,
     pub teacher_in_charge_email: &'a str,
@@ -55,8 +56,17 @@ pub async fn insert(
     let course_instance = sqlx::query_as!(
         CourseInstance,
         r#"
-INSERT INTO course_instances (id, course_id, name, variant_status, teacher_in_charge_name, teacher_in_charge_email, support_email)
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+INSERT INTO course_instances (
+    id,
+    course_id,
+    name,
+    description,
+    variant_status,
+    teacher_in_charge_name,
+    teacher_in_charge_email,
+    support_email
+  )
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING id,
   created_at,
   updated_at,
@@ -74,6 +84,7 @@ RETURNING id,
         new_course_instance.id,
         new_course_instance.course_id,
         new_course_instance.name,
+        new_course_instance.description,
         new_course_instance.variant_status.unwrap_or_default() as VariantStatus,
         new_course_instance.teacher_in_charge_name,
         new_course_instance.teacher_in_charge_email,
@@ -377,6 +388,7 @@ mod test {
                 id: Uuid::new_v4(),
                 course_id: course_1_id,
                 name: None,
+                description: None,
                 variant_status: None,
                 teacher_in_charge_name: "teacher",
                 teacher_in_charge_email: "teacher@example.com",
@@ -391,6 +403,7 @@ mod test {
                 id: Uuid::new_v4(),
                 course_id: course_2_id,
                 name: None,
+                description: None,
                 variant_status: None,
                 teacher_in_charge_name: "teacher",
                 teacher_in_charge_email: "teacher@example.com",
@@ -406,6 +419,7 @@ mod test {
                 id: Uuid::new_v4(),
                 course_id: course_1_id,
                 name: None,
+                description: None,
                 variant_status: None,
                 teacher_in_charge_name: "teacher",
                 teacher_in_charge_email: "teacher@example.com",

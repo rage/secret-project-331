@@ -675,6 +675,7 @@ export function isNewCourseInstanceForm(
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     (obj.name === null || typeof obj.name === "string") &&
+    (obj.description === null || typeof obj.description === "string") &&
     typeof obj.teacher_in_charge_name === "string" &&
     typeof obj.teacher_in_charge_email === "string" &&
     (obj.support_email === null || typeof obj.support_email === "string")

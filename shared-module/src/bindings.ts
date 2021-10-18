@@ -399,6 +399,7 @@ export interface CourseInstanceUpdate {
 
 export interface NewCourseInstanceForm {
   name: string | null
+  description: string | null
   teacher_in_charge_name: string
   teacher_in_charge_email: string
   support_email: string | null

@@ -122,6 +122,7 @@ pub async fn insert_data(conn: &mut PgConnection, exercise_type: &str) -> Result
             id: Uuid::new_v4(),
             course_id: course,
             name: None,
+            description: None,
             variant_status: None,
             teacher_in_charge_name: "teacher",
             teacher_in_charge_email: "teacher@example.com",

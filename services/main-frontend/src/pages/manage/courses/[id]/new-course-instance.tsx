@@ -36,6 +36,7 @@ const NewCourseInstance: React.FC<Props> = ({ query }) => {
       // interpret empty optional values as null
       await newCourseInstance(courseId, {
         name: name || null,
+        description: description || null,
         teacher_in_charge_name: teacherInChargeName,
         teacher_in_charge_email: teacherInChargeEmail,
         support_email: supportEmail || null,

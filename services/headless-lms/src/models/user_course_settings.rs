@@ -147,6 +147,7 @@ mod test {
                 id: Uuid::new_v4(),
                 course_id: course,
                 name: Some("instance-2"),
+                description: None,
                 variant_status: Some(VariantStatus::Draft),
                 teacher_in_charge_name: "teacher",
                 teacher_in_charge_email: "teacher@example.com",

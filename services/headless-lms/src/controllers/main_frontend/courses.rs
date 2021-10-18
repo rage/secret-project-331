@@ -680,6 +680,7 @@ pub async fn get_feedback_count(
 #[derive(Debug, Deserialize, TS)]
 pub struct NewCourseInstanceForm {
     name: Option<String>,
+    description: Option<String>,
     teacher_in_charge_name: String,
     teacher_in_charge_email: String,
     support_email: Option<String>,
@@ -696,6 +697,7 @@ async fn new_course_instance(
         id: Uuid::new_v4(),
         course_id: course_id.into_inner(),
         name: form.name.as_deref(),
+        description: form.description.as_deref(),
         variant_status: None,
         support_email: form.support_email.as_deref(),
         teacher_in_charge_name: &form.teacher_in_charge_name,

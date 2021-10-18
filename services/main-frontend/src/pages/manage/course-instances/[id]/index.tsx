@@ -5,6 +5,7 @@ import AdapterDateFns from "@material-ui/lab/AdapterDateFns"
 import { isPast } from "date-fns"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
+import { useForm } from "react-hook-form"
 import { useMutation, useQuery } from "react-query"
 
 import Layout from "../../../../components/Layout"
@@ -13,7 +14,8 @@ import {
   editCourseInstance,
   fetchCourseInstance,
 } from "../../../../services/backend/course-instances"
-import { CourseInstanceUpdate } from "../../../../shared-module/bindings"
+import { CourseInstanceUpdate, ErrorResponse } from "../../../../shared-module/bindings"
+import { isErrorResponse } from "../../../../shared-module/bindings.guard"
 import Button from "../../../../shared-module/components/Button"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
@@ -27,23 +29,31 @@ interface ManageCourseInstancesProps {
   query: SimplifiedUrlQuery<"id">
 }
 
+interface Fields {
+  name: string
+  description: string
+  supportEmail: string
+  teacherName: string
+  teacherEmail: string
+}
+
 const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) => {
   const courseInstanceId = query.id
   const router = useRouter()
-
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    reset,
+  } = useForm<Fields>()
   const { isLoading, error, data, refetch } = useQuery(`course-instance-${courseInstanceId}`, () =>
     fetchCourseInstance(courseInstanceId),
   )
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-
-  const [editing, setEditing] = useState(false)
-  const [newName, setNewName] = useState<string>("")
-  const [newDescription, setNewDescription] = useState<string>("")
-  const [newSupportEmail, setNewSupportEmail] = useState<string>("")
-  const [newTeacherInChargeName, setNewTeacherInChargeName] = useState<string>("")
-  const [newTeacherInChargeEmail, setNewTeacherInChargeEmail] = useState<string>("")
   const [newOpeningTime, setNewOpeningTime] = useState<Date | null>(null)
   const [newClosingTime, setNewClosingTime] = useState<Date | null>(null)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [editing, setEditing] = useState(false)
   const mutation = useMutation(
     async (update: CourseInstanceUpdate) => {
       setErrorMessage(null)
@@ -80,6 +90,19 @@ const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) 
       },
     },
   )
+  const onSubmit = handleSubmit((data) => {
+    console.log(data)
+    mutation.mutate({
+      name: data.name || null,
+      description: data.description || null,
+      support_email: data.supportEmail || null,
+      teacher_in_charge_name: data.teacherName,
+      teacher_in_charge_email: data.teacherEmail,
+      opening_time: newOpeningTime,
+      closing_time: newClosingTime,
+    })
+    setEditing(false)
+  })
 
   if (isLoading) {
     return <div>Loading...</div>
@@ -93,100 +116,76 @@ const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) 
     )
   }
 
-  function submit() {
-    if (!newTeacherInChargeName || newTeacherInChargeName.length === 0) {
-      setErrorMessage("Teacher-in-charge name cannot be empty")
-      return
-    }
-    if (!newTeacherInChargeEmail || newTeacherInChargeEmail.length === 0) {
-      setErrorMessage("Teacher-in-charge email cannot be empty")
-      return
-    }
-    // treat empty strings as null
-    mutation.mutate({
-      name: newName || null,
-      description: newDescription || null,
-      support_email: newSupportEmail || null,
-      teacher_in_charge_name: newTeacherInChargeName,
-      teacher_in_charge_email: newTeacherInChargeEmail,
-      opening_time: newOpeningTime,
-      closing_time: newClosingTime,
-    })
-    setEditing(false)
+  const field = (
+    id: "name" | "description" | "supportEmail" | "teacherName" | "teacherEmail",
+    placeholder: string,
+    defaultValue: string,
+    required: boolean,
+  ) => {
+    return (
+      <>
+        <label htmlFor={id}>{placeholder}</label>
+        <br />
+        {required && errors[id] && (
+          <>
+            <span>This field is required</span>
+            <br />
+          </>
+        )}
+        <input
+          id={id}
+          placeholder={placeholder}
+          defaultValue={defaultValue}
+          {...register(id, { required })}
+        ></input>
+        <br />
+      </>
+    )
   }
 
   let instanceInfo
   if (editing) {
     instanceInfo = (
       <>
-        <label htmlFor="name">Name</label> <br />
-        <TextField
-          id="name"
-          value={newName}
-          onChange={(ev) => setNewName(ev.currentTarget.value)}
-        ></TextField>
-        <br />
-        <label htmlFor="description">Description</label> <br />
-        <TextField
-          id="description"
-          value={newDescription}
-          onChange={(ev) => setNewDescription(ev.currentTarget.value)}
-        ></TextField>
-        <br />
-        <label htmlFor="support-email">Support email</label> <br />
-        <TextField
-          id="support-email"
-          value={newSupportEmail}
-          onChange={(ev) => setNewSupportEmail(ev.currentTarget.value)}
-        ></TextField>
-        <br />
-        <label htmlFor="teacher-name">Teacher-in-charge name</label> <br />
-        <TextField
-          id="teacher-name"
-          value={newTeacherInChargeName}
-          onChange={(ev) => setNewTeacherInChargeName(ev.currentTarget.value)}
-        ></TextField>
-        <br />
-        <label htmlFor="teacher-email">Teacher-in-charge email</label> <br />
-        <TextField
-          id="teacher-email"
-          value={newTeacherInChargeEmail}
-          onChange={(ev) => setNewTeacherInChargeEmail(ev.currentTarget.value)}
-        ></TextField>
-        <br />
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <DateTimePicker
-            label={"Opening time"}
-            inputFormat={"dd/MM/yyyy HH:mm"}
-            renderInput={(props) => <TextField {...props} />}
-            value={newOpeningTime}
-            onChange={(time) => {
-              setNewOpeningTime(time)
-            }}
-          />
+        <form onSubmit={onSubmit}>
+          {field("name", "Instance name", data.name || "", false)}
+          {field("description", "Instance description", data.description || "", false)}
+          {field("supportEmail", "Support email", data.support_email || "", false)}
+          {field("teacherName", "Teacher-in-charge name", data.teacher_in_charge_name || "", true)}
+          {field(
+            "teacherEmail",
+            "Teacher-in-charge email",
+            data.teacher_in_charge_email || "",
+            true,
+          )}
+
           <br />
-          <DateTimePicker
-            label={"Closing time"}
-            inputFormat={"dd/MM/yyyy HH:mm"}
-            renderInput={(props) => <TextField {...props} />}
-            value={newClosingTime}
-            onChange={(time) => {
-              setNewClosingTime(time)
-            }}
-          />
-        </LocalizationProvider>
-        <br />
-        <Button
-          variant="primary"
-          size="medium"
-          onClick={submit}
-          disabled={newTeacherInChargeName.length === 0 || newTeacherInChargeEmail.length === 0}
-        >
-          Save
-        </Button>
-        <Button variant="secondary" size="medium" onClick={() => setEditing(false)}>
-          Cancel
-        </Button>
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <DateTimePicker
+              label={"Opening time"}
+              inputFormat={"dd/MM/yyyy HH:mm"}
+              renderInput={(props) => <TextField {...props} />}
+              value={newOpeningTime}
+              onChange={(time) => setNewOpeningTime(time)}
+            />
+            <br />
+            <br />
+            <DateTimePicker
+              label={"Closing time"}
+              inputFormat={"dd/MM/yyyy HH:mm"}
+              renderInput={(props) => <TextField {...props} />}
+              value={newClosingTime}
+              onChange={(time) => setNewClosingTime(time)}
+            />
+          </LocalizationProvider>
+          <br />
+          <Button variant="primary" size="medium" type="submit" value="Submit">
+            Submit
+          </Button>
+          <Button variant="secondary" size="medium" onClick={() => setEditing(false)}>
+            Cancel
+          </Button>
+        </form>
       </>
     )
   } else {
@@ -229,10 +228,7 @@ const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) 
           variant="tertiary"
           size="medium"
           onClick={() => {
-            setNewName(data.name || "")
-            setNewDescription(data.description || "")
-            setNewTeacherInChargeName(data.teacher_in_charge_name)
-            setNewTeacherInChargeEmail(data.teacher_in_charge_email)
+            reset()
             setNewOpeningTime(data.starts_at)
             setNewClosingTime(data.ends_at)
             setEditing(true)

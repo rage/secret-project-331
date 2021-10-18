@@ -27,7 +27,10 @@ test("widget, open", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "widget-open-empty",
-    waitForThisToBeVisibleAndStable: `text="Enter the date of the next leap day in ISO 8601 format"`,
+    waitForThisToBeVisibleAndStable: [
+      `text="Enter the date of the next leap day in ISO 8601 format (YYYY-MM-DD)."`,
+      `text="Date formats"`,
+    ],
     frame,
   })
 
@@ -40,7 +43,11 @@ test("widget, open", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "widget-open-invalid",
-    waitForThisToBeVisibleAndStable: `text="The answer does not match the answer format specified for this exercise."`,
+    waitForThisToBeVisibleAndStable: [
+      `text="The answer does not match the answer format specified for this exercise."`,
+      `text="Enter the date of the next leap day in ISO 8601 format (YYYY-MM-DD)."`,
+      `text="Date formats"`,
+    ],
     frame,
   })
 
@@ -50,7 +57,10 @@ test("widget, open", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "widget-open-valid",
-    waitForThisToBeVisibleAndStable: `text="2024-02-29"`,
+    waitForThisToBeVisibleAndStable: [
+      `text="Enter the date of the next leap day in ISO 8601 format (YYYY-MM-DD)."`,
+      `text="Date formats"`,
+    ],
     frame,
   })
 })

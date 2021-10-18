@@ -1,10 +1,12 @@
 import { expect, test } from "@playwright/test"
+import { Page } from "playwright"
 
 import { feedbackTooltipClass } from "../../shared-module/styles/constants"
 import expectPath from "../../utils/expect"
 import { login } from "../../utils/login"
 import { logout } from "../../utils/logout"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
+import waitForFunction from "../../utils/waitForFunction"
 
 test.use({
   storageState: "src/states/user@example.com.json",
@@ -23,25 +25,33 @@ test("test", async ({ headless, page }) => {
     "http://project-331.local/organizations/8bb12295-53ac-4099-9644-ac0ff5e34d92",
   )
 
-  // Click text=Introduction to Course Material
-  await Promise.all([page.waitForNavigation(), page.click("text=Introduction to Course Material")])
+  await Promise.all([page.waitForNavigation(), page.click("text=Introduction to feedback")])
+
+  await page.click('label:has-text("default")')
 
   // Click button:has-text("Continue")
   await page.click('button:has-text("Continue")')
 
-  // Click a:has-text("CHAPTER 1User Interface")
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-course-material/chapter-1' }*/),
-    page.click('a:has-text("CHAPTER 1User Interface")'),
-  ])
+  await Promise.all([page.waitForNavigation(), await page.click("text=The Basics")])
+  expect(page.url()).toBe("http://project-331.local/courses/introduction-to-feedback/chapter-1")
 
-  // Triple click text=In the industrial design field of human–computer interaction, a user interface i
-  await page.click(
-    "text=In the industrial design field of human–computer interaction, a user interface i",
-    {
-      clickCount: 3,
-    },
+  await Promise.all([page.waitForNavigation(), await page.click("text=Page One")])
+  expect(page.url()).toBe(
+    "http://project-331.local/courses/introduction-to-feedback/chapter-1/page-1",
   )
+
+  // page has a frame that pushes all the content down after loafing, so let's wait for it to load first
+  const frame = await waitForFunction(page, () =>
+    page.frames().find((f) => {
+      return f.url().startsWith("http://project-331.local/example-exercise/exercise")
+    }),
+  )
+
+  await frame.waitForSelector("text=b")
+
+  await page.click("text=So big", {
+    clickCount: 3,
+  })
 
   await expectScreenshotsToMatchSnapshots({
     page,
@@ -72,7 +82,8 @@ test("test", async ({ headless, page }) => {
   })
 
   // Click text=Submit
-  await page.click('text="Submit"')
+  await page.click('text="Add comment"')
+  await page.click('text="Send"')
   await page.waitForSelector("text=Feedback submitted successfully")
 
   await logout(page)
@@ -85,10 +96,10 @@ test("test", async ({ headless, page }) => {
   ])
   expectPath(page, "/organizations/[id]")
 
-  // Click text=Introduction to Course Material Manage >> :nth-match(a, 2)
+  // Click text=Introduction to feedback Manage >> :nth-match(a, 2)
   await Promise.all([
     page.waitForNavigation(),
-    await page.click("text=Introduction to Course Material Manage >> :nth-match(a, 2)"),
+    await page.click("text=Introduction to feedback Manage >> :nth-match(a, 2)"),
   ])
   expectPath(page, "/manage/courses/[id]")
 
@@ -98,15 +109,7 @@ test("test", async ({ headless, page }) => {
   await page.waitForURL((url) => url.searchParams.has("read"))
   expectPath(page, "/manage/courses/[id]/feedback?read=false")
 
-  await page.waitForSelector("text=Sent by")
-  await page.evaluate(() => {
-    const divs = document.querySelectorAll("div")
-    for (const div of divs) {
-      if (div.children.length === 0 && div.textContent.includes("Sent by")) {
-        div.innerHTML = "Sent by xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx at yyyy-mm-ddThh:mm:ss.xxxZ"
-      }
-    }
-  })
+  await replaceIds(page)
 
   // Unread feedback view
   await expectScreenshotsToMatchSnapshots({
@@ -119,6 +122,14 @@ test("test", async ({ headless, page }) => {
 
   // Click text=Mark as read
   await page.click("text=Mark as read")
+  // We have to wait for the feedback item to disappear so that we don't accidentally click the same button multiple times. Computers are sometimes faster that one would expect.
+  await page.waitForSelector("text=I found this pretty confusing!", { state: "hidden" })
+  await page.click("text=Mark as read")
+  await page.waitForSelector("text=Anonymous unrelated feedback", { state: "hidden" })
+  await page.click("text=Mark as read")
+  await page.waitForSelector("text=Anonymous feedback", { state: "hidden" })
+  await page.click("text=Mark as read")
+  await page.waitForSelector("text=I dont think we need these paragraphs", { state: "hidden" })
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,
@@ -137,3 +148,25 @@ test("test", async ({ headless, page }) => {
   // Click text=Unread
   await page.click("text=Unread")
 })
+
+async function replaceIds(page: Page): Promise<void> {
+  await page.waitForSelector("text=Sent by")
+  await page.evaluate(() => {
+    const divs = document.querySelectorAll("div")
+    for (const div of divs) {
+      if (div.children.length === 0 && div.textContent.includes("Sent by")) {
+        div.innerHTML = "Sent by xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx at yyyy-mm-ddThh:mm:ss.xxxZ"
+      }
+    }
+  })
+
+  await page.waitForSelector("text=Block id: ")
+  await page.evaluate(() => {
+    const divs = document.querySelectorAll("div")
+    for (const div of divs) {
+      if (div.children.length === 0 && div.textContent.includes("Block id: ")) {
+        div.innerHTML = "Block id: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      }
+    }
+  })
+}

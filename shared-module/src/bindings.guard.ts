@@ -7,6 +7,9 @@
  */
 import {
   ActivityProgress,
+  BlockProposal,
+  BlockProposalAction,
+  BlockProposalInfo,
   Chapter,
   ChapterStatus,
   ChapterUpdate,
@@ -20,13 +23,16 @@ import {
   CoursePageWithUserData,
   CourseStructure,
   CourseUpdate,
+  EditProposalInfo,
   EmailTemplate,
   EmailTemplateNew,
   EmailTemplateUpdate,
+  ErrorResponse,
   Exercise,
   ExerciseService,
   ExerciseServiceInfoApi,
   ExerciseServiceNewOrUpdate,
+  ExerciseSlide,
   ExerciseStatus,
   ExerciseSubmissions,
   ExerciseTask,
@@ -34,6 +40,7 @@ import {
   Feedback,
   FeedbackBlock,
   FeedbackCount,
+  GetEditProposalsQuery,
   GetFeedbackQuery,
   Grading,
   GradingProgress,
@@ -45,12 +52,15 @@ import {
   NewCourse,
   NewFeedback,
   NewPage,
+  NewProposedBlockEdit,
+  NewProposedPageEdits,
   NewSubmission,
   NormalizedCmsExercise,
   NormalizedCmsExerciseTask,
   Organization,
   Page,
   PageHistory,
+  PageProposal,
   PageRoutingDataWithChapterStatus,
   PageSearchRequest,
   PageSearchResult,
@@ -59,6 +69,8 @@ import {
   Pagination,
   PlaygroundExample,
   PlaygroundExampleData,
+  ProposalCount,
+  ProposalStatus,
   Submission,
   SubmissionCount,
   SubmissionCountByExercise,
@@ -66,9 +78,11 @@ import {
   SubmissionInfo,
   SubmissionResult,
   UploadResult,
+  UserCourseInstanceChapterExerciseProgress,
+  UserCourseInstanceChapterProgress,
+  UserCourseInstanceProgress,
   UserCourseSettings,
   UserPointsUpdateStrategy,
-  UserProgress,
   VariantStatus,
 } from "./bindings"
 
@@ -156,13 +170,38 @@ export function isPageWithExercises(obj: any, _argumentName?: string): obj is Pa
   )
 }
 
-export function isUserProgress(obj: any, _argumentName?: string): obj is UserProgress {
+export function isUserCourseInstanceProgress(
+  obj: any,
+  _argumentName?: string,
+): obj is UserCourseInstanceProgress {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (obj.score_given === null || typeof obj.score_given === "number") &&
+    typeof obj.score_given === "number" &&
     (obj.score_maximum === null || typeof obj.score_maximum === "number") &&
     (obj.total_exercises === null || typeof obj.total_exercises === "number") &&
     (obj.completed_exercises === null || typeof obj.completed_exercises === "number")
+  )
+}
+
+export function isUserCourseInstanceChapterProgress(
+  obj: any,
+  _argumentName?: string,
+): obj is UserCourseInstanceChapterProgress {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.score_given === "number" &&
+    typeof obj.score_maximum === "number"
+  )
+}
+
+export function isUserCourseInstanceChapterExerciseProgress(
+  obj: any,
+  _argumentName?: string,
+): obj is UserCourseInstanceChapterExerciseProgress {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.exercise_id === "string" &&
+    typeof obj.score_given === "number"
   )
 }
 
@@ -312,6 +351,18 @@ export function isExercise(obj: any, _argumentName?: string): obj is Exercise {
     typeof obj.score_maximum === "number" &&
     typeof obj.order_number === "number" &&
     (obj.copied_from === null || typeof obj.copied_from === "string")
+  )
+}
+
+export function isExerciseSlide(obj: any, _argumentName?: string): obj is ExerciseSlide {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    typeof obj.exercise_id === "string" &&
+    typeof obj.order_number === "number"
   )
 }
 
@@ -544,6 +595,7 @@ export function isFeedback(obj: any, _argumentName?: string): obj is Feedback {
     (obj.user_id === null || typeof obj.user_id === "string") &&
     typeof obj.course_id === "string" &&
     typeof obj.feedback_given === "string" &&
+    (obj.selected_text === null || typeof obj.selected_text === "string") &&
     typeof obj.marked_as_read === "boolean" &&
     obj.created_at instanceof Date &&
     Array.isArray(obj.blocks) &&
@@ -562,6 +614,7 @@ export function isNewFeedback(obj: any, _argumentName?: string): obj is NewFeedb
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.feedback_given === "string" &&
+    (obj.selected_text === null || typeof obj.selected_text === "string") &&
     Array.isArray(obj.related_blocks) &&
     obj.related_blocks.every((e: any) => isFeedbackBlock(e) as boolean)
   )
@@ -592,6 +645,82 @@ export function isGetFeedbackQuery(obj: any, _argumentName?: string): obj is Get
   )
 }
 
+export function isPageProposal(obj: any, _argumentName?: string): obj is PageProposal {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.page_id === "string" &&
+    (obj.user_id === null || typeof obj.user_id === "string") &&
+    typeof obj.pending === "boolean" &&
+    obj.created_at instanceof Date &&
+    Array.isArray(obj.block_proposals) &&
+    obj.block_proposals.every((e: any) => isBlockProposal(e) as boolean)
+  )
+}
+
+export function isBlockProposal(obj: any, _argumentName?: string): obj is BlockProposal {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.block_id === "string" &&
+    typeof obj.current_text === "string" &&
+    typeof obj.changed_text === "string" &&
+    (isProposalStatus(obj.status) as boolean) &&
+    (obj.accept_preview === null || typeof obj.accept_preview === "string")
+  )
+}
+
+export function isProposalCount(obj: any, _argumentName?: string): obj is ProposalCount {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.pending === "number" &&
+    typeof obj.handled === "number"
+  )
+}
+
+export function isEditProposalInfo(obj: any, _argumentName?: string): obj is EditProposalInfo {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.page_id === "string" &&
+    typeof obj.page_proposal_id === "string" &&
+    Array.isArray(obj.block_proposals) &&
+    obj.block_proposals.every((e: any) => isBlockProposalInfo(e) as boolean)
+  )
+}
+
+export function isGetEditProposalsQuery(
+  obj: any,
+  _argumentName?: string,
+): obj is GetEditProposalsQuery {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.pending === "boolean" &&
+    (typeof obj.page === "undefined" || typeof obj.page === "number") &&
+    (typeof obj.limit === "undefined" || typeof obj.limit === "number")
+  )
+}
+
+export function isNewProposedPageEdits(
+  obj: any,
+  _argumentName?: string,
+): obj is NewProposedPageEdits {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.page_id === "string" &&
+    Array.isArray(obj.block_edits) &&
+    obj.block_edits.every((e: any) => isNewProposedBlockEdit(e) as boolean)
+  )
+}
+
+export function isErrorResponse(obj: any, _argumentName?: string): obj is ErrorResponse {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.title === "string" &&
+    typeof obj.message === "string" &&
+    (obj.source === null || typeof obj.source === "string")
+  )
+}
+
 export function isVariantStatus(obj: any, _argumentName?: string): obj is VariantStatus {
   return obj === "Draft" || obj === "Upcoming" || obj === "Active" || obj === "Ended"
 }
@@ -607,7 +736,7 @@ export function isCourseMaterialExerciseTask(
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
-    typeof obj.exercise_id === "string" &&
+    typeof obj.exercise_slide_id === "string" &&
     typeof obj.exercise_type === "string"
   )
 }
@@ -705,13 +834,51 @@ export function isPagination(obj: any, _argumentName?: string): obj is Paginatio
   )
 }
 
+export function isProposalStatus(obj: any, _argumentName?: string): obj is ProposalStatus {
+  return obj === "Pending" || obj === "Accepted" || obj === "Rejected"
+}
+
+export function isNewProposedBlockEdit(
+  obj: any,
+  _argumentName?: string,
+): obj is NewProposedBlockEdit {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.block_id === "string" &&
+    typeof obj.block_attribute === "string" &&
+    typeof obj.original_text === "string" &&
+    typeof obj.changed_text === "string"
+  )
+}
+
+export function isBlockProposalInfo(obj: any, _argumentName?: string): obj is BlockProposalInfo {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    (isBlockProposalAction(obj.action) as boolean)
+  )
+}
+
+export function isBlockProposalAction(
+  obj: any,
+  _argumentName?: string,
+): obj is BlockProposalAction {
+  return (
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.tag === "Accept" &&
+      typeof obj.data === "string") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.tag === "Reject")
+  )
+}
+
 export function isExerciseTask(obj: any, _argumentName?: string): obj is ExerciseTask {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
     obj.created_at instanceof Date &&
     obj.updated_at instanceof Date &&
-    typeof obj.exercise_id === "string" &&
+    typeof obj.exercise_slide_id === "string" &&
     typeof obj.exercise_type === "string" &&
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
     (obj.spec_file_id === null || typeof obj.spec_file_id === "string") &&

@@ -5,6 +5,7 @@ import {
   CourseMaterialExercise,
   CoursePageWithUserData,
   NewFeedback,
+  NewProposedPageEdits,
   NewSubmission,
   Page,
   PageRoutingDataWithChapterStatus,
@@ -12,8 +13,10 @@ import {
   PageSearchResult,
   PageWithExercises,
   SubmissionResult,
+  UserCourseInstanceChapterExerciseProgress,
+  UserCourseInstanceChapterProgress,
+  UserCourseInstanceProgress,
   UserCourseSettings,
-  UserProgress,
 } from "../shared-module/bindings"
 
 import { courseMaterialClient } from "./courseMaterialClient"
@@ -95,9 +98,35 @@ export const fetchAllCoursePages = async (courseId: string): Promise<Page[]> => 
   return data
 }
 
-export const fetchUserCourseProgress = async (courseInstanceId: string): Promise<UserProgress> => {
+export const fetchUserCourseProgress = async (
+  courseInstanceId: string,
+): Promise<UserCourseInstanceProgress> => {
   const data = (await courseMaterialClient.get(`/course-instances/${courseInstanceId}/progress`))
     .data
+  return data
+}
+
+export const fetchUserChapterInstanceChapterProgress = async (
+  courseInstanceId: string,
+  chapterId: string,
+): Promise<UserCourseInstanceChapterProgress> => {
+  const data = (
+    await courseMaterialClient.get(
+      `/course-instances/${courseInstanceId}/chapters/${chapterId}/progress`,
+    )
+  ).data
+  return data
+}
+
+export const fetchUserCourseInstanceChapterExercisesProgress = async (
+  courseInstanceId: string,
+  chapterId: string,
+): Promise<UserCourseInstanceChapterExerciseProgress[]> => {
+  const data = (
+    await courseMaterialClient.get(
+      `/course-instances/${courseInstanceId}/chapters/${chapterId}/exercises/progress`,
+    )
+  ).data
   return data
 }
 
@@ -165,8 +194,15 @@ export const searchPagesWithWords = async (
 }
 
 export const postFeedback = async (
-  courseSlug: string,
-  newFeedback: NewFeedback,
+  courseId: string,
+  newFeedback: NewFeedback[],
 ): Promise<string> => {
-  return (await courseMaterialClient.post(`/courses/${courseSlug}/feedback`, newFeedback)).data
+  return (await courseMaterialClient.post(`/courses/${courseId}/feedback`, newFeedback)).data
+}
+
+export const postProposedEdits = async (
+  courseId: string,
+  newProposedEdits: NewProposedPageEdits,
+): Promise<void> => {
+  return (await courseMaterialClient.post(`/proposed-edits/${courseId}`, newProposedEdits)).data
 }

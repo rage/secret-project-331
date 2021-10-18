@@ -1,30 +1,49 @@
 use crate::models::pages::NormalizedCmsExercise;
 use crate::models::pages::NormalizedCmsExerciseTask;
-use anyhow::anyhow;
-use anyhow::Result;
-use once_cell::sync::Lazy;
+use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
+use serde_json::Map;
+use serde_json::Value;
 use uuid::Uuid;
 
-static DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES: Lazy<Vec<String>> = Lazy::new(|| {
-    vec![
-        "moocfi/exercise".to_string(),
-        "moocfi/exercise-task".to_string(),
-        "moocfi/exercises-in-chapter".to_string(),
-        "moocfi/pages-in-chapter".to_string(),
-        "moocfi/exercises-in-chapter".to_string(),
-        "moocfi/chapter-progress".to_string(),
-    ]
-});
+static DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES: &[&str] = &[
+    "moocfi/exercise",
+    "moocfi/exercise-task",
+    "moocfi/exercises-in-chapter",
+    "moocfi/pages-in-chapter",
+    "moocfi/exercises-in-chapter",
+    "moocfi/chapter-progress",
+];
+
+use crate::attributes;
+#[macro_export]
+macro_rules! attributes {
+    () => {{
+        Map::<String, serde_json::Value>::new()
+    }};
+    ($($name: tt: $value: expr),+ $(,)*) => {{
+        let mut map = serde_json::Map::<String, serde_json::Value>::new();
+        $(map.insert($name.into(), serde_json::json!($value));)*
+        map
+    }};
+}
+
+fn into_attributes<T: Serialize>(input: T) -> Result<Map<String, Value>> {
+    match serde_json::to_value(input) {
+        Ok(Value::Object(map)) => Ok(map),
+        Ok(_) => anyhow::bail!("Unexpected value"),
+        Err(e) => Err(e.into()),
+    }
+}
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct GutenbergBlock {
     #[serde(rename = "clientId")]
-    pub client_id: String,
+    pub client_id: Uuid,
     pub name: String,
     #[serde(rename = "isValid")]
     pub is_valid: bool,
-    pub attributes: serde_json::Value,
+    pub attributes: Map<String, Value>,
     #[serde(rename = "innerBlocks")]
     pub inner_blocks: Vec<GutenbergBlock>,
 }
@@ -32,16 +51,16 @@ pub struct GutenbergBlock {
 impl GutenbergBlock {
     pub fn empty_block_from_name(name: String) -> Self {
         GutenbergBlock {
-            client_id: Uuid::new_v4().to_string(),
+            client_id: Uuid::new_v4(),
             name,
             is_valid: true,
-            attributes: serde_json::json!({}),
+            attributes: Map::new(),
             inner_blocks: vec![],
         }
     }
-    pub fn block_with_name_and_attributes(name: &str, attributes: serde_json::Value) -> Self {
+    pub fn block_with_name_and_attributes(name: &str, attributes: Map<String, Value>) -> Self {
         GutenbergBlock {
-            client_id: Uuid::new_v4().to_string(),
+            client_id: Uuid::new_v4(),
             name: name.to_string(),
             is_valid: true,
             attributes,
@@ -50,11 +69,11 @@ impl GutenbergBlock {
     }
     pub fn block_with_name_attributes_and_inner_blocks(
         name: &str,
-        attributes: serde_json::Value,
+        attributes: Map<String, Value>,
         inner_blocks: Vec<GutenbergBlock>,
     ) -> Self {
         GutenbergBlock {
-            client_id: Uuid::new_v4().to_string(),
+            client_id: Uuid::new_v4(),
             name: name.to_string(),
             is_valid: true,
             attributes,
@@ -64,102 +83,102 @@ impl GutenbergBlock {
     pub fn hero_section(title: &str, sub_title: &str) -> Self {
         GutenbergBlock::block_with_name_and_attributes(
             "moocfi/hero-section",
-            serde_json::json!({
+            attributes! {
                 "title": title.to_string(),
                 "subtitle": sub_title.to_string()
-            }),
+            },
         )
     }
     pub fn landing_page_hero_section(title: &str, sub_title: &str) -> Self {
         GutenbergBlock::block_with_name_attributes_and_inner_blocks(
             "moocfi/landing-page-hero-section",
-            serde_json::json!({"title": title.to_string()}),
+            attributes! {"title": title.to_string()},
             vec![GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
-                serde_json::json!({
+                attributes! {
                     "align": "center",
                     "content": sub_title.to_string(),
                     "dropCap": false,
                     "placeholder": "Insert short description of course..."
-                }),
+                },
             )],
         )
     }
     pub fn course_objective_section() -> Self {
         GutenbergBlock::block_with_name_attributes_and_inner_blocks(
             "moocfi/course-objective-section",
-            serde_json::json!({
+            attributes! {
                 "title": "In this course you'll..."
-            }),
+            },
             vec![GutenbergBlock::block_with_name_attributes_and_inner_blocks(
                 "core/columns",
-                serde_json::json!({
+                attributes! {
                     "isStackedOnMobile": true
-                }),
+                },
                 vec![
                     GutenbergBlock::block_with_name_attributes_and_inner_blocks(
                         "core/column",
-                        serde_json::json!({}),
+                        attributes! {},
                         vec![
                             GutenbergBlock::block_with_name_and_attributes(
                                 "core/heading",
-                                serde_json::json!({
+                                attributes! {
                                     "textAlign": "center",
                                     "level": 4,
                                     "content": "Objective #1"
-                                }),
+                                },
                             ),
                             GutenbergBlock::block_with_name_and_attributes(
                                 "core/paragraph",
-                                serde_json::json!({
+                                attributes! {
                                     "align": "center",
                                     "dropCap": false,
                                     "content": "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit..."
-                                }),
+                                },
                             ),
                         ],
                     ),
                     GutenbergBlock::block_with_name_attributes_and_inner_blocks(
                         "core/column",
-                        serde_json::json!({}),
+                        attributes! {},
                         vec![
                             GutenbergBlock::block_with_name_and_attributes(
                                 "core/heading",
-                                serde_json::json!({
+                                attributes! {
                                     "textAlign": "center",
                                     "level": 4,
                                     "content": "Objective #2"
-                                }),
+                                },
                             ),
                             GutenbergBlock::block_with_name_and_attributes(
                                 "core/paragraph",
-                                serde_json::json!({
+                                attributes! {
                                     "align": "center",
                                     "dropCap": false,
                                     "content": "There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain..."
-                                }),
+                                },
                             ),
                         ],
                     ),
                     GutenbergBlock::block_with_name_attributes_and_inner_blocks(
                         "core/column",
-                        serde_json::json!({}),
+                        attributes! {},
                         vec![
                             GutenbergBlock::block_with_name_and_attributes(
                                 "core/heading",
-                                serde_json::json!({
+                                attributes! {
                                     "textAlign": "center",
                                     "level": 4,
                                     "content": "Objective #3"
-                                }),
+                                },
                             ),
                             GutenbergBlock::block_with_name_and_attributes(
                                 "core/paragraph",
-                                serde_json::json!({
+                                attributes! {
                                     "align": "center",
                                     "dropCap": false,
                                     "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas a tempor risus. Morbi at sapien."
-                                }),
+                                },
                             ),
                         ],
                     ),
@@ -170,7 +189,7 @@ impl GutenbergBlock {
 
     pub fn with_id(self, id: Uuid) -> Self {
         Self {
-            client_id: id.to_string(),
+            client_id: id,
             ..self
         }
     }
@@ -213,7 +232,7 @@ pub fn normalize_from_json(input: serde_json::Value) -> Result<NormalizedDocumen
 pub fn contains_blocks_not_allowed_in_top_level_pages(input: &[GutenbergBlock]) -> bool {
     let res = input
         .iter()
-        .any(|block| DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES.contains(&block.name));
+        .any(|block| DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES.contains(&block.name.as_str()));
     res
 }
 
@@ -227,7 +246,7 @@ pub fn normalize(input: Vec<GutenbergBlock>) -> Result<NormalizedDocument> {
                 return Ok(block);
             }
             let exercise_attributes: GuternbergExerciseAttributes =
-                serde_json::from_value(block.attributes)?;
+                serde_json::from_value(block.attributes.into())?;
             let exercise_tasks: Result<Vec<NormalizedCmsExerciseTask>> = block
                 .inner_blocks
                 .into_iter()
@@ -238,7 +257,7 @@ pub fn normalize(input: Vec<GutenbergBlock>) -> Result<NormalizedDocument> {
                         ));
                     }
                     let exercise_task_attributes: GuternbergExerciseTaskAttributes =
-                        serde_json::from_value(inner_block.attributes)?;
+                        serde_json::from_value(inner_block.attributes.into())?;
 
                     let mut private_spec = None;
                     if let Some(spec_value) = exercise_task_attributes.private_spec {
@@ -265,7 +284,7 @@ pub fn normalize(input: Vec<GutenbergBlock>) -> Result<NormalizedDocument> {
 
             let normalized_block = GutenbergBlock {
                 inner_blocks: Vec::new(),
-                attributes: serde_json::to_value(NormalizedMoocfiExerciseAttributes { id })?,
+                attributes: into_attributes(NormalizedMoocfiExerciseAttributes { id })?,
                 ..block
             };
             Ok(normalized_block)
@@ -287,7 +306,7 @@ pub fn denormalize(input: NormalizedDocument) -> Result<Vec<GutenbergBlock>> {
                 return Ok(block);
             }
             let saved_attributes: NormalizedMoocfiExerciseAttributes =
-                serde_json::from_value(block.attributes)?;
+                serde_json::from_value(block.attributes.into())?;
             let exercise = exercises
                 .iter()
                 .find(|exercise| exercise.id == saved_attributes.id)
@@ -304,10 +323,10 @@ pub fn denormalize(input: NormalizedDocument) -> Result<Vec<GutenbergBlock>> {
                         private_spec = Some(serde_json::to_string(spec_content)?)
                     }
                     Ok(GutenbergBlock {
-                        client_id: Uuid::new_v4().to_string(), // this was discarded on normalizing but any random value should do
+                        client_id: Uuid::new_v4(), // this was discarded on normalizing but any random value should do
                         name: "moocfi/exercise-task".to_string(),
                         is_valid: true,
-                        attributes: serde_json::to_value(GuternbergExerciseTaskAttributes {
+                        attributes: into_attributes(GuternbergExerciseTaskAttributes {
                             id: exercise_task.id,
                             exercise_type: exercise_type.to_string(),
                             private_spec,
@@ -322,7 +341,7 @@ pub fn denormalize(input: NormalizedDocument) -> Result<Vec<GutenbergBlock>> {
             };
             Ok(GutenbergBlock {
                 inner_blocks: inner_blocks?,
-                attributes: serde_json::to_value(attributes)?,
+                attributes: into_attributes(attributes)?,
                 ..block
             })
         })
@@ -343,20 +362,20 @@ mod tests {
     fn it_doesnt_change_other_blocks() {
         let input = vec![
             GutenbergBlock {
-                client_id: Uuid::new_v4().to_string(),
+                client_id: Uuid::new_v4(),
                 name: "test/example-block".to_string(),
                 is_valid: true,
-                attributes: serde_json::to_value(ExampleBlockAttributes {
+                attributes: into_attributes(ExampleBlockAttributes {
                     example: "example-exercise".to_string(),
                 })
                 .unwrap(),
                 inner_blocks: Vec::new(),
             },
             GutenbergBlock {
-                client_id: Uuid::new_v4().to_string(),
+                client_id: Uuid::new_v4(),
                 name: "test/example-block".to_string(),
                 is_valid: true,
-                attributes: serde_json::to_value(ExampleBlockAttributes {
+                attributes: into_attributes(ExampleBlockAttributes {
                     example: "example2".to_string(),
                 })
                 .unwrap(),
@@ -380,30 +399,30 @@ mod tests {
     fn normalization_works() {
         let input = vec![
             GutenbergBlock {
-                client_id: "0edbfe2d-9677-475b-8040-97b7ab6b340d".to_string(),
+                client_id: Uuid::parse_str("0edbfe2d-9677-475b-8040-97b7ab6b340d").unwrap(),
                 name: "test/example-block".to_string(),
                 is_valid: true,
-                attributes: serde_json::to_value(ExampleBlockAttributes {
+                attributes: into_attributes(ExampleBlockAttributes {
                     example: "example-exercise".to_string(),
                 })
                 .unwrap(),
                 inner_blocks: Vec::new(),
             },
             GutenbergBlock {
-                client_id: "43fa8fab-0c65-46d6-b043-3ab09c93fbde".to_string(),
+                client_id: Uuid::parse_str("43fa8fab-0c65-46d6-b043-3ab09c93fbde").unwrap(),
                 name: "moocfi/exercise".to_string(),
                 is_valid: true,
-                attributes: serde_json::to_value(GuternbergExerciseAttributes {
+                attributes: into_attributes(GuternbergExerciseAttributes {
                     id: Uuid::parse_str("20dff562-0657-4e8e-b34e-65be68e96a81").unwrap(),
                     name: "Best exercise".to_string(),
                 })
                 .unwrap(),
                 inner_blocks: vec![
                     GutenbergBlock {
-                        client_id: "b7538d47-a904-4079-a73d-0fa15fa4664b".to_string(),
+                        client_id: Uuid::parse_str("b7538d47-a904-4079-a73d-0fa15fa4664b").unwrap(),
                         name: "moocfi/exercise-task".to_string(),
                         is_valid: true,
-                        attributes: serde_json::to_value(GuternbergExerciseTaskAttributes {
+                        attributes: into_attributes(GuternbergExerciseTaskAttributes {
                             id: Uuid::parse_str("f0aa52bf-16f4-4f5a-a5cc-a15b1510220c").unwrap(),
                             exercise_type: "example-exercise".to_string(),
                             private_spec: Some("{}".to_string()),
@@ -412,20 +431,21 @@ mod tests {
                         inner_blocks: Vec::new(),
                     },
                     GutenbergBlock {
-                        client_id: "11b9a005-c552-4542-b6c0-a2e5a53c5b8f".to_string(),
+                        client_id: Uuid::parse_str("11b9a005-c552-4542-b6c0-a2e5a53c5b8f").unwrap(),
                         name: "moocfi/exercise-task".to_string(),
                         is_valid: true,
-                        attributes: serde_json::to_value(GuternbergExerciseTaskAttributes {
+                        attributes: into_attributes(GuternbergExerciseTaskAttributes {
                             id: Uuid::parse_str("0b39498e-fb6c-43c7-b5e0-9fbc510d0e60").unwrap(),
                             exercise_type: "example-exercise".to_string(),
                             private_spec: Some("{}".to_string()),
                         })
                         .unwrap(),
                         inner_blocks: vec![GutenbergBlock {
-                            client_id: "58333a81-6ee9-4638-8587-9f902bb9936f".to_string(),
+                            client_id: Uuid::parse_str("58333a81-6ee9-4638-8587-9f902bb9936f")
+                                .unwrap(),
                             name: "test/example-block".to_string(),
                             is_valid: true,
-                            attributes: serde_json::to_value(ExampleBlockAttributes {
+                            attributes: into_attributes(ExampleBlockAttributes {
                                 example: "example-exercise".to_string(),
                             })
                             .unwrap(),
@@ -457,10 +477,11 @@ mod tests {
                         exercise_type: "example-exercise".to_string(),
                         private_spec: serde_json::from_str("{}").unwrap(),
                         assignment: serde_json::to_value(vec![GutenbergBlock {
-                            client_id: "58333a81-6ee9-4638-8587-9f902bb9936f".to_string(),
+                            client_id: Uuid::parse_str("58333a81-6ee9-4638-8587-9f902bb9936f")
+                                .unwrap(),
                             name: "test/example-block".to_string(),
                             is_valid: true,
-                            attributes: serde_json::to_value(ExampleBlockAttributes {
+                            attributes: into_attributes(ExampleBlockAttributes {
                                 example: "example-exercise".to_string(),
                             })
                             .unwrap(),
@@ -475,20 +496,20 @@ mod tests {
             output.content,
             vec![
                 GutenbergBlock {
-                    client_id: "0edbfe2d-9677-475b-8040-97b7ab6b340d".to_string(),
+                    client_id: Uuid::parse_str("0edbfe2d-9677-475b-8040-97b7ab6b340d").unwrap(),
                     name: "test/example-block".to_string(),
                     is_valid: true,
-                    attributes: serde_json::to_value(ExampleBlockAttributes {
+                    attributes: into_attributes(ExampleBlockAttributes {
                         example: "example-exercise".to_string(),
                     })
                     .unwrap(),
                     inner_blocks: Vec::new(),
                 },
                 GutenbergBlock {
-                    client_id: "43fa8fab-0c65-46d6-b043-3ab09c93fbde".to_string(),
+                    client_id: Uuid::parse_str("43fa8fab-0c65-46d6-b043-3ab09c93fbde").unwrap(),
                     name: "moocfi/exercise".to_string(),
                     is_valid: true,
-                    attributes: serde_json::to_value(NormalizedMoocfiExerciseAttributes {
+                    attributes: into_attributes(NormalizedMoocfiExerciseAttributes {
                         id: Uuid::parse_str("20dff562-0657-4e8e-b34e-65be68e96a81").unwrap(),
                     })
                     .unwrap(),
@@ -516,10 +537,10 @@ mod tests {
                     exercise_type: "example-exercise".to_string(),
                     private_spec: serde_json::from_str("{}").unwrap(),
                     assignment: serde_json::to_value(vec![GutenbergBlock {
-                        client_id: "58333a81-6ee9-4638-8587-9f902bb9936f".to_string(),
+                        client_id: Uuid::parse_str("58333a81-6ee9-4638-8587-9f902bb9936f").unwrap(),
                         name: "test/example-block".to_string(),
                         is_valid: true,
-                        attributes: serde_json::to_value(ExampleBlockAttributes {
+                        attributes: into_attributes(ExampleBlockAttributes {
                             example: "example-exercise".to_string(),
                         })
                         .unwrap(),
@@ -531,20 +552,20 @@ mod tests {
         }];
         let content = vec![
             GutenbergBlock {
-                client_id: "0edbfe2d-9677-475b-8040-97b7ab6b340d".to_string(),
+                client_id: Uuid::parse_str("0edbfe2d-9677-475b-8040-97b7ab6b340d").unwrap(),
                 name: "test/example-block".to_string(),
                 is_valid: true,
-                attributes: serde_json::to_value(ExampleBlockAttributes {
+                attributes: into_attributes(ExampleBlockAttributes {
                     example: "example-exercise".to_string(),
                 })
                 .unwrap(),
                 inner_blocks: Vec::new(),
             },
             GutenbergBlock {
-                client_id: "43fa8fab-0c65-46d6-b043-3ab09c93fbde".to_string(),
+                client_id: Uuid::parse_str("43fa8fab-0c65-46d6-b043-3ab09c93fbde").unwrap(),
                 name: "moocfi/exercise".to_string(),
                 is_valid: true,
-                attributes: serde_json::to_value(NormalizedMoocfiExerciseAttributes {
+                attributes: into_attributes(NormalizedMoocfiExerciseAttributes {
                     id: Uuid::parse_str("20dff562-0657-4e8e-b34e-65be68e96a81").unwrap(),
                 })
                 .unwrap(),
@@ -557,7 +578,7 @@ mod tests {
         assert_eq!(exercise_block.name, "moocfi/exercise".to_string());
         assert_eq!(
             exercise_block.attributes,
-            serde_json::to_value(GuternbergExerciseAttributes {
+            into_attributes(GuternbergExerciseAttributes {
                 id: Uuid::parse_str("20dff562-0657-4e8e-b34e-65be68e96a81").unwrap(),
                 name: "Best exercise".to_string(),
             })
@@ -574,7 +595,7 @@ mod tests {
         assert_eq!(exercise_task_block.name, "moocfi/exercise-task".to_string());
         assert_eq!(
             exercise_task_block.attributes,
-            serde_json::to_value(GuternbergExerciseTaskAttributes {
+            into_attributes(GuternbergExerciseTaskAttributes {
                 id: Uuid::parse_str("0b39498e-fb6c-43c7-b5e0-9fbc510d0e60").unwrap(),
                 exercise_type: "example-exercise".to_string(),
                 private_spec: Some("{}".to_string()),
@@ -585,10 +606,10 @@ mod tests {
         assert_eq!(
             exercise_task_block.inner_blocks,
             vec![GutenbergBlock {
-                client_id: "58333a81-6ee9-4638-8587-9f902bb9936f".to_string(),
+                client_id: Uuid::parse_str("58333a81-6ee9-4638-8587-9f902bb9936f").unwrap(),
                 name: "test/example-block".to_string(),
                 is_valid: true,
-                attributes: serde_json::to_value(ExampleBlockAttributes {
+                attributes: into_attributes(ExampleBlockAttributes {
                     example: "example-exercise".to_string(),
                 })
                 .unwrap(),

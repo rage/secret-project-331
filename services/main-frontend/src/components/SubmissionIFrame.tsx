@@ -42,6 +42,7 @@ const SubmissionIFrame: React.FC<SubmissionIFrameProps> = ({
       onCommunicationChannelEstabilished={(port) => {
         // eslint-disable-next-line i18next/no-literal-string
         console.log("posting " + JSON.stringify(state))
+        // eslint-disable-next-line i18next/no-literal-string
         const message: SetStateMessage = { message: "set-state", data: state }
         port.postMessage(message)
       }}

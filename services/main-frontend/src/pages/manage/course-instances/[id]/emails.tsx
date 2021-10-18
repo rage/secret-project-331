@@ -54,6 +54,7 @@ const CourseInstanceEmailTemplates: React.FC<CourseInstanceEmailTemplatesProps> 
       name: newName,
     })
     setShowForm(!showForm)
+    // eslint-disable-next-line i18next/no-literal-string
     window.location.assign(`/cms/email-templates/${result.id}/edit`)
   }
 

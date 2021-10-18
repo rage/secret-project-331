@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import { DiffEditor } from "@monaco-editor/react"
 import React, { useEffect, useState } from "react"
-import { Trans, useTranslation } from "react-i18next"
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import { fetchHistoryForPage } from "../services/backend/pages"

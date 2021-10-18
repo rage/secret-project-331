@@ -36,9 +36,9 @@ const Login: React.FC = () => {
               console.log("failed to login: ", e)
               // @ts-ignore: null checked
               if (e?.response?.status === 401) {
-                setNotification("Incorrect email or password")
+                setNotification(t("incorrect-email-or-password"))
               } else {
-                setNotification("Failed to authenticate")
+                setNotification(t("failed-to-authenticate"))
               }
               setTimeout(() => {
                 setNotification(null)

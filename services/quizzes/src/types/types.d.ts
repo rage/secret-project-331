@@ -89,12 +89,25 @@ export interface QuizItem {
   options: QuizItemOption[]
   title: string
   body: string
-  successMessage: null
-  failureMessage: null
+  successMessage: string | null
+  failureMessage: string | null
   sharedOptionFeedbackMessage: null
   allAnswersCorrect: boolean
   direction: "row" | "column"
   feedbackDisplayPolicy: "DisplayFeedbackOnQuizItem" | "DisplayFeedbackOnAllOptions"
+}
+
+export interface QuizItemModelSolution {
+  quizItemId: string
+  options?: OptionsFeedback[]
+  successMessage?: string
+  failureMessage?: string
+}
+
+export interface OptionsFeedback {
+  optionId: string
+  successMessage?: string
+  failureMessage?: string
 }
 
 export interface NormalizedQuizItem {

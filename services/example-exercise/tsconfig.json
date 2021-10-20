@@ -3,8 +3,15 @@
     "target": "esnext",
     "module": "esnext",
     "jsx": "preserve",
-    "lib": ["dom", "es2017"],
-    "typeRoots": ["./shared-module/types", "./node_modules/@types"],
+    "lib": [
+      "dom",
+      "es2017"
+    ],
+    "typeRoots": [
+      "types",
+      "./shared-module/types",
+      "./node_modules/@types"
+    ],
     "moduleResolution": "node",
     "allowJs": true,
     "noEmit": true,
@@ -21,6 +28,12 @@
     "resolveJsonModule": true,
     "isolatedModules": true
   },
-  "exclude": ["node_modules"],
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"]
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx"
+  ]
 }

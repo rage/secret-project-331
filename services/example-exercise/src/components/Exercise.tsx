@@ -18,11 +18,14 @@ const Exercise: React.FC<Props> = ({ port, maxWidth, state }) => {
   const setSelectedId: typeof _setSelectedId = (value) => {
     const res = _setSelectedId(value)
     if (!port) {
+      // eslint-disable-next-line i18next/no-literal-string
       console.error("Cannot send current state to parent because I don't have a port")
       return
     }
-    console.log("Posting current state to parent")
+    // eslint-disable-next-line i18next/no-literal-string
+    console.info("Posting current state to parent")
     const message: CurrentStateMessage = {
+      // eslint-disable-next-line i18next/no-literal-string
       message: "current-state",
       data: { selectedOptionId: value },
       valid: true,

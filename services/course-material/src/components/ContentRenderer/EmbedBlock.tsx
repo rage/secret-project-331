@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 import { courseMaterialCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import { EmbedAttributes } from "../../types/GutenbergBlockAttributes"
@@ -7,13 +8,14 @@ import { EmbedAttributes } from "../../types/GutenbergBlockAttributes"
 import { BlockRendererProps } from "."
 
 const YoutubeEmbddedBlock: React.FC<EmbedAttributes> = (props) => {
+  const { t } = useTranslation()
   const { url } = props
   const video = url?.split("v=")[1]
 
   return (
     <iframe
       src={`https://www.youtube.com/embed/${video}`}
-      title="YouTube video player"
+      title={t("title-youtube-video-player")}
       frameBorder="0"
       allowFullScreen
       className={css`

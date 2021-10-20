@@ -32,8 +32,6 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
 
     // eslint-disable-next-line i18next/no-literal-string
     console.info(`Setting language to: ${language}`)
-
-    // We init 18n here, because locale is available
     i18n.changeLanguage(language)
   }, [language])
 

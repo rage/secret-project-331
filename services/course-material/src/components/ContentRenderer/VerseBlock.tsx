@@ -12,9 +12,11 @@ const VerseBlock: React.FC<BlockRendererProps<VerseAttributes>> = ({ data }) => 
   const attributes: VerseAttributes = data.attributes
 
   const solidBackground =
+    // eslint-disable-next-line i18next/no-literal-string
     attributes.backgroundColor !== undefined ? colorMapper(attributes.backgroundColor) : "#FFFFFF"
 
   const gradientBackground =
+    // eslint-disable-next-line i18next/no-literal-string
     attributes.gradient !== undefined ? colorMapper(attributes.gradient) : "#FFFFFF"
 
   const textColor =

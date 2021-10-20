@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import { useContext } from "react"
+import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from ".."
 import CoursePageContext from "../../../contexts/CoursePageContext"
@@ -10,6 +11,7 @@ import GenericLoading from "../../GenericLoading"
 import CourseProgress from "./CourseProgress"
 
 const CourseProgressBlock: React.FC<BlockRendererProps<unknown>> = () => {
+  const { t } = useTranslation()
   const pageContext = useContext(CoursePageContext)
 
   if (pageContext.state !== "ready") {
@@ -23,7 +25,7 @@ const CourseProgressBlock: React.FC<BlockRendererProps<unknown>> = () => {
           ${courseMaterialCenteredComponentStyles}
         `}
       >
-        Select course version to see your progress.
+        {t("select-course-version-to-see-your-progress")}
       </div>
     )
   }

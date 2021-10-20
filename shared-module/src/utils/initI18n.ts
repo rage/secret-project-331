@@ -1,6 +1,9 @@
 import i18n from "i18next"
 import { initReactI18next } from "react-i18next"
 
+// Why implement this instead of just using next-i18next?
+// One of the great powers of Next.js is that it allows us to choose our preferred rendering strategy for each page.
+// next-i18next requires either `getStaticProps` or `getServerSideProps` on each page, and we don't want to limit ourselves to those two options.
 const initI18n = (defaultNS: string): typeof i18n => {
   i18n
     .use(initReactI18next) // passes i18n down to react-i18next

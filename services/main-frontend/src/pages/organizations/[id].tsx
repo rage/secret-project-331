@@ -8,7 +8,11 @@ import Layout from "../../components/Layout"
 import OrganizationImageWidget from "../../components/OrganizationImageWidget"
 import NewCourseForm from "../../components/forms/NewCourseForm"
 import { postNewCourse } from "../../services/backend/courses"
-import { fetchOrganization, fetchOrganizationCourses } from "../../services/backend/organizations"
+import {
+  fetchOrganization,
+  fetchOrganizationActiveCourses,
+  fetchOrganizationCourses,
+} from "../../services/backend/organizations"
 import { NewCourse } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
 import DebugModal from "../../shared-module/components/DebugModal"
@@ -30,18 +34,32 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
     data: dataOrgCourses,
     refetch: refetchOrgCourses,
   } = useQuery(`organization-courses`, () => fetchOrganizationCourses(query.id))
+
+  const {
+    isLoading: isLoadingOrgActiveCourses,
+    error: errorOrgActiveCourses,
+    data: dataOrgActiveCourses,
+    refetch: refetchOrgActiveCourses,
+  } = useQuery(`organization-active-courses`, () => fetchOrganizationActiveCourses(query.id))
+
   const {
     isLoading: isLoadingOrg,
     error: errorOrg,
     data: dataOrg,
     refetch: refetchOrg,
   } = useQuery(`organization-${query.id}`, () => fetchOrganization(query.id))
+
   const loginStateContext = useContext(LoginStateContext)
 
   const [newCourseFormOpen, setNewCourseFormOpen] = useState(false)
   console.log(dataOrg)
+
   if (errorOrgCourses) {
     return <pre>{JSON.stringify(errorOrgCourses, undefined, 2)}</pre>
+  }
+
+  if (errorOrgActiveCourses) {
+    return <pre>{JSON.stringify(errorOrgActiveCourses, undefined, 2)}</pre>
   }
 
   if (errorOrg) {
@@ -52,9 +70,14 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
     return <>Loading...</>
   }
 
+  if (isLoadingOrgActiveCourses || !dataOrgActiveCourses || isLoadingOrgActiveCourses) {
+    return <>Loading active courses...</>
+  }
+
   const handleSubmitNewCourse = async (newCourse: NewCourse) => {
     await postNewCourse(newCourse)
     await refetchOrgCourses()
+    await refetchOrgActiveCourses()
     setNewCourseFormOpen(false)
   }
 
@@ -86,7 +109,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
                     }}
                   >
                     Manage
-                  </Link>{" "}
+                  </Link>
                 </>
               )}
             </div>
@@ -98,16 +121,6 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
             margin-bottom: 1rem;
           `}
         >
-          {loginStateContext.signedIn && (
-            <Button
-              size="medium"
-              variant="primary"
-              onClick={() => setNewCourseFormOpen(!newCourseFormOpen)}
-            >
-              Add course
-            </Button>
-          )}
-
           <Dialog open={newCourseFormOpen} onClose={() => setNewCourseFormOpen(!newCourseFormOpen)}>
             <div
               className={css`
@@ -125,6 +138,43 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
             </div>
           </Dialog>
         </div>
+        <h1>Active courses</h1>
+        {dataOrgActiveCourses.length === 0 ? (
+          <p> No active courses </p>
+        ) : (
+          dataOrgActiveCourses.map((course) => (
+            <div key={course.id}>
+              <a href={`/courses/${course.slug}`}>{course.name}</a>{" "}
+              {loginStateContext.signedIn && (
+                <>
+                  <Link
+                    href={{
+                      pathname: "/manage/courses/[id]",
+                      query: {
+                        id: course.id,
+                      },
+                    }}
+                  >
+                    Manage
+                  </Link>{" "}
+                </>
+              )}
+            </div>
+          ))
+        )}
+        {loginStateContext.signedIn && (
+          <>
+            <Button
+              size="medium"
+              variant="primary"
+              onClick={() => setNewCourseFormOpen(!newCourseFormOpen)}
+            >
+              Add course
+            </Button>
+            <br />
+            <br />
+          </>
+        )}
         <DebugModal data={dataOrgCourses} />
       </div>
     </Layout>

@@ -77,6 +77,7 @@ const ClickableMultipleChoiceButton: React.FC<clickableMultipleChoiceButtonProps
                 dispatch(deletedOption(storeOption.id, storeOption.quizItemId))
               }}
             >
+              {/* eslint-disable-next-line i18next/no-literal-string */}
               <FontAwesomeIcon icon={faTrash} size="2x" color="red" />
             </DeleteOptionButton>
           </StyledBox>

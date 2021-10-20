@@ -2,6 +2,7 @@ import { faPen, faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Box, Button, Checkbox, Fade, Modal } from "@material-ui/core"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
@@ -36,17 +37,20 @@ const PreviewField = styled.div`
   width: 50%;
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const StyledCheckBox = styled(Checkbox)`
   display: flex !important;
   justify-content: flex-end !important;
   width: 20% !important;
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const CheckBoxTitleField = styled.div`
   display: flex !important;
   width: 80% !important;
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const StyledTypo = styled.h4`
   display: flex !important;
   align-self: flex-start !important;
@@ -58,6 +62,7 @@ const StyledModal = styled(Modal)`
   justify-content: center;
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const AdvancedBox = styled(Box)`
   background-color: #fafafa !important;
   min-width: 80% !important;
@@ -67,10 +72,12 @@ const AdvancedBox = styled(Box)`
   overflow-y: scroll !important;
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const CloseButton = styled(Button)`
   display: flex !important;
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const DeleteButton = styled(Button)`
   display: flex !important;
 `
@@ -86,6 +93,7 @@ const EditButtonWrapper = styled.div`
 `
 
 const CheckBoxContent: React.FC<ContentBoxProps> = ({ item }) => {
+  const { t } = useTranslation()
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])
   const quizId = useTypedSelector((state) => state.editor.quizId)
   const variables = useTypedSelector((state) => state.editor.itemVariables[item.id])
@@ -93,7 +101,10 @@ const CheckBoxContent: React.FC<ContentBoxProps> = ({ item }) => {
   return (
     <>
       <EditButtonWrapper>
-        <Button onClick={() => dispatch(setAdvancedEditing(storeItem.id, true))} title="edit item">
+        <Button
+          onClick={() => dispatch(setAdvancedEditing(storeItem.id, true))}
+          title={t("edit-item")}
+        >
           <FontAwesomeIcon icon={faPen} size="2x"></FontAwesomeIcon>
         </Button>
       </EditButtonWrapper>
@@ -115,6 +126,7 @@ const CheckBoxContent: React.FC<ContentBoxProps> = ({ item }) => {
                   dispatch(deletedItem(storeItem.id, quizId))
                 }}
               >
+                {/* eslint-disable-next-line i18next/no-literal-string */}
                 <FontAwesomeIcon icon={faTrash} size="2x" color="red" />
               </DeleteButton>
             </ModalButtonWrapper>
@@ -124,7 +136,7 @@ const CheckBoxContent: React.FC<ContentBoxProps> = ({ item }) => {
       <Container>
         <TitleField>
           <MarkdownEditor
-            label="title"
+            label={t("title")}
             onChange={(event) => dispatch(editedQuizItemTitle(event.target.value, storeItem.id))}
             text={storeItem.title ?? ""}
           />

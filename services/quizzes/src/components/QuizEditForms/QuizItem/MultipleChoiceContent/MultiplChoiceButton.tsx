@@ -2,6 +2,7 @@ import { faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Box, Button, Fade, Modal } from "@material-ui/core"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
@@ -59,12 +60,13 @@ interface MultipleChoiceButtonProps {
 }
 
 const MultipleChoiceButton: React.FC<MultipleChoiceButtonProps> = ({ option, index }) => {
+  const { t } = useTranslation()
   const storeOption = useTypedSelector((state) => state.editor.options[option.id])
   const storeItem = useTypedSelector((state) => state.editor.items[option.quizItemId])
   const variables = useTypedSelector((state) => state.editor.optionVariables[option.id])
   const dispatch = useDispatch()
 
-  const ariaLablel = `Option ${index}`
+  const ariaLablel = t("aria-label-option-index", { index })
 
   return (
     <>

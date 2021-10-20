@@ -1,5 +1,6 @@
 import { InputProps, Link, Paper, Tab, Tabs, TextField } from "@material-ui/core"
 import React, { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 import styled from "styled-components"
 
 import { MarkdownText } from "./MarkdownText"
@@ -35,6 +36,7 @@ export interface ExerciseEditorProps {
 }
 
 export const MarkdownEditor: React.FC<ExerciseEditorProps> = ({ text, label, onChange }) => {
+  const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState(0)
   const [, setShowTabs] = useState(text.length > 0)
 
@@ -46,24 +48,18 @@ export const MarkdownEditor: React.FC<ExerciseEditorProps> = ({ text, label, onC
       <EditorWrapper>
         <StyledAppBar>
           <Tabs
+            // eslint-disable-next-line i18next/no-literal-string
             indicatorColor="primary"
             value={activeTab}
             onChange={(_, value) => {
               setActiveTab(value)
             }}
           >
-            <Tab label="Source" />
-            <Tab label="Preview" />
+            <Tab label={t("label-source")} />
+            <Tab label={t("label-preview")} />
           </Tabs>
         </StyledAppBar>
-        <HelperText>
-          This is markdown editor. You can write your text as markdown and preview it by selecting
-          `&quot;`PREVIEW`&quot;`. For more info about markdown visit
-          <Link href="https://spec.commonmark.org/current/">
-            {" "}
-            https://spec.commonmark.org/current/
-          </Link>
-        </HelperText>
+        <HelperText>{t("markdown-editor-help-text")}</HelperText>
         {activeTab === 0 && (
           <TextField
             label={label}

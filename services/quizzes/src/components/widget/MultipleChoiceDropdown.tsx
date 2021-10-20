@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import { useTranslation } from "react-i18next"
 
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 import { QuizItemAnswer } from "../../types/types"
@@ -10,6 +11,7 @@ export const MultipleChoiceDropdown: React.FunctionComponent<QuizItemComponentPr
   quizItemAnswerState,
   setQuizItemAnswerState,
 }) => {
+  const { t } = useTranslation()
   const handleOptionSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
     if (!quizItemAnswerState) {
       return
@@ -83,7 +85,7 @@ export const MultipleChoiceDropdown: React.FunctionComponent<QuizItemComponentPr
               display: flex;
             `}
           >
-            Answer
+            {t("answer")}
           </option>
           {quizItem.options.map((o) => (
             <option

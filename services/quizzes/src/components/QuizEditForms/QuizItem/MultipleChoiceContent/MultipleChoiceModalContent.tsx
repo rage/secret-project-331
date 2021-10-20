@@ -15,6 +15,7 @@ import {
   Switch,
 } from "@material-ui/core"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
@@ -78,18 +79,19 @@ interface EditorModalProps {
 }
 
 export const MultipleChoiceModalContent: React.FC<EditorModalProps> = ({ item }) => {
+  const { t } = useTranslation()
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])
   const storeOptions = useTypedSelector((state) => state.editor.options)
   const dispatch = useDispatch()
   return (
     <ModalWrapper>
       <ModalContentTitleWrapper>
-        <h4>Advanced editing</h4>
+        <h4>{t("title-advanced-editing")}</h4>
       </ModalContentTitleWrapper>
       <ModalContent>
         <FormGroup row>
           <FormControlLabel
-            label="Shared feedback message"
+            label={t("shared-feedback-message")}
             labelPlacement="start"
             control={
               <Checkbox
@@ -102,7 +104,7 @@ export const MultipleChoiceModalContent: React.FC<EditorModalProps> = ({ item })
             }
           />
           <FormControlLabel
-            label="Multi"
+            label={t("allow-selecting-multiple-options")}
             labelPlacement="start"
             control={
               <Checkbox
@@ -119,20 +121,24 @@ export const MultipleChoiceModalContent: React.FC<EditorModalProps> = ({ item })
       <ModalContent>
         <Select
           fullWidth
-          label="Feedback display policy"
+          label={t("feedback-display policy")}
           variant="outlined"
           value={storeItem.feedbackDisplayPolicy}
           onChange={(event) =>
             dispatch(editedQuizItemFeedbackDisplayPolicy(storeItem.id, event.target.value))
           }
         >
-          <MenuItem value="DisplayFeedbackOnQuizItem">On quiz item</MenuItem>
-          <MenuItem value="DisplayFeedbackOnAllOptions">On each quiz item answer option</MenuItem>
+          {/* eslint-disable-next-line i18next/no-literal-string */}
+          <MenuItem value="DisplayFeedbackOnQuizItem">{t("on-quiz-item")}</MenuItem>
+          {/* eslint-disable-next-line i18next/no-literal-string */}
+          <MenuItem value="DisplayFeedbackOnAllOptions">
+            {t("on-each-quiz-item-answer-option")}
+          </MenuItem>
         </Select>
       </ModalContent>
       <ModalContent>
         <MarkdownEditor
-          label="Title"
+          label={t("title")}
           onChange={(event) => dispatch(editedQuizItemTitle(event.target.value, storeItem.id))}
           text={storeItem.title}
         />
@@ -147,13 +153,13 @@ export const MultipleChoiceModalContent: React.FC<EditorModalProps> = ({ item })
                   onChange={() => dispatch(toggledAllAnswersCorrect(storeItem.id))}
                 />
               }
-              label="All answers correct (no matter what one answers it is correct)"
+              label={t("all-answers-correct")}
             />
           </FormGroup>
         </AllAnswersCorrectField>
       </ModalContent>
       <ModalContent>
-        <Button title="add option" onClick={() => dispatch(createdNewOption(storeItem.id))}>
+        <Button title={t("add-option")} onClick={() => dispatch(createdNewOption(storeItem.id))}>
           <FontAwesomeIcon icon={faPlus} size="2x" color="blue" />
         </Button>
       </ModalContent>
@@ -165,26 +171,27 @@ export const MultipleChoiceModalContent: React.FC<EditorModalProps> = ({ item })
         ))}
       </ModalContentOptionWrapper>
       <Spacer />
+      {/* eslint-disable-next-line i18next/no-literal-string */}
       <FormControl component="fieldset">
-        <FormLabel component="legend">Layout of options</FormLabel>
+        {/* eslint-disable-next-line i18next/no-literal-string */}
+        <FormLabel component="legend">{t("layout-of-options")}</FormLabel>
         <RadioGroup
-          aria-label="direction"
-          name="direction"
+          aria-label={t("direction")}
+          name={t("direction")}
           value={storeItem.direction}
           onChange={(e) => dispatch(editedItemDirection(storeItem.id, e.target.value))}
         >
-          <FormHelperText>
-            Choose the direction in which the quiz item options will be layed out in the embedded
-            widget.
-          </FormHelperText>
-          <FormControlLabel value="row" control={<Radio />} label="Row" />
-          <FormControlLabel value="column" control={<Radio />} label="Column" />
+          <FormHelperText>{t("choose-quiz-item-option-direction-help-text")}</FormHelperText>
+          {/* eslint-disable-next-line i18next/no-literal-string */}
+          <FormControlLabel value="row" control={<Radio />} label={t("row")} />
+          {/* eslint-disable-next-line i18next/no-literal-string */}
+          <FormControlLabel value="column" control={<Radio />} label={t("column")} />
         </RadioGroup>
       </FormControl>
       {storeItem.usesSharedOptionFeedbackMessage ? (
         <ModalContent>
           <MarkdownEditor
-            label="Shared option feedback message"
+            label={t("shared-feedback-message-option")}
             onChange={(event) =>
               dispatch(editedSharedOptionsFeedbackMessage(storeItem.id, event.target.value))
             }
@@ -195,7 +202,7 @@ export const MultipleChoiceModalContent: React.FC<EditorModalProps> = ({ item })
         <>
           <ModalContent>
             <MarkdownEditor
-              label="Success message"
+              label={t("success-message")}
               onChange={(event) =>
                 dispatch(editedItemSuccessMessage(storeItem.id, event.target.value))
               }
@@ -204,7 +211,7 @@ export const MultipleChoiceModalContent: React.FC<EditorModalProps> = ({ item })
           </ModalContent>
           <ModalContent>
             <MarkdownEditor
-              label="Failure message"
+              label={t("failure-message")}
               onChange={(event) =>
                 dispatch(editedItemFailureMessage(storeItem.id, event.target.value))
               }

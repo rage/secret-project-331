@@ -1,6 +1,6 @@
 /* eslint-disable i18next/no-literal-string */
 
-const DETECT_CSS_REGEX = /\S+:\s+\S+;/
+const DETECT_CSS_REGEX = /\S+:\s+[^\n]+;/
 module.exports = {
   env: {
     browser: true,
@@ -166,9 +166,20 @@ module.exports = {
           "url",
           "labelId",
           "defaultLanguage",
+          "color",
+          "labelPlacement",
         ],
         ignore: [DETECT_CSS_REGEX],
-        ignoreCallee: ["useQuery", "useQueryParameter", "get", "post", "put", "delete", "create"],
+        ignoreCallee: [
+          "useQuery",
+          "useQueryParameter",
+          "get",
+          "post",
+          "put",
+          "delete",
+          "create",
+          "styled",
+        ],
       },
     ],
     curly: "error",

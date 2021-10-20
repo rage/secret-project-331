@@ -11,6 +11,7 @@ import {
   TextField,
 } from "@material-ui/core"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
@@ -100,6 +101,7 @@ interface ScaleContentProps {
   item: NormalizedQuizItem
 }
 const ScaleContent: React.FC<ScaleContentProps> = ({ item }) => {
+  const { t } = useTranslation()
   const quizId = useTypedSelector((state) => state.editor.quizId)
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])
   const variables = useTypedSelector((state) => state.editor.itemVariables[item.id])
@@ -126,7 +128,10 @@ const ScaleContent: React.FC<ScaleContentProps> = ({ item }) => {
   return (
     <>
       <EditButtonWrapper>
-        <Button onClick={() => dispatch(setAdvancedEditing(storeItem.id, true))} title="edit item">
+        <Button
+          onClick={() => dispatch(setAdvancedEditing(storeItem.id, true))}
+          title={t("edit-item")}
+        >
           <FontAwesomeIcon icon={faPen} size="2x"></FontAwesomeIcon>
         </Button>
       </EditButtonWrapper>
@@ -156,7 +161,7 @@ const ScaleContent: React.FC<ScaleContentProps> = ({ item }) => {
       </StyledModal>
       <ScaleContainer>
         <MarkdownEditor
-          label="Title"
+          label={t("title")}
           text={storeItem.title ?? ""}
           onChange={(event) => dispatch(editedQuizItemTitle(event.target.value, storeItem.id))}
         />
@@ -175,8 +180,8 @@ const ScaleContent: React.FC<ScaleContentProps> = ({ item }) => {
       <MinMaxContainer>
         <MinField
           error={!variables.validMin}
-          helperText={!variables.validMin ? "invalid min value" : ""}
-          label="min"
+          helperText={!variables.validMin ? t("invalid-minimum-value") : ""}
+          label={t("minimum")}
           value={variables.scaleMin ?? ""}
           variant="outlined"
           type="number"
@@ -184,8 +189,8 @@ const ScaleContent: React.FC<ScaleContentProps> = ({ item }) => {
         />
         <MaxField
           error={!variables.validMax}
-          helperText={!variables.validMax ? "invalid max value" : ""}
-          label="max"
+          helperText={!variables.validMax ? t("invalid-maximum-value") : ""}
+          label={t("maximum")}
           value={variables.scaleMax ?? ""}
           variant="outlined"
           type="number"

@@ -2,6 +2,7 @@ import { faPlus } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Button, Checkbox, FormControlLabel, FormGroup } from "@material-ui/core"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
@@ -41,18 +42,19 @@ interface EditorModalProps {
 }
 
 export const MultipleChoiceModalContent: React.FC<EditorModalProps> = ({ item }) => {
+  const { t } = useTranslation()
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])
   const storeOptions = useTypedSelector((state) => state.editor.options)
   const dispatch = useDispatch()
   return (
     <>
       <ModalContentTitleWrapper>
-        <h4>Advanced editing</h4>
+        <h4>{t("title-advanced-editing")}</h4>
       </ModalContentTitleWrapper>
       <ModalContent>
         <FormGroup row>
           <FormControlLabel
-            label="Shared feedback message"
+            label={t("shared-feedback-message")}
             labelPlacement="start"
             control={
               <Checkbox
@@ -65,7 +67,7 @@ export const MultipleChoiceModalContent: React.FC<EditorModalProps> = ({ item })
             }
           />
           <FormControlLabel
-            label="Multi"
+            label={t("allow-selecting-multiple-options")}
             labelPlacement="start"
             control={
               <Checkbox
@@ -81,13 +83,13 @@ export const MultipleChoiceModalContent: React.FC<EditorModalProps> = ({ item })
       </ModalContent>
       <ModalContent>
         <MarkdownEditor
-          label="Title"
+          label={t("title")}
           text={storeItem.title ?? ""}
           onChange={(event) => dispatch(editedQuizItemTitle(event.target.value, storeItem.id))}
         />
       </ModalContent>
       <ModalContent>
-        <Button title="add option" onClick={() => dispatch(createdNewOption(storeItem.id))}>
+        <Button title={t("add-option")} onClick={() => dispatch(createdNewOption(storeItem.id))}>
           <FontAwesomeIcon icon={faPlus} size="2x" color="blue" />
         </Button>
       </ModalContent>
@@ -101,7 +103,7 @@ export const MultipleChoiceModalContent: React.FC<EditorModalProps> = ({ item })
       {storeItem.usesSharedOptionFeedbackMessage ? (
         <ModalContent>
           <MarkdownEditor
-            label="Shared option feedback message"
+            label={t("shared-feedback-message-option")}
             text={storeItem.sharedOptionFeedbackMessage ?? ""}
             onChange={(event) =>
               dispatch(editedSharedOptionsFeedbackMessage(storeItem.id, event.target.value))
@@ -112,7 +114,7 @@ export const MultipleChoiceModalContent: React.FC<EditorModalProps> = ({ item })
         <>
           <ModalContent>
             <MarkdownEditor
-              label="Success message"
+              label={t("success-message")}
               text={storeItem.successMessage ?? ""}
               onChange={(event) =>
                 dispatch(editedItemSuccessMessage(storeItem.id, event.target.value))
@@ -121,7 +123,7 @@ export const MultipleChoiceModalContent: React.FC<EditorModalProps> = ({ item })
           </ModalContent>
           <ModalContent>
             <MarkdownEditor
-              label="Failure message"
+              label={t("failure-message")}
               text={storeItem.failureMessage ?? ""}
               onChange={(event) =>
                 dispatch(editedItemFailureMessage(storeItem.id, event.target.value))

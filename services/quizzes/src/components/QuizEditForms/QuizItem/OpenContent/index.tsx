@@ -2,6 +2,7 @@ import { faPen, faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Box, Button, Fade, Modal, TextField } from "@material-ui/core"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
@@ -89,6 +90,7 @@ interface OpenContentProps {
 }
 
 const OpenContent: React.FC<OpenContentProps> = ({ item }) => {
+  const { t } = useTranslation()
   const quizId = useTypedSelector((state) => state.editor.quizId)
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])
   const variables = useTypedSelector((state) => state.editor.itemVariables[item.id])
@@ -115,7 +117,10 @@ const OpenContent: React.FC<OpenContentProps> = ({ item }) => {
   return (
     <>
       <EditButtonWrapper>
-        <Button onClick={() => dispatch(setAdvancedEditing(storeItem.id, true))} title="edit item">
+        <Button
+          onClick={() => dispatch(setAdvancedEditing(storeItem.id, true))}
+          title={t("edit-item")}
+        >
           <FontAwesomeIcon icon={faPen} size="2x"></FontAwesomeIcon>
         </Button>
       </EditButtonWrapper>
@@ -173,14 +178,14 @@ const OpenContent: React.FC<OpenContentProps> = ({ item }) => {
       </StyledModal>
       <ItemInfo>
         <MarkdownEditor
-          label="Title"
+          label={t("title")}
           text={storeItem.title ?? ""}
           onChange={(event) => dispatch(editedQuizItemTitle(event.target.value, storeItem.id))}
         />
       </ItemInfo>
       <ItemInfo>
         <MarkdownEditor
-          label="Body"
+          label={t("body")}
           text={storeItem.body ?? ""}
           onChange={(event) => dispatch(editedQuizItemBody(event.target.value, storeItem.id))}
         />
@@ -189,10 +194,10 @@ const OpenContent: React.FC<OpenContentProps> = ({ item }) => {
         <TextField
           error={!variables.validRegex}
           fullWidth
-          label="Validity regex"
+          label={t("validity-regular-expression")}
           variant="outlined"
           value={variables.regex ?? ""}
-          helperText={!variables.validRegex && "Invalid regex"}
+          helperText={!variables.validRegex && t("invalid-regular-expression")}
           onChange={(event) => {
             dispatch(setValidityTestRegex(storeItem.id, event.target.value))
             handleValidRegexChange(event.target.value)
@@ -203,17 +208,17 @@ const OpenContent: React.FC<OpenContentProps> = ({ item }) => {
           onClick={() => dispatch(toggleValidRegexTestingState(storeItem.id, true))}
           size="large"
         >
-          Test Regex
+          {t("label-test")}
         </StyledButton>
       </RegexContainer>
       <RegexContainer>
         <TextField
           error={!variables.validFormatRegex}
           fullWidth
-          label="Format regex"
+          label={t("format-regular-expression")}
           variant="outlined"
           value={variables.formatRegex ?? ""}
-          helperText={!variables.validFormatRegex && "Invalid regex"}
+          helperText={!variables.validFormatRegex && t("invalid-regular-expression")}
           onChange={(event) => {
             dispatch(setFormatTestRegex(storeItem.id, event.target.value))
             handleFormatRegexChange(event.target.value)
@@ -224,7 +229,7 @@ const OpenContent: React.FC<OpenContentProps> = ({ item }) => {
           onClick={() => dispatch(toggleFormatRegexTestingState(storeItem.id, true))}
           size="large"
         >
-          Test Regex
+          {t("label-test")}
         </StyledButton>
       </RegexContainer>
     </>

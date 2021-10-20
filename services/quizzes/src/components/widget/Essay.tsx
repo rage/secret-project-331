@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import React, { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { wordCount } from "../../shared-module/utils/strings"
 import { QuizItemAnswer } from "../../types/types"
@@ -11,6 +12,7 @@ const Essay: React.FunctionComponent<QuizItemComponentProps> = ({
   quizItem,
   setQuizItemAnswerState,
 }) => {
+  const { t } = useTranslation()
   const [usersWordCount, setUsersWordCOunt] = useState<number>(0)
 
   useEffect(() => {
@@ -58,7 +60,8 @@ const Essay: React.FunctionComponent<QuizItemComponentProps> = ({
           margin: 0.5rem;
         `}
       >
-        Min words: {quizItem.minWords} ­­­|­­ Max words: {quizItem.maxWords}
+        {/* eslint-disable-next-line i18next/no-literal-string */}
+        {t("min-words")}: {quizItem.minWords} | {t("max-words")}: {quizItem.maxWords}
       </div>
       <div
         className={css`
@@ -66,7 +69,7 @@ const Essay: React.FunctionComponent<QuizItemComponentProps> = ({
           margin: 0.5rem;
         `}
       >
-        Word count: {usersWordCount}
+        {t("word-count")}: {usersWordCount}
       </div>
       <div
         className={css`
@@ -76,7 +79,7 @@ const Essay: React.FunctionComponent<QuizItemComponentProps> = ({
       >
         <textarea
           onChange={handleTextChange}
-          placeholder="Answer"
+          placeholder={t("answer")}
           className={css`
             width: 100%;
             height: 200px;

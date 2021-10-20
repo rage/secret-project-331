@@ -1,6 +1,7 @@
 import { InnerBlocks } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
@@ -9,13 +10,11 @@ const ALLOWED_NESTED_BLOCKS = [""]
 const ExercisesInChapterEditor: React.FC<BlockEditProps<Record<string, never>>> = ({
   clientId,
 }) => {
+  const { t } = useTranslation()
   return (
     <BlockPlaceholderWrapper id={clientId}>
-      <h3>Exercises In Chapter Placeholder</h3>
-      <p>
-        This block is placed on each chapter front page, e.g. /chapter-1/ for listing and navigating
-        to different exercises within chapter.
-      </p>
+      <h3>{t("exercises-in-chapter-placeholder")}</h3>
+      <p>{t("exercises-in-chapter-placeholder-explanation")}</p>
       <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
     </BlockPlaceholderWrapper>
   )

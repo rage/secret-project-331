@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import styled from "@emotion/styled"
 import sanitizeHtml from "sanitize-html"
 
 import { BlockRendererProps } from "../.."
@@ -7,52 +6,55 @@ import { courseMaterialCenteredComponentStyles } from "../../../../shared-module
 import colorMapper from "../../../../styles/colorMapper"
 import { PullquoteAttributes } from "../../../../types/GutenbergBlockAttributes"
 
-const Figure = styled.figure<{
-  backgroundColor: string
-  solidColor: boolean
-}>`
-  ${(props) =>
-    props.solidColor === true
-      ? `background-color: ${props.backgroundColor}`
-      : `border-bottom: 4px solid ${props.backgroundColor};
-         border-top: 4px solid ${props.backgroundColor};
-         margin-bottom: 1.75em;`}
-`
-
-const Blockquote = styled.blockquote<{ textColor: string }>`
-  color: ${(props) => props.textColor};
-  padding: 3em 0;
-  text-align: center;
-`
-
 const PullquoteBlock: React.FC<BlockRendererProps<PullquoteAttributes>> = ({ data }) => {
-  const attributes: PullquoteAttributes = data.attributes
+  const {
+    citation,
+    //align,
+    anchor,
+    backgroundColor,
+    // borderColor, // Border color is same as textColor in CMS
+    //className,
+    gradient,
+    //style,
+    textAlign,
+    textColor,
+    value,
+  } = data.attributes
 
-  const backgroundColor = colorMapper(attributes.backgroundColor, "#FFFFFF")
+  const textAlignNotCenterWidth = textAlign && textAlign !== "center" ? "max-width: 30rem;" : null
+  const textAndBorderColor = colorMapper(textColor, "#000")
 
-  const textColor = colorMapper(attributes.textColor, "#000000")
-  const solidColor = attributes.className === "is-style-solid-color" ? true : false
-  const value = attributes.value !== undefined ? attributes.value : "<p></p>"
   return (
-    <Figure
-      backgroundColor={backgroundColor}
-      solidColor={solidColor}
+    <div
       className={css`
         ${courseMaterialCenteredComponentStyles}
+        ${textColor && `color: ${textAndBorderColor};`}
+        ${backgroundColor && `background: ${colorMapper(backgroundColor)};`}
+        ${gradient && `background: ${colorMapper(gradient)};`}
+        text-align: center;
+        ${textAlign && `text-align: ${textAlign};`}
+        ${textAlignNotCenterWidth}
+        border-top: 0.25rem solid ${textAndBorderColor};
+        border-bottom: 0.25rem solid ${textAndBorderColor};
+        padding: 3rem 0;
       `}
+      {...(anchor && { id: anchor })}
     >
-      <Blockquote textColor={textColor}>
-        <div>
-          <p
-            className={css`
-              font-size: 28px;
-            `}
-            dangerouslySetInnerHTML={{ __html: sanitizeHtml(value) }}
-          ></p>
-        </div>
-        <cite dangerouslySetInnerHTML={{ __html: sanitizeHtml(attributes.citation) }}></cite>
-      </Blockquote>
-    </Figure>
+      <p
+        className={css`
+          font-size: 1.75rem;
+          line-height: 1.6;
+        `}
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(value ?? "") }}
+      ></p>
+      <cite
+        className={css`
+          font-style: normal;
+          text-transform: uppercase;
+        `}
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(citation) }}
+      ></cite>
+    </div>
   )
 }
 

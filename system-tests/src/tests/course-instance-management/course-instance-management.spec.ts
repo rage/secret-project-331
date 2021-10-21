@@ -102,6 +102,8 @@ test("test", async ({ page, headless }) => {
   await page.fill("#closingTime", "2098-01-01 00:00")
   await page.click("text=Submit")
 
+  await page.waitForSelector("text=Instance is open and ends at")
+
   await page.evaluate(() => {
     const divs = document.querySelectorAll("div")
     for (const div of divs) {

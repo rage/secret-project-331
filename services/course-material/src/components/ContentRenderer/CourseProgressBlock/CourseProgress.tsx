@@ -36,9 +36,10 @@ const CourseProgress: React.FC<CourseProgressProps> = ({ courseInstanceId }) => 
           padding: 2em 0;
         `}
       >
+        {/* TODO: Verify how it looks when score_given is a floating number */}
         <CircularProgress
           max={data.score_maximum}
-          min={data.score_given}
+          given={data.score_given}
           point={50}
           label={t("student-progress")}
         />

@@ -19,5 +19,13 @@ Simple.args = {
   children: "Card",
   variant: "simple",
   title: "Introduction to the role of AI",
-  chapter: "1",
+  chapterNumber: 1,
+}
+export const Course: Story<ComponentProps> = Template.bind({})
+Course.args = {
+  children: "Card",
+  variant: "course",
+  title: "Introduction to the role of AI",
+  description:
+    "MOOC center is responsible for creating custom online courses for univeristy of Helsinki.",
 }

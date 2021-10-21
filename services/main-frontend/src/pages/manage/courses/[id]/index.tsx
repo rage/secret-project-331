@@ -161,9 +161,9 @@ const ManageCoursePage: React.FC<ManageCoursePageProps> = ({ query }) => {
           {t("button-text-new")}
         </Button>
         <h3>{t("title-all-course-instances")}</h3>
-        <CourseInstancesList courseId={id} />
+        <CourseInstancesList courseId={query.id} />
         <h3>{t("title-all-exercises")}</h3>
-        <ExerciseList courseId={id} />
+        <ExerciseList courseId={query.id} />
       </div>
     </Layout>
   )

@@ -30,59 +30,54 @@ export default async function expectScreenshotsToMatchSnapshots({
   frame,
   page,
 }: ExpectScreenshotsToMatchSnapshotsProps): Promise<void> {
-  if (!headless && !process.env.PWDEBUG) {
-    console.warn("Not in headless mode, skipping screenshot model solutions in exercises")
-    return
+  if (!page && !frame) {
+    throw new Error("No page or frame provided to expectScreenshotsToMatchSnapshots")
+  }
+  let pageObjectToUse = page
+  let visibilityWaitContainer: Page | Frame = page
+  let originalViewPort = page?.viewportSize()
+  if (frame) {
+    pageObjectToUse = frame.page()
+    originalViewPort = pageObjectToUse.viewportSize()
+    visibilityWaitContainer = frame
   }
 
-  if (page) {
-    const originalViewPort = page.viewportSize()
-
-    const elementHandle = await waitToBeVisible({ waitForThisToBeVisibleAndStable, page })
-
-    await snapshotWithViewPort({
-      snapshotName,
-      viewPortName: "mobile",
-      toMatchSnapshotOptions,
-      waitForThisToBeStable: elementHandle,
-      beforeScreenshot,
-      page,
-    })
-
-    await snapshotWithViewPort({
-      snapshotName,
-      viewPortName: "small-desktop",
-      toMatchSnapshotOptions,
-      waitForThisToBeStable: elementHandle,
-      beforeScreenshot,
-      page,
-    })
-
-    await page.setViewportSize(originalViewPort)
-  } else if (frame) {
-    const elementHandle = await frame.frameElement()
-
-    await snapshotWithViewPort({
-      snapshotName,
-      viewPortName: "mobile",
-      toMatchSnapshotOptions,
-      waitForThisToBeStable: elementHandle,
-      beforeScreenshot,
-      frame,
-    })
-
-    await snapshotWithViewPort({
-      snapshotName,
-      viewPortName: "small-desktop",
-      toMatchSnapshotOptions,
-      waitForThisToBeStable: elementHandle,
-      beforeScreenshot,
-      frame,
-    })
-  } else {
-    console.warn("no page or frame provided")
-    return
+  // if frame is passed, then we take a screenshot of the frame istead of the page
+  if (frame) {
+    const frameElement = await frame.frameElement()
+    // The frame is not always visible, and waitForThisToBeVisibleAndStable won't work if the frame is not visible
+    await frameElement.scrollIntoViewIfNeeded()
   }
+
+  const elementHandle = await waitToBeVisible({
+    waitForThisToBeVisibleAndStable,
+    container: visibilityWaitContainer,
+  })
+
+  await snapshotWithViewPort({
+    snapshotName,
+    viewPortName: "mobile",
+    toMatchSnapshotOptions,
+    waitForThisToBeStable: elementHandle,
+    beforeScreenshot,
+    page,
+    frame,
+    headless,
+  })
+
+  await snapshotWithViewPort({
+    snapshotName,
+    viewPortName: "small-desktop",
+    toMatchSnapshotOptions,
+    waitForThisToBeStable: elementHandle,
+    beforeScreenshot,
+    page,
+    frame,
+    headless,
+  })
+
+  // always restore the original viewport
+  await pageObjectToUse.setViewportSize(originalViewPort)
 }
 
 interface SnapshotWithViewPortProps {
@@ -93,6 +88,8 @@ interface SnapshotWithViewPortProps {
   beforeScreenshot?: () => Promise<void>
   page?: Page
   frame?: Frame
+  headless: boolean
+  persistMousePosition?: boolean
 }
 
 async function snapshotWithViewPort({
@@ -103,78 +100,91 @@ async function snapshotWithViewPort({
   beforeScreenshot,
   frame,
   page,
+  headless,
+  persistMousePosition,
 }: SnapshotWithViewPortProps) {
-  // typing caret sometimes blinks and fails screenshot tests
-  if (page) {
-    const style = await page.addStyleTag({
-      content: `
-    html, body {
-      caret-color: rgba(0,0,0,0) !important;
-    }
-  `,
-    })
-    await page.setViewportSize(viewPorts[viewPortName])
-    await waitToBeStable({ waitForThisToBeStable })
-    if (beforeScreenshot) {
-      await page.waitForTimeout(100)
-      await beforeScreenshot()
-      await page.waitForTimeout(100)
-      await waitToBeStable({ waitForThisToBeStable })
-    }
-
-    const screenshot = await page.screenshot()
-    const screenshotName = `${snapshotName}-${viewPortName}.png`
-    expect(screenshot).toMatchSnapshot(screenshotName, toMatchSnapshotOptions)
-    // we do a accessibility check for every screenshot because the places we screenshot tend to also be important
-    // for accessibility
-    await accessibilityCheck(page, screenshotName)
-    // show the typing caret again
-    await style.evaluate((handle) => {
-      if (handle instanceof Element) {
-        handle.remove()
-      } else {
-        console.error("Could not remove the style that hides the typing caret.")
-      }
-    })
-  } else if (frame) {
-    const style = await frame.addStyleTag({
-      content: `
-    html, body {
-      caret-color: rgba(0,0,0,0) !important;
-    }
-  `,
-    })
-    await frame.page().setViewportSize(viewPorts[viewPortName])
-    await waitToBeStable({ waitForThisToBeStable })
-    if (beforeScreenshot) {
-      await frame.waitForTimeout(100)
-      await beforeScreenshot()
-      await frame.waitForTimeout(100)
-      await waitToBeStable({ waitForThisToBeStable })
-    }
-
-    const screenshot = await (await frame.frameElement()).screenshot()
-    const screenshotName = `${snapshotName}-${viewPortName}.png`
-    expect(screenshot).toMatchSnapshot(screenshotName, toMatchSnapshotOptions)
-    // show the typing caret again
-    await style.evaluate((handle) => {
-      if (handle instanceof Element) {
-        handle.remove()
-      } else {
-        console.error("Could not remove the style that hides the typing caret.")
-      }
-    })
+  if (!persistMousePosition && page) {
+    await page.mouse.move(0, 0)
   }
+
+  let pageObjectToUse = page
+  let thingBeingScreenshotted: Page | ElementHandle<Node> = page
+  let thingBeingScreenshottedObject: Page | Frame = page
+  if (frame) {
+    pageObjectToUse = frame.page()
+    thingBeingScreenshotted = await frame.frameElement()
+    thingBeingScreenshottedObject = frame
+  }
+  // typing caret sometimes blinks and fails screenshot tests
+  const style = await thingBeingScreenshottedObject.addStyleTag({
+    content: `
+  html, body {
+    caret-color: rgba(0,0,0,0) !important;
+  }
+`,
+  })
+  await pageObjectToUse.setViewportSize(viewPorts[viewPortName])
+  await waitToBeStable({ waitForThisToBeStable })
+  if (beforeScreenshot) {
+    await pageObjectToUse.waitForTimeout(100)
+    await beforeScreenshot()
+    await pageObjectToUse.waitForTimeout(100)
+    await waitToBeStable({ waitForThisToBeStable })
+  }
+
+  const screenshotName = `${snapshotName}-${viewPortName}.png`
+  if (headless) {
+    await takeScreenshotAndComparetoSnapshot(
+      thingBeingScreenshotted,
+      screenshotName,
+      toMatchSnapshotOptions,
+      pageObjectToUse,
+    )
+  } else {
+    console.warn("Not in headless mode, skipping screenshot")
+  }
+
+  // we do a accessibility check for every screenshot because the places we screenshot tend to also be important
+  // for accessibility
+  await accessibilityCheck(pageObjectToUse, screenshotName)
+  // show the typing caret again
+  await style.evaluate((handle) => {
+    if (handle instanceof Element) {
+      handle.remove()
+    } else {
+      console.error("Could not remove the style that hides the typing caret.")
+    }
+  })
 }
 
 interface WaitToBeVisibleProps {
   waitForThisToBeVisibleAndStable: string | ElementHandle | (string | ElementHandle)[]
-  page: Page
+  container: Page | Frame
 }
 
-async function waitToBeVisible({
+export async function takeScreenshotAndComparetoSnapshot(
+  thingBeingScreenshotted: ElementHandle<Node> | Page,
+  screenshotName: string,
+  toMatchSnapshotOptions: ToMatchSnapshotOptions,
+  page: Page,
+): Promise<void> {
+  try {
+    const screenshot = await thingBeingScreenshotted.screenshot()
+    expect(screenshot).toMatchSnapshot(screenshotName, toMatchSnapshotOptions)
+  } catch (e: unknown) {
+    // sometimes snapshots have wild race conditions, lets try again in a moment
+    console.warn(
+      "Screenshot did not match snapshots retrying... Note that if this passes, the test is unstable",
+    )
+    await page.waitForTimeout(100)
+    const screenshot = await thingBeingScreenshotted.screenshot()
+    expect(screenshot).toMatchSnapshot(screenshotName, toMatchSnapshotOptions)
+  }
+}
+
+export async function waitToBeVisible({
   waitForThisToBeVisibleAndStable,
-  page,
+  container: page,
 }: WaitToBeVisibleProps): Promise<ElementHandle | ElementHandle[]> {
   let elementHandle: ElementHandle | ElementHandle[] = null
   if (typeof waitForThisToBeVisibleAndStable == "string") {
@@ -183,7 +193,10 @@ async function waitToBeVisible({
     for (const element of waitForThisToBeVisibleAndStable) {
       // for some reason eslint mistakes recursion as an unsused variable
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      elementHandle = await waitToBeVisible({ waitForThisToBeVisibleAndStable: element, page })
+      elementHandle = await waitToBeVisible({
+        waitForThisToBeVisibleAndStable: element,
+        container: page,
+      })
     }
   } else {
     elementHandle = waitForThisToBeVisibleAndStable

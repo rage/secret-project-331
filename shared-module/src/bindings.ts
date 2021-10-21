@@ -71,11 +71,21 @@ export interface PageWithExercises {
   exercises: Array<Exercise>
 }
 
-export interface UserProgress {
-  score_given: number | null
+export interface UserCourseInstanceProgress {
+  score_given: number
   score_maximum: number | null
   total_exercises: number | null
   completed_exercises: number | null
+}
+
+export interface UserCourseInstanceChapterProgress {
+  score_given: number
+  score_maximum: number
+}
+
+export interface UserCourseInstanceChapterExerciseProgress {
+  exercise_id: string
+  score_given: number
 }
 
 export interface CourseInstanceEnrollment {
@@ -98,6 +108,9 @@ export interface CourseInstance {
   name: string | null
   description: string | null
   variant_status: VariantStatus
+  teacher_in_charge_name: string
+  teacher_in_charge_email: string
+  support_email: string | null
 }
 
 export interface ChapterWithStatus {
@@ -288,6 +301,8 @@ export interface NewCourse {
   slug: string
   organization_id: string
   language_code: string
+  teacher_in_charge_name: string
+  teacher_in_charge_email: string
 }
 
 export interface CourseUpdate {
@@ -372,6 +387,16 @@ export interface GetFeedbackQuery {
   limit?: number
 }
 
+export interface CourseInstanceForm {
+  name: string | null
+  description: string | null
+  teacher_in_charge_name: string
+  teacher_in_charge_email: string
+  support_email: string | null
+  opening_time: Date | null
+  closing_time: Date | null
+}
+
 export interface PageProposal {
   id: string
   page_id: string
@@ -410,6 +435,12 @@ export interface GetEditProposalsQuery {
 export interface NewProposedPageEdits {
   page_id: string
   block_edits: Array<NewProposedBlockEdit>
+}
+
+export interface ErrorResponse {
+  title: string
+  message: string
+  source: string | null
 }
 
 export type VariantStatus = "Draft" | "Upcoming" | "Active" | "Ended"

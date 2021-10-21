@@ -27,14 +27,17 @@ const FeedbackView: React.FC<FeedbackViewProps> = ({ feedback, setRead }) => {
       )}
       {!feedback.selected_text && <div>{t("no-selected-text")}</div>}
       <div>
-        {t("blocks")}{" "}
+        {t("blocks-visible-when-feedback-given")}
         <ul>
-          {feedback.blocks.map((b) => (
-            <li key={b.id}>
-              <div>{t("block-id", { id: b.id })}</div>
-              <div>{t("block-contents", { text: b.text })}</div>
-            </li>
-          ))}
+          {/* We don't currently save the order of the visible blocks, sorting them so that the order is at least somewhat deterministic in this view. */}
+          {[...feedback.blocks]
+            .sort((a, b) => a.text?.localeCompare(b.text ?? "") ?? 0)
+            .map((b) => (
+              <li key={b.id}>
+                <div>{t("block-id", { id: b.id })}</div>
+                <div>{t("block-contents", { text: b.text })}</div>
+              </li>
+            ))}
         </ul>
       </div>
       <div>

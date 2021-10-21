@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import { exec as execOriginal } from "child_process"
 import path from "path"
 import { promisify } from "util"

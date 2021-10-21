@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import { fetchCourseInstances } from "../../services/backend/courses"
+import Button from "../../shared-module/components/Button"
 
 export interface CourseInstancesListProps {
   courseId: string
@@ -24,26 +25,49 @@ const CourseInstancesList: React.FC<CourseInstancesListProps> = ({ courseId }) =
   }
 
   return (
-    <ul>
-      {data.map((instance) => {
-        return (
-          <li key={instance.id}>
-            {instance.name ?? t("default-course-instance-name")}{" "}
-            <Link
-              href={{
-                pathname: "/manage/course-instances/[id]/emails",
-                query: { id: instance.id },
-              }}
-            >
-              {t("link-manage-emails")}
-            </Link>{" "}
-            <a href={`/api/v0/main-frontend/course-instances/${instance.id}/point_export`} download>
-              {t("link-export-points")}
-            </a>
-          </li>
-        )
-      })}
-    </ul>
+    <>
+      <ul>
+        {data.map((instance) => {
+          return (
+            <li key={instance.id}>
+              {instance.name ?? t("default-course-instance-name")}{" "}
+              <Link
+                href={{
+                  pathname: "/manage/course-instances/[id]",
+                  query: { id: instance.id },
+                }}
+              >
+                {t("link-manage")}
+              </Link>{" "}
+              <Link
+                href={{
+                  pathname: "/manage/course-instances/[id]/emails",
+                  query: { id: instance.id },
+                }}
+              >
+                {t("link-manage-emails")}
+              </Link>{" "}
+              <a
+                href={`/api/v0/main-frontend/course-instances/${instance.id}/point_export`}
+                download
+              >
+                {t("link-export-points")}
+              </a>
+            </li>
+          )
+        })}
+      </ul>
+      <Link
+        href={{ pathname: "/manage/courses/[id]/new-course-instance", query: { id: courseId } }}
+        passHref
+      >
+        <a href="replace">
+          <Button variant="primary" size="medium">
+            {t("button-text-new")}
+          </Button>
+        </a>
+      </Link>
+    </>
   )
 }
 

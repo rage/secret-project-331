@@ -32,15 +32,15 @@ export const allowedBlockVariants: Record<string, string[]> = {
   "core/embed": [
     "twitter",
     "youtube",
-    "soundcloud",
+    // "soundcloud",
     "spotify",
-    "flickr",
-    "vimeo",
-    "imgur",
-    "reddit",
-    "slideshare",
-    "ted",
-    "tumblr",
+    // "flickr",
+    // "vimeo",
+    // "imgur",
+    // "reddit",
+    // "slideshare",
+    // "ted",
+    // "tumblr",
   ],
 }
 

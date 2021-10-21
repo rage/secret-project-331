@@ -18,14 +18,18 @@ const ExerciseInChapterBlock: React.FC<BlockRendererProps<unknown>> = () => {
   }
 
   const chapterId = pageContext.pageData.chapter_id
+  const courseInstanceId = pageContext.instance?.id
 
   if (!chapterId) {
     return <pre>{t("error-page-does-not-belong-to-chapter")}</pre>
   }
+  if (!courseInstanceId) {
+    return <pre>{t("error-missing-course-instance-id")}</pre>
+  }
 
   return (
     <div className={courseMaterialCenteredComponentStyles}>
-      <ExercisesInChapter chapterId={chapterId} />
+      <ExercisesInChapter chapterId={chapterId} courseInstanceId={courseInstanceId} />
     </div>
   )
 }

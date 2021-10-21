@@ -1,16 +1,8 @@
 import { css } from "@emotion/css"
-import {
-  Alert,
-  FormControl,
-  Grow,
-  InputLabel,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
-} from "@material-ui/core"
+import { Alert, Grow } from "@material-ui/core"
 import TextField from "@material-ui/core/TextField"
 import dynamic from "next/dynamic"
-import React, { useEffect, useState } from "react"
+import React, { ChangeEvent, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useMutation, useQuery } from "react-query"
 
@@ -132,7 +124,7 @@ const Home: React.FC = () => {
     }
   }
 
-  const handleExampleChange = (event: SelectChangeEvent) => {
+  const handleExampleChange = (event: ChangeEvent<HTMLSelectElement>) => {
     const example: PlaygroundExample = JSON.parse(event.target.value) as PlaygroundExample
     setExampleUrl(example.url)
     setExampleWidth(example.width)
@@ -217,23 +209,17 @@ const Home: React.FC = () => {
                 margin-top: 0.5rem;
               `}
             >
-              <FormControl fullWidth>
-                <InputLabel id="playground-examples-label-id">{t("label-examples")}</InputLabel>
-                <Select
-                  id="playground-examples"
-                  labelId="playground-examples-label-id"
-                  label={t("label-examples")}
-                  onChange={handleExampleChange}
-                  fullWidth
-                  value={selectedExample ? JSON.stringify(selectedExample) : ""}
-                >
-                  {data.map((example) => (
-                    <MenuItem key={JSON.stringify(example)} value={JSON.stringify(example)}>
-                      {example.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              {/* eslint-disable-next-line jsx-a11y/no-onchange */}
+              <select onChange={handleExampleChange} name="playground-examples">
+                <option selected disabled label={t("label-examples")} />
+                {data.map((example) => (
+                  <option
+                    key={JSON.stringify(example)}
+                    value={JSON.stringify(example)}
+                    label={example.name}
+                  />
+                ))}
+              </select>
             </div>
           </div>
         )}

@@ -17,6 +17,7 @@ import {
   Course,
   CourseInstance,
   CourseInstanceEnrollment,
+  CourseInstanceForm,
   CourseMaterialExercise,
   CourseMaterialExerciseServiceInfo,
   CourseMaterialExerciseTask,
@@ -27,6 +28,7 @@ import {
   EmailTemplate,
   EmailTemplateNew,
   EmailTemplateUpdate,
+  ErrorResponse,
   Exercise,
   ExerciseService,
   ExerciseServiceInfoApi,
@@ -77,9 +79,11 @@ import {
   SubmissionInfo,
   SubmissionResult,
   UploadResult,
+  UserCourseInstanceChapterExerciseProgress,
+  UserCourseInstanceChapterProgress,
+  UserCourseInstanceProgress,
   UserCourseSettings,
   UserPointsUpdateStrategy,
-  UserProgress,
   VariantStatus,
 } from "./bindings"
 
@@ -167,13 +171,38 @@ export function isPageWithExercises(obj: any, _argumentName?: string): obj is Pa
   )
 }
 
-export function isUserProgress(obj: any, _argumentName?: string): obj is UserProgress {
+export function isUserCourseInstanceProgress(
+  obj: any,
+  _argumentName?: string,
+): obj is UserCourseInstanceProgress {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (obj.score_given === null || typeof obj.score_given === "number") &&
+    typeof obj.score_given === "number" &&
     (obj.score_maximum === null || typeof obj.score_maximum === "number") &&
     (obj.total_exercises === null || typeof obj.total_exercises === "number") &&
     (obj.completed_exercises === null || typeof obj.completed_exercises === "number")
+  )
+}
+
+export function isUserCourseInstanceChapterProgress(
+  obj: any,
+  _argumentName?: string,
+): obj is UserCourseInstanceChapterProgress {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.score_given === "number" &&
+    typeof obj.score_maximum === "number"
+  )
+}
+
+export function isUserCourseInstanceChapterExerciseProgress(
+  obj: any,
+  _argumentName?: string,
+): obj is UserCourseInstanceChapterExerciseProgress {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.exercise_id === "string" &&
+    typeof obj.score_given === "number"
   )
 }
 
@@ -204,7 +233,10 @@ export function isCourseInstance(obj: any, _argumentName?: string): obj is Cours
     (obj.ends_at === null || obj.ends_at instanceof Date) &&
     (obj.name === null || typeof obj.name === "string") &&
     (obj.description === null || typeof obj.description === "string") &&
-    (isVariantStatus(obj.variant_status) as boolean)
+    (isVariantStatus(obj.variant_status) as boolean) &&
+    typeof obj.teacher_in_charge_name === "string" &&
+    typeof obj.teacher_in_charge_email === "string" &&
+    (obj.support_email === null || typeof obj.support_email === "string")
   )
 }
 
@@ -486,7 +518,9 @@ export function isNewCourse(obj: any, _argumentName?: string): obj is NewCourse 
     typeof obj.name === "string" &&
     typeof obj.slug === "string" &&
     typeof obj.organization_id === "string" &&
-    typeof obj.language_code === "string"
+    typeof obj.language_code === "string" &&
+    typeof obj.teacher_in_charge_name === "string" &&
+    typeof obj.teacher_in_charge_email === "string"
   )
 }
 
@@ -617,6 +651,19 @@ export function isGetFeedbackQuery(obj: any, _argumentName?: string): obj is Get
   )
 }
 
+export function isCourseInstanceForm(obj: any, _argumentName?: string): obj is CourseInstanceForm {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (obj.name === null || typeof obj.name === "string") &&
+    (obj.description === null || typeof obj.description === "string") &&
+    typeof obj.teacher_in_charge_name === "string" &&
+    typeof obj.teacher_in_charge_email === "string" &&
+    (obj.support_email === null || typeof obj.support_email === "string") &&
+    (obj.opening_time === null || obj.opening_time instanceof Date) &&
+    (obj.closing_time === null || obj.closing_time instanceof Date)
+  )
+}
+
 export function isPageProposal(obj: any, _argumentName?: string): obj is PageProposal {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
@@ -681,6 +728,15 @@ export function isNewProposedPageEdits(
     typeof obj.page_id === "string" &&
     Array.isArray(obj.block_edits) &&
     obj.block_edits.every((e: any) => isNewProposedBlockEdit(e) as boolean)
+  )
+}
+
+export function isErrorResponse(obj: any, _argumentName?: string): obj is ErrorResponse {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.title === "string" &&
+    typeof obj.message === "string" &&
+    (obj.source === null || typeof obj.source === "string")
   )
 }
 

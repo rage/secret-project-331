@@ -1,6 +1,7 @@
 {
   "block-id": "Block id: {{id}}",
-  "blocks": "Blocks:",
+  "blocks-visible-when-feedback-given": "Blocks visible when the feedback was given:",
+  "error-missing-course-instance-id": "Missing course instance id",
   "button-compare": "Compare",
   "button-mark-as-read": "Mark as read",
   "button-mark-as-unread": "Mark as unread",
@@ -140,5 +141,7 @@
   "pending": "Pending",
   "old": "Old",
   "incorrect-email-or-password": "Incorrect email or password",
-  "failed-to-authenticate": "Failed to authenticate"
+  "failed-to-authenticate": "Failed to authenticate",
+  "teacher-in-charge-name": "Teacher-in-charge name",
+  "teacher-in-charge-email": "Teacher-in-charge email"
 }

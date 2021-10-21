@@ -8,33 +8,31 @@ import fontSizeMapper from "../../../../styles/fontSizeMapper"
 import { VerseAttributes } from "../../../../types/GutenbergBlockAttributes"
 
 const VerseBlock: React.FC<BlockRendererProps<VerseAttributes>> = ({ data }) => {
-  const attributes: VerseAttributes = data.attributes
-
-  const solidBackground =
-    attributes.backgroundColor !== undefined ? colorMapper(attributes.backgroundColor) : "#FFFFFF"
-
-  const gradientBackground =
-    attributes.gradient !== undefined ? colorMapper(attributes.gradient) : "#FFFFFF"
-
-  const textColor =
-    attributes.textColor !== undefined ? colorMapper(attributes.textColor) : "#000000"
-  const fontSize = fontSizeMapper(attributes.fontSize)
+  const {
+    content,
+    anchor,
+    backgroundColor,
+    // className,
+    fontSize,
+    gradient,
+    // style,
+    textAlign,
+    textColor,
+  } = data.attributes
 
   return (
     <pre
       className={css`
         ${courseMaterialCenteredComponentStyles}
-        ${attributes.backgroundColor !== undefined && `background-color: ${solidBackground};`}
-        ${attributes.gradient !== undefined && `background-image: ${gradientBackground};`}
-        color: ${textColor}
+        ${backgroundColor && `background: ${colorMapper(backgroundColor)};`}
+        ${gradient && `background: ${colorMapper(gradient)};`}
+        ${textColor && `color: ${colorMapper(textColor)};`}
+        ${textAlign && `text-align: ${textAlign};`}
+        ${fontSize && `font-size: ${fontSizeMapper(fontSize)};`}
       `}
+      {...(anchor && { id: anchor })}
     >
-      <div
-        className={css`
-          font-size: ${fontSize};
-        `}
-        dangerouslySetInnerHTML={{ __html: sanitizeHtml(attributes.content) }}
-      ></div>
+      <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }} />
     </pre>
   )
 }

@@ -141,7 +141,7 @@ const Button: React.FC<ButtonProps> = (props) => {
       ) : props.variant === "secondary" ? (
         <SecondaryButton title="button" {...props}></SecondaryButton>
       ) : (
-        <TertiaryButton title="button" {...props} disabled />
+        <TertiaryButton title="button" {...props} />
       )}
     </>
   )

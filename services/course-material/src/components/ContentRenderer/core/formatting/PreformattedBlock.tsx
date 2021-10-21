@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import sanitizeHtml from "sanitize-html"
 
 import { BlockRendererProps } from "../.."
 import { courseMaterialCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
@@ -8,29 +7,22 @@ import fontSizeMapper from "../../../../styles/fontSizeMapper"
 import { PreformattedAttributes } from "../../../../types/GutenbergBlockAttributes"
 
 const PreformattedBlock: React.FC<BlockRendererProps<PreformattedAttributes>> = ({ data }) => {
-  const attributes: PreformattedAttributes = data.attributes
-
-  const textColor = colorMapper(attributes.textColor, "#000000")
-  const fontSize = fontSizeMapper(attributes.fontSize)
-  const backgroundColor = colorMapper(attributes.gradient ?? attributes.backgroundColor)
-
+  const { content, anchor, backgroundColor, fontSize, gradient, textColor } = data.attributes
   return (
     <pre
       className={css`
         ${courseMaterialCenteredComponentStyles}
-        color: ${textColor};
-        font-size: ${fontSize};
-        white-space: pre-line;
-        background: ${backgroundColor};
+        ${textColor && `color: ${colorMapper(textColor)};`}
+        ${fontSize && `font-size: ${fontSizeMapper(fontSize)};`}
+        ${backgroundColor && `background-color: ${colorMapper(backgroundColor)};`}
+        ${gradient && `background-color: ${colorMapper(gradient)};`}
+        white-space: pre-wrap;
         padding: 1.25em 2.375em;
+        overflow-wrap: "break-word";
       `}
+      {...(anchor && { id: anchor })}
     >
-      <div
-        className={css`
-          overflow-wrap: "break-word";
-        `}
-        dangerouslySetInnerHTML={{ __html: sanitizeHtml(attributes.content) }}
-      ></div>
+      {content}
     </pre>
   )
 }

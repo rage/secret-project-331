@@ -5,14 +5,15 @@ import { BlockRendererProps } from "../.."
 import { SpacerAttributes } from "../../../../types/GutenbergBlockAttributes"
 
 const SpacerBlock: React.FC<BlockRendererProps<SpacerAttributes>> = ({ data }) => {
-  const attributes: SpacerAttributes = data.attributes
+  const { height, width, anchor } = data.attributes
 
   return (
     <div
       className={css`
-        height: ${attributes.height}px;
-        width: ${attributes.width}px;
+        ${height && `height: ${height}px;`}
+        ${width && `width: ${width}px;`}
       `}
+      {...(anchor && { id: anchor })}
     />
   )
 }

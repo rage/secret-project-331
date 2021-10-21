@@ -31,9 +31,9 @@ const HeadingBlock: React.FC<BlockRendererProps<HeadingAttributes>> = ({ data })
     },
     className: css`
       ${courseMaterialCenteredComponentStyles}
-      text-align: ${textAlign ?? "left"};
-      color: ${colorMapper(textColor, "#000000")};
-      background-color: ${colorMapper(backgroundColor, "unset")};
+      ${textAlign && `text-align: ${textAlign};`}
+      ${textColor && `color: ${colorMapper(textColor, "#000000")};`}
+      ${backgroundColor && `background-color: ${colorMapper(backgroundColor)};`}
       ${fontSize && `font-size: ${fontSizeMapper(fontSize)};`}
       ${backgroundColor && "padding: 1.25rem 2.375rem !important;"}
     `,

@@ -20,12 +20,11 @@ import PreformattedBlock from "./core/formatting/PreformattedBlock"
 import PullquoteBlock from "./core/formatting/PullquoteBlock"
 import TableBlock from "./core/formatting/TableBlock"
 import VerseBlock from "./core/formatting/VerseBlock"
-import ButtonBlock from "./core/layout/ButtonBlock"
+import ButtonsBlock from "./core/layout/Buttons/ButtonsBlock"
 import ColumnBlock from "./core/layout/ColumnBlock"
 import ColumnsBlock from "./core/layout/ColumnsBlock"
 import SeparatorBlock from "./core/layout/Separator"
 import SpacerBlock from "./core/layout/SpacerBlock"
-import RssBlock from "./core/widgets/RssBlock"
 import ChapterProgressBlock from "./moocfi/ChapterProgressBlock"
 import CourseChapterGridBlock from "./moocfi/CourseChapterGridBlock"
 import CourseObjectiveSectionBlock from "./moocfi/CourseObjectiveSectionBlock"
@@ -77,15 +76,15 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "core/verse": VerseBlock,
 
   // core / layout
-  // "core/button",
-  "core/buttons": ButtonBlock,
-  "core/column": ColumnBlock,
+  // "core/button": ButtonBlock, // Deprecated
+  "core/buttons": ButtonsBlock,
+  "core/column": ColumnBlock, // Inner block of Columns
   "core/columns": ColumnsBlock,
   "core/separator": SeparatorBlock,
   "core/spacer": SpacerBlock,
 
   // core / widgets
-  "core/rss": RssBlock,
+  // "core/rss": RssBlock, // TODO
 
   // moocfi
   "moocfi/exercise": ExerciseBlock,

@@ -933,13 +933,45 @@
 <span id="933">933</span>
 <span id="934">934</span>
 <span id="935">935</span>
+<span id="936">936</span>
+<span id="937">937</span>
+<span id="938">938</span>
+<span id="939">939</span>
+<span id="940">940</span>
+<span id="941">941</span>
+<span id="942">942</span>
+<span id="943">943</span>
+<span id="944">944</span>
+<span id="945">945</span>
+<span id="946">946</span>
+<span id="947">947</span>
+<span id="948">948</span>
+<span id="949">949</span>
+<span id="950">950</span>
+<span id="951">951</span>
+<span id="952">952</span>
+<span id="953">953</span>
+<span id="954">954</span>
+<span id="955">955</span>
+<span id="956">956</span>
+<span id="957">957</span>
+<span id="958">958</span>
+<span id="959">959</span>
+<span id="960">960</span>
+<span id="961">961</span>
+<span id="962">962</span>
+<span id="963">963</span>
+<span id="964">964</span>
+<span id="965">965</span>
+<span id="966">966</span>
+<span id="967">967</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">course_instances::CourseInstance</span>, <span class="ident">ModelResult</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">models</span>::{
-        <span class="ident">course_instances</span>::{<span class="self">self</span>, <span class="ident">VariantStatus</span>},
+        <span class="ident">course_instances</span>::{<span class="self">self</span>, <span class="ident">NewCourseInstance</span>, <span class="ident">VariantStatus</span>},
         <span class="ident">course_language_groups</span>,
         <span class="ident">pages::NewPage</span>,
         <span class="ident">ModelError</span>,
@@ -1340,7 +1372,22 @@ WHERE exercise_slide_id IN (
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// Create default instance for copied course.</span>
-    <span class="ident">course_instances::insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="ident">copied_course</span>.<span class="ident">id</span>, <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">VariantStatus::Draft</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">course_instances::insert</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>,
+        <span class="ident">NewCourseInstance</span> {
+            <span class="ident">id</span>: <span class="ident">Uuid::new_v4</span>(),
+            <span class="ident">course_id</span>: <span class="ident">copied_course</span>.<span class="ident">id</span>,
+            <span class="ident">name</span>: <span class="prelude-val">None</span>,
+            <span class="ident">description</span>: <span class="prelude-val">None</span>,
+            <span class="ident">variant_status</span>: <span class="prelude-val">Some</span>(<span class="ident">VariantStatus::Draft</span>),
+            <span class="ident">support_email</span>: <span class="prelude-val">None</span>,
+            <span class="ident">teacher_in_charge_name</span>: <span class="kw-2">&amp;</span><span class="ident">new_course</span>.<span class="ident">teacher_in_charge_name</span>,
+            <span class="ident">teacher_in_charge_email</span>: <span class="kw-2">&amp;</span><span class="ident">new_course</span>.<span class="ident">teacher_in_charge_email</span>,
+            <span class="ident">opening_time</span>: <span class="prelude-val">None</span>,
+            <span class="ident">closing_time</span>: <span class="prelude-val">None</span>,
+        },
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">copied_course</span>)
@@ -1435,12 +1482,15 @@ WHERE organization_id = $1
     <span class="kw">pub</span> <span class="ident">slug</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">organization_id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">language_code</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">teacher_in_charge_name</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">teacher_in_charge_email</span>: <span class="ident">String</span>,
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert_course</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course</span>: <span class="ident">NewCourse</span>,
+    <span class="ident">default_instance_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">new_course</span>: <span class="ident">NewCourse</span>,
     <span class="ident">user</span>: <span class="ident">Uuid</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span>(<span class="ident">Course</span>, <span class="ident">Page</span>, <span class="ident">CourseInstance</span>)<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1464,10 +1514,10 @@ RETURNING id,
   course_language_group_id;
             &quot;#</span>,
         <span class="ident">id</span>,
-        <span class="ident">course</span>.<span class="ident">name</span>,
-        <span class="ident">course</span>.<span class="ident">slug</span>,
-        <span class="ident">course</span>.<span class="ident">organization_id</span>,
-        <span class="ident">course</span>.<span class="ident">language_code</span>,
+        <span class="ident">new_course</span>.<span class="ident">name</span>,
+        <span class="ident">new_course</span>.<span class="ident">slug</span>,
+        <span class="ident">new_course</span>.<span class="ident">organization_id</span>,
+        <span class="ident">new_course</span>.<span class="ident">language_code</span>,
         <span class="ident">course_language_group_id</span>
     )
     .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>)
@@ -1493,9 +1543,18 @@ RETURNING id,
     <span class="comment">// Create default course instance</span>
     <span class="kw">let</span> <span class="ident">default_course_instance</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::models::course_instances::insert</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>,
-        <span class="ident">course</span>.<span class="ident">id</span>,
-        <span class="prelude-val">None</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">VariantStatus::Draft</span>),
+        <span class="ident">NewCourseInstance</span> {
+            <span class="ident">id</span>: <span class="ident">default_instance_id</span>,
+            <span class="ident">course_id</span>: <span class="ident">course</span>.<span class="ident">id</span>,
+            <span class="ident">name</span>: <span class="prelude-val">None</span>,
+            <span class="ident">description</span>: <span class="prelude-val">None</span>,
+            <span class="ident">variant_status</span>: <span class="prelude-val">Some</span>(<span class="ident">VariantStatus::Draft</span>),
+            <span class="ident">support_email</span>: <span class="prelude-val">None</span>,
+            <span class="ident">teacher_in_charge_name</span>: <span class="kw-2">&amp;</span><span class="ident">new_course</span>.<span class="ident">teacher_in_charge_name</span>,
+            <span class="ident">teacher_in_charge_email</span>: <span class="kw-2">&amp;</span><span class="ident">new_course</span>.<span class="ident">teacher_in_charge_email</span>,
+            <span class="ident">opening_time</span>: <span class="prelude-val">None</span>,
+            <span class="ident">closing_time</span>: <span class="prelude-val">None</span>,
+        },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -1710,11 +1769,14 @@ WHERE slug = $1
         <span class="kw">let</span> (<span class="ident">course</span>, <span class="ident">_page</span>, <span class="ident">_instance</span>) <span class="op">=</span> <span class="ident">courses::insert_course</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
             <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;86ede846-db97-4204-94c3-29cc2e71818e&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Uuid::new_v4</span>(),
             <span class="ident">NewCourse</span> {
                 <span class="ident">language_code</span>: <span class="string">&quot;en-US&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">name</span>: <span class="string">&quot;Course&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">organization_id</span>,
                 <span class="ident">slug</span>: <span class="string">&quot;course&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">teacher_in_charge_name</span>: <span class="string">&quot;admin&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;admin@example.org&quot;</span>.<span class="ident">to_string</span>(),
             },
             <span class="ident">user_id</span>,
         )
@@ -1796,6 +1858,8 @@ WHERE slug = $1
                 <span class="ident">name</span>: <span class="string">&quot;Kurssi&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">organization_id</span>,
                 <span class="ident">slug</span>: <span class="string">&quot;kurssi&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">teacher_in_charge_name</span>: <span class="string">&quot;admin&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;admin@example.org&quot;</span>.<span class="ident">to_string</span>(),
             },
         )
         .<span class="kw">await</span>

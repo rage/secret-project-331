@@ -169,6 +169,15 @@
 <span id="169">169</span>
 <span id="170">170</span>
 <span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -278,7 +287,7 @@ WHERE c.id = $1
     <span class="kw">use</span> <span class="kw">crate</span>::{
         <span class="ident">models</span>::{
             <span class="ident">course_instance_enrollments</span>::{<span class="self">self</span>, <span class="ident">NewCourseInstanceEnrollment</span>},
-            <span class="ident">course_instances</span>::{<span class="self">self</span>, <span class="ident">VariantStatus</span>},
+            <span class="ident">course_instances</span>::{<span class="self">self</span>, <span class="ident">NewCourseInstance</span>, <span class="ident">VariantStatus</span>},
         },
         <span class="ident">test_helper</span>::{<span class="ident">insert_data</span>, <span class="ident">Conn</span>, <span class="ident">Data</span>},
     };
@@ -315,9 +324,18 @@ WHERE c.id = $1
 
         <span class="kw">let</span> <span class="ident">instance_2</span> <span class="op">=</span> <span class="ident">course_instances::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">course</span>,
-            <span class="prelude-val">Some</span>(<span class="string">&quot;instance-2&quot;</span>),
-            <span class="prelude-val">Some</span>(<span class="ident">VariantStatus::Draft</span>),
+            <span class="ident">NewCourseInstance</span> {
+                <span class="ident">id</span>: <span class="ident">Uuid::new_v4</span>(),
+                <span class="ident">course_id</span>: <span class="ident">course</span>,
+                <span class="ident">name</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;instance-2&quot;</span>),
+                <span class="ident">description</span>: <span class="prelude-val">None</span>,
+                <span class="ident">variant_status</span>: <span class="prelude-val">Some</span>(<span class="ident">VariantStatus::Draft</span>),
+                <span class="ident">teacher_in_charge_name</span>: <span class="string">&quot;teacher&quot;</span>,
+                <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;teacher@example.com&quot;</span>,
+                <span class="ident">support_email</span>: <span class="prelude-val">None</span>,
+                <span class="ident">opening_time</span>: <span class="prelude-val">None</span>,
+                <span class="ident">closing_time</span>: <span class="prelude-val">None</span>,
+            },
         )
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>()

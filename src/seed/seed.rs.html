@@ -1671,11 +1671,73 @@
 <span id="1671">1671</span>
 <span id="1672">1672</span>
 <span id="1673">1673</span>
+<span id="1674">1674</span>
+<span id="1675">1675</span>
+<span id="1676">1676</span>
+<span id="1677">1677</span>
+<span id="1678">1678</span>
+<span id="1679">1679</span>
+<span id="1680">1680</span>
+<span id="1681">1681</span>
+<span id="1682">1682</span>
+<span id="1683">1683</span>
+<span id="1684">1684</span>
+<span id="1685">1685</span>
+<span id="1686">1686</span>
+<span id="1687">1687</span>
+<span id="1688">1688</span>
+<span id="1689">1689</span>
+<span id="1690">1690</span>
+<span id="1691">1691</span>
+<span id="1692">1692</span>
+<span id="1693">1693</span>
+<span id="1694">1694</span>
+<span id="1695">1695</span>
+<span id="1696">1696</span>
+<span id="1697">1697</span>
+<span id="1698">1698</span>
+<span id="1699">1699</span>
+<span id="1700">1700</span>
+<span id="1701">1701</span>
+<span id="1702">1702</span>
+<span id="1703">1703</span>
+<span id="1704">1704</span>
+<span id="1705">1705</span>
+<span id="1706">1706</span>
+<span id="1707">1707</span>
+<span id="1708">1708</span>
+<span id="1709">1709</span>
+<span id="1710">1710</span>
+<span id="1711">1711</span>
+<span id="1712">1712</span>
+<span id="1713">1713</span>
+<span id="1714">1714</span>
+<span id="1715">1715</span>
+<span id="1716">1716</span>
+<span id="1717">1717</span>
+<span id="1718">1718</span>
+<span id="1719">1719</span>
+<span id="1720">1720</span>
+<span id="1721">1721</span>
+<span id="1722">1722</span>
+<span id="1723">1723</span>
+<span id="1724">1724</span>
+<span id="1725">1725</span>
+<span id="1726">1726</span>
+<span id="1727">1727</span>
+<span id="1728">1728</span>
+<span id="1729">1729</span>
+<span id="1730">1730</span>
+<span id="1731">1731</span>
+<span id="1732">1732</span>
+<span id="1733">1733</span>
+<span id="1734">1734</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">TimeZone</span>, <span class="ident">Utc</span>};
 <span class="kw">use</span> <span class="ident">headless_lms_actix::attributes</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models::chapters::NewChapter</span>;
+<span class="kw">use</span> <span class="ident">headless_lms_actix::models::course_instances::NewCourseInstance</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models::courses::NewCourse</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models::exercises::GradingProgress</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models::feedback</span>::{<span class="ident">FeedbackBlock</span>, <span class="ident">NewFeedback</span>};
@@ -1851,6 +1913,17 @@
         <span class="ident">student</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">seed_sample_course</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+        <span class="ident">uh_cs</span>,
+        <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4&quot;</span>)<span class="question-mark">?</span>,
+        <span class="string">&quot;Advanced course instance management&quot;</span>,
+        <span class="string">&quot;advanced-course-instance-management&quot;</span>,
+        <span class="ident">admin</span>,
+        <span class="ident">teacher</span>,
+        <span class="ident">student</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">roles::insert</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
         <span class="ident">language_teacher</span>,
@@ -1866,19 +1939,31 @@
         <span class="ident">slug</span>: <span class="string">&quot;introduction-to-computer-science&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">organization_id</span>: <span class="ident">uh_cs</span>,
         <span class="ident">language_code</span>: <span class="string">&quot;en-US&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">teacher_in_charge_name</span>: <span class="string">&quot;admin&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;admin@example.com&quot;</span>.<span class="ident">to_string</span>(),
     };
     <span class="kw">let</span> (<span class="ident">cs_course</span>, <span class="ident">_cs_front_page</span>, <span class="ident">_cs_default_course_instance</span>) <span class="op">=</span> <span class="ident">courses::insert_course</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
         <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;06a7ccbd-8958-4834-918f-ad7b24e583fd&quot;</span>)<span class="question-mark">?</span>,
+        <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;48399008-6523-43c5-8fd6-59ecc731a426&quot;</span>)<span class="question-mark">?</span>,
         <span class="ident">new_course</span>,
         <span class="ident">admin</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">_cs_course_instance</span> <span class="op">=</span> <span class="ident">course_instances::insert</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="ident">cs_course</span>.<span class="ident">id</span>,
-        <span class="prelude-val">Some</span>(<span class="string">&quot;non-default instance&quot;</span>),
-        <span class="prelude-val">Some</span>(<span class="ident">VariantStatus::Upcoming</span>),
+        <span class="ident">NewCourseInstance</span> {
+            <span class="ident">id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;49c618d3-926d-4287-9159-b3af1f86082d&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">course_id</span>: <span class="ident">cs_course</span>.<span class="ident">id</span>,
+            <span class="ident">name</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;non-default instance&quot;</span>),
+            <span class="ident">description</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;this is another non-default instance&quot;</span>),
+            <span class="ident">variant_status</span>: <span class="prelude-val">Some</span>(<span class="ident">VariantStatus::Upcoming</span>),
+            <span class="ident">support_email</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;contact@example.com&quot;</span>),
+            <span class="ident">teacher_in_charge_name</span>: <span class="string">&quot;admin&quot;</span>,
+            <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;admin@example.com&quot;</span>,
+            <span class="ident">opening_time</span>: <span class="prelude-val">None</span>,
+            <span class="ident">closing_time</span>: <span class="prelude-val">None</span>,
+        },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -1896,20 +1981,32 @@
         <span class="ident">slug</span>: <span class="string">&quot;introduction-to-statistics&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">organization_id</span>: <span class="ident">uh_mathstat</span>,
         <span class="ident">language_code</span>: <span class="string">&quot;en-US&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">teacher_in_charge_name</span>: <span class="string">&quot;admin&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;admin@example.com&quot;</span>.<span class="ident">to_string</span>(),
     };
     <span class="kw">let</span> (<span class="ident">statistics_course</span>, <span class="ident">_statistics_front_page</span>, <span class="ident">_statistics_default_course_instance</span>) <span class="op">=</span>
         <span class="ident">courses::insert_course</span>(
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
             <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;f307d05f-be34-4148-bb0c-21d6f7a35cdb&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;8e4aeba5-1958-49bc-9b40-c9f0f0680911&quot;</span>)<span class="question-mark">?</span>,
             <span class="ident">new_course</span>,
             <span class="ident">admin</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">_statistics_course_instance</span> <span class="op">=</span> <span class="ident">course_instances::insert</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="ident">statistics_course</span>.<span class="ident">id</span>,
-        <span class="prelude-val">Some</span>(<span class="string">&quot;non-default instance&quot;</span>),
-        <span class="prelude-val">Some</span>(<span class="ident">VariantStatus::Active</span>),
+        <span class="ident">NewCourseInstance</span> {
+            <span class="ident">id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;c4a99a18-fd43-491a-9500-4673cb900be0&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">course_id</span>: <span class="ident">statistics_course</span>.<span class="ident">id</span>,
+            <span class="ident">name</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;non-default instance&quot;</span>),
+            <span class="ident">description</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;this appears to be a non-default instance&quot;</span>),
+            <span class="ident">variant_status</span>: <span class="prelude-val">Some</span>(<span class="ident">VariantStatus::Active</span>),
+            <span class="ident">support_email</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;contact@example.com&quot;</span>),
+            <span class="ident">teacher_in_charge_name</span>: <span class="string">&quot;admin&quot;</span>,
+            <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;admin@example.com&quot;</span>,
+            <span class="ident">opening_time</span>: <span class="prelude-val">None</span>,
+            <span class="ident">closing_time</span>: <span class="prelude-val">None</span>,
+        },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -2548,11 +2645,33 @@
         <span class="ident">organization_id</span>: <span class="ident">org</span>,
         <span class="ident">slug</span>: <span class="ident">course_slug</span>.<span class="ident">to_string</span>(),
         <span class="ident">language_code</span>: <span class="string">&quot;en-US&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">teacher_in_charge_name</span>: <span class="string">&quot;admin&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;admin@example.com&quot;</span>.<span class="ident">to_string</span>(),
     };
-    <span class="kw">let</span> (<span class="ident">course</span>, <span class="ident">_front_page</span>, <span class="ident">_default_instance</span>) <span class="op">=</span>
-        <span class="ident">courses::insert_course</span>(<span class="ident">conn</span>, <span class="ident">course_id</span>, <span class="ident">new_course</span>, <span class="ident">admin</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">course_instance</span> <span class="op">=</span>
-        <span class="ident">course_instances::insert</span>(<span class="ident">conn</span>, <span class="ident">course</span>.<span class="ident">id</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;non-default instance&quot;</span>), <span class="prelude-val">None</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> (<span class="ident">course</span>, <span class="ident">_front_page</span>, <span class="ident">_default_instance</span>) <span class="op">=</span> <span class="ident">courses::insert_course</span>(
+        <span class="ident">conn</span>,
+        <span class="ident">course_id</span>,
+        <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;7344f1c8-b7ce-4c7d-ade2-5f39997bd454&quot;</span>),
+        <span class="ident">new_course</span>,
+        <span class="ident">admin</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">course_instance</span> <span class="op">=</span> <span class="ident">course_instances::insert</span>(
+        <span class="ident">conn</span>,
+        <span class="ident">NewCourseInstance</span> {
+            <span class="ident">id</span>: <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;67f077b4-0562-47ae-a2b9-db2f08f168a9&quot;</span>),
+            <span class="ident">course_id</span>: <span class="ident">course</span>.<span class="ident">id</span>,
+            <span class="ident">name</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;non-default instance&quot;</span>),
+            <span class="ident">description</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;this is a non-default instance&quot;</span>),
+            <span class="ident">variant_status</span>: <span class="prelude-val">None</span>,
+            <span class="ident">support_email</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;contact@example.com&quot;</span>),
+            <span class="ident">teacher_in_charge_name</span>: <span class="string">&quot;admin&quot;</span>,
+            <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;admin@example.com&quot;</span>,
+            <span class="ident">opening_time</span>: <span class="prelude-val">None</span>,
+            <span class="ident">closing_time</span>: <span class="prelude-val">None</span>,
+        },
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// chapters and pages</span>
 
@@ -3033,10 +3152,13 @@
         <span class="ident">organization_id</span>: <span class="ident">org</span>,
         <span class="ident">slug</span>: <span class="string">&quot;introduction-to-course-material&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">language_code</span>: <span class="string">&quot;en-US&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">teacher_in_charge_name</span>: <span class="string">&quot;admin&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;admin@example.com&quot;</span>.<span class="ident">to_string</span>(),
     };
     <span class="kw">let</span> (<span class="ident">course</span>, <span class="ident">front_page</span>, <span class="ident">_default_instance</span>) <span class="op">=</span> <span class="ident">courses::insert_course</span>(
         <span class="ident">conn</span>,
         <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;d6b52ddc-6c34-4a59-9a59-7e8594441007&quot;</span>)<span class="question-mark">?</span>,
+        <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;8e6c35cd-43f2-4982-943b-11e3ffb1b2f8&quot;</span>)<span class="question-mark">?</span>,
         <span class="ident">new_course</span>,
         <span class="ident">admin</span>,
     )

@@ -723,6 +723,38 @@
 <span id="723">723</span>
 <span id="724">724</span>
 <span id="725">725</span>
+<span id="726">726</span>
+<span id="727">727</span>
+<span id="728">728</span>
+<span id="729">729</span>
+<span id="730">730</span>
+<span id="731">731</span>
+<span id="732">732</span>
+<span id="733">733</span>
+<span id="734">734</span>
+<span id="735">735</span>
+<span id="736">736</span>
+<span id="737">737</span>
+<span id="738">738</span>
+<span id="739">739</span>
+<span id="740">740</span>
+<span id="741">741</span>
+<span id="742">742</span>
+<span id="743">743</span>
+<span id="744">744</span>
+<span id="745">745</span>
+<span id="746">746</span>
+<span id="747">747</span>
+<span id="748">748</span>
+<span id="749">749</span>
+<span id="750">750</span>
+<span id="751">751</span>
+<span id="752">752</span>
+<span id="753">753</span>
+<span id="754">754</span>
+<span id="755">755</span>
+<span id="756">756</span>
+<span id="757">757</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/courses`.</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -731,7 +763,7 @@
     },
     <span class="ident">domain::authorization</span>::{<span class="ident">authorize</span>, <span class="ident">Action</span>, <span class="ident">AuthUser</span>, <span class="ident">Resource</span>},
     <span class="ident">models</span>::{
-        <span class="ident">course_instances::CourseInstance</span>,
+        <span class="ident">course_instances</span>::{<span class="ident">CourseInstance</span>, <span class="ident">CourseInstanceForm</span>, <span class="ident">NewCourseInstance</span>},
         <span class="ident">courses</span>::{<span class="ident">Course</span>, <span class="ident">CourseStructure</span>, <span class="ident">CourseUpdate</span>, <span class="ident">NewCourse</span>},
         <span class="ident">exercises::Exercise</span>,
         <span class="ident">feedback</span>::{<span class="self">self</span>, <span class="ident">Feedback</span>, <span class="ident">FeedbackCount</span>},
@@ -838,9 +870,14 @@ Response:
         <span class="ident">Resource::Organization</span>(<span class="ident">new_course</span>.<span class="ident">organization_id</span>),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> (<span class="ident">course</span>, ..) <span class="op">=</span>
-        <span class="kw">crate</span><span class="ident">::models::courses::insert_course</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">Uuid::new_v4</span>(), <span class="ident">new_course</span>, <span class="ident">user</span>.<span class="ident">id</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> (<span class="ident">course</span>, ..) <span class="op">=</span> <span class="kw">crate</span><span class="ident">::models::courses::insert_course</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+        <span class="ident">Uuid::new_v4</span>(),
+        <span class="ident">Uuid::new_v4</span>(),
+        <span class="ident">new_course</span>,
+        <span class="ident">user</span>.<span class="ident">id</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">course</span>))
 }
 
@@ -1398,6 +1435,29 @@ GET `/api/v0/main-frontend/courses/:id/feedback-count` - Returns the amount of f
     <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">feedback_count</span>))
 }
 
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">new_course_instance</span>(
+    <span class="ident">form</span>: <span class="ident">Json</span><span class="op">&lt;</span><span class="ident">CourseInstanceForm</span><span class="op">&gt;</span>,
+    <span class="ident">course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">form</span> <span class="op">=</span> <span class="ident">form</span>.<span class="ident">into_inner</span>();
+    <span class="kw">let</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">NewCourseInstance</span> {
+        <span class="ident">id</span>: <span class="ident">Uuid::new_v4</span>(),
+        <span class="ident">course_id</span>: <span class="ident">course_id</span>.<span class="ident">into_inner</span>(),
+        <span class="ident">name</span>: <span class="ident">form</span>.<span class="ident">name</span>.<span class="ident">as_deref</span>(),
+        <span class="ident">description</span>: <span class="ident">form</span>.<span class="ident">description</span>.<span class="ident">as_deref</span>(),
+        <span class="ident">variant_status</span>: <span class="prelude-val">None</span>,
+        <span class="ident">support_email</span>: <span class="ident">form</span>.<span class="ident">support_email</span>.<span class="ident">as_deref</span>(),
+        <span class="ident">teacher_in_charge_name</span>: <span class="kw-2">&amp;</span><span class="ident">form</span>.<span class="ident">teacher_in_charge_name</span>,
+        <span class="ident">teacher_in_charge_email</span>: <span class="kw-2">&amp;</span><span class="ident">form</span>.<span class="ident">teacher_in_charge_email</span>,
+        <span class="ident">opening_time</span>: <span class="ident">form</span>.<span class="ident">opening_time</span>,
+        <span class="ident">closing_time</span>: <span class="ident">form</span>.<span class="ident">closing_time</span>,
+    };
+    <span class="kw">let</span> <span class="ident">ci</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::models::course_instances::insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">new</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">ci</span>.<span class="ident">id</span>))
+}
+
 <span class="doccomment">/**
 Add a route for each controller in this module.
 
@@ -1447,6 +1507,10 @@ We add the routes by calling the route method instead of using the route annotat
         .<span class="ident">route</span>(
             <span class="string">&quot;/{course_id}/feedback-count&quot;</span>,
             <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_feedback_count</span>),
+        )
+        .<span class="ident">route</span>(
+            <span class="string">&quot;/{course_id}/new-course-instance&quot;</span>,
+            <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">new_course_instance</span>),
         );
 }
 </pre></div>

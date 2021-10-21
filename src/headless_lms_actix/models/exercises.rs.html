@@ -464,6 +464,21 @@
 <span id="464">464</span>
 <span id="465">465</span>
 <span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="kw">super</span>::{
     <span class="ident">course_instances</span>,
@@ -804,8 +819,9 @@ WHERE page_id = $1
         <span class="ident">models</span>::{
             <span class="ident">chapters</span>,
             <span class="ident">course_instance_enrollments</span>::{<span class="self">self</span>, <span class="ident">NewCourseInstanceEnrollment</span>},
-            <span class="ident">course_instances</span>, <span class="ident">course_language_groups</span>, <span class="ident">courses</span>, <span class="ident">exercise_slides</span>, <span class="ident">exercise_tasks</span>,
-            <span class="ident">organizations</span>, <span class="ident">pages</span>, <span class="ident">users</span>,
+            <span class="ident">course_instances</span>::{<span class="self">self</span>, <span class="ident">NewCourseInstance</span>},
+            <span class="ident">course_language_groups</span>, <span class="ident">courses</span>, <span class="ident">exercise_slides</span>, <span class="ident">exercise_tasks</span>, <span class="ident">organizations</span>, <span class="ident">pages</span>,
+            <span class="ident">users</span>,
         },
         <span class="ident">test_helper::Conn</span>,
         <span class="ident">utils::document_schema_processor::GutenbergBlock</span>,
@@ -848,9 +864,23 @@ WHERE page_id = $1
         )
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">course_instance</span> <span class="op">=</span> <span class="ident">course_instances::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course_id</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">course_instance</span> <span class="op">=</span> <span class="ident">course_instances::insert</span>(
+            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="ident">NewCourseInstance</span> {
+                <span class="ident">id</span>: <span class="ident">Uuid::new_v4</span>(),
+                <span class="ident">course_id</span>,
+                <span class="ident">name</span>: <span class="prelude-val">None</span>,
+                <span class="ident">description</span>: <span class="prelude-val">None</span>,
+                <span class="ident">variant_status</span>: <span class="prelude-val">None</span>,
+                <span class="ident">teacher_in_charge_name</span>: <span class="string">&quot;teacher&quot;</span>,
+                <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;teacher@example.com&quot;</span>,
+                <span class="ident">support_email</span>: <span class="prelude-val">None</span>,
+                <span class="ident">opening_time</span>: <span class="prelude-val">None</span>,
+                <span class="ident">closing_time</span>: <span class="prelude-val">None</span>,
+            },
+        )
+        .<span class="kw">await</span>
+        .<span class="ident">unwrap</span>();
         <span class="ident">course_instance_enrollments::insert_enrollment_and_set_as_current</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
             <span class="ident">NewCourseInstanceEnrollment</span> {

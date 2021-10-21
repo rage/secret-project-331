@@ -128,8 +128,12 @@ async function snapshotWithViewPort({
 
   const screenshotName = `${snapshotName}-${viewPortName}.png`
   if (headless) {
-    const screenshot = await thingBeingScreenshotted.screenshot()
-    expect(screenshot).toMatchSnapshot(screenshotName, toMatchSnapshotOptions)
+    await takeScreenshotAndComparetoSnapshot(
+      thingBeingScreenshotted,
+      screenshotName,
+      toMatchSnapshotOptions,
+      pageObjectToUse,
+    )
   } else {
     console.warn("Not in headless mode, skipping screenshot")
   }

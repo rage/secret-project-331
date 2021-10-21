@@ -13,7 +13,7 @@ export const ISOStringToDateTime = (body: unknown): unknown => {
   for (const key of Object.keys(body)) {
     // @ts-ignore: key is from Object.keys()
     const value = body[key]
-    if (!new RegExp(/\d{4}-\d{2}-\d{2}/).test(value)) {
+    if (typeof value !== "object" && !new RegExp(/^^\d{4}-\d{2}-\d{2}[T].*[Z]$/).test(value)) {
       continue
     }
     const parsed = parseISO(value)

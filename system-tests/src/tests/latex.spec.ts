@@ -22,6 +22,10 @@ test("latex-block renders", async ({ headless, page }) => {
   await page.click('input[type="text"]')
   // Fill input[type="text"]
   await page.fill('input[type="text"]', "Latex course")
+
+  await page.fill('input[id="teacher-in-charge-name"]', "teacher")
+  await page.fill('input[id="teacher-in-charge-email"]', "teacher@example.com")
+
   // Click text=Create course
   await page.click("text=Create course")
   // Click :nth-match(:text("Manage"), 2)

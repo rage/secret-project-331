@@ -2,6 +2,7 @@ use anyhow::Result;
 use chrono::{TimeZone, Utc};
 use headless_lms_actix::attributes;
 use headless_lms_actix::models::chapters::NewChapter;
+use headless_lms_actix::models::course_instances::NewCourseInstance;
 use headless_lms_actix::models::courses::NewCourse;
 use headless_lms_actix::models::exercises::GradingProgress;
 use headless_lms_actix::models::feedback::{FeedbackBlock, NewFeedback};
@@ -177,6 +178,17 @@ async fn main() -> Result<()> {
         student,
     )
     .await?;
+    seed_sample_course(
+        &mut conn,
+        uh_cs,
+        Uuid::parse_str("1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4")?,
+        "Advanced course instance management",
+        "advanced-course-instance-management",
+        admin,
+        teacher,
+        student,
+    )
+    .await?;
     roles::insert(
         &mut conn,
         language_teacher,
@@ -192,19 +204,31 @@ async fn main() -> Result<()> {
         slug: "introduction-to-computer-science".to_string(),
         organization_id: uh_cs,
         language_code: "en-US".to_string(),
+        teacher_in_charge_name: "admin".to_string(),
+        teacher_in_charge_email: "admin@example.com".to_string(),
     };
     let (cs_course, _cs_front_page, _cs_default_course_instance) = courses::insert_course(
         &mut conn,
         Uuid::parse_str("06a7ccbd-8958-4834-918f-ad7b24e583fd")?,
+        Uuid::parse_str("48399008-6523-43c5-8fd6-59ecc731a426")?,
         new_course,
         admin,
     )
     .await?;
     let _cs_course_instance = course_instances::insert(
         &mut conn,
-        cs_course.id,
-        Some("non-default instance"),
-        Some(VariantStatus::Upcoming),
+        NewCourseInstance {
+            id: Uuid::parse_str("49c618d3-926d-4287-9159-b3af1f86082d")?,
+            course_id: cs_course.id,
+            name: Some("non-default instance"),
+            description: Some("this is another non-default instance"),
+            variant_status: Some(VariantStatus::Upcoming),
+            support_email: Some("contact@example.com"),
+            teacher_in_charge_name: "admin",
+            teacher_in_charge_email: "admin@example.com",
+            opening_time: None,
+            closing_time: None,
+        },
     )
     .await?;
 
@@ -222,20 +246,32 @@ async fn main() -> Result<()> {
         slug: "introduction-to-statistics".to_string(),
         organization_id: uh_mathstat,
         language_code: "en-US".to_string(),
+        teacher_in_charge_name: "admin".to_string(),
+        teacher_in_charge_email: "admin@example.com".to_string(),
     };
     let (statistics_course, _statistics_front_page, _statistics_default_course_instance) =
         courses::insert_course(
             &mut conn,
             Uuid::parse_str("f307d05f-be34-4148-bb0c-21d6f7a35cdb")?,
+            Uuid::parse_str("8e4aeba5-1958-49bc-9b40-c9f0f0680911")?,
             new_course,
             admin,
         )
         .await?;
     let _statistics_course_instance = course_instances::insert(
         &mut conn,
-        statistics_course.id,
-        Some("non-default instance"),
-        Some(VariantStatus::Active),
+        NewCourseInstance {
+            id: Uuid::parse_str("c4a99a18-fd43-491a-9500-4673cb900be0")?,
+            course_id: statistics_course.id,
+            name: Some("non-default instance"),
+            description: Some("this appears to be a non-default instance"),
+            variant_status: Some(VariantStatus::Active),
+            support_email: Some("contact@example.com"),
+            teacher_in_charge_name: "admin",
+            teacher_in_charge_email: "admin@example.com",
+            opening_time: None,
+            closing_time: None,
+        },
     )
     .await?;
 
@@ -874,11 +910,33 @@ async fn seed_sample_course(
         organization_id: org,
         slug: course_slug.to_string(),
         language_code: "en-US".to_string(),
+        teacher_in_charge_name: "admin".to_string(),
+        teacher_in_charge_email: "admin@example.com".to_string(),
     };
-    let (course, _front_page, _default_instance) =
-        courses::insert_course(conn, course_id, new_course, admin).await?;
-    let course_instance =
-        course_instances::insert(conn, course.id, Some("non-default instance"), None).await?;
+    let (course, _front_page, _default_instance) = courses::insert_course(
+        conn,
+        course_id,
+        Uuid::new_v5(&course_id, b"7344f1c8-b7ce-4c7d-ade2-5f39997bd454"),
+        new_course,
+        admin,
+    )
+    .await?;
+    let course_instance = course_instances::insert(
+        conn,
+        NewCourseInstance {
+            id: Uuid::new_v5(&course_id, b"67f077b4-0562-47ae-a2b9-db2f08f168a9"),
+            course_id: course.id,
+            name: Some("non-default instance"),
+            description: Some("this is a non-default instance"),
+            variant_status: None,
+            support_email: Some("contact@example.com"),
+            teacher_in_charge_name: "admin",
+            teacher_in_charge_email: "admin@example.com",
+            opening_time: None,
+            closing_time: None,
+        },
+    )
+    .await?;
 
     // chapters and pages
 
@@ -1359,10 +1417,13 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         organization_id: org,
         slug: "introduction-to-course-material".to_string(),
         language_code: "en-US".to_string(),
+        teacher_in_charge_name: "admin".to_string(),
+        teacher_in_charge_email: "admin@example.com".to_string(),
     };
     let (course, front_page, _default_instance) = courses::insert_course(
         conn,
         Uuid::parse_str("d6b52ddc-6c34-4a59-9a59-7e8594441007")?,
+        Uuid::parse_str("8e6c35cd-43f2-4982-943b-11e3ffb1b2f8")?,
         new_course,
         admin,
     )

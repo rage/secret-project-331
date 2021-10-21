@@ -61,6 +61,7 @@
     "monaco-editor": "^0.28.1",
     "react-query": "^3.24.4",
     "react-spring": "^9.2.4",
+    "react-tsparticles": "^1.34.1",
     "styled-system": "^5.1.5",
     "use-debounce": "^7.0.0"
   }

@@ -160,6 +160,17 @@ test("test", async ({ page, headless }) => {
     page.click("text=New title!(/chapter-1/page-1) history >> :nth-match(a, 2)"),
   ])
 
+  await page.waitForSelector("text=core/paragraph")
+
+  // Go back and navigate to the page again to workaround a race condition related to monaco editor fonts. This way the font used by monaco editor is already cached
+  await page.goBack()
+  await page.waitForSelector("text=Course overview for Introduction to history")
+
+  await Promise.all([
+    page.waitForNavigation(),
+    page.click("text=New title!(/chapter-1/page-1) history >> :nth-match(a, 2)"),
+  ])
+
   const stableElement = await page.waitForSelector("text=core/paragraph")
 
   await expectScreenshotsToMatchSnapshots({

@@ -19,15 +19,6 @@ async function main() {
     "system-tests/src/shared-module",
   ]
 
-  const typesTargetFolders = [
-    "services/cms/types",
-    "services/course-material/types",
-    "services/example-exercise/types",
-    "services/headless-lms/types",
-    "services/main-frontend/types",
-    "system-tests/types",
-  ]
-
   const promises = targetFolders.map(async (targetFolder) => {
     // Cleanup to make sure deleted files get deleted. Will not fail if the
     // folder does not exist
@@ -36,15 +27,8 @@ async function main() {
     console.log(`> ${command}`)
     await exec(command)
   })
-  const promiseTypes = typesTargetFolders.map(async (typeTargetFolder) => {
-    await exec(`rm -rf '${projectRoot}/${typeTargetFolder}'`)
-    const command = `cp -r '${projectRoot}/shared-module/types' '${projectRoot}/${typeTargetFolder}'`
-    console.log(`> ${command}`)
-    await exec(command)
-  })
 
   await Promise.all(promises)
-  await Promise.all(promiseTypes)
 }
 
 main()

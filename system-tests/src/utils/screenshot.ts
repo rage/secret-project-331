@@ -134,8 +134,12 @@ async function snapshotWithViewPort({
 
   const screenshotName = `${snapshotName}-${viewPortName}.png`
   if (headless) {
-    const screenshot = await thingBeingScreenshotted.screenshot()
-    expect(screenshot).toMatchSnapshot(screenshotName, toMatchSnapshotOptions)
+    await takeScreenshotAndComparetoSnapshot(
+      thingBeingScreenshotted,
+      screenshotName,
+      toMatchSnapshotOptions,
+      pageObjectToUse,
+    )
   } else {
     console.warn("Not in headless mode, skipping screenshot")
   }
@@ -156,6 +160,26 @@ async function snapshotWithViewPort({
 interface WaitToBeVisibleProps {
   waitForThisToBeVisibleAndStable: string | ElementHandle | (string | ElementHandle)[]
   container: Page | Frame
+}
+
+export async function takeScreenshotAndComparetoSnapshot(
+  thingBeingScreenshotted: ElementHandle<Node> | Page,
+  screenshotName: string,
+  toMatchSnapshotOptions: ToMatchSnapshotOptions,
+  page: Page,
+): Promise<void> {
+  try {
+    const screenshot = await thingBeingScreenshotted.screenshot()
+    expect(screenshot).toMatchSnapshot(screenshotName, toMatchSnapshotOptions)
+  } catch (e: unknown) {
+    // sometimes snapshots have wild race conditions, lets try again in a moment
+    console.warn(
+      "Screenshot did not match snapshots retrying... Note that if this passes, the test is unstable",
+    )
+    await page.waitForTimeout(100)
+    const screenshot = await thingBeingScreenshotted.screenshot()
+    expect(screenshot).toMatchSnapshot(screenshotName, toMatchSnapshotOptions)
+  }
 }
 
 export async function waitToBeVisible({

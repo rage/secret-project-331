@@ -4,7 +4,8 @@ use crate::{
     controllers::ControllerResult,
     domain::{authorization::AuthUser, csv_export},
     models::{
-        course_instances, courses,
+        course_instances::{self, CourseInstance, CourseInstanceForm},
+        courses,
         email_templates::{EmailTemplate, EmailTemplateNew},
     },
 };
@@ -19,6 +20,23 @@ use std::io::{self, Write};
 use tokio::sync::mpsc::UnboundedSender;
 use tokio_stream::wrappers::UnboundedReceiverStream;
 use uuid::Uuid;
+
+/**
+GET /course-instances/:id
+*/
+#[instrument(skip(pool))]
+async fn get_course_instance(
+    request_course_instance_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<Json<CourseInstance>> {
+    let mut conn = pool.acquire().await?;
+    let course_instance = crate::models::course_instances::get_course_instance(
+        &mut conn,
+        request_course_instance_id.into_inner(),
+    )
+    .await?;
+    Ok(Json(course_instance))
+}
 
 #[instrument(skip(payload, pool))]
 async fn post_new_email_template(
@@ -113,6 +131,35 @@ pub async fn point_export(
 }
 
 /**
+POST /course-instances/:id/edit
+*/
+#[instrument(skip(pool))]
+pub async fn edit(
+    update: web::Json<CourseInstanceForm>,
+    course_instance_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<HttpResponse> {
+    let mut conn = pool.acquire().await?;
+    course_instances::edit(
+        &mut conn,
+        course_instance_id.into_inner(),
+        update.into_inner(),
+    )
+    .await?;
+    Ok(HttpResponse::Ok().finish())
+}
+
+/**
+POST /course-instances/:id/delete
+*/
+#[instrument(skip(pool))]
+async fn delete(id: web::Path<Uuid>, pool: web::Data<PgPool>) -> ControllerResult<HttpResponse> {
+    let mut conn = pool.acquire().await?;
+    crate::models::course_instances::delete(&mut conn, *id).await?;
+    Ok(HttpResponse::Ok().finish())
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -120,16 +167,19 @@ The name starts with an underline in order to appear before other functions in t
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
 pub fn _add_course_instances_routes(cfg: &mut ServiceConfig) {
-    cfg.route(
-        "/{course_instance_id}/email-templates",
-        web::post().to(post_new_email_template),
-    )
-    .route(
-        "/{course_instance_id}/email-templates",
-        web::get().to(get_email_templates_by_course_instance_id),
-    )
-    .route(
-        "/{course_instance_id}/point_export",
-        web::get().to(point_export),
-    );
+    cfg.route("/{course_instance_id}", web::get().to(get_course_instance))
+        .route(
+            "/{course_instance_id}/email-templates",
+            web::post().to(post_new_email_template),
+        )
+        .route(
+            "/{course_instance_id}/email-templates",
+            web::get().to(get_email_templates_by_course_instance_id),
+        )
+        .route(
+            "/{course_instance_id}/point_export",
+            web::get().to(point_export),
+        )
+        .route("/{course_instance_id}/edit", web::post().to(edit))
+        .route("/{course_instance_id}/delete", web::post().to(delete));
 }

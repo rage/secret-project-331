@@ -7,7 +7,7 @@ import { baseTheme, fontWeights, headingFont, theme, typography } from "../style
 export interface ButtonExtraProps {
   variant: "primary" | "secondary" | "tertiary"
   size: "medium" | "large"
-  transform: "normal" | "uppercase"
+  transform?: "normal" | "uppercase"
   children: React.ReactNode
 }
 

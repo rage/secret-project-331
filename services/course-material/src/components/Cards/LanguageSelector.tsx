@@ -1,4 +1,5 @@
 import styled from "@emotion/styled"
+import Image from "next/image"
 import React, { useState } from "react"
 
 import Close from "../../img/close.svg"
@@ -126,7 +127,7 @@ const Country = styled.div`
 `
 
 export interface LanguageSelectorExtraProps {
-  click: any
+  click: unknown
 }
 
 export type LanguageSelectorProps = React.HTMLAttributes<HTMLDivElement> &
@@ -157,7 +158,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = (props) => {
             >
               <div>
                 {checked === index && <StCheck />}
-                <img
+                <Image
                   src={o.image}
                   data-attribute={o.image}
                   id={`country-flag-${index}`}

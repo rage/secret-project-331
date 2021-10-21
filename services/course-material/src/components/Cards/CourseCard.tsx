@@ -1,4 +1,5 @@
 import styled from "@emotion/styled"
+import Image from "next/image"
 import React, { useState } from "react"
 
 import Finland from "../../img/flags/Finland.png"
@@ -97,7 +98,7 @@ const CourseCard: React.FC<CardProps> = ({ title, description }) => {
         <Languages onClick={handleClick}>
           <span>Choose language </span>
           <div>
-            <img src={Finland} alt="flag" />
+            <Image src={Finland} alt="Flag of Finland" />
             <p>English-US</p>
           </div>
         </Languages>

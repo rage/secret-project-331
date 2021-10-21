@@ -1,14 +1,14 @@
 import React from "react"
 
-import CourseCard from "./CourseCard"
+// import CourseCard from "./CourseCard"
 import IllustrationCard from "./IllustrationCard"
 import SimpleCard from "./SimpleCard"
 
-type CourseCardProps = {
-  title: string
-  description: string
-  languages: string
-}
+// type CourseCardProps = {
+//   title: string
+//   description: string
+//   languages: string
+// }
 
 export interface CardExtraProps {
   variant: "simple" | "Illustration" | "course"
@@ -31,7 +31,7 @@ const Card: React.FC<CardProps> = (props) => {
       {props.variant === "simple" ? (
         <SimpleCard {...props}></SimpleCard>
       ) : props.variant === "course" ? (
-        <CourseCard {...props}></CourseCard>
+        <SimpleCard {...props}></SimpleCard>
       ) : (
         <IllustrationCard {...props} />
       )}

@@ -69,6 +69,29 @@ export interface PublicQuiz {
   body: string
 }
 
+export interface ModelSolutionQuiz {
+  id: string
+  courseId: string
+  part: number
+  section: number
+  points: number
+  deadline: Date | null
+  open: Date | null
+  excludedFromScore: boolean
+  createdAt: Date
+  updatedAt: Date
+  autoConfirm: boolean
+  tries: number
+  triesLimited: boolean
+  awardPointsEvenIfWrong: boolean
+  grantPointsPolicy: "grant_whenever_possible" | "grant_only_when_answer_fully_correct"
+  autoReject: boolean
+  items: ModelSolutionQuizItem[]
+  title: string
+  body: string
+  submitMessage: string | null
+}
+
 export interface QuizItem {
   id: string
   quizId: string
@@ -171,6 +194,33 @@ export interface PublicQuizItem {
   title: string
   body: string
   direction: "row" | "column"
+}
+
+export interface ModelSolutionQuizItem {
+  id: string
+  quizId: string
+  type: string
+  order: number
+  formatRegex: string | null
+  multi: boolean
+  createdAt: Date
+  updatedAt: Date
+  minWords: number | null
+  maxWords: number | null
+  maxValue: number | null
+  minValue: number | null
+  maxLabel: string | null
+  minLabel: string | null
+  usesSharedOptionFeedbackMessage: boolean
+  options: QuizItemOption[]
+  title: string
+  body: string
+  successMessage: string | null
+  failureMessage: string | null
+  sharedOptionFeedbackMessage: string | null
+  allAnswersCorrect: boolean
+  direction: "row" | "column"
+  feedbackDisplayPolicy: "DisplayFeedbackOnQuizItem" | "DisplayFeedbackOnAllOptions"
 }
 
 export interface QuizItemOption {

@@ -25,10 +25,16 @@ export const fetchOrganizationCourses = async (organizationId: string): Promise<
 
 export const fetchOrganizationActiveCourses = async (
   organizationId: string,
+  page: number,
+  limit: number,
 ): Promise<Array<Course>> => {
   const data = (
     await mainFrontendClient.get(`/organizations/${organizationId}/courses/active`, {
       responseType: "json",
+      params: {
+        page,
+        limit,
+      },
     })
   ).data
   return data

@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
-import { Dialog } from "@material-ui/core"
+import { Dialog, Pagination } from "@material-ui/core"
 import Link from "next/link"
+import router from "next/router"
 import React, { useContext, useState } from "react"
 import { useQuery } from "react-query"
 
@@ -27,6 +28,8 @@ interface OrganizationPageProps {
   query: SimplifiedUrlQuery<"id">
 }
 
+const PAGE_LIMIT = 10
+
 const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
   const {
     isLoading: isLoadingOrgCourses,
@@ -35,12 +38,16 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
     refetch: refetchOrgCourses,
   } = useQuery(`organization-courses`, () => fetchOrganizationCourses(query.id))
 
+  const [page, setPage] = useState(1)
+
   const {
     isLoading: isLoadingOrgActiveCourses,
     error: errorOrgActiveCourses,
     data: dataOrgActiveCourses,
     refetch: refetchOrgActiveCourses,
-  } = useQuery(`organization-active-courses`, () => fetchOrganizationActiveCourses(query.id))
+  } = useQuery(`organization-active-courses`, () =>
+    fetchOrganizationActiveCourses(query.id, page, PAGE_LIMIT),
+  )
 
   const {
     isLoading: isLoadingOrg,
@@ -90,6 +97,9 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
           organization={dataOrg}
           onOrganizationUpdated={() => refetchOrg()}
         />
+
+        {/* Temporal */}
+        <h2>All Courses ({dataOrgCourses.length} courses)</h2>
         <div
           className={css`
             margin-bottom: 1rem;
@@ -97,7 +107,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
         >
           {dataOrgCourses.map((course) => (
             <div key={course.id}>
-              <a href={`/courses/${course.slug}`}>{course.name}</a>{" "}
+              <a href={`/courses/${course.slug}`}>{course.name}</a>
               {loginStateContext.signedIn && (
                 <>
                   <Link
@@ -138,13 +148,13 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
             </div>
           </Dialog>
         </div>
-        <h1>Active courses</h1>
+        <h2>Running courses ({dataOrgActiveCourses.length} courses)</h2>
         {dataOrgActiveCourses.length === 0 ? (
           <p> No active courses </p>
         ) : (
           dataOrgActiveCourses.map((course) => (
             <div key={course.id}>
-              <a href={`/courses/${course.slug}`}>{course.name}</a>{" "}
+              <a href={`/courses/${course.slug}`}>{course.name}</a>
               {loginStateContext.signedIn && (
                 <>
                   <Link
@@ -156,12 +166,32 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
                     }}
                   >
                     Manage
-                  </Link>{" "}
+                  </Link>
                 </>
               )}
             </div>
           ))
         )}
+
+        <Pagination
+          count={1}
+          page={page}
+          onChange={(_, pageNumber) => {
+            router.replace(
+              {
+                query: {
+                  ...router.query,
+                  page: pageNumber,
+                },
+              },
+              undefined,
+              { shallow: true },
+            )
+            setPage(pageNumber)
+          }}
+        />
+
+        <br />
         {loginStateContext.signedIn && (
           <>
             <Button

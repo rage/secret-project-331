@@ -31,6 +31,10 @@ const ColumnBlock: React.FC<BlockRendererProps<ColumnAttributes>> = ({ data }) =
           ${width && `max-width: ${width};`}
           flex-basis: 0;
         }
+        /* Ensure padding 0 in child elements */
+        > * {
+          padding: 0rem;
+        }
       `}
       {...(anchor && { id: anchor })}
     >

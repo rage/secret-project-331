@@ -29,6 +29,7 @@ const VerseBlock: React.FC<BlockRendererProps<VerseAttributes>> = ({ data }) => 
         ${textColor && `color: ${colorMapper(textColor)};`}
         ${textAlign && `text-align: ${textAlign};`}
         ${fontSize && `font-size: ${fontSizeMapper(fontSize)};`}
+        white-space: pre-wrap;
       `}
       {...(anchor && { id: anchor })}
     >

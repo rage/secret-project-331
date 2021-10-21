@@ -9,13 +9,13 @@ import { PullquoteAttributes } from "../../../../types/GutenbergBlockAttributes"
 const PullquoteBlock: React.FC<BlockRendererProps<PullquoteAttributes>> = ({ data }) => {
   const {
     citation,
-    //align,
+    // align,
     anchor,
     backgroundColor,
     // borderColor, // Border color is same as textColor in CMS
-    //className,
+    // className,
     gradient,
-    //style,
+    // style,
     textAlign,
     textColor,
     value,
@@ -36,7 +36,8 @@ const PullquoteBlock: React.FC<BlockRendererProps<PullquoteAttributes>> = ({ dat
         ${textAlignNotCenterWidth}
         border-top: 0.25rem solid ${textAndBorderColor};
         border-bottom: 0.25rem solid ${textAndBorderColor};
-        padding: 3rem 0;
+        padding-top: 3rem;
+        padding-bottom: 3rem;
       `}
       {...(anchor && { id: anchor })}
     >

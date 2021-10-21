@@ -40,6 +40,9 @@ test("test", async ({ page, headless }) => {
   // Click :nth-match(input[name="mui-913296558"], 2)
   await page.click(':nth-match(input[type="radio"], 2)')
 
+  await page.fill('input[id="teacher-in-charge-name"]', "teacher")
+  await page.fill('input[id="teacher-in-charge-email"]', "teacher@example.com")
+
   // Click text=Create course
   await page.click("text=Create course")
 

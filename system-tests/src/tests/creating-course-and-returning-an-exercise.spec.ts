@@ -26,6 +26,9 @@ test("test", async ({ page }) => {
   // Fill input[type="text"]
   await page.fill('input[type="text"]', "Introduction to System Level Testing")
 
+  await page.fill('input[id="teacher-in-charge-name"]', "teacher")
+  await page.fill('input[id="teacher-in-charge-email"]', "teacher@example.com")
+
   // Click text=Create course
   await page.click("text=Create course")
 

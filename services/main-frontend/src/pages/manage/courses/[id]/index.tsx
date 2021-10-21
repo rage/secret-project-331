@@ -156,7 +156,7 @@ const ManageCoursePage: React.FC<ManageCoursePageProps> = ({ query }) => {
         <Button size="medium" variant="primary" onClick={() => setShowNewLanguageVersionForm(true)}>
           New language version
         </Button>
-        <h3>All course instances</h3>
+        <h3>Course instances</h3>
         <CourseInstancesList courseId={query.id} />
         <h3>All exercises</h3>
         <ExerciseList courseId={query.id} />

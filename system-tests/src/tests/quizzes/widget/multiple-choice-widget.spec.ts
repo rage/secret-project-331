@@ -13,9 +13,8 @@ test("widget, multiple-choice screenshot test", async ({ page, headless }) => {
 
   // Click text=University of Helsinki, Department of Computer Science
 
-  await page.click('div[role="button"]:has-text("​")')
   // Click text=Quizzes example, multiple-choice
-  await page.click("text=Quizzes example, multiple-choice")
+  await page.selectOption("select", { label: "Quizzes example, multiple-choice" })
 
   const frame = await waitForFunction(page, () =>
     page.frames().find((f) => {

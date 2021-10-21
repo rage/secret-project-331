@@ -28,6 +28,9 @@ test.describe("quizzes tests", () => {
     // Fill input[type="text"]
     await page.fill('input[type="text"]', "quizzes test")
 
+    await page.fill('input[id="teacher-in-charge-name"]', "teacher")
+    await page.fill('input[id="teacher-in-charge-email"]', "teacher@example.com")
+
     // Click text=Create course
     await page.click("text=Create course")
 
@@ -264,6 +267,9 @@ test.describe("quizzes tests", () => {
 
     // Fill input[type="text"]
     await page.fill('input[type="text"]', "quizzes test, multiple choice")
+
+    await page.fill('input[id="teacher-in-charge-name"]', "teacher")
+    await page.fill('input[id="teacher-in-charge-email"]', "teacher@example.com")
 
     // Click text=Create course
     await page.click("text=Create course")

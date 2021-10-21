@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { Dialog, Pagination } from "@material-ui/core"
+import { Dialog } from "@material-ui/core"
 import Link from "next/link"
 import router from "next/router"
 import React, { useContext, useState } from "react"
@@ -23,6 +23,8 @@ import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
+
+import Pagination from "./Pagination"
 
 interface OrganizationPageProps {
   query: SimplifiedUrlQuery<"id">
@@ -97,57 +99,6 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
           organization={dataOrg}
           onOrganizationUpdated={() => refetchOrg()}
         />
-
-        {/* Temporal */}
-        <h2>All Courses ({dataOrgCourses.length} courses)</h2>
-        <div
-          className={css`
-            margin-bottom: 1rem;
-          `}
-        >
-          {dataOrgCourses.map((course) => (
-            <div key={course.id}>
-              <a href={`/courses/${course.slug}`}>{course.name}</a>
-              {loginStateContext.signedIn && (
-                <>
-                  <Link
-                    href={{
-                      pathname: "/manage/courses/[id]",
-                      query: {
-                        id: course.id,
-                      },
-                    }}
-                  >
-                    Manage
-                  </Link>
-                </>
-              )}
-            </div>
-          ))}
-        </div>
-
-        <div
-          className={css`
-            margin-bottom: 1rem;
-          `}
-        >
-          <Dialog open={newCourseFormOpen} onClose={() => setNewCourseFormOpen(!newCourseFormOpen)}>
-            <div
-              className={css`
-                margin: 1rem;
-              `}
-            >
-              <Button
-                size="medium"
-                variant="secondary"
-                onClick={() => setNewCourseFormOpen(!newCourseFormOpen)}
-              >
-                Close
-              </Button>
-              <NewCourseForm organizationId={query.id} onSubmitForm={handleSubmitNewCourse} />
-            </div>
-          </Dialog>
-        </div>
         <h2>Running courses ({dataOrgActiveCourses.length} courses)</h2>
         {dataOrgActiveCourses.length === 0 ? (
           <p> No active courses </p>
@@ -174,7 +125,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
         )}
 
         <Pagination
-          count={1}
+          count={15}
           page={page}
           onChange={(_, pageNumber) => {
             router.replace(
@@ -190,6 +141,28 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
             setPage(pageNumber)
           }}
         />
+        <div
+          className={css`
+            margin-bottom: 1rem;
+          `}
+        >
+          <Dialog open={newCourseFormOpen} onClose={() => setNewCourseFormOpen(!newCourseFormOpen)}>
+            <div
+              className={css`
+                margin: 1rem;
+              `}
+            >
+              <Button
+                size="medium"
+                variant="secondary"
+                onClick={() => setNewCourseFormOpen(!newCourseFormOpen)}
+              >
+                Close
+              </Button>
+              <NewCourseForm organizationId={query.id} onSubmitForm={handleSubmitNewCourse} />
+            </div>
+          </Dialog>
+        </div>
 
         <br />
         {loginStateContext.signedIn && (

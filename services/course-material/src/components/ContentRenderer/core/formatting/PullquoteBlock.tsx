@@ -36,8 +36,7 @@ const PullquoteBlock: React.FC<BlockRendererProps<PullquoteAttributes>> = ({ dat
         ${textAlignNotCenterWidth}
         border-top: 0.25rem solid ${textAndBorderColor};
         border-bottom: 0.25rem solid ${textAndBorderColor};
-        padding-top: 3rem;
-        padding-bottom: 3rem;
+        padding: 3rem 0rem !important;
       `}
       {...(anchor && { id: anchor })}
     >

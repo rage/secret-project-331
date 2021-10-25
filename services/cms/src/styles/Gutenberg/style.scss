@@ -18,7 +18,7 @@
   @include break-small() {
     /* Give space for sidebar so that it won't accidentally overlap the main editor */
     /* Same as sidebar width */
-    margin-right: $sidebar-width;
+    margin-right: calc("auto" - $sidebar-width);
   }
 }
 
@@ -30,7 +30,7 @@
   @include break-small() {
     /* Give space for sidebar so that it won't accidentally overlap the main editor */
     /* Same as sidebar width */
-    margin-right: $sidebar-width;
+    margin-right: calc("auto" - $sidebar-width);
   }
 }
 

@@ -9,7 +9,7 @@ const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => 
     alt,
     // blurDataUrl,
     linkDestination, // is custom if image link defined manually, can send user out from our web page
-    // align,
+    align,
     anchor,
     caption,
     className,
@@ -35,39 +35,59 @@ const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => 
 
   return (
     // TODO: Should image be full width blockerino in course material and CMS
-    <figure
+    <div
       className={css`
         ${courseMaterialCenteredComponentStyles}
       `}
-      {...(anchor && { id: anchor })}
     >
-      <a
-        onClick={warnUserIfLinkCustom}
-        href={href}
-        target={linkTarget ?? "_blank"}
-        rel={rel ?? "noreferrer"}
-      >
-        <img
-          title={title}
-          height={height}
-          width={width}
-          className={css`
-            max-width: 100%;
-            ${className === "is-style-rounded" && "border-radius: 9999px"}
-          `}
-          src={url}
-          alt={alt}
-        />
-      </a>
-      <figcaption
+      <figure
         className={css`
-          text-align: center;
-          font-size: 0.8125rem;
+          ${align === "center" && `text-align: center; display: table;`}
+          ${align !== "center" &&
+          `float: ${align};
+          margin-top: 0.5rem;
+          margin-bottom: 0.5rem;
+          ${align === "right" ? "margin-left: 1rem;" : "margin-right: 1rem;"}
+          `}
         `}
+        {...(anchor && { id: anchor })}
       >
-        {caption}
-      </figcaption>
-    </figure>
+        <div
+          className={css`
+            ${align && "display: inline-block;"}
+          `}
+        >
+          <a
+            onClick={warnUserIfLinkCustom}
+            href={href}
+            target={linkTarget ?? "_blank"}
+            rel={rel ?? "noreferrer"}
+          >
+            <img
+              title={title}
+              height={height}
+              width={width}
+              className={css`
+                max-width: 100%;
+                ${className === "is-style-rounded" && "border-radius: 9999px"}
+              `}
+              src={url}
+              alt={alt}
+            />
+          </a>
+          <figcaption
+            className={css`
+              text-align: center;
+              font-size: 0.8125rem;
+              margin-top: 0.40625rem;
+              margin-bottom: 0.8125rem;
+            `}
+          >
+            {caption}
+          </figcaption>
+        </div>
+      </figure>
+    </div>
   )
 }
 

@@ -92,21 +92,25 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
         </div>
       </div>
       {data.chapter_id !== null ? (
-        <GutenbergEditor
-          content={content}
-          onContentChange={setContent}
-          customBlocks={blockTypeMapForPages}
-          allowedBlocks={supportedCoreBlocks}
-          allowedBlockVariations={allowedBlockVariants}
-        />
+        <div className={normalWidthCenteredComponentStyles}>
+          <GutenbergEditor
+            content={content}
+            onContentChange={setContent}
+            customBlocks={blockTypeMapForPages}
+            allowedBlocks={supportedCoreBlocks}
+            allowedBlockVariations={allowedBlockVariants}
+          />
+        </div>
       ) : (
-        <GutenbergEditor
-          content={content}
-          onContentChange={setContent}
-          customBlocks={blockTypeMapForTopLevelPages}
-          allowedBlocks={supportedCoreBlocks}
-          allowedBlockVariations={allowedBlockVariants}
-        />
+        <div className={normalWidthCenteredComponentStyles}>
+          <GutenbergEditor
+            content={content}
+            onContentChange={setContent}
+            customBlocks={blockTypeMapForTopLevelPages}
+            allowedBlocks={supportedCoreBlocks}
+            allowedBlockVariations={allowedBlockVariants}
+          />
+        </div>
       )}
       <div className="editor__component">
         <div
@@ -116,7 +120,13 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
             margin-bottom: 1rem;
           `}
         >
-          <SerializeGutenbergModal content={content} />
+          <div
+            className={css`
+              margin-bottom: 0.5rem;
+            `}
+          >
+            <SerializeGutenbergModal content={content} />
+          </div>
           <DebugModal data={content} />
         </div>
       </div>

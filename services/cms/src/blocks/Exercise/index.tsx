@@ -1,6 +1,8 @@
 import { BlockConfiguration, BlockEditProps } from "@wordpress/blocks"
-import { ComponentType } from "react"
+import { ComponentType, useContext, useEffect } from "react"
 import { v4 } from "uuid"
+
+import { PageDispatch } from "../../contexts/PageContext"
 
 import ExerciseEditor from "./ExerciseEditor"
 import ExerciseSave from "./ExerciseSave"
@@ -40,11 +42,21 @@ function enforceExerciseIdDefined(
   // Name to display in React Dev tools
   const displayName = WrappedComponent.displayName || WrappedComponent.name || "Component"
   const InnerComponent = (props: BlockEditProps<ExerciseAttributes>) => {
+    const { attributes, setAttributes } = props
+    const dispatch = useContext(PageDispatch)
+
+    useEffect(() => {
+      if (!attributes.id) {
+        const id = v4()
+        dispatch({ type: "addExercise", payload: { id, name: "" } })
+        setAttributes({ id })
+      }
+    }, [attributes.id, setAttributes, dispatch])
+
     if (!props.attributes.id) {
-      const id = v4()
-      props.setAttributes({ id: id })
       return null
     }
+
     return <WrappedComponent {...props} />
   }
 

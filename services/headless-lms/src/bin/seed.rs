@@ -1288,7 +1288,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
     )
     .await?;
 
-    pages::update_page(
+    pages::update_page_legacy(
         conn,
         front_page.id,
         PageUpdate {
@@ -1324,7 +1324,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
     let (chapter_1, front_page_ch_1) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(conn, chapter_1.id, Utc::now()).await?;
 
-    pages::update_page(
+    pages::update_page_legacy(
         conn,
         front_page_ch_1.id,
         PageUpdate {
@@ -1428,7 +1428,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
     let (chapter_2, front_page_ch_2) = chapters::insert_chapter(conn, new_chapter_2, admin).await?;
     chapters::set_opens_at(conn, chapter_2.id, Utc::now()).await?;
 
-    pages::update_page(
+    pages::update_page_legacy(
         conn,
         front_page_ch_2.id,
         PageUpdate {
@@ -1512,7 +1512,7 @@ async fn create_page(
         front_page_of_chapter_id: None,
     };
     let page = pages::insert_page(conn, new_page, author).await?;
-    let page = pages::update_page(
+    let page = pages::update_page_legacy(
         conn,
         page.id,
         PageUpdate {

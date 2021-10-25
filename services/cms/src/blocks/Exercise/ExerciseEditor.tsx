@@ -8,7 +8,7 @@ import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/c
 
 import { ExerciseAttributes } from "."
 
-const ALLOWED_NESTED_BLOCKS = ["moocfi/exercise-task"]
+const ALLOWED_NESTED_BLOCKS = ["moocfi/exercise-slide"]
 
 const ExerciseEditorCard = styled.div`
   padding: 2rem 0;

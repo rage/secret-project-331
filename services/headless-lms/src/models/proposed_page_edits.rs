@@ -315,7 +315,7 @@ WHERE id = $1
         title: page.title,
         chapter_id: page.chapter_id,
     };
-    crate::models::pages::update_page(&mut tx, page.id, page_update, author, true).await?;
+    crate::models::pages::update_page_legacy(&mut tx, page.id, page_update, author, true).await?;
 
     update_page_edit_status(&mut tx, page_proposal_id).await?;
 
@@ -380,7 +380,7 @@ mod test {
             title: "".to_string(),
             chapter_id: Some(data.chapter),
         };
-        crate::models::pages::update_page(conn, data.page, page_update, data.user, true)
+        crate::models::pages::update_page_legacy(conn, data.page, page_update, data.user, true)
             .await
             .unwrap();
         (data, client_id)

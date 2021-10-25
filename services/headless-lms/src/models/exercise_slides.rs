@@ -118,6 +118,25 @@ WHERE deleted_at IS NULL;
     Ok(res)
 }
 
+pub async fn get_exercise_slides_by_exercise_ids(
+    conn: &mut PgConnection,
+    exercise_ids: &[Uuid],
+) -> ModelResult<Vec<ExerciseSlide>> {
+    let res = sqlx::query_as!(
+        ExerciseSlide,
+        "
+SELECT *
+FROM exercise_slides
+WHERE exercise_id = ANY($1)
+  AND deleted_at IS NULL;
+        ",
+        exercise_ids,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_exercise_slide(
     conn: &mut PgConnection,
     id: Uuid,
@@ -196,4 +215,25 @@ WHERE exercise_id = $1
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+pub async fn delete_exercise_slides_by_exercise_ids(
+    conn: &mut PgConnection,
+    exercise_ids: &[Uuid],
+) -> ModelResult<Vec<Uuid>> {
+    let deleted_ids = sqlx::query!(
+        "
+UPDATE exercise_slides
+SET deleted_at = now()
+WHERE exercise_id = ANY($1)
+RETURNING id;
+        ",
+        exercise_ids,
+    )
+    .fetch_all(conn)
+    .await?
+    .into_iter()
+    .map(|x| x.id)
+    .collect();
+    Ok(deleted_ids)
 }

@@ -29,10 +29,10 @@ use crate::{
         organizations::Organization,
         page_history::{HistoryChangeReason, PageHistory},
         pages::{
-            CoursePageWithUserData, ExerciseWithExerciseTasks, HistoryRestoreData, NewPage,
-            NormalizedCmsExercise, NormalizedCmsExerciseTask, Page,
-            PageRoutingDataWithChapterStatus, PageSearchRequest, PageSearchResult, PageUpdate,
-            PageWithExercises,
+            CmsPageUpdate, ContentManagementPage, CoursePageWithUserData,
+            ExerciseWithExerciseTasks, HistoryRestoreData, NewPage, NormalizedCmsExercise,
+            NormalizedCmsExerciseTask, Page, PageRoutingDataWithChapterStatus, PageSearchRequest,
+            PageSearchResult, PageUpdate, PageWithExercises,
         },
         playground_examples::{PlaygroundExample, PlaygroundExampleData},
         proposed_block_edits::{
@@ -57,6 +57,8 @@ use crate::{
 ts_rs::export! {
   Chapter,
   EmailTemplate,
+  CmsPageUpdate,
+  ContentManagementPage,
   CourseStructure,
   Page,
   UploadResult,

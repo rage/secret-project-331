@@ -33,6 +33,23 @@ export interface EmailTemplate {
   course_instance_id: string
 }
 
+export interface CmsPageUpdate {
+  content: unknown
+  exercises: Array<Exercise>
+  exercise_slides: Array<ExerciseSlide>
+  exercise_tasks: Array<ExerciseTask>
+  url_path: string
+  title: string
+  chapter_id: string | null
+}
+
+export interface ContentManagementPage {
+  page: Page
+  exercises: Array<Exercise>
+  exercise_slides: Array<ExerciseSlide>
+  exercise_tasks: Array<ExerciseTask>
+}
+
 export interface CourseStructure {
   course: Course
   pages: Array<Page>

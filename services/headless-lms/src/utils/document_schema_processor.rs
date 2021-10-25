@@ -236,6 +236,7 @@ pub fn contains_blocks_not_allowed_in_top_level_pages(input: &[GutenbergBlock]) 
     res
 }
 
+// #[deprecated(note = "Remove page content denormalization.")]
 pub fn normalize(input: Vec<GutenbergBlock>) -> Result<NormalizedDocument> {
     let mut exercises: Vec<NormalizedCmsExercise> = Vec::new();
     let res: Result<Vec<GutenbergBlock>> = input
@@ -297,6 +298,7 @@ pub fn normalize(input: Vec<GutenbergBlock>) -> Result<NormalizedDocument> {
     })
 }
 
+// #[deprecated(note = "Remove page content denormalization.")]
 pub fn denormalize(input: NormalizedDocument) -> Result<Vec<GutenbergBlock>> {
     let NormalizedDocument { content, exercises } = input;
     let res: Result<Vec<GutenbergBlock>> = content

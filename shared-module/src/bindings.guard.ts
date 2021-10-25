@@ -14,6 +14,8 @@ import {
   ChapterStatus,
   ChapterUpdate,
   ChapterWithStatus,
+  CmsPageUpdate,
+  ContentManagementPage,
   Course,
   CourseInstance,
   CourseInstanceEnrollment,
@@ -116,6 +118,37 @@ export function isEmailTemplate(obj: any, _argumentName?: string): obj is EmailT
       typeof obj.exercise_completions_threshold === "number") &&
     (obj.points_threshold === null || typeof obj.points_threshold === "number") &&
     typeof obj.course_instance_id === "string"
+  )
+}
+
+export function isCmsPageUpdate(obj: any, _argumentName?: string): obj is CmsPageUpdate {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    Array.isArray(obj.exercises) &&
+    obj.exercises.every((e: any) => isExercise(e) as boolean) &&
+    Array.isArray(obj.exercise_slides) &&
+    obj.exercise_slides.every((e: any) => isExerciseSlide(e) as boolean) &&
+    Array.isArray(obj.exercise_tasks) &&
+    obj.exercise_tasks.every((e: any) => isExerciseTask(e) as boolean) &&
+    typeof obj.url_path === "string" &&
+    typeof obj.title === "string" &&
+    (obj.chapter_id === null || typeof obj.chapter_id === "string")
+  )
+}
+
+export function isContentManagementPage(
+  obj: any,
+  _argumentName?: string,
+): obj is ContentManagementPage {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (isPage(obj.page) as boolean) &&
+    Array.isArray(obj.exercises) &&
+    obj.exercises.every((e: any) => isExercise(e) as boolean) &&
+    Array.isArray(obj.exercise_slides) &&
+    obj.exercise_slides.every((e: any) => isExerciseSlide(e) as boolean) &&
+    Array.isArray(obj.exercise_tasks) &&
+    obj.exercise_tasks.every((e: any) => isExerciseTask(e) as boolean)
   )
 }
 

@@ -2,16 +2,17 @@ use super::{
     chapters::{self, ChapterStatus},
     course_instances::{self, CourseInstance},
     courses::Course,
+    exercise_slides::{self, ExerciseSlide},
     user_course_settings::{self, UserCourseSettings},
     ModelResult,
 };
 use crate::{
     domain::authorization::AuthUser,
     models::{
+        self,
         chapters::DatabaseChapter,
         exercise_service_info,
         exercise_services::{get_internal_public_spec_url, get_model_solution_url},
-        exercise_slides,
         exercise_tasks::ExerciseTask,
         exercises::Exercise,
         page_history::HistoryChangeReason,
@@ -162,6 +163,14 @@ pub struct PageSearchResult {
     rank: Option<f32>,
     content_headline: Option<String>,
     url_path: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+pub struct ContentManagementPage {
+    pub page: Page,
+    pub exercises: Vec<Exercise>,
+    pub exercise_slides: Vec<ExerciseSlide>,
+    pub exercise_tasks: Vec<ExerciseTask>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
@@ -513,11 +522,380 @@ WHERE t.deleted_at IS NULL
     Ok(page)
 }
 
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
+pub struct CmsPageUpdate {
+    pub content: serde_json::Value,
+    pub exercises: Vec<Exercise>,
+    pub exercise_slides: Vec<ExerciseSlide>,
+    pub exercise_tasks: Vec<ExerciseTask>,
+    pub url_path: String,
+    pub title: String,
+    pub chapter_id: Option<Uuid>,
+}
+
+pub async fn update_page(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+    page_update: CmsPageUpdate,
+    _author: Uuid,
+) -> ModelResult<ContentManagementPage> {
+    let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(page_update.content)?;
+    if page_update.chapter_id.is_none()
+        && contains_blocks_not_allowed_in_top_level_pages(&parsed_content)
+    {
+        return Err(ModelError::Generic(
+                "Top level pages cannot contain exercises, exercise tasks or list of exercises in the chapter".to_string(),
+            ));
+    }
+
+    let mut tx = conn.begin().await?;
+
+    // TODO: Make sure that the content maches provided exercises.
+
+    // Updating page
+    let page = sqlx::query_as!(
+        Page,
+        r"
+UPDATE pages
+SET content = $2,
+  url_path = $3,
+  title = $4,
+  chapter_id = $5
+WHERE id = $1
+RETURNING id,
+  created_at,
+  updated_at,
+  course_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number,
+  copied_from
+        ",
+        page_id,
+        serde_json::to_value(parsed_content)?,
+        page_update.url_path.trim(),
+        page_update.title.trim(),
+        page_update.chapter_id
+    )
+    .fetch_one(&mut tx)
+    .await?;
+
+    // still use?
+    let retain_exercise_ids = false;
+
+    // Exercises
+    let existing_exercise_ids =
+        models::exercises::delete_exercises_by_page_id(&mut tx, page.id).await?;
+    let remapped_exercises = upsert_exercises(
+        &mut tx,
+        &page,
+        &existing_exercise_ids,
+        &page_update.exercises,
+        retain_exercise_ids,
+    )
+    .await?;
+
+    // Exercise slides
+    let existing_exercise_slide_ids =
+        models::exercise_slides::delete_exercise_slides_by_exercise_ids(
+            &mut tx,
+            &existing_exercise_ids,
+        )
+        .await?;
+    let remapped_exercise_slides = upsert_exercise_slides(
+        &mut tx,
+        &remapped_exercises,
+        &existing_exercise_slide_ids,
+        &page_update.exercise_slides,
+        retain_exercise_ids,
+    )
+    .await?;
+
+    // Set as deleted and get existing specs
+    let existing_exercise_task_specs = sqlx::query_as!(
+        ExerciseTaskIdAndSpec,
+        "
+UPDATE exercise_tasks
+SET deleted_at = now()
+WHERE exercise_slide_id = ANY($1)
+RETURNING id,
+  exercise_slide_id,
+  private_spec,
+  public_spec,
+  model_solution_spec;
+        ",
+        &existing_exercise_ids,
+    )
+    .fetch_all(&mut tx)
+    .await?;
+    let remapped_exercise_tasks = upsert_exercise_tasks(
+        &mut tx,
+        &remapped_exercise_slides,
+        &existing_exercise_task_specs,
+        &page_update.exercise_tasks,
+        retain_exercise_ids,
+    )
+    .await?;
+
+    // Now, we might have changed some of the exercise ids and need to do the same changes in the page content as well
+    // TODO: change signature of this function to avoid copying.
+    let new_content = update_ids_in_content(
+        &page.content,
+        remapped_exercises
+            .iter()
+            .map(|(id, e)| (*id, e.id))
+            .collect::<HashMap<Uuid, Uuid>>(),
+    )?;
+
+    sqlx::query!(
+        "
+UPDATE pages
+SET content = $1
+WHERE id = $2;
+        ",
+        new_content,
+        page.id
+    )
+    .execute(&mut tx)
+    .await?;
+
+    tx.commit().await?;
+
+    Ok(ContentManagementPage {
+        page,
+        exercises: remapped_exercises.into_values().collect(),
+        exercise_slides: remapped_exercise_slides.into_values().collect(),
+        exercise_tasks: remapped_exercise_tasks,
+    })
+}
+
+/// Remaps ids from updates to exercises that may have their ids regenerated.
+async fn upsert_exercises(
+    conn: &mut PgConnection,
+    page: &Page,
+    existing_exercise_ids: &[Uuid],
+    exercise_updates: &[Exercise],
+    retain_exercise_ids: bool,
+) -> ModelResult<HashMap<Uuid, Exercise>> {
+    let mut remapped_exercises: HashMap<Uuid, Exercise> = HashMap::new();
+    for exercise_update in exercise_updates.iter() {
+        let exercise_exists = existing_exercise_ids
+            .iter()
+            .any(|id| *id == exercise_update.id);
+        let safe_for_db_exercise_id = if retain_exercise_ids || exercise_exists {
+            exercise_update.id
+        } else {
+            Uuid::new_v4()
+        };
+
+        let exercise: Exercise = sqlx::query_as!(
+            Exercise,
+            "
+INSERT INTO exercises(
+    id,
+    course_id,
+    name,
+    order_number,
+    page_id,
+    chapter_id
+  )
+VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (id) DO
+UPDATE
+SET course_id = $2,
+  name = $3,
+  order_number = $4,
+  page_id = $5,
+  chapter_id = $6,
+  deleted_at = NULL
+RETURNING *;
+            ",
+            safe_for_db_exercise_id,
+            page.course_id,
+            exercise_update.name,
+            exercise_update.order_number,
+            page.id,
+            page.chapter_id,
+        )
+        .fetch_one(&mut *conn)
+        .await?;
+        remapped_exercises.insert(exercise_update.id, exercise);
+    }
+    Ok(remapped_exercises)
+}
+
+/// Remaps ids from updates to exercise slides that may have their ids changed.
+async fn upsert_exercise_slides(
+    conn: &mut PgConnection,
+    remapped_exercises: &HashMap<Uuid, Exercise>,
+    existing_slide_ids: &[Uuid],
+    slide_updates: &[ExerciseSlide],
+    retain_exercise_ids: bool,
+) -> ModelResult<HashMap<Uuid, ExerciseSlide>> {
+    let mut remapped_exercise_slides: HashMap<Uuid, ExerciseSlide> = HashMap::new();
+    for slide_update in slide_updates.iter() {
+        let slide_exists = existing_slide_ids.iter().any(|id| *id == slide_update.id);
+        let safe_for_db_slide_id = if retain_exercise_ids || slide_exists {
+            slide_update.id
+        } else {
+            Uuid::new_v4()
+        };
+        let safe_for_db_exercise_id = remapped_exercises
+            .get(&slide_update.exercise_id)
+            .ok_or_else(|| {
+                ModelError::PreconditionFailed(
+                    "Illegal exercise id for exercise slide.".to_string(),
+                )
+            })?
+            .id;
+
+        let exercise_slide = sqlx::query_as!(
+            ExerciseSlide,
+            "
+INSERT INTO exercise_slides (id, exercise_id, order_number)
+VALUES ($1, $2, $3) ON CONFLICT (id) DO
+UPDATE
+SET exercise_id = $2,
+  order_number = $3
+RETURNING *;
+            ",
+            safe_for_db_slide_id,
+            safe_for_db_exercise_id,
+            slide_update.order_number,
+        )
+        .fetch_one(&mut *conn)
+        .await?;
+
+        remapped_exercise_slides.insert(slide_update.id, exercise_slide);
+    }
+    Ok(remapped_exercise_slides)
+}
+
+/// Remaps ids from updates to exercise tasks that may have their ids changed.
+async fn upsert_exercise_tasks(
+    conn: &mut PgConnection,
+    remapped_slides: &HashMap<Uuid, ExerciseSlide>,
+    existing_task_specs: &[ExerciseTaskIdAndSpec],
+    task_updates: &[ExerciseTask],
+    retain_exercise_ids: bool,
+) -> ModelResult<Vec<ExerciseTask>> {
+    // For generating public specs for exercises.
+    let client = reqwest::Client::new();
+    let exercise_types: Vec<String> = task_updates
+        .iter()
+        .map(|task| task.exercise_type.clone())
+        .unique()
+        .collect();
+    let exercise_service_hashmap =
+        exercise_service_info::get_selected_exercise_services_by_type(&mut *conn, &exercise_types)
+            .await?;
+    let public_spec_urls_by_exercise_type = exercise_service_hashmap
+        .iter()
+        .map(|(key, (service, info))| Ok((key, get_internal_public_spec_url(service, info)?)))
+        .collect::<ModelResult<HashMap<&String, Url>>>()?;
+    let model_solution_urls_by_exercise_type = exercise_service_hashmap
+        .iter()
+        .map(|(key, (service, info))| Ok((key, get_model_solution_url(service, info)?)))
+        .collect::<ModelResult<HashMap<&String, Url>>>()?;
+
+    let mut remapped_exercise_tasks: Vec<ExerciseTask> = Vec::new();
+    for task_update in task_updates.iter() {
+        let existing_exercise_task = existing_task_specs.iter().find(|o| o.id == task_update.id);
+        let safe_for_db_exercise_task_id = match existing_exercise_task {
+            Some(_) => task_update.id,
+            _ if retain_exercise_ids => task_update.id,
+            None => Uuid::new_v4(),
+        };
+
+        let task_exists = existing_task_specs
+            .iter()
+            .any(|task| task.id == task_update.id);
+        let safe_for_db_task_id = if retain_exercise_ids || task_exists {
+            task_update.id
+        } else {
+            Uuid::new_v4()
+        };
+        let normalized_task = NormalizedCmsExerciseTask {
+            id: safe_for_db_task_id,
+            assignment: task_update.assignment.clone(),
+            exercise_type: task_update.exercise_type.clone(),
+            private_spec: task_update.private_spec.clone(),
+        };
+        let model_solution_spec = fetch_derived_spec(
+            existing_exercise_task,
+            &normalized_task,
+            &model_solution_urls_by_exercise_type,
+            &client,
+            existing_exercise_task
+                .map(|value| value.model_solution_spec.clone())
+                .flatten(),
+        )
+        .await?;
+        let public_spec: Option<serde_json::Value> = fetch_derived_spec(
+            existing_exercise_task,
+            &normalized_task,
+            &public_spec_urls_by_exercise_type,
+            &client,
+            existing_exercise_task
+                .map(|value| value.public_spec.clone())
+                .flatten(),
+        )
+        .await?;
+        let safe_for_db_exercise_slide_id = remapped_slides
+            .get(&task_update.exercise_slide_id)
+            .ok_or_else(|| {
+                ModelError::PreconditionFailed(
+                    "Illegal exercise slide id for exercise task.".to_string(),
+                )
+            })?
+            .id;
+
+        // Upsert
+        let exercise_task = sqlx::query_as!(
+            ExerciseTask,
+            "
+    INSERT INTO exercise_tasks(
+        id,
+        exercise_slide_id,
+        exercise_type,
+        assignment,
+        public_spec,
+        private_spec,
+        model_solution_spec
+      )
+    VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (id) DO
+    UPDATE
+    SET exercise_slide_id = $2,
+      exercise_type = $3,
+      assignment = $4,
+      public_spec = $5,
+      private_spec = $6,
+      deleted_at = NULL
+    RETURNING *;
+                ",
+            safe_for_db_exercise_task_id,
+            safe_for_db_exercise_slide_id,
+            task_update.exercise_type,
+            task_update.assignment,
+            public_spec,
+            task_update.private_spec,
+            model_solution_spec,
+        )
+        .fetch_one(&mut *conn)
+        .await?;
+        remapped_exercise_tasks.push(exercise_task)
+    }
+    Ok(remapped_exercise_tasks)
+}
+
 /// This has 3 stages: updating page, updating exercises, updating exercise tasks.
 /// This is currently implemented with multiple sql queries, but it could be optimized
 /// with data-modifying common table expressions if necessary.
 /// Regenerates exercise ids unless retain_exercise_ids is set to true.
-pub async fn update_page(
+// #[deprecated(note = "Refactor to use new page update function.")]
+pub async fn update_page_legacy(
     conn: &mut PgConnection,
     page_id: Uuid,
     page_update: PageUpdate,

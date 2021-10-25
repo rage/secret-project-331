@@ -3,10 +3,15 @@ import SaveIcon from "@material-ui/icons/Save"
 import LoadingButton from "@material-ui/lab/LoadingButton"
 import { BlockInstance } from "@wordpress/blocks"
 import dynamic from "next/dynamic"
-import React, { useState } from "react"
+import React, { useReducer, useState } from "react"
 
 import { blockTypeMapForPages, blockTypeMapForTopLevelPages } from "../../blocks"
 import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
+import PageContext, {
+  defaultPageContext,
+  PageDispatch,
+  pageStateDispatch,
+} from "../../contexts/PageContext"
 import { Page, PageUpdate } from "../../shared-module/bindings"
 import DebugModal from "../../shared-module/components/DebugModal"
 import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
@@ -41,6 +46,7 @@ const supportedBlocks = (chapter_id: string | null): string[] => {
 }
 
 const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
+  const [pageContext, pageContextDispatch] = useReducer(pageStateDispatch, defaultPageContext)
   const [title, setTitle] = useState(data.title)
   const [content, setContent] = useState<BlockInstance[]>(
     modifyBlocks(
@@ -75,52 +81,54 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
   }
 
   return (
-    <>
-      <div className="editor__component">
-        <div className={normalWidthCenteredComponentStyles}>
-          {error && <pre>{error}</pre>}
-          <LoadingButton
-            loadingPosition="start"
-            startIcon={<SaveIcon />}
-            loading={saving}
-            onClick={handleOnSave}
-          >
-            {currentContentStateSaved ? "Saved" : "Save"}
-          </LoadingButton>
+    <PageDispatch.Provider value={pageContextDispatch}>
+      <PageContext.Provider value={pageContext}>
+        <div className="editor__component">
+          <div className={normalWidthCenteredComponentStyles}>
+            {error && <pre>{error}</pre>}
+            <LoadingButton
+              loadingPosition="start"
+              startIcon={<SaveIcon />}
+              loading={saving}
+              onClick={handleOnSave}
+            >
+              {currentContentStateSaved ? "Saved" : "Save"}
+            </LoadingButton>
 
-          <UpdatePageDetailsForm title={title} setTitle={setTitle} />
+            <UpdatePageDetailsForm title={title} setTitle={setTitle} />
+          </div>
         </div>
-      </div>
-      {data.chapter_id !== null ? (
-        <GutenbergEditor
-          content={content}
-          onContentChange={setContent}
-          customBlocks={blockTypeMapForPages}
-          allowedBlocks={supportedCoreBlocks}
-          allowedBlockVariations={allowedBlockVariants}
-        />
-      ) : (
-        <GutenbergEditor
-          content={content}
-          onContentChange={setContent}
-          customBlocks={blockTypeMapForTopLevelPages}
-          allowedBlocks={supportedCoreBlocks}
-          allowedBlockVariations={allowedBlockVariants}
-        />
-      )}
-      <div className="editor__component">
-        <div
-          className={css`
-            ${normalWidthCenteredComponentStyles}
-            margin-top: 1rem;
-            margin-bottom: 1rem;
-          `}
-        >
-          <SerializeGutenbergModal content={content} />
-          <DebugModal data={content} />
+        {data.chapter_id !== null ? (
+          <GutenbergEditor
+            content={content}
+            onContentChange={setContent}
+            customBlocks={blockTypeMapForPages}
+            allowedBlocks={supportedCoreBlocks}
+            allowedBlockVariations={allowedBlockVariants}
+          />
+        ) : (
+          <GutenbergEditor
+            content={content}
+            onContentChange={setContent}
+            customBlocks={blockTypeMapForTopLevelPages}
+            allowedBlocks={supportedCoreBlocks}
+            allowedBlockVariations={allowedBlockVariants}
+          />
+        )}
+        <div className="editor__component">
+          <div
+            className={css`
+              ${normalWidthCenteredComponentStyles}
+              margin-top: 1rem;
+              margin-bottom: 1rem;
+            `}
+          >
+            <SerializeGutenbergModal content={content} />
+            <DebugModal data={content} />
+          </div>
         </div>
-      </div>
-    </>
+      </PageContext.Provider>
+    </PageDispatch.Provider>
   )
 }
 export default PageEditor

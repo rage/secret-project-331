@@ -1,41 +1,56 @@
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { InnerBlocks } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
+import React from "react"
 
 import { defaultContainerWidth } from "../../shared-module/styles/constants"
 
 import ChooseExerciseTaskType from "./ChooseExerciseTaskType"
-import { ExerciseTaskTypes, exerciseTaskTypes } from "./ChooseExerciseTaskType/ExerciseServiceList"
-import IFrameEditor from "./IFrameEditor"
+import { exerciseTaskTypes } from "./ChooseExerciseTaskType/ExerciseServiceList"
+import ExerciseTaskIFrameEditor from "./IFrameEditor"
 
-import { ExerciseTaskAttributes } from "."
+const ALLOWED_NESTED_BLOCKS = ["core/image", "core/paragraph", "core/list"]
 
 const ExerciseTaskEditorCard = styled.div`
   padding: 2rem 0;
   margin-bottom: 2rem;
 `
 
-const ALLOWED_NESTED_BLOCKS = ["core/image", "core/paragraph", "core/list"]
-const ExerciseTaskEditor: React.FC<BlockEditProps<ExerciseTaskAttributes>> = (props) => {
-  const { attributes, setAttributes } = props
-  const handleChooseExerciseTask = (val: ExerciseTaskTypes) => {
-    setAttributes({
-      exercise_type: val.identifier,
-    })
-  }
-  const exerciseType = attributes?.exercise_type
+export interface ExerciseTaskAttributes {
+  id: string
+  exercise_type: string
+  private_spec: unknown
+}
+
+const ExerciseTaskEditor: React.FC<BlockEditProps<ExerciseTaskAttributes>> = ({
+  attributes,
+  setAttributes,
+}) => {
+  const exerciseType = attributes.exercise_type
   const url = exerciseTaskTypes.find((o) => o.identifier === exerciseType)?.url
-  const id = attributes.id
+
   return (
     <ExerciseTaskEditorCard id={attributes.id}>
+      <div
+        className={css`
+          font-size: 18pt;
+          font-weight: normal;
+          margin-bottom: 1.5rem;
+        `}
+      >
+        Task
+      </div>
       <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
-      {!exerciseType && <ChooseExerciseTaskType onChooseItem={handleChooseExerciseTask} />}
-      {exerciseType && (
-        <IFrameEditor
-          key={id}
-          exerciseTaskid={id}
+      {!exerciseType ? (
+        <ChooseExerciseTaskType
+          onChooseItem={(x) => setAttributes({ exercise_type: x.identifier })}
+        />
+      ) : (
+        <ExerciseTaskIFrameEditor
+          onPrivateSpecChange={(x) => setAttributes({ private_spec: x })}
+          privateSpec={attributes.private_spec}
           url={`${url}?width=${defaultContainerWidth}`}
-          props={props}
         />
       )}
     </ExerciseTaskEditorCard>

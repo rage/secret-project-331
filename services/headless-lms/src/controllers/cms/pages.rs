@@ -2,7 +2,7 @@
 use crate::{
     controllers::ControllerResult,
     domain::authorization::{authorize, Action, AuthUser, Resource},
-    models::pages::{Page, PageUpdate},
+    models::pages::{CmsPageUpdate, ContentManagementPage},
 };
 use actix_web::web::ServiceConfig;
 use actix_web::web::{self, Json};
@@ -12,7 +12,7 @@ use uuid::Uuid;
 /**
 GET `/api/v0/cms/pages/:page_id` - Get a page with exercises and exercise tasks by id.
 
-# Example
+# Example OUTDATED
 
 Request: `GET /api/v0/cms/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02`
 
@@ -40,9 +40,9 @@ async fn get_page(
     request_page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<Json<Page>> {
+) -> ControllerResult<Json<ContentManagementPage>> {
     let mut conn = pool.acquire().await?;
-    let page = crate::models::pages::get_page_with_exercises(&mut conn, *request_page_id).await?;
+    let page = crate::models::pages::get_page(&mut conn, *request_page_id).await?;
     authorize(
         &mut conn,
         Action::Edit,
@@ -50,7 +50,26 @@ async fn get_page(
         Resource::Course(page.course_id),
     )
     .await?;
-    Ok(Json(page))
+
+    let exercises =
+        crate::models::exercises::get_exercises_by_page_id(&mut conn, *request_page_id).await?;
+    let exercise_slides = crate::models::exercise_slides::get_exercise_slides_by_exercise_ids(
+        &mut conn,
+        &exercises.iter().map(|x| x.id).collect::<Vec<Uuid>>(),
+    )
+    .await?;
+    let exercise_tasks = crate::models::exercise_tasks::get_exercise_tasks_by_exercise_slide_ids(
+        &mut conn,
+        &exercise_slides.iter().map(|x| x.id).collect::<Vec<Uuid>>(),
+    )
+    .await?;
+
+    Ok(Json(ContentManagementPage {
+        page,
+        exercises,
+        exercise_slides,
+        exercise_tasks,
+    }))
 }
 
 /**
@@ -60,7 +79,7 @@ Please note that this endpoint will change all the exercise and exercise task id
 
 If optional property front_page_of_chapter_id is set, this page will become the front page of the specified course part.
 
-# Example:
+# Example: OUTDATED
 
 Request:
 
@@ -99,11 +118,11 @@ Response:
 */
 #[instrument(skip(pool))]
 async fn update_page(
-    payload: web::Json<PageUpdate>,
+    payload: web::Json<CmsPageUpdate>,
     request_page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<Json<Page>> {
+) -> ControllerResult<Json<ContentManagementPage>> {
     let mut conn = pool.acquire().await?;
     let page_update = payload.0;
     let course_id = crate::models::pages::get_course_id(&mut conn, *request_page_id).await?;
@@ -114,10 +133,10 @@ async fn update_page(
         Resource::Course(course_id),
     )
     .await?;
-    let page =
-        crate::models::pages::update_page(&mut conn, *request_page_id, page_update, user.id, false)
+    let saved =
+        crate::models::pages::update_page(&mut conn, *request_page_id, page_update, user.id)
             .await?;
-    Ok(Json(page))
+    Ok(Json(saved))
 }
 
 /**

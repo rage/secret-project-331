@@ -825,7 +825,7 @@ mod test {
         )
         .await
         .unwrap();
-        pages::update_page(
+        pages::update_page_legacy(
             tx.as_mut(),
             chapter_front_page.id,
             PageUpdate {

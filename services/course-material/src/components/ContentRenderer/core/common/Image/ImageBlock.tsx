@@ -15,7 +15,7 @@ const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => 
     className,
     height,
     href,
-    // linkClass,
+    linkClass,
     linkTarget,
     rel,
     // sizeSlug,
@@ -33,8 +33,14 @@ const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => 
     return true
   }
 
+  const ensureRelNoOpenerIfTargetBlank =
+    linkTarget && linkTarget.includes("blank")
+      ? rel && !rel.includes("noopener")
+        ? rel.split(" ").join(" ").concat(" noopener")
+        : "noopener"
+      : rel
+
   return (
-    // TODO: Should image be full width blockerino in course material and CMS
     <div
       className={css`
         ${courseMaterialCenteredComponentStyles}
@@ -60,8 +66,9 @@ const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => 
           <a
             onClick={warnUserIfLinkCustom}
             href={href}
-            target={linkTarget ?? "_blank"}
-            rel={rel ?? "noreferrer"}
+            target={linkTarget}
+            rel={ensureRelNoOpenerIfTargetBlank}
+            className={linkClass}
           >
             <img
               title={title}

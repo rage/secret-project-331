@@ -29,8 +29,16 @@ const ButtonsBlock: React.FC<BlockRendererProps<ButtonsAttributes>> = ({ data })
       url,
       width,
     } = button.attributes as ButtonAttributes
+
+    const ensureRelNoOpenerIfTargetBlank =
+      linkTarget && linkTarget.includes("blank")
+        ? rel && !rel.includes("noopener")
+          ? rel.split(" ").join(" ").concat(" noopener")
+          : "noopener"
+        : rel
+
     return (
-      <a key={button.clientId} rel={rel ?? "noreferrer"} href={url} target={linkTarget ?? "_blank"}>
+      <a key={button.clientId} rel={ensureRelNoOpenerIfTargetBlank} href={url} target={linkTarget}>
         <Button
           className={css`
             ${backgroundColor && `background: ${colorMapper(backgroundColor)};`}

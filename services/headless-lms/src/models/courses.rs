@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use super::{course_instances::CourseInstance, ModelResult};
 use crate::{
     models::{
-        course_instances::{self, VariantStatus},
+        course_instances::{self, NewCourseInstance, VariantStatus},
         course_language_groups,
         pages::NewPage,
         ModelError,
@@ -404,7 +404,22 @@ WHERE exercise_slide_id IN (
     .await?;
 
     // Create default instance for copied course.
-    course_instances::insert(&mut tx, copied_course.id, None, Some(VariantStatus::Draft)).await?;
+    course_instances::insert(
+        &mut tx,
+        NewCourseInstance {
+            id: Uuid::new_v4(),
+            course_id: copied_course.id,
+            name: None,
+            description: None,
+            variant_status: Some(VariantStatus::Draft),
+            support_email: None,
+            teacher_in_charge_name: &new_course.teacher_in_charge_name,
+            teacher_in_charge_email: &new_course.teacher_in_charge_email,
+            opening_time: None,
+            closing_time: None,
+        },
+    )
+    .await?;
 
     tx.commit().await?;
     Ok(copied_course)
@@ -499,12 +514,15 @@ pub struct NewCourse {
     pub slug: String,
     pub organization_id: Uuid,
     pub language_code: String,
+    pub teacher_in_charge_name: String,
+    pub teacher_in_charge_email: String,
 }
 
 pub async fn insert_course(
     conn: &mut PgConnection,
     id: Uuid,
-    course: NewCourse,
+    default_instance_id: Uuid,
+    new_course: NewCourse,
     user: Uuid,
 ) -> ModelResult<(Course, Page, CourseInstance)> {
     let mut tx = conn.begin().await?;
@@ -528,10 +546,10 @@ RETURNING id,
   course_language_group_id;
             "#,
         id,
-        course.name,
-        course.slug,
-        course.organization_id,
-        course.language_code,
+        new_course.name,
+        new_course.slug,
+        new_course.organization_id,
+        new_course.language_code,
         course_language_group_id
     )
     .fetch_one(&mut tx)
@@ -557,9 +575,18 @@ RETURNING id,
     // Create default course instance
     let default_course_instance = crate::models::course_instances::insert(
         &mut tx,
-        course.id,
-        None,
-        Some(VariantStatus::Draft),
+        NewCourseInstance {
+            id: default_instance_id,
+            course_id: course.id,
+            name: None,
+            description: None,
+            variant_status: Some(VariantStatus::Draft),
+            support_email: None,
+            teacher_in_charge_name: &new_course.teacher_in_charge_name,
+            teacher_in_charge_email: &new_course.teacher_in_charge_email,
+            opening_time: None,
+            closing_time: None,
+        },
     )
     .await?;
 
@@ -774,11 +801,14 @@ mod test {
         let (course, _page, _instance) = courses::insert_course(
             tx.as_mut(),
             Uuid::parse_str("86ede846-db97-4204-94c3-29cc2e71818e").unwrap(),
+            Uuid::new_v4(),
             NewCourse {
                 language_code: "en-US".to_string(),
                 name: "Course".to_string(),
                 organization_id,
                 slug: "course".to_string(),
+                teacher_in_charge_name: "admin".to_string(),
+                teacher_in_charge_email: "admin@example.org".to_string(),
             },
             user_id,
         )
@@ -860,6 +890,8 @@ mod test {
                 name: "Kurssi".to_string(),
                 organization_id,
                 slug: "kurssi".to_string(),
+                teacher_in_charge_name: "admin".to_string(),
+                teacher_in_charge_email: "admin@example.org".to_string(),
             },
         )
         .await

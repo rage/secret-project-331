@@ -89,6 +89,7 @@ interface SnapshotWithViewPortProps {
   page?: Page
   frame?: Frame
   headless: boolean
+  persistMousePosition?: boolean
 }
 
 async function snapshotWithViewPort({
@@ -100,7 +101,12 @@ async function snapshotWithViewPort({
   frame,
   page,
   headless,
+  persistMousePosition,
 }: SnapshotWithViewPortProps) {
+  if (!persistMousePosition && page) {
+    await page.mouse.move(0, 0)
+  }
+
   let pageObjectToUse = page
   let thingBeingScreenshotted: Page | ElementHandle<Node> = page
   let thingBeingScreenshottedObject: Page | Frame = page
@@ -128,8 +134,12 @@ async function snapshotWithViewPort({
 
   const screenshotName = `${snapshotName}-${viewPortName}.png`
   if (headless) {
-    const screenshot = await thingBeingScreenshotted.screenshot()
-    expect(screenshot).toMatchSnapshot(screenshotName, toMatchSnapshotOptions)
+    await takeScreenshotAndComparetoSnapshot(
+      thingBeingScreenshotted,
+      screenshotName,
+      toMatchSnapshotOptions,
+      pageObjectToUse,
+    )
   } else {
     console.warn("Not in headless mode, skipping screenshot")
   }
@@ -152,7 +162,27 @@ interface WaitToBeVisibleProps {
   container: Page | Frame
 }
 
-async function waitToBeVisible({
+export async function takeScreenshotAndComparetoSnapshot(
+  thingBeingScreenshotted: ElementHandle<Node> | Page,
+  screenshotName: string,
+  toMatchSnapshotOptions: ToMatchSnapshotOptions,
+  page: Page,
+): Promise<void> {
+  try {
+    const screenshot = await thingBeingScreenshotted.screenshot()
+    expect(screenshot).toMatchSnapshot(screenshotName, toMatchSnapshotOptions)
+  } catch (e: unknown) {
+    // sometimes snapshots have wild race conditions, lets try again in a moment
+    console.warn(
+      "Screenshot did not match snapshots retrying... Note that if this passes, the test is unstable",
+    )
+    await page.waitForTimeout(100)
+    const screenshot = await thingBeingScreenshotted.screenshot()
+    expect(screenshot).toMatchSnapshot(screenshotName, toMatchSnapshotOptions)
+  }
+}
+
+export async function waitToBeVisible({
   waitForThisToBeVisibleAndStable,
   container: page,
 }: WaitToBeVisibleProps): Promise<ElementHandle | ElementHandle[]> {

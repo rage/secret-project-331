@@ -5,7 +5,7 @@ use crate::{
     },
     domain::authorization::{authorize, Action, AuthUser, Resource},
     models::{
-        course_instances::CourseInstance,
+        course_instances::{CourseInstance, CourseInstanceForm, NewCourseInstance},
         courses::{Course, CourseStructure, CourseUpdate, NewCourse},
         exercises::Exercise,
         feedback::{self, Feedback, FeedbackCount},
@@ -112,9 +112,14 @@ async fn post_new_course(
         Resource::Organization(new_course.organization_id),
     )
     .await?;
-    let (course, ..) =
-        crate::models::courses::insert_course(&mut conn, Uuid::new_v4(), new_course, user.id)
-            .await?;
+    let (course, ..) = crate::models::courses::insert_course(
+        &mut conn,
+        Uuid::new_v4(),
+        Uuid::new_v4(),
+        new_course,
+        user.id,
+    )
+    .await?;
     Ok(Json(course))
 }
 
@@ -672,6 +677,29 @@ pub async fn get_feedback_count(
     Ok(Json(feedback_count))
 }
 
+async fn new_course_instance(
+    form: Json<CourseInstanceForm>,
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<Json<Uuid>> {
+    let mut conn = pool.acquire().await?;
+    let form = form.into_inner();
+    let new = NewCourseInstance {
+        id: Uuid::new_v4(),
+        course_id: course_id.into_inner(),
+        name: form.name.as_deref(),
+        description: form.description.as_deref(),
+        variant_status: None,
+        support_email: form.support_email.as_deref(),
+        teacher_in_charge_name: &form.teacher_in_charge_name,
+        teacher_in_charge_email: &form.teacher_in_charge_email,
+        opening_time: form.opening_time,
+        closing_time: form.closing_time,
+    };
+    let ci = crate::models::course_instances::insert(&mut conn, new).await?;
+    Ok(Json(ci.id))
+}
+
 /**
 Add a route for each controller in this module.
 
@@ -721,5 +749,9 @@ pub fn _add_courses_routes<T: 'static + FileStore>(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/feedback-count",
             web::get().to(get_feedback_count),
+        )
+        .route(
+            "/{course_id}/new-course-instance",
+            web::post().to(new_course_instance),
         );
 }

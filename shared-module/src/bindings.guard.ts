@@ -19,6 +19,7 @@ import {
   Course,
   CourseInstance,
   CourseInstanceEnrollment,
+  CourseInstanceForm,
   CourseMaterialExercise,
   CourseMaterialExerciseServiceInfo,
   CourseMaterialExerciseTask,
@@ -265,7 +266,10 @@ export function isCourseInstance(obj: any, _argumentName?: string): obj is Cours
     (obj.ends_at === null || obj.ends_at instanceof Date) &&
     (obj.name === null || typeof obj.name === "string") &&
     (obj.description === null || typeof obj.description === "string") &&
-    (isVariantStatus(obj.variant_status) as boolean)
+    (isVariantStatus(obj.variant_status) as boolean) &&
+    typeof obj.teacher_in_charge_name === "string" &&
+    typeof obj.teacher_in_charge_email === "string" &&
+    (obj.support_email === null || typeof obj.support_email === "string")
   )
 }
 
@@ -547,7 +551,9 @@ export function isNewCourse(obj: any, _argumentName?: string): obj is NewCourse 
     typeof obj.name === "string" &&
     typeof obj.slug === "string" &&
     typeof obj.organization_id === "string" &&
-    typeof obj.language_code === "string"
+    typeof obj.language_code === "string" &&
+    typeof obj.teacher_in_charge_name === "string" &&
+    typeof obj.teacher_in_charge_email === "string"
   )
 }
 
@@ -675,6 +681,19 @@ export function isGetFeedbackQuery(obj: any, _argumentName?: string): obj is Get
     typeof obj.read === "boolean" &&
     (typeof obj.page === "undefined" || typeof obj.page === "number") &&
     (typeof obj.limit === "undefined" || typeof obj.limit === "number")
+  )
+}
+
+export function isCourseInstanceForm(obj: any, _argumentName?: string): obj is CourseInstanceForm {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (obj.name === null || typeof obj.name === "string") &&
+    (obj.description === null || typeof obj.description === "string") &&
+    typeof obj.teacher_in_charge_name === "string" &&
+    typeof obj.teacher_in_charge_email === "string" &&
+    (obj.support_email === null || typeof obj.support_email === "string") &&
+    (obj.opening_time === null || obj.opening_time instanceof Date) &&
+    (obj.closing_time === null || obj.closing_time instanceof Date)
   )
 }
 

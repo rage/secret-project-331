@@ -358,8 +358,9 @@ mod test {
         models::{
             chapters,
             course_instance_enrollments::{self, NewCourseInstanceEnrollment},
-            course_instances, course_language_groups, courses, exercise_slides, exercise_tasks,
-            organizations, pages, users,
+            course_instances::{self, NewCourseInstance},
+            course_language_groups, courses, exercise_slides, exercise_tasks, organizations, pages,
+            users,
         },
         test_helper::Conn,
         utils::document_schema_processor::GutenbergBlock,
@@ -402,9 +403,23 @@ mod test {
         )
         .await
         .unwrap();
-        let course_instance = course_instances::insert(tx.as_mut(), course_id, None, None)
-            .await
-            .unwrap();
+        let course_instance = course_instances::insert(
+            tx.as_mut(),
+            NewCourseInstance {
+                id: Uuid::new_v4(),
+                course_id,
+                name: None,
+                description: None,
+                variant_status: None,
+                teacher_in_charge_name: "teacher",
+                teacher_in_charge_email: "teacher@example.com",
+                support_email: None,
+                opening_time: None,
+                closing_time: None,
+            },
+        )
+        .await
+        .unwrap();
         course_instance_enrollments::insert_enrollment_and_set_as_current(
             tx.as_mut(),
             NewCourseInstanceEnrollment {

@@ -1,4 +1,9 @@
 import styled from "@emotion/styled"
+import {
+  ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon,
+  MoreHoriz as MoreHorizIcon,
+} from "@material-ui/icons"
 import React from "react"
 
 interface PaginationProps {
@@ -45,6 +50,11 @@ const LeftButton = styled.div`
   width: 47px;
   height: 47px;
   color: #707070;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
   &:hover {
     cursor: pointer;
   }
@@ -53,6 +63,11 @@ const RightButton = styled.div`
   width: 47px;
   height: 47px;
   color: #707070;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
   &:hover {
     cursor: pointer;
   }
@@ -61,6 +76,10 @@ const HorizontalDots = styled.div`
   width: 47px;
   height: 47px;
   color: #707070;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `
 
 const Container = styled.div`
@@ -79,7 +98,11 @@ const Pagination: React.FC<PaginationProps> = ({ count, page, onChange }) => {
    */
   const generateComponents = () => {
     const components: JSX.Element[] = []
-    components.push(<LeftButton onClick={handleChangeEvent(Math.max(1, page - 1))} />)
+    components.push(
+      <LeftButton onClick={handleChangeEvent(Math.max(1, page - 1))}>
+        <ChevronLeftIcon />
+      </LeftButton>,
+    )
 
     if (count <= CAPACITY + 2) {
       for (let idx = 1; idx <= count; idx++) {
@@ -101,20 +124,36 @@ const Pagination: React.FC<PaginationProps> = ({ count, page, onChange }) => {
         }
       }
       if (count > CAPACITY) {
-        components.push(<HorizontalDots />)
+        components.push(
+          <HorizontalDots>
+            <MoreHorizIcon />
+          </HorizontalDots>,
+        )
       }
       components.push(<Circle onClick={handleChangeEvent(count)}> {count}</Circle>)
     } else if (CAPACITY <= page && page <= count - CAPACITY + 1) {
       components.push(<Circle onClick={handleChangeEvent(1)}> 1 </Circle>)
-      components.push(<HorizontalDots />)
+      components.push(
+        <HorizontalDots>
+          <MoreHorizIcon />
+        </HorizontalDots>,
+      )
       components.push(<Circle onClick={handleChangeEvent(page - 1)}> {page - 1} </Circle>)
       components.push(<SelectedCircle> {page} </SelectedCircle>)
       components.push(<Circle onClick={handleChangeEvent(page + 1)}> {page + 1} </Circle>)
-      components.push(<HorizontalDots />)
+      components.push(
+        <HorizontalDots>
+          <MoreHorizIcon />
+        </HorizontalDots>,
+      )
       components.push(<Circle onClick={handleChangeEvent(count)}> {count} </Circle>)
     } else {
       components.push(<Circle onClick={handleChangeEvent(1)}> 1 </Circle>)
-      components.push(<HorizontalDots />)
+      components.push(
+        <HorizontalDots>
+          <MoreHorizIcon />
+        </HorizontalDots>,
+      )
       for (let idx = count - CAPACITY + 1; idx <= count; idx++) {
         if (idx == page) {
           components.push(<SelectedCircle> {idx} </SelectedCircle>)
@@ -124,7 +163,11 @@ const Pagination: React.FC<PaginationProps> = ({ count, page, onChange }) => {
       }
     }
 
-    components.push(<RightButton onClick={handleChangeEvent(Math.min(page + 1, count))} />)
+    components.push(
+      <RightButton onClick={handleChangeEvent(Math.min(page + 1, count))}>
+        <ChevronRightIcon />
+      </RightButton>,
+    )
     return components
   }
 

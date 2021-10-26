@@ -12,6 +12,7 @@ import { postNewCourse } from "../../services/backend/courses"
 import {
   fetchOrganization,
   fetchOrganizationActiveCourses,
+  fetchOrganizationActiveCoursesCount,
   fetchOrganizationCourses,
 } from "../../services/backend/organizations"
 import { NewCourse } from "../../shared-module/bindings"
@@ -52,6 +53,15 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
   )
 
   const {
+    isLoading: isLoadingActiveCoursesCount,
+    error: errorActiveCourseCount,
+    data: dataOrgActiveCoursesCount,
+    refetch: refetchOrgActiveCoursesCount,
+  } = useQuery(`organization-active-courses-count`, () =>
+    fetchOrganizationActiveCoursesCount(query.id),
+  )
+
+  const {
     isLoading: isLoadingOrg,
     error: errorOrg,
     data: dataOrg,
@@ -61,7 +71,6 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
   const loginStateContext = useContext(LoginStateContext)
 
   const [newCourseFormOpen, setNewCourseFormOpen] = useState(false)
-  console.log(dataOrg)
 
   if (errorOrgCourses) {
     return <pre>{JSON.stringify(errorOrgCourses, undefined, 2)}</pre>
@@ -75,11 +84,21 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
     return <pre>{JSON.stringify(errorOrg, undefined, 2)}</pre>
   }
 
+  if (errorActiveCourseCount) {
+    return <pre>{JSON.stringify(errorActiveCourseCount, undefined, 2)}</pre>
+  }
+
   if (isLoadingOrgCourses || !dataOrgCourses || isLoadingOrg || !dataOrg) {
     return <>Loading...</>
   }
 
-  if (isLoadingOrgActiveCourses || !dataOrgActiveCourses || isLoadingOrgActiveCourses) {
+  if (
+    isLoadingOrgActiveCourses ||
+    !dataOrgActiveCourses ||
+    isLoadingOrgActiveCourses ||
+    !dataOrgActiveCoursesCount ||
+    isLoadingActiveCoursesCount
+  ) {
     return <>Loading active courses...</>
   }
 
@@ -87,6 +106,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
     await postNewCourse(newCourse)
     await refetchOrgCourses()
     await refetchOrgActiveCourses()
+    await refetchOrgActiveCoursesCount()
     setNewCourseFormOpen(false)
   }
 
@@ -125,7 +145,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
         )}
 
         <Pagination
-          count={15}
+          count={dataOrgActiveCoursesCount.count}
           page={page}
           onChange={(_, pageNumber) => {
             router.replace(

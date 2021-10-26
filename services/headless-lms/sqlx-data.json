@@ -3246,6 +3246,22 @@
       "nullable": [false, false, false, false, true, true]
     }
   },
+  "62ba035ccc9f17309cb9e2acdd147532fff09bd22881ab163e1e5f5c06ec67c7": {
+    "query": "\nSELECT\n    COUNT(*) as count\nFROM courses as c\n    LEFT JOIN course_instances as ci on c.id = ci.course_id\nWHERE\n    c.organization_id = $1 AND\n    ci.starts_at < NOW() AND ci.ends_at > NOW();\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "count",
+          "type_info": "Int8"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [null]
+    }
+  },
   "62e9c0363c17960a9b5e5444706dbf0c8ebce53cebc5836a8f6bd62c43fc423b": {
     "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id\nFROM courses\nWHERE deleted_at IS NULL;\n",
     "describe": {

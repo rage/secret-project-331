@@ -6,7 +6,11 @@ use crate::{
         helpers::media::upload_image_for_organization, ControllerError, ControllerResult,
     },
     domain::authorization::{authorize, Action, AuthUser, Resource},
-    models::{course_instances::CourseInstance, courses::Course, organizations::Organization},
+    models::{
+        course_instances::{ActiveCourseCount, CourseInstance},
+        courses::Course,
+        organizations::Organization,
+    },
     utils::{file_store::FileStore, pagination::Pagination},
     ApplicationConfiguration,
 };
@@ -90,6 +94,21 @@ async fn get_organization_active_courses(
         )
         .await?;
     Ok(Json(course_instances))
+}
+
+#[instrument(skip(pool))]
+async fn get_organization_active_courses_count(
+    request_organization_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<Json<ActiveCourseCount>> {
+    let mut conn = pool.acquire().await?;
+    let result =
+        crate::models::course_instances::get_active_course_instances_for_organization_count(
+            &mut conn,
+            *request_organization_id,
+        )
+        .await?;
+    Ok(Json(result))
 }
 
 /**
@@ -268,6 +287,10 @@ pub fn _add_organizations_routes<T: 'static + FileStore>(cfg: &mut ServiceConfig
         .route(
             "/{organization_id}/courses/active",
             web::get().to(get_organization_active_courses),
+        )
+        .route(
+            "/{organization_id}/courses/active/count",
+            web::get().to(get_organization_active_courses_count),
         )
         .route(
             "/{organization_id}/image",

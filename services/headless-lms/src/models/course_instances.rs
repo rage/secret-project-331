@@ -36,6 +36,11 @@ pub struct CourseInstance {
     pub variant_status: VariantStatus,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
+pub struct ActiveCourseCount {
+    pub count: i64,
+}
+
 pub async fn insert(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -174,6 +179,29 @@ WHERE deleted_at IS NULL;
     .fetch_all(conn)
     .await?;
     Ok(course_instances)
+}
+
+pub async fn get_active_course_instances_for_organization_count(
+    conn: &mut PgConnection,
+    organization_id: Uuid,
+) -> ModelResult<ActiveCourseCount> {
+    let result = sqlx::query!(
+        r#"
+SELECT
+    COUNT(*) as count
+FROM courses as c
+    LEFT JOIN course_instances as ci on c.id = ci.course_id
+WHERE
+    c.organization_id = $1 AND
+    ci.starts_at < NOW() AND ci.ends_at > NOW();
+        "#,
+        organization_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(ActiveCourseCount {
+        count: result.count.unwrap_or_default(),
+    })
 }
 
 pub async fn get_active_course_instances_for_organization(

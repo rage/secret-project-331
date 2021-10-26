@@ -22,7 +22,7 @@ const Circle = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-
+  font-family: Josefin Sans, sans-serif;
   &:hover {
     cursor: pointer;
   }
@@ -103,6 +103,17 @@ const Pagination: React.FC<PaginationProps> = ({ count, page, onChange }) => {
         <ChevronLeftIcon />
       </LeftButton>,
     )
+
+    // In case there is nothing
+    if (count == 0) {
+      components.push(<SelectedCircle> 1 </SelectedCircle>)
+      components.push(
+        <RightButton onClick={handleChangeEvent(Math.min(page + 1, count))}>
+          <ChevronRightIcon />
+        </RightButton>,
+      )
+      return components
+    }
 
     if (count <= CAPACITY + 2) {
       for (let idx = 1; idx <= count; idx++) {

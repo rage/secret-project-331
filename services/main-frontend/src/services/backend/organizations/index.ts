@@ -1,4 +1,4 @@
-import { Course, Organization } from "../../../shared-module/bindings"
+import { ActiveCourseCount, Course, Organization } from "../../../shared-module/bindings"
 import { validateFile } from "../../../shared-module/utils/files"
 import { mainFrontendClient } from "../../mainFrontendClient"
 
@@ -35,6 +35,17 @@ export const fetchOrganizationActiveCourses = async (
         page,
         limit,
       },
+    })
+  ).data
+  return data
+}
+
+export const fetchOrganizationActiveCoursesCount = async (
+  organizationId: string,
+): Promise<ActiveCourseCount> => {
+  const data = (
+    await mainFrontendClient.get(`/organizations/${organizationId}/courses/active/count`, {
+      responseType: "json",
     })
   ).data
   return data

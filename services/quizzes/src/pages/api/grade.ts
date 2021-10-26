@@ -155,14 +155,10 @@ function SubmissionFeedback(submission: QuizAnswer, quiz: Quiz): ItemAnswerFeedb
       return { quiz_item_id: null, quiz_item_feedback: null, quiz_item_option_feedbacks: null }
     }
     if (
-      item.type !== ("multiple-choice" || "clickable-multiple-choice" || "multiple-choice-dropdown")
+      item.type === "multiple-choice" ||
+      item.type === "clickable-multiple-choice" ||
+      item.type === "multiple-choice-dropdown"
     ) {
-      return {
-        quiz_item_id: item.id,
-        quiz_item_feedback: ia.correct ? item.successMessage : item.failureMessage,
-        quiz_item_option_feedbacks: null,
-      }
-    } else {
       return {
         quiz_item_id: item.id,
         quiz_item_feedback: null,
@@ -178,6 +174,12 @@ function SubmissionFeedback(submission: QuizAnswer, quiz: Quiz): ItemAnswerFeedb
               }
             })
           : null,
+      }
+    } else {
+      return {
+        quiz_item_id: item.id,
+        quiz_item_feedback: ia.correct ? item.successMessage : item.failureMessage,
+        quiz_item_option_feedbacks: null,
       }
     }
   })

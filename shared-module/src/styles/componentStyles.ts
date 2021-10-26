@@ -7,14 +7,12 @@ import { respondToOrLarger } from "./respond"
 // in a page to be inside a container. Some elements need the entire width
 // of the page.
 export const normalWidthCenteredComponentStyles = css`
-  width: 100%;
   max-width: ${defaultContainerWidth}rem;
   margin-left: auto;
   margin-right: auto;
 `
 
 export const courseMaterialCenteredComponentStyles = css`
-  width: 100%;
   max-width: ${defaultContainerWidth}rem;
   margin-left: auto;
   margin-right: auto;

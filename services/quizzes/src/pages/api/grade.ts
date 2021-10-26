@@ -1,20 +1,32 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 
-import { Quiz, QuizAnswer, QuizItem, QuizItemAnswer, UserQuizState } from "../../types/types"
+import { Quiz, QuizAnswer, QuizItem, QuizItemAnswer } from "../../types/types"
 
 interface QuizzesGradingRequest {
-  // Quiz that students has answered
-  quiz: Quiz
-  // Students answer
-  quizAnswer: QuizAnswer
-  // Object to track user and quiz relation
-  userQuizState: UserQuizState
+  exercise_spec: Quiz
+  submission_data: QuizAnswer
 }
 
-export default (
-  req: NextApiRequest,
-  res: NextApiResponse<UserQuizState | { message: string }>,
-): void => {
+interface OptionAnswerFeedback {
+  option_id: string | null
+  option_feedback: string | null
+}
+
+interface ItemAnswerFeedback {
+  quiz_item_id: string | null
+  quiz_item_feedback: string | null
+  quiz_item_option_feedbacks: OptionAnswerFeedback[] | null
+}
+
+interface QuizzesGradingResult {
+  grading_progress: "FullyGraded" | "Pending" | "PendingManual" | "Failed"
+  score_given: number
+  score_maximum: number
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  feedback_json: ItemAnswerFeedback[]
+}
+
+export default (req: NextApiRequest, res: NextApiResponse): void => {
   if (req.method !== "POST") {
     return res.status(404).json({ message: "Not found" })
   }
@@ -22,34 +34,30 @@ export default (
   return handlePost(req, res)
 }
 
-const handlePost = (req: NextApiRequest, res: NextApiResponse) => {
+const handlePost = (req: NextApiRequest, res: NextApiResponse<QuizzesGradingResult>) => {
   const gradingRedquest: QuizzesGradingRequest = req.body
-  const { quiz, quizAnswer, userQuizState } = gradingRedquest
+  const { exercise_spec, submission_data } = gradingRedquest
 
-  try {
-    asssesAnswer(quizAnswer, quiz)
-    assessUserQuizStatus(quizAnswer, userQuizState, quiz, true)
-    gradeAnswer(quizAnswer, userQuizState, quiz)
-    return res.status(200).json(quizAnswer)
-  } catch (err) {
-    return res.status(400).json(err)
-  }
+  asssesAnswer(submission_data, exercise_spec)
+  const score = gradeAnswer(submission_data, exercise_spec)
+  const feedbacks = SubmissionFeedback(submission_data, exercise_spec)
+  return res.status(200).json({
+    feedback_json: feedbacks,
+    grading_progress: "FullyGraded",
+    score_given: score,
+    score_maximum: exercise_spec.points,
+  })
 }
 
-function gradeAnswer(quizAnswer: QuizAnswer, userQuizState: UserQuizState, quiz: Quiz) {
-  if (quizAnswer.status !== "confirmed") {
-    return
-  }
+function gradeAnswer(quizAnswer: QuizAnswer, quiz: Quiz): number {
   if (quiz.awardPointsEvenIfWrong) {
-    userQuizState.pointsAwarded = quiz.points
-    return
+    return quiz.points
   }
   const quizItemAnswers = quizAnswer.itemAnswers
   const nCorrect = quizItemAnswers.filter((itemAnswer) => itemAnswer.correct === true).length
   const total = quizItemAnswers.length
   const points = (nCorrect / total) * quiz.points
-  const pointsAwarded = userQuizState.pointsAwarded ?? 0
-  userQuizState.pointsAwarded = points > pointsAwarded ? points : pointsAwarded
+  return points
 }
 
 function asssesAnswer(quizAnswer: QuizAnswer, quiz: Quiz) {
@@ -99,30 +107,6 @@ function asssesAnswer(quizAnswer: QuizAnswer, quiz: Quiz) {
   }
 }
 
-function assessUserQuizStatus(
-  quizAnswer: QuizAnswer,
-  userQuizState: UserQuizState,
-  quiz: Quiz,
-  update: boolean,
-) {
-  if (!update) {
-    userQuizState.tries += 1
-  }
-  const hasTriesLeft = !quiz.triesLimited || userQuizState.tries < quiz.tries
-  if (hasTriesLeft) {
-    if (["rejected", "spam"].includes(quizAnswer.status)) {
-      userQuizState.peerReviewsReceived = null
-      userQuizState.spamFlags = null
-      userQuizState.status = "open"
-    } else {
-      userQuizState.status = "locked"
-    }
-    userQuizState.status = "open"
-  } else {
-    userQuizState.status = "locked"
-  }
-}
-
 function removeNonPrintingCharacters(string: string): string {
   const nonPrintingCharRegex =
     // eslint-disable-next-line no-misleading-character-class, no-control-regex
@@ -162,4 +146,40 @@ function assesMultipleChoiceQuizzes(quizItemAnswer: QuizItemAnswer, quizItem: Qu
   quizItemAnswer.correct = quizItem.multi
     ? correctOptionIds.length === selectedCorrectOptions.length && allSelectedOptionsAreCorrect
     : selectedCorrectOptions.length > 0 && quizOptionAnswers.length === 1
+}
+
+function SubmissionFeedback(submission: QuizAnswer, quiz: Quiz): ItemAnswerFeedback[] {
+  const feedbacks: ItemAnswerFeedback[] = submission.itemAnswers.map((ia) => {
+    const item = quiz.items.find((i) => i.id === ia.quizItemId)
+    if (!item) {
+      return { quiz_item_id: null, quiz_item_feedback: null, quiz_item_option_feedbacks: null }
+    }
+    if (
+      item.type !== ("multiple-choice" || "clickable-multiple-choice" || "multiple-choice-dropdown")
+    ) {
+      return {
+        quiz_item_id: item.id,
+        quiz_item_feedback: ia.correct ? item.successMessage : item.failureMessage,
+        quiz_item_option_feedbacks: null,
+      }
+    } else {
+      return {
+        quiz_item_id: item.id,
+        quiz_item_feedback: null,
+        quiz_item_option_feedbacks: ia.optionAnswers
+          ? ia.optionAnswers.map((oa) => {
+              const option = item.options.find((o) => o.id === oa)
+              if (!option) {
+                return { option_id: null, option_feedback: null }
+              }
+              return {
+                option_id: option.id,
+                option_feedback: option.correct ? option.successMessage : option.failureMessage,
+              }
+            })
+          : null,
+      }
+    }
+  })
+  return feedbacks
 }

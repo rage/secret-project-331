@@ -35,7 +35,7 @@ const HeadingBlock: React.FC<BlockRendererProps<HeadingAttributes>> = ({ data })
       ${textColor && `color: ${colorMapper(textColor, "#000000")};`}
       ${backgroundColor && `background-color: ${colorMapper(backgroundColor)};`}
       ${fontSize && `font-size: ${fontSizeMapper(fontSize)};`}
-      ${backgroundColor && "padding: 1.25rem 2.375rem !important;"}
+      ${backgroundColor && "padding: 2.66rem 5rem !important;"}
     `,
     ...(anchor ? { id: anchor } : {}),
   }

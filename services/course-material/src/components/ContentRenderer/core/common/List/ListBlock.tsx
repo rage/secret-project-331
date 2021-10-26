@@ -27,11 +27,15 @@ const ListBlock: React.FC<BlockRendererProps<ListAttributes>> = ({ data }) => {
 
   const listItemClasses = css`
     ${courseMaterialCenteredComponentStyles}
-    max-width: ${defaultContainerWidth - 4.75}rem;
+    max-width: ${defaultContainerWidth}rem;
     ${fontSize && `font-size: ${fontSizeMapper(fontSize)};`}
     ${textColor && `color: ${colorMapper(textColor)};`}
     ${backgroundColor && `background: ${colorMapper(backgroundColor)};`}
     ${gradient && `background: ${colorMapper(gradient)};`}
+    ${backgroundColor && `padding: 1.25em 2.375em !important;`}
+    padding-inline-start: 2.5rem !important;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
   `
 
   if (ordered) {

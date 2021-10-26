@@ -9,11 +9,11 @@ const QuoteBlock: React.FC<BlockRendererProps<QuoteAttributes>> = ({ data }) => 
   const { citation, value, anchor, className, align } = data.attributes
 
   const styleLeftDefault = css`
-    padding-left: 2rem;
+    padding-left: 1rem !important;
     border-left: 0.25rem solid #000;
   `
   const styleRightDefault = css`
-    padding-right: 2rem;
+    padding-right: 1rem !important;
     border-right: 0.25rem solid #000;
     text-align: right;
   `

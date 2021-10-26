@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import HelpIcon from "@material-ui/icons/Help"
-import { useContext, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { useQuery, useQueryClient } from "react-query"
 
 import ContentRenderer, { BlockRendererProps } from ".."
@@ -15,8 +15,7 @@ import { defaultContainerWidth } from "../../../shared-module/styles/constants"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import GenericLoading from "../../GenericLoading"
 
-import ExerciseTaskIframe from "./ExerciseTaskIframe"
-
+import ExerciseTaskIframe, { ExerciseTaskData } from "./ExerciseTaskIframe"
 interface ExerciseBlockAttributes {
   id: string
 }
@@ -39,6 +38,17 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const [submissionResponse, setSubmissionResponse] = useState<SubmissionResult | null>(null)
   const [submissionError, setSubmissionError] = useState<unknown | null>(null)
   const queryClient = useQueryClient()
+  const [iframeData, setIframeData] = useState<ExerciseTaskData>({
+    type: "exercise",
+    content: null,
+  })
+
+  useEffect(() => {
+    setIframeData({
+      type: "exercise",
+      content: data?.current_exercise_task.public_spec,
+    })
+  }, [data])
 
   if (error) {
     return <pre>{JSON.stringify(error, undefined, 2)}</pre>
@@ -61,6 +71,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
 
   const feedbackText = submissionResponse?.grading?.feedback_text
 
+  console.log("Submission response:", submissionResponse)
   return (
     <div
       className={css`
@@ -120,7 +131,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
       )}
       {url ? (
         <ExerciseTaskIframe
-          public_spec={data.current_exercise_task.public_spec}
+          data={iframeData}
           url={`${url}?width=${defaultContainerWidth}`}
           setAnswer={setAnswer}
           setAnswerValid={setAnswerValid}
@@ -156,6 +167,10 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
               })
               setSubmitting(false)
               setSubmissionResponse(res)
+              setIframeData({
+                type: "grading",
+                content: res,
+              })
               const scoreGiven = res.grading.score_given ?? 0
               const newData = { ...data }
               if (newData.exercise_status) {

@@ -18,14 +18,13 @@ import {
 import { NewCourse } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
 import DebugModal from "../../shared-module/components/DebugModal"
+import Pagination from "../../shared-module/components/Pagination"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
 import { wideWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
-
-import Pagination from "./Pagination"
 
 interface OrganizationPageProps {
   query: SimplifiedUrlQuery<"id">

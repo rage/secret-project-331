@@ -21,13 +21,9 @@
   },
   "homepage": "https://github.com/rage/secret-project-331#readme",
   "devDependencies": {
-    "@babel/core": "^7.15.5",
-    "@lingui/cli": "^3.11.1",
-    "@lingui/macro": "^3.11.1",
     "@types/node": "^16.9.6",
     "@typescript-eslint/eslint-plugin": "^4.31.2",
     "@typescript-eslint/parser": "^4.31.2",
-    "babel-plugin-macros": "^3.1.0",
     "concurrently": "^6.2.1",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",

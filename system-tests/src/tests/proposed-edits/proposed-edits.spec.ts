@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test"
 import { Page } from "playwright"
 
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
+import waitForFunction from "../../utils/waitForFunction"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -42,6 +43,14 @@ test("test", async ({ page, headless }) => {
     page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-edit-proposals/chapter-1/page-1' }*/),
     page.click("text=Page One"),
   ])
+
+  const frame = await waitForFunction(page, () =>
+    page.frames().find((f) => {
+      return f.url().startsWith("http://project-331.local/example-exercise/exercise")
+    }),
+  )
+
+  await frame.waitForSelector("text=b")
 
   // Click text=Give feedback
   await page.click("text=Give feedback")
@@ -229,7 +238,7 @@ async function replaceIds(page: Page): Promise<void> {
   await page.evaluate(() => {
     const divs = document.querySelectorAll("div")
     for (const div of divs) {
-      if (div.children.length === 0 && div.textContent.includes('Page: "')) {
+      if (div.children.length === 0 && div.textContent.includes("Page: ")) {
         div.innerHTML = 'Page: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"'
       }
     }

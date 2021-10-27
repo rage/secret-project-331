@@ -125,7 +125,7 @@ const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
               // eslint-disable-next-line i18next/no-literal-string
               value="reject"
               control={<Radio />}
-              label={t("button-text-accept")}
+              label={t("button-text-reject")}
               onChange={() => {
                 setEditingBlocks((eb) => {
                   eb.delete(block.id)

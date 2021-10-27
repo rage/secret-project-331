@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import Link from "next/link"
 import React from "react"
 import { Trans, useTranslation } from "react-i18next"
@@ -29,16 +30,25 @@ const UserOnWrongCourseNotification: React.FC<UserOnWrongCourseNotificationProps
 
   return (
     <Banner variant="readOnly">
-      <Trans t={t} i18nKey="message-already-on-different-language-version2">
-        Looks like you&apos;re already on a different language version of this course. Before
-        answering any exercises, please return to
-        <Link passHref href={{ pathname: "/[courseSlug]", query: { courseSlug: data.slug } }}>
-          <a hrefLang={data.language_code} href="replace">
-            {{ name: data.name }}
-          </a>
-        </Link>
-        or change your active language in the settings.
-      </Trans>
+      <Link passHref href={`/${data.slug}`}>
+        <a
+          className={css`
+            color: #000;
+            text-decoration: none;
+            &:hover {
+              color: #333;
+            }
+          `}
+          hrefLang={data.language_code}
+          href="replace"
+        >
+          <Trans t={t} i18nKey="message-already-on-different-language-version">
+            Looks like you&apos;re already on a different language version of this course. Before
+            answering any exercises, please return to <b>{{ name: data.name }}</b>
+            or change your active language in the settings.
+          </Trans>
+        </a>
+      </Link>
     </Banner>
   )
 }

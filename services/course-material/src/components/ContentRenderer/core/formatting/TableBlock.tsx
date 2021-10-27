@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import sanitizeHtml from "sanitize-html"
 
 import { BlockRendererProps } from "../.."
 import { baseTheme } from "../../../../shared-module/styles"
@@ -13,8 +14,8 @@ const TableBlock: React.FC<BlockRendererProps<TableAttributes>> = ({ data }) => 
     caption,
     anchor,
     backgroundColor,
-    // borderColor, // Bordercolor is same as textcolor in Gutenberg
-    // align, // figure out alignment later
+    // borderColor, // Bordercolor is same as textcolor in our version of Gutenberg
+    align,
     className,
     gradient,
     // style,
@@ -37,83 +38,109 @@ const TableBlock: React.FC<BlockRendererProps<TableAttributes>> = ({ data }) => 
   }
 
   return (
-    <table
+    <div
       className={css`
         ${courseMaterialCenteredComponentStyles}
-        ${backgroundColor && `background: ${colorMapper(backgroundColor)};`}
-        ${gradient && `background: ${colorMapper(gradient)};`}
-        color: ${textAndBorderColor};
-        border-collapse: collapse;
-        td,
-        th {
-          ${!isStriped && `border: 1px solid ${textAndBorderColor};`}
-          white-space: pre-wrap;
-          padding: 0.5rem;
-          ${hasFixedLayout && "word-break: break-word;"}
-        }
-        tbody tr:nth-child(odd) {
-          ${isStriped && `background-color: ${baseTheme.colors.grey[100]};`}
-        }
-        ${hasFixedLayout && "table-layout: fixed;"}
-        thead {
-          border-bottom: 3px solid;
-        }
-        tfoot {
-          border-top: 3px solid;
-        }
       `}
-      {...(anchor && { id: anchor })}
     >
-      {head && (
-        <thead>
-          {head.map((cellRows, j) => (
-            <tr key={j}>
-              {cellRows.cells &&
-                cellRows.cells.map((cell, i) => (
-                  <th className={fetchAlignment(cell.align)} key={i}>
-                    {cell.content}
-                  </th>
-                ))}
-            </tr>
-          ))}
-        </thead>
-      )}
-      <tbody>
-        {body.map((cellRows, j) => (
-          <tr key={j}>
-            {cellRows.cells &&
-              cellRows.cells.map((cell, i) => (
-                <td className={fetchAlignment(cell.align)} key={i}>
-                  {cell.content}
-                </td>
-              ))}
-          </tr>
-        ))}
-      </tbody>
-      {foot && (
-        <tfoot>
-          {foot.map((cellRows, j) => (
-            <tr key={j}>
-              {cellRows.cells &&
-                cellRows.cells.map((cell, i) => (
-                  <th className={fetchAlignment(cell.align)} key={i}>
-                    {cell.content}
-                  </th>
-                ))}
-            </tr>
-          ))}
-        </tfoot>
-      )}
-      <caption
+      <table
         className={css`
-          text-align: center;
-          font-size: 0.8125rem;
-          caption-side: bottom;
+          ${backgroundColor && `background: ${colorMapper(backgroundColor)};`}
+          ${gradient && `background: ${colorMapper(gradient)};`}
+          ${align !== "center" && `float: ${align};`}
+          ${align === "center" && "margin: 0 auto;"}
+          color: ${textAndBorderColor};
+          border-collapse: collapse;
+          ${!align && "width: 100%;"}
+          td,
+          th {
+            ${!isStriped && `border: 1px solid ${textAndBorderColor};`}
+            white-space: pre-wrap;
+            padding: 0.5rem;
+            ${hasFixedLayout && "word-break: break-word;"}
+          }
+          tbody tr:nth-child(odd) {
+            ${isStriped && `background-color: ${baseTheme.colors.grey[100]};`}
+          }
+          ${hasFixedLayout && "table-layout: fixed;"}
+          thead {
+            border-bottom: 3px solid;
+          }
+          tfoot {
+            border-top: 3px solid;
+          }
         `}
+        {...(anchor && { id: anchor })}
       >
-        {caption}
-      </caption>
-    </table>
+        {head && (
+          <thead>
+            {head.map((cellRows, j) => (
+              <tr key={j}>
+                {cellRows.cells &&
+                  cellRows.cells.map((cell, i) => (
+                    <th
+                      className={fetchAlignment(cell.align)}
+                      key={i}
+                      dangerouslySetInnerHTML={{
+                        __html: sanitizeHtml(
+                          cell.content !== "" ? cell.content ?? "&#xFEFF;" : "&#xFEFF;",
+                        ),
+                      }}
+                    />
+                  ))}
+              </tr>
+            ))}
+          </thead>
+        )}
+        <tbody>
+          {body.map((cellRows, j) => (
+            <tr key={j}>
+              {cellRows.cells &&
+                cellRows.cells.map((cell, i) => (
+                  <td
+                    className={fetchAlignment(cell.align)}
+                    key={i}
+                    dangerouslySetInnerHTML={{
+                      __html: sanitizeHtml(
+                        cell.content !== "" ? cell.content ?? "&#xFEFF;" : "&#xFEFF;",
+                      ),
+                    }}
+                  />
+                ))}
+            </tr>
+          ))}
+        </tbody>
+        {foot && (
+          <tfoot>
+            {foot.map((cellRows, j) => (
+              <tr key={j}>
+                {cellRows.cells &&
+                  cellRows.cells.map((cell, i) => (
+                    <th
+                      className={fetchAlignment(cell.align)}
+                      key={i}
+                      dangerouslySetInnerHTML={{
+                        __html: sanitizeHtml(
+                          cell.content !== "" ? cell.content ?? "&#xFEFF;" : "&#xFEFF;",
+                        ),
+                      }}
+                    />
+                  ))}
+              </tr>
+            ))}
+          </tfoot>
+        )}
+        <caption
+          className={css`
+            text-align: center;
+            font-size: 0.8125rem;
+            caption-side: bottom;
+          `}
+        >
+          {caption}
+        </caption>
+      </table>
+    </div>
   )
 }
 

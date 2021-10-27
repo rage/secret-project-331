@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import sanitizeHtml from "sanitize-html"
 
 import { BlockRendererProps } from "../.."
 import { courseMaterialCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
@@ -17,13 +18,12 @@ const PreformattedBlock: React.FC<BlockRendererProps<PreformattedAttributes>> = 
         ${backgroundColor && `background-color: ${colorMapper(backgroundColor)};`}
         ${gradient && `background-color: ${colorMapper(gradient)};`}
         white-space: pre-wrap;
-        padding: 1.25em 2.375em;
-        overflow-wrap: "break-word";
+        padding: 1.25em 2.375em !important;
+        overflow-wrap: break-word;
       `}
       {...(anchor && { id: anchor })}
-    >
-      {content}
-    </pre>
+      dangerouslySetInnerHTML={{ __html: sanitizeHtml(content ?? "") }}
+    />
   )
 }
 

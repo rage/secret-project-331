@@ -9,7 +9,7 @@ import { PullquoteAttributes } from "../../../../types/GutenbergBlockAttributes"
 const PullquoteBlock: React.FC<BlockRendererProps<PullquoteAttributes>> = ({ data }) => {
   const {
     citation,
-    // align,
+    align,
     anchor,
     backgroundColor,
     // borderColor, // Border color is same as textColor in CMS
@@ -21,39 +21,48 @@ const PullquoteBlock: React.FC<BlockRendererProps<PullquoteAttributes>> = ({ dat
     value,
   } = data.attributes
 
-  const textAlignNotCenterWidth = textAlign && textAlign !== "center" ? "max-width: 30rem;" : null
+  const textAlignNotCenterWidth =
+    textAlign && textAlign !== "center" && !align ? "max-width: 26.25rem;" : null
   const textAndBorderColor = colorMapper(textColor, "#000")
 
   return (
     <div
       className={css`
         ${courseMaterialCenteredComponentStyles}
-        ${textColor && `color: ${textAndBorderColor};`}
-        ${backgroundColor && `background: ${colorMapper(backgroundColor)};`}
-        ${gradient && `background: ${colorMapper(gradient)};`}
-        text-align: center;
-        ${textAlign && `text-align: ${textAlign};`}
         ${textAlignNotCenterWidth}
-        border-top: 0.25rem solid ${textAndBorderColor};
-        border-bottom: 0.25rem solid ${textAndBorderColor};
-        padding: 3rem 0rem !important;
       `}
-      {...(anchor && { id: anchor })}
     >
-      <p
+      <figure
         className={css`
-          font-size: 1.75rem;
-          line-height: 1.6;
+          ${textColor && `color: ${textAndBorderColor};`}
+          ${backgroundColor && `background: ${colorMapper(backgroundColor)};`}
+          ${gradient && `background: ${colorMapper(gradient)};`}
+          text-align: center;
+          ${textAlign && `text-align: ${textAlign};`}
+          border-top: 0.25rem solid ${textAndBorderColor};
+          border-bottom: 0.25rem solid ${textAndBorderColor};
+          padding: 3rem 0rem !important;
+          margin-bottom: 1rem;
+          ${align && `float: ${align};`}
+          ${align === "right" ? "margin-left: 1rem;" : "margin-right: 1rem;"}
         `}
-        dangerouslySetInnerHTML={{ __html: sanitizeHtml(value ?? "") }}
-      ></p>
-      <cite
-        className={css`
-          font-style: normal;
-          text-transform: uppercase;
-        `}
-        dangerouslySetInnerHTML={{ __html: sanitizeHtml(citation) }}
-      ></cite>
+        {...(anchor && { id: anchor })}
+      >
+        <blockquote
+          className={css`
+            font-size: 1.75rem;
+            line-height: 1.6;
+          `}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(value ?? "") }}
+        />
+        <cite
+          className={css`
+            font-style: normal;
+            text-transform: uppercase;
+          `}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(citation) }}
+        ></cite>
+      </figure>
     </div>
   )
 }

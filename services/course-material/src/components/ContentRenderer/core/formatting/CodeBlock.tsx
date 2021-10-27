@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import sanitizeHtml from "sanitize-html"
 
 import { BlockRendererProps } from "../.."
 import { courseMaterialCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
@@ -13,11 +14,12 @@ const CodeBlock: React.FC<BlockRendererProps<CodeAttributes>> = ({ data }) => {
         ${courseMaterialCenteredComponentStyles}
         ${fontSize && `font-size: ${fontSizeMapper(fontSize)};`}
         border: 1px solid #ddd;
-        padding: 0.8em 1em;
+        padding: 0.8rem 1rem !important;
+        line-height: 1.75rem;
       `}
       {...(anchor && { id: anchor })}
     >
-      <code>{content}</code>
+      <code dangerouslySetInnerHTML={{ __html: sanitizeHtml(content ?? "") }} />
     </pre>
   )
 }

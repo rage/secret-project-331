@@ -16,6 +16,16 @@
     margin-bottom: 0.5rem;
   }
 
+  :where(.wp-block)[data-align="left"] > * {
+    float: left;
+    margin-right: 1em;
+  }
+
+  :where(.wp-block)[data-align="right"] > * {
+    float: right;
+    margin-left: 1em;
+  }
+
   p {
     font-size: inherit;
     line-height: inherit;

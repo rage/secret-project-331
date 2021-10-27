@@ -34,7 +34,7 @@
   "title-youtube-video-player": "YouTube video player",
   "error-page-data-in-invalid-format": "Error: page data is in invalid format",
   "continue": "Continue",
-  "default": "Default",
+  "default-course-instance-name": "Default",
   "error-missing-course-instance-id": "Missing course instance id",
   "loading": "Loading",
   "title-select-course-version-to-continue": "Select course version to continue.",

@@ -11,6 +11,8 @@ import GlobalStyles from "../shared-module/styles/GlobalStyles"
 import muiTheme from "../shared-module/styles/muiTheme"
 import initI18n from "../shared-module/utils/initI18n"
 
+import "../styles/Gutenberg/style.scss"
+
 // eslint-disable-next-line i18next/no-literal-string
 const i18n = initI18n("cms")
 

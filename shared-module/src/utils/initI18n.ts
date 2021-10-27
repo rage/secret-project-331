@@ -32,6 +32,8 @@ const initI18n = (defaultNS: string): typeof i18n => {
     .init({
       // eslint-disable-next-line i18next/no-literal-string
       ns: [defaultNS, "shared-module"],
+      // eslint-disable-next-line i18next/no-literal-string
+      fallbackNS: ["shared-module"],
       defaultNS,
       // eslint-disable-next-line i18next/no-literal-string
       fallbackLng: "en",

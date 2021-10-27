@@ -162,7 +162,8 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
               control={<Radio />}
               key="other"
               label={t("other-language")}
-              value={t("other-language")}
+              // eslint-disable-next-line i18next/no-literal-string
+              value="other"
             />
           </RadioGroup>
         </FieldContainer>

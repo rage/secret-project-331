@@ -58,11 +58,13 @@ const CoursePages: React.FC<CoursePagesProps> = ({ query }) => {
         `}
       >
         <h1>{t("course-overview-for", { "course-name": data.course.name })}</h1>
+        <h2>{t("pages")}</h2>
         <PageList
           data={data.pages.filter((page) => !page.chapter_id)}
           refetch={refetch}
           courseId={data.course.id}
         />
+        <h2>{t("chapters")}</h2>
         <div>
           {data.chapters
             .filter((chapter) => !chapter.deleted_at)

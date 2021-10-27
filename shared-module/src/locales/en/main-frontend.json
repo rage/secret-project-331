@@ -88,6 +88,8 @@
   "title-all-course-instances": "All course instances",
   "title-all-exercises": "All exercises",
   "course-overview-for": "Course overview for {{course-name}}",
+  "pages": "Pages",
+  "chapters": "Chapters",
   "title-chapter": "Chapter {{chapter-number}}: {{chapter-name}}",
   "title-statistics": "Statistics",
   "title-number-of-submissions-per-day": "Number of submissions per day",

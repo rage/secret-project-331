@@ -53,7 +53,7 @@ test("test", async ({ page, headless }) => {
     page,
     headless,
     snapshotName: "no-edits-yet",
-    waitForThisToBeVisibleAndStable: "text=Click on material to make it editable!",
+    waitForThisToBeVisibleAndStable: "text=Click on course material to make it editable!",
   })
 
   await page.click("text=At vero eos et")

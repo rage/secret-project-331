@@ -33,7 +33,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ courseInstances, onSubmit
             <FormControlLabel
               control={<Radio />}
               key={x.id}
-              label={x.name || t("default")}
+              label={x.name || t("default-course-instance-name")}
               value={x.id}
             />
           ))}

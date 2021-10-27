@@ -1,4 +1,4 @@
-import { LaunchOptions, PlaywrightTestConfig } from "@playwright/test"
+import { LaunchOptions, PlaywrightTestConfig, ReporterDescription } from "@playwright/test"
 
 function envToNumber(env: string, defaultNumber: number) {
   try {
@@ -11,7 +11,7 @@ function envToNumber(env: string, defaultNumber: number) {
 const config: PlaywrightTestConfig = {
   globalSetup: require.resolve("./src/setup/globalSetup.ts"),
   globalTeardown: require.resolve("./src/setup/globalTeardown.ts"),
-  reporter: "./src/utils/customReporter",
+  reporter: [["./src/utils/customReporter"], ["html"]],
   timeout: 100000,
   use: {
     headless: true,
@@ -30,6 +30,15 @@ if (process.env.SLOWMO) {
 
 if (process.env.RECORD_VIDEO) {
   config.use.video = "on"
+}
+
+if (process.env.PWDEBUG === "1") {
+  config.workers = 1
+}
+
+if (process.env.CI) {
+  const reporters = config.reporter as ReporterDescription[]
+  config.reporter = [["github"], ...reporters]
 }
 
 export default config

@@ -9,6 +9,8 @@ const LANGUAGE_COOKIE_KEY = "selected-language"
 const SUPPORTED_LANGUAGES = ["en", "fi"]
 const DEFAULT_LANGUAGE = "en"
 
+const CAN_ACCESS_COOKIES = detectAccessToCookies()
+
 // If language is specified with the `lang` query param, use that and save that as a langauge preference.
 // Otherwise use either the saved language preference or detect the desired language
 export default function useLanguage(): string | null {
@@ -27,7 +29,7 @@ export default function useLanguage(): string | null {
   const selectedLanguage =
     mapLanguageCadidateToSupportedLanguage(languageCandidate) ?? DEFAULT_LANGUAGE
 
-  if (!IS_SERVER) {
+  if (!IS_SERVER && CAN_ACCESS_COOKIES) {
     // Remember the selected language in a cookie
     // eslint-disable-next-line i18next/no-literal-string
     document.cookie = `${LANGUAGE_COOKIE_KEY}=${selectedLanguage}; path=/; SameSite=Strict; max-age=31536000;`
@@ -46,12 +48,12 @@ function determineLanguageFromQueryValue(value: string | string[] | undefined): 
       // If we're in the server skip the detection
       return null
     }
-    // Detect langauge from a saved cookie. The cookie will be set when the user selects a language from the language switcher
-    // We default with the detection to that one so that the user does not have to repeatedly switch their language to their preferred one
-    const previouslySelectedLanguage = getValueFromCookieString(
-      document.cookie,
-      LANGUAGE_COOKIE_KEY,
-    )
+    let previouslySelectedLanguage = null
+    if (CAN_ACCESS_COOKIES) {
+      // Detect langauge from a saved cookie. The cookie will be set when the user selects a language from the language switcher
+      // We default with the detection to that one so that the user does not have to repeatedly switch their language to their preferred one
+      previouslySelectedLanguage = getValueFromCookieString(document.cookie, LANGUAGE_COOKIE_KEY)
+    }
 
     if (previouslySelectedLanguage) {
       const supportedLanguage = mapLanguageCadidateToSupportedLanguage(previouslySelectedLanguage)
@@ -92,4 +94,13 @@ function mapLanguageCadidateToSupportedLanguage(navigatorLanguage: string): stri
     return languageParts[0]
   }
   return null
+}
+
+function detectAccessToCookies() {
+  try {
+    const cookie = document.cookie
+    return cookie !== "wat"
+  } catch (e) {
+    return false
+  }
 }

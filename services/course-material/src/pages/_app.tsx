@@ -11,7 +11,7 @@ import muiTheme from "../shared-module/styles/muiTheme"
 import initI18n from "../shared-module/utils/initI18n"
 
 // eslint-disable-next-line i18next/no-literal-string
-const i18n = initI18n("main-frontend")
+const i18n = initI18n("course-material")
 
 const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
   const language = useLanguage()

@@ -26,7 +26,6 @@ const TableBlock: React.FC<BlockRendererProps<TableAttributes>> = ({ data }) => 
   const foot = data.attributes.foot
 
   const isStriped = className === "is-style-stripes"
-  const textAndBorderColor = colorMapper(textColor, "#000")
 
   const fetchAlignment = (align: string | undefined) => {
     if (align) {
@@ -49,12 +48,12 @@ const TableBlock: React.FC<BlockRendererProps<TableAttributes>> = ({ data }) => 
           ${gradient && `background: ${colorMapper(gradient)};`}
           ${align !== "center" && `float: ${align};`}
           ${align === "center" && "margin: 0 auto;"}
-          color: ${textAndBorderColor};
+          color: ${colorMapper(textColor)};
           border-collapse: collapse;
           ${!align && "width: 100%;"}
           td,
           th {
-            ${!isStriped && `border: 1px solid ${textAndBorderColor};`}
+            ${!isStriped && `border: 1px solid currentColor;`}
             white-space: pre-wrap;
             padding: 0.5rem;
             ${hasFixedLayout && "word-break: break-word;"}

@@ -188,7 +188,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
         ${dropCap ? hasDropCap : null}
         white-space: pre-line;
         min-width: 1px;
-        color: ${colorMapper(textColor, "#000000")};
+        color: ${colorMapper(textColor)};
         background-color: ${bgColor};
         font-size: ${fontSizeMapper(fontSize)};
         line-height: 2rem;

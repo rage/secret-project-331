@@ -14,7 +14,10 @@ const SeparatorBlock: React.FC<BlockRendererProps<SeparatorAttributes>> = ({ dat
         className={css`
           ${color && `background-color: ${colorMapper(color)};`}
           ${color && `color: ${colorMapper(color)};`}
-          ${!className && "width: 6.25rem; text-align: center;" /* Is not style-wide or dots */}
+          ${
+            (!className || className === "is-style-default") &&
+            "width: 6.25rem; text-align: center;" /* Is not style-wide or dots */
+          }
           ${className &&
           className.includes("is-style-dots") &&
           `

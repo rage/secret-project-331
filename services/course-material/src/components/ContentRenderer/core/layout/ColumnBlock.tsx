@@ -18,13 +18,24 @@ const ColumnBlock: React.FC<BlockRendererProps<ColumnAttributes>> = ({ data }) =
     verticalAlignment,
     width,
   } = data.attributes
+
+  const getAlignSelf = (verticalAlignment: string) => {
+    if (verticalAlignment === "bottom") {
+      return "align-self: flex-end;"
+    } else if (verticalAlignment === "center") {
+      return "align-self: center;"
+    } else if (verticalAlignment === "top") {
+      return "align-celf: flex-start;"
+    }
+  }
+
   return (
     <div
       className={css`
         ${backgroundColor && `background: ${colorMapper(backgroundColor)};`}
         ${gradient && `background: ${colorMapper(gradient)};`}
         ${textColor && `color: ${colorMapper(textColor)};`}
-        ${verticalAlignment && `align-self: ${verticalAlignment};`}
+        ${verticalAlignment && getAlignSelf(verticalAlignment)}
         word-break: break-word;
         flex-grow: 1;
         ${respondToOrLarger.md} {

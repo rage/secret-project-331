@@ -696,9 +696,7 @@ mod test {
             courses, exercise_slides,
             exercise_tasks::{self, ExerciseTask},
             exercises::{self, Exercise},
-            organizations,
-            pages::{self, PageUpdate},
-            users,
+            organizations, pages, users,
         },
         test_helper::Conn,
     };
@@ -855,28 +853,19 @@ mod test {
         )
         .await
         .unwrap();
-        pages::update_page_legacy(
+        pages::update_page_content(
             tx.as_mut(),
             chapter_front_page.id,
-            PageUpdate {
-                chapter_id: chapter_front_page.chapter_id,
-                content: serde_json::json!([
-                    {
-                        "name": "moocfi/exercise",
-                        "isValid": true,
-                        "clientId": "b2ecb473-38cc-4df1-84f7-06709cc63e95",
-                        "attributes": {
-                            "id": exercise_id,
-                            "name": "Exercise"
-                        },
-                        "innerBlocks": []
-                    }
-                ]),
-                title: chapter_front_page.title,
-                url_path: chapter_front_page.url_path,
-            },
-            user_id,
-            true,
+            &serde_json::json!([{
+                "name": "moocfi/exercise",
+                "isValid": true,
+                "clientId": "b2ecb473-38cc-4df1-84f7-06709cc63e95",
+                "attributes": {
+                    "id": exercise_id,
+                    "name": "Exercise"
+                },
+                "innerBlocks": []
+            }]),
         )
         .await
         .unwrap();

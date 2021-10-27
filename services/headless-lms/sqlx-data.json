@@ -6822,6 +6822,16 @@
       "nullable": [false, false, false, true, true, false, true, true, true, false]
     }
   },
+  "c515ee82610c997f53c83f72ddf8426145e47cf0d9476d2281506c139af86cb6": {
+    "query": "\nUPDATE pages\nSET content = $1\nWHERE id = $2;\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Jsonb", "Uuid"]
+      },
+      "nullable": []
+    }
+  },
   "c63ca33887bc73c797b68af5b66b248f0740a2678b86e4a3644b61804abdad17": {
     "query": "\nSELECT id,\n  submission_id,\n  grading_before_regrading,\n  grading_after_regrading\nFROM regrading_submissions\nWHERE regrading_id = $1\n",
     "describe": {

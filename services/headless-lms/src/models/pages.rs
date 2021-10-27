@@ -890,6 +890,26 @@ async fn upsert_exercise_tasks(
     Ok(remapped_exercise_tasks)
 }
 
+/// Only used when testing.
+pub async fn update_page_content(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+    content: &serde_json::Value,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE pages
+SET content = $1
+WHERE id = $2;
+",
+        content,
+        page_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 /// This has 3 stages: updating page, updating exercises, updating exercise tasks.
 /// This is currently implemented with multiple sql queries, but it could be optimized
 /// with data-modifying common table expressions if necessary.

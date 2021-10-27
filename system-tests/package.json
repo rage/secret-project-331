@@ -27,7 +27,7 @@
     "test-debug-logs": "env DEBUG=pw:api npm run test",
     "open": "npx playwright open project-331.local",
     "open-firefox": "npx playwright open project-331.local --browser firefox",
-    "update-snapshots": "npm run test -- --update-snapshots --browser=chromium",
+    "update-snapshots": "npm run test-nohtml -- --update-snapshots --browser=chromium",
     "reset-db": "../bin/setup-system-test-db",
     "view-trace": "npx playwright show-trace"
   },

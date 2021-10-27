@@ -66,7 +66,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "course-management-page-with-new-instance",
-    waitForThisToBeVisibleAndStable: "text=New course instance",
+    waitForThisToBeVisibleAndStable: "text=some name",
     page,
   })
 

@@ -14,6 +14,8 @@ const config: PlaywrightTestConfig = {
   reporter: [["./src/utils/customReporter"]],
   timeout: 100000,
   use: {
+    navigationTimeout: 15000,
+    actionTimeout: 15000,
     headless: true,
     trace: "retain-on-failure",
     baseURL: "http://project-331.local",

@@ -64,7 +64,7 @@ test("test", async ({ page, headless }) => {
     page,
     headless,
     snapshotName: "currently-editing",
-    waitForThisToBeVisibleAndStable: "text=You've selected material for editing.",
+    waitForThisToBeVisibleAndStable: "text=You've selected material for editing",
   })
 
   await page.click("text=So big, that we need many paragraphs.")
@@ -103,7 +103,7 @@ test("test", async ({ page, headless }) => {
     snapshotName: "preview",
     waitForThisToBeVisibleAndStable: [
       `text="Send"`,
-      `text="You've made changes!"`,
+      `text="You've made changes"`,
       `text="Do you want to send your changes?"`,
     ],
   })
@@ -136,12 +136,14 @@ test("test", async ({ page, headless }) => {
     "http://project-331.local/manage/courses/cae7da38-9486-47da-9106-bff9b6a280f2/change-requests?pending=true",
   )
 
-  await replaceIds(page)
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,
     snapshotName: "manage-initial",
     waitForThisToBeVisibleAndStable: "text=Accept",
+    beforeScreenshot: async () => {
+      await replaceIds(page)
+    },
   })
 
   await page.click(':nth-match(:text("Accept"), 1)')
@@ -150,34 +152,40 @@ test("test", async ({ page, headless }) => {
   await page.fill('textarea:has-text("Like this!")', "Like this!!!!!")
   await page.click(':nth-match(:text("Reject"), 3)')
 
-  await replaceIds(page)
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,
     snapshotName: "manage-before-send",
     waitForThisToBeVisibleAndStable: "text=Send",
+    beforeScreenshot: async () => {
+      await replaceIds(page)
+    },
   })
 
   await page.click('text="Send"')
 
   await page.click('text="Change requests"')
 
-  await replaceIds(page)
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,
     snapshotName: "manage-after-send",
     waitForThisToBeVisibleAndStable: "text=Reject",
+    beforeScreenshot: async () => {
+      await replaceIds(page)
+    },
   })
 
   await page.click('text="Old"')
 
-  await replaceIds(page)
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,
     snapshotName: "manage-old-after-send",
     waitForThisToBeVisibleAndStable: ".MuiTabs-indicator",
+    beforeScreenshot: async () => {
+      await replaceIds(page)
+    },
   })
 
   // Go to http://project-331.local/
@@ -229,8 +237,8 @@ async function replaceIds(page: Page): Promise<void> {
   await page.evaluate(() => {
     const divs = document.querySelectorAll("div")
     for (const div of divs) {
-      if (div.children.length === 0 && div.textContent.includes("Block: ")) {
-        div.innerHTML = "Block: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      if (div.children.length === 0 && div.textContent.includes("Block id: ")) {
+        div.innerHTML = "Block id: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
       }
     }
   })

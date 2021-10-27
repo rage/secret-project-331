@@ -1,7 +1,6 @@
 {
   "block-id": "Block id: {{id}}",
   "blocks-visible-when-feedback-given": "Blocks visible when the feedback was given:",
-  "error-missing-course-instance-id": "Missing course instance id",
   "button-compare": "Compare",
   "button-mark-as-read": "Mark as read",
   "button-mark-as-unread": "Mark as unread",

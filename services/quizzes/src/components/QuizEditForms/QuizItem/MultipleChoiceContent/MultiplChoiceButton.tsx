@@ -6,10 +6,10 @@ import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
+import { NormalizedQuizItemOption } from "../../../../../types/types"
 import { deletedOption } from "../../../../store/editor/editorActions"
 import { setOptionEditing } from "../../../../store/editor/optionVariables/optionVariableActions"
 import { useTypedSelector } from "../../../../store/store"
-import { NormalizedQuizItemOption } from "../../../../types/types"
 
 import OptionModalContent from "./OptionModalContent"
 

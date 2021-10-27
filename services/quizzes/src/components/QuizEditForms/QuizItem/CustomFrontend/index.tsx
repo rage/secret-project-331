@@ -5,10 +5,10 @@ import React from "react"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
+import { NormalizedQuizItem } from "../../../../../types/types"
 import { deletedItem } from "../../../../store/editor/editorActions"
 import { setAdvancedEditing } from "../../../../store/editor/itemVariables/itemVariableActions"
 import { useTypedSelector } from "../../../../store/store"
-import { NormalizedQuizItem } from "../../../../types/types"
 
 import CustomModalContent from "./CustomModalContent"
 

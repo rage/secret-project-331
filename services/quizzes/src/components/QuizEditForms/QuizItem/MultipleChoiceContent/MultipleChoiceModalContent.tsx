@@ -19,6 +19,7 @@ import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
+import { NormalizedQuizItem } from "../../../../../types/types"
 import { createdNewOption } from "../../../../store/editor/editorActions"
 import {
   editedItemDirection,
@@ -32,7 +33,6 @@ import {
   toggledSharedOptionFeedbackMessage,
 } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
-import { NormalizedQuizItem } from "../../../../types/types"
 import MarkdownEditor from "../../../MarkdownEditor"
 import { ModalWrapper } from "../../../Shared/Modal"
 

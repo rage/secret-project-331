@@ -7,11 +7,11 @@ import sanitizeHtml from "sanitize-html"
 import { useMemo } from "use-memo-one"
 
 import { BlockRendererProps } from "../"
+import { ParagraphAttributes } from "../../../../types/GutenbergBlockAttributes"
 import { baseTheme } from "../../../shared-module/styles"
 import { courseMaterialCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import colorMapper from "../../../styles/colorMapper"
 import fontSizeMapper from "../../../styles/fontSizeMapper"
-import { ParagraphAttributes } from "../../../types/GutenbergBlockAttributes"
 
 const Paragraph = dynamic(() => import("./BasicParagraph"))
 const LatexParagraph = dynamic(() => import("./LatexParagraph"))

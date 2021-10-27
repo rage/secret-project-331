@@ -35,6 +35,7 @@
   "error-page-data-in-invalid-format": "Error: page data is in invalid format",
   "continue": "Continue",
   "default": "Default",
+  "error-missing-course-instance-id": "Missing course instance id",
   "loading": "Loading",
   "title-select-course-version-to-continue": "Select course version to continue.",
   "title-select-course-version-to-see-your-progress": "Select course version to your progress.",

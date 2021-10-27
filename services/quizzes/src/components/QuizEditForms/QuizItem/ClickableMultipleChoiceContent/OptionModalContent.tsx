@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
+import { NormalizedQuizItemOption } from "../../../../../types/types"
 import {
   editedOptionCorrectness,
   editedOptionFailureMessage,
@@ -11,7 +12,6 @@ import {
   editedOptionTitle,
 } from "../../../../store/editor/options/optionActions"
 import { useTypedSelector } from "../../../../store/store"
-import { NormalizedQuizItemOption } from "../../../../types/types"
 import MarkdownEditor from "../../../MarkdownEditor"
 
 const ModalContent = styled.div`

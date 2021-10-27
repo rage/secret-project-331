@@ -6,11 +6,11 @@ import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
+import { NormalizedQuizItem } from "../../../../../types/types"
 import { createdNewOption, deletedItem } from "../../../../store/editor/editorActions"
 import { setAdvancedEditing } from "../../../../store/editor/itemVariables/itemVariableActions"
 import { editedQuizItemTitle } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
-import { NormalizedQuizItem } from "../../../../types/types"
 import MarkdownEditor from "../../../MarkdownEditor"
 
 import ClickableMultipleChoiceButton from "./ClickableMultiplChoiceButton"

@@ -3,9 +3,9 @@ import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
+import { PublicQuiz } from "../../types/types"
 import Widget, { State } from "../components/widget"
 import { isSetStateMessage } from "../shared-module/iframe-protocol-types.guard"
-import { PublicQuiz } from "../types/types"
 
 const ExercisePage: React.FC = () => {
   const { t } = useTranslation()

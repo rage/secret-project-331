@@ -1,7 +1,7 @@
 /* eslint-disable i18next/no-literal-string */
 import { NextApiRequest, NextApiResponse } from "next"
 
-import { PublicQuiz, PublicQuizItem, PublicQuizItemOption, Quiz } from "../../types/types"
+import { PublicQuiz, PublicQuizItem, PublicQuizItemOption, Quiz } from "../../../types/types"
 
 export default (req: NextApiRequest, res: NextApiResponse): void => {
   if (req.method !== "POST") {

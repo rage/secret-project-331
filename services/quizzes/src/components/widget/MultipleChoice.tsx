@@ -2,8 +2,8 @@ import { css } from "@emotion/css"
 import _ from "lodash"
 import React from "react"
 
+import { QuizItemAnswer } from "../../../types/types"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
-import { QuizItemAnswer } from "../../types/types"
 import { MarkdownText } from "../MarkdownText"
 
 import { QuizItemComponentProps } from "."

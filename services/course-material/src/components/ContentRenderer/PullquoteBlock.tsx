@@ -2,9 +2,9 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import sanitizeHtml from "sanitize-html"
 
+import { PullquoteAttributes } from "../../../types/GutenbergBlockAttributes"
 import { courseMaterialCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import colorMapper from "../../styles/colorMapper"
-import { PullquoteAttributes } from "../../types/GutenbergBlockAttributes"
 
 import { BlockRendererProps } from "."
 

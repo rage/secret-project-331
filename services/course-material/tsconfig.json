@@ -9,7 +9,7 @@
     ],
     "typeRoots": [
       "./src/shared-module/types",
-      "src/types",
+      "types",
       "./node_modules/@types"
     ],
     "moduleResolution": "node",

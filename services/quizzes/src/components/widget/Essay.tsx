@@ -2,8 +2,8 @@ import { css } from "@emotion/css"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { QuizItemAnswer } from "../../../types/types"
 import { wordCount } from "../../shared-module/utils/strings"
-import { QuizItemAnswer } from "../../types/types"
 
 import { QuizItemComponentProps } from "."
 

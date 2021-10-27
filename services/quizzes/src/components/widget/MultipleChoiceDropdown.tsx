@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
+import { QuizItemAnswer } from "../../../types/types"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
-import { QuizItemAnswer } from "../../types/types"
 
 import { QuizItemComponentProps } from "."
 

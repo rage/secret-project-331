@@ -1,10 +1,10 @@
 import { css } from "@emotion/css"
 import sanitizeHtml from "sanitize-html"
 
+import { VerseAttributes } from "../../../types/GutenbergBlockAttributes"
 import { courseMaterialCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import colorMapper from "../../styles/colorMapper"
 import fontSizeMapper from "../../styles/fontSizeMapper"
-import { VerseAttributes } from "../../types/GutenbergBlockAttributes"
 
 import { BlockRendererProps } from "."
 

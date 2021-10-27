@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
+import { NormalizedQuizItem } from "../../../../../types/types"
 import {
   setScaleMax,
   setScaleMin,
@@ -14,7 +15,6 @@ import {
   editedScaleMinValue,
 } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
-import { NormalizedQuizItem } from "../../../../types/types"
 
 const ModalContent = styled.div`
   padding: 1rem;

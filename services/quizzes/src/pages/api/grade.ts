@@ -1,7 +1,7 @@
 /* eslint-disable i18next/no-literal-string */
 import type { NextApiRequest, NextApiResponse } from "next"
 
-import { Quiz, QuizAnswer, QuizItem, QuizItemAnswer, UserQuizState } from "../../types/types"
+import { Quiz, QuizAnswer, QuizItem, QuizItemAnswer, UserQuizState } from "../../../types/types"
 
 interface QuizzesGradingRequest {
   // Quiz that students has answered

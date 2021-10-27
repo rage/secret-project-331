@@ -7,8 +7,8 @@ import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
+import { NormalizedQuizItem } from "../../../../types/types"
 import { decreasedItemOrder, increasedItemOrder } from "../../../store/editor/items/itemAction"
-import { NormalizedQuizItem } from "../../../types/types"
 
 import CheckBoxContent from "./CheckBoxContent"
 import ClickableMultipleChoiceContent from "./ClickableMultipleChoiceContent"

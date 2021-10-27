@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
+import { NormalizedQuizItem } from "../../../../../types/types"
 import {
   setFormatRegexTestAnswer,
   setFormatTestRegex,
@@ -13,7 +14,6 @@ import {
 } from "../../../../store/editor/itemVariables/itemVariableActions"
 import { editedFormatRegex } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
-import { NormalizedQuizItem } from "../../../../types/types"
 
 const ModalContent = styled.div`
   padding: 1rem;

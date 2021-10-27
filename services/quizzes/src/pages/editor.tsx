@@ -4,13 +4,13 @@ import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import { v4 } from "uuid"
 
+import { Entities, Quiz } from "../../types/types"
 import StatelessEditor from "../components/StatelessEditor"
 import { normalizedQuiz } from "../schemas"
 import { CurrentStateMessage, HeightChangedMessage } from "../shared-module/iframe-protocol-types"
 import { isSetStateMessage } from "../shared-module/iframe-protocol-types.guard"
 import { initializedEditor } from "../store/editor/editorActions"
 import { StoreState, useTypedSelector } from "../store/store"
-import { Entities, Quiz } from "../types/types"
 
 const Editor: React.FC = () => {
   const { t } = useTranslation()

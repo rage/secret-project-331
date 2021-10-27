@@ -2,8 +2,8 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { EmbedAttributes } from "../../../types/GutenbergBlockAttributes"
 import { courseMaterialCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
-import { EmbedAttributes } from "../../types/GutenbergBlockAttributes"
 
 import { BlockRendererProps } from "."
 

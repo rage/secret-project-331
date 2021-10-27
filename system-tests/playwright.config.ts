@@ -11,7 +11,7 @@ function envToNumber(env: string, defaultNumber: number) {
 const config: PlaywrightTestConfig = {
   globalSetup: require.resolve("./src/setup/globalSetup.ts"),
   globalTeardown: require.resolve("./src/setup/globalTeardown.ts"),
-  reporter: [["./src/utils/customReporter"], ["html"]],
+  reporter: [["./src/utils/customReporter"]],
   timeout: 100000,
   use: {
     headless: true,
@@ -34,6 +34,11 @@ if (process.env.RECORD_VIDEO) {
 
 if (process.env.PWDEBUG === "1") {
   config.workers = 1
+}
+
+if (process.env.HTML) {
+  const reporters = config.reporter as ReporterDescription[]
+  config.reporter = [["html"], ...reporters]
 }
 
 if (process.env.CI) {

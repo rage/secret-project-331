@@ -16,7 +16,7 @@ const PageNotFound: React.FC<PageNotFoundProps> = ({ path, courseId }) => {
       <Alert severity="error">
         <AlertTitle>{t("404-not-found")}</AlertTitle>
         <Trans t={t} i18nKey="course-has-no-page-at-path">
-          This course has no page at <code>{path}</code>.
+          This course has no page at <code>{{ path }}</code>.
         </Trans>
       </Alert>
       {path === "/" && (

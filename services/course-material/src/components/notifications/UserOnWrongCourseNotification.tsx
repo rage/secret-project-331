@@ -33,7 +33,9 @@ const UserOnWrongCourseNotification: React.FC<UserOnWrongCourseNotificationProps
         Looks like you&apos;re already on a different language version of this course. Before
         answering any exercises, please return to{" "}
         <Link passHref href={{ pathname: "/[courseSlug]", query: { courseSlug: data.slug } }}>
-          {data.name}
+          <a hrefLang={data.language_code} href="replace">
+            {{ name: data.name }}
+          </a>
         </Link>{" "}
         or change your active language in the settings.
       </Trans>

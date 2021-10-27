@@ -43,7 +43,7 @@ If the design of the interface demands upper case text, our convention is to put
 
 Try to do the one of the following. Things further up on the list are preferrable.
 
-1. move the literal string to a constant to the top level of the file with upper case name e.g. `const CONSTANT = 'foo'`
+1. move the literal string to a constant to the top level of the file with upper case name e.g. `const CONSTANT = 'foo'`. **If you have temporary content that will be replaced later do this instead of ignoring the line with a comment.**
 2. Ignore the instance with an eslint comment that vscode suggests
 3. Ignore property/function name in eslint config (only do this if you are sure that it will not ignore any real translatable strings. Good examples of functions that should not be ignored are useQuery/useMutation, because the can contain callbacks that contain translatable strings)
 

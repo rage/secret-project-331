@@ -1,6 +1,7 @@
 /* eslint-disable i18next/no-literal-string */
 
 const DETECT_CSS_REGEX = /\S+:\s+[^\n]+;/
+const DETECT_PX_REGEX = /^\d+px$/
 module.exports = {
   env: {
     browser: true,
@@ -168,9 +169,15 @@ module.exports = {
           "defaultLanguage",
           "color",
           "labelPlacement",
+          "role",
+          "aria-hidden",
+          "maxWidth",
+          "transform",
+          "viewBox",
         ],
-        ignore: [DETECT_CSS_REGEX],
+        ignore: [DETECT_CSS_REGEX, DETECT_PX_REGEX],
         ignoreCallee: [
+          "div",
           "useQuery",
           "useQueryParameter",
           "get",
@@ -179,6 +186,7 @@ module.exports = {
           "delete",
           "create",
           "styled",
+          "css",
         ],
       },
     ],

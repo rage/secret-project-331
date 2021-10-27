@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 import CardSVG from "../../img/cardNext.svg"
 import { baseTheme, typography } from "../../styles"
@@ -9,6 +10,7 @@ import { respondToOrLarger } from "../../styles/respond"
 
 import { CardExtraProps } from "."
 
+// eslint-disable-next-line i18next/no-literal-string
 const CourseGridWrapper = styled.a`
   text-decoration: none;
   display: block;
@@ -56,29 +58,56 @@ const CardContentWrapper = styled.div`
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & CardExtraProps
 
 const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, url, open, bg, date, time }) => {
+  const { t } = useTranslation()
   // If URL defined, the chapter is open
 
   const fetchOpensText = () => {
     if (date && time) {
       return (
         <>
-          <div>AVAILABLE</div>
-          <div>
-            {date} at {time}
+          <div
+            className={css`
+              text-transform: uppercase;
+            `}
+          >
+            {t("available")}
           </div>
+          <div>{t("on-date-at-time", { date, time })}</div>
         </>
       )
     } else if (time) {
       return (
         <>
-          <div>OPENS IN</div>
+          <div
+            className={css`
+              text-transform: uppercase;
+            `}
+          >
+            {t("opens-in")}
+          </div>
           <div>{time}</div>
         </>
       )
     } else if (open) {
-      return <span>OPENS NOW!</span>
+      return (
+        <span
+          className={css`
+            text-transform: uppercase;
+          `}
+        >
+          {t("opens-now")}
+        </span>
+      )
     } else {
-      return <span>CLOSED</span>
+      return (
+        <span
+          className={css`
+            text-transform: uppercase;
+          `}
+        >
+          {t("closed")}
+        </span>
+      )
     }
   }
   return (
@@ -129,7 +158,13 @@ const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, url, open, bg, 
                 margin-top: auto;
               `}
             >
-              <span>{`CHAPTER ${chapterNumber ?? ""}`}</span>
+              <span
+                className={css`
+                  text-transform: uppercase;
+                `}
+              >
+                {t("chapter-chapter-number", { number: chapterNumber })}
+              </span>
               <h2>{title}</h2>
             </div>
           </div>

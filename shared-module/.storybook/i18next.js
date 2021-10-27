@@ -15,6 +15,9 @@ i18n.use(initReactI18next)
         defaultNS: 'shared-module',
         ns,
         supportedLngs,
+        react: {
+            useSuspense: false,
+     },
     });
 
 supportedLngs.forEach((language) => {

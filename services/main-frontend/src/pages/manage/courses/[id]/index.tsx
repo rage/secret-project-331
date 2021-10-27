@@ -34,7 +34,6 @@ interface ManageCoursePageProps {
 
 const ManageCoursePage: React.FC<ManageCoursePageProps> = ({ query }) => {
   const { t } = useTranslation()
-  const id = query.id
   const queryClient = useQueryClient()
   const {
     isLoading,

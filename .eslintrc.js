@@ -192,4 +192,12 @@ module.exports = {
     ],
     curly: "error",
   },
+  overrides: [
+    {
+      files: ["system-tests/**/*"],
+      rules: {
+        "i18next/no-literal-string": "off",
+      },
+    },
+  ],
 }

@@ -20,10 +20,16 @@
   "reached-end-of-topic": "You've reached the end of this topic.",
   "proceed-to-next-topic": "Proceed to the next topic",
   "opens-now": "Opens now!",
+  "error-title": "Error",
   "opens-in-time": "Opens in {{ relative-time }}",
   "available-on-date-at-time": "Available {{ date }} at {{ time }}",
   "closed": "Closed!",
   "please-wait-until-next-chapter-opens": "Please wait until the next chapter opens",
+  "chapter-progress": "Chapter progress",
+  "choose-a-language": "Choose a language",
+  "language-language": "Language: {{language}}",
+  "american-english": "English",
+  "finnish": "Finnish",
   "table-of-contents": "Table of contents",
   "title-youtube-video-player": "YouTube video player",
   "error-page-data-in-invalid-format": "Error: page data is in invalid format",
@@ -31,6 +37,7 @@
   "default": "Default",
   "loading": "Loading",
   "title-select-course-version-to-continue": "Select course version to continue.",
+  "title-select-course-version-to-see-your-progress": "Select course version to your progress.",
   "message-already-on-different-language-version": "Looks like you're already on a different language version of this course. Before answering any exercises, please return to <1>{{name}}</1> or change your active language in the settings.",
   "youve-selected-material-for-editing": "You've selected material for editing",
   "preview-changes-or-make-more-edits": "Preview your changes or make more edits",
@@ -63,5 +70,6 @@
   "heres-a-list-of-all-public-pages-for-this-course": "Here's a list of all public pages for this course:",
   "button-label-search-for-pages": "Search for pages",
   "search": "Search",
-  "search-field-placeholder": "Search..."
+  "search-field-placeholder": "Search...",
+  "available-in-languages": "Available in {{num}} languages"
 }

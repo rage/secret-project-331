@@ -3,7 +3,9 @@ import styled from "@emotion/styled"
 import { TextField } from "@material-ui/core"
 import { InnerBlocks } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
+import { useContext } from "react"
 
+import { EditorContentDispatch } from "../../contexts/EditorContentContext"
 import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 
 import { ExerciseAttributes } from "."
@@ -22,8 +24,11 @@ const ExerciseEditorCard = styled.div`
 
 const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
   attributes,
+  clientId,
   setAttributes,
 }) => {
+  const dispatch = useContext(EditorContentDispatch)
+
   return (
     <ExerciseEditorCard id={attributes.id}>
       <div className={normalWidthCenteredComponentStyles}>
@@ -48,6 +53,19 @@ const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
         />
       </div>
       <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
+      <button
+        onClick={() => {
+          console.log("start dispatch")
+          return dispatch({
+            type: "addExerciseSlide",
+            payload: {
+              clientId,
+            },
+          })
+        }}
+      >
+        Add slide
+      </button>
     </ExerciseEditorCard>
   )
 }

@@ -1,3 +1,4 @@
+import { BlockInstance } from "@wordpress/blocks"
 import { v4 } from "uuid"
 
 import {
@@ -8,17 +9,9 @@ import {
   ExerciseTask,
 } from "../shared-module/bindings"
 
-interface QuickBlock {
-  clientId: string
-  name: string
-  isValid: boolean
-  attributes: Record<string, unknown>
-  innerBlocks: QuickBlock[]
-}
-
 export function normalizeDocument(
   pageId: string,
-  content: QuickBlock[],
+  content: BlockInstance[],
   title: string,
   urlPath: string,
   chapterId: string | null,
@@ -101,36 +94,40 @@ export function normalizeDocument(
 /**
  * Converts backend-normalized page data to nested Gutenberg blocks.
  */
-export function denormalizeDocument(document: ContentManagementPage): QuickBlock[] {
-  const contentBlocks = document.page.content as QuickBlock[]
-  contentBlocks.forEach((block) => {
-    if (block.name === "moocfi/exercise") {
-      const exercise = document.exercises.find((x) => x.id === block.attributes.id)
-      if (exercise) {
-        block.attributes.name = exercise.name
-        const slides = document.exercise_slides.filter((x) => x.exercise_id === exercise.id)
-        block.innerBlocks = slides.map((slide) => {
-          const tasks = document.exercise_tasks.filter((x) => x.exercise_slide_id === slide.id)
-          return {
-            clientId: v4(),
-            name: "moocfi/exercise-slide",
-            attributes: { id: slide.id, order_number: slide.order_number },
-            isValid: true,
-            innerBlocks: tasks.map((task) => ({
-              clientId: v4(),
-              name: "moocfi/exercise-task",
-              attributes: {
-                id: task.id,
-                exercise_type: task.exercise_type,
-                private_spec: JSON.stringify(task.private_spec),
-              },
-              isValid: true,
-              innerBlocks: [],
-            })),
-          }
-        })
-      }
+export function denormalizeDocument(document: ContentManagementPage): BlockInstance[] {
+  const contentBlocks = (document.page.content as BlockInstance[]).map((block) => {
+    if (block.name !== "moocfi/exercise") {
+      return block
     }
+
+    const exercise = document.exercises.find((x) => x.id === block.attributes.id)
+    if (!exercise) {
+      return block
+    }
+
+    const slides = document.exercise_slides.filter((x) => x.exercise_id === exercise.id)
+    const innerBlocks = slides.map((slide) => {
+      const tasks = document.exercise_tasks.filter((x) => x.exercise_slide_id === slide.id)
+      return {
+        clientId: v4(),
+        name: "moocfi/exercise-slide",
+        attributes: { id: slide.id, order_number: slide.order_number },
+        isValid: true,
+        innerBlocks: tasks.map((task) => ({
+          clientId: v4(),
+          name: "moocfi/exercise-task",
+          attributes: {
+            id: task.id,
+            exercise_type: task.exercise_type,
+            private_spec: JSON.stringify(task.private_spec),
+          },
+          isValid: true,
+          innerBlocks: [],
+        })),
+      }
+    })
+
+    return { ...block, innerBlocks }
   })
 
   return contentBlocks

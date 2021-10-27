@@ -1,14 +1,8 @@
 import dynamic from "next/dynamic"
-import { useReducer } from "react"
 import { useQuery } from "react-query"
 
 import Layout from "../../components/Layout"
 import CourseContext from "../../contexts/CourseContext"
-import PageContext, {
-  defaultPageContext,
-  PageDispatch,
-  pageStateDispatch,
-} from "../../contexts/PageContext"
 import { fetchPageWithId, updateExistingPage } from "../../services/backend/pages"
 import { Page, PageUpdate } from "../../shared-module/bindings"
 import { withSignedIn } from "../../shared-module/contexts/LoginStateContext"
@@ -30,7 +24,6 @@ const PageEditor = dynamic(() => import("../../components/editors/PageEditor"), 
 })
 
 const Pages = ({ query }: PagesProps) => {
-  const [pageContext, pageContextDispatch] = useReducer(pageStateDispatch, defaultPageContext)
   const { id } = query
   const { isLoading, error, data, refetch } = useQuery(`page-${id}`, async () => {
     const data = await fetchPageWithId(id)
@@ -64,13 +57,9 @@ const Pages = ({ query }: PagesProps) => {
 
   return (
     <CourseContext.Provider value={{ courseId: data.course_id }}>
-      <PageDispatch.Provider value={pageContextDispatch}>
-        <PageContext.Provider value={pageContext}>
-          <Layout frontPageUrl={`/manage/courses/${data.course_id}/pages`}>
-            <PageEditor data={data} handleSave={handleSave} />
-          </Layout>
-        </PageContext.Provider>
-      </PageDispatch.Provider>
+      <Layout frontPageUrl={`/manage/courses/${data.course_id}/pages`}>
+        <PageEditor data={data} handleSave={handleSave} />
+      </Layout>
     </CourseContext.Provider>
   )
 }

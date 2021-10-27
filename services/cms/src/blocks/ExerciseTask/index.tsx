@@ -1,8 +1,6 @@
 import { BlockConfiguration, BlockEditProps } from "@wordpress/blocks"
-import { ComponentType, useContext, useEffect } from "react"
+import { ComponentType, useEffect } from "react"
 import { v4 } from "uuid"
-
-import { PageDispatch, SimpleExerciseTask } from "../../contexts/PageContext"
 
 import ExerciseTaskEditor, { ExerciseTaskAttributes } from "./ExerciseTaskEditor"
 import ExerciseTaskSave from "./ExerciseTaskSave"
@@ -41,21 +39,13 @@ function enforceExerciseTaskIdDefined(
   const displayName = WrappedComponent.displayName || WrappedComponent.name || "Component"
   const InnerComponent = (props: BlockEditProps<ExerciseTaskAttributes>) => {
     const { attributes, setAttributes } = props
-    const dispatch = useContext(PageDispatch)
 
     useEffect(() => {
       if (!attributes.id) {
         const id = v4()
-        const task: SimpleExerciseTask = {
-          exercise_type: "",
-          id,
-          order_number: 0,
-          private_spec: null,
-        }
-        dispatch({ type: "addExerciseTask", payload: task })
         setAttributes({ id, private_spec: null })
       }
-    }, [attributes.id, setAttributes, dispatch])
+    }, [attributes.id, setAttributes])
 
     if (!props.attributes.id) {
       return null

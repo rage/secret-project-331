@@ -1,8 +1,6 @@
 import { BlockConfiguration, BlockEditProps } from "@wordpress/blocks"
-import React, { ComponentType, useContext, useEffect } from "react"
+import React, { ComponentType, useEffect } from "react"
 import { v4 } from "uuid"
-
-import { PageDispatch } from "../../contexts/PageContext"
 
 import ExerciseSlideEditor, { ExerciseSlideAttributes } from "./ExerciseSlideEditor"
 import ExerciseSlideSave from "./ExerciseSlideSave"
@@ -33,15 +31,13 @@ function enforceExerciseSlideIdDefined(
   const displayName = WrappedComponent.displayName || WrappedComponent.name || "Component"
   const InnerComponent = (props: BlockEditProps<ExerciseSlideAttributes>) => {
     const { attributes, setAttributes } = props
-    const dispatch = useContext(PageDispatch)
 
     useEffect(() => {
       if (!attributes.id) {
         const id = v4()
-        dispatch({ type: "addExerciseSlide", payload: { id, order_number: 0 } })
         setAttributes({ id })
       }
-    }, [attributes.id, setAttributes, dispatch])
+    }, [attributes.id, setAttributes])
 
     if (!props.attributes.id) {
       return null

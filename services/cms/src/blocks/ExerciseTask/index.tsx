@@ -23,6 +23,10 @@ const ExerciseTaskConfiguration: BlockConfiguration<ExerciseTaskAttributes> = {
       type: "string",
       default: undefined,
     },
+    show_editor: {
+      type: "boolean",
+      default: false,
+    },
   },
   edit: enforceExerciseTaskIdDefined(ExerciseTaskEditor),
   save: ExerciseTaskSave,

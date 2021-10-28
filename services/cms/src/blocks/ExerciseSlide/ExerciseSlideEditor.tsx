@@ -2,7 +2,11 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { InnerBlocks } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
-import React from "react"
+import React, { useContext } from "react"
+
+import { EditorContentDispatch } from "../../contexts/EditorContentContext"
+import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
+import { gutenbergControlsHidden } from "../../styles/EditorStyles"
 
 const ALLOWED_NESTED_BLOCKS = ["moocfi/exercise-task"]
 
@@ -13,9 +17,19 @@ const ExerciseSlideEditorCard = styled.div`
 
 export interface ExerciseSlideAttributes {
   id: string
+  order_number: number
 }
 
-const ExerciseSlideEditor: React.FC<BlockEditProps<ExerciseSlideAttributes>> = ({ attributes }) => {
+const ExerciseSlideEditor: React.FC<BlockEditProps<ExerciseSlideAttributes>> = ({
+  attributes,
+  clientId,
+}) => {
+  const dispatch = useContext(EditorContentDispatch)
+
+  const handleAddNewTask = () => {
+    dispatch({ type: "addExerciseTask", payload: { clientId } })
+  }
+
   return (
     <ExerciseSlideEditorCard id={attributes.id}>
       <div
@@ -25,9 +39,14 @@ const ExerciseSlideEditor: React.FC<BlockEditProps<ExerciseSlideAttributes>> = (
           margin-bottom: 1.5rem;
         `}
       >
-        Slide
+        Slide {attributes.order_number}
       </div>
-      <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
+      <div className={gutenbergControlsHidden}>
+        <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
+      </div>
+      <div className={normalWidthCenteredComponentStyles}>
+        <button onClick={handleAddNewTask}>Add task</button>
+      </div>
     </ExerciseSlideEditorCard>
   )
 }

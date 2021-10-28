@@ -1,6 +1,8 @@
 import { BlockInstance } from "@wordpress/blocks"
 import { v4 } from "uuid"
 
+import { ExerciseSlideAttributes } from "../blocks/ExerciseSlide/ExerciseSlideEditor"
+import { ExerciseTaskAttributes } from "../blocks/ExerciseTask/ExerciseTaskEditor"
 import {
   CmsPageUpdate,
   ContentManagementPage,
@@ -76,10 +78,6 @@ export function normalizeDocument(
     return { ...block, innerBlocks: [] }
   })
 
-  console.log("exercises:", exercises)
-  console.log("exercise slides:", exerciseSlides)
-  console.log("exercise tasks:", exerciseTasks)
-
   return {
     content: normalizedBlocks,
     chapter_id: chapterId,
@@ -108,23 +106,31 @@ export function denormalizeDocument(document: ContentManagementPage): BlockInsta
     const slides = document.exercise_slides.filter((x) => x.exercise_id === exercise.id)
     const innerBlocks = slides.map((slide) => {
       const tasks = document.exercise_tasks.filter((x) => x.exercise_slide_id === slide.id)
-      return {
+      const denormalizedSlide: BlockInstance<ExerciseSlideAttributes> = {
         clientId: v4(),
         name: "moocfi/exercise-slide",
-        attributes: { id: slide.id, order_number: slide.order_number },
+        attributes: {
+          id: slide.id,
+          order_number: slide.order_number,
+        },
         isValid: true,
-        innerBlocks: tasks.map((task) => ({
-          clientId: v4(),
-          name: "moocfi/exercise-task",
-          attributes: {
-            id: task.id,
-            exercise_type: task.exercise_type,
-            private_spec: JSON.stringify(task.private_spec),
-          },
-          isValid: true,
-          innerBlocks: [],
-        })),
+        innerBlocks: tasks.map((task) => {
+          const denormalizedTask: BlockInstance<ExerciseTaskAttributes> = {
+            clientId: v4(),
+            name: "moocfi/exercise-task",
+            attributes: {
+              id: task.id,
+              exercise_type: task.exercise_type,
+              private_spec: JSON.stringify(task.private_spec),
+              show_editor: false,
+            },
+            isValid: true,
+            innerBlocks: [],
+          }
+          return denormalizedTask
+        }),
       }
+      return denormalizedSlide
     })
 
     return { ...block, innerBlocks }

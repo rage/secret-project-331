@@ -15,6 +15,10 @@ const ExerciseSlideConfiguration: BlockConfiguration<ExerciseSlideAttributes> = 
       type: "string",
       default: undefined,
     },
+    order_number: {
+      type: "number",
+      default: 0,
+    },
   },
   edit: enforceExerciseSlideIdDefined(ExerciseSlideEditor),
   save: ExerciseSlideSave,

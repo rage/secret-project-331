@@ -7,6 +7,7 @@ import { useContext } from "react"
 
 import { EditorContentDispatch } from "../../contexts/EditorContentContext"
 import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
+import { gutenbergControlsHidden } from "../../styles/EditorStyles"
 
 import { ExerciseAttributes } from "."
 
@@ -28,6 +29,10 @@ const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
   setAttributes,
 }) => {
   const dispatch = useContext(EditorContentDispatch)
+
+  const handleAddNewSlide = () => {
+    dispatch({ type: "addExerciseSlide", payload: { clientId } })
+  }
 
   return (
     <ExerciseEditorCard id={attributes.id}>
@@ -52,20 +57,12 @@ const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
           `}
         />
       </div>
-      <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
-      <button
-        onClick={() => {
-          console.log("start dispatch")
-          return dispatch({
-            type: "addExerciseSlide",
-            payload: {
-              clientId,
-            },
-          })
-        }}
-      >
-        Add slide
-      </button>
+      <div className={gutenbergControlsHidden}>
+        <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
+      </div>
+      <div className={normalWidthCenteredComponentStyles}>
+        <button onClick={handleAddNewSlide}>Add slide</button>
+      </div>
     </ExerciseEditorCard>
   )
 }

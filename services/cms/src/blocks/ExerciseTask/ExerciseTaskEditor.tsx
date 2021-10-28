@@ -2,9 +2,12 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { InnerBlocks } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
-import React from "react"
+import React, { useContext } from "react"
 
+import { EditorContentDispatch } from "../../contexts/EditorContentContext"
+import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import { defaultContainerWidth } from "../../shared-module/styles/constants"
+import { gutenbergControlsVisible } from "../../styles/EditorStyles"
 
 import ChooseExerciseTaskType from "./ChooseExerciseTaskType"
 import { exerciseTaskTypes } from "./ChooseExerciseTaskType/ExerciseServiceList"
@@ -21,39 +24,76 @@ export interface ExerciseTaskAttributes {
   id: string
   exercise_type: string
   private_spec: unknown
+  show_editor: boolean
 }
 
 const ExerciseTaskEditor: React.FC<BlockEditProps<ExerciseTaskAttributes>> = ({
   attributes,
+  clientId,
   setAttributes,
 }) => {
+  const dispatch = useContext(EditorContentDispatch)
+
+  const handleDeleteTask = () => {
+    dispatch({ type: "deleteExerciseTask", payload: { clientId } })
+  }
+
   const exerciseType = attributes.exercise_type
   const url = exerciseTaskTypes.find((o) => o.identifier === exerciseType)?.url
 
   return (
-    <ExerciseTaskEditorCard id={attributes.id}>
-      <div
-        className={css`
-          font-size: 18pt;
-          font-weight: normal;
-          margin-bottom: 1.5rem;
-        `}
-      >
-        Task
+    <div>
+      <div className={normalWidthCenteredComponentStyles}>
+        <div
+          className={css`
+            display: flex;
+            flex-direction: row;
+          `}
+        >
+          <div
+            className={css`
+              flex: 6;
+            `}
+          >
+            Task
+          </div>
+          <div
+            className={css`
+              flex: 1;
+            `}
+          >
+            <button onClick={() => setAttributes({ show_editor: !attributes.show_editor })}>
+              {attributes.show_editor ? "Hide" : "Edit"}
+            </button>
+          </div>
+          <div
+            className={css`
+              flex: 1;
+            `}
+          >
+            <button onClick={handleDeleteTask}>Delete</button>
+          </div>
+        </div>
       </div>
-      <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
-      {!exerciseType ? (
-        <ChooseExerciseTaskType
-          onChooseItem={(x) => setAttributes({ exercise_type: x.identifier })}
-        />
-      ) : (
-        <ExerciseTaskIFrameEditor
-          onPrivateSpecChange={(x) => setAttributes({ private_spec: x })}
-          privateSpec={attributes.private_spec}
-          url={`${url}?width=${defaultContainerWidth}`}
-        />
-      )}
-    </ExerciseTaskEditorCard>
+      {attributes.show_editor ? (
+        <ExerciseTaskEditorCard id={attributes.id}>
+          <div className={gutenbergControlsVisible}>
+            <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
+          </div>
+          {!exerciseType ? (
+            <ChooseExerciseTaskType
+              onChooseItem={(x) => setAttributes({ exercise_type: x.identifier })}
+            />
+          ) : (
+            <ExerciseTaskIFrameEditor
+              onPrivateSpecChange={(x) => setAttributes({ private_spec: x })}
+              privateSpec={attributes.private_spec}
+              url={`${url}?width=${defaultContainerWidth}`}
+            />
+          )}
+        </ExerciseTaskEditorCard>
+      ) : null}
+    </div>
   )
 }
 

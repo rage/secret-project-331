@@ -17,6 +17,7 @@ npm run test
 Also, following alternatives are available:
 
 ```sh
+npm run test-nohtml # runs tests without the html report
 npm run test-headed # runs tests with with a visible browser
 npm run test-slowmo # runs tests in slow motion
 npm run test-video # runs tests and records a video to `system-tests/test-results`

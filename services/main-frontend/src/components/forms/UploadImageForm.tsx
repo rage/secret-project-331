@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { createRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import Button from "../../shared-module/components/Button"
 
@@ -13,6 +14,7 @@ export interface UploadImageFormProps {
 }
 
 const UploadImageForm: React.FC<UploadImageFormProps> = ({ onSubmit }) => {
+  const { t } = useTranslation()
   const fileInput = createRef<HTMLInputElement>()
   const [allowSubmit, setAllowSubmit] = useState(true)
   const [showUploadButton, setShowUploadButton] = useState(false)
@@ -32,7 +34,7 @@ const UploadImageForm: React.FC<UploadImageFormProps> = ({ onSubmit }) => {
       `}
     >
       <FieldContainer>
-        <h4>Upload an image</h4>
+        <h4>{t("header-upload-image")}</h4>
         <input
           accept="image"
           ref={fileInput}
@@ -43,7 +45,7 @@ const UploadImageForm: React.FC<UploadImageFormProps> = ({ onSubmit }) => {
       {showUploadButton && (
         <div>
           <Button size="medium" variant="primary" onClick={uploadImage} disabled={!allowSubmit}>
-            Upload image
+            {t("button-text-upload-image")}
           </Button>
         </div>
       )}

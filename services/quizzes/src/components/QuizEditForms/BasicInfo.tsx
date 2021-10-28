@@ -5,6 +5,7 @@ import AdapterDateFns from "@material-ui/lab/AdapterDateFns"
 import DateTimePicker from "@material-ui/lab/DateTimePicker"
 import LocalizationProvider from "@material-ui/lab/LocalizationProvider"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
@@ -90,6 +91,7 @@ const AutoConfirmSwitch = styled.div`
 `
 
 const BasicInformation: React.FC = () => {
+  const { t } = useTranslation()
   const dispatch = useDispatch()
 
   const quizId = useTypedSelector((state) => state.editor.quizId)
@@ -120,12 +122,12 @@ const BasicInformation: React.FC = () => {
     <>
       <SubsectionTitleWrapper>
         <TitleIcon icon={faInfoCircle} />
-        <h2>Quiz Information</h2>
+        <h2>{t("quiz-information")}</h2>
       </SubsectionTitleWrapper>
 
       <InfoContainer>
         <MarkdownEditor
-          label="Quiz title"
+          label={t("title")}
           text={title ?? ""}
           onChange={(event) => dispatch(editedQuizTitle(event.target.value, quizId))}
         />
@@ -134,7 +136,7 @@ const BasicInformation: React.FC = () => {
         <PartField
           fullWidth
           type="number"
-          label="Part"
+          label={t("part")}
           variant="outlined"
           value={part}
           InputLabelProps={{ shrink: true }}
@@ -143,7 +145,7 @@ const BasicInformation: React.FC = () => {
         <SectionField
           fullWidth
           type="number"
-          label="Section"
+          label={t("section")}
           variant="outlined"
           value={section}
           InputLabelProps={{ shrink: true }}
@@ -159,22 +161,20 @@ const BasicInformation: React.FC = () => {
                 checked={triesAreLimited}
                 onChange={(event) => dispatch(editedQuizTriesLimited(event.target.checked, quizId))}
                 color="secondary"
-                inputProps={{ "aria-label": "check tries allowed" }}
+                inputProps={{ "aria-label": t("limit-tries") }}
               />
             }
-            label="Limit tries"
+            label={t("limit-tries")}
             labelPlacement="end"
           />
-          <MarginlessHelperText>
-            Check this to limit the number of attempts at this quiz
-          </MarginlessHelperText>
+          <MarginlessHelperText>{t("limit-tries-explanation")}</MarginlessHelperText>
         </ToggleAndHelperWrapper>
         <TryLimitNumberContainer>
           {triesAreLimited && (
             <TextField
               type="number"
               InputLabelProps={{ shrink: true }}
-              label="Number of tries allowed"
+              label={t("number-of-tries-allowed")}
               variant="outlined"
               value={numberOfTries}
               fullWidth
@@ -187,7 +187,7 @@ const BasicInformation: React.FC = () => {
       </NumberOfTriesContainer>
       <InfoContainer>
         <TextField
-          label="Points to gain"
+          label={t("points-to-gain")}
           type="number"
           fullWidth
           variant="outlined"
@@ -201,7 +201,7 @@ const BasicInformation: React.FC = () => {
       <InfoContainer>
         <TextField
           fullWidth
-          label="Points granting policy"
+          label={t("points-granting-policy")}
           variant="outlined"
           select
           value={pointsGrantingPolicy}
@@ -209,9 +209,11 @@ const BasicInformation: React.FC = () => {
             dispatch(editedQuizzesPointsGrantingPolicy(event.target.value, quizId))
           }
         >
-          <MenuItem value="grant_whenever_possible">grant_whenever_possible</MenuItem>
+          {/* eslint-disable-next-line i18next/no-literal-string */}
+          <MenuItem value="grant_whenever_possible">{t("grant-whenever-possible")}</MenuItem>
+          {/* eslint-disable-next-line i18next/no-literal-string */}
           <MenuItem value="grant_only_when_answer_fully_correct">
-            grant_only_when_fully_complete
+            {t("grant-only-when-fully-correct")}
           </MenuItem>
         </TextField>
       </InfoContainer>
@@ -219,8 +221,11 @@ const BasicInformation: React.FC = () => {
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <DateTimePicker
             renderInput={(props) => <TextField {...props} />}
+            // deadline not needed
+            // eslint-disable-next-line i18next/no-literal-string
             label="DateTimePicker"
             value={variables.deadline}
+            // eslint-disable-next-line i18next/no-literal-string
             inputFormat="dd-MM-yyyy, hh:mm:ss"
             onChange={(event) => {
               dispatch(editedQuizzesDeadline(event, quizId))
@@ -231,20 +236,21 @@ const BasicInformation: React.FC = () => {
       <InfoContainer>
         <MarkdownEditor
           text={body}
-          label="Quiz description"
+          label={t("quiz-description")}
           onChange={(event) => dispatch(editedQuizzesBody(quizId, event.target.value))}
         />
       </InfoContainer>
       <InfoContainer>
         <MarkdownEditor
           text={submitMessage ?? ""}
-          label="Submit message"
+          label={t("submit-message")}
           onChange={(event) => dispatch(editedQuizzesSubmitmessage(quizId, event.target.value))}
         />
       </InfoContainer>
       <InfoContainer>
         <AutoConfirmSwitch>
           <FormControlLabel
+            // eslint-disable-next-line i18next/no-literal-string
             label="Autoconfirm"
             labelPlacement="end"
             control={
@@ -256,6 +262,7 @@ const BasicInformation: React.FC = () => {
               />
             }
           />
+          {/* eslint-disable-next-line i18next/no-literal-string */}
           <HelperText>
             When unchecked for a peer reviewed exercise, all answers must be reviewed manually
           </HelperText>

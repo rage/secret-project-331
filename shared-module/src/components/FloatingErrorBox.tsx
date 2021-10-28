@@ -47,6 +47,9 @@ export interface ErrorExtraProps {
 
 export type ErrorProps = React.HTMLAttributes<HTMLDivElement> & ErrorExtraProps
 
+const PLACEHOLDER_TEXT_ONE = "Reset"
+const PLACEHOLDER_TEXT_TWO = "Your edit has been saved!"
+
 const FloatingErrorBox: React.FC<ErrorProps> = () => {
   // If URL defined, the chapter is open
 
@@ -54,16 +57,16 @@ const FloatingErrorBox: React.FC<ErrorProps> = () => {
     <ErrorWrapper>
       <ButtonWrapper>
         <Button transform="normal" variant="primary" size="large">
-          Reset
+          {PLACEHOLDER_TEXT_ONE}
         </Button>
         <Button transform="normal" variant="secondary" size="large">
-          Reset
+          {PLACEHOLDER_TEXT_ONE}
         </Button>
       </ButtonWrapper>
 
       <Message>
         <Tick />
-        <span>Your edit has been saved!</span>
+        <span>{PLACEHOLDER_TEXT_TWO}</span>
       </Message>
     </ErrorWrapper>
   )

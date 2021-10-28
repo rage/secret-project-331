@@ -83,7 +83,7 @@ test("test", async ({ headless, page }) => {
 
   // Click text=Submit
   await page.click('text="Add comment"')
-  await page.click('text="Send"')
+  await page.click(`button:text("Send")`)
   await page.waitForSelector("text=Feedback submitted successfully")
 
   await logout(page)

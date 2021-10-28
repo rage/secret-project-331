@@ -2,9 +2,11 @@ import { css } from "@emotion/css"
 import { Dialog, Paper } from "@material-ui/core"
 import { BlockInstance, serialize } from "@wordpress/blocks"
 import dynamic from "next/dynamic"
-import { useState } from "react"
+import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import Button from "../shared-module/components/Button"
+import Spinner from "../shared-module/components/Spinner"
 import { monospaceFont } from "../shared-module/styles"
 import monacoFontFixer from "../shared-module/styles/monacoFontFixer"
 
@@ -12,7 +14,7 @@ export interface SerializeGutenbergModalProps {
   content: BlockInstance[]
 }
 
-const MonacoLoading = <div>Loading editor...</div>
+const MonacoLoading = <Spinner variant="medium" />
 
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
   ssr: false,
@@ -20,13 +22,15 @@ const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
 })
 
 const SerializeGutenbergModal: React.FC<SerializeGutenbergModalProps> = ({ content }) => {
+  const { t } = useTranslation()
   const [serialized, setSerialized] = useState<string | null>(null)
 
   return (
     <div className={monacoFontFixer}>
       <Button size="medium" variant="primary" onClick={() => setSerialized(serialize(content))}>
-        Serialize to HTML
+        {t("serialize-to-html")}
       </Button>
+      {/* eslint-disable-next-line i18next/no-literal-string */}
       <Dialog maxWidth="xl" open={serialized !== null} onClose={() => setSerialized(null)}>
         <Paper
           className={css`
@@ -34,6 +38,7 @@ const SerializeGutenbergModal: React.FC<SerializeGutenbergModalProps> = ({ conte
           `}
         >
           <MonacoEditor
+            // eslint-disable-next-line i18next/no-literal-string
             options={{ wordWrap: "on", fontFamily: monospaceFont }}
             height="90vh"
             width="80vw"

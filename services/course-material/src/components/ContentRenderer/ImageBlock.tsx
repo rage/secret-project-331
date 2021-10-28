@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 
+import { ImageAttributes } from "../../../types/GutenbergBlockAttributes"
 import { courseMaterialCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
-import { ImageAttributes } from "../../types/GutenbergBlockAttributes"
 
 import { BlockRendererProps } from "."
 

@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import { fetchUserCourseProgress } from "../../../services/backend"
@@ -12,6 +13,7 @@ interface CourseProgressProps {
 }
 
 const CourseProgress: React.FC<CourseProgressProps> = ({ courseInstanceId }) => {
+  const { t } = useTranslation()
   const { isLoading, error, data } = useQuery(`course-instance-${courseInstanceId}-progress`, () =>
     fetchUserCourseProgress(courseInstanceId),
   )
@@ -39,7 +41,7 @@ const CourseProgress: React.FC<CourseProgressProps> = ({ courseInstanceId }) => 
           max={data.score_maximum}
           given={data.score_given}
           point={50}
-          label="STUDENT PROGRESS"
+          label={t("student-progress")}
         />
       </div>
     </div>

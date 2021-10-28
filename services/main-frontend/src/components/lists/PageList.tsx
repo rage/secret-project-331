@@ -4,6 +4,7 @@ import { faTrash } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Dialog } from "@material-ui/core"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { deletePage } from "../../services/backend/pages"
 import { Chapter, Page } from "../../shared-module/bindings"
@@ -27,6 +28,7 @@ interface Props {
 }
 
 const PageList: React.FC<Props> = ({ data, refetch, courseId, chapter }) => {
+  const { t } = useTranslation()
   const [showNewPageForm, setShowNewPageForm] = useState(false)
   const handleCreateTopLevelPage = () => {
     setShowNewPageForm(!showNewPageForm)
@@ -34,7 +36,7 @@ const PageList: React.FC<Props> = ({ data, refetch, courseId, chapter }) => {
   }
 
   const handleDeleteTopLevelPage = async (pageId: string, name: string) => {
-    const result = confirm(`Want to delete ${name}?`)
+    const result = confirm(t("page-deletion-confirmation-message", { name }))
     if (result) {
       await deletePage(pageId)
       refetch()
@@ -57,7 +59,7 @@ const PageList: React.FC<Props> = ({ data, refetch, courseId, chapter }) => {
           .map((page: Page) => (
             <li key={page.id}>
               <a href={`/cms/pages/${page.id}`}>{page.title}</a>({page.url_path}){" "}
-              <a href={`/manage/pages/${page.id}/history`}>history</a>
+              <a href={`/manage/pages/${page.id}/history`}>{t("link-history")}</a>
               <DeleteButton onClick={() => handleDeleteTopLevelPage(page.id, page.title)}>
                 <FontAwesomeIcon icon={faTrash} size="lg" />
               </DeleteButton>
@@ -65,7 +67,7 @@ const PageList: React.FC<Props> = ({ data, refetch, courseId, chapter }) => {
           ))}
       </ul>
       <Button size="medium" variant="primary" onClick={() => setShowNewPageForm(!showNewPageForm)}>
-        New page
+        {t("button-text-new")}
       </Button>
 
       <Dialog open={showNewPageForm} onClose={() => setShowNewPageForm(!showNewPageForm)}>
@@ -79,12 +81,13 @@ const PageList: React.FC<Props> = ({ data, refetch, courseId, chapter }) => {
             variant="secondary"
             onClick={() => setShowNewPageForm(!showNewPageForm)}
           >
-            Close
+            {t("button-text-close")}
           </Button>
           <NewPageForm
             chapterId={chapter?.id}
             courseId={courseId}
             onSubmitForm={handleCreateTopLevelPage}
+            // eslint-disable-next-line i18next/no-literal-string
             prefix={chapter && `/chapter-${chapter.chapter_number}/`}
           />
         </div>

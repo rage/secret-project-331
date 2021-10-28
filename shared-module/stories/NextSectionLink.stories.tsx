@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import { Meta, Story } from "@storybook/react"
 import React from "react"
 
@@ -18,6 +19,5 @@ export const Table: Story<ComponentProps> = Template.bind({})
 Table.args = {
   children: "NextSectionLink",
   title: "Congratulation, you've reached the end of this section",
-  subTitle: "Nice work",
   nextTitle: "Introduction to Calculus",
 }

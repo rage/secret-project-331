@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 
-import { ColumnAttributes } from "../../types/GutenbergBlockAttributes"
+import { ColumnAttributes } from "../../../types/GutenbergBlockAttributes"
 
 import DefaultBlock from "./DefaultBlock"
 

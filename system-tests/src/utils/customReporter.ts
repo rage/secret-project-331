@@ -1,6 +1,6 @@
-import ListReporter from "@playwright/test/lib/test/reporters/list"
+import ListReporter from "@playwright/test/lib/reporters/list"
+import type { FullResult } from "@playwright/test/types/testReporter"
 import { readdir, stat } from "fs/promises"
-import type { FullResult } from "playwright/types/testReporter"
 
 class MyReporter extends ListReporter {
   async onEnd(results: FullResult): Promise<void> {

@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 const config = {
   eslint: {
     ignoreDuringBuilds: true,

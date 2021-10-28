@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import { renderHook } from "@testing-library/react-hooks"
 
 import useMessageChannel from "../../src/hooks/useMessageChannel"

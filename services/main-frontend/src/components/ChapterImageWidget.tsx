@@ -1,4 +1,5 @@
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { removeChapterImage, setChapterImage } from "../services/backend/chapters"
 import { Chapter } from "../shared-module/bindings"
@@ -12,6 +13,7 @@ export interface ChapterImageControlsProps {
 }
 
 const ChapterImageWidget: React.FC<ChapterImageControlsProps> = ({ chapter, onChapterUpdated }) => {
+  const { t } = useTranslation()
   const [allowRemove, setAllowRemove] = useState(true)
   const [error, setError] = useState<unknown>()
 
@@ -43,13 +45,13 @@ const ChapterImageWidget: React.FC<ChapterImageControlsProps> = ({ chapter, onCh
       {error && <pre>{JSON.stringify(`${error}`, undefined, 2)}</pre>}
       {chapter.chapter_image_url ? (
         <>
-          <img src={chapter.chapter_image_url} alt="What to display on the chapter." />
+          <img src={chapter.chapter_image_url} alt={t("image-alt-what-to-display-on-chapter")} />
           <Button size="medium" variant="secondary" onClick={handleRemove} disabled={!allowRemove}>
-            Remove image
+            {t("button-text-remove")}
           </Button>
         </>
       ) : (
-        <div>No chapter image.</div>
+        <div>{t("no-chapter-image")}</div>
       )}
       <UploadImageForm onSubmit={handleSubmit} />
     </div>

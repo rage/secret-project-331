@@ -9,7 +9,7 @@ import {
   QuizItemOptionVariables,
   QuizItemVariables,
   QuizVariables,
-} from "../types/types"
+} from "../../types/types"
 
 import { itemVariableReducers } from "./editor/itemVariables/itemVariableReducers"
 import { itemReducer } from "./editor/items/itemReducer"

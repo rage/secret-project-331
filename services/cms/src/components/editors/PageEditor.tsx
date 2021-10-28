@@ -1,15 +1,18 @@
+/* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import SaveIcon from "@material-ui/icons/Save"
 import LoadingButton from "@material-ui/lab/LoadingButton"
 import { BlockInstance } from "@wordpress/blocks"
 import dynamic from "next/dynamic"
 import React, { useReducer, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { blockTypeMapForPages, blockTypeMapForTopLevelPages } from "../../blocks"
 import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import { EditorContentDispatch, editorContentReducer } from "../../contexts/EditorContentContext"
 import { Page, PageUpdate } from "../../shared-module/bindings"
 import DebugModal from "../../shared-module/components/DebugModal"
+import Spinner from "../../shared-module/components/Spinner"
 import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
@@ -21,7 +24,7 @@ interface PageEditorProps {
   handleSave: (page: PageUpdate) => Promise<Page>
 }
 
-const EditorLoading = <div>Loading editor...</div>
+const EditorLoading = <Spinner variant="medium" />
 
 const GutenbergEditor = dynamic(() => import("./GutenbergEditor"), {
   ssr: false,
@@ -42,6 +45,7 @@ const supportedBlocks = (chapter_id: string | null): string[] => {
 }
 
 const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
+  const { t } = useTranslation()
   const [title, setTitle] = useState(data.title)
   const [content, contentDispatch] = useReducer(
     editorContentReducer,
@@ -82,12 +86,13 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
         <div className={normalWidthCenteredComponentStyles}>
           {error && <pre>{error}</pre>}
           <LoadingButton
+            // eslint-disable-next-line i18next/no-literal-string
             loadingPosition="start"
             startIcon={<SaveIcon />}
             loading={saving}
             onClick={handleOnSave}
           >
-            {currentContentStateSaved ? "Saved" : "Save"}
+            {currentContentStateSaved ? t("saved") : t("save")}
           </LoadingButton>
 
           <UpdatePageDetailsForm title={title} setTitle={setTitle} />

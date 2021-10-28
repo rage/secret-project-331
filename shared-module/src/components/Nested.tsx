@@ -1,6 +1,8 @@
 import { css } from "@emotion/css"
 import React from "react"
 
+const PLACEHOLDER_TEXT = "I'm a nested paragraph"
+
 const Nested: React.FC = (_props) => {
   return (
     <div
@@ -10,7 +12,7 @@ const Nested: React.FC = (_props) => {
         }
       `}
     >
-      <p>I&apos;m a nested paragraph</p>
+      <p>{PLACEHOLDER_TEXT}</p>
     </div>
   )
 }

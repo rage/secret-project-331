@@ -29,7 +29,7 @@ test("test", async ({ page, headless }) => {
   )
 
   // Click text=New language version
-  await page.click("text=New language version")
+  await page.click(`:nth-match(button:below(:text("All course language versions")):text("New"), 1)`)
 
   // Click input[type="text"]
   await page.click('input[type="text"]')
@@ -44,12 +44,12 @@ test("test", async ({ page, headless }) => {
   await page.fill('input[id="teacher-in-charge-email"]', "teacher@example.com")
 
   // Click text=Create course
-  await page.click("text=Create course")
+  await page.click(`button:text("Create")`)
 
   // Click [aria-label="Kotisivulle"]
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
-    page.click('[aria-label="Front page"]'),
+    page.click('[aria-label="Home page"]'),
   ])
 
   // Click [id="__next"] div >> :nth-match(div:has-text("University of Helsinki, Department of Computer ScienceOrganization for Computer "), 4)

@@ -4,6 +4,7 @@ import { TextField } from "@material-ui/core"
 import { InnerBlocks } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
 import { useContext } from "react"
+import { useTranslation } from "react-i18next"
 
 import { EditorContentDispatch } from "../../contexts/EditorContentContext"
 import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
@@ -12,6 +13,7 @@ import { gutenbergControlsHidden } from "../../styles/EditorStyles"
 import { ExerciseAttributes } from "."
 
 const ALLOWED_NESTED_BLOCKS = ["moocfi/exercise-slide"]
+const ADD_SLIDE_TO_BE_FIXED = "Add slide"
 
 const ExerciseEditorCard = styled.div`
   padding: 2rem 0;
@@ -30,6 +32,8 @@ const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
 }) => {
   const dispatch = useContext(EditorContentDispatch)
 
+  const { t } = useTranslation()
+
   const handleAddNewSlide = () => {
     dispatch({ type: "addExerciseSlide", payload: { clientId } })
   }
@@ -44,12 +48,12 @@ const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
             margin-bottom: 1.5rem;
           `}
         >
-          Exercise
+          {t("exercise-title")}
         </div>
         <TextField
           fullWidth
           variant="outlined"
-          placeholder="Exercise name"
+          placeholder={t("exercise-name")}
           value={attributes.name}
           onChange={(e) => setAttributes({ name: e.target.value })}
           className={css`
@@ -61,7 +65,8 @@ const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
         <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
       </div>
       <div className={normalWidthCenteredComponentStyles}>
-        <button onClick={handleAddNewSlide}>Add slide</button>
+        {/** eslint-disable-next-line i18next/no-literal-string */}
+        <button onClick={handleAddNewSlide}>{ADD_SLIDE_TO_BE_FIXED}</button>
       </div>
     </ExerciseEditorCard>
   )

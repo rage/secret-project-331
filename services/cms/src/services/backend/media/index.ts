@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import { MediaItem } from "@wordpress/media-utils"
 
 import { cmsClient } from "../cmsClient"

@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import { Dialog } from "@material-ui/core"
 import React, { useCallback, useContext, useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import CoursePageContext from "../../contexts/CoursePageContext"
@@ -13,6 +14,7 @@ export interface CourseInstanceSelectModalProps {
 }
 
 const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({ onClose }) => {
+  const { t } = useTranslation()
   const loginState = useContext(LoginStateContext)
   const coursePageState = useContext(CoursePageContext)
 
@@ -64,7 +66,7 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({ o
   }
 
   if (isLoading || courseInstances === undefined) {
-    return <div>Loading...</div>
+    return <div>{t("loading")}</div>
   }
 
   return (
@@ -75,7 +77,7 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({ o
         `}
       >
         {submitError && <pre>{JSON.stringify(submitError, undefined, 2)}</pre>}
-        <h4>Select course version to continue.</h4>
+        <h4>{t("title-select-course-version-to-continue")}.</h4>
         <SelectCourseInstanceForm
           courseInstances={courseInstances}
           onSubmitForm={handleSubmitAndClose}

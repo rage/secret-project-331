@@ -2,11 +2,12 @@ import { EChartsOption } from "echarts/types/src/export/option"
 import dynamic from "next/dynamic"
 import React from "react"
 
-const ChartLoading = <div>Loading chart library...</div>
+import Spinner from "../shared-module/components/Spinner"
 
 const ReactECharts = dynamic(() => import("echarts-for-react"), {
   ssr: false,
-  loading: () => ChartLoading,
+  // eslint-disable-next-line react/display-name
+  loading: () => <Spinner variant="medium" />,
 })
 
 export interface EchartsProps {

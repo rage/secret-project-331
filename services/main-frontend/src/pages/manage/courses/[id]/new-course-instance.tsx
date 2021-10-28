@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useMutation } from "react-query"
 
 import Layout from "../../../../components/Layout"
@@ -21,6 +22,7 @@ interface Props {
 }
 
 const NewCourseInstance: React.FC<Props> = ({ query }) => {
+  const { t } = useTranslation()
   const courseId = query.id
 
   const router = useRouter()
@@ -33,13 +35,14 @@ const NewCourseInstance: React.FC<Props> = ({ query }) => {
     },
     {
       onSuccess: () => {
+        // eslint-disable-next-line i18next/no-literal-string
         router.push(`/manage/courses/${courseId}`)
       },
       onError: (err) => {
         if (isErrorResponse(err)) {
-          setError(`Failed to create course instance: ${err.message}`)
+          setError(t("message-creating-failed"))
         } else {
-          setError(`Unexpected error while creating course instance: ${JSON.stringify(err)}`)
+          setError(t("message-creating-failed"))
         }
       },
     },
@@ -53,7 +56,7 @@ const NewCourseInstance: React.FC<Props> = ({ query }) => {
           margin-bottom: 1rem;
         `}
       >
-        <h1>New course instance</h1>
+        <h1>{t("new-course-instance")}</h1>
         {error && <div>{error}</div>}
         <Form
           initialData={null}

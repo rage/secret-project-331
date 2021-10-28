@@ -1,8 +1,10 @@
 import { Checkbox, FormControl, FormControlLabel } from "@material-ui/core"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
+import { NormalizedQuizItemOption } from "../../../../../types/types"
 import {
   editedOptionCorrectness,
   editedOptionFailureMessage,
@@ -10,7 +12,6 @@ import {
   editedOptionTitle,
 } from "../../../../store/editor/options/optionActions"
 import { useTypedSelector } from "../../../../store/store"
-import { NormalizedQuizItemOption } from "../../../../types/types"
 import MarkdownEditor from "../../../MarkdownEditor"
 
 const ModalContent = styled.div`
@@ -23,20 +24,23 @@ interface OptionEditorProps {
 }
 
 export const OptionModalContent: React.FC<OptionEditorProps> = ({ option }) => {
+  const { t } = useTranslation()
   const storeOption = useTypedSelector((state) => state.editor.options[option.id])
   const dispatch = useDispatch()
   return (
     <>
       <ModalContent>
-        <p>Editing Option</p>
+        <p>{t("editing-option")}</p>
       </ModalContent>
       <ModalContent>
         <FormControl>
           <FormControlLabel
-            label="Correct"
+            label={t("label-correct")}
+            // eslint-disable-next-line i18next/no-literal-string
             labelPlacement="start"
             control={
               <Checkbox
+                // eslint-disable-next-line i18next/no-literal-string
                 color="primary"
                 checked={storeOption.correct}
                 onChange={(event) =>
@@ -49,14 +53,14 @@ export const OptionModalContent: React.FC<OptionEditorProps> = ({ option }) => {
       </ModalContent>
       <ModalContent>
         <MarkdownEditor
-          label="Option title"
+          label={t("option-title")}
           text={storeOption.title ?? ""}
           onChange={(event) => dispatch(editedOptionTitle(event.target.value, storeOption.id))}
         />
       </ModalContent>
       <ModalContent>
         <MarkdownEditor
-          label={storeOption.correct ? "Success message" : "Failure message"}
+          label={storeOption.correct ? t("success-message") : t("failure-message")}
           text={
             storeOption.correct
               ? storeOption.successMessage ?? ""

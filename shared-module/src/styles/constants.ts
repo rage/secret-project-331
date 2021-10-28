@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 export const defaultContainerWidth = 48
 export const wideContainerWidth = 75
 export const cardMaxWidth = 31.25

@@ -1,6 +1,7 @@
 import { Paper, Tab, Tabs } from "@material-ui/core"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import Layout from "../../../../components/Layout"
 import EditProposalList from "../../../../components/lists/EditProposalList"
@@ -17,6 +18,7 @@ export interface ChangeRequestsProps {
 }
 
 const ChangeRequestsPage: React.FC<ChangeRequestsProps> = ({ query }) => {
+  const { t } = useTranslation()
   const router = useRouter()
 
   const courseId = query.id
@@ -39,7 +41,7 @@ const ChangeRequestsPage: React.FC<ChangeRequestsProps> = ({ query }) => {
   return (
     <Layout navVariant={"complex"}>
       <div className={wideWidthCenteredComponentStyles}>
-        <h3>Change requests</h3>
+        <h3>{t("title-change-requests")}</h3>
         <Paper square>
           <Tabs
             value={tab}
@@ -50,8 +52,8 @@ const ChangeRequestsPage: React.FC<ChangeRequestsProps> = ({ query }) => {
               setTab(value)
             }}
           >
-            <Tab label="Pending" value={0} />
-            <Tab label="Old" value={1} />
+            <Tab label={t("pending")} value={0} />
+            <Tab label={t("old")} value={1} />
           </Tabs>
         </Paper>
         <EditProposalList courseId={courseId} pending={pending} perPage={4} />

@@ -83,6 +83,7 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
   // addFilter("editor.MediaUpload", "moocfi/cms/replace-media-upload", mediaUploadGallery)
 
   // Ensure that type core/image has some attributes set to a value, so that the CMS/image block doesn't crash when uploading image.
+  // eslint-disable-next-line i18next/no-literal-string
   addFilter("blocks.registerBlockType", "moocfi/cms/modify-blockAttributes", modifyBlockAttributes)
 
   useEffect(() => {

@@ -1,6 +1,11 @@
 # Internationalization
 
-Easier string to translate `Remove image` -> `Remove`
+See the following documentations:
+
+1. https://react.i18next.com/
+2. https://www.i18next.com/
+
+Try to use easier string to translate e.g. `Remove image` -> `Remove` so that we can reuse translations.
 
 ## Lint
 
@@ -31,6 +36,9 @@ To keep changes to the translation files automatically synchronized with the dif
 
 Try to use reusable strings for the interface. For example if you have a button that says "Save page", it might be a good idea to replace that with just "Save" so that we don't need a new translation for that.
 
+Here's a video that shows how to start the workflow, how to use the ut snippet and the tj snippet. Finally, it also shows that you don't use the tj snippet when you're not in a jsx context: 
+
+https://user-images.githubusercontent.com/1922896/139198182-4fd3ce70-60dc-444a-8615-e2a9b58b5a7f.mp4
 
 ### etc
 

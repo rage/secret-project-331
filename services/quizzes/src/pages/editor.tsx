@@ -108,7 +108,7 @@ const emptyQuiz: Quiz = {
   id: v4(),
   autoConfirm: true,
   autoReject: false,
-  awardPointsEvenIfWrong: true,
+  awardPointsEvenIfWrong: false,
   body: "",
   courseId: v4(),
   createdAt: new Date(),

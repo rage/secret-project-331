@@ -26,6 +26,11 @@ interface QuizzesGradingResult {
   feedback_json: ItemAnswerFeedback[]
 }
 
+interface QuizAnswerItemGrading {
+  quizItemId: string
+  correct: boolean
+}
+
 export default (req: NextApiRequest, res: NextApiResponse): void => {
   if (req.method !== "POST") {
     return res.status(404).json({ message: "Not found" })
@@ -38,8 +43,8 @@ const handlePost = (req: NextApiRequest, res: NextApiResponse<QuizzesGradingResu
   const gradingRedquest: QuizzesGradingRequest = req.body
   const { exercise_spec, submission_data } = gradingRedquest
 
-  asssesAnswer(submission_data, exercise_spec)
-  const score = gradeAnswer(submission_data, exercise_spec)
+  const assessedAnswers = asssesAnswers(submission_data, exercise_spec)
+  const score = gradeAnswer(assessedAnswers, exercise_spec)
   const feedbacks = SubmissionFeedback(submission_data, exercise_spec)
   return res.status(200).json({
     feedback_json: feedbacks,
@@ -49,62 +54,38 @@ const handlePost = (req: NextApiRequest, res: NextApiResponse<QuizzesGradingResu
   })
 }
 
-function gradeAnswer(quizAnswer: QuizAnswer, quiz: Quiz): number {
+// When grading answers we assume all items have same amount of points
+// eg. quizzes which have max points 4 and 2 quiz items both items are worth 2 points
+// quiz item is either correct or incorrect
+function gradeAnswer(assessedAnswer: QuizAnswerItemGrading[], quiz: Quiz): number {
   if (quiz.awardPointsEvenIfWrong) {
     return quiz.points
   }
-  const quizItemAnswers = quizAnswer.itemAnswers
-  const nCorrect = quizItemAnswers.filter((itemAnswer) => itemAnswer.correct === true).length
-  const total = quizItemAnswers.length
+  const nCorrect = assessedAnswer.filter((answer) => answer.correct).length
+  const total = quiz.items.length
   const points = (nCorrect / total) * quiz.points
   return points
 }
 
-function asssesAnswer(quizAnswer: QuizAnswer, quiz: Quiz) {
-  const quizItemAnswers = quizAnswer.itemAnswers
-  const quizItems = quiz.items
-  if (!quizItemAnswers || quizItemAnswers.length === 0) {
-    throw new Error("item answers missing")
-  }
-  for (const quizItemAnswer of quizItemAnswers) {
-    const quizItem = quizItems.find((item) => item.id === quizItemAnswer.quizItemId)
-    if (!quizItem) {
-      // If the quiz item has been deleted
-      quizItemAnswer.correct = false
-      continue
+function asssesAnswers(quizAnswer: QuizAnswer, quiz: Quiz): QuizAnswerItemGrading[] {
+  const result = quizAnswer.itemAnswers.map((ia) => {
+    const item = quiz.items.find((i) => i.id === ia.quizItemId)
+    if (!item) {
+      throw new Error("Item missing")
     }
-
-    if (quizItem.allAnswersCorrect) {
-      quizItemAnswer.correct = true
-      continue
+    if (
+      item.type === "multiple-choice" ||
+      item.type === "clickable-multiple-choice" ||
+      item.type === "multiple-choice-dropdown"
+    ) {
+      return assesMultipleChoiceQuizzes(ia, item)
+    } else if (item.type === "open") {
+      return assessOpenQuiz(ia, item)
+    } else {
+      return { quizItemId: item.id, correct: true }
     }
-
-    switch (quizItem.type) {
-      case "open":
-        assessOpenQuiz(quizItemAnswer, quizItem)
-        break
-      case "essay":
-        if (quizAnswer.status === "confirmed") {
-          quizItemAnswer.correct = true
-        }
-        break
-      case "multiple-choice-dropdown":
-      case "clickable-multiple-choice":
-      case "multiple-choice":
-        assesMultipleChoiceQuizzes(quizItemAnswer, quizItem)
-        break
-      case "custom-frontend-accept-data":
-        break
-      case "checkbox":
-        quizItemAnswer.correct = true
-        break
-      case "scale":
-      case "research-agreement":
-      case "feedback":
-        quizItemAnswer.correct = true
-        break
-    }
-  }
+  })
+  return result
 }
 
 function removeNonPrintingCharacters(string: string): string {
@@ -114,7 +95,7 @@ function removeNonPrintingCharacters(string: string): string {
   return string.replace(nonPrintingCharRegex, "")
 }
 
-function assessOpenQuiz(quizItemAnswer: QuizItemAnswer, quizItem: QuizItem) {
+function assessOpenQuiz(quizItemAnswer: QuizItemAnswer, quizItem: QuizItem): QuizAnswerItemGrading {
   const textData = removeNonPrintingCharacters(
     quizItemAnswer.textData ? quizItemAnswer.textData : "",
   )
@@ -125,27 +106,35 @@ function assessOpenQuiz(quizItemAnswer: QuizItemAnswer, quizItem: QuizItem) {
   }
   const validityRegex = quizItem.validityRegex ? quizItem.validityRegex.trim() : ""
   const validator = new RegExp(validityRegex, "i")
-  quizItemAnswer.correct = validator.test(textData) ? true : false
+  return { quizItemId: quizItem.id, correct: validator.test(textData) }
 }
 
-function assesMultipleChoiceQuizzes(quizItemAnswer: QuizItemAnswer, quizItem: QuizItem) {
-  const quizOptionAnswers = quizItemAnswer.optionAnswers
-  const quizOptions = quizItem.options
-  if (!quizOptionAnswers || quizOptionAnswers.length === 0) {
-    throw new Error("option answers missing")
+function assesMultipleChoiceQuizzes(
+  quizItemAnswer: QuizItemAnswer,
+  quizItem: QuizItem,
+): QuizAnswerItemGrading {
+  // Throws an error if no option answers
+  if (!quizItemAnswer.optionAnswers) {
+    throw new Error("No option answers")
   }
-  const correctOptionIds = quizOptions
-    .filter((quizOption) => quizOption.correct === true)
-    .map((quizOption) => quizOption.id)
-  const selectedCorrectOptions = quizOptionAnswers.filter((quizOptionAnswerId) =>
-    correctOptionIds.includes(quizOptionAnswerId),
-  )
-  const allSelectedOptionsAreCorrect = quizOptionAnswers.every((quizOptionAnswerId) =>
-    correctOptionIds.includes(quizOptionAnswerId),
-  )
-  quizItemAnswer.correct = quizItem.multi
-    ? correctOptionIds.length === selectedCorrectOptions.length && allSelectedOptionsAreCorrect
-    : selectedCorrectOptions.length > 0 && quizOptionAnswers.length === 1
+
+  // Check if every selected option was a correct answer
+  const allSelectedOptionsAreCorrect = quizItemAnswer.optionAnswers.every((oa) => {
+    const option = quizItem.options.find((o) => o.id === oa)
+    if (option && option.correct) {
+      return true
+    }
+    return false
+  })
+
+  // Check if user selected correct amount of options
+  const selectedAllCorrectOptions =
+    quizItemAnswer.optionAnswers.length === quizItem.options.filter((o) => o.correct).length
+
+  return {
+    quizItemId: quizItem.id,
+    correct: selectedAllCorrectOptions && allSelectedOptionsAreCorrect,
+  }
 }
 
 function SubmissionFeedback(submission: QuizAnswer, quiz: Quiz): ItemAnswerFeedback[] {

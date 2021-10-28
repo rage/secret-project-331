@@ -2,12 +2,12 @@ import { css } from "@emotion/css"
 import { SetStateAction } from "react"
 
 import { BlockRendererProps } from "../.."
+import { ColumnAttributes, ColumnsAttributes } from "../../../../../types/GutenbergBlockAttributes"
 import { Block } from "../../../../services/backend"
 import { NewProposedBlockEdit } from "../../../../shared-module/bindings"
 import { courseMaterialCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import colorMapper from "../../../../styles/colorMapper"
-import { ColumnAttributes, ColumnsAttributes } from "../../../../types/GutenbergBlockAttributes"
 
 import ColumnBlock from "./ColumnBlock"
 
@@ -71,6 +71,7 @@ const ColumnsBlock: React.FC<BlockRendererProps<ColumnsAttributes>> = ({ data })
             editing={false}
             selectedBlockId={null}
             setEdits={function (_value: SetStateAction<Map<string, NewProposedBlockEdit>>): void {
+              // eslint-disable-next-line i18next/no-literal-string
               throw new Error("Function not implemented.")
             }}
             id={block.clientId}

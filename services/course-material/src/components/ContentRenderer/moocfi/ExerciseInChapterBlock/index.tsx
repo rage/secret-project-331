@@ -1,4 +1,5 @@
 import { useContext } from "react"
+import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
 import CoursePageContext from "../../../../contexts/CoursePageContext"
@@ -9,6 +10,7 @@ import GenericLoading from "../../../GenericLoading"
 import ExercisesInChapter from "./ExercisesInChapter"
 
 const ExerciseInChapterBlock: React.FC<BlockRendererProps<unknown>> = () => {
+  const { t } = useTranslation()
   const pageContext = useContext(CoursePageContext)
 
   if (pageContext.state !== "ready") {
@@ -19,10 +21,10 @@ const ExerciseInChapterBlock: React.FC<BlockRendererProps<unknown>> = () => {
   const courseInstanceId = pageContext.instance?.id
 
   if (!chapterId) {
-    return <pre>ExercisesInChapterBlock: Missing chapter id on this page.</pre>
+    return <pre>{t("error-page-does-not-belong-to-chapter")}</pre>
   }
   if (!courseInstanceId) {
-    return <pre>ExercisesInChapterBlock: Missing course instance id on this page.</pre>
+    return <pre>{t("error-missing-course-instance-id")}</pre>
   }
 
   return (

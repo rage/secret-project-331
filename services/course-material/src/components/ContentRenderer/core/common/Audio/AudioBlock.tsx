@@ -1,9 +1,9 @@
 import { css } from "@emotion/css"
 
 import { BlockRendererProps } from "../../.."
+import { AudioAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import { courseMaterialCenteredComponentStyles } from "../../../../../shared-module/styles/componentStyles"
 import withErrorBoundary from "../../../../../shared-module/utils/withErrorBoundary"
-import { AudioAttributes } from "../../../../../types/GutenbergBlockAttributes"
 
 const AudioBlock: React.FC<BlockRendererProps<AudioAttributes>> = ({ data }) => {
   const { anchor, autoplay, caption, loop, preload, src } = data.attributes

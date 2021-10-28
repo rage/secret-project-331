@@ -2,6 +2,7 @@ import { faSitemap } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Divider } from "@material-ui/core"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import styled from "styled-components"
 
 import { useTypedSelector } from "../../store/store"
@@ -27,6 +28,7 @@ const TitleIcon = styled(FontAwesomeIcon)`
 `
 
 const QuizItems: React.FC = () => {
+  const { t } = useTranslation()
   const storeItems = Object.values(useTypedSelector((state) => state.editor.items))
 
   storeItems.sort((item1, item2) => item1.order - item2.order)
@@ -35,7 +37,7 @@ const QuizItems: React.FC = () => {
       <ItemsTitleContainer>
         <SubsectionTitleWrapper>
           <TitleIcon icon={faSitemap} />
-          <h2>Quiz items</h2>
+          <h2>{t("quiz-items")}</h2>
         </SubsectionTitleWrapper>{" "}
       </ItemsTitleContainer>
       {storeItems.map((item) => {

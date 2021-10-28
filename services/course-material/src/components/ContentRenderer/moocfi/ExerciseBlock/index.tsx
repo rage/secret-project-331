@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import HelpIcon from "@material-ui/icons/Help"
 import { useContext, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery, useQueryClient } from "react-query"
 
 import ContentRenderer, { BlockRendererProps } from "../.."
@@ -24,11 +25,13 @@ interface ExerciseBlockAttributes {
 // Special care taken here to ensure exercise content can have full width of
 // the page.
 const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (props) => {
+  const { t } = useTranslation()
   const loginState = useContext(LoginStateContext)
   const coursePageContext = useContext(CoursePageContext)
   const showExercise = loginState.signedIn ? !!coursePageContext.settings : true
 
   const id = props.data.attributes.id
+  // eslint-disable-next-line i18next/no-literal-string
   const queryUniqueKey = `exercise-${id}`
   const { isLoading, error, data } = useQuery(queryUniqueKey, () => fetchExerciseById(id), {
     enabled: showExercise,
@@ -45,7 +48,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   }
 
   if (!showExercise) {
-    return <div>Please select a course instance before anwering this exercise.</div>
+    return <div>{t("please-select-course-instance-before-answering-exercise")}</div>
   }
 
   if (isLoading || !data) {
@@ -105,7 +108,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
             text-align: center;
           `}
         >
-          Points:
+          {t("points-label")}
           <br />
           {data.exercise_status?.score_given ?? 0}/{data.exercise.score_maximum}
         </div>
@@ -126,7 +129,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
           setAnswerValid={setAnswerValid}
         />
       ) : (
-        "Don't know how to render this assignment"
+        t("dont-know-how-to-render-this-assignment")
       )}
       <div
         className={css`
@@ -142,6 +145,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
           disabled={submitting || !courseInstanceId || !answerValid}
           onClick={async () => {
             if (!courseInstanceId) {
+              // eslint-disable-next-line i18next/no-literal-string
               console.error("Tried to submit without a current course instance id")
               return
             }
@@ -168,14 +172,14 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
               if (e instanceof Error) {
                 setSubmissionError(e.toString())
               } else {
-                setSubmissionError("Submission failed")
+                setSubmissionError(t("error-submission-failed"))
               }
             } finally {
               setSubmitting(false)
             }
           }}
         >
-          Submit
+          {t("submit-button")}
         </Button>
         {feedbackText && <p>{feedbackText}</p>}
         {submissionResponse && <pre>{JSON.stringify(submissionResponse, undefined, 2)}</pre>}

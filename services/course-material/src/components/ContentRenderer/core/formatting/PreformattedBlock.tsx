@@ -2,10 +2,10 @@ import { css } from "@emotion/css"
 import sanitizeHtml from "sanitize-html"
 
 import { BlockRendererProps } from "../.."
+import { PreformattedAttributes } from "../../../../../types/GutenbergBlockAttributes"
 import { courseMaterialCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import colorMapper from "../../../../styles/colorMapper"
 import fontSizeMapper from "../../../../styles/fontSizeMapper"
-import { PreformattedAttributes } from "../../../../types/GutenbergBlockAttributes"
 
 const PreformattedBlock: React.FC<BlockRendererProps<PreformattedAttributes>> = ({ data }) => {
   const { content, anchor, backgroundColor, fontSize, gradient, textColor } = data.attributes

@@ -1,6 +1,7 @@
 import { differenceInSeconds, formatDuration } from "date-fns"
 import { useRouter } from "next/router"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import useTime from "../../../../hooks/useTime"
@@ -14,6 +15,7 @@ export interface NextPageProps {
 }
 
 const NextPage: React.FC<NextPageProps> = ({ chapterId, currentPageId }) => {
+  const { t, i18n } = useTranslation()
   const now = useTime()
   const { isLoading, error, data } = useQuery(`pages-${currentPageId}-next-page`, () =>
     getNextPageRoutingData(currentPageId),
@@ -34,9 +36,9 @@ const NextPage: React.FC<NextPageProps> = ({ chapterId, currentPageId }) => {
   if (data === null) {
     return (
       <NextSectionLink
-        title="Congratulations!"
-        subtitle="You've reached the end of the course material!"
-        nextTitle={"Back to main page"}
+        title={t("title-congratulations")}
+        subtitle={t("reached-end-of-course-material")}
+        nextTitle={t("action-back-to-front-page")}
         url={"/courses/" + courseSlug}
       />
     )
@@ -45,8 +47,8 @@ const NextPage: React.FC<NextPageProps> = ({ chapterId, currentPageId }) => {
   if (data.chapter_front_page_id === currentPageId) {
     return (
       <NextSectionLink
-        title="Start studying..."
-        subtitle="Proceed to the first topic"
+        title={t("start-studying")}
+        subtitle={t("proceed-to-the-first-topic")}
         nextTitle={data.title}
         url={"/courses/" + courseSlug + data.url_path}
       />
@@ -57,8 +59,8 @@ const NextPage: React.FC<NextPageProps> = ({ chapterId, currentPageId }) => {
       // End of chapter NextSectionLink
       return (
         <NextSectionLink
-          title="Impressive! You've reached the end of this chapter."
-          subtitle="Proceed to the next chapter"
+          title={t("impressive-reached-end-of-chapter")}
+          subtitle={t("proceed-to-the-next-chapter")}
           nextTitle={data.title}
           url={"/courses/" + courseSlug + data.url_path}
         />
@@ -67,8 +69,8 @@ const NextPage: React.FC<NextPageProps> = ({ chapterId, currentPageId }) => {
       // End of page NextSectionLink
       return (
         <NextSectionLink
-          title="You've reached the end of this topic."
-          subtitle="Proceed to the next topic"
+          title={t("reached-end-of-topic")}
+          subtitle={t("proceed-to-next-topic")}
           nextTitle={data.title}
           url={"/courses/" + courseSlug + data.url_path}
         />
@@ -79,8 +81,9 @@ const NextPage: React.FC<NextPageProps> = ({ chapterId, currentPageId }) => {
     if (data.chapter_opens_at) {
       const diffSeconds = differenceInSeconds(data.chapter_opens_at, now)
       if (diffSeconds <= 0) {
+        // eslint-disable-next-line i18next/no-literal-string
         data.chapter_status = "open"
-        closedUntil = "OPENS NOW!"
+        closedUntil = t("opens-now")
         // Insert confetti drop here.
       } else if (diffSeconds < 60 * 10) {
         const minutes = Math.floor(diffSeconds / 60)
@@ -89,27 +92,32 @@ const NextPage: React.FC<NextPageProps> = ({ chapterId, currentPageId }) => {
           minutes,
           seconds,
         })
-        closedUntil = `OPENS IN ${formatted}`
+        closedUntil = t("opens-in-time", { "relative-time": formatted })
       } else {
-        const date = data.chapter_opens_at.toLocaleString("en", {
+        const date = data.chapter_opens_at.toLocaleString(i18n.language, {
+          // eslint-disable-next-line i18next/no-literal-string
           year: "numeric",
+          // eslint-disable-next-line i18next/no-literal-string
           month: "long",
+          // eslint-disable-next-line i18next/no-literal-string
           day: "numeric",
         })
-        const time = data.chapter_opens_at.toLocaleString("en", {
+        const time = data.chapter_opens_at.toLocaleString(i18n.language, {
+          // eslint-disable-next-line i18next/no-literal-string
           hour: "numeric",
+          // eslint-disable-next-line i18next/no-literal-string
           minute: "numeric",
         })
-        closedUntil = `AVAILABLE ${date} at ${time}`
+        closedUntil = t("available-on-date-at-time", { date: date, time: time })
       }
     } else {
-      closedUntil = "CLOSED!"
+      closedUntil = t("closed")
     }
     return (
       // Chapter exists, but next chapter not open yet.
       <NextSectionLink
-        title="Impressive! You've reached the end of this chapter."
-        subtitle="Please wait until the next chapter opens"
+        title={t("impressive-reached-end-of-chapter")}
+        subtitle={t("please-wait-until-next-chapter-opens")}
         nextTitle={closedUntil}
       />
     )

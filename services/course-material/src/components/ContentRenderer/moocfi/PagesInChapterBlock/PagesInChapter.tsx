@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import { useRouter } from "next/router"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import { fetchChaptersPagesExcludeFrontpage } from "../../../../services/backend"
@@ -9,6 +10,7 @@ import { courseMaterialCenteredComponentStyles } from "../../../../shared-module
 import GenericLoading from "../../../GenericLoading"
 
 const PagesInChapter: React.FC<{ chapterId: string }> = ({ chapterId }) => {
+  const { t } = useTranslation()
   const courseSlug = useRouter().query.courseSlug
   const { isLoading, error, data } = useQuery(
     `chapter-${chapterId}-pages-excluding-frontpage`,
@@ -37,7 +39,7 @@ const PagesInChapter: React.FC<{ chapterId: string }> = ({ chapterId }) => {
                 color: #505050;
               `}
             >
-              TABLE OF CONTENTS
+              {t("table-of-contents")}
             </h4>
 
             {data.map((page) => (

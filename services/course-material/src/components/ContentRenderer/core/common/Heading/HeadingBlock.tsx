@@ -1,13 +1,14 @@
+/* eslint-disable i18next/no-literal-string */
 /* eslint-disable jsx-a11y/heading-has-content */
 import { css } from "@emotion/css"
 import { DetailedHTMLProps, HTMLAttributes } from "react"
 import sanitizeHtml from "sanitize-html"
 
 import { BlockRendererProps } from "../../.."
+import { HeadingAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import { courseMaterialCenteredComponentStyles } from "../../../../../shared-module/styles/componentStyles"
 import colorMapper from "../../../../../styles/colorMapper"
 import fontSizeMapper from "../../../../../styles/fontSizeMapper"
-import { HeadingAttributes } from "../../../../../types/GutenbergBlockAttributes"
 
 const HeadingBlock: React.FC<BlockRendererProps<HeadingAttributes>> = ({ data }) => {
   const {

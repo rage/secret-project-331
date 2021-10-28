@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import React from "react"
 
 import { BlockRendererProps } from "../.."
-import { SpacerAttributes } from "../../../../types/GutenbergBlockAttributes"
+import { SpacerAttributes } from "../../../../../types/GutenbergBlockAttributes"
 
 const SpacerBlock: React.FC<BlockRendererProps<SpacerAttributes>> = ({ data }) => {
   const { height, width, anchor } = data.attributes

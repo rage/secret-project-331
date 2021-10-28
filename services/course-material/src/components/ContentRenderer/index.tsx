@@ -1,5 +1,6 @@
 import dynamic from "next/dynamic"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 import { Block } from "../../services/backend"
 import { NewProposedBlockEdit } from "../../shared-module/bindings"
@@ -100,10 +101,11 @@ export const blockToRendererMap: { [blockName: string]: any } = {
 }
 
 const ContentRenderer: React.FC<ContentRendererProps> = (props) => {
+  const { t } = useTranslation()
   if (props.data.constructor !== Array) {
     return (
       <div>
-        <p>Error: tried to render something that was not an array.</p>
+        <p>{t("error-page-data-in-invalid-format")}</p>
         <pre>{JSON.stringify(props.data, undefined, 2)}</pre>
       </div>
     )

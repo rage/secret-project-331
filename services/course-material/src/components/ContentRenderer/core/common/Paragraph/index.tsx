@@ -7,16 +7,18 @@ import sanitizeHtml from "sanitize-html"
 import { useMemo } from "use-memo-one"
 
 import { BlockRendererProps } from "../../.."
+import { ParagraphAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import { baseTheme } from "../../../../../shared-module/styles"
 import { courseMaterialCenteredComponentStyles } from "../../../../../shared-module/styles/componentStyles"
 import colorMapper from "../../../../../styles/colorMapper"
 import fontSizeMapper from "../../../../../styles/fontSizeMapper"
-import { ParagraphAttributes } from "../../../../../types/GutenbergBlockAttributes"
 
 const Paragraph = dynamic(() => import("./BasicParagraph"))
 const LatexParagraph = dynamic(() => import("./LatexParagraph"))
 
 const LATEX_REGEX = /\[latex\](.*)\[\/latex\]/g
+const HTML_ESCAPED_AMPERSAND = "&amp;"
+const KATEX_OUTPUT_FORMAT = "html"
 
 /**
  *
@@ -27,11 +29,11 @@ const convertToLatex = (data: string) => {
   let count = 0
   const converted = data.replace(LATEX_REGEX, (_, latex) => {
     // Convert ampersand back to special symbol. This is needed e.g. in matrices
-    const processed = latex.replaceAll("&amp;", "&")
+    const processed = latex.replaceAll(HTML_ESCAPED_AMPERSAND, "&")
     count++
     return KaTex.renderToString(processed, {
       throwOnError: false,
-      output: "html",
+      output: KATEX_OUTPUT_FORMAT,
     })
   })
 
@@ -72,6 +74,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
 
   // If background color is undefined, it indicates a transparent background
   // and we let the background color property unset in CSS.
+  // eslint-disable-next-line i18next/no-literal-string
   const bgColor = colorMapper(backgroundColor, "unset")
   const [editedContent, setEditedContent] = useState(data.attributes.content)
 

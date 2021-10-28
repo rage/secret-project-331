@@ -2,11 +2,15 @@ import { css } from "@emotion/css"
 import sanitizeHtml from "sanitize-html"
 
 import { BlockRendererProps } from "../.."
+import {
+  CellAttributes,
+  Cells,
+  TableAttributes,
+} from "../../../../../types/GutenbergBlockAttributes"
 import { baseTheme } from "../../../../shared-module/styles"
 import { courseMaterialCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import colorMapper from "../../../../styles/colorMapper"
-import { TableAttributes } from "../../../../types/GutenbergBlockAttributes"
 
 const TableBlock: React.FC<BlockRendererProps<TableAttributes>> = ({ data }) => {
   const {
@@ -29,6 +33,7 @@ const TableBlock: React.FC<BlockRendererProps<TableAttributes>> = ({ data }) => 
 
   const fetchAlignment = (align: string | undefined) => {
     if (align) {
+      // eslint-disable-next-line i18next/no-literal-string
       return css`
         text-align: ${align};
       `
@@ -73,10 +78,10 @@ const TableBlock: React.FC<BlockRendererProps<TableAttributes>> = ({ data }) => 
       >
         {head && (
           <thead>
-            {head.map((cellRows, j) => (
+            {head.map((cellRows: Cells, j: number) => (
               <tr key={j}>
                 {cellRows.cells &&
-                  cellRows.cells.map((cell, i) => (
+                  cellRows.cells.map((cell: CellAttributes, i) => (
                     <th
                       className={fetchAlignment(cell.align)}
                       key={i}
@@ -92,10 +97,10 @@ const TableBlock: React.FC<BlockRendererProps<TableAttributes>> = ({ data }) => 
           </thead>
         )}
         <tbody>
-          {body.map((cellRows, j) => (
+          {body.map((cellRows: Cells, j: number) => (
             <tr key={j}>
               {cellRows.cells &&
-                cellRows.cells.map((cell, i) => (
+                cellRows.cells.map((cell: CellAttributes, i: number) => (
                   <td
                     className={fetchAlignment(cell.align)}
                     key={i}
@@ -111,10 +116,10 @@ const TableBlock: React.FC<BlockRendererProps<TableAttributes>> = ({ data }) => 
         </tbody>
         {foot && (
           <tfoot>
-            {foot.map((cellRows, j) => (
+            {foot.map((cellRows: Cells, j: number) => (
               <tr key={j}>
                 {cellRows.cells &&
-                  cellRows.cells.map((cell, i) => (
+                  cellRows.cells.map((cell: CellAttributes, i: number) => (
                     <th
                       className={fetchAlignment(cell.align)}
                       key={i}

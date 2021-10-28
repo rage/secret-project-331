@@ -2,8 +2,8 @@ import { css } from "@emotion/css"
 import sanitizeHtml from "sanitize-html"
 
 import { BlockRendererProps } from "../../.."
+import { QuoteAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import { courseMaterialCenteredComponentStyles } from "../../../../../shared-module/styles/componentStyles"
-import { QuoteAttributes } from "../../../../../types/GutenbergBlockAttributes"
 
 const QuoteBlock: React.FC<BlockRendererProps<QuoteAttributes>> = ({ data }) => {
   const { citation, value, anchor, className, align } = data.attributes

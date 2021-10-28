@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import { schema } from "normalizr"
 
 export const options = new schema.Entity("options")

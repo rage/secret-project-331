@@ -2,9 +2,9 @@ import { css } from "@emotion/css"
 import sanitizeHtml from "sanitize-html"
 
 import { BlockRendererProps } from "../.."
+import { PullquoteAttributes } from "../../../../../types/GutenbergBlockAttributes"
 import { courseMaterialCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import colorMapper from "../../../../styles/colorMapper"
-import { PullquoteAttributes } from "../../../../types/GutenbergBlockAttributes"
 
 const PullquoteBlock: React.FC<BlockRendererProps<PullquoteAttributes>> = ({ data }) => {
   const {
@@ -23,7 +23,7 @@ const PullquoteBlock: React.FC<BlockRendererProps<PullquoteAttributes>> = ({ dat
 
   const textAlignNotCenterWidth =
     textAlign && textAlign !== "center" && !align ? "max-width: 26.25rem;" : null
-  const textAndBorderColor = colorMapper(textColor, "#000")
+  const textAndBorderColor = colorMapper(textColor)
 
   return (
     <div

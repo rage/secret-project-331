@@ -1,9 +1,9 @@
 import { css } from "@emotion/css"
 
 import { BlockRendererProps } from "../../.."
+import { FileAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import Button from "../../../../../shared-module/components/Button"
 import { courseMaterialCenteredComponentStyles } from "../../../../../shared-module/styles/componentStyles"
-import { FileAttributes } from "../../../../../types/GutenbergBlockAttributes"
 
 const FileBlock: React.FC<BlockRendererProps<FileAttributes>> = ({ data }) => {
   const {

@@ -1,10 +1,13 @@
 import dynamic from "next/dynamic"
+import React from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import Layout from "../../components/Layout"
 import CourseContext from "../../contexts/CourseContext"
 import { fetchPageWithId, updateExistingPage } from "../../services/backend/pages"
 import { Page, PageUpdate } from "../../shared-module/bindings"
+import Spinner from "../../shared-module/components/Spinner"
 import { withSignedIn } from "../../shared-module/contexts/LoginStateContext"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
@@ -15,7 +18,7 @@ interface PagesProps {
   query: SimplifiedUrlQuery<"id">
 }
 
-const EditorLoading = <div>Loading editor...</div>
+const EditorLoading = <Spinner variant="medium" />
 
 const PageEditor = dynamic(() => import("../../components/editors/PageEditor"), {
   ssr: false,
@@ -23,20 +26,21 @@ const PageEditor = dynamic(() => import("../../components/editors/PageEditor"), 
 })
 
 const Pages = ({ query }: PagesProps) => {
+  const { t } = useTranslation()
   const { id } = query
   const { isLoading, error, data, refetch } = useQuery(`page-${id}`, () => fetchPageWithId(id))
 
   if (error) {
     return (
       <div>
-        <h1>Error</h1>
+        <h1>{t("error")}</h1>
         <pre>{JSON.stringify(error, undefined, 2)}</pre>
       </div>
     )
   }
 
   if (isLoading || !data) {
-    return <div>Loading page...</div>
+    return <div>{t("loading")}</div>
   }
 
   const handleSave = async (page: PageUpdate): Promise<Page> => {
@@ -48,6 +52,7 @@ const Pages = ({ query }: PagesProps) => {
 
   return (
     <CourseContext.Provider value={{ courseId: data.course_id }}>
+      {/* eslint-disable-next-line i18next/no-literal-string */}
       <Layout frontPageUrl={`/manage/courses/${data.course_id}/pages`}>
         <PageEditor data={data} handleSave={handleSave} />
       </Layout>

@@ -1,9 +1,9 @@
 import { css } from "@emotion/css"
 
 import { BlockRendererProps, blockToRendererMap } from "../.."
+import { ColumnAttributes } from "../../../../../types/GutenbergBlockAttributes"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import colorMapper from "../../../../styles/colorMapper"
-import { ColumnAttributes } from "../../../../types/GutenbergBlockAttributes"
 import DefaultBlock from "../../DefaultBlock"
 
 const ColumnBlock: React.FC<BlockRendererProps<ColumnAttributes>> = ({ data }) => {

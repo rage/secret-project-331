@@ -2,9 +2,9 @@ import { css } from "@emotion/css"
 import React from "react"
 
 import { BlockRendererProps } from "../.."
+import { SeparatorAttributes } from "../../../../../types/GutenbergBlockAttributes"
 import { courseMaterialCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import colorMapper from "../../../../styles/colorMapper"
-import { SeparatorAttributes } from "../../../../types/GutenbergBlockAttributes"
 
 const SeparatorBlock: React.FC<BlockRendererProps<SeparatorAttributes>> = ({ data }) => {
   const { anchor, className, color } = data.attributes

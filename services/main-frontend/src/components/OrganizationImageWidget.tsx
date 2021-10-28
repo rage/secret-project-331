@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { removeOrganizationImage, setOrganizationImage } from "../services/backend/organizations"
 import { Organization } from "../shared-module/bindings"
@@ -16,6 +17,7 @@ const OrganizationImageWidget: React.FC<OrganizationImageControlsProps> = ({
   organization,
   onOrganizationUpdated,
 }) => {
+  const { t } = useTranslation()
   const [allowRemove, setAllowRemove] = useState(true)
   const [error, setError] = useState<unknown>()
 
@@ -53,14 +55,14 @@ const OrganizationImageWidget: React.FC<OrganizationImageControlsProps> = ({
               max-height: 20rem;
             `}
             src={organization.organization_image_url}
-            alt="What to display on the organization."
+            alt={t("image-alt-what-to-display-on-organization")}
           />
           <Button size="medium" variant="secondary" onClick={handleRemove} disabled={!allowRemove}>
-            Remove image
+            {t("button-text-remove")}
           </Button>
         </>
       ) : (
-        <div>No organization image.</div>
+        <div>{t("no-organization-image")}</div>
       )}
       <UploadImageForm onSubmit={handleSubmit} />
     </div>

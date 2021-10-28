@@ -1,6 +1,6 @@
 import { createReducer } from "typesafe-actions"
 
-import { action } from "../../../types/types"
+import { action } from "../../../../types/types"
 import { createdNewQuiz, initializedEditor } from "../editorActions"
 
 export const resultReducer = createReducer<string, action>("")

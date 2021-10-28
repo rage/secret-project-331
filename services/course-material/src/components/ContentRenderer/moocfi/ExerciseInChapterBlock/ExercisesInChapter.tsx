@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import useQueryParameter from "../../../../hooks/useQueryParameter"
@@ -13,6 +14,7 @@ const ExercisesInChapter: React.FC<{ chapterId: string; courseInstanceId: string
   chapterId,
   courseInstanceId,
 }) => {
+  const { t } = useTranslation()
   const { isLoading, error, data } = useQuery(`chapter-${chapterId}-pages-with-exercises`, () =>
     fetchChaptersPagesWithExercises(chapterId),
   )
@@ -36,9 +38,10 @@ const ExercisesInChapter: React.FC<{ chapterId: string; courseInstanceId: string
         className={css`
           text-align: center;
           margin-bottom: 1rem;
+          text-transform: uppercase;
         `}
       >
-        EXERCISES IN THIS CHAPTER
+        {t("exercises-in-this-chapter")}
       </h4>
       {data.map((page) => (
         <div key={page.id}>

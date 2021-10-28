@@ -1,11 +1,14 @@
 import { css } from "@emotion/css"
 
 import { BlockRendererProps } from "../../.."
+import {
+  ButtonAttributes,
+  ButtonsAttributes,
+} from "../../../../../../types/GutenbergBlockAttributes"
 import Button from "../../../../../shared-module/components/Button"
 import { courseMaterialCenteredComponentStyles } from "../../../../../shared-module/styles/componentStyles"
 import colorMapper from "../../../../../styles/colorMapper"
 import fontSizeMapper from "../../../../../styles/fontSizeMapper"
-import { ButtonAttributes, ButtonsAttributes } from "../../../../../types/GutenbergBlockAttributes"
 
 const ButtonsBlock: React.FC<BlockRendererProps<ButtonsAttributes>> = ({ data }) => {
   const { orientation, anchor, contentJustification } = data.attributes
@@ -41,7 +44,7 @@ const ButtonsBlock: React.FC<BlockRendererProps<ButtonsAttributes>> = ({ data })
       width,
     } = button.attributes as ButtonAttributes
 
-    const ensureRelNoOpenerIfTargetBlank =
+    const ENSURE_REL_NO_OPENER_IF_TARGET_BLANK =
       linkTarget && linkTarget.includes("blank")
         ? rel && !rel.includes("noopener")
           ? rel.split(" ").join(" ").concat(" noopener")
@@ -51,7 +54,7 @@ const ButtonsBlock: React.FC<BlockRendererProps<ButtonsAttributes>> = ({ data })
     return (
       <a
         key={button.clientId}
-        rel={ensureRelNoOpenerIfTargetBlank}
+        rel={ENSURE_REL_NO_OPENER_IF_TARGET_BLANK}
         href={url}
         target={linkTarget}
         className={css`

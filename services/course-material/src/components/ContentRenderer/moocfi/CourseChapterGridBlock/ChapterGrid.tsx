@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import useQueryParameter from "../../../../hooks/useQueryParameter"
@@ -13,6 +14,7 @@ import GenericLoading from "../../../GenericLoading"
 import ChapterGridCard from "./ChapterGridCard"
 
 const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
+  const { t } = useTranslation()
   const now = useTime()
   const { data, error, isLoading } = useQuery(`course-${courseId}-chapters`, () =>
     fetchChaptersInTheCourse(courseId),
@@ -42,7 +44,7 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
           padding-bottom: 2em;
         `}
       >
-        Course Overview
+        {t("course-overview")}
       </h2>
       <div
         className={css`
@@ -84,6 +86,7 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
                 `}
                 key={chapter.id}
               >
+                {/* eslint-disable-next-line i18next/no-literal-string */}
                 <ChapterGridCard bg="yellow" now={now} chapter={chapter} courseSlug={courseSlug} />
               </div>
             )

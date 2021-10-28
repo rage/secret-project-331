@@ -1,4 +1,5 @@
 import { differenceInSeconds, formatDuration } from "date-fns"
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import { fetchPageUrl } from "../../../../services/backend"
@@ -14,6 +15,7 @@ interface ChapterProps {
 }
 
 const ChapterGridCard: React.FC<ChapterProps> = ({ now, chapter, courseSlug, bg }) => {
+  const { i18n } = useTranslation()
   const { data, error, isLoading } = useQuery(`chapter-grid-chapter-${chapter.id}`, () => {
     if (chapter.front_page_id) {
       return fetchPageUrl(chapter.front_page_id)
@@ -45,6 +47,7 @@ const ChapterGridCard: React.FC<ChapterProps> = ({ now, chapter, courseSlug, bg 
     if (chapter.opens_at) {
       const diffSeconds = differenceInSeconds(chapter.opens_at, now)
       if (diffSeconds <= 0) {
+        // eslint-disable-next-line i18next/no-literal-string
         chapter.status = "open"
         // Insert confetti drop here.
         return (
@@ -75,12 +78,20 @@ const ChapterGridCard: React.FC<ChapterProps> = ({ now, chapter, courseSlug, bg 
           />
         )
       } else {
-        const date = chapter.opens_at.toLocaleString("en", {
+        const date = chapter.opens_at.toLocaleString(i18n.language, {
+          // eslint-disable-next-line i18next/no-literal-string
           year: "numeric",
+          // eslint-disable-next-line i18next/no-literal-string
           month: "long",
+          // eslint-disable-next-line i18next/no-literal-string
           day: "numeric",
         })
-        const time = chapter.opens_at.toLocaleString("en", { hour: "numeric", minute: "numeric" })
+        const time = chapter.opens_at.toLocaleString(i18n.language, {
+          // eslint-disable-next-line i18next/no-literal-string
+          hour: "numeric",
+          // eslint-disable-next-line i18next/no-literal-string
+          minute: "numeric",
+        })
         return (
           <Card
             variant="simple"

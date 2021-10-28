@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import React, { useEffect, useRef } from "react"
+import { useTranslation } from "react-i18next"
 
 import useMessageChannel from "../hooks/useMessageChannel"
 import { isHeightChangedMessage } from "../iframe-protocol-types.guard"
@@ -15,6 +16,7 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
   onCommunicationChannelEstabilished,
   onMessageFromIframe,
 }) => {
+  const { t } = useTranslation()
   const iframeRef = useRef<HTMLIFrameElement>(null)
   // needed because we cannot execute again the temporary event handler useEffect
   // whenever this changes.
@@ -29,18 +31,23 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
     // We use port 1 for communication, defining a event handler
     messageChannel.port1.onmessage = (message: WindowEventMap["message"]) => {
       const data = message.data
+      // eslint-disable-next-line i18next/no-literal-string
       console.info("Received message", JSON.stringify(data))
       if (isHeightChangedMessage(data)) {
         if (!iframeRef.current) {
+          // eslint-disable-next-line i18next/no-literal-string
           console.error("Cannot send data to iframe because reference does not exist.")
           return
         }
-        console.log("Updating height")
+        // eslint-disable-next-line i18next/no-literal-string
+        console.info("Updating height")
+        // eslint-disable-next-line i18next/no-literal-string
         iframeRef.current.height = Number(data.data).toString() + "px"
       } else {
         try {
           onMessageFromIframe(message.data, messageChannel.port1)
         } catch (e) {
+          // eslint-disable-next-line i18next/no-literal-string
           console.error("onMessageFromIframe crashed", e)
         }
       }
@@ -59,6 +66,7 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
         return
       }
       if (e.data !== "ready") {
+        // eslint-disable-next-line i18next/no-literal-string
         console.warn(`Unsupported message from IFrame: ${e.data}`)
         return
       }
@@ -71,10 +79,12 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
         try {
           onCommunicationChannelEstabilishedRef.current(messageChannel.port1)
         } catch (e) {
+          // eslint-disable-next-line i18next/no-literal-string
           console.error("onCommunicationChannelEstabilished crashed", e)
         }
       } else {
         console.error(
+          // eslint-disable-next-line i18next/no-literal-string
           "Could not send port to iframe because the target iframe content window could not be found.",
         )
       }
@@ -91,7 +101,7 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
   }
 
   if (!url || url.trim() === "") {
-    return <div>Cannot render IFRame, missing url.</div>
+    return <div>{t("error-cannot-render-dynamic-content-missing-url")}</div>
   }
 
   return (

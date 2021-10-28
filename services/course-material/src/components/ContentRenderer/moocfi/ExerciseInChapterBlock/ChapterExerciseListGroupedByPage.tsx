@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import { fetchUserCourseInstanceChapterExercisesProgress } from "../../../../services/backend"
@@ -18,6 +19,7 @@ const ChapterExerciseListGroupedByPage: React.FC<ChapterExerciseListGroupedByPag
   courseInstanceId,
   chapterId,
 }) => {
+  const { t } = useTranslation()
   const { isLoading, error, data } = useQuery(
     `user-course-instance-${courseInstanceId}-chapter-${page.chapter_id}-exercises`,
     async () => {
@@ -32,14 +34,14 @@ const ChapterExerciseListGroupedByPage: React.FC<ChapterExerciseListGroupedByPag
   if (error) {
     return (
       <div>
-        <h1>Error</h1>
+        <h1>{t("error-title")}</h1>
         <pre>{JSON.stringify(error, undefined, 2)}</pre>
       </div>
     )
   }
 
   if (isLoading || !data) {
-    return <div>Loading exercise user progress...</div>
+    return <div>{t("loading")}</div>
   }
 
   return (

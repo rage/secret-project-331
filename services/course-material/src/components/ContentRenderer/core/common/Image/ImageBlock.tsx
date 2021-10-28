@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
 
 import { BlockRendererProps } from "../../.."
+import { ImageAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import { courseMaterialCenteredComponentStyles } from "../../../../../shared-module/styles/componentStyles"
-import { ImageAttributes } from "../../../../../types/GutenbergBlockAttributes"
 
 const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => {
   const {
@@ -27,13 +27,14 @@ const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => 
   const warnUserIfLinkCustom = () => {
     if (linkDestination === "custom") {
       return confirm(
+        // eslint-disable-next-line i18next/no-literal-string
         `This image link will take you to:\n${href}\n\nAre you sure you want to continue?`,
       )
     }
     return true
   }
 
-  const ensureRelNoOpenerIfTargetBlank =
+  const ENSURE_REL_NO_OPENER_IF_TARGET_BLANK =
     linkTarget && linkTarget.includes("blank")
       ? rel && !rel.includes("noopener")
         ? rel.split(" ").join(" ").concat(" noopener")
@@ -67,7 +68,7 @@ const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => 
             onClick={warnUserIfLinkCustom}
             href={href}
             target={linkTarget}
-            rel={ensureRelNoOpenerIfTargetBlank}
+            rel={ENSURE_REL_NO_OPENER_IF_TARGET_BLANK}
             className={linkClass}
           >
             <img

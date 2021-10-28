@@ -2,11 +2,11 @@ import { css } from "@emotion/css"
 import sanitizeHtml from "sanitize-html"
 
 import { BlockRendererProps } from "../../.."
+import { ListAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import { courseMaterialCenteredComponentStyles } from "../../../../../shared-module/styles/componentStyles"
 import { defaultContainerWidth } from "../../../../../shared-module/styles/constants"
 import colorMapper from "../../../../../styles/colorMapper"
 import fontSizeMapper from "../../../../../styles/fontSizeMapper"
-import { ListAttributes } from "../../../../../types/GutenbergBlockAttributes"
 
 const ListBlock: React.FC<BlockRendererProps<ListAttributes>> = ({ data }) => {
   const {
@@ -25,7 +25,7 @@ const ListBlock: React.FC<BlockRendererProps<ListAttributes>> = ({ data }) => {
     // type,
   } = data.attributes
 
-  const listItemClasses = css`
+  const LIST_ITEM_CLASS = css`
     ${courseMaterialCenteredComponentStyles}
     max-width: ${defaultContainerWidth}rem;
     ${fontSize && `font-size: ${fontSizeMapper(fontSize)};`}
@@ -41,7 +41,7 @@ const ListBlock: React.FC<BlockRendererProps<ListAttributes>> = ({ data }) => {
   if (ordered) {
     return (
       <ol
-        className={listItemClasses}
+        className={LIST_ITEM_CLASS}
         {...(anchor && { id: anchor })}
         {...(start && { start: start })}
         reversed={reversed}
@@ -51,7 +51,7 @@ const ListBlock: React.FC<BlockRendererProps<ListAttributes>> = ({ data }) => {
   } else {
     return (
       <ul
-        className={listItemClasses}
+        className={LIST_ITEM_CLASS}
         {...(anchor && { id: anchor })}
         dangerouslySetInnerHTML={{ __html: sanitizeHtml(values) }}
       />

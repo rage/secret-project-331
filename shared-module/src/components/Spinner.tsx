@@ -10,11 +10,13 @@ export interface SpinnerExtraProps {
 
 export type SpinnerProps = React.HTMLAttributes<HTMLDivElement> & SpinnerExtraProps
 
+// eslint-disable-next-line i18next/no-literal-string
 const rotation = keyframes`
 0% { transform: rotate(0deg) }
 100% { transform: rotate(360deg) }
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const StyledSpinner = styled.div`
   width: 30px;
   height: 30px;

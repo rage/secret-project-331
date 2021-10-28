@@ -6,12 +6,14 @@ import { respondToOrLarger } from "./respond"
 // Centering is done with this because we don't want to constrict all components
 // in a page to be inside a container. Some elements need the entire width
 // of the page.
+// eslint-disable-next-line i18next/no-literal-string
 export const normalWidthCenteredComponentStyles = css`
   max-width: ${defaultContainerWidth}rem;
   margin-left: auto;
   margin-right: auto;
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 export const courseMaterialCenteredComponentStyles = css`
   max-width: ${defaultContainerWidth}rem;
   margin-left: auto;
@@ -23,6 +25,7 @@ export const courseMaterialCenteredComponentStyles = css`
   }
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 export const wideWidthCenteredComponentStyles = css`
   max-width: ${wideContainerWidth}rem;
   margin-left: auto;

@@ -2,9 +2,9 @@ import { css } from "@emotion/css"
 import sanitizeHtml from "sanitize-html"
 
 import { BlockRendererProps } from "../.."
+import { CodeAttributes } from "../../../../../types/GutenbergBlockAttributes"
 import { courseMaterialCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import fontSizeMapper from "../../../../styles/fontSizeMapper"
-import { CodeAttributes } from "../../../../types/GutenbergBlockAttributes"
 
 const CodeBlock: React.FC<BlockRendererProps<CodeAttributes>> = ({ data }) => {
   const { anchor, content, fontSize } = data.attributes

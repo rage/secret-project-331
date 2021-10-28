@@ -1,3 +1,6 @@
+/* eslint-disable i18next/no-literal-string */
+// Gutenberg specific, don't use in other contexes
+
 const colorMap: { [colorName: string]: string | undefined } = {
   black: "#000000",
   "vivid-red": "#fc2403",

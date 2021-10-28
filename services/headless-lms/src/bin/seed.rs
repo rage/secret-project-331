@@ -1630,7 +1630,18 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         ]
     )
     .await?;
-
+    let page_content = include_str!("../assets/example-page.json");
+    let parse_page_content: Vec<GutenbergBlock> = serde_json::from_str(page_content)?;
+    create_page(
+        conn,
+        course.id,
+        "/chapter-2/content-rendering",
+        "Content rendering",
+        admin,
+        chapter_2.id,
+        &parse_page_content,
+    )
+    .await?;
     Ok(course.id)
 }
 

@@ -176,6 +176,7 @@ const Button: React.FC<ButtonProps> = (props) => {
       aria-label={t("navigation-menu")}
       {...{ buttonWidth, buttonColor, className }}
       {...rest}
+      id="main-navigation-menu"
     >
       <Box {...{ buttonWidth }}>
         <Lines {...{ buttonWidth, barColor, isActive }} />

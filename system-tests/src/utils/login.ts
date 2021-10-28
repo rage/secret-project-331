@@ -8,7 +8,7 @@ export async function login(
   stayLoggedIn?: boolean | undefined,
 ): Promise<void> {
   await page.goto("http://project-331.local/")
-  await page.click('[aria-label="Navigation menu"]')
+  await page.click("id=main-navigation-menu")
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/login?return_to=%2F' }*/),
@@ -34,7 +34,7 @@ export async function login(
   // Store login state
   await page.context().storageState({ path: `src/states/${user}.json` })
   if (!stayLoggedIn) {
-    await page.click('[aria-label="Navigation menu"]')
+    await page.click("id=main-navigation-menu")
     await page.click("text=Log out")
     await page.waitForSelector("text=Log in")
   }

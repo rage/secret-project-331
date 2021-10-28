@@ -27,7 +27,7 @@ Open a terminal in shared-module and run:
 npm run watch
 ```
 
-to keep changes to the translation files automatically synchronized with the different microservices.
+To keep changes to the translation files automatically synchronized with the different microservices.
 
 Try to use reusable strings for the interface. For example if you have a button that says "Save page", it might be a good idea to replace that with just "Save" so that we don't need a new translation for that.
 
@@ -45,8 +45,7 @@ Try to do the one of the following. Things further up on the list are preferrabl
 
 1. move the literal string to a constant to the top level of the file with upper case name e.g. `const CONSTANT = 'foo'`. **If you have temporary content that will be replaced later do this instead of ignoring the line with a comment.**
 2. Ignore the instance with an eslint comment that vscode suggests
-3. Ignore property/function name in eslint config (only do this if you are sure that it will not ignore any real translatable strings. Good examples of functions that should not be ignored are useQuery/useMutation, because the can contain callbacks that contain translatable strings)
-
+3. Ignore property/function name in eslint config (only do this if you are sure that it will not ignore any real translatable strings.
 
 #### React components in middle of translatable strings
 

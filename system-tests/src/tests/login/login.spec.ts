@@ -45,7 +45,7 @@ test.describe("Login session with Playwright", async () => {
   )
 
   test("is succesful", async ({ page }) => {
-    await page.click('[aria-label="Navigation menu"]')
+    await page.click("id=main-navigation-menu")
     expect(await page.waitForSelector("text=Log out")).toBeTruthy()
   })
 
@@ -76,7 +76,7 @@ test.describe("Login return_to", async () => {
     ])
     expect(page.url().startsWith("http://project-331.local/organizations/")).toBe(true)
     // Click text=Login
-    await page.click('[aria-label="Navigation menu"]')
+    await page.click("id=main-navigation-menu")
     await Promise.all([page.waitForNavigation(), page.click("text=Log in")])
     await page.waitForSelector('input[name="password"]')
     expect(page.url().startsWith("http://project-331.local/login?return_to=")).toBe(true)

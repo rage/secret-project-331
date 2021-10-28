@@ -43,7 +43,7 @@ const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
             overflow: scroll;
           `}
         >
-          {t("proposed-text", { "current-text": block.changed_text })}
+          {t("proposed-text", { "changed-text": block.changed_text })}
         </div>
         {editingBlocks.has(block.id) && (
           <>

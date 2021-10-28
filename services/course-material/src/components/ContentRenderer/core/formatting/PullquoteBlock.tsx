@@ -23,7 +23,6 @@ const PullquoteBlock: React.FC<BlockRendererProps<PullquoteAttributes>> = ({ dat
 
   const textAlignNotCenterWidth =
     textAlign && textAlign !== "center" && !align ? "max-width: 26.25rem;" : null
-  const textAndBorderColor = colorMapper(textColor)
 
   return (
     <div
@@ -34,13 +33,13 @@ const PullquoteBlock: React.FC<BlockRendererProps<PullquoteAttributes>> = ({ dat
     >
       <figure
         className={css`
-          ${textColor && `color: ${textAndBorderColor};`}
+          ${textColor && `color: ${colorMapper(textColor)};`}
           ${backgroundColor && `background: ${colorMapper(backgroundColor)};`}
           ${gradient && `background: ${colorMapper(gradient)};`}
           text-align: center;
           ${textAlign && `text-align: ${textAlign};`}
-          border-top: 0.25rem solid ${textAndBorderColor};
-          border-bottom: 0.25rem solid ${textAndBorderColor};
+          border-top: 0.25rem solid currentColor;
+          border-bottom: 0.25rem solid currentColor;
           padding: 3rem 0rem !important;
           margin-bottom: 1rem;
           ${align && `float: ${align};`}

@@ -12,25 +12,23 @@
   // Reference element for the block popover position.
   position: relative;
 
-  // Disable the margin-right if min-width more than 600px for responsiveness
-  margin-right: 0px;
-  /* stylelint-disable-next-line */
-  @include break-small() {
-    /* Give space for sidebar so that it won't accidentally overlap the main editor */
-    /* Same as sidebar width */
-    margin-right: calc("auto" - $sidebar-width);
+  /* Give space for sidebar so that it won't accidentally overlap the main editor */
+  /* Same as sidebar width */
+  margin-right: calc("auto" - $sidebar-width);
+  @media (max-width: 75rem) {
+    // Disable the margin-right if min-width more than 600px for responsiveness
+    margin-right: 0px;
   }
 }
 
 // Components that are on the same page as a Gutenberg Editor
 .editor__component {
-  // Disable the margin-right if min-width more than 600px for responsiveness
-  margin-right: 0px;
-  /* stylelint-disable-next-line */
-  @include break-small() {
-    /* Give space for sidebar so that it won't accidentally overlap the main editor */
-    /* Same as sidebar width */
-    margin-right: calc("auto" - $sidebar-width);
+  /* Give space for sidebar so that it won't accidentally overlap the main editor */
+  /* Same as sidebar width */
+  margin-right: calc("auto" - $sidebar-width);
+  @media (max-width: 75rem) {
+    // Disable the margin-right if min-width more than 600px for responsiveness
+    margin-right: 0px;
   }
 }
 
@@ -51,9 +49,9 @@
 
   // Temporarily disable the sidebar on mobile
   // Do we want to support advanced content editing with a mobile phone?
-  display: none;
+  display: block;
   /* stylelint-disable-next-line */
-  @include break-small() {
-    display: block;
+  @media (max-width: 75rem) {
+    display: none;
   }
 }

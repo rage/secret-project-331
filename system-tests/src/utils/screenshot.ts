@@ -1,4 +1,4 @@
-import { ElementHandle, expect, Frame, Page } from "@playwright/test"
+import { ElementHandle, expect, Frame, Page, PageScreenshotOptions } from "@playwright/test"
 
 import accessibilityCheck from "./accessibilityCheck"
 
@@ -19,6 +19,7 @@ interface ExpectScreenshotsToMatchSnapshotsProps {
   beforeScreenshot?: () => Promise<void>
   page?: Page
   frame?: Frame
+  pageScreenshotOptions?: PageScreenshotOptions
 }
 
 export default async function expectScreenshotsToMatchSnapshots({
@@ -29,6 +30,7 @@ export default async function expectScreenshotsToMatchSnapshots({
   beforeScreenshot,
   frame,
   page,
+  pageScreenshotOptions,
 }: ExpectScreenshotsToMatchSnapshotsProps): Promise<void> {
   if (!page && !frame) {
     throw new Error("No page or frame provided to expectScreenshotsToMatchSnapshots")
@@ -63,6 +65,7 @@ export default async function expectScreenshotsToMatchSnapshots({
     page,
     frame,
     headless,
+    pageScreenshotOptions,
   })
 
   await snapshotWithViewPort({
@@ -74,6 +77,7 @@ export default async function expectScreenshotsToMatchSnapshots({
     page,
     frame,
     headless,
+    pageScreenshotOptions,
   })
 
   // always restore the original viewport
@@ -90,6 +94,7 @@ interface SnapshotWithViewPortProps {
   frame?: Frame
   headless: boolean
   persistMousePosition?: boolean
+  pageScreenshotOptions?: PageScreenshotOptions
 }
 
 async function snapshotWithViewPort({
@@ -102,6 +107,7 @@ async function snapshotWithViewPort({
   page,
   headless,
   persistMousePosition,
+  pageScreenshotOptions,
 }: SnapshotWithViewPortProps) {
   if (!persistMousePosition && page) {
     await page.mouse.move(0, 0)
@@ -139,6 +145,7 @@ async function snapshotWithViewPort({
       screenshotName,
       toMatchSnapshotOptions,
       pageObjectToUse,
+      pageScreenshotOptions,
     )
   } else {
     console.warn("Not in headless mode, skipping screenshot")
@@ -167,9 +174,10 @@ export async function takeScreenshotAndComparetoSnapshot(
   screenshotName: string,
   toMatchSnapshotOptions: ToMatchSnapshotOptions,
   page: Page,
+  pageScreenshotOptions?: PageScreenshotOptions,
 ): Promise<void> {
   try {
-    const screenshot = await thingBeingScreenshotted.screenshot()
+    const screenshot = await thingBeingScreenshotted.screenshot(pageScreenshotOptions)
     expect(screenshot).toMatchSnapshot(screenshotName, toMatchSnapshotOptions)
   } catch (e: unknown) {
     // sometimes snapshots have wild race conditions, lets try again in a moment
@@ -177,7 +185,7 @@ export async function takeScreenshotAndComparetoSnapshot(
       "Screenshot did not match snapshots retrying... Note that if this passes, the test is unstable",
     )
     await page.waitForTimeout(100)
-    const screenshot = await thingBeingScreenshotted.screenshot()
+    const screenshot = await thingBeingScreenshotted.screenshot(pageScreenshotOptions)
     expect(screenshot).toMatchSnapshot(screenshotName, toMatchSnapshotOptions)
   }
 }

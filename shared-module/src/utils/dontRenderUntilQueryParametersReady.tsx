@@ -21,6 +21,7 @@ export function dontRenderUntilQueryParametersReady<T, P = unknown>(
   WrappedComponent: React.ComponentType<T & ProvidedExtraProps<P>>,
 ) {
   // Name to display in React Dev tools
+  // eslint-disable-next-line i18next/no-literal-string
   const displayName = WrappedComponent.displayName || WrappedComponent.name || "Component"
 
   const InnerComponent = (props: T) => {
@@ -51,6 +52,7 @@ export function dontRenderUntilQueryParametersReady<T, P = unknown>(
     return <WrappedComponent {...(props as T)} query={queryParameters as SimplifiedUrlQuery<P>} />
   }
 
+  // eslint-disable-next-line i18next/no-literal-string
   InnerComponent.displayName = `dontRenderUntilQueryParameterReady(${displayName})`
 
   return InnerComponent

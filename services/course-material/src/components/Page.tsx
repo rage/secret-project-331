@@ -46,6 +46,7 @@ const Page: React.FC<Props> = ({ onRefresh }) => {
           data={pageContext}
           updateDataOnClose={(payload) => {
             // NB! This is unsafe because payload has any type
+            // eslint-disable-next-line i18next/no-literal-string
             pageDispatch({ type: "rawSetState", payload })
           }}
           readOnly={false}

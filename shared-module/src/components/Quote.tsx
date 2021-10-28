@@ -44,7 +44,7 @@ const Quote: React.FC<QuoteProps> = ({ content }) => {
     <Justify>
       <ContentWrapper>
         <StyledImg>
-          <QuoteIMG width="30px" height="20px" alt="quote icon" />
+          <QuoteIMG width="30px" height="20px" role="presentation" alt="" />
         </StyledImg>
         <Text> {content} </Text>
       </ContentWrapper>

@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import { Dialog } from "@material-ui/core"
 import { groupBy, max } from "lodash"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import ChapterImageWidget from "../../../../components/ChapterImageWidget"
@@ -23,6 +24,7 @@ export interface CoursePagesProps {
 }
 
 const CoursePages: React.FC<CoursePagesProps> = ({ query }) => {
+  const { t } = useTranslation()
   const { id } = query
   const { isLoading, error, data, refetch } = useQuery(`course-structure-${id}`, () =>
     fetchCourseStructure(id),
@@ -30,11 +32,11 @@ const CoursePages: React.FC<CoursePagesProps> = ({ query }) => {
   const [showForm, setShowForm] = useState(false)
 
   if (error) {
-    return <div>Error overview.</div>
+    return <div>{t("error-title")}</div>
   }
 
   if (isLoading || !data) {
-    return <div>Loading...</div>
+    return <div>{t("loading-text")}</div>
   }
 
   const handleCreateChapter = async () => {
@@ -42,6 +44,7 @@ const CoursePages: React.FC<CoursePagesProps> = ({ query }) => {
     await refetch()
   }
 
+  // eslint-disable-next-line i18next/no-literal-string
   const pagesByChapter = groupBy(data.pages, "chapter_id")
 
   const maxPart = max(data.chapters.map((p) => p.chapter_number))
@@ -54,12 +57,14 @@ const CoursePages: React.FC<CoursePagesProps> = ({ query }) => {
           margin-bottom: 1rem;
         `}
       >
-        <h1>Course overview for {data.course.name}</h1>
+        <h1>{t("course-overview-for", { "course-name": data.course.name })}</h1>
+        <h2>{t("pages")}</h2>
         <PageList
           data={data.pages.filter((page) => !page.chapter_id)}
           refetch={refetch}
           courseId={data.course.id}
         />
+        <h2>{t("chapters")}</h2>
         <div>
           {data.chapters
             .filter((chapter) => !chapter.deleted_at)
@@ -74,7 +79,10 @@ const CoursePages: React.FC<CoursePagesProps> = ({ query }) => {
                 key={chapter.id}
               >
                 <h3>
-                  Chapter {chapter.chapter_number}: {chapter.name}
+                  {t("title-chapter", {
+                    "chapter-number": chapter.chapter_number,
+                    "chapter-name": chapter.name,
+                  })}
                 </h3>
                 <ChapterImageWidget chapter={chapter} onChapterUpdated={() => refetch()} />
                 <PageList
@@ -87,7 +95,7 @@ const CoursePages: React.FC<CoursePagesProps> = ({ query }) => {
             ))}
 
           <Button variant="primary" size="medium" onClick={() => setShowForm(!showForm)}>
-            Add new chapter
+            {t("button-text-new")}
           </Button>
 
           <Dialog open={showForm} onClose={() => setShowForm(!showForm)}>
@@ -97,7 +105,7 @@ const CoursePages: React.FC<CoursePagesProps> = ({ query }) => {
               `}
             >
               <Button variant="primary" size="medium" onClick={() => setShowForm(!showForm)}>
-                Close
+                {t("button-text-close")}
               </Button>
               <NewChapterForm
                 courseId={data.course.id}

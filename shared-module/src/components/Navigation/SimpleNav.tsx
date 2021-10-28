@@ -2,6 +2,7 @@ import { css, cx } from "@emotion/css"
 import { faBullseye } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "../../styles"
 import { runCallbackIfEnterPressed } from "../../utils/accessibility"
@@ -29,6 +30,7 @@ const NavbarItems = css`
     text-align: left !important;
   }
 `
+// eslint-disable-next-line i18next/no-literal-string
 const NavbarLogo = css`
   color: ${baseTheme.colors.grey[800]};
   display: flex;
@@ -46,6 +48,7 @@ const NavMenu = css`
   width: 100vw;
   justify-content: end;
 `
+// eslint-disable-next-line i18next/no-literal-string
 const NavLink = css`
   color: ${baseTheme.colors.grey[800]};
   font-weight: 600;
@@ -82,6 +85,7 @@ const NavLink = css`
 const MenuIcon = css`
   display: flex;
 `
+// eslint-disable-next-line i18next/no-literal-string
 const ToolTip = css`
   background: ${baseTheme.colors.neutral[100]};
   border-color: #cacaca;
@@ -150,6 +154,7 @@ const Navigation: React.FC<NavigationProps> = ({
   returnToPath,
   children,
 }) => {
+  const { t } = useTranslation()
   const [clicked, setClicked] = useState(false)
 
   const onClickHandler = () => {
@@ -159,11 +164,11 @@ const Navigation: React.FC<NavigationProps> = ({
   return (
     <nav className={cx(NavbarItems)}>
       <div className={cx(NavbarLogo)}>
-        <a href={`${frontPageUrl}`} aria-label="Front page" role="button">
+        <a href={`${frontPageUrl}`} aria-label="Home page" role="button">
           <FontAwesomeIcon
             className={cx(StyledIcon)}
             icon={faBullseye}
-            aria-label="Home page"
+            aria-label={t("home-page")}
             aria-hidden="true"
           ></FontAwesomeIcon>
         </a>
@@ -171,8 +176,8 @@ const Navigation: React.FC<NavigationProps> = ({
       <ul className={clicked ? cx(NavMenu) : cx(NavMenu)}>
         <li className="container">
           {faqUrl && (
-            <a className={cx(NavLink)} href={`${faqUrl}`} aria-label="FAQ" role="button">
-              FAQ
+            <a className={cx(NavLink)} href={`${faqUrl}`} aria-label={t("faq")} role="button">
+              {t("faq")}
             </a>
           )}
           {children}
@@ -186,7 +191,7 @@ const Navigation: React.FC<NavigationProps> = ({
             onClick={onClickHandler}
             onKeyDown={(e) => runCallbackIfEnterPressed(e, onClickHandler)}
             role="button"
-            aria-label="Open menu"
+            aria-label={t("open-menu")}
             tabIndex={0}
           >
             <Hamburger />

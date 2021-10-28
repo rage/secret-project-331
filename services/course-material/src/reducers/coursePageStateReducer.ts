@@ -60,11 +60,13 @@ export default function pageStateReducer(
       return action.payload
     case "setData": {
       const { instance, pageData, settings } = action.payload
+      // eslint-disable-next-line i18next/no-literal-string
       return { ...prev, state: "ready", instance, pageData, settings, error: null }
     }
     case "setError":
       return {
         ...prev,
+        // eslint-disable-next-line i18next/no-literal-string
         state: "error",
         error: action.payload,
         instance: null,
@@ -74,6 +76,7 @@ export default function pageStateReducer(
     case "setLoading":
       return {
         ...prev,
+        // eslint-disable-next-line i18next/no-literal-string
         state: "loading",
         error: null,
         instance: null,

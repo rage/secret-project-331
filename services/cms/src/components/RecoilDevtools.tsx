@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import React, { useEffect, useState } from "react"
 import DockMonitor from "recoil-devtools-dock"
 import LogMonitor from "recoil-devtools-log-monitor"

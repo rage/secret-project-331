@@ -1,5 +1,5 @@
 import React, { ComponentClass, ComponentType, ErrorInfo } from "react"
-
+import { Translation } from "react-i18next"
 interface ErrorBoundaryState {
   showTrace: boolean
   error?: string
@@ -26,17 +26,21 @@ export default function withErrorBoundary<T>(Component: ComponentType<T>): Compo
 
       if (error) {
         return (
-          <div>
-            <p>Part of the page has crashed: {error}</p>
-            {trace && (
+          <Translation>
+            {(t) => (
               <>
-                <button onClick={() => this.setState({ showTrace: !showTrace })}>
-                  {showTrace ? "Hide trace" : "Show trace"}
-                </button>
-                {showTrace && <pre>{trace}</pre>}
+                <p>{t("error-part-of-page-has-crashed-error", { error })}</p>
+                {trace && (
+                  <>
+                    <button onClick={() => this.setState({ showTrace: !showTrace })}>
+                      {showTrace ? t("hide-trace") : t("show-trace")}
+                    </button>
+                    {showTrace && <pre>{trace}</pre>}
+                  </>
+                )}
               </>
             )}
-          </div>
+          </Translation>
         )
       }
 

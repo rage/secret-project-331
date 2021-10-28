@@ -13,6 +13,7 @@ export interface ButtonExtraProps {
 
 export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & ButtonExtraProps
 
+// eslint-disable-next-line i18next/no-literal-string
 const BaseButton = styled.button`
   position: relative;
   display: inline-block;
@@ -29,6 +30,7 @@ const BaseButton = styled.button`
   text-align: center;
   justify-content: center;
   text-transform: ${({ transform }: ButtonProps) =>
+    // eslint-disable-next-line i18next/no-literal-string
     transform == "normal" ? "capitalize" : "uppercase"};
   font-size: ${({ transform }: ButtonProps) => (transform == "normal" ? "18px" : "14px")};
   letter-spacing: 0.02em;
@@ -54,6 +56,7 @@ const BaseButton = styled.button`
   ${space}
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const PrimaryButton = styled(BaseButton)`
   color: ${baseTheme.colors.neutral[900]};
   background-color: ${theme.primary.bg};
@@ -78,6 +81,7 @@ const PrimaryButton = styled(BaseButton)`
   }
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const SecondaryButton = styled(BaseButton)`
   color: ${theme.secondary.text};
   border-color: ${theme.secondary.hoverBorder};
@@ -102,6 +106,7 @@ const SecondaryButton = styled(BaseButton)`
   }
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const TertiaryButton = styled(BaseButton)`
   font-size: ${typography.paragraph};
   color: ${theme.secondary.text};
@@ -139,9 +144,9 @@ const Button: React.FC<ButtonProps> = (props) => {
       {props.variant === "primary" ? (
         <PrimaryButton {...props}></PrimaryButton>
       ) : props.variant === "secondary" ? (
-        <SecondaryButton title="button" {...props}></SecondaryButton>
+        <SecondaryButton {...props}></SecondaryButton>
       ) : (
-        <TertiaryButton title="button" {...props} />
+        <TertiaryButton {...props} />
       )}
     </>
   )

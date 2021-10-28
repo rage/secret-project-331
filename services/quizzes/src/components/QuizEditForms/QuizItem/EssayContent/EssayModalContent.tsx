@@ -1,23 +1,26 @@
 import { TextField } from "@material-ui/core"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
+import { NormalizedQuizItem } from "../../../../../types/types"
 import {
   editedItemMaxWords,
   editedItemMinWords,
   editedQuizItemBody,
 } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
-import { NormalizedQuizItem } from "../../../../types/types"
 import MarkdownEditor from "../../../MarkdownEditor"
 import { ModalContent, ModalContentTitleWrapper } from "../../../Shared/Modal"
 
+// eslint-disable-next-line i18next/no-literal-string
 const MaxWords = styled(TextField)`
   display: flex !important;
   margin-right: 0.5rem !important;
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const MinWords = styled(TextField)`
   display: flex !important;
   margin-left: 0.5rem !important;
@@ -28,16 +31,17 @@ interface ModalContentProps {
 }
 
 export const EssayModalContent: React.FC<ModalContentProps> = ({ item }) => {
+  const { t } = useTranslation()
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])
   const dispatch = useDispatch()
   return (
     <>
       <ModalContentTitleWrapper>
-        <h3>Advanced Editing</h3>
+        <h3>{t("title-advanced-editing")}</h3>
       </ModalContentTitleWrapper>
       <ModalContent>
         <MarkdownEditor
-          label="Description for this quiz item"
+          label={t("description-for-quiz-item")}
           text={storeItem.body ?? ""}
           onChange={(event) => dispatch(editedQuizItemBody(event.target.value, storeItem.id))}
         />
@@ -45,7 +49,7 @@ export const EssayModalContent: React.FC<ModalContentProps> = ({ item }) => {
       <ModalContent>
         <MaxWords
           fullWidth
-          label="Max words"
+          label={t("max-words")}
           variant="outlined"
           value={item.maxWords ?? ""}
           type="number"
@@ -53,7 +57,7 @@ export const EssayModalContent: React.FC<ModalContentProps> = ({ item }) => {
         />
         <MinWords
           fullWidth
-          label="Min words"
+          label={t("min-words")}
           variant="outlined"
           value={item.minValue ?? ""}
           type="number"

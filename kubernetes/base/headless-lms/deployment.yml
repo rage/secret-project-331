@@ -75,6 +75,8 @@ spec:
             - bash
             - "-c"
             - |
+              # wait-for-it seems to always sleep until the timeout without this sleep
+              sleep 10
               echo Waiting for postgres to be available
               wait-for-it --timeout=120 postgres:5432
               echo Running migrations

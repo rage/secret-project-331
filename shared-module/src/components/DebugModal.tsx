@@ -3,8 +3,10 @@ import styled from "@emotion/styled"
 import { Dialog, Paper } from "@material-ui/core"
 import dynamic from "next/dynamic"
 import { Dispatch, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import Button from "./Button"
+import Spinner from "./Spinner"
 
 export interface DebugModalProps {
   data: unknown
@@ -13,7 +15,7 @@ export interface DebugModalProps {
   updateDataOnClose?: Dispatch<any>
 }
 
-const MonacoLoading = <div>Loading editor...</div>
+const MonacoLoading = <Spinner variant="medium" />
 
 const Editor = dynamic(() => import("@monaco-editor/react"), {
   ssr: false,
@@ -31,6 +33,7 @@ const HeaderBar = styled.div`
 `
 
 const DebugModal: React.FC<DebugModalProps> = ({ data, readOnly = true, updateDataOnClose }) => {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [editedContent, setEditedContent] = useState<string | null>(null)
 
@@ -54,10 +57,12 @@ const DebugModal: React.FC<DebugModalProps> = ({ data, readOnly = true, updateDa
     setOpen(true)
   }
 
+  const readOnlySpecifier = readOnly ? t("read-only") : t("editable")
+
   return (
     <>
       <Button variant="primary" size="medium" onClick={() => openModal()}>
-        Debug
+        {t("debug")}
       </Button>
       <Dialog maxWidth="xl" open={open} onClose={closeModal}>
         <Paper
@@ -66,20 +71,23 @@ const DebugModal: React.FC<DebugModalProps> = ({ data, readOnly = true, updateDa
           `}
         >
           <HeaderBar>
-            <h1>Debug view ({readOnly ? "read only" : "editable"})</h1>
+            <h1>
+              {t("title-debug-view")} ({readOnlySpecifier})
+            </h1>
             <div
               className={css`
                 flex-grow: 1;
               `}
             />
             <Button variant="primary" size="medium" onClick={closeModal}>
-              Close
+              {t("close")}
             </Button>
           </HeaderBar>
           <Editor
             height="90vh"
             width="80vw"
             defaultLanguage="json"
+            // eslint-disable-next-line i18next/no-literal-string
             options={{ wordWrap: "on", readOnly }}
             defaultValue={editedContent || undefined}
             onChange={(value) => value && setEditedContent(value)}

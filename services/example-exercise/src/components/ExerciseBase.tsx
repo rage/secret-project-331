@@ -40,8 +40,11 @@ const ExerciseBase: React.FC<Props> = ({
         const green = baseTheme.colors.green[300]
         const red = baseTheme.colors.red[300]
         // Background of the buttons
+        // eslint-disable-next-line i18next/no-literal-string
         const color = "#6188ff"
+        // eslint-disable-next-line i18next/no-literal-string
         const chosenColor = "#4210f5"
+        // eslint-disable-next-line i18next/no-literal-string
         const border = model_solutions ? `4px solid ${correct ? green : red}` : `0`
         return (
           <button

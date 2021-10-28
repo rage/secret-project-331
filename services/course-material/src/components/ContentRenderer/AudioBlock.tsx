@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
 
+import { AudioAttributes } from "../../../types/GutenbergBlockAttributes"
 import { courseMaterialCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
-import { AudioAttributes } from "../../types/GutenbergBlockAttributes"
 
 import { BlockRendererProps } from "."
 

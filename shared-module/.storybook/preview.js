@@ -2,6 +2,7 @@
 import { MINIMAL_VIEWPORTS} from '@storybook/addon-viewport';
 import GlobalStyles from "../src/styles/GlobalStyles"
 import * as nextImage from 'next/image';
+import {i18n} from './i18next.js';
 
 const customViewports = {
   Laptop: {
@@ -37,12 +38,18 @@ export const decorators = [
   Story => (
     <>
       <GlobalStyles />
-      <Story />
+      {Story()}
     </>
   ),
 ];
 
 export const parameters = {
+  i18n,
+  locale: 'en',
+  locales: {
+    en: 'English',
+    fi: 'Finnish',
+  },
   viewport: {
     viewports: {
        ...MINIMAL_VIEWPORTS,

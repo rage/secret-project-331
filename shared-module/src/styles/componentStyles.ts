@@ -25,6 +25,7 @@ export const courseMaterialCenteredComponentStyles = css`
   }
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 export const wideWidthCenteredComponentStyles = css`
   max-width: ${wideContainerWidth}rem;
   margin-left: auto;

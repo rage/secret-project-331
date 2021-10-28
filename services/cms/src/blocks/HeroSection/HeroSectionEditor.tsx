@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import { RichText } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
 import React from "react"

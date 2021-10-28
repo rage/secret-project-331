@@ -2,14 +2,15 @@ import { faPen, faPlus, faTrash, faWindowClose } from "@fortawesome/free-solid-s
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Box, Button, Fade, Modal } from "@material-ui/core"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
+import { NormalizedQuizItem } from "../../../../../types/types"
 import { createdNewOption, deletedItem } from "../../../../store/editor/editorActions"
 import { setAdvancedEditing } from "../../../../store/editor/itemVariables/itemVariableActions"
 import { editedQuizItemTitle } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
-import { NormalizedQuizItem } from "../../../../types/types"
 import MarkdownEditor from "../../../MarkdownEditor"
 
 import MultipleChoiceDropdownButton from "./MultiplChoiceDropdownButton"
@@ -61,6 +62,7 @@ interface MultiplChoiceContentProps {
 }
 
 const MultipleChoiceContent: React.FC<MultiplChoiceContentProps> = ({ item }) => {
+  const { t } = useTranslation()
   const quizId = useTypedSelector((state) => state.editor.quizId)
   const storeOptions = useTypedSelector((state) => state.editor.options)
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])
@@ -69,7 +71,10 @@ const MultipleChoiceContent: React.FC<MultiplChoiceContentProps> = ({ item }) =>
   return (
     <>
       <EditButtonWrapper>
-        <Button onClick={() => dispatch(setAdvancedEditing(storeItem.id, true))} title="edit item">
+        <Button
+          onClick={() => dispatch(setAdvancedEditing(storeItem.id, true))}
+          title={t("edit-item")}
+        >
           <FontAwesomeIcon icon={faPen} size="2x"></FontAwesomeIcon>
         </Button>
       </EditButtonWrapper>
@@ -100,7 +105,7 @@ const MultipleChoiceContent: React.FC<MultiplChoiceContentProps> = ({ item }) =>
       <QuizContentLineContainer>
         <QuizContent>
           <MarkdownEditor
-            label="Title"
+            label={t("title")}
             text={storeItem.title ?? ""}
             onChange={(event) => dispatch(editedQuizItemTitle(event.target.value, storeItem.id))}
           />
@@ -111,7 +116,7 @@ const MultipleChoiceContent: React.FC<MultiplChoiceContentProps> = ({ item }) =>
           </QuizContent>
         ))}
         <QuizContent>
-          <Button title="add option" onClick={() => dispatch(createdNewOption(storeItem.id))}>
+          <Button title={t("add-option")} onClick={() => dispatch(createdNewOption(storeItem.id))}>
             <FontAwesomeIcon icon={faPlus} size="2x" color="blue" />
           </Button>
         </QuizContent>

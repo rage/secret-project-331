@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { TextField } from "@material-ui/core"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;
@@ -13,6 +14,7 @@ interface UpdatePageDetailsFormProps {
 }
 
 const UpdatePageDetailsForm: React.FC<UpdatePageDetailsFormProps> = ({ title, setTitle }) => {
+  const { t } = useTranslation()
   return (
     <div
       className={css`
@@ -24,7 +26,7 @@ const UpdatePageDetailsForm: React.FC<UpdatePageDetailsFormProps> = ({ title, se
           <TextField
             required
             id="outlined-required"
-            label="Title"
+            label={t("label-title")}
             variant="outlined"
             value={title}
             fullWidth

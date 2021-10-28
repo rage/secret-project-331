@@ -17,7 +17,7 @@ test("latex-block renders", async ({ headless, page }) => {
   ])
   expectPath(page, "/organizations/[id]")
   // Click text=Add course
-  await page.click("text=Add course")
+  await page.click(`button:text("Create")`)
   // Click input[type="text"]
   await page.click('input[type="text"]')
   // Fill input[type="text"]
@@ -27,7 +27,7 @@ test("latex-block renders", async ({ headless, page }) => {
   await page.fill('input[id="teacher-in-charge-email"]', "teacher@example.com")
 
   // Click text=Create course
-  await page.click("text=Create course")
+  await page.click(`button:text("Create"):below(:text("Course language"))`)
   // Click :nth-match(:text("Manage"), 2)
   await Promise.all([page.waitForNavigation(), page.click(':nth-match(:text("Manage"), 2)')])
 
@@ -36,13 +36,13 @@ test("latex-block renders", async ({ headless, page }) => {
   await Promise.all([page.waitForNavigation(), page.click("text=Manage pages")])
   expectPath(page, "/manage/courses/[id]/pages")
   // Click text=Add new chapter
-  await page.click("text=Add new chapter")
+  await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
   // Click input[type="text"]
   await page.click('input[type="text"]')
   // Fill input[type="text"]
   await page.fill('input[type="text"]', "first page")
   // Click text=Create chapter
-  await page.click("text=Create chapter")
+  await page.click(`button:text("Create")`)
   // Click a:has-text("first page")
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/cms/pages/f2f1482e-4f49-4f6e-a5ef-99ac1513d97c' }*/),
@@ -58,9 +58,7 @@ test("latex-block renders", async ({ headless, page }) => {
   // Click text=Remove blockShift+Alt+Z
   await page.click("text=Remove blockShift+Alt+Z")
   // - CHAPTER GRID
-  await page.click(
-    "text=Pages In Chapter Grid PlaceholderThis block is placed on each chapter front page",
-  )
+  await page.click("text=Pages in chapter placeholder")
   // Click [aria-label="Options"]
   await page.click('[aria-label="Options"]')
   // Click text=Remove blockShift+Alt+Z
@@ -112,7 +110,7 @@ test("latex-block renders", async ({ headless, page }) => {
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
-    page.click('[aria-label="Front page"]'),
+    page.click('[aria-label="Home page"]'),
   ])
   // Click text=University of Helsinki, Department of Mathematics and Statistics
   await Promise.all([

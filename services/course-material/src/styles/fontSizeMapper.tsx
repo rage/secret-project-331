@@ -1,3 +1,7 @@
+/* eslint-disable i18next/no-literal-string */
+
+// Gutenberg specific, don't use in other contexes
+
 const fontSizes: { [colorName: string]: string | undefined } = {
   small: "13px",
   normal: "16px",

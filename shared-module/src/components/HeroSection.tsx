@@ -13,6 +13,7 @@ const HeroWrapper = styled.div`
   padding: 7.5em 1em;
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const TextBox = styled.div`
   display: flex;
   flex-direction: column;

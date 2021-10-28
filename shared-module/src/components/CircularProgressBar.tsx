@@ -15,6 +15,7 @@ interface CircleBoxProps {
 export type CircularProgressBarProps = React.HTMLAttributes<HTMLDivElement> &
   CircularProgressBarExtraProps
 
+// eslint-disable-next-line i18next/no-literal-string
 const CircleBox = styled.div`
   width: 50px;
   height: 50px;

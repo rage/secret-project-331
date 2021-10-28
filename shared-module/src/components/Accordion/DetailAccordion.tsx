@@ -15,6 +15,7 @@ from { opacity: 0; height: 0; padding: 0;}
 to { opacity: 1; height: 100%; padding: 10px;}
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const TextWrapper = styled.div`
   padding: 0;
   margin: 0;
@@ -96,6 +97,14 @@ const border = css`
   border: 1px solid rgba(0, 0, 0, 0.2);
 `
 
+const PLACEHOLDER_HEADING = "This is a heading:"
+const PLACEHOLDER_TEXT = `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown
+printer took a galley of type and scrambled it to make a type specimen book. It has
+survived not only five centuries, but also the leap into electronic typesetting,
+remaining essentially unchanged. It was popularised in the 1960s with the release of
+Letraset sheets containing Lorem Ipsum passages, and more recently with desktop
+publishing software like Aldus PageMaker including versions of Lorem Ipsum`
+
 export type AccordionProps = React.DetailsHTMLAttributes<HTMLDetailsElement>
 
 const DetailAccordion: React.FC<AccordionProps> = () => {
@@ -103,17 +112,9 @@ const DetailAccordion: React.FC<AccordionProps> = () => {
     <div>
       <TextWrapper>
         <details className={cx(border)}>
-          <summary>This is a heading:</summary>
+          <summary>{PLACEHOLDER_HEADING}</summary>
           <ul>
-            <li>
-              Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum
-              has been the industrys standard dummy text ever since the 1500s, when an unknown
-              printer took a galley of type and scrambled it to make a type specimen book. It has
-              survived not only five centuries, but also the leap into electronic typesetting,
-              remaining essentially unchanged. It was popularised in the 1960s with the release of
-              Letraset sheets containing Lorem Ipsum passages, and more recently with desktop
-              publishing software like Aldus PageMaker including versions of Lorem Ipsum
-            </li>
+            <li>{PLACEHOLDER_TEXT}</li>
           </ul>
         </details>
       </TextWrapper>

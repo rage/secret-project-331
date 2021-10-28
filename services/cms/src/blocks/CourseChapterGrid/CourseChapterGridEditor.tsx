@@ -1,19 +1,18 @@
 import { InnerBlocks } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
 const ALLOWED_NESTED_BLOCKS = [""]
 
 const CourseGridEditor: React.FC<BlockEditProps<Record<string, never>>> = ({ clientId }) => {
+  const { t } = useTranslation()
   return (
     <BlockPlaceholderWrapper id={clientId}>
-      <h3>Chapters Grid Placeholder</h3>
-      <p>
-        This block is placed on the course material front page for navigating to different chapters
-        easily.
-      </p>
+      <h3>{t("chapters-grid-placeholder")}</h3>
+      <p>{t("chapters-grid-placeholder-explanation")}</p>
       <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
     </BlockPlaceholderWrapper>
   )

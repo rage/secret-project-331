@@ -2,9 +2,11 @@ import { faPen, faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Box, Button, Fade, Modal, TextField } from "@material-ui/core"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
+import { NormalizedQuizItem } from "../../../../../types/types"
 import { deletedItem } from "../../../../store/editor/editorActions"
 import { setAdvancedEditing } from "../../../../store/editor/itemVariables/itemVariableActions"
 import {
@@ -13,11 +15,11 @@ import {
   editedQuizItemTitle,
 } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
-import { NormalizedQuizItem } from "../../../../types/types"
 import MarkdownEditor from "../../../MarkdownEditor"
 
 import EssayModalContent from "./EssayModalContent"
 
+// eslint-disable-next-line i18next/no-literal-string
 const InfoContainer = styled.div`
   padding: 1rem 0;
 `
@@ -40,6 +42,7 @@ const StyledModal = styled(Modal)`
   justify-content: center;
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const AdvancedBox = styled(Box)`
   background-color: #fafafa !important;
   min-width: 80% !important;
@@ -49,6 +52,7 @@ const AdvancedBox = styled(Box)`
   overflow-y: scroll !important;
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const CloseButton = styled(Button)`
   display: flex !important;
 `
@@ -58,6 +62,7 @@ const ModalButtonWrapper = styled.div`
   justify-content: flex-end;
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const DeleteButton = styled(Button)`
   display: flex !important;
 `
@@ -72,6 +77,7 @@ interface EssayContentProps {
 }
 
 const EssayContent: React.FC<EssayContentProps> = ({ item }) => {
+  const { t } = useTranslation()
   const quizId = useTypedSelector((state) => state.editor.quizId)
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])
   const variables = useTypedSelector((state) => state.editor.itemVariables[item.id])
@@ -81,7 +87,10 @@ const EssayContent: React.FC<EssayContentProps> = ({ item }) => {
   return (
     <>
       <EditButtonWrapper>
-        <Button onClick={() => dispatch(setAdvancedEditing(storeItem.id, true))} title="edit item">
+        <Button
+          onClick={() => dispatch(setAdvancedEditing(storeItem.id, true))}
+          title={t("edit-item")}
+        >
           <FontAwesomeIcon icon={faPen} size="2x"></FontAwesomeIcon>
         </Button>
       </EditButtonWrapper>
@@ -111,7 +120,7 @@ const EssayContent: React.FC<EssayContentProps> = ({ item }) => {
       </StyledModal>
       <InfoContainer>
         <MarkdownEditor
-          label="Description for this quiz item"
+          label={t("description-for-quiz-item")}
           onChange={(event) => dispatch(editedQuizItemTitle(event.target.value, storeItem.id))}
           text={storeItem.title ?? ""}
         />
@@ -120,7 +129,7 @@ const EssayContent: React.FC<EssayContentProps> = ({ item }) => {
         <InlineFieldWrapper>
           <TextField
             fullWidth
-            label="Min words"
+            label={t("min-words")}
             variant="outlined"
             value={storeItem.minWords ?? ""}
             type="number"
@@ -132,7 +141,7 @@ const EssayContent: React.FC<EssayContentProps> = ({ item }) => {
         <InlineFieldWrapper>
           <TextField
             fullWidth
-            label="Max words"
+            label={t("max-words")}
             variant="outlined"
             value={storeItem.maxWords ?? ""}
             type="number"

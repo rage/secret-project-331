@@ -1,7 +1,9 @@
 // From https://github.com/AuvikAlive/react-animated-burgers/tree/master/src/lib/components/HamburgerSpring
 
 import styled from "@emotion/styled"
+import { useTranslation } from "react-i18next"
 
+// eslint-disable-next-line i18next/no-literal-string
 const getBarColor = ({ barColor }: { barColor: BarColor }) => `background-color: ${barColor};`
 const getLayerHeight = (buttonWidth: ButtonWidth) => buttonWidth * 0.1
 const getLayerSpacing = (buttonWidth: ButtonWidth) => buttonWidth * 0.15
@@ -11,6 +13,7 @@ const active = `
   background-color: transparent;
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const getActiveBefore = (buttonWidth: ButtonWidth) => `
   top: 0;
   transition: top 0.1s 0.15s cubic-bezier(0.33333, 0, 0.66667, 0.33333), transform 0.13s 0.22s cubic-bezier(0.215, 0.61, 0.355, 1);
@@ -19,6 +22,7 @@ const getActiveBefore = (buttonWidth: ButtonWidth) => `
   }px, 0) rotate(45deg);
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const getActiveAfter = (buttonWidth: ButtonWidth) => `
   top: 0;
   transition: top 0.2s cubic-bezier(0.33333, 0, 0.66667, 0.33333), transform 0.13s 0.22s cubic-bezier(0.215, 0.61, 0.355, 1);
@@ -27,6 +31,7 @@ const getActiveAfter = (buttonWidth: ButtonWidth) => `
   }px, 0) rotate(-45deg);
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const getLinesCommon = ({ buttonWidth }: { buttonWidth: ButtonWidth }) => `
   width: ${buttonWidth}px;
   height: ${buttonWidth * 0.1}px;
@@ -37,6 +42,7 @@ const getLinesCommon = ({ buttonWidth }: { buttonWidth: ButtonWidth }) => `
   transition-timing-function: ease;
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const StyledLines = styled.span<LineProps>`
   display: block;
   top: 50%;
@@ -61,6 +67,7 @@ const StyledLines = styled.span<LineProps>`
   }
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const StyledLinesSpring = styled(StyledLines)`
   &::before {
     top: ${({ buttonWidth }) => getLayerHeight(buttonWidth) + getLayerSpacing(buttonWidth)}px;
@@ -130,6 +137,7 @@ type StyledButtonProps = {
   buttonColor: ButtonColor
 }
 
+// eslint-disable-next-line i18next/no-literal-string
 const StyledButton = styled.button<StyledButtonProps>`
   padding: ${({ buttonWidth }) => buttonWidth * 0.375}px;
   display: inline-block;
@@ -147,6 +155,7 @@ const StyledButton = styled.button<StyledButtonProps>`
 `
 
 const Button: React.FC<ButtonProps> = (props) => {
+  const { t } = useTranslation()
   const {
     barColor = "black",
     Box = StyledBox,
@@ -164,9 +173,10 @@ const Button: React.FC<ButtonProps> = (props) => {
   return (
     <StyledButton
       onClick={toggleButton}
-      aria-label="Navigation"
+      aria-label={t("navigation-menu")}
       {...{ buttonWidth, buttonColor, className }}
       {...rest}
+      id="main-navigation-menu"
     >
       <Box {...{ buttonWidth }}>
         <Lines {...{ buttonWidth, barColor, isActive }} />
@@ -185,6 +195,7 @@ type StyledBoxProps = {
   buttonWidth: ButtonWidth
 }
 
+// eslint-disable-next-line i18next/no-literal-string
 const StyledBox = styled.div<StyledBoxProps>`
   width: ${({ buttonWidth }) => buttonWidth}px;
   height: ${({ buttonWidth }) => buttonWidth * 0.6}px;

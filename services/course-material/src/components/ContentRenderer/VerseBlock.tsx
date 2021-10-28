@@ -1,10 +1,10 @@
 import { css } from "@emotion/css"
 import sanitizeHtml from "sanitize-html"
 
+import { VerseAttributes } from "../../../types/GutenbergBlockAttributes"
 import { courseMaterialCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import colorMapper from "../../styles/colorMapper"
 import fontSizeMapper from "../../styles/fontSizeMapper"
-import { VerseAttributes } from "../../types/GutenbergBlockAttributes"
 
 import { BlockRendererProps } from "."
 
@@ -12,9 +12,11 @@ const VerseBlock: React.FC<BlockRendererProps<VerseAttributes>> = ({ data }) => 
   const attributes: VerseAttributes = data.attributes
 
   const solidBackground =
+    // eslint-disable-next-line i18next/no-literal-string
     attributes.backgroundColor !== undefined ? colorMapper(attributes.backgroundColor) : "#FFFFFF"
 
   const gradientBackground =
+    // eslint-disable-next-line i18next/no-literal-string
     attributes.gradient !== undefined ? colorMapper(attributes.gradient) : "#FFFFFF"
 
   const textColor =

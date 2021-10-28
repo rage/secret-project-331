@@ -11,8 +11,10 @@ const StyledText = styled.div`
   color: red;
 `
 
+const PLACEHOLDER_TEXT = "I am testing"
+
 const Test: React.FC<TestProps> = (props) => {
-  return <StyledText {...props}>I am testing</StyledText>
+  return <StyledText {...props}>{PLACEHOLDER_TEXT}</StyledText>
 }
 
 export default Test

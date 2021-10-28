@@ -1,18 +1,21 @@
+import { useTranslation } from "react-i18next"
+
 const Unsupported: React.FC = () => {
+  const { t } = useTranslation()
   return (
     <div>
-      <p>Unsupported</p>
-      <p>Unsupported</p>
-      <p>Unsupported</p>
-      <p>Unsupported</p>
-      <p>Unsupported</p>
-      <p>Unsupported</p>
-      <p>Unsupported</p>
-      <p>Unsupported</p>
-      <p>Unsupported</p>
-      <p>Unsupported</p>
-      <p>Unsupported</p>
-      <p>Unsupported</p>
+      <p>{t("unsupported")}</p>
+      <p>{t("unsupported")}</p>
+      <p>{t("unsupported")}</p>
+      <p>{t("unsupported")}</p>
+      <p>{t("unsupported")}</p>
+      <p>{t("unsupported")}</p>
+      <p>{t("unsupported")}</p>
+      <p>{t("unsupported")}</p>
+      <p>{t("unsupported")}</p>
+      <p>{t("unsupported")}</p>
+      <p>{t("unsupported")}</p>
+      <p>{t("unsupported")}</p>
     </div>
   )
 }

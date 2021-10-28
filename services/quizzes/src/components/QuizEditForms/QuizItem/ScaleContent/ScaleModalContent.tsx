@@ -1,8 +1,10 @@
 import { FormControlLabel, FormGroup, Radio, TextField } from "@material-ui/core"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
+import { NormalizedQuizItem } from "../../../../../types/types"
 import {
   setScaleMax,
   setScaleMin,
@@ -13,7 +15,6 @@ import {
   editedScaleMinValue,
 } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
-import { NormalizedQuizItem } from "../../../../types/types"
 
 const ModalContent = styled.div`
   padding: 1rem;
@@ -45,6 +46,7 @@ interface ScaleItemEditorModalProps {
   item: NormalizedQuizItem
 }
 export const ScaleModalContent: React.FC<ScaleItemEditorModalProps> = ({ item }) => {
+  const { t } = useTranslation()
   const dispatch = useDispatch()
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])
   const variables = useTypedSelector((state) => state.editor.itemVariables[item.id])
@@ -70,11 +72,11 @@ export const ScaleModalContent: React.FC<ScaleItemEditorModalProps> = ({ item })
   return (
     <>
       <ModalContentTitleWrapper>
-        <h4>Advanced editing</h4>
+        <h4>{t("title-advanced-editing")}</h4>
       </ModalContentTitleWrapper>
       <ModalContent>
         <TextField
-          label="Title"
+          label={t("title")}
           value={storeItem.title}
           fullWidth
           multiline
@@ -85,9 +87,9 @@ export const ScaleModalContent: React.FC<ScaleItemEditorModalProps> = ({ item })
       <ModalContent>
         <ValueFieldContainer
           error={!variables.validMin}
-          helperText={!variables.validMin ? "invalid min value" : ""}
+          helperText={!variables.validMin ? t("invalid-minimum-value") : ""}
           type="number"
-          label="Min value"
+          label={t("minimum")}
           value={variables.scaleMin ?? ""}
           fullWidth
           variant="outlined"
@@ -97,9 +99,9 @@ export const ScaleModalContent: React.FC<ScaleItemEditorModalProps> = ({ item })
       <ModalContent>
         <ValueFieldContainer
           error={!variables.validMax}
-          helperText={!variables.validMax ? "invalid max value" : ""}
+          helperText={!variables.validMax ? t("invalid-maximum-value") : ""}
           type="number"
-          label="Max value"
+          label={t("maximum")}
           value={variables.scaleMax ?? ""}
           fullWidth
           variant="outlined"

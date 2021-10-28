@@ -3,9 +3,11 @@ import LoadingButton from "@material-ui/lab/LoadingButton"
 import { BlockInstance } from "@wordpress/blocks"
 import dynamic from "next/dynamic"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { allowedEmailCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import { EmailTemplate, EmailTemplateUpdate } from "../../shared-module/bindings"
+import Spinner from "../../shared-module/components/Spinner"
 import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
@@ -16,7 +18,7 @@ interface EmailEditorProps {
   handleSave: (updatedTemplate: EmailTemplateUpdate) => Promise<EmailTemplate>
 }
 
-const EditorLoading = <div>Loading e-mail editor...</div>
+const EditorLoading = <Spinner variant="medium" />
 
 const EmailGutenbergEditor = dynamic(() => import("./GutenbergEditor"), {
   ssr: false,
@@ -24,6 +26,7 @@ const EmailGutenbergEditor = dynamic(() => import("./GutenbergEditor"), {
 })
 
 const EmailEditor: React.FC<EmailEditorProps> = ({ data, handleSave }) => {
+  const { t } = useTranslation()
   const [content, setContent] = useState<BlockInstance[]>(
     modifyBlocks(
       (data.content ?? []) as BlockInstance[],
@@ -65,12 +68,13 @@ const EmailEditor: React.FC<EmailEditorProps> = ({ data, handleSave }) => {
         <div className={normalWidthCenteredComponentStyles}>
           {error && <pre>{error}</pre>}
           <LoadingButton
+            // eslint-disable-next-line i18next/no-literal-string
             loadingPosition="start"
             startIcon={<SaveIcon />}
             loading={saving}
             onClick={handleOnSave}
           >
-            Save
+            {t("save")}
           </LoadingButton>
 
           <UpdateEmailDetailsForm

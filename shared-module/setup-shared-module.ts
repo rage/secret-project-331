@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import { exec as execOriginal } from "child_process"
 import path from "path"
 import { promisify } from "util"
@@ -20,10 +21,8 @@ async function main() {
   ]
 
   const promises = targetFolders.map(async (targetFolder) => {
-    // Cleanup to make sure deleted files get deleted. Will not fail if the
-    // folder does not exist
-    await exec(`rm -rf '${projectRoot}/${targetFolder}'`)
-    const command = `cp -r '${projectRoot}/shared-module/src' '${projectRoot}/${targetFolder}'`
+    // rsync is better than cp because it handles deletions and does not trigger a full skaffold rebuild
+    const command = `rsync -a --checksum --delete  '${projectRoot}/shared-module/src/' '${projectRoot}/${targetFolder}/'`
     console.log(`> ${command}`)
     await exec(command)
   })

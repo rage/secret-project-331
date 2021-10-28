@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { TextField } from "@material-ui/core"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { postNewChapter } from "../../services/backend/chapters"
 import Button from "../../shared-module/components/Button"
@@ -28,6 +29,7 @@ const NewChapterForm: React.FC<NewChapterFormProps> = ({
   onSubmitForm,
   chapterNumber,
 }) => {
+  const { t } = useTranslation()
   const [chapter, setChapter] = useState<number | undefined>(chapterNumber)
   const [name, setName] = useState<string>("")
 
@@ -55,7 +57,7 @@ const NewChapterForm: React.FC<NewChapterFormProps> = ({
             required
             id="outlined-required"
             fullWidth
-            label="Name"
+            label={t("text-field-label-name")}
             variant="outlined"
             value={name}
             onChange={(e) => {
@@ -68,7 +70,7 @@ const NewChapterForm: React.FC<NewChapterFormProps> = ({
             required
             id="outlined-required"
             fullWidth
-            label="Chapter number"
+            label={t("text-field-label-chapter-number")}
             variant="outlined"
             type="number"
             value={chapter}
@@ -80,7 +82,7 @@ const NewChapterForm: React.FC<NewChapterFormProps> = ({
       </div>
       <div>
         <StyledButton variant="primary" size="medium" onClick={createNewChapter}>
-          Create chapter
+          {t("button-text-create")}
         </StyledButton>
       </div>
     </div>

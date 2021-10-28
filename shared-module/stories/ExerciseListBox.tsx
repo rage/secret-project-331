@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import { Meta, Story } from "@storybook/react"
 import React from "react"
 
@@ -17,8 +18,4 @@ const Template: Story<ComponentProps> = (args: ComponentProps) => <Component {..
 export const Simple: Story<ComponentProps> = Template.bind({})
 Simple.args = {
   children: "ListCourseProgress",
-  pageIndex: 1,
-  pageTitle: "Introduction to everything",
-  selected: true,
-  pageLink: "/",
 }

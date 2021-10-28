@@ -1,6 +1,6 @@
 import React from "react"
 
-import { SeparatorAttributes } from "../../types/GutenbergBlockAttributes"
+import { SeparatorAttributes } from "../../../types/GutenbergBlockAttributes"
 
 import { BlockRendererProps } from "."
 

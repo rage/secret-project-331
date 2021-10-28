@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import { BlockInstance } from "@wordpress/blocks"
 
 export const modifyBlocks = (

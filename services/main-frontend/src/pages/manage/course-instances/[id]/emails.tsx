@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import { Dialog } from "@material-ui/core"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import Layout from "../../../../components/Layout"
@@ -13,7 +14,6 @@ import { deleteEmailTemplate } from "../../../../services/backend/email-template
 import Button from "../../../../shared-module/components/Button"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
-import basePath from "../../../../shared-module/utils/base-path"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
@@ -24,6 +24,7 @@ export interface CourseInstanceEmailTemplatesProps {
 }
 
 const CourseInstanceEmailTemplates: React.FC<CourseInstanceEmailTemplatesProps> = ({ query }) => {
+  const { t } = useTranslation()
   const courseInstanceId = query.id
   const {
     isLoading,
@@ -38,14 +39,14 @@ const CourseInstanceEmailTemplates: React.FC<CourseInstanceEmailTemplatesProps> 
   if (error) {
     return (
       <div>
-        <h1>Error</h1>
+        <h1>{t("error-title")}</h1>
         <pre>{JSON.stringify(error, undefined, 2)}</pre>
       </div>
     )
   }
 
   if (isLoading || !courseInstanceEmailTemplates) {
-    return <div>Loading page...</div>
+    return <div>{t("loading-text")}</div>
   }
 
   const handleCreateEmailTemplate = async (newName: string) => {
@@ -53,6 +54,7 @@ const CourseInstanceEmailTemplates: React.FC<CourseInstanceEmailTemplatesProps> 
       name: newName,
     })
     setShowForm(!showForm)
+    // eslint-disable-next-line i18next/no-literal-string
     window.location.assign(`/cms/email-templates/${result.id}/edit`)
   }
 
@@ -70,9 +72,9 @@ const CourseInstanceEmailTemplates: React.FC<CourseInstanceEmailTemplatesProps> 
         `}
       >
         {/* TODO: Perhaps insert some data regarding the course instance */}
-        <h1>E-mail templates for course instance.</h1>
+        <h1>{t("title-email-templates")}</h1>
         <Button size="medium" variant="primary" onClick={() => setShowForm(!showForm)}>
-          Create new e-mail
+          {t("button-text-create")}
         </Button>
 
         <Dialog open={showForm} onClose={() => setShowForm(!showForm)}>
@@ -82,7 +84,7 @@ const CourseInstanceEmailTemplates: React.FC<CourseInstanceEmailTemplatesProps> 
             `}
           >
             <Button size="medium" variant="primary" onClick={() => setShowForm(!showForm)}>
-              Close
+              {t("button-text-close")}
             </Button>
             <NewEmailTemplateForm onSubmitForm={handleCreateEmailTemplate} />
           </div>
@@ -91,13 +93,13 @@ const CourseInstanceEmailTemplates: React.FC<CourseInstanceEmailTemplatesProps> 
           {courseInstanceEmailTemplates.map((template) => {
             return (
               <li key={template.id}>
-                {template.name} <a href={`/cms/email-templates/${template.id}/edit`}>Edit</a>{" "}
+                {template.name} <a href={`/cms/email-templates/${template.id}/edit`}>{t("edit")}</a>{" "}
                 <Button
                   size="medium"
                   variant="secondary"
                   onClick={async () => await handleOnDelete(template.id)}
                 >
-                  Delete
+                  {t("button-text-delete")}
                 </Button>
               </li>
             )

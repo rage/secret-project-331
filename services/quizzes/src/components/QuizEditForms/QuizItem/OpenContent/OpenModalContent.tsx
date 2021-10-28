@@ -1,8 +1,10 @@
 import { Button, Checkbox, FormControl, FormControlLabel, TextField } from "@material-ui/core"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
+import { NormalizedQuizItem } from "../../../../../types/types"
 import {
   setValidityTestRegex,
   setValidValidityRegex,
@@ -17,7 +19,6 @@ import {
   toggledMultiOptions,
 } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
-import { NormalizedQuizItem } from "../../../../types/types"
 import MarkdownEditor from "../../../MarkdownEditor"
 
 const ModalContent = styled.div`
@@ -42,6 +43,7 @@ interface ModalContentProps {
 }
 
 export const OpenModalContent: React.FC<ModalContentProps> = ({ item }) => {
+  const { t } = useTranslation()
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])
   const variables = useTypedSelector((state) => state.editor.itemVariables[item.id])
   const dispatch = useDispatch()
@@ -59,18 +61,18 @@ export const OpenModalContent: React.FC<ModalContentProps> = ({ item }) => {
   return (
     <>
       <ModalContentTitleWrapper>
-        <h3>Advanced Editing</h3>
+        <h3>{t("title-advanced-editing")}</h3>
       </ModalContentTitleWrapper>
       <ModalContent>
         <MarkdownEditor
-          label="Title"
+          label={t("title")}
           text={storeItem.title ?? ""}
           onChange={(event) => dispatch(editedQuizItemTitle(event.target.value, storeItem.id))}
         />
       </ModalContent>
       <ModalContent>
         <MarkdownEditor
-          label="Body"
+          label={t("body")}
           text={storeItem.body ?? ""}
           onChange={(event) => dispatch(editedQuizItemBody(event.target.value, storeItem.id))}
         />
@@ -79,10 +81,10 @@ export const OpenModalContent: React.FC<ModalContentProps> = ({ item }) => {
         <TextField
           error={!variables.validRegex}
           fullWidth
-          label="Validity regex"
+          label={t("validity-regular-expression")}
           variant="outlined"
           value={variables.regex ?? ""}
-          helperText={!variables.validRegex && "Invalid regex"}
+          helperText={!variables.validRegex && t("invalid-regular-expression")}
           onChange={(event) => {
             dispatch(setValidityTestRegex(storeItem.id, event.target.value))
             handleRegexChange(event.target.value)
@@ -93,13 +95,13 @@ export const OpenModalContent: React.FC<ModalContentProps> = ({ item }) => {
           onClick={() => dispatch(toggleValidRegexTestingState(storeItem.id, true))}
           size="large"
         >
-          Test Regex
+          {t("label-test")}
         </StyledButton>
       </ModalContent>
       <ModalContent>
         <FormControl>
           <FormControlLabel
-            label="Multi"
+            label={t("allow-selecting-multiple-options")}
             labelPlacement="start"
             control={
               <Checkbox
@@ -115,14 +117,14 @@ export const OpenModalContent: React.FC<ModalContentProps> = ({ item }) => {
       </ModalContent>
       <ModalContent>
         <MarkdownEditor
-          label="Success message"
+          label={t("success-message")}
           text={storeItem.successMessage ?? ""}
           onChange={(event) => dispatch(editedItemSuccessMessage(storeItem.id, event.target.value))}
         />
       </ModalContent>
       <ModalContent>
         <MarkdownEditor
-          label="Failure message"
+          label={t("failure-message")}
           text={storeItem.failureMessage ?? ""}
           onChange={(event) => dispatch(editedItemFailureMessage(storeItem.id, event.target.value))}
         />

@@ -41,3 +41,5 @@ test-results
 
 # Not using firefox snapshot tests in ci, so we ignore those artifacts
 *firefox-*.png
+
+playwright-report

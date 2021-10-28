@@ -1,5 +1,6 @@
 import { useRouter } from "next/router"
 import React, { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import ExerciseBase from "../components/ExerciseBase"
 import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
@@ -12,6 +13,7 @@ interface SubmissionState {
 }
 
 const SubmissionPage: React.FC = () => {
+  const { t } = useTranslation()
   const [port, setPort] = useState<MessagePort | null>(null)
   const [state, setState] = useState<SubmissionState | null>(null)
   const router = useRouter()
@@ -28,15 +30,19 @@ const SubmissionPage: React.FC = () => {
       }
       const port = message.ports[0]
       if (port) {
-        console.log("Frame received a port:", port)
+        // eslint-disable-next-line i18next/no-literal-string
+        console.info("Frame received a port:", port)
         setPort(port)
         port.onmessage = (message: WindowEventMap["message"]) => {
-          console.log("Frame received a message from port", JSON.stringify(message.data))
+          // eslint-disable-next-line i18next/no-literal-string
+          console.info("Frame received a message from port", JSON.stringify(message.data))
           const data = message.data
           if (data.message === "set-state") {
-            console.log("Frame: setting state from message")
+            // eslint-disable-next-line i18next/no-literal-string
+            console.info("Frame: setting state from message")
             setState(data.data)
           } else {
+            // eslint-disable-next-line i18next/no-literal-string
             console.error("Frame received an unknown message from message port")
           }
         }
@@ -57,11 +63,11 @@ const SubmissionPage: React.FC = () => {
     return null
   }
   if (!state) {
-    return <>Waiting for content...</>
+    return <>{t("waiting-for-content")}</>
   }
 
   if (!port) {
-    return <>Waiting for port...</>
+    return <>{t("waiting-for-port")}</>
   }
 
   return (

@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { stripNonPrintableCharacters } from "../../shared-module/utils/strings"
 import { MarkdownText } from "../MarkdownText"
@@ -11,6 +12,7 @@ const Open: React.FC<QuizItemComponentProps> = ({
   quizItemAnswerState,
   setQuizItemAnswerState,
 }) => {
+  const { t } = useTranslation()
   const [showFormatError, setShowFormatError] = useState(false)
 
   const handleChange = (newValue: string) => {
@@ -55,7 +57,7 @@ const Open: React.FC<QuizItemComponentProps> = ({
         `}
       >
         {formatErrorVisible ? (
-          <>The answer does not match the answer format specified for this exercise.</>
+          <>{t("error-answer-does-not-match-the-specified-answer-format")}</>
         ) : null}
       </div>
     </div>
@@ -66,6 +68,7 @@ export default Open
 
 const answerFormatIsValidAgainstRegex = (answer: string, validatorRegex: string): boolean => {
   const cleanedInput = stripNonPrintableCharacters(answer)
+  // eslint-disable-next-line i18next/no-literal-string
   const validator = new RegExp(validatorRegex.trim(), "i")
   return validator.test(cleanedInput)
 }

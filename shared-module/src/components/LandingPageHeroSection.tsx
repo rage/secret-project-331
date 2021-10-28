@@ -1,10 +1,12 @@
 import styled from "@emotion/styled"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "../styles"
 
 import Button from "./Button"
 
+// eslint-disable-next-line i18next/no-literal-string
 const HeroWrapper = styled.div`
   background: ${baseTheme.colors.neutral[100]};
   width: 100%;
@@ -56,13 +58,14 @@ export interface LandingPageHeroSectionProps {
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & LandingPageHeroSectionProps
 
 const LandingPageHeroSection: React.FC<CardProps> = ({ title, children }) => {
+  const { t } = useTranslation()
   return (
     <HeroWrapper>
       <TextBox>
         <h1>{title}</h1>
         {children}
         <Button variant="primary" size="large">
-          Start course
+          {t("start-course")}
         </Button>
       </TextBox>
     </HeroWrapper>

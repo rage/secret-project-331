@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { TextField } from "@material-ui/core"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;
@@ -20,6 +21,7 @@ const UpdateEmailDetailsForm: React.FC<UpdateEmailDetailsFormProps> = ({
   setName,
   setSubject,
 }) => {
+  const { t } = useTranslation()
   return (
     <div
       className={css`
@@ -31,7 +33,7 @@ const UpdateEmailDetailsForm: React.FC<UpdateEmailDetailsFormProps> = ({
           <TextField
             required
             id="outlined-required"
-            label="Template name"
+            label={t("label-template-name")}
             variant="outlined"
             value={name}
             fullWidth
@@ -44,7 +46,7 @@ const UpdateEmailDetailsForm: React.FC<UpdateEmailDetailsFormProps> = ({
           <TextField
             required
             id="outlined-required"
-            label="Email subject"
+            label={t("label-email-subject")}
             variant="outlined"
             value={subject}
             fullWidth

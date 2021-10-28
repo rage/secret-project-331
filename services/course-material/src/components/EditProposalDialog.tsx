@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useMutation } from "react-query"
 
 import { postProposedEdits } from "../services/backend"
@@ -25,6 +26,7 @@ const EditProposalDialog: React.FC<Props> = ({
   clearSelectedBlockId,
   edits,
 }) => {
+  const { t } = useTranslation()
   const mutation = useMutation(
     (block_edits: NewProposedBlockEdit[]) => {
       return postProposedEdits(courseId, { page_id: pageId, block_edits })
@@ -42,8 +44,8 @@ const EditProposalDialog: React.FC<Props> = ({
   let leftButton
   if (selectedBlockId !== null) {
     // currently editing block
-    topMessage = "You've selected material for editing."
-    bottomMessage = "Preview your changes or make more edits."
+    topMessage = t("youve-selected-material-for-editing")
+    bottomMessage = t("preview-changes-or-make-more-edits")
     leftButton = (
       <Button
         variant="primary"
@@ -53,18 +55,18 @@ const EditProposalDialog: React.FC<Props> = ({
           margin: 4px;
         `}
       >
-        Preview
+        {t("preview")}
       </Button>
     )
   } else if (edits.size === 0) {
     // not editing a block and no existing edits
-    topMessage = "Click on material to make it editable!"
+    topMessage = t("click-on-course-material-to-make-it-editable")
     bottomMessage = null
     leftButton = null
   } else {
     // not editing and have existing edits
-    topMessage = "You've made changes!"
-    bottomMessage = "Do you want to send your changes?"
+    topMessage = t("youve-made-changes")
+    bottomMessage = t("do-you-want-to-send-changes")
     leftButton = (
       <Button
         variant="primary"
@@ -74,7 +76,7 @@ const EditProposalDialog: React.FC<Props> = ({
           margin: 4px;
         `}
       >
-        Send
+        {t("send")}
       </Button>
     )
   }
@@ -111,7 +113,7 @@ const EditProposalDialog: React.FC<Props> = ({
         >
           {topMessage}
         </div>
-        {mutation.isError && <div>Failed to submit: {mutation.error}</div>}
+        {mutation.isError && <div>{t("failed-to-submit", { error: mutation.error })}</div>}
         <>
           <div
             className={css`
@@ -146,7 +148,7 @@ const EditProposalDialog: React.FC<Props> = ({
                 margin-right: 8px;
               `}
             >
-              Exit
+              {t("exit")}
             </Button>
           </div>
         </>

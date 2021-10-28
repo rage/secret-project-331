@@ -26,9 +26,11 @@ const PagePage: React.FC = () => {
 
   useEffect(() => {
     if (error) {
+      // eslint-disable-next-line i18next/no-literal-string
       pageStateDispatch({ type: "setError", payload: error })
     } else if (!isLoading && data) {
       pageStateDispatch({
+        // eslint-disable-next-line i18next/no-literal-string
         type: "setData",
         payload: {
           pageData: data.page,
@@ -37,6 +39,7 @@ const PagePage: React.FC = () => {
         },
       })
     } else {
+      // eslint-disable-next-line i18next/no-literal-string
       pageStateDispatch({ type: "setLoading" })
     }
   }, [data, error, isLoading])
@@ -76,7 +79,9 @@ const PagePage: React.FC = () => {
       <CoursePageContext.Provider value={pageState}>
         <Layout
           //  Not a good idea, but works for now.
+          // eslint-disable-next-line i18next/no-literal-string
           faqUrl={"/courses/" + courseSlug + "/faq"}
+          // eslint-disable-next-line i18next/no-literal-string
           frontPageUrl={"/courses/" + courseSlug}
           title={data?.page.title}
         >

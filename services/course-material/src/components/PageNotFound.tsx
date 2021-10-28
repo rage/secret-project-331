@@ -1,5 +1,6 @@
 import { Alert, AlertTitle } from "@material-ui/lab"
 import React from "react"
+import { Trans, useTranslation } from "react-i18next"
 
 import PublicPageList from "./PublicPageList"
 
@@ -9,18 +10,18 @@ interface PageNotFoundProps {
 }
 
 const PageNotFound: React.FC<PageNotFoundProps> = ({ path, courseId }) => {
+  const { t } = useTranslation()
   return (
     <>
       <Alert severity="error">
-        <AlertTitle>404 Not Found</AlertTitle>
-        This course has no page at <code>{path}</code>.
+        <AlertTitle>{t("404-not-found")}</AlertTitle>
+        <Trans t={t} i18nKey="course-has-no-page-at-path">
+          This course has no page at <code>{{ path }}</code>.
+        </Trans>
       </Alert>
       {path === "/" && (
         <>
-          <p>
-            If you are the author of this course, please create a front page for the course with
-            path <code>/</code>.
-          </p>
+          <p>{t("if-author-of-course-please-create-front-page")}</p>
           {<PublicPageList courseId={courseId} />}
         </>
       )}

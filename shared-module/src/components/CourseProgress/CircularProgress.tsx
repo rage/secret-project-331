@@ -5,6 +5,7 @@ import { useSpring } from "react-spring"
 import { headingFont } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
 
+// eslint-disable-next-line i18next/no-literal-string
 const StyledSVG = styled.div`
   position: relative;
   width: 100%;

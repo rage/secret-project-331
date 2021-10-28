@@ -27,6 +27,7 @@ const Layout: React.FC<LayoutProps> = ({
   returnToPath,
 }) => {
   const router = useRouter()
+  // eslint-disable-next-line i18next/no-literal-string
   const returnPath = `/login?return_to=${encodeURIComponent(
     process.env.NEXT_PUBLIC_BASE_PATH + router.asPath,
   )}`

@@ -1,5 +1,6 @@
 import { Alert } from "@material-ui/lab"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 import { Submission } from "../shared-module/bindings"
 import MessageChannelIFrame from "../shared-module/components/MessageChannelIFrame"
@@ -24,8 +25,9 @@ const SubmissionIFrame: React.FC<SubmissionIFrameProps> = ({
   submission,
   model_solution_spec,
 }) => {
+  const { t } = useTranslation()
   if (!url || url.trim() === "") {
-    return <Alert severity="error">Cannot render exercise task, missing url.</Alert>
+    return <Alert severity="error">{t("error-cannot-render-exercise-task-missing-url")}</Alert>
   }
 
   const state: SubmissionState = {
@@ -38,7 +40,9 @@ const SubmissionIFrame: React.FC<SubmissionIFrameProps> = ({
     <MessageChannelIFrame
       url={url}
       onCommunicationChannelEstabilished={(port) => {
+        // eslint-disable-next-line i18next/no-literal-string
         console.log("posting " + JSON.stringify(state))
+        // eslint-disable-next-line i18next/no-literal-string
         const message: SetStateMessage = { message: "set-state", data: state }
         port.postMessage(message)
       }}

@@ -1,3 +1,5 @@
+import React from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import { fetchFeedback, markAsRead } from "../services/backend/feedback"
@@ -14,6 +16,7 @@ interface Props {
 }
 
 const FeedbackPage: React.FC<Props> = ({ courseId, page, limit, read, onChange }) => {
+  const { t } = useTranslation()
   const { isLoading, error, data, refetch } = useQuery(
     `feedback-list-${courseId}-${read}-${page}-${limit}`,
     () => fetchFeedback(courseId, read, page, limit),
@@ -22,14 +25,14 @@ const FeedbackPage: React.FC<Props> = ({ courseId, page, limit, read, onChange }
   if (error) {
     return (
       <div>
-        <h1>Error</h1>
+        <h1>{t("error-title")}</h1>
         <pre>{JSON.stringify(error, undefined, 2)}</pre>
       </div>
     )
   }
 
   if (isLoading || !data) {
-    return <div>Loading feedback...</div>
+    return <div>{t("loading-text")}</div>
   }
 
   async function handleMarkAsRead(feedback: Feedback) {

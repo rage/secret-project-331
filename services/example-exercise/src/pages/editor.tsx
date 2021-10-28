@@ -1,5 +1,6 @@
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import Editor from "../components/Editor"
 import useStateWithOnChange from "../hooks/useStateWithOnChange"
@@ -8,16 +9,19 @@ import { isSetStateMessage } from "../shared-module/iframe-protocol-types.guard"
 import { Alternative } from "../util/stateInterfaces"
 
 const EditorPage: React.FC = () => {
+  const { t } = useTranslation()
   const [port, setPort] = useState<MessagePort | null>(null)
   const [state, setState] = useStateWithOnChange<Alternative[] | null>(null, (newValue) => {
     if (!port) {
       return
     }
     const message: CurrentStateMessage = {
+      // eslint-disable-next-line i18next/no-literal-string
       message: "current-state",
       data: { private_spec: newValue },
       valid: true,
     }
+    // eslint-disable-next-line i18next/no-literal-string
     console.info("Sending current data", JSON.stringify(message))
     port.postMessage(message)
   })
@@ -36,21 +40,26 @@ const EditorPage: React.FC = () => {
       }
       const port = message.ports[0]
       if (port) {
-        console.log("Frame received a port:", port)
+        // eslint-disable-next-line i18next/no-literal-string
+        console.info("Frame received a port:", port)
         setPort(port)
         port.onmessage = (message: WindowEventMap["message"]) => {
-          console.log("Frame received a message from port", JSON.stringify(message.data))
+          // eslint-disable-next-line i18next/no-literal-string
+          console.info("Frame received a message from port", JSON.stringify(message.data))
           const data = message.data
           if (isSetStateMessage(data)) {
-            console.log("Frame: setting state from message")
+            // eslint-disable-next-line i18next/no-literal-string
+            console.info("Frame: setting state from message")
             setState((data.data as Alternative[]) || [])
           } else {
+            // eslint-disable-next-line i18next/no-literal-string
             console.error("Frame received an unknown message from message port")
           }
         }
       }
     }
-    console.log("frame adding event listener")
+    // eslint-disable-next-line i18next/no-literal-string
+    console.info("frame adding event listener")
     addEventListener("message", handler)
     // target origin is *, beacause this is a sandboxed iframe without the
     // allow-same-origin permission
@@ -58,7 +67,8 @@ const EditorPage: React.FC = () => {
 
     // cleanup function
     return () => {
-      console.log("removing event listener")
+      // eslint-disable-next-line i18next/no-literal-string
+      console.info("removing event listener")
       removeEventListener("message", handler)
     }
   }, [setState])
@@ -67,11 +77,11 @@ const EditorPage: React.FC = () => {
   //   return null
   // }
   if (!state) {
-    return <>Waiting for content...</>
+    return <>{t("waiting-for-content")}</>
   }
 
   if (!port) {
-    return <>Waiting for port...</>
+    return <>{t("waiting-for-port")}</>
   }
 
   return (
@@ -86,6 +96,7 @@ const EditorPage: React.FC = () => {
 }
 
 function onHeightChange(newHeight: number, port: MessagePort) {
+  // eslint-disable-next-line i18next/no-literal-string
   const message: HeightChangedMessage = { message: "height-changed", data: newHeight }
   port.postMessage(message)
 }

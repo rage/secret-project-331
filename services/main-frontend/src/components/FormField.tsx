@@ -1,5 +1,6 @@
 import React from "react"
 import { FieldError, FieldPath, FieldValues, UseFormRegister } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 
 interface Props<T extends FieldValues> {
   id: FieldPath<T>
@@ -18,13 +19,14 @@ const FormField = <T extends FieldValues>({
   required,
   placeholder,
 }: Props<T>): React.ReactElement => {
+  const { t } = useTranslation()
   return (
     <>
       <label htmlFor={id}>{placeholder}</label>
       <br />
       {required && error && (
         <>
-          <span>This field is required</span>
+          <span>{t("this-field-required")}</span>
           <br />
         </>
       )}

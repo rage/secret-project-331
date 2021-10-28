@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import { Meta, Story } from "@storybook/react"
 import React from "react"
 
@@ -18,5 +19,4 @@ export const Primary: Story<ComponentProps> = Template.bind({})
 Primary.args = {
   children: "HeroSection",
   title: "Introduction to Calculus",
-  subTitle: "Everything you need to know",
 }

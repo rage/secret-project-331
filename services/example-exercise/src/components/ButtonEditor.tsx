@@ -1,4 +1,5 @@
 import styled from "@emotion/styled"
+import { useTranslation } from "react-i18next"
 
 import { Alternative } from "../util/stateInterfaces"
 interface Props {
@@ -38,6 +39,7 @@ const DeleteButton = styled.button`
 `
 
 const ButtonEditor: React.FC<Props> = ({ item, onDelete, onChange }) => {
+  const { t } = useTranslation()
   return (
     <StyledButtonEditor>
       <InputCheckbox
@@ -48,12 +50,13 @@ const ButtonEditor: React.FC<Props> = ({ item, onDelete, onChange }) => {
         }}
       />
       <Input
-        placeholder="Option text"
+        placeholder={t("input-placeholder-option-text")}
         value={item.name}
         onChange={(e) => {
           onChange({ ...item, name: e.target.value })
         }}
       />
+      {/* eslint-disable-next-line i18next/no-literal-string */}
       <DeleteButton onClick={onDelete}>x</DeleteButton>
     </StyledButtonEditor>
   )

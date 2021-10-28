@@ -2,8 +2,8 @@ import { css } from "@emotion/css"
 import _ from "lodash"
 import React from "react"
 
+import { QuizItemAnswer } from "../../../types/types"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
-import { QuizItemAnswer } from "../../types/types"
 import { MarkdownText } from "../MarkdownText"
 
 import { QuizItemComponentProps } from "."
@@ -19,6 +19,7 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
   quizItem,
   setQuizItemAnswerState,
 }) => {
+  // eslint-disable-next-line i18next/no-literal-string
   const direction = quizItem.direction || "row"
 
   const handleOptionSelect = (event: React.MouseEvent<HTMLButtonElement>) => {

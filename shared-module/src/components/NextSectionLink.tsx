@@ -63,6 +63,7 @@ const StyledArrow = styled.div`
   }
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const StyledLink = styled.a`
   position: relative;
   color: #c4c4c4;
@@ -125,7 +126,8 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subtitle, next
               {url ? (
                 <ArrowSVGIcon
                   id="svg-icon"
-                  alt="next icon"
+                  role="presentation"
+                  alt=""
                   width="38.7"
                   height="38.7"
                   viewBox="0 0 39 39"
@@ -133,7 +135,8 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subtitle, next
               ) : (
                 <LockIcon
                   id="svg-icon"
-                  alt="lock icon"
+                  role="presentation"
+                  alt=""
                   width="24"
                   height="36"
                   viewBox="0 0 24 36"

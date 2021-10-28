@@ -1,8 +1,8 @@
 import { useReducer } from "react"
 
+import { PublicQuiz, PublicQuizItem, QuizAnswer, QuizItemAnswer } from "../../../types/types"
 import { useSendQuizAnswerOnChange } from "../../hooks/useSendQuizAnswerOnChange"
 import HeightTrackingContainer from "../../shared-module/components/HeightTrackingContainer"
-import { PublicQuiz, PublicQuizItem, QuizAnswer, QuizItemAnswer } from "../../types/types"
 
 import Checkbox from "./Checkbox"
 import Essay from "./Essay"

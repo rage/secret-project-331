@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
 import sanitizeHtml from "sanitize-html"
 
+import { HtmlAttributes } from "../../../types/GutenbergBlockAttributes"
 import { courseMaterialCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
-import { HtmlAttributes } from "../../types/GutenbergBlockAttributes"
 import GenericLoading from "../GenericLoading"
 
 import { BlockRendererProps } from "."

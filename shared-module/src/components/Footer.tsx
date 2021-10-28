@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 import UHLogo from "../img/UHLogo.svg"
 import MOOCfi from "../img/moocfi.svg"
@@ -84,6 +85,7 @@ export interface FooterExtraProps {
 export type FooterProps = React.HTMLAttributes<HTMLDivElement> & FooterExtraProps
 
 const Footer: React.FC<FooterProps> = ({ licenseUrl }) => {
+  const { t } = useTranslation()
   return (
     <footer
       className={css`
@@ -95,10 +97,7 @@ const Footer: React.FC<FooterProps> = ({ licenseUrl }) => {
       `}
     >
       <Banner variant="readOnly">
-        <>
-          Secret project is a system developed by the MOOC centre of Univeristy of Helsinki that
-          enables teachers in all institutions to create online courses for free.
-        </>
+        <>{t("project-description")}</>
       </Banner>
       <Wrapper>
         <div
@@ -110,23 +109,32 @@ const Footer: React.FC<FooterProps> = ({ licenseUrl }) => {
             place-self: center;
           `}
         >
+          {/* eslint-disable-next-line i18next/no-literal-string */}
           <MOOCfi alt="MOOC.fi" />
-          <UHLogo alt="University of Helsinki" />
+          <UHLogo alt={t("university-of-helsinki")} />
         </div>
         <Text>
-          <h1>WHO WE ARE</h1>
-          <span>
-            MOOC center is responsible for creating custom online courses for univeristy of
-            Helsinki. Its responsible for all the higlhy popular courses that have been available in
-            mooc.fi from 2012.
-          </span>
+          <h1
+            className={css`
+              text-transform: uppercase;
+            `}
+          >
+            {t("about-mooc-center")}
+          </h1>
+          <span>{t("about-mooc-center-description")}</span>
         </Text>
         <Links>
-          <h1>RESOURCES</h1>
-          <StyledLink href={basePath() + "/privacy"}>Privacy</StyledLink>
-          <StyledLink href={basePath() + "/accessibility"}>Accessibility</StyledLink>
-          <StyledLink href={basePath() + "/creators"}>Creators</StyledLink>
-          {licenseUrl ? <StyledLink href={licenseUrl}>License</StyledLink> : null}
+          <h1
+            className={css`
+              text-transform: uppercase;
+            `}
+          >
+            {t("resources")}
+          </h1>
+          <StyledLink href={basePath() + "/privacy"}>{t("privacy")}</StyledLink>
+          <StyledLink href={basePath() + "/accessibility"}>{t("accessibility")}</StyledLink>
+          <StyledLink href={basePath() + "/creators"}>{t("creators")}</StyledLink>
+          {licenseUrl ? <StyledLink href={licenseUrl}>{t("license")}</StyledLink> : null}
         </Links>
       </Wrapper>
     </footer>

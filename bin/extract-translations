@@ -1,0 +1,12 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+FILE_PATH="$BASEDIR/../node_modules/.bin/i18next"
+RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FILE_PATH")
+
+FILE_PATH_CONFIG="$BASEDIR/../services/main-frontend/i18next-parser.config.js"
+RELATIVE_PATH_CONFIG=$(realpath --relative-to="$(pwd)" "$FILE_PATH_CONFIG")
+
+run_command "$RELATIVE_PATH" --config "$RELATIVE_PATH_CONFIG" "$@"

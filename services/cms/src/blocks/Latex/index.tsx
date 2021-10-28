@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import { BlockConfiguration } from "@wordpress/blocks"
 
 import LatexEditor from "./LatexEditor"

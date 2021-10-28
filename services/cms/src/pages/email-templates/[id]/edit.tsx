@@ -1,4 +1,6 @@
 import dynamic from "next/dynamic"
+import React from "react"
+import { useTranslation } from "react-i18next"
 
 import Layout from "../../../components/Layout"
 import CourseContext from "../../../contexts/CourseContext"
@@ -8,15 +10,15 @@ import {
   updateExistingEmailTemplate,
 } from "../../../services/backend/email-templates"
 import { EmailTemplate, EmailTemplateUpdate } from "../../../shared-module/bindings"
+import Spinner from "../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 import useStateQuery from "../../../shared-module/hooks/useStateQuery"
-import basePath from "../../../shared-module/utils/base-path"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
-const EditorLoading = <div>Loading editor...</div>
+const EditorLoading = <Spinner variant="medium" />
 
 const EmailEditor = dynamic(() => import("../../../components/editors/EmailEditor"), {
   ssr: false,
@@ -28,11 +30,14 @@ export interface EmailTemplateEditProps {
 }
 
 const EmailTemplateEdit: React.FC<EmailTemplateEditProps> = ({ query }) => {
+  const { t } = useTranslation()
   const emailTemplateId = query.id
+  // eslint-disable-next-line i18next/no-literal-string
   const templateQuery = useStateQuery(["email-template", emailTemplateId], (_emailTemplateId) =>
     fetchEmailTemplateWithId(_emailTemplateId),
   )
   const instanceQuery = useStateQuery(
+    // eslint-disable-next-line i18next/no-literal-string
     ["course-id-of-instance", templateQuery.data?.course_instance_id],
     (courseInstanceId) => fetchCourseInstance(courseInstanceId),
   )
@@ -40,7 +45,7 @@ const EmailTemplateEdit: React.FC<EmailTemplateEditProps> = ({ query }) => {
   if (templateQuery.state === "error" || instanceQuery.state === "error") {
     return (
       <div>
-        <h1>Error</h1>
+        <h1>{t("error")}</h1>
         <pre>{JSON.stringify(templateQuery.error, undefined, 2)}</pre>
         <pre>{JSON.stringify(instanceQuery.error, undefined, 2)}</pre>
       </div>
@@ -48,11 +53,11 @@ const EmailTemplateEdit: React.FC<EmailTemplateEditProps> = ({ query }) => {
   }
 
   if (templateQuery.state !== "ready") {
-    return <div>Loading template data...</div>
+    return <div>{t("loading")}</div>
   }
 
   if (instanceQuery.state !== "ready") {
-    return <div>Loading editor data...</div>
+    return <div>{t("loading")}</div>
   }
 
   const handleSave = async (template: EmailTemplateUpdate): Promise<EmailTemplate> => {

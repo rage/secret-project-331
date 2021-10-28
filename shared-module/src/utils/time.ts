@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import { format } from "date-fns"
 
 const dateToString = (date: Date, timeZone: boolean): string => {

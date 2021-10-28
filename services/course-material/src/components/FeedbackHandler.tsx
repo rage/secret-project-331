@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import { Menu, MenuItem } from "@material-ui/core"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { NewProposedBlockEdit } from "../shared-module/bindings"
 import Button from "../shared-module/components/Button"
@@ -34,6 +35,7 @@ const FeedbackHandler: React.FC<Props> = ({
   clearSelectedBlockId,
   edits,
 }) => {
+  const { t } = useTranslation()
   const [feedbackMenuAnchor, setFeedbackMenuAnchor] = useState<Element | null>(null)
   const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false)
   const [editProposalDialogOpen, setEditProposalDialogOpen] = useState(false)
@@ -94,7 +96,7 @@ const FeedbackHandler: React.FC<Props> = ({
             z-index: 100;
           `}
         >
-          Feedback submitted successfully
+          {t("feedback-submitted-succesfully")}
         </div>
       )}
       {!feedbackDialogOpen && !editProposalDialogOpen && (
@@ -118,7 +120,7 @@ const FeedbackHandler: React.FC<Props> = ({
                 setLastSelection("")
               }}
             >
-              Written feedback
+              {t("written-feedback")}
             </MenuItem>
             <MenuItem
               onClick={() => {
@@ -127,7 +129,7 @@ const FeedbackHandler: React.FC<Props> = ({
                 onEnterEditProposalMode()
               }}
             >
-              Improve material
+              {t("improve-material")}
             </MenuItem>
           </Menu>
           <Button
@@ -135,7 +137,7 @@ const FeedbackHandler: React.FC<Props> = ({
             size={"medium"}
             onClick={(ev) => setFeedbackMenuAnchor(ev.currentTarget)}
           >
-            Give feedback
+            {t("give-feedback")}
           </Button>
         </div>
       )}

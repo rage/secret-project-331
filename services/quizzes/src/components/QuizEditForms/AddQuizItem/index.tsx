@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import styled from "styled-components"
 
 import AddQuizItemButton from "./AddQuizItemButton"
@@ -20,7 +21,7 @@ const TypeContainer = styled.div`
   margin-bottom: 1rem;
 `
 
-const types = [
+const TYPES = [
   "essay",
   "scale",
   "open",
@@ -32,12 +33,13 @@ const types = [
 ]
 
 export const AddQuizItem: React.FC = () => {
+  const { t } = useTranslation()
   return (
     <>
       <AddQuizItemWrapper>
-        <h3>Add new Quiz item</h3>
+        <h3>{t("add-new-quiz-item")}</h3>
         <TypeContainer>
-          {types.map((type) => (
+          {TYPES.map((type) => (
             <AddQuizItemButton key={type} type={type} />
           ))}
         </TypeContainer>

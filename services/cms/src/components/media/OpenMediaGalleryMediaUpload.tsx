@@ -1,8 +1,10 @@
 import { Button } from "@wordpress/components"
+import { useTranslation } from "react-i18next"
 
 // Implements a button that opens a modal into media gallery.
 function MediaUploader(): JSX.Element {
-  return <Button>Select Media (not implemented)</Button>
+  const { t } = useTranslation()
+  return <Button>{t("button-text-select-media")}</Button>
 }
 
 export const mediaUploadGallery = (): (() => JSX.Element) => MediaUploader

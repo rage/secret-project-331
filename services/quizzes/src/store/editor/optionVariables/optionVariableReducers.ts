@@ -1,7 +1,7 @@
 import produce from "immer"
 import { createReducer } from "typesafe-actions"
 
-import { action, QuizItemOptionVariables } from "../../../types/types"
+import { action, QuizItemOptionVariables } from "../../../../types/types"
 import {
   createdNewOption,
   createdNewQuiz,

@@ -95,7 +95,7 @@ const PagesInChapterBox: React.FC<PagesInChapterBoxProps> = (props) => {
               <span>{props.chapterIndex}</span>
             </PageNumberBox>
             <span>{props.chapterTitle}</span>
-            <ArrowSVGIcon alt="next icon" width="20" />
+            <ArrowSVGIcon role="presentation" alt="" width="20" />
           </ChapterParts>
         </Link>
       </>

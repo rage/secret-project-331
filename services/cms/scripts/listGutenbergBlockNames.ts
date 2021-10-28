@@ -1,6 +1,7 @@
 // Require imports needs to happen in a specific order.
 /* eslint-disable import/order */
 /* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable i18next/no-literal-string */
 
 import { Block } from "@wordpress/blocks"
 

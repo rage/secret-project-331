@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import axios from "axios"
 
 export const loggedIn = async (): Promise<boolean> => {

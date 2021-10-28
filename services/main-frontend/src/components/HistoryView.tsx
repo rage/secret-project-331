@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import { DiffEditor } from "@monaco-editor/react"
 import React, { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import { fetchHistoryForPage } from "../services/backend/pages"
@@ -16,6 +17,7 @@ interface Props {
 }
 
 const HistoryView: React.FC<Props> = ({ pageId }) => {
+  const { t } = useTranslation()
   const [currentTitle, setCurrentTitle] = useState<string | null>(null)
   const [selectedTitle, setSelectedTitle] = useState<string | null>(null)
   const [currentRevision, setCurrentRevision] = useState<string | null>(null)
@@ -25,7 +27,7 @@ const HistoryView: React.FC<Props> = ({ pageId }) => {
     const history = await fetchHistoryForPage(pageId, 1, 1)
     if (history.length === 0) {
       // there is always at least one history entry corresponding to the current state of the page
-      throw new Error("Could not find any edit history for the page")
+      throw new Error(t("error-could-not-find-edit-history-for-page"))
     }
     const initial = JSON.stringify(history[0].content, null, 2)
     setCurrentTitle(history[0].title)
@@ -51,14 +53,14 @@ const HistoryView: React.FC<Props> = ({ pageId }) => {
   if (error) {
     return (
       <div>
-        <h1>Error</h1>
+        <h1>{t("error-title")}</h1>
         <pre>{JSON.stringify(error, undefined, 2)}</pre>
       </div>
     )
   }
 
   if (isLoading || !data) {
-    return <div>Loading page...</div>
+    return <div>{t("loading-text")}</div>
   }
 
   function onCompare(ph: PageHistory) {
@@ -78,13 +80,17 @@ const HistoryView: React.FC<Props> = ({ pageId }) => {
           text-align: center;
         `}
       >
-        Previous: {currentTitle} | Current: {selectedTitle}
+        {t("previous-title-current-title", {
+          "current-title": currentTitle,
+          "selected-title": selectedTitle,
+        })}
       </p>
       <DiffEditor
         height="40vh"
+        // eslint-disable-next-line i18next/no-literal-string
         language="json"
-        original={currentRevision || "Loading..."}
-        modified={selectedRevision || "Loading..."}
+        original={currentRevision || t("loading-text")}
+        modified={selectedRevision || t("loading-text")}
         options={{ readOnly: true, fontFamily: monospaceFont }}
       />
       <HistoryList

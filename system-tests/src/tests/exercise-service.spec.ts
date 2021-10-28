@@ -41,7 +41,7 @@ test("can add and delete exercise service", async ({ page, headless }) => {
   await page.click('button:has-text("Delete")')
 
   // Click text=Add new service
-  await page.click("text=Add new service")
+  await page.click(`button:text("New")`)
 
   // Click [placeholder="Name..."]
   await page.click('[placeholder="Name..."]')

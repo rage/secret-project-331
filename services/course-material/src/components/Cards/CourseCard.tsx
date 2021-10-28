@@ -1,6 +1,7 @@
 import styled from "@emotion/styled"
 import Image from "next/image"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import Finland from "../../img/flags/Finland.png"
 import SettingIcon from "../../img/setting.svg"
@@ -80,6 +81,7 @@ const Info = styled.p`
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & CardExtraProps
 
 const CourseCard: React.FC<CardProps> = ({ title, description }) => {
+  const { t } = useTranslation()
   const [clicked, setClicked] = useState<boolean>(false)
   // If URL defined, the chapter is open
 
@@ -96,13 +98,13 @@ const CourseCard: React.FC<CardProps> = ({ title, description }) => {
         <h2>{title}</h2>
         <span>{description}</span>
         <Languages onClick={handleClick}>
-          <span>Choose language </span>
+          <span>{t("choose-a-language")}</span>
           <div>
-            <Image src={Finland} alt="Flag of Finland" />
-            <p>English-US</p>
+            <Image src={Finland} alt={t("finnish")} />
+            <p>{t("american-english")}</p>
           </div>
         </Languages>
-        <Info>Available in over 8+ languages</Info>
+        <Info>{t("available-in-languages", { num: 8 })}</Info>
       </Content>
       {clicked && <StyledLanguageSelector click={handleClick} />}
     </CourseGridWrapper>

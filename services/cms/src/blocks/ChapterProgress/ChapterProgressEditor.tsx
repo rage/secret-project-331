@@ -1,19 +1,18 @@
 import { InnerBlocks } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
 const ALLOWED_NESTED_BLOCKS = [""]
 
 const ChapterProgressEditor: React.FC<BlockEditProps<Record<string, never>>> = ({ clientId }) => {
+  const { t } = useTranslation()
   return (
     <BlockPlaceholderWrapper id={clientId}>
-      <h3>Chapter Progress Placeholder</h3>
-      <p>
-        This block is used to display Chapter progress. To display the whole course progress, you
-        should use the Course Progress block.
-      </p>
+      <h3>{t("chapter-progress-placeholder")}</h3>
+      <p>{t("chapter-progress-placeholder-explanation")}</p>
       <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
     </BlockPlaceholderWrapper>
   )

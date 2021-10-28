@@ -7,6 +7,8 @@ export interface TextAttributes {
   text: string
 }
 
+const KATEX_OUTPUT_FORMAT = "html"
+
 const LatexBlock: React.FC<BlockRendererProps<TextAttributes>> = ({ data }) => {
   const attributes: TextAttributes = data.attributes
 
@@ -14,7 +16,7 @@ const LatexBlock: React.FC<BlockRendererProps<TextAttributes>> = ({ data }) => {
     const output = KaTex.renderToString(attributes.text, {
       throwOnError: false,
       displayMode: true,
-      output: "html",
+      output: KATEX_OUTPUT_FORMAT,
     })
     return <div dangerouslySetInnerHTML={{ __html: output }} />
   }

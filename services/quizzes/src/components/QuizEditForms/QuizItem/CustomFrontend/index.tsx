@@ -5,10 +5,10 @@ import React from "react"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
+import { NormalizedQuizItem } from "../../../../../types/types"
 import { deletedItem } from "../../../../store/editor/editorActions"
 import { setAdvancedEditing } from "../../../../store/editor/itemVariables/itemVariableActions"
 import { useTypedSelector } from "../../../../store/store"
-import { NormalizedQuizItem } from "../../../../types/types"
 
 import CustomModalContent from "./CustomModalContent"
 
@@ -16,6 +16,7 @@ interface CustomFrontendProps {
   item: NormalizedQuizItem
 }
 
+// eslint-disable-next-line i18next/no-literal-string
 const EmptyBox = styled(Box)`
   width: 100% !important;
   height: 200px !important;
@@ -31,6 +32,7 @@ const StyledModal = styled(Modal)`
   align-items: center;
   justify-content: center;
 `
+// eslint-disable-next-line i18next/no-literal-string
 const AdvancedBox = styled(Box)`
   background-color: #fafafa !important;
   min-width: 80% !important;
@@ -40,10 +42,12 @@ const AdvancedBox = styled(Box)`
   overflow-y: scroll !important;
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const CloseButton = styled(Button)`
   display: flex !important;
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const DeleteButton = styled(Button)`
   display: flex !important;
 `
@@ -74,6 +78,7 @@ export const CustomFrontend: React.FC<CustomFrontendProps> = ({ item }) => {
             <CustomModalContent />
             <ModalButtonWrapper>
               <DeleteButton onClick={() => dispatch(deletedItem(storeItem.id, quizId))}>
+                {/* eslint-disable-next-line i18next/no-literal-string */}
                 <FontAwesomeIcon icon={faTrash} size="2x" color="red" />
               </DeleteButton>
             </ModalButtonWrapper>

@@ -3,6 +3,7 @@ import { DateTimePicker, LocalizationProvider } from "@material-ui/lab"
 import AdapterDateFns from "@material-ui/lab/AdapterDateFns"
 import React, { useState } from "react"
 import { useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 
 import { CourseInstance, CourseInstanceForm } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
@@ -22,7 +23,10 @@ interface Fields {
   teacherEmail: string
 }
 
+const DATETIME_FORMAT = "yyyy-MM-dd HH:mm"
+
 const Form: React.FC<FormProps> = ({ initialData, onSubmit, onCancel }) => {
+  const { t } = useTranslation()
   const {
     register,
     handleSubmit,
@@ -49,42 +53,42 @@ const Form: React.FC<FormProps> = ({ initialData, onSubmit, onCancel }) => {
           id={"name"}
           error={errors["name"]}
           defaultValue={initialData?.name}
-          placeholder={"Instance name"}
+          placeholder={t("text-field-label-name")}
           register={register}
         />
         <FormField
           id={"description"}
           error={errors["description"]}
           defaultValue={initialData?.description}
-          placeholder={"Instance description"}
+          placeholder={t("text-field-label-description")}
           register={register}
         />
         <FormField
           id={"supportEmail"}
           error={errors["supportEmail"]}
           defaultValue={initialData?.support_email}
-          placeholder={"Support email"}
+          placeholder={t("support-email")}
           register={register}
         />
         <FormField
           id={"teacherName"}
           error={errors["teacherName"]}
           defaultValue={initialData?.teacher_in_charge_name}
-          placeholder={"Teacher-in-charge name"}
+          placeholder={t("teacher-in-charge-name")}
           register={register}
         />
         <FormField
           id={"teacherEmail"}
           error={errors["teacherEmail"]}
           defaultValue={initialData?.teacher_in_charge_email}
-          placeholder={"Teacher-in-charge email"}
+          placeholder={t("teacher-in-charge-email")}
           register={register}
         />
         <br />
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <DateTimePicker
-            label={"Opening time"}
-            inputFormat={"yyyy-MM-dd HH:mm"}
+            label={t("opening-time")}
+            inputFormat={DATETIME_FORMAT}
             renderInput={(props) => <TextField id={"openingTime"} {...props} />}
             value={newOpeningTime}
             onChange={(time) => setNewOpeningTime(time)}
@@ -92,8 +96,8 @@ const Form: React.FC<FormProps> = ({ initialData, onSubmit, onCancel }) => {
           <br />
           <br />
           <DateTimePicker
-            label={"Closing time"}
-            inputFormat={"yyyy-MM-dd HH:mm"}
+            label={t("closing-time")}
+            inputFormat={DATETIME_FORMAT}
             renderInput={(props) => <TextField id={"closingTime"} {...props} />}
             value={newClosingTime}
             onChange={(time) => setNewClosingTime(time)}
@@ -101,11 +105,11 @@ const Form: React.FC<FormProps> = ({ initialData, onSubmit, onCancel }) => {
         </LocalizationProvider>
         <br />
         <br />
-        <Button variant="primary" size="medium" type="submit" value="Submit">
-          Submit
+        <Button variant="primary" size="medium" type="submit" value={t("button-text-submit")}>
+          {t("button-text-submit")}
         </Button>
         <Button variant="secondary" size="medium" onClick={onCancel}>
-          Cancel
+          {t("button-text-cancel")}
         </Button>
       </form>
     </>

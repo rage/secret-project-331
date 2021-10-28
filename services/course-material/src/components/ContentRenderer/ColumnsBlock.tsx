@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 
+import { ColumnsAttributes } from "../../../types/GutenbergBlockAttributes"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
-import { ColumnsAttributes } from "../../types/GutenbergBlockAttributes"
 
 import DefaultBlock from "./DefaultBlock"
 

@@ -1,5 +1,6 @@
 import { keyframes } from "@emotion/react"
 import styled from "@emotion/styled"
+import { useTranslation } from "react-i18next"
 
 import { headingFont } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
@@ -88,12 +89,14 @@ const ProgresssBar: React.FC<CourseProgressExtraProps> = ({
   exercisesDone = 10,
   exercisesTotal = 30,
 }) => {
+  const { t } = useTranslation()
   const exerciseScaled = (exercisesDone / exercisesTotal) * 100
+  const percentage = Math.floor(exerciseScaled)
   return (
     <div>
       <Label>
         <span>
-          {n ? Math.round(exerciseScaled) + "%  done" : `${exercisesDone} / ${exercisesTotal}`}
+          {n ? t("percent-done", { percentage }) : `${exercisesDone} / ${exercisesTotal}`}
         </span>
         <span></span>{" "}
       </Label>

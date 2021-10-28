@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useLayoutEffect, useRef } from "react"
+import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
 import { Alternative } from "../util/stateInterfaces"
@@ -20,6 +21,7 @@ const Wrapper = styled.div`
   box-sizing: border-box;
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const ButtonWrapper = styled.div`
   padding: 1rem 0;
 `
@@ -40,6 +42,7 @@ const NewButton = styled.button`
 `
 
 const Editor: React.FC<Props> = ({ state, setState, onHeightChange, port, maxWidth }) => {
+  const { t } = useTranslation()
   const contentRef = useRef<HTMLDivElement>(null)
   // Automatic height resizing events
   useLayoutEffect(() => {
@@ -88,7 +91,7 @@ const Editor: React.FC<Props> = ({ state, setState, onHeightChange, port, maxWid
             setState(newState)
           }}
         >
-          New
+          {t("new")}
         </NewButton>
       </ButtonWrapper>
     </Wrapper>

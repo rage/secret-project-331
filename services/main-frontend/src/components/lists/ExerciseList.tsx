@@ -1,5 +1,6 @@
 import Link from "next/link"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import { fetchCourseExercises } from "../../services/backend/courses"
@@ -9,6 +10,7 @@ export interface ExerciseListProps {
 }
 
 const ExerciseList: React.FC<ExerciseListProps> = ({ courseId }) => {
+  const { t } = useTranslation()
   const { data, error, isLoading } = useQuery(`course-${courseId}-exercises`, () =>
     fetchCourseExercises(courseId),
   )
@@ -18,7 +20,7 @@ const ExerciseList: React.FC<ExerciseListProps> = ({ courseId }) => {
   }
 
   if (isLoading || !data) {
-    return <>Loading...</>
+    return <>{t("loading-text")}</>
   }
 
   return (
@@ -32,7 +34,7 @@ const ExerciseList: React.FC<ExerciseListProps> = ({ courseId }) => {
               query: { exerciseId: x.id },
             }}
           >
-            view submissions
+            {t("link-view-submissions")}
           </Link>
         </li>
       ))}

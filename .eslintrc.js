@@ -1,3 +1,7 @@
+/* eslint-disable i18next/no-literal-string */
+
+const DETECT_CSS_REGEX = /\S+:\s+[^\n]+;/
+const DETECT_PX_REGEX = /^\d+px$/
 module.exports = {
   env: {
     browser: true,
@@ -5,6 +9,7 @@ module.exports = {
     node: true,
   },
   extends: [
+    "plugin:i18next/recommended",
     "plugin:jsx-a11y/recommended",
     "plugin:react-hooks/recommended",
     "eslint:recommended",
@@ -48,6 +53,18 @@ module.exports = {
             name: "@material-ui/core/Grid",
             importNames: ["default"],
             message: "Don't use Grid from @material-ui. Please use either css flexbox or css grid.",
+          },
+          {
+            name: "@material-ui/core",
+            importNames: ["Container"],
+            message:
+              "Don't use Container from @material-ui. Please use normalWidthCenteredComponentStyles.",
+          },
+          {
+            name: "@material-ui/core/Container",
+            importNames: ["default"],
+            message:
+              "Don't use Container from @material-ui. Please use normalWidthCenteredComponentStyles.",
           },
           {
             name: "@material-ui/core",
@@ -134,6 +151,53 @@ module.exports = {
     // Shared module will have unresolved import.
     "import/no-unresolved": "off",
     "import/no-named-as-default": "off",
+    "i18next/no-literal-string": [
+      "error",
+      {
+        validateTemplate: true,
+        // only add attributes here that are guranteed to never contain traslatable strings
+        ignoreAttribute: [
+          "variant",
+          "size",
+          "href",
+          "severity",
+          "navVariant",
+          "aria-labelledby",
+          "aria-describedby",
+          "url",
+          "labelId",
+          "defaultLanguage",
+          "color",
+          "labelPlacement",
+          "role",
+          "aria-hidden",
+          "maxWidth",
+          "transform",
+          "viewBox",
+        ],
+        ignore: [DETECT_CSS_REGEX, DETECT_PX_REGEX],
+        ignoreCallee: [
+          "div",
+          "useQuery",
+          "useQueryParameter",
+          "get",
+          "post",
+          "put",
+          "delete",
+          "create",
+          "styled",
+          "css",
+        ],
+      },
+    ],
     curly: "error",
   },
+  overrides: [
+    {
+      files: ["system-tests/**/*"],
+      rules: {
+        "i18next/no-literal-string": "off",
+      },
+    },
+  ],
 }

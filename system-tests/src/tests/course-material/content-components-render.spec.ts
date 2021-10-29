@@ -39,5 +39,6 @@ test("blocks render correctly", async ({ page, headless }) => {
     waitForThisToBeVisibleAndStable: null,
     toMatchSnapshotOptions: { threshold: 0.3 },
     pageScreenshotOptions: { fullPage: true },
+    axeSkip: true,
   })
 })

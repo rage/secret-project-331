@@ -22,12 +22,13 @@ export const normalWidthCenteredComponentStyles = css`
 // Use only in CMS
 // Sidebar removed at 75rem, sidebar width 280px
 // eslint-disable-next-line i18next/no-literal-string
-export const wideWidthCenteredComponentStyles = css`
+export const frontendWideWidthCenteredComponentStyles = css`
   max-width: ${wideContainerWidth}rem;
   margin-left: auto;
   margin-right: auto;
+  padding: 0rem 1.375rem;
   ${respondToOrLarger.xl} {
-    margin-right: calc(50% - 280px);
+    padding: 0rem;
   }
 `
 

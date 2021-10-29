@@ -6,7 +6,7 @@ import { useQuery } from "react-query"
 import useQueryParameter from "../../../../hooks/useQueryParameter"
 import useTime from "../../../../hooks/useTime"
 import { fetchChaptersInTheCourse } from "../../../../services/backend"
-import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import { frontendWideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import { cardMaxWidth } from "../../../../shared-module/styles/constants"
 import dontRenderUntilQueryParametersReady from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import GenericLoading from "../../../GenericLoading"
@@ -32,7 +32,7 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
   return (
     <div
       className={css`
-        ${wideWidthCenteredComponentStyles}
+        ${frontendWideWidthCenteredComponentStyles}
         padding: 7.5em 1em;
       `}
     >

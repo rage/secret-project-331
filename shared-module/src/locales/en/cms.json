@@ -1,10 +1,14 @@
 {
+  "add-task": "Add task",
   "chapter-progress-placeholder": "Chapter progress placeholder",
   "chapter-progress-placeholder-explanation": "This block is used to display Chapter progress. To display the whole course progress, you should use the Course Progress block.",
   "course-progress-placeholder": "Chapter progress placeholder",
   "course-progress-placeholder-explanation": "This block is placed on the course material where you wish to show the course progress.",
   "chapters-grid-placeholder": "Chapters Grid Placeholder",
   "chapters-grid-placeholder-explanation": "This block is placed on the course material front page for navigating to different chapters easily.",
+  "close": "Close",
+  "delete": "Delete",
+  "edit": "Edit",
   "exercises-in-chapter-placeholder": "Exercises In Chapter Placeholder",
   "exercises-in-chapter-placeholder-explanation": "This block is placed on each chapter front page, e.g. /chapter-1/ for listing and navigating to different exercises within chapter.",
   "exercise-title": "Exercise",
@@ -18,11 +22,13 @@
   "unsupported-block-placeholder-explanation": "This block is used as placeholder for blocks that are unsupported.",
   "save": "Save",
   "saved": "Saved",
+  "task": "Task",
   "label-template-name": "Template name",
   "label-email-subject": "Email subject",
   "label-title": "Title",
   "button-text-select-media": "Select media (not implemented)",
   "serialize-to-html": "Serialize to HTML",
+  "slide-title": "Slide {{ number }}",
   "error": "Error",
   "loading": "Loading..."
 }

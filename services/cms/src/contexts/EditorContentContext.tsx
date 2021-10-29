@@ -1,3 +1,5 @@
+/* eslint-disable i18next/no-literal-string */
+
 import { BlockInstance } from "@wordpress/blocks"
 import React, { Dispatch } from "react"
 import { v4 } from "uuid"

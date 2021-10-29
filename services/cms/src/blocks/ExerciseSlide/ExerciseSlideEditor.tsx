@@ -3,6 +3,7 @@ import styled from "@emotion/styled"
 import { InnerBlocks } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
 import React, { useContext } from "react"
+import { useTranslation } from "react-i18next"
 
 import { EditorContentDispatch } from "../../contexts/EditorContentContext"
 import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
@@ -26,6 +27,8 @@ const ExerciseSlideEditor: React.FC<BlockEditProps<ExerciseSlideAttributes>> = (
 }) => {
   const dispatch = useContext(EditorContentDispatch)
 
+  const { t } = useTranslation()
+
   const handleAddNewTask = () => {
     dispatch({ type: "addExerciseTask", payload: { clientId } })
   }
@@ -39,13 +42,13 @@ const ExerciseSlideEditor: React.FC<BlockEditProps<ExerciseSlideAttributes>> = (
           margin-bottom: 1.5rem;
         `}
       >
-        Slide {attributes.order_number}
+        {t("slide-title", { number: attributes.order_number })}
       </div>
       <div className={gutenbergControlsHidden}>
         <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
       </div>
       <div className={normalWidthCenteredComponentStyles}>
-        <button onClick={handleAddNewTask}>Add task</button>
+        <button onClick={handleAddNewTask}>{t("add-task")}</button>
       </div>
     </ExerciseSlideEditorCard>
   )

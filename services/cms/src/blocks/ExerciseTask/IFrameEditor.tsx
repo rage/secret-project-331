@@ -1,6 +1,5 @@
 import { Alert } from "@material-ui/lab"
-import { BlockEditProps } from "@wordpress/blocks"
-import React, { PropsWithChildren, useState } from "react"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import MessageChannelIFrame from "../../shared-module/components/MessageChannelIFrame"

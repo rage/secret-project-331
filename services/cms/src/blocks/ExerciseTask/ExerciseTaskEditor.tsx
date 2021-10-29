@@ -3,6 +3,7 @@ import styled from "@emotion/styled"
 import { InnerBlocks } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
 import React, { useContext } from "react"
+import { useTranslation } from "react-i18next"
 
 import { EditorContentDispatch } from "../../contexts/EditorContentContext"
 import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
@@ -34,6 +35,8 @@ const ExerciseTaskEditor: React.FC<BlockEditProps<ExerciseTaskAttributes>> = ({
 }) => {
   const dispatch = useContext(EditorContentDispatch)
 
+  const { t } = useTranslation()
+
   const handleDeleteTask = () => {
     dispatch({ type: "deleteExerciseTask", payload: { clientId } })
   }
@@ -55,7 +58,7 @@ const ExerciseTaskEditor: React.FC<BlockEditProps<ExerciseTaskAttributes>> = ({
               flex: 6;
             `}
           >
-            Task
+            {t("task")}
           </div>
           <div
             className={css`
@@ -63,7 +66,7 @@ const ExerciseTaskEditor: React.FC<BlockEditProps<ExerciseTaskAttributes>> = ({
             `}
           >
             <button onClick={() => setAttributes({ show_editor: !attributes.show_editor })}>
-              {attributes.show_editor ? "Hide" : "Edit"}
+              {attributes.show_editor ? t("close") : t("edit")}
             </button>
           </div>
           <div
@@ -71,7 +74,7 @@ const ExerciseTaskEditor: React.FC<BlockEditProps<ExerciseTaskAttributes>> = ({
               flex: 1;
             `}
           >
-            <button onClick={handleDeleteTask}>Delete</button>
+            <button onClick={handleDeleteTask}>{t("delete")}</button>
           </div>
         </div>
       </div>

@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import { BlockConfiguration, BlockEditProps } from "@wordpress/blocks"
 import React, { ComponentType, useEffect } from "react"
 import { v4 } from "uuid"

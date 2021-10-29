@@ -33,14 +33,15 @@ const PagesInChapter: React.FC<{ chapterId: string }> = ({ chapterId }) => {
               padding: 7.5em 1em;
             `}
           >
-            <h4
+            <h2
               className={css`
+                font-size: 1.25rem;
                 text-align: center;
                 color: #505050;
               `}
             >
               {t("table-of-contents")}
-            </h4>
+            </h2>
 
             {data.map((page) => (
               <PagesInChapterBox

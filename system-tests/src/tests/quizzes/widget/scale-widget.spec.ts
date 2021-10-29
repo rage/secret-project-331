@@ -21,6 +21,7 @@ test("widget, scale", async ({ page, headless }) => {
   )
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-scale-initial",
     waitForThisToBeVisibleAndStable: [`text="Regex is generally readable."`, `text="15"`],
@@ -37,6 +38,7 @@ test("widget, scale", async ({ page, headless }) => {
   await frame.click('text=123456789101112131415 >> input[type="radio"]')
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-scale-leftmost",
     waitForThisToBeVisibleAndStable: [`text="Regex is generally readable."`, `text="15"`],
@@ -53,6 +55,7 @@ test("widget, scale", async ({ page, headless }) => {
   await frame.click("div:nth-child(3) div:nth-child(15) input")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-scale-mixed",
     waitForThisToBeVisibleAndStable: [`text="Regex is generally readable."`, `text="15"`],

@@ -59,6 +59,7 @@ test("test", async ({ page, headless }) => {
   await page.click("text=Improve material")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "no-edits-yet",
@@ -70,6 +71,7 @@ test("test", async ({ page, headless }) => {
   await page.click("text=So big, that we need many paragraphs.")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "currently-editing",
@@ -107,6 +109,7 @@ test("test", async ({ page, headless }) => {
   await page.click('button:has-text("Preview")')
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "preview",
@@ -146,6 +149,7 @@ test("test", async ({ page, headless }) => {
   )
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "manage-initial",
@@ -162,6 +166,7 @@ test("test", async ({ page, headless }) => {
   await page.click(':nth-match(:text("Reject"), 3)')
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "manage-before-send",
@@ -176,6 +181,7 @@ test("test", async ({ page, headless }) => {
   await page.click('text="Change requests"')
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "manage-after-send",
@@ -188,6 +194,7 @@ test("test", async ({ page, headless }) => {
   await page.click('text="Old"')
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "manage-old-after-send",
@@ -227,6 +234,7 @@ test("test", async ({ page, headless }) => {
   await page.click("text=So big")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "after-changes",

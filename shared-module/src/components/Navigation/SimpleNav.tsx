@@ -59,6 +59,8 @@ const NavLink = css`
   line-height: 1.5rem;
   margin: 0.5rem 1.5rem;
 
+  /*
+
   &:after {
     content: "";
     position: absolute;
@@ -76,6 +78,8 @@ const NavLink = css`
     transform: scaleX(1);
     transform-origin: bottom le;
   }
+
+  */
 
   &:hover {
     transform: scaleX(1);
@@ -162,7 +166,7 @@ const Navigation: React.FC<NavigationProps> = ({
   }
 
   return (
-    <nav className={cx(NavbarItems)}>
+    <nav role="navigation" className={cx(NavbarItems)}>
       <div className={cx(NavbarLogo)}>
         <a href={`${frontPageUrl}`} aria-label="Home page" role="button">
           <FontAwesomeIcon

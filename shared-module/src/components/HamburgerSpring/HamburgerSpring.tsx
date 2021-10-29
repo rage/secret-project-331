@@ -1,7 +1,6 @@
 // From https://github.com/AuvikAlive/react-animated-burgers/tree/master/src/lib/components/HamburgerSpring
 
 import styled from "@emotion/styled"
-import { useTranslation } from "react-i18next"
 
 // eslint-disable-next-line i18next/no-literal-string
 const getBarColor = ({ barColor }: { barColor: BarColor }) => `background-color: ${barColor};`
@@ -138,7 +137,7 @@ type StyledButtonProps = {
 }
 
 // eslint-disable-next-line i18next/no-literal-string
-const StyledButton = styled.button<StyledButtonProps>`
+const StyledButton = styled.div<StyledButtonProps>`
   padding: ${({ buttonWidth }) => buttonWidth * 0.375}px;
   display: inline-block;
   cursor: pointer;
@@ -155,7 +154,6 @@ const StyledButton = styled.button<StyledButtonProps>`
 `
 
 const Button: React.FC<ButtonProps> = (props) => {
-  const { t } = useTranslation()
   const {
     barColor = "black",
     Box = StyledBox,
@@ -164,20 +162,11 @@ const Button: React.FC<ButtonProps> = (props) => {
     className,
     isActive = false,
     Lines = StyledLines,
-    toggleButton = () => {
-      /* NOP */
-    },
     ...rest
   } = props
 
   return (
-    <StyledButton
-      onClick={toggleButton}
-      aria-label={t("navigation-menu")}
-      {...{ buttonWidth, buttonColor, className }}
-      {...rest}
-      id="main-navigation-menu"
-    >
+    <StyledButton {...{ buttonWidth, buttonColor, className }} {...rest} id="main-navigation-menu">
       <Box {...{ buttonWidth }}>
         <Lines {...{ buttonWidth, barColor, isActive }} />
       </Box>

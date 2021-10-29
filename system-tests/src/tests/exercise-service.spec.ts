@@ -9,7 +9,7 @@ test.use({
 
 const replaceTimeComponentDates = async (page: Page) => {
   await page.evaluate(() => {
-    const components = document.querySelectorAll("#time-component-date")
+    const components = document.querySelectorAll(".time-component-date")
     for (const comp of components) {
       comp.innerHTML = "yyyy-MM-dd HH:mm"
     }
@@ -66,6 +66,7 @@ test("can add and delete exercise service", async ({ page, headless }) => {
   await page.waitForSelector("text=New exercise service")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "exercise-service-page",

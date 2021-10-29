@@ -20,7 +20,7 @@ const Home: React.FC = () => {
           text-align: center;
           font-weight: 600;
           font-size: 3em;
-          color: #707070;
+          color: #656565;
         `}
       >
         {t("title-services")}

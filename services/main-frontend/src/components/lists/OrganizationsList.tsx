@@ -38,7 +38,7 @@ const OrganizationsList: React.FC = () => {
           font-weight: 600;
           font-size: 3em;
           margin: 2em 0em;
-          color: #707070;
+          color: #656565;
         `}
       >
         {t("organizations-heading")}
@@ -63,7 +63,7 @@ const OrganizationsList: React.FC = () => {
               className={css`
                 padding: 0em 1em;
                 text-decoration: none;
-                color: #707070;
+                color: #656565;
               `}
             >
               <div
@@ -123,7 +123,7 @@ const OrganizationsList: React.FC = () => {
                 >
                   <h2
                     className={css`
-                      color: #707070;
+                      color: #656565;
                       font-weight: 600;
                       font-size: 1.5em;
                     `}

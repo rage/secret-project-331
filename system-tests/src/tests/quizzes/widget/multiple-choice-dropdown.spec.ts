@@ -23,6 +23,7 @@ test("widget, multiple-choice-dropdown screenshot test", async ({ page, headless
   )
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-multiple-choice-dropdown",
     waitForThisToBeVisibleAndStable: `text="How many different CSS hexadecimal color codes there are?"`,
@@ -40,6 +41,7 @@ test("widget, multiple-choice-dropdown screenshot test", async ({ page, headless
   )
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-multiple-choice-dropdown-answered",
     waitForThisToBeVisibleAndStable: [

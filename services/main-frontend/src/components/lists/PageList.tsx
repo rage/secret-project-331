@@ -60,7 +60,10 @@ const PageList: React.FC<Props> = ({ data, refetch, courseId, chapter }) => {
             <li key={page.id}>
               <a href={`/cms/pages/${page.id}`}>{page.title}</a>({page.url_path}){" "}
               <a href={`/manage/pages/${page.id}/history`}>{t("link-history")}</a>
-              <DeleteButton onClick={() => handleDeleteTopLevelPage(page.id, page.title)}>
+              <DeleteButton
+                aria-label={t("button-text-delete")}
+                onClick={() => handleDeleteTopLevelPage(page.id, page.title)}
+              >
                 <FontAwesomeIcon icon={faTrash} size="lg" />
               </DeleteButton>
             </li>

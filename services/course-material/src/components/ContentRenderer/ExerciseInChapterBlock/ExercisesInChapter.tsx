@@ -34,15 +34,16 @@ const ExercisesInChapter: React.FC<{ chapterId: string; courseInstanceId: string
         padding: 0em 1em 5em 1em;
       `}
     >
-      <h4
+      <h2
         className={css`
           text-align: center;
           margin-bottom: 1rem;
           text-transform: uppercase;
+          font-size: 1.25rem;
         `}
       >
         {t("exercises-in-this-chapter")}
-      </h4>
+      </h2>
       {data.map((page) => (
         <div key={page.id}>
           <ChapterExerciseListGroupedByPage

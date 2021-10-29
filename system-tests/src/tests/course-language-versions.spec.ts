@@ -86,6 +86,7 @@ test("test", async ({ page, headless }) => {
   await page.goto("http://project-331.local/courses/introduction-to-localizing/chapter-1")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "wrong-course-banner",

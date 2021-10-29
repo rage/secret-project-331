@@ -51,11 +51,7 @@ export default async function accessibilityCheck(page: Page, contextName: string
     stdErrConsole.error("\n")
     stdErrConsole.groupEnd()
   })
-  // eslint-disable-next-line no-constant-condition
-  if (1 === 1) {
-    console.info("Not failing the test yet, but these errors will fail the test soon.")
-    return
-  }
+
   throw new Error(`Found ${results.violations.length} accessibility errors in ${contextName}`)
 }
 

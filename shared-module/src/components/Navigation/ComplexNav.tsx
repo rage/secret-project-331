@@ -231,7 +231,7 @@ const Navigation: React.FC<NavigationProps> = ({ returnToPath }) => {
   const callback = () => setClicked(!clicked)
   return (
     <div className="wrapper">
-      <nav className={cx(navbarItems)}>
+      <nav role="navigation" className={cx(navbarItems)}>
         <div className={cx(navbarLogo)}>
           <a href="/" aria-label={t("home-page")} role="button">
             <StyledIcon
@@ -264,14 +264,14 @@ const Navigation: React.FC<NavigationProps> = ({ returnToPath }) => {
           </li>
         </ol>
 
-        <div className={cx(secondaryLink)}>
+        <ol className={cx(secondaryLink)}>
           <LoginControls styles={[secondaryLink]} returnToPath={returnToPath} />
-          <div>
+          <li>
             <Button variant="primary" size="medium">
               {t("translate")}
             </Button>
-          </div>
-        </div>
+          </li>
+        </ol>
       </nav>
     </div>
   )

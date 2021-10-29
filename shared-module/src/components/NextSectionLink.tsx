@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { Fragment } from "react"
 
@@ -117,7 +118,13 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subtitle, next
   return (
     <SectionWrapper>
       <Fragment>
-        <h4>{title}</h4>
+        <h2
+          className={css`
+            font-size: 1.25rem;
+          `}
+        >
+          {title}
+        </h2>
         <p>{subtitle}</p>
         <ButtonWrapper>
           <StyledLink {...(url ? { href: url } : {})}>

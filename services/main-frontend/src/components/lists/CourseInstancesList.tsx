@@ -28,28 +28,36 @@ const CourseInstancesList: React.FC<CourseInstancesListProps> = ({ courseId }) =
     <>
       <ul>
         {data.map((instance) => {
+          const name = instance.name ?? t("default-course-instance-name")
           return (
             <li key={instance.id}>
-              {instance.name ?? t("default-course-instance-name")}{" "}
+              {name}{" "}
               <Link
                 href={{
                   pathname: "/manage/course-instances/[id]",
                   query: { id: instance.id },
                 }}
+                passHref
               >
-                {t("link-manage")}
+                <a href="replace" aria-label={`${t("link-manage")} (${name})`}>
+                  {t("link-manage")}
+                </a>
               </Link>{" "}
               <Link
                 href={{
                   pathname: "/manage/course-instances/[id]/emails",
                   query: { id: instance.id },
                 }}
+                passHref
               >
-                {t("link-manage-emails")}
+                <a href="replace" aria-label={`${t("link-manage-emails")} (${name})`}>
+                  {t("link-manage-emails")}
+                </a>
               </Link>{" "}
               <a
                 href={`/api/v0/main-frontend/course-instances/${instance.id}/point_export`}
                 download
+                aria-label={`${t("link-export-points")} (${name})`}
               >
                 {t("link-export-points")}
               </a>

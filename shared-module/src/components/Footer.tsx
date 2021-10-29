@@ -88,6 +88,7 @@ const Footer: React.FC<FooterProps> = ({ licenseUrl }) => {
   const { t } = useTranslation()
   return (
     <footer
+      role="contentinfo"
       className={css`
         margin-top: 2rem;
 

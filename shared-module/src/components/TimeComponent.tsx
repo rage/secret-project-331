@@ -69,11 +69,12 @@ const TimeComponent: React.FC<TimeComponentProps> = ({ name, date, right }) => {
         <p> {dateToString(date, true)} </p>
       </SpeechBalloon>
       <strong>{name}</strong>
-      <span id="time-component-date">{dateToString(date, false)}</span>
+      <span className="time-component-date">{dateToString(date, false)}</span>
       <IconButton
         onMouseEnter={() => setVisible(true)}
         onMouseLeave={() => setVisible(false)}
         size="small"
+        aria-label={dateToString(date, true)}
         ref={pivotPointRef}
       >
         <InfoIcon

@@ -27,7 +27,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ courseInstances, onSubmit
 
   return (
     <div>
-      <FieldContainer aria-labelledby="Course version selection">
+      <FieldContainer>
         <RadioGroup value={instance} onChange={(e) => setInstance(e.target.value)}>
           {courseInstances.map((x) => (
             <FormControlLabel

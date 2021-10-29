@@ -22,6 +22,7 @@ test("widget, open", async ({ page, headless }) => {
   )
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-open-empty",
     waitForThisToBeVisibleAndStable: [
@@ -38,6 +39,7 @@ test("widget, open", async ({ page, headless }) => {
   await frame.fill('input[type="text"]', "2024")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-open-invalid",
     waitForThisToBeVisibleAndStable: [
@@ -52,6 +54,7 @@ test("widget, open", async ({ page, headless }) => {
   await frame.fill('input[type="text"]', "2024-02-29")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-open-valid",
     waitForThisToBeVisibleAndStable: [

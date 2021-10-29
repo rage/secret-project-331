@@ -19,7 +19,7 @@ type LayoutProps = {
 
 const Layout: React.FC<LayoutProps> = ({
   children,
-  title,
+  title = "Secret Project 331",
   navVariant,
   frontPageUrl,
   faqUrl,
@@ -47,7 +47,7 @@ const Layout: React.FC<LayoutProps> = ({
           min-height: 100vh;
         `}
       >
-        <header
+        <div
           className={css`
             position: fixed;
             top: 0;
@@ -63,16 +63,16 @@ const Layout: React.FC<LayoutProps> = ({
             // Return to path can be override per page
             returnToPath={returnToPath ?? returnPath}
           ></Navbar>
-        </header>
+        </div>
         {/* Do not touch flex */}
-        <div
+        <main
           className={css`
             flex: 1;
             margin-top: 90px;
           `}
         >
           {children}
-        </div>
+        </main>
       </div>
       <Footer licenseUrl={licenseUrl} />
     </>

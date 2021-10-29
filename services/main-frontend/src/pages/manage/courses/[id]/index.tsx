@@ -154,14 +154,14 @@ const ManageCoursePage: React.FC<ManageCoursePageProps> = ({ query }) => {
           {t("link-manage-change-requests")}
         </Link>
 
-        <h3>{t("title-all-course-language-versions")}</h3>
+        <h2>{t("title-all-course-language-versions")}</h2>
         <CourseLanguageVersionsList courseId={query.id} />
         <Button size="medium" variant="primary" onClick={() => setShowNewLanguageVersionForm(true)}>
           {t("button-text-new")}
         </Button>
-        <h3>{t("title-all-course-instances")}</h3>
+        <h2>{t("title-all-course-instances")}</h2>
         <CourseInstancesList courseId={query.id} />
-        <h3>{t("title-all-exercises")}</h3>
+        <h2>{t("title-all-exercises")}</h2>
         <ExerciseList courseId={query.id} />
       </div>
     </Layout>

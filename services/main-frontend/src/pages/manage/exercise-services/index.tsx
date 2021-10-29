@@ -163,19 +163,19 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
           action={
             editing ? (
               <>
-                <IconButton onClick={updateContent}>
+                <IconButton aria-label={t("button-text-save")} onClick={updateContent}>
                   {status == null ? <SaveIcon /> : status == "saved" ? <DoneIcon /> : <ErrorIcon />}
                 </IconButton>
-                <IconButton onClick={toggleEdit}>
+                <IconButton aria-label={t("button-text-cancel")} onClick={toggleEdit}>
                   <CancelIcon />
                 </IconButton>
               </>
             ) : (
               <div>
-                <IconButton onClick={handleOpenDeleteDialog}>
+                <IconButton aria-label={t("button-text-delete")} onClick={handleOpenDeleteDialog}>
                   <DeleteIcon />
                 </IconButton>
-                <IconButton onClick={toggleEdit}>
+                <IconButton aria-label={t("edit")} onClick={toggleEdit}>
                   <EditIcon />
                 </IconButton>
               </div>
@@ -436,7 +436,7 @@ const ExerciseServicePage: React.FC = () => {
   return (
     <Layout navVariant={"simple"} frontPageUrl={basePath() + "/../.."}>
       <div className={normalWidthCenteredComponentStyles}>
-        <h2>{t("title-manage-exercise-services")}</h2>
+        <h1>{t("title-manage-exercise-services")}</h1>
         <Button onClick={openModal} variant="primary" size="medium">
           {t("button-text-new")}
         </Button>

@@ -3,7 +3,7 @@ import React from "react"
 
 import { baseTheme } from "../../styles"
 
-const Wrapper = styled.aside`
+const Wrapper = styled.div`
   border-radius: 10px;
   position: relative;
   width: 100%;

@@ -34,13 +34,15 @@ const UploadImageForm: React.FC<UploadImageFormProps> = ({ onSubmit }) => {
       `}
     >
       <FieldContainer>
-        <h4>{t("header-upload-image")}</h4>
-        <input
-          accept="image"
-          ref={fileInput}
-          type="file"
-          onChange={() => setShowUploadButton(true)}
-        />
+        <label>
+          {t("header-upload-image")}
+          <input
+            accept="image"
+            ref={fileInput}
+            type="file"
+            onChange={() => setShowUploadButton(true)}
+          />
+        </label>
       </FieldContainer>
       {showUploadButton && (
         <div>

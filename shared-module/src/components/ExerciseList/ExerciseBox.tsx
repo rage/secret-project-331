@@ -5,7 +5,7 @@ import React from "react"
 import { baseTheme } from "../../styles"
 import CircularProgressBar from "../CircularProgressBar"
 
-const Wrapper = styled.aside`
+const Wrapper = styled.div`
   border-radius: 10px;
   position: relative;
   width: 100%;

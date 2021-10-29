@@ -44,6 +44,8 @@ const globalCss = css`
     font-size: ${typography.h6};
   }
   pre,
+  code,
+  kbd,
   tt {
     font-family: ${monospaceFont};
   }

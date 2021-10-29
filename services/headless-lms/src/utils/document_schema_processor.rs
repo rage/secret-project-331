@@ -124,7 +124,7 @@ impl GutenbergBlock {
                                 "core/heading",
                                 attributes! {
                                     "textAlign": "center",
-                                    "level": 4,
+                                    "level": 3,
                                     "content": "Objective #1"
                                 },
                             ),
@@ -146,7 +146,7 @@ impl GutenbergBlock {
                                 "core/heading",
                                 attributes! {
                                     "textAlign": "center",
-                                    "level": 4,
+                                    "level": 3,
                                     "content": "Objective #2"
                                 },
                             ),
@@ -168,7 +168,7 @@ impl GutenbergBlock {
                                 "core/heading",
                                 attributes! {
                                     "textAlign": "center",
-                                    "level": 4,
+                                    "level": 3,
                                     "content": "Objective #3"
                                 },
                             ),

@@ -20,6 +20,7 @@ interface ExpectScreenshotsToMatchSnapshotsProps {
   page?: Page
   frame?: Frame
   pageScreenshotOptions?: PageScreenshotOptions
+  axeSkip: boolean
 }
 
 export default async function expectScreenshotsToMatchSnapshots({
@@ -31,6 +32,8 @@ export default async function expectScreenshotsToMatchSnapshots({
   frame,
   page,
   pageScreenshotOptions,
+  // keep false for new screenshots
+  axeSkip = false,
 }: ExpectScreenshotsToMatchSnapshotsProps): Promise<void> {
   if (!page && !frame) {
     throw new Error("No page or frame provided to expectScreenshotsToMatchSnapshots")
@@ -66,6 +69,7 @@ export default async function expectScreenshotsToMatchSnapshots({
     frame,
     headless,
     pageScreenshotOptions,
+    axeSkip,
   })
 
   await snapshotWithViewPort({
@@ -78,6 +82,7 @@ export default async function expectScreenshotsToMatchSnapshots({
     frame,
     headless,
     pageScreenshotOptions,
+    axeSkip,
   })
 
   // always restore the original viewport
@@ -95,6 +100,7 @@ interface SnapshotWithViewPortProps {
   headless: boolean
   persistMousePosition?: boolean
   pageScreenshotOptions?: PageScreenshotOptions
+  axeSkip: boolean
 }
 
 async function snapshotWithViewPort({
@@ -108,6 +114,7 @@ async function snapshotWithViewPort({
   headless,
   persistMousePosition,
   pageScreenshotOptions,
+  axeSkip,
 }: SnapshotWithViewPortProps) {
   if (!persistMousePosition && page) {
     await page.mouse.move(0, 0)
@@ -151,9 +158,11 @@ async function snapshotWithViewPort({
     console.warn("Not in headless mode, skipping screenshot")
   }
 
-  // we do a accessibility check for every screenshot because the places we screenshot tend to also be important
-  // for accessibility
-  await accessibilityCheck(pageObjectToUse, screenshotName)
+  if (!axeSkip) {
+    // we do a accessibility check for every screenshot because the places we screenshot tend to also be important
+    // for accessibility
+    await accessibilityCheck(pageObjectToUse, screenshotName)
+  }
   // show the typing caret again
   await style.evaluate((handle) => {
     if (handle instanceof Element) {

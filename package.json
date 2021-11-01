@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/rage/secret-project-331#readme",
   "devDependencies": {
+    "@stylelint/postcss-css-in-js": "^0.37.2",
     "@types/node": "^16.11.6",
     "@typescript-eslint/eslint-plugin": "^5.2.0",
     "@typescript-eslint/parser": "^5.2.0",
@@ -37,6 +38,7 @@
     "husky": "^7.0.4",
     "i18next-parser": "^5.0.0",
     "lint-staged": "^11.2.6",
+    "postcss-syntax": "^0.36.2",
     "prettier": "^2.4.1",
     "stylelint": "^14.0.1",
     "stylelint-config-recommended": "^6.0.0",

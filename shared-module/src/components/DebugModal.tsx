@@ -17,7 +17,7 @@ export interface DebugModalProps {
 
 const MonacoLoading = <Spinner variant="medium" />
 
-const Editor = dynamic(() => import("@monaco-editor/react"), {
+const Editor = dynamic(() => import("react-monaco-editor"), {
   ssr: false,
   loading: () => MonacoLoading,
 })
@@ -86,7 +86,7 @@ const DebugModal: React.FC<DebugModalProps> = ({ data, readOnly = true, updateDa
           <Editor
             height="90vh"
             width="80vw"
-            defaultLanguage="json"
+            language="json"
             // eslint-disable-next-line i18next/no-literal-string
             options={{ wordWrap: "on", readOnly }}
             defaultValue={editedContent || undefined}

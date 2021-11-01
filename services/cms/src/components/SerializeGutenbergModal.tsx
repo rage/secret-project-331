@@ -16,7 +16,7 @@ export interface SerializeGutenbergModalProps {
 
 const MonacoLoading = <Spinner variant="medium" />
 
-const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
+const MonacoEditor = dynamic(() => import("react-monaco-editor"), {
   ssr: false,
   loading: () => MonacoLoading,
 })
@@ -42,7 +42,7 @@ const SerializeGutenbergModal: React.FC<SerializeGutenbergModalProps> = ({ conte
             options={{ wordWrap: "on", fontFamily: monospaceFont }}
             height="90vh"
             width="80vw"
-            defaultLanguage="html"
+            language="html"
             defaultValue={serialized ?? undefined}
           />
         </Paper>

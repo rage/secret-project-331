@@ -6,6 +6,7 @@ ensure_program_in_path "skaffold"
 ensure_program_in_path "kubectl"
 ensure_program_in_path "minikube"
 ensure_program_in_path "kustomize"
+ensure_program_in_path "rsync"
 check_minikube_version
 
 enforce_inotify_watches_limit_sufficient

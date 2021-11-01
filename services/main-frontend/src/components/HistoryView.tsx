@@ -1,11 +1,12 @@
 import { css } from "@emotion/css"
-import { DiffEditor } from "@monaco-editor/react"
+import dynamic from "next/dynamic"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import { fetchHistoryForPage } from "../services/backend/pages"
 import { PageHistory } from "../shared-module/bindings"
+import Spinner from "../shared-module/components/Spinner"
 import { monospaceFont } from "../shared-module/styles"
 import monacoFontFixer from "../shared-module/styles/monacoFontFixer"
 import replaceUuidsWithPlaceholdersInText from "../shared-module/utils/testing/replaceUuidsWithPlaceholders"
@@ -15,6 +16,13 @@ import HistoryList from "./lists/HistoryList"
 interface Props {
   pageId: string
 }
+
+const MonacoLoading = <Spinner variant="medium" />
+
+const MonacoDiffEditor = dynamic(() => import("react-monaco-editor/lib/diff"), {
+  ssr: false,
+  loading: () => MonacoLoading,
+})
 
 const HistoryView: React.FC<Props> = ({ pageId }) => {
   const { t } = useTranslation()
@@ -85,12 +93,12 @@ const HistoryView: React.FC<Props> = ({ pageId }) => {
           "selected-title": selectedTitle,
         })}
       </p>
-      <DiffEditor
+      <MonacoDiffEditor
         height="40vh"
         // eslint-disable-next-line i18next/no-literal-string
         language="json"
         original={currentRevision || t("loading-text")}
-        modified={selectedRevision || t("loading-text")}
+        value={selectedRevision || t("loading-text")}
         options={{ readOnly: true, fontFamily: monospaceFont }}
       />
       <HistoryList

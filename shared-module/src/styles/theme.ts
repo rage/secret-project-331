@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 export const baseTheme = {
   space: [0, 2, 4, 8, 16, 32],
   fontSizes: [14, 16, 18, 24, 32],
@@ -23,7 +24,7 @@ export const baseTheme = {
       500: "#9e9e9e",
       600: "#757575",
       700: "#616161",
-      800: "#333333",
+      800: "#2f2f2f",
     },
     red: {
       0: "#FF000033",

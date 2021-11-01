@@ -19,6 +19,7 @@ interface ExpectScreenshotsToMatchSnapshotsProps {
   beforeScreenshot?: () => Promise<void>
   page?: Page
   frame?: Frame
+  axeSkip: boolean
 }
 
 export default async function expectScreenshotsToMatchSnapshots({
@@ -29,6 +30,8 @@ export default async function expectScreenshotsToMatchSnapshots({
   beforeScreenshot,
   frame,
   page,
+  // keep false for new screenshots
+  axeSkip = false,
 }: ExpectScreenshotsToMatchSnapshotsProps): Promise<void> {
   if (!page && !frame) {
     throw new Error("No page or frame provided to expectScreenshotsToMatchSnapshots")
@@ -63,6 +66,7 @@ export default async function expectScreenshotsToMatchSnapshots({
     page,
     frame,
     headless,
+    axeSkip,
   })
 
   await snapshotWithViewPort({
@@ -74,6 +78,7 @@ export default async function expectScreenshotsToMatchSnapshots({
     page,
     frame,
     headless,
+    axeSkip,
   })
 
   // always restore the original viewport
@@ -90,6 +95,7 @@ interface SnapshotWithViewPortProps {
   frame?: Frame
   headless: boolean
   persistMousePosition?: boolean
+  axeSkip: boolean
 }
 
 async function snapshotWithViewPort({
@@ -102,6 +108,7 @@ async function snapshotWithViewPort({
   page,
   headless,
   persistMousePosition,
+  axeSkip,
 }: SnapshotWithViewPortProps) {
   if (!persistMousePosition && page) {
     await page.mouse.move(0, 0)
@@ -144,9 +151,11 @@ async function snapshotWithViewPort({
     console.warn("Not in headless mode, skipping screenshot")
   }
 
-  // we do a accessibility check for every screenshot because the places we screenshot tend to also be important
-  // for accessibility
-  await accessibilityCheck(pageObjectToUse, screenshotName)
+  if (!axeSkip) {
+    // we do a accessibility check for every screenshot because the places we screenshot tend to also be important
+    // for accessibility
+    await accessibilityCheck(pageObjectToUse, screenshotName)
+  }
   // show the typing caret again
   await style.evaluate((handle) => {
     if (handle instanceof Element) {

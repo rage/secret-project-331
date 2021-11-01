@@ -1,5 +1,6 @@
 import styled from "@emotion/styled"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "../styles"
 
@@ -102,30 +103,34 @@ export interface BannerExtraProps {
   content: string
 }
 
+const PLACEHOLDER_TITLE = "Data Not Found"
+const PLACEHOLDER_TEXT_ONE = "This is because one of our backend developers was sleeping on duty"
+const PLACEHOLDER_TEXT_TWO = `
+Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem
+Ipsum has been the industrys standard dummy text ever since the 1500s, when an
+unknown printer took a galley of type and scrambled it to make a type specimen book.
+It has survived not only five centuries, but also the leap into electronic
+typesetting, remaining essentially unchanged. It was popularised in the 1960s with
+the release of Letraset sheets containing Lorem Ipsum passages, and more recently
+with desktop publishing software like Aldus PageMaker including versions of Lorem
+Ipsum
+`
 export type BannerProps = React.HTMLAttributes<HTMLDivElement> & BannerExtraProps
 
 const Banner: React.FC<BannerProps> = (props) => {
+  const { t } = useTranslation()
   return (
     <BannerWrapper {...props}>
       <Content>
         <Text>
-          <h2>Data Not Found</h2>
-          <p>This is because one of our backend developers was sleeping on duty</p>
+          <h2>{PLACEHOLDER_TITLE}</h2>
+          <p>{PLACEHOLDER_TEXT_ONE}</p>
         </Text>
         <DetailTag>
           <details>
-            <summary>Show source</summary>
+            <summary>{t("show-error-source")}</summary>
             <ul>
-              <li>
-                Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem
-                Ipsum has been the industrys standard dummy text ever since the 1500s, when an
-                unknown printer took a galley of type and scrambled it to make a type specimen book.
-                It has survived not only five centuries, but also the leap into electronic
-                typesetting, remaining essentially unchanged. It was popularised in the 1960s with
-                the release of Letraset sheets containing Lorem Ipsum passages, and more recently
-                with desktop publishing software like Aldus PageMaker including versions of Lorem
-                Ipsum
-              </li>
+              <li>{PLACEHOLDER_TEXT_TWO}</li>
             </ul>
           </details>
         </DetailTag>

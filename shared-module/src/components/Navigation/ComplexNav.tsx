@@ -3,6 +3,7 @@ import styled from "@emotion/styled"
 import { faBullseye } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
@@ -63,6 +64,7 @@ const navbarItems = css`
   }
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const navbarLogo = css`
   color: ${baseTheme.colors.grey[800]};
   display: flex;
@@ -125,6 +127,7 @@ const navMenu = css`
     transition: none;
   }
 `
+// eslint-disable-next-line i18next/no-literal-string
 const navLinks = css`
   color: ${baseTheme.colors.grey[800]};
   text-decoration: none;
@@ -223,14 +226,19 @@ const StyledIcon = styled(FontAwesomeIcon)`
 `
 
 const Navigation: React.FC<NavigationProps> = ({ returnToPath }) => {
+  const { t } = useTranslation()
   const [clicked, setClicked] = useState(false)
   const callback = () => setClicked(!clicked)
   return (
     <div className="wrapper">
-      <nav className={cx(navbarItems)}>
+      <nav role="navigation" className={cx(navbarItems)}>
         <div className={cx(navbarLogo)}>
-          <a href="/" aria-label="Home page" role="button">
-            <StyledIcon icon={faBullseye} aria-label="Front page" aria-hidden="true"></StyledIcon>
+          <a href="/" aria-label={t("home-page")} role="button">
+            <StyledIcon
+              icon={faBullseye}
+              aria-label={t("home-page")}
+              aria-hidden="true"
+            ></StyledIcon>
           </a>
         </div>
         <div
@@ -239,31 +247,31 @@ const Navigation: React.FC<NavigationProps> = ({ returnToPath }) => {
           onKeyDown={(e) => runCallbackIfEnterPressed(e, callback)}
           tabIndex={0}
           role="button"
-          aria-label="Open menu"
+          aria-label={t("open-menu")}
         >
           <Hamburger />
         </div>
 
         <ol className={clicked ? cx(navMenu, active) : cx(navMenu)}>
-          <li className={cx(navLinks)}>Courses</li>
-          <li className={cx(navLinks)}>Modules</li>
-          <li className={cx(navLinks)}>Mail Template</li>
+          <li className={cx(navLinks)}>{t("courses")}</li>
+          <li className={cx(navLinks)}>{t("modules")}</li>
+          <li className={cx(navLinks)}>{t("email-templates")}</li>
           <LoginControls styles={[navLinks, hide]} returnToPath={returnToPath} />
           <li className={cx(navLinks, hide)}>
             <Button variant="primary" size="medium">
-              Translate
+              {t("translate")}
             </Button>
           </li>
         </ol>
 
-        <div className={cx(secondaryLink)}>
+        <ol className={cx(secondaryLink)}>
           <LoginControls styles={[secondaryLink]} returnToPath={returnToPath} />
-          <div>
+          <li>
             <Button variant="primary" size="medium">
-              Translate
+              {t("translate")}
             </Button>
-          </div>
-        </div>
+          </li>
+        </ol>
       </nav>
     </div>
   )

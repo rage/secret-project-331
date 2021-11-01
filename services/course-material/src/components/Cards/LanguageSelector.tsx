@@ -1,6 +1,7 @@
 import styled from "@emotion/styled"
 import Image from "next/image"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import Close from "../../img/close.svg"
 import Austria from "../../img/flags/Austria.png"
@@ -29,31 +30,57 @@ import USA from "../../img/flags/USA.png"
 import Tick from "../../img/tick-03.svg"
 import { headingFont } from "../../shared-module/styles"
 
+// TODO: Human readable name should contain the language name in the language itself
 const arr = {
+  // eslint-disable-next-line i18next/no-literal-string
   "bg-BG": { humanReadableName: "belgium", image: Belgium },
+  // eslint-disable-next-line i18next/no-literal-string
   "fi-FI": { humanReadableName: "finnish", image: Finland },
+  // eslint-disable-next-line i18next/no-literal-string
   "fr-BE": { humanReadableName: "belgium-french", image: Belgium },
+  // eslint-disable-next-line i18next/no-literal-string
   "de-AT": { humanReadableName: "german", image: Austria },
+  // eslint-disable-next-line i18next/no-literal-string
   "pt-PT": { humanReadableName: "portugal", image: Portugal },
+  // eslint-disable-next-line i18next/no-literal-string
   "da-DK": { humanReadableName: "danish", image: Denmark },
+  // eslint-disable-next-line i18next/no-literal-string
   "de-DE": { humanReadableName: "german", image: Germany },
+  // eslint-disable-next-line i18next/no-literal-string
   "sv-SE": { humanReadableName: "swedish", image: Sweden },
+  // eslint-disable-next-line i18next/no-literal-string
   "en-US": { humanReadableName: "english", image: USA },
+  // eslint-disable-next-line i18next/no-literal-string
   "nl-NL": { humanReadableName: "dutch", image: Netherland },
+  // eslint-disable-next-line i18next/no-literal-string
   "nl-BE": { humanReadableName: "dutch-belgium", image: Netherland },
+  // eslint-disable-next-line i18next/no-literal-string
   "cs-CZ": { humanReadableName: "czech", image: Czech },
+  // eslint-disable-next-line i18next/no-literal-string
   "sk-SK": { humanReadableName: "slovenia", image: Slovenia },
+  // eslint-disable-next-line i18next/no-literal-string
   "lt-LT": { humanReadableName: "lithuania", image: Lithuania },
+  // eslint-disable-next-line i18next/no-literal-string
   "it-IT": { humanReadableName: "italian", image: Italy },
+  // eslint-disable-next-line i18next/no-literal-string
   "hr-HR": { humanReadableName: "croatia", image: Croatia },
+  // eslint-disable-next-line i18next/no-literal-string
   "el-GR": { humanReadableName: "greece", image: Greece },
+  // eslint-disable-next-line i18next/no-literal-string
   "pl-PL": { humanReadableName: "polish", image: Poland },
+  // eslint-disable-next-line i18next/no-literal-string
   "nb-NO": { humanReadableName: "norway", image: Norway },
+  // eslint-disable-next-line i18next/no-literal-string
   "lv-LV": { humanReadableName: "latvia", image: Latvia },
+  // eslint-disable-next-line i18next/no-literal-string
   "en-IE": { humanReadableName: "english", image: Ireland },
+  // eslint-disable-next-line i18next/no-literal-string
   "ro-RO": { humanReadableName: "romanian", image: Romania },
+  // eslint-disable-next-line i18next/no-literal-string
   "es-ES": { humanReadableName: "spanish", image: Spain },
+  // eslint-disable-next-line i18next/no-literal-string
   "et-EE": { humanReadableName: "estonian", image: Estonia },
+  // eslint-disable-next-line i18next/no-literal-string
   "fr-FR": { humanReadableName: "french", image: France },
 }
 
@@ -134,6 +161,7 @@ export type LanguageSelectorProps = React.HTMLAttributes<HTMLDivElement> &
   LanguageSelectorExtraProps
 
 const LanguageSelector: React.FC<LanguageSelectorProps> = (props) => {
+  const { t } = useTranslation()
   const [checked, setChecked] = useState<number | null>(null)
 
   const handleClick = (index: number) => {
@@ -143,11 +171,11 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = (props) => {
   return (
     <SelectorWrapper {...props}>
       <Header>
-        <span>Choose a language</span>
+        <span>{t("choose-a-language")}</span>
         <StyledClose onClick={props.click} />
       </Header>
       <Content>
-        {Object.values(arr).map((o, index) => (
+        {Object.entries(arr).map(([key, o], index) => (
           <>
             <Country
               key={o.humanReadableName}
@@ -162,7 +190,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = (props) => {
                   src={o.image}
                   data-attribute={o.image}
                   id={`country-flag-${index}`}
-                  alt={`${o.humanReadableName} flag`}
+                  alt={t("language-language", { language: key })}
                 />
               </div>
               <span>{o.humanReadableName}</span>

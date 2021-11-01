@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import { fetchHistoryForPage } from "../services/backend/pages"
@@ -23,13 +24,14 @@ const HistoryPage: React.FC<Props> = ({
   onCompare,
   onRestore,
 }) => {
+  const { t } = useTranslation()
   const { isLoading, error, data } = useQuery(
     `page-history-${pageId}-${page}-${limit}`,
     async () => {
       const history = await fetchHistoryForPage(pageId, page, limit)
       if (history.length === 0) {
-        console.error("Could not find any edit history for the page")
-        throw new Error("Could not find any edit history for the page")
+        console.error(t("error-could-not-find-edit-history-for-page"))
+        throw new Error(t("error-could-not-find-edit-history-for-page"))
       }
       return history
     },
@@ -38,14 +40,14 @@ const HistoryPage: React.FC<Props> = ({
   if (error) {
     return (
       <div>
-        <h1>Error</h1>
+        <h1>{t("error-title")}</h1>
         <pre>{JSON.stringify(error, undefined, 2)}</pre>
       </div>
     )
   }
 
   if (isLoading || !data) {
-    return <div>Loading page...</div>
+    return <div>{t("loading-text")}</div>
   }
 
   return (
@@ -68,16 +70,23 @@ const HistoryPage: React.FC<Props> = ({
             </div>
             <div>
               {h.history_change_reason === "PageSaved" &&
-                `Edited by ${h.author_user_id} on ${h.created_at}`}
+                t("edited-by-on", {
+                  user: h.author_user_id,
+                  time: h.created_at,
+                })}
               {h.history_change_reason === "HistoryRestored" &&
-                `Restored from ${h.restored_from_id} by ${h.author_user_id} on ${h.created_at}`}
+                t("edited-by-on", {
+                  id: h.restored_from_id,
+                  user: h.author_user_id,
+                  time: h.created_at,
+                })}
             </div>
             <div>
               <Button variant={"primary"} size={"medium"} onClick={() => onCompare(h)}>
-                Compare
+                {t("button-compare")}
               </Button>{" "}
               <Button variant={"primary"} size={"medium"} onClick={() => onRestore(h)}>
-                Restore
+                {t("button-restore")}
               </Button>
             </div>
           </div>

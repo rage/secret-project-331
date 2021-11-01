@@ -19,7 +19,7 @@ type LayoutProps = {
 
 const Layout: React.FC<LayoutProps> = ({
   children,
-  title,
+  title = "Secret Project 331",
   navVariant,
   frontPageUrl,
   faqUrl,
@@ -27,6 +27,7 @@ const Layout: React.FC<LayoutProps> = ({
   returnToPath,
 }) => {
   const router = useRouter()
+  // eslint-disable-next-line i18next/no-literal-string
   const returnPath = `/login?return_to=${encodeURIComponent(
     process.env.NEXT_PUBLIC_BASE_PATH + router.asPath,
   )}`
@@ -46,7 +47,7 @@ const Layout: React.FC<LayoutProps> = ({
           min-height: 100vh;
         `}
       >
-        <header>
+        <div>
           <Navbar
             faqUrl={faqUrl}
             frontPageUrl={frontPageUrl ?? basePath()}
@@ -54,15 +55,15 @@ const Layout: React.FC<LayoutProps> = ({
             // Return to path can be override per page
             returnToPath={returnToPath ?? returnPath}
           ></Navbar>
-        </header>
+        </div>
         {/* Do not touch flex */}
-        <div
+        <main
           className={css`
             flex: 1;
           `}
         >
           {children}
-        </div>
+        </main>
       </div>
       <Footer licenseUrl={licenseUrl} />
     </>

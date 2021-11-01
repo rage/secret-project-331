@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import { Dialog } from "@material-ui/core"
 import Link from "next/link"
 import React, { useContext, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import Layout from "../../components/Layout"
@@ -30,6 +31,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
     data: dataOrgCourses,
     refetch: refetchOrgCourses,
   } = useQuery(`organization-courses`, () => fetchOrganizationCourses(query.id))
+  const { t } = useTranslation()
   const {
     isLoading: isLoadingOrg,
     error: errorOrg,
@@ -49,7 +51,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
   }
 
   if (isLoadingOrgCourses || !dataOrgCourses || isLoadingOrg || !dataOrg) {
-    return <>Loading...</>
+    return <>{t("loading-text")}</>
   }
 
   const handleSubmitNewCourse = async (newCourse: NewCourse) => {
@@ -62,7 +64,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
     // Removing frontPageUrl for some unsolved reason returns to organization front page rather than root
     <Layout frontPageUrl="/">
       <div className={wideWidthCenteredComponentStyles}>
-        <h1>Organization courses</h1>
+        <h1>{t("title-organization-courses")}</h1>
         <OrganizationImageWidget
           organization={dataOrg}
           onOrganizationUpdated={() => refetchOrg()}
@@ -85,7 +87,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
                       },
                     }}
                   >
-                    Manage
+                    {t("link-manage")}
                   </Link>{" "}
                 </>
               )}
@@ -104,7 +106,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
               variant="primary"
               onClick={() => setNewCourseFormOpen(!newCourseFormOpen)}
             >
-              Add course
+              {t("button-text-create")}
             </Button>
           )}
 
@@ -119,7 +121,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
                 variant="secondary"
                 onClick={() => setNewCourseFormOpen(!newCourseFormOpen)}
               >
-                Close
+                {t("button-text-close")}
               </Button>
               <NewCourseForm organizationId={query.id} onSubmitForm={handleSubmitNewCourse} />
             </div>

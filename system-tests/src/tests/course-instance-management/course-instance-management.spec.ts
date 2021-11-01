@@ -30,18 +30,23 @@ test("test", async ({ page, headless }) => {
   )
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "initial-course-management-page",
     waitForThisToBeVisibleAndStable: "text=Course instances",
     page,
   })
 
-  await Promise.all([page.waitForNavigation(), page.click("text=New course instance")])
-  await expect(page).toHaveURL(
-    "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4/new-course-instance",
-  )
+  await Promise.all([
+    page.waitForNavigation(),
+    page.click(`:nth-match(button:text("New"):below(:text("All course instances")), 1)`),
+  ]),
+    await expect(page).toHaveURL(
+      "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4/new-course-instance",
+    )
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "new-course-instance-form",
     waitForThisToBeVisibleAndStable: "text=New course instance",
@@ -61,9 +66,10 @@ test("test", async ({ page, headless }) => {
   )
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "course-management-page-with-new-instance",
-    waitForThisToBeVisibleAndStable: "text=New course instance",
+    waitForThisToBeVisibleAndStable: "text=some name",
     page,
   })
 
@@ -77,6 +83,7 @@ test("test", async ({ page, headless }) => {
   )
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "initial-management-page",
     waitForThisToBeVisibleAndStable: "text=Course instance default",
@@ -87,6 +94,7 @@ test("test", async ({ page, headless }) => {
   await page.click("text=Edit")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "initial-management-page-editing",
     waitForThisToBeVisibleAndStable: "text=Submit",
@@ -116,6 +124,7 @@ test("test", async ({ page, headless }) => {
   await page.click("text=Course instance new name") // scroll to top
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "management-page-after-changes",
     waitForThisToBeVisibleAndStable: "text=Edit",
@@ -129,6 +138,7 @@ test("test", async ({ page, headless }) => {
   ])
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "course-management-page-after-delete",
     waitForThisToBeVisibleAndStable: "text=Course instances",

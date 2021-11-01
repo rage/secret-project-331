@@ -1,9 +1,11 @@
 import { Pagination } from "@material-ui/core"
 import { useRouter } from "next/router"
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import { fetchEditProposalCount } from "../../services/backend/proposedEdits"
+import Spinner from "../../shared-module/components/Spinner"
 import EditProposalPage from "../EditProposalPage"
 
 interface Props {
@@ -13,6 +15,7 @@ interface Props {
 }
 
 const EditProposalList: React.FC<Props> = ({ courseId, pending, perPage }) => {
+  const { t } = useTranslation()
   const router = useRouter()
 
   let initialPage: number
@@ -30,18 +33,18 @@ const EditProposalList: React.FC<Props> = ({ courseId, pending, perPage }) => {
   if (error) {
     return (
       <div>
-        <h1>Error</h1>
+        <h1>{t("error-title")}</h1>
         <pre>{JSON.stringify(error, undefined, 2)}</pre>
       </div>
     )
   }
 
   if (isLoading || !data) {
-    return <div>Loading change requests...</div>
+    return <Spinner variant="medium" />
   }
   const items = pending ? data.pending : data.handled
   if (items <= 0) {
-    return <div>No change requests</div>
+    return <div>{t("no-change-requests")}</div>
   }
 
   const pageCount = Math.ceil(items / perPage)

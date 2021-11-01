@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import { Dialog } from "@material-ui/core"
 import Link from "next/link"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery, useQueryClient } from "react-query"
 
 import Layout from "../../../../components/Layout"
@@ -32,6 +33,7 @@ interface ManageCoursePageProps {
 }
 
 const ManageCoursePage: React.FC<ManageCoursePageProps> = ({ query }) => {
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const {
     isLoading,
@@ -43,11 +45,11 @@ const ManageCoursePage: React.FC<ManageCoursePageProps> = ({ query }) => {
   const [showNewLanguageVersionForm, setShowNewLanguageVersionForm] = useState(false)
 
   if (error) {
-    return <div>Error fetching course data.</div>
+    return <div>{t("error-title")}</div>
   }
 
   if (isLoading || !course) {
-    return <div>Loading...</div>
+    return <div>{t("loading-text")}</div>
   }
 
   const handleOnDelete = async (courseId: string) => {
@@ -81,10 +83,10 @@ const ManageCoursePage: React.FC<ManageCoursePageProps> = ({ query }) => {
           size="medium"
           onClick={async () => await handleOnDelete(course.id)}
         >
-          Delete course
+          {t("button-text-delete")}
         </Button>
         <Button variant="primary" size="medium" onClick={() => setShowForm(!showForm)}>
-          Edit course name
+          {t("edit")}
         </Button>
         <Dialog open={showForm} onClose={() => setShowForm(!showForm)}>
           <div
@@ -93,7 +95,7 @@ const ManageCoursePage: React.FC<ManageCoursePageProps> = ({ query }) => {
             `}
           >
             <Button variant="primary" size="medium" onClick={() => setShowForm(!showForm)}>
-              Close
+              {t("button-text-close")}
             </Button>
             <UpdateCourseForm
               courseId={query.id}
@@ -116,9 +118,9 @@ const ManageCoursePage: React.FC<ManageCoursePageProps> = ({ query }) => {
               variant="secondary"
               onClick={() => setShowNewLanguageVersionForm(false)}
             >
-              Close
+              {t("button-text-close")}
             </Button>
-            <div>Create new language version of {course.name}</div>
+            <div>{t("create-new-language-version-of", { "course-name": course.name })}</div>
             <NewCourseForm
               organizationId={course.organization_id}
               onSubmitForm={handleCreateNewLanguageVersion}
@@ -127,11 +129,11 @@ const ManageCoursePage: React.FC<ManageCoursePageProps> = ({ query }) => {
         </Dialog>
         <br />
         <Link href={{ pathname: "/manage/courses/[id]/stats", query: { id: course.id } }}>
-          Stats
+          {t("stats")}
         </Link>
         <br />
         <Link href={{ pathname: "/manage/courses/[id]/pages", query: { id: course.id } }}>
-          Manage pages
+          {t("manage-pages")}
         </Link>
         <br />
         <Link
@@ -140,7 +142,7 @@ const ManageCoursePage: React.FC<ManageCoursePageProps> = ({ query }) => {
             query: { id: course.id },
           }}
         >
-          Manage feedback
+          {t("manage-feedback")}
         </Link>
         <br />
         <Link
@@ -149,16 +151,17 @@ const ManageCoursePage: React.FC<ManageCoursePageProps> = ({ query }) => {
             query: { id: course.id },
           }}
         >
-          Manage change requests
+          {t("link-manage-change-requests")}
         </Link>
-        <h3>All course language versions</h3>
+
+        <h2>{t("title-all-course-language-versions")}</h2>
         <CourseLanguageVersionsList courseId={query.id} />
         <Button size="medium" variant="primary" onClick={() => setShowNewLanguageVersionForm(true)}>
-          New language version
+          {t("button-text-new")}
         </Button>
-        <h3>Course instances</h3>
+        <h2>{t("title-all-course-instances")}</h2>
         <CourseInstancesList courseId={query.id} />
-        <h3>All exercises</h3>
+        <h2>{t("title-all-exercises")}</h2>
         <ExerciseList courseId={query.id} />
       </div>
     </Layout>

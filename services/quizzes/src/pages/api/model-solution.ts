@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next"
 
-import { ModelSolutionQuiz, Quiz } from "../../types/types"
+import { ModelSolutionQuiz, Quiz } from "../../../types/types"
 
 interface QuizzesModelSolutionReg {
   quiz: Quiz

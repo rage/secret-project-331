@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import { TextField } from "@material-ui/core"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useMutation } from "react-query"
 
 import { postFeedback } from "../services/backend"
@@ -29,6 +30,7 @@ const FeedbackDialog: React.FC<Props> = ({
   onSubmitSuccess,
   close,
 }) => {
+  const { t } = useTranslation()
   const [comments, setComments] = useState<Array<Comment>>([])
   const [comment, setComment] = useState("")
   const [error, setError] = useState<string | null>(null)
@@ -55,11 +57,11 @@ const FeedbackDialog: React.FC<Props> = ({
   async function addComment() {
     setError("")
     if (comment.length === 0) {
-      setError("Comment cannot be empty")
+      setError(t("error-comment-cannot-be-empty"))
       return
     }
     if (charactersLeft <= 0) {
-      setError("Comment is too long")
+      setError(t("error-comment-too-long"))
       return
     }
 
@@ -119,7 +121,7 @@ const FeedbackDialog: React.FC<Props> = ({
             margin: 20px;
           `}
         >
-          Send feedback
+          {t("send")}
         </div>
         <div
           className={css`
@@ -198,7 +200,7 @@ const FeedbackDialog: React.FC<Props> = ({
                     setComments((cs) => [...cs.slice(0, i), ...cs.slice(i + 1, cs.length)])
                   }
                 >
-                  Delete
+                  {t("delete")}
                 </button>
               </div>
             ))}
@@ -209,7 +211,7 @@ const FeedbackDialog: React.FC<Props> = ({
               margin: 16px;
             `}
           >
-            No comments yet
+            {t("no-comments-yet")}
           </div>
         )}
         <div
@@ -224,7 +226,7 @@ const FeedbackDialog: React.FC<Props> = ({
           `}
         >
           {lastSelection.length === 0 && (
-            <div>You can comment on specific portions of the material by highlighting it.</div>
+            <div>{t("can-comment-on-portions-of-material-by-highlightig")}</div>
           )}
           {lastSelection.length > 0 && (
             <>
@@ -235,10 +237,10 @@ const FeedbackDialog: React.FC<Props> = ({
                   text-overflow: ellipsis;
                 `}
               >
-                Commenting on: {lastSelection}{" "}
+                {t("commenting-on-selection", { selection: lastSelection })}{" "}
               </div>
               <Button variant="tertiary" size="medium" onClick={() => setLastSelection("")}>
-                Clear selection
+                {t("clear-selection")}
               </Button>
             </>
           )}
@@ -256,9 +258,11 @@ const FeedbackDialog: React.FC<Props> = ({
             onChange={(ev) => setComment(ev.target.value)}
           />
           {charactersLeft >= 0 && charactersLeft < 200 && (
-            <div>{charactersLeft} characters left</div>
+            <div>{t("n-characters-left", { n: charactersLeft })}</div>
           )}
-          {charactersLeft < 0 && <div>{Math.abs(charactersLeft)} characters over the limit</div>}
+          {charactersLeft < 0 && (
+            <div>{t("n-characters-over-limit", { n: Math.abs(charactersLeft) })}</div>
+          )}
           {error && error?.length > 0 && (
             <div
               className={css`
@@ -274,7 +278,7 @@ const FeedbackDialog: React.FC<Props> = ({
                 color: Crimson;
               `}
             >
-              Failed to submit: {mutation.error}
+              {t("failed-to-submit", { error: mutation.error })}
             </div>
           )}
           <Button
@@ -287,7 +291,7 @@ const FeedbackDialog: React.FC<Props> = ({
             onClick={addComment}
             disabled={comment.length === 0}
           >
-            Add comment
+            {t("add-comment")}
           </Button>
           <br />
           <Button
@@ -300,7 +304,7 @@ const FeedbackDialog: React.FC<Props> = ({
             onClick={() => mutation.mutate(comments)}
             disabled={comments.length === 0}
           >
-            Send
+            {t("send")}
           </Button>
           <Button
             className={css`
@@ -311,7 +315,7 @@ const FeedbackDialog: React.FC<Props> = ({
             size="medium"
             onClick={close}
           >
-            Close
+            {t("close")}
           </Button>
         </div>
       </div>

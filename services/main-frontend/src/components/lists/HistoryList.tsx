@@ -1,6 +1,7 @@
 import { Pagination } from "@material-ui/core"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import { fetchHistoryCountForPage, restorePage } from "../../services/backend/pages"
@@ -20,6 +21,7 @@ const HistoryList: React.FC<Props> = ({
   onRestore,
   onCompare,
 }) => {
+  const { t } = useTranslation()
   const router = useRouter()
   const query = router.query.page
   let initialPage
@@ -43,14 +45,14 @@ const HistoryList: React.FC<Props> = ({
   if (error) {
     return (
       <div>
-        <h1>Error</h1>
+        <h1>{t("error-title")}</h1>
         <pre>{JSON.stringify(error, undefined, 2)}</pre>
       </div>
     )
   }
 
   if (isLoading || !data) {
-    return <div>Loading page...</div>
+    return <div>{t("loading-text")}</div>
   }
 
   function compare(history: PageHistory) {

@@ -67,9 +67,7 @@ const QuoteBlock: React.FC<BlockRendererProps<QuoteAttributes>> = ({ data }) => 
       >
         <div
           dangerouslySetInnerHTML={{
-            __html: sanitizeCourseMaterialHtml(value, {
-              allowedClasses: { span: ["has-inline-color", "has-vivid-purple-color"] },
-            }),
+            __html: sanitizeCourseMaterialHtml(value),
           }}
         />
         <cite

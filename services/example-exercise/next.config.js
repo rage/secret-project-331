@@ -17,7 +17,7 @@ const config = {
     ]
   },
   webpack: (config, _options) => {
-    config.module.plugins.push(
+    config.plugins.push(
       new MonacoWebpackPlugin({
         // available options are documented at https://github.com/Microsoft/monaco-editor-webpack-plugin#options
         languages: ["json"],

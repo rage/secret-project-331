@@ -21,3 +21,5 @@ Check if we are using the current node LTS version from by comparing a `.nvmcrc`
 When updating dependencies, you need to pay special attention to the cms service. It includes the gutenberg dependency, you **must"** always read the changelog for it so that you can determine if it breaks backwards compatibility in some way. Tests won't catch all backwards incompatible changes.
 
 One by one cd to a service and run `npx npm-check --update`. Read the changelogs for breaking dependencies if necessary and select all updates. After update is done, run `npx tsc --noEmit` to catch new type errors and then commit the results.
+
+You can get a list of targets that need updating by running: `find -name 'package.json' | grep --invert-match 'node_modules'`.

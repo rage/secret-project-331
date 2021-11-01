@@ -34,7 +34,6 @@ const ListBlock: React.FC<BlockRendererProps<ListAttributes>> = ({ data }) => {
     ${gradient && `background: ${colorMapper(gradient)};`}
     ${backgroundColor && `padding: 1.25em 2.375em !important;`}
     padding-inline-start: 2.5rem !important;
-    white-space: pre-wrap;
     overflow-wrap: break-word;
   `
 

@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../../.."
 import {
@@ -11,6 +12,7 @@ import colorMapper from "../../../../../styles/colorMapper"
 import fontSizeMapper from "../../../../../styles/fontSizeMapper"
 
 const ButtonsBlock: React.FC<BlockRendererProps<ButtonsAttributes>> = ({ data }) => {
+  const { t } = useTranslation()
   const { orientation, anchor, contentJustification } = data.attributes
 
   const getContentJustification = (contentJustification: string) => {
@@ -79,6 +81,9 @@ const ButtonsBlock: React.FC<BlockRendererProps<ButtonsAttributes>> = ({ data })
           {...(anchor && { id: anchor })}
           dangerouslySetInnerHTML={{ __html: text ?? placeholder ?? "BUTTON" }}
         />
+        {linkTarget === "_blank" && (
+          <span className="screen-reader-only">{t("screen-reader-opens-in-new-tab")}</span>
+        )}
       </a>
     )
   })

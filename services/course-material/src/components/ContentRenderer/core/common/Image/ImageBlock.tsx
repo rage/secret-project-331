@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../../.."
 import { ImageAttributes } from "../../../../../../types/GutenbergBlockAttributes"
@@ -6,6 +7,7 @@ import { courseMaterialCenteredComponentStyles } from "../../../../../shared-mod
 import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
 
 const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => {
+  const { t } = useTranslation()
   const {
     alt,
     // blurDataUrl,
@@ -72,6 +74,9 @@ const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => 
               src={url}
               alt={alt}
             />
+            {linkTarget === "_blank" && (
+              <span className="screen-reader-only">{t("screen-reader-opens-in-new-tab")}</span>
+            )}
           </a>
           <figcaption
             className={css`

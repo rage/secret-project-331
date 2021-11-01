@@ -1,3 +1,5 @@
+/* eslint-disable i18next/no-literal-string */
+import DOMPurify from "dompurify"
 import dynamic from "next/dynamic"
 import React from "react"
 import { useTranslation } from "react-i18next"
@@ -110,6 +112,49 @@ const ContentRenderer: React.FC<ContentRendererProps> = (props) => {
       </div>
     )
   }
+
+  /**
+   * Because DOMPurify.sanitize automatically removes target="_blank" from anchor elements,
+   * this is to ensure that anchors gets correct target and rel
+   */
+  const TEMPORARY_ATTRIBUTE = "data-temp-href-target"
+  DOMPurify.addHook("beforeSanitizeAttributes", function (node) {
+    if (node.tagName === "A") {
+      // Set target node value to default
+      if (!node.hasAttribute("target")) {
+        node.setAttribute("target", "_self")
+      }
+
+      if (node.hasAttribute("target")) {
+        // Set the node target value to temp key, otherwise _self
+        node.setAttribute(TEMPORARY_ATTRIBUTE, node.getAttribute("target") ?? "_self")
+      }
+    }
+  })
+
+  DOMPurify.addHook("afterSanitizeAttributes", function (node) {
+    if (node.tagName === "A" && node.hasAttribute(TEMPORARY_ATTRIBUTE)) {
+      node.setAttribute("target", node.getAttribute(TEMPORARY_ATTRIBUTE) ?? "_blank")
+      node.removeAttribute(TEMPORARY_ATTRIBUTE)
+      if (node.getAttribute("target") === "_blank") {
+        node.setAttribute("rel", "noopener")
+        // Ensure accessibility in an ugly way for target _blank
+        const elements = ` <span class="screen-reader-only">${t(
+          "screen-reader-opens-in-new-tab",
+        )}</span>
+        <svg width="16px" height="16px" viewBox="0 0 24 24">
+          <g stroke-width="2.1" stroke="#666" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="17 13.5 17 19.5 5 19.5 5 7.5 11 7.5"></polyline>
+            <path d="M14,4.5 L20,4.5 L20,10.5 M20,4.5 L11,13.5"></path>
+          </g>
+        </svg>
+        `
+        const text = node.innerHTML
+        node.innerHTML = text + elements
+      }
+    }
+  })
+
   return (
     <>
       {props.data.map((block) => {

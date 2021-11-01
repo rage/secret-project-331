@@ -56,7 +56,6 @@
     "@types/node": "^16.9.6",
     "@types/react": "^17.0.24",
     "@types/react-dom": "^17.0.9",
-    "@types/sanitize-html": "^2.3.2",
     "@types/styled-system": "^5.1.13",
     "@types/uuid": "^8.3.1",
     "babel-plugin-inline-react-svg": "^2.0.1",

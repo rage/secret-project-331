@@ -2,13 +2,13 @@
 /* eslint-disable jsx-a11y/heading-has-content */
 import { css } from "@emotion/css"
 import { DetailedHTMLProps, HTMLAttributes } from "react"
-import sanitizeHtml from "sanitize-html"
 
 import { BlockRendererProps } from "../../.."
 import { HeadingAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import { courseMaterialCenteredComponentStyles } from "../../../../../shared-module/styles/componentStyles"
 import colorMapper from "../../../../../styles/colorMapper"
 import fontSizeMapper from "../../../../../styles/fontSizeMapper"
+import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
 
 const HeadingBlock: React.FC<BlockRendererProps<HeadingAttributes>> = ({ data }) => {
   const {
@@ -27,8 +27,7 @@ const HeadingBlock: React.FC<BlockRendererProps<HeadingAttributes>> = ({ data })
 
   const headingProps: DetailedHTMLProps<HTMLAttributes<HTMLHeadingElement>, HTMLHeadingElement> = {
     dangerouslySetInnerHTML: {
-      // TODO: Figure out how to support inline html classes, for example inline color.
-      __html: sanitizeHtml(content),
+      __html: sanitizeCourseMaterialHtml(content),
     },
     className: css`
       ${courseMaterialCenteredComponentStyles}

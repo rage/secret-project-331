@@ -1,10 +1,12 @@
 /* eslint-disable i18next/no-literal-string */
 // Gutenberg specific, don't use in other contexes
 
-const colorMap: { [colorName: string]: string | undefined } = {
-  black: "#000000",
+export const colorMap: { [colorName: string]: string | undefined } = {
+  // eslint-disable-next-line prettier/prettier
+  "black": "#000000",
   "cyan-bluish-gray": "#ABB8C3",
-  white: "#FFFFFF",
+  // eslint-disable-next-line prettier/prettier
+  "white": "#FFFFFF",
   "pale-pink": "#F78DA7",
   "vivid-red": "#CF2E2E",
   "luminous-vivid-orange": "#F78DA7",

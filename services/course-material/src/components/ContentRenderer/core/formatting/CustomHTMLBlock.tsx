@@ -1,10 +1,10 @@
 import { css } from "@emotion/css"
 import React from "react"
-import sanitizeHtml from "sanitize-html"
 
 import { BlockRendererProps } from "../.."
 import { HtmlAttributes } from "../../../../../types/GutenbergBlockAttributes"
 import { courseMaterialCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import { sanitizeCourseMaterialHtml } from "../../../../utils/sanitizeCourseMaterialHtml"
 
 const CustomHTMLBlock: React.FC<BlockRendererProps<HtmlAttributes>> = ({ data }) => {
   const { content } = data.attributes
@@ -14,7 +14,7 @@ const CustomHTMLBlock: React.FC<BlockRendererProps<HtmlAttributes>> = ({ data })
       className={css`
         ${courseMaterialCenteredComponentStyles}
       `}
-      dangerouslySetInnerHTML={{ __html: sanitizeHtml(content ?? "undefined") }}
+      dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(content ?? "undefined") }}
     ></div>
   )
 }

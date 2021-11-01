@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import sanitizeHtml from "sanitize-html"
 
 import { BlockRendererProps } from "../../.."
 import { ListAttributes } from "../../../../../../types/GutenbergBlockAttributes"
@@ -7,6 +6,7 @@ import { courseMaterialCenteredComponentStyles } from "../../../../../shared-mod
 import { defaultContainerWidth } from "../../../../../shared-module/styles/constants"
 import colorMapper from "../../../../../styles/colorMapper"
 import fontSizeMapper from "../../../../../styles/fontSizeMapper"
+import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
 
 const ListBlock: React.FC<BlockRendererProps<ListAttributes>> = ({ data }) => {
   const {
@@ -45,7 +45,7 @@ const ListBlock: React.FC<BlockRendererProps<ListAttributes>> = ({ data }) => {
         {...(anchor && { id: anchor })}
         {...(start && { start: start })}
         reversed={reversed}
-        dangerouslySetInnerHTML={{ __html: sanitizeHtml(values) }}
+        dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(values) }}
       />
     )
   } else {
@@ -53,7 +53,7 @@ const ListBlock: React.FC<BlockRendererProps<ListAttributes>> = ({ data }) => {
       <ul
         className={LIST_ITEM_CLASS}
         {...(anchor && { id: anchor })}
-        dangerouslySetInnerHTML={{ __html: sanitizeHtml(values) }}
+        dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(values) }}
       />
     )
   }

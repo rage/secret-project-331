@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import sanitizeHtml from "sanitize-html"
 
 import { BlockRendererProps } from "../.."
 import {
@@ -11,6 +10,7 @@ import { baseTheme } from "../../../../shared-module/styles"
 import { courseMaterialCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import colorMapper from "../../../../styles/colorMapper"
+import { sanitizeCourseMaterialHtml } from "../../../../utils/sanitizeCourseMaterialHtml"
 
 const TableBlock: React.FC<BlockRendererProps<TableAttributes>> = ({ data }) => {
   const {
@@ -86,7 +86,7 @@ const TableBlock: React.FC<BlockRendererProps<TableAttributes>> = ({ data }) => 
                       className={fetchAlignment(cell.align)}
                       key={i}
                       dangerouslySetInnerHTML={{
-                        __html: sanitizeHtml(
+                        __html: sanitizeCourseMaterialHtml(
                           cell.content !== "" ? cell.content ?? "&#xFEFF;" : "&#xFEFF;",
                         ),
                       }}
@@ -105,7 +105,7 @@ const TableBlock: React.FC<BlockRendererProps<TableAttributes>> = ({ data }) => 
                     className={fetchAlignment(cell.align)}
                     key={i}
                     dangerouslySetInnerHTML={{
-                      __html: sanitizeHtml(
+                      __html: sanitizeCourseMaterialHtml(
                         cell.content !== "" ? cell.content ?? "&#xFEFF;" : "&#xFEFF;",
                       ),
                     }}
@@ -124,7 +124,7 @@ const TableBlock: React.FC<BlockRendererProps<TableAttributes>> = ({ data }) => 
                       className={fetchAlignment(cell.align)}
                       key={i}
                       dangerouslySetInnerHTML={{
-                        __html: sanitizeHtml(
+                        __html: sanitizeCourseMaterialHtml(
                           cell.content !== "" ? cell.content ?? "&#xFEFF;" : "&#xFEFF;",
                         ),
                       }}

@@ -1,9 +1,9 @@
 import { css } from "@emotion/css"
-import sanitizeHtml from "sanitize-html"
 
 import { BlockRendererProps } from "../../.."
 import { QuoteAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import { courseMaterialCenteredComponentStyles } from "../../../../../shared-module/styles/componentStyles"
+import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
 
 const QuoteBlock: React.FC<BlockRendererProps<QuoteAttributes>> = ({ data }) => {
   const { citation, value, anchor, className, align } = data.attributes
@@ -39,7 +39,7 @@ const QuoteBlock: React.FC<BlockRendererProps<QuoteAttributes>> = ({ data }) => 
             ${align && `text-align: ${align};`}
             font-style: italic;
           `}
-          dangerouslySetInnerHTML={{ __html: sanitizeHtml(value) }}
+          dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(value) }}
         />
         <cite
           className={css`
@@ -48,7 +48,7 @@ const QuoteBlock: React.FC<BlockRendererProps<QuoteAttributes>> = ({ data }) => 
             font-size: 1.125rem;
             font-style: normal;
           `}
-          dangerouslySetInnerHTML={{ __html: sanitizeHtml(citation) }}
+          dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(citation) }}
         ></cite>
       </blockquote>
     )
@@ -65,13 +65,19 @@ const QuoteBlock: React.FC<BlockRendererProps<QuoteAttributes>> = ({ data }) => 
         cite={citation}
         {...(anchor && { id: anchor })}
       >
-        <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(value) }} />
+        <div
+          dangerouslySetInnerHTML={{
+            __html: sanitizeCourseMaterialHtml(value, {
+              allowedClasses: { span: ["has-inline-color", "has-vivid-purple-color"] },
+            }),
+          }}
+        />
         <cite
           className={css`
             font-style: normal;
             font-size: 0.8125rem;
           `}
-          dangerouslySetInnerHTML={{ __html: sanitizeHtml(citation) }}
+          dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(citation) }}
         ></cite>
       </blockquote>
     )

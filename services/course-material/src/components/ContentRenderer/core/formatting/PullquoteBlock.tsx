@@ -1,10 +1,10 @@
 import { css } from "@emotion/css"
-import sanitizeHtml from "sanitize-html"
 
 import { BlockRendererProps } from "../.."
 import { PullquoteAttributes } from "../../../../../types/GutenbergBlockAttributes"
 import { courseMaterialCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import colorMapper from "../../../../styles/colorMapper"
+import { sanitizeCourseMaterialHtml } from "../../../../utils/sanitizeCourseMaterialHtml"
 
 const PullquoteBlock: React.FC<BlockRendererProps<PullquoteAttributes>> = ({ data }) => {
   const {
@@ -52,14 +52,14 @@ const PullquoteBlock: React.FC<BlockRendererProps<PullquoteAttributes>> = ({ dat
             font-size: 1.75rem;
             line-height: 1.6;
           `}
-          dangerouslySetInnerHTML={{ __html: sanitizeHtml(value ?? "") }}
+          dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(value ?? "") }}
         />
         <cite
           className={css`
             font-style: normal;
             text-transform: uppercase;
           `}
-          dangerouslySetInnerHTML={{ __html: sanitizeHtml(citation) }}
+          dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(citation) }}
         ></cite>
       </figure>
     </div>

@@ -1,11 +1,11 @@
 import { css } from "@emotion/css"
-import sanitizeHtml from "sanitize-html"
 
 import { BlockRendererProps } from "../.."
 import { VerseAttributes } from "../../../../../types/GutenbergBlockAttributes"
 import { courseMaterialCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import colorMapper from "../../../../styles/colorMapper"
 import fontSizeMapper from "../../../../styles/fontSizeMapper"
+import { sanitizeCourseMaterialHtml } from "../../../../utils/sanitizeCourseMaterialHtml"
 
 const VerseBlock: React.FC<BlockRendererProps<VerseAttributes>> = ({ data }) => {
   const {
@@ -33,7 +33,7 @@ const VerseBlock: React.FC<BlockRendererProps<VerseAttributes>> = ({ data }) => 
       `}
       {...(anchor && { id: anchor })}
     >
-      <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }} />
+      <div dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(content) }} />
     </pre>
   )
 }

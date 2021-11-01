@@ -1,10 +1,10 @@
 import { css } from "@emotion/css"
-import sanitizeHtml from "sanitize-html"
 
 import { BlockRendererProps } from "../.."
 import { CodeAttributes } from "../../../../../types/GutenbergBlockAttributes"
 import { courseMaterialCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import fontSizeMapper from "../../../../styles/fontSizeMapper"
+import { sanitizeCourseMaterialHtml } from "../../../../utils/sanitizeCourseMaterialHtml"
 
 const CodeBlock: React.FC<BlockRendererProps<CodeAttributes>> = ({ data }) => {
   const { anchor, content, fontSize } = data.attributes
@@ -19,7 +19,7 @@ const CodeBlock: React.FC<BlockRendererProps<CodeAttributes>> = ({ data }) => {
       `}
       {...(anchor && { id: anchor })}
     >
-      <code dangerouslySetInnerHTML={{ __html: sanitizeHtml(content ?? "") }} />
+      <code dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(content ?? "") }} />
     </pre>
   )
 }

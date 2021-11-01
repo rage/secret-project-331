@@ -3,7 +3,6 @@ import { diffChars } from "diff"
 import KaTex from "katex"
 import dynamic from "next/dynamic"
 import React, { useEffect, useState } from "react"
-import sanitizeHtml from "sanitize-html"
 import { useMemo } from "use-memo-one"
 
 import { BlockRendererProps } from "../../.."
@@ -12,6 +11,7 @@ import { baseTheme } from "../../../../../shared-module/styles"
 import { courseMaterialCenteredComponentStyles } from "../../../../../shared-module/styles/componentStyles"
 import colorMapper from "../../../../../styles/colorMapper"
 import fontSizeMapper from "../../../../../styles/fontSizeMapper"
+import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
 
 const Paragraph = dynamic(() => import("./BasicParagraph"))
 const LatexParagraph = dynamic(() => import("./LatexParagraph"))
@@ -180,7 +180,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
     }
   }
 
-  const sanitizedHTML = sanitizeHtml(content)
+  const sanitizedHTML = sanitizeCourseMaterialHtml(content)
   const { count, converted } = convertToLatex(sanitizedHTML)
   const P = count > 0 ? LatexParagraph : Paragraph
 

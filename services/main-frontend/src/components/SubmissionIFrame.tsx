@@ -39,7 +39,11 @@ const SubmissionIFrame: React.FC<SubmissionIFrameProps> = ({
       url={url}
       onCommunicationChannelEstabilished={(port) => {
         console.log("posting " + JSON.stringify(state))
-        const message: SetStateMessage = { message: "set-state", data: state }
+        const message: SetStateMessage = {
+          message: "set-state",
+          view_type: "view-submission",
+          data: state,
+        }
         port.postMessage(message)
       }}
       onMessageFromIframe={(messageContainer, _responsePort) => {

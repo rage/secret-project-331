@@ -5,13 +5,9 @@ import MessageChannelIFrame from "../../../shared-module/components/MessageChann
 import { SetStateMessage } from "../../../shared-module/iframe-protocol-types"
 import { isCurrentStateMessage } from "../../../shared-module/iframe-protocol-types.guard"
 
-export interface ExerciseTaskData {
-  type: "exercise" | "grading"
-  content: unknown
-}
 interface ExerciseTaskIframeProps {
   url: string
-  data: ExerciseTaskData
+  data: unknown
   setAnswer: Dispatch<unknown>
   setAnswerValid: Dispatch<boolean>
 }
@@ -30,7 +26,7 @@ const ExerciseTaskIframe: React.FC<ExerciseTaskIframeProps> = ({
     <MessageChannelIFrame
       url={url}
       onCommunicationChannelEstabilished={(port) => {
-        const message: SetStateMessage = { message: "set-state", data }
+        const message: SetStateMessage = { message: "set-state", view_type: "exercise", data }
         port.postMessage(message)
       }}
       onMessageFromIframe={(messageContainer, _responsePort) => {

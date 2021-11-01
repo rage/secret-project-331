@@ -87,7 +87,7 @@ pub struct SubmissionInfo {
     pub exercise: Exercise,
     pub exercise_task: ExerciseTask,
     pub grading: Option<Grading>,
-    pub submission_iframe_path: String,
+    pub iframe_path: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]

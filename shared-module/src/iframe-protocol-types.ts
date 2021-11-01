@@ -35,5 +35,6 @@ export interface ReadyMessage {
  */
 export interface SetStateMessage {
   message: "set-state"
+  view_type: "exercise" | "view-submission" | "exercise-editor"
   data: unknown
 }

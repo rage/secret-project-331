@@ -208,9 +208,7 @@ export interface ExerciseSlide {
 
 export interface ExerciseServiceInfoApi {
   service_name: string
-  editor_iframe_path: string
-  exercise_iframe_path: string
-  submission_iframe_path: string
+  exercise_type_specific_user_interface_iframe: string
   grade_endpoint_path: string
   public_spec_endpoint_path: string
   model_solution_path: string
@@ -319,7 +317,7 @@ export interface SubmissionInfo {
   exercise: Exercise
   exercise_task: ExerciseTask
   grading: Grading | null
-  submission_iframe_path: string
+  iframe_path: string
 }
 
 export interface PageSearchResult {

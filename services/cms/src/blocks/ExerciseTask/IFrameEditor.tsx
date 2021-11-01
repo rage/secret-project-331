@@ -39,7 +39,11 @@ const IFrameEditor: React.FC<IFrameEditorProps> = ({ url, props }) => {
           setSpecParseable(false)
           return
         }
-        const message: SetStateMessage = { message: "set-state", data: parsedPrivateSpec }
+        const message: SetStateMessage = {
+          message: "set-state",
+          view_type: "exercise-editor",
+          data: parsedPrivateSpec,
+        }
         port.postMessage(message)
       }}
       onMessageFromIframe={(messageContainer, _responsePort) => {

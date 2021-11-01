@@ -33,11 +33,31 @@ export interface EmailTemplate {
   course_instance_id: string
 }
 
+export interface CmsPageExercise {
+  id: string
+  name: string
+  order_number: number
+}
+
+export interface CmsPageExerciseSlide {
+  id: string
+  exercise_id: string
+  order_number: number
+}
+
+export interface CmsPageExerciseTask {
+  id: string
+  exercise_slide_id: string
+  assignment: unknown
+  exercise_type: string
+  private_spec: unknown | null
+}
+
 export interface CmsPageUpdate {
   content: unknown
-  exercises: Array<Exercise>
-  exercise_slides: Array<ExerciseSlide>
-  exercise_tasks: Array<ExerciseTask>
+  exercises: Array<CmsPageExercise>
+  exercise_slides: Array<CmsPageExerciseSlide>
+  exercise_tasks: Array<CmsPageExerciseTask>
   url_path: string
   title: string
   chapter_id: string | null
@@ -45,9 +65,9 @@ export interface CmsPageUpdate {
 
 export interface ContentManagementPage {
   page: Page
-  exercises: Array<Exercise>
-  exercise_slides: Array<ExerciseSlide>
-  exercise_tasks: Array<ExerciseTask>
+  exercises: Array<CmsPageExercise>
+  exercise_slides: Array<CmsPageExerciseSlide>
+  exercise_tasks: Array<CmsPageExerciseTask>
 }
 
 export interface CourseStructure {

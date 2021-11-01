@@ -168,9 +168,9 @@ pub struct PageSearchResult {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct ContentManagementPage {
     pub page: Page,
-    pub exercises: Vec<Exercise>,
-    pub exercise_slides: Vec<ExerciseSlide>,
-    pub exercise_tasks: Vec<ExerciseTask>,
+    pub exercises: Vec<CmsPageExercise>,
+    pub exercise_slides: Vec<CmsPageExerciseSlide>,
+    pub exercise_tasks: Vec<CmsPageExerciseTask>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
@@ -413,7 +413,46 @@ pub async fn get_page_with_user_data_by_path(
     }
 }
 
-pub async fn get_page_with_exercises(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<Page> {
+pub async fn get_page_with_exercises(
+    conn: &mut PgConnection,
+    page: Page,
+) -> ModelResult<ContentManagementPage> {
+    let exercises: Vec<CmsPageExercise> =
+        crate::models::exercises::get_exercises_by_page_id(&mut *conn, page.id)
+            .await?
+            .into_iter()
+            .map(|x| x.into())
+            .collect();
+    let exercise_slides: Vec<CmsPageExerciseSlide> =
+        crate::models::exercise_slides::get_exercise_slides_by_exercise_ids(
+            &mut *conn,
+            &exercises.iter().map(|x| x.id).collect::<Vec<Uuid>>(),
+        )
+        .await?
+        .into_iter()
+        .map(|x| x.into())
+        .collect();
+    let exercise_tasks: Vec<CmsPageExerciseTask> =
+        crate::models::exercise_tasks::get_exercise_tasks_by_exercise_slide_ids(
+            &mut *conn,
+            &exercise_slides.iter().map(|x| x.id).collect::<Vec<Uuid>>(),
+        )
+        .await?
+        .into_iter()
+        .map(|x| x.into())
+        .collect();
+    Ok(ContentManagementPage {
+        page,
+        exercises,
+        exercise_slides,
+        exercise_tasks,
+    })
+}
+
+pub async fn get_page_with_exercises_legacy(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+) -> ModelResult<Page> {
     let mut page = sqlx::query_as!(
         Page,
         "
@@ -523,11 +562,66 @@ WHERE t.deleted_at IS NULL
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
+pub struct CmsPageExercise {
+    pub id: Uuid,
+    pub name: String,
+    pub order_number: i32,
+}
+
+impl From<Exercise> for CmsPageExercise {
+    fn from(exercise: Exercise) -> Self {
+        Self {
+            id: exercise.id,
+            name: exercise.name,
+            order_number: exercise.order_number,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
+pub struct CmsPageExerciseSlide {
+    pub id: Uuid,
+    pub exercise_id: Uuid,
+    pub order_number: i32,
+}
+
+impl From<ExerciseSlide> for CmsPageExerciseSlide {
+    fn from(slide: ExerciseSlide) -> Self {
+        Self {
+            id: slide.id,
+            exercise_id: slide.exercise_id,
+            order_number: slide.order_number,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
+pub struct CmsPageExerciseTask {
+    pub id: Uuid,
+    pub exercise_slide_id: Uuid,
+    pub assignment: serde_json::Value,
+    pub exercise_type: String,
+    pub private_spec: Option<serde_json::Value>,
+}
+
+impl From<ExerciseTask> for CmsPageExerciseTask {
+    fn from(task: ExerciseTask) -> Self {
+        CmsPageExerciseTask {
+            id: task.id,
+            exercise_slide_id: task.exercise_slide_id,
+            assignment: task.assignment,
+            exercise_type: task.exercise_type,
+            private_spec: task.private_spec,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
 pub struct CmsPageUpdate {
     pub content: serde_json::Value,
-    pub exercises: Vec<Exercise>,
-    pub exercise_slides: Vec<ExerciseSlide>,
-    pub exercise_tasks: Vec<ExerciseTask>,
+    pub exercises: Vec<CmsPageExercise>,
+    pub exercise_slides: Vec<CmsPageExerciseSlide>,
+    pub exercise_tasks: Vec<CmsPageExerciseTask>,
     pub url_path: String,
     pub title: String,
     pub chapter_id: Option<Uuid>,
@@ -677,10 +771,10 @@ async fn upsert_exercises(
     conn: &mut PgConnection,
     page: &Page,
     existing_exercise_ids: &[Uuid],
-    exercise_updates: &[Exercise],
+    exercise_updates: &[CmsPageExercise],
     retain_exercise_ids: bool,
-) -> ModelResult<HashMap<Uuid, Exercise>> {
-    let mut remapped_exercises: HashMap<Uuid, Exercise> = HashMap::new();
+) -> ModelResult<HashMap<Uuid, CmsPageExercise>> {
+    let mut remapped_exercises = HashMap::new();
     for exercise_update in exercise_updates.iter() {
         let exercise_exists = existing_exercise_ids
             .iter()
@@ -691,8 +785,8 @@ async fn upsert_exercises(
             Uuid::new_v4()
         };
 
-        let exercise: Exercise = sqlx::query_as!(
-            Exercise,
+        let exercise = sqlx::query_as!(
+            CmsPageExercise,
             "
 INSERT INTO exercises(
     id,
@@ -710,7 +804,9 @@ SET course_id = $2,
   page_id = $5,
   chapter_id = $6,
   deleted_at = NULL
-RETURNING *;
+RETURNING id,
+  name,
+  order_number;
             ",
             safe_for_db_exercise_id,
             page.course_id,
@@ -729,12 +825,12 @@ RETURNING *;
 /// Remaps ids from updates to exercise slides that may have their ids changed.
 async fn upsert_exercise_slides(
     conn: &mut PgConnection,
-    remapped_exercises: &HashMap<Uuid, Exercise>,
+    remapped_exercises: &HashMap<Uuid, CmsPageExercise>,
     existing_slide_ids: &[Uuid],
-    slide_updates: &[ExerciseSlide],
+    slide_updates: &[CmsPageExerciseSlide],
     retain_exercise_ids: bool,
-) -> ModelResult<HashMap<Uuid, ExerciseSlide>> {
-    let mut remapped_exercise_slides: HashMap<Uuid, ExerciseSlide> = HashMap::new();
+) -> ModelResult<HashMap<Uuid, CmsPageExerciseSlide>> {
+    let mut remapped_exercise_slides = HashMap::new();
     for slide_update in slide_updates.iter() {
         let slide_exists = existing_slide_ids.iter().any(|id| *id == slide_update.id);
         let safe_for_db_slide_id = if retain_exercise_ids || slide_exists {
@@ -752,14 +848,17 @@ async fn upsert_exercise_slides(
             .id;
 
         let exercise_slide = sqlx::query_as!(
-            ExerciseSlide,
+            CmsPageExerciseSlide,
             "
 INSERT INTO exercise_slides (id, exercise_id, order_number)
 VALUES ($1, $2, $3) ON CONFLICT (id) DO
 UPDATE
 SET exercise_id = $2,
-  order_number = $3
-RETURNING *;
+  order_number = $3,
+  deleted_at = NULL
+RETURNING id,
+  exercise_id,
+  order_number;
             ",
             safe_for_db_slide_id,
             safe_for_db_exercise_id,
@@ -776,11 +875,11 @@ RETURNING *;
 /// Remaps ids from updates to exercise tasks that may have their ids changed.
 async fn upsert_exercise_tasks(
     conn: &mut PgConnection,
-    remapped_slides: &HashMap<Uuid, ExerciseSlide>,
+    remapped_slides: &HashMap<Uuid, CmsPageExerciseSlide>,
     existing_task_specs: &[ExerciseTaskIdAndSpec],
-    task_updates: &[ExerciseTask],
+    task_updates: &[CmsPageExerciseTask],
     retain_exercise_ids: bool,
-) -> ModelResult<Vec<ExerciseTask>> {
+) -> ModelResult<Vec<CmsPageExerciseTask>> {
     // For generating public specs for exercises.
     let client = reqwest::Client::new();
     let exercise_types: Vec<String> = task_updates
@@ -800,7 +899,7 @@ async fn upsert_exercise_tasks(
         .map(|(key, (service, info))| Ok((key, get_model_solution_url(service, info)?)))
         .collect::<ModelResult<HashMap<&String, Url>>>()?;
 
-    let mut remapped_exercise_tasks: Vec<ExerciseTask> = Vec::new();
+    let mut remapped_exercise_tasks = Vec::new();
     for task_update in task_updates.iter() {
         let existing_exercise_task = existing_task_specs.iter().find(|o| o.id == task_update.id);
         let safe_for_db_exercise_task_id = match existing_exercise_task {
@@ -854,26 +953,30 @@ async fn upsert_exercise_tasks(
 
         // Upsert
         let exercise_task = sqlx::query_as!(
-            ExerciseTask,
+            CmsPageExerciseTask,
             "
-    INSERT INTO exercise_tasks(
-        id,
-        exercise_slide_id,
-        exercise_type,
-        assignment,
-        public_spec,
-        private_spec,
-        model_solution_spec
-      )
-    VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (id) DO
-    UPDATE
-    SET exercise_slide_id = $2,
-      exercise_type = $3,
-      assignment = $4,
-      public_spec = $5,
-      private_spec = $6,
-      deleted_at = NULL
-    RETURNING *;
+INSERT INTO exercise_tasks(
+    id,
+    exercise_slide_id,
+    exercise_type,
+    assignment,
+    public_spec,
+    private_spec,
+    model_solution_spec
+  )
+VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (id) DO
+UPDATE
+SET exercise_slide_id = $2,
+  exercise_type = $3,
+  assignment = $4,
+  public_spec = $5,
+  private_spec = $6,
+  deleted_at = NULL
+RETURNING id,
+  exercise_slide_id,
+  assignment,
+  exercise_type,
+  private_spec;
                 ",
             safe_for_db_exercise_task_id,
             safe_for_db_exercise_slide_id,

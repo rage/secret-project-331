@@ -14,6 +14,9 @@ import {
   ChapterStatus,
   ChapterUpdate,
   ChapterWithStatus,
+  CmsPageExercise,
+  CmsPageExerciseSlide,
+  CmsPageExerciseTask,
   CmsPageUpdate,
   ContentManagementPage,
   Course,
@@ -122,15 +125,48 @@ export function isEmailTemplate(obj: any, _argumentName?: string): obj is EmailT
   )
 }
 
+export function isCmsPageExercise(obj: any, _argumentName?: string): obj is CmsPageExercise {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.name === "string" &&
+    typeof obj.order_number === "number"
+  )
+}
+
+export function isCmsPageExerciseSlide(
+  obj: any,
+  _argumentName?: string,
+): obj is CmsPageExerciseSlide {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.exercise_id === "string" &&
+    typeof obj.order_number === "number"
+  )
+}
+
+export function isCmsPageExerciseTask(
+  obj: any,
+  _argumentName?: string,
+): obj is CmsPageExerciseTask {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.exercise_slide_id === "string" &&
+    typeof obj.exercise_type === "string"
+  )
+}
+
 export function isCmsPageUpdate(obj: any, _argumentName?: string): obj is CmsPageUpdate {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     Array.isArray(obj.exercises) &&
-    obj.exercises.every((e: any) => isExercise(e) as boolean) &&
+    obj.exercises.every((e: any) => isCmsPageExercise(e) as boolean) &&
     Array.isArray(obj.exercise_slides) &&
-    obj.exercise_slides.every((e: any) => isExerciseSlide(e) as boolean) &&
+    obj.exercise_slides.every((e: any) => isCmsPageExerciseSlide(e) as boolean) &&
     Array.isArray(obj.exercise_tasks) &&
-    obj.exercise_tasks.every((e: any) => isExerciseTask(e) as boolean) &&
+    obj.exercise_tasks.every((e: any) => isCmsPageExerciseTask(e) as boolean) &&
     typeof obj.url_path === "string" &&
     typeof obj.title === "string" &&
     (obj.chapter_id === null || typeof obj.chapter_id === "string")
@@ -145,11 +181,11 @@ export function isContentManagementPage(
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     (isPage(obj.page) as boolean) &&
     Array.isArray(obj.exercises) &&
-    obj.exercises.every((e: any) => isExercise(e) as boolean) &&
+    obj.exercises.every((e: any) => isCmsPageExercise(e) as boolean) &&
     Array.isArray(obj.exercise_slides) &&
-    obj.exercise_slides.every((e: any) => isExerciseSlide(e) as boolean) &&
+    obj.exercise_slides.every((e: any) => isCmsPageExerciseSlide(e) as boolean) &&
     Array.isArray(obj.exercise_tasks) &&
-    obj.exercise_tasks.every((e: any) => isExerciseTask(e) as boolean)
+    obj.exercise_tasks.every((e: any) => isCmsPageExerciseTask(e) as boolean)
   )
 }
 

@@ -250,7 +250,7 @@ pub async fn process_proposal(
     }
 
     let mut tx = conn.begin().await?;
-    let page = crate::models::pages::get_page_with_exercises(&mut tx, page_id).await?;
+    let page = crate::models::pages::get_page_with_exercises_legacy(&mut tx, page_id).await?;
     let mut blocks = page.blocks_cloned()?;
     for BlockProposalInfo { id, action } in block_proposals {
         match action {

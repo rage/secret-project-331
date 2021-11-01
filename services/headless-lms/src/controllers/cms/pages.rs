@@ -50,26 +50,8 @@ async fn get_page(
         Resource::Course(page.course_id),
     )
     .await?;
-
-    let exercises =
-        crate::models::exercises::get_exercises_by_page_id(&mut conn, *request_page_id).await?;
-    let exercise_slides = crate::models::exercise_slides::get_exercise_slides_by_exercise_ids(
-        &mut conn,
-        &exercises.iter().map(|x| x.id).collect::<Vec<Uuid>>(),
-    )
-    .await?;
-    let exercise_tasks = crate::models::exercise_tasks::get_exercise_tasks_by_exercise_slide_ids(
-        &mut conn,
-        &exercise_slides.iter().map(|x| x.id).collect::<Vec<Uuid>>(),
-    )
-    .await?;
-
-    Ok(Json(ContentManagementPage {
-        page,
-        exercises,
-        exercise_slides,
-        exercise_tasks,
-    }))
+    let cms_page = crate::models::pages::get_page_with_exercises(&mut conn, page).await?;
+    Ok(Json(cms_page))
 }
 
 /**

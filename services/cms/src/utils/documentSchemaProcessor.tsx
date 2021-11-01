@@ -6,11 +6,11 @@ import { v4 } from "uuid"
 import { ExerciseSlideAttributes } from "../blocks/ExerciseSlide/ExerciseSlideEditor"
 import { ExerciseTaskAttributes } from "../blocks/ExerciseTask/ExerciseTaskEditor"
 import {
+  CmsPageExercise,
+  CmsPageExerciseSlide,
+  CmsPageExerciseTask,
   CmsPageUpdate,
   ContentManagementPage,
-  Exercise,
-  ExerciseSlide,
-  ExerciseTask,
 } from "../shared-module/bindings"
 
 export function normalizeDocument(
@@ -20,11 +20,10 @@ export function normalizeDocument(
   urlPath: string,
   chapterId: string | null,
 ): CmsPageUpdate {
-  const exercises: Exercise[] = []
-  const exerciseSlides: ExerciseSlide[] = []
-  const exerciseTasks: ExerciseTask[] = []
+  const exercises: CmsPageExercise[] = []
+  const exerciseSlides: CmsPageExerciseSlide[] = []
+  const exerciseTasks: CmsPageExerciseTask[] = []
 
-  // TODO: Use proper types once available, most of this is junk.
   const normalizedBlocks = content.map((block, i1) => {
     if (block.name !== "moocfi/exercise") {
       return block
@@ -32,18 +31,7 @@ export function normalizeDocument(
     exercises.push({
       id: block.attributes.id as string,
       name: block.attributes.name as string,
-      // Id required but not actually used... I think
-      chapter_id: v4(),
-      copied_from: null,
-      // Id required but not actually used... I think
-      course_id: v4(),
-      created_at: new Date(),
-      deadline: new Date(),
-      deleted_at: null,
       order_number: i1 + 1,
-      page_id: pageId,
-      score_maximum: 0,
-      updated_at: new Date(),
     })
     block.innerBlocks.forEach((block2, i2) => {
       if (block2.name !== "moocfi/exercise-slide") {
@@ -52,10 +40,7 @@ export function normalizeDocument(
       exerciseSlides.push({
         id: block2.attributes.id as string,
         exercise_id: block.attributes.id as string,
-        created_at: new Date(),
-        deleted_at: null,
         order_number: i2 + 1,
-        updated_at: new Date(),
       })
       block2.innerBlocks.forEach((block3) => {
         if (block3.name !== "moocfi/exercise-task") {
@@ -64,16 +49,9 @@ export function normalizeDocument(
         exerciseTasks.push({
           id: block3.attributes.id as string,
           assignment: block3.innerBlocks,
-          copied_from: null,
-          created_at: new Date(),
-          deleted_at: null,
           exercise_slide_id: block2.attributes.id as string,
           exercise_type: block3.attributes.exercise_type as string,
-          model_solution_spec: null,
           private_spec: JSON.parse(block3.attributes.private_spec as string),
-          public_spec: null,
-          spec_file_id: null,
-          updated_at: new Date(),
         })
       })
     })

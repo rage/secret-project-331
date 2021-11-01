@@ -49,6 +49,13 @@ const globalCss = css`
   tt {
     font-family: ${monospaceFont};
   }
+  .screen-reader-only {
+    position: absolute;
+    width: 1px;
+    clip: rect(0 0 0 0);
+    overflow: hidden;
+    white-space: nowrap;
+  }
 `
 
 injectGlobal`

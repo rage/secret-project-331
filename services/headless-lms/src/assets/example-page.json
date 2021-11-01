@@ -375,7 +375,7 @@
     "isValid": true,
     "clientId": "f1fc319d-bf26-46e7-8faf-b9efbdf15243",
     "attributes": {
-      "values": "<li>Unordered List<ul><li>Item<ul><li>Inline <code>code </code><kbd>keyboard </kbd><s>strikethrough</s> <sub>subscript </sub><sup>superscript </sup>text-color</li><li>One<ul><li>Two<ul><li>Three<ul><li>Four<ol><li>Five</li><li>Six</li></ol></li></ul></li></ul></li></ul></li></ul></li></ul></li>",
+      "values": "<li>Unordered List<ul><li>Item<ul><li>Inline <code>code </code><kbd>keyboard </kbd><s>strikethrough</s> <sub>subscript </sub><sup>superscript </sup><span class=\"has-inline-color has-vivid-green-cyan-color\">text-inline-color</span></li><li>One<ul><li>Two<ul><li>Three<ul><li>Four<ol><li>Five</li><li>Six</li></ol></li></ul></li></ul></li></ul></li></ul></li></ul></li>",
       "ordered": false
     },
     "innerBlocks": []
@@ -521,6 +521,150 @@
     "attributes": {
       "value": "<p><strong>Bold <em>BoldItalic </em></strong><em>Italic </em><s>strikethrough</s><em><s> </s></em> <span class=\"has-inline-color has-vivid-purple-color\">text-color</span></p>",
       "citation": "Add citation"
+    },
+    "innerBlocks": []
+  },
+  {
+    "name": "core/image",
+    "isValid": true,
+    "clientId": "6e3672d3-e9bf-4c98-8d3a-db4a8986f2d7",
+    "attributes": {
+      "alt": "",
+      "url": "https://storage.googleapis.com/download-moocfi/rage_logo.png",
+      "caption": "Default",
+      "sizeSlug": "large",
+      "blurDataUrl": "",
+      "linkDestination": "media"
+    },
+    "innerBlocks": []
+  },
+  {
+    "name": "core/image",
+    "isValid": true,
+    "clientId": "dc0f4f74-a189-4e16-9469-f5e05b074cb5",
+    "attributes": {
+      "alt": "",
+      "url": "https://storage.googleapis.com/download-moocfi/rage_logo.png",
+      "align": "center",
+      "caption": "Align center",
+      "sizeSlug": "large",
+      "blurDataUrl": "",
+      "linkDestination": "media"
+    },
+    "innerBlocks": []
+  },
+  {
+    "name": "core/image",
+    "isValid": true,
+    "clientId": "34713225-9299-4285-ba7d-a7a66ad38b9f",
+    "attributes": {
+      "alt": "",
+      "url": "https://storage.googleapis.com/download-moocfi/rage_logo.png",
+      "align": "left",
+      "caption": "Align left",
+      "sizeSlug": "large",
+      "blurDataUrl": "",
+      "linkDestination": "media"
+    },
+    "innerBlocks": []
+  },
+  {
+    "name": "core/paragraph",
+    "isValid": true,
+    "clientId": "07037d3f-1471-4f58-a29f-77933b48f212",
+    "attributes": {
+      "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus eleifend at. Cras sed malesuada orci. Integer placerat, tortor a cursus malesuada, mi diam lacinia ex, commodo elementum orci nunc quis lectus. Etiam at enim nec dui sagittis euismod sit amet quis turpis. Cras vestibulum, sem sed viverra tempus, erat nibh vestibulum mauris, quis ultricies nulla odio id elit. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Cras blandit bibendum nulla, fringilla blandit neque lobortis sed. Suspendisse dictum enim iaculis sodales lacinia. Aliquam consectetur tincidunt elit. Donec aliquam magna mauris, a tincidunt tellus sollicitudin ut.",
+      "dropCap": false
+    },
+    "innerBlocks": []
+  },
+  {
+    "name": "core/image",
+    "isValid": true,
+    "clientId": "f9b69a8b-3849-42fa-980d-ec518d908232",
+    "attributes": {
+      "alt": "",
+      "url": "https://storage.googleapis.com/download-moocfi/rage_logo.png",
+      "align": "right",
+      "caption": "Align right",
+      "sizeSlug": "large",
+      "blurDataUrl": "",
+      "linkDestination": "media"
+    },
+    "innerBlocks": []
+  },
+  {
+    "name": "core/paragraph",
+    "isValid": true,
+    "clientId": "64681a13-4b58-447f-b8ec-6690620f819b",
+    "attributes": {
+      "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus eleifend at. Cras sed malesuada orci. Integer placerat, tortor a cursus malesuada, mi diam lacinia ex, commodo elementum orci nunc quis lectus. Etiam at enim nec dui sagittis euismod sit amet quis turpis. Cras vestibulum, sem sed viverra tempus, erat nibh vestibulum mauris, quis ultricies nulla odio id elit. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Cras blandit bibendum nulla, fringilla blandit neque lobortis sed. Suspendisse dictum enim iaculis sodales lacinia. Aliquam consectetur tincidunt elit. Donec aliquam magna mauris, a tincidunt tellus sollicitudin ut.",
+      "dropCap": false
+    },
+    "innerBlocks": []
+  },
+  {
+    "name": "core/image",
+    "isValid": true,
+    "clientId": "c62e5ddd-03a3-4a1d-a3ce-d2f41e48e4e9",
+    "attributes": {
+      "alt": "",
+      "url": "https://storage.googleapis.com/download-moocfi/rage_logo.png",
+      "href": "http://project-331.local",
+      "caption": "<strong>Bold external link on image</strong> new tab",
+      "sizeSlug": "large",
+      "linkTarget": "_blank",
+      "blurDataUrl": "",
+      "linkDestination": "custom"
+    },
+    "innerBlocks": []
+  },
+  {
+    "name": "core/image",
+    "isValid": true,
+    "clientId": "a052a355-9baf-452e-b176-58de22c4c99f",
+    "attributes": {
+      "alt": "Rounded RAGE logo",
+      "url": "https://storage.googleapis.com/download-moocfi/rage_logo.png",
+      "align": "center",
+      "caption": "Rounded RAGE logo center",
+      "sizeSlug": "large",
+      "className": "is-style-rounded",
+      "blurDataUrl": "",
+      "linkDestination": "media"
+    },
+    "innerBlocks": []
+  },
+  {
+    "name": "core/image",
+    "isValid": true,
+    "clientId": "6f22405e-d355-48c0-9217-7d7800606c9f",
+    "attributes": {
+      "alt": "",
+      "url": "https://storage.googleapis.com/download-moocfi/rage_logo.png",
+      "width": 100,
+      "height": 100,
+      "caption": "50%",
+      "sizeSlug": "large",
+      "blurDataUrl": "",
+      "linkDestination": "media"
+    },
+    "innerBlocks": []
+  },
+  {
+    "name": "core/image",
+    "isValid": true,
+    "clientId": "f01d55a8-6e8b-44a8-950a-c41ae177ee54",
+    "attributes": {
+      "alt": "",
+      "url": "https://storage.googleapis.com/download-moocfi/rage_logo.png",
+      "align": "center",
+      "width": 450,
+      "height": 450,
+      "caption": "450x450 center",
+      "sizeSlug": "large",
+      "blurDataUrl": "",
+      "linkDestination": "media"
     },
     "innerBlocks": []
   },
@@ -1462,7 +1606,7 @@
         "isValid": true,
         "clientId": "4f0c3e59-088d-44d8-ab77-a38db5faa676",
         "attributes": {
-          "text": "Width 100",
+          "text": "<span class=\"has-inline-color has-vivid-green-cyan-color\">Width</span> 100",
           "width": 100
         },
         "innerBlocks": []
@@ -1709,7 +1853,15 @@
     "attributes": {
       "orientation": "horizontal"
     },
-    "innerBlocks": []
+    "innerBlocks": [
+      {
+        "name": "core/button",
+        "isValid": true,
+        "clientId": "0b19508d-bac8-43d6-9fbc-976151f8a377",
+        "attributes": {},
+        "innerBlocks": []
+      }
+    ]
   },
   {
     "name": "core/separator",

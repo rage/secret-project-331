@@ -3,12 +3,13 @@ import { css } from "@emotion/css"
 import { BlockRendererProps } from "../../.."
 import { ImageAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import { courseMaterialCenteredComponentStyles } from "../../../../../shared-module/styles/componentStyles"
+import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
 
 const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => {
   const {
     alt,
     // blurDataUrl,
-    linkDestination, // is custom if image link defined manually, can send user out from our web page
+    // linkDestination, // is custom if image link defined manually, can send user out from our web page
     align,
     anchor,
     caption,
@@ -23,16 +24,6 @@ const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => 
     url,
     width,
   } = data.attributes
-
-  const warnUserIfLinkCustom = () => {
-    if (linkDestination === "custom") {
-      return confirm(
-        // eslint-disable-next-line i18next/no-literal-string
-        `This image link will take you to:\n${href}\n\nAre you sure you want to continue?`,
-      )
-    }
-    return true
-  }
 
   const ENSURE_REL_NO_OPENER_IF_TARGET_BLANK =
     linkTarget && linkTarget.includes("blank")
@@ -49,7 +40,7 @@ const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => 
     >
       <figure
         className={css`
-          ${align === "center" && `text-align: center; display: table;`}
+          ${align === "center" && `text-align: center; display: table; margin: 0 auto;`}
           ${align !== "center" &&
           `float: ${align};
           margin-top: 0.5rem;
@@ -65,7 +56,6 @@ const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => 
           `}
         >
           <a
-            onClick={warnUserIfLinkCustom}
             href={href}
             target={linkTarget}
             rel={ENSURE_REL_NO_OPENER_IF_TARGET_BLANK}
@@ -90,9 +80,8 @@ const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => 
               margin-top: 0.40625rem;
               margin-bottom: 0.8125rem;
             `}
-          >
-            {caption}
-          </figcaption>
+            dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(caption ?? "") }}
+          />
         </div>
       </figure>
     </div>

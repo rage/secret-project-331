@@ -1,5 +1,7 @@
 # Updating dependencies
 
+Do these steps in order and commit between steps:
+
 ## Node version update
 
 Check if we are using the current node LTS version from by comparing a `.nvmcrc` and https://nodejs.org/en/. If a newer LTS version is available do the following steps:
@@ -23,3 +25,13 @@ When updating dependencies, you need to pay special attention to the cms service
 One by one cd to a service and run `npx npm-check --update`. Read the changelogs for breaking dependencies if necessary and select all updates. After update is done, run `npx tsc --noEmit` to catch new type errors and then commit the results.
 
 You can get a list of targets that need updating by running: `find -name 'package.json' | grep --invert-match 'node_modules'`.
+
+## Update rust dependencies
+
+Open Cargo.toml, and update outdated ones. If you don't see which ones are outdated in vscode install workspace recommended extensions. For prerelease crates, you have to check the latest version manually from crates.io.
+
+Next, run cargo check in the headless-lms folder.
+
+## Testing the system
+
+Compile the system with `bin/test`. Try to use the different parts of the applications and see if anything looks funny. Try also running the system tests. Pay special attention to the `cms` service.

@@ -166,7 +166,7 @@ module.exports = {
           "aria-describedby",
           "url",
           "labelId",
-          "language",
+          "defaultLanguage",
           "color",
           "labelPlacement",
           "role",

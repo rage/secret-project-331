@@ -20,11 +20,10 @@ import Spinner from "../shared-module/components/Spinner"
 import { normalWidthCenteredComponentStyles } from "../shared-module/styles/componentStyles"
 import { defaultContainerWidth } from "../shared-module/styles/constants"
 
-const MonacoLoading = <Spinner variant="medium" />
-
-const MonacoEditor = dynamic(() => import("react-monaco-editor"), {
+const Editor = dynamic(() => import("@monaco-editor/react"), {
   ssr: false,
-  loading: () => MonacoLoading,
+  // eslint-disable-next-line react/display-name
+  loading: () => <Spinner variant="medium" />,
 })
 
 const Home: React.FC = () => {
@@ -256,8 +255,8 @@ const Home: React.FC = () => {
           `}
         />
         <br />
-        <MonacoEditor
-          language="json"
+        <Editor
+          defaultLanguage="json"
           options={{
             // eslint-disable-next-line i18next/no-literal-string
             wordWrap: "on",

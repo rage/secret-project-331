@@ -1,7 +1,6 @@
 const path = require("path");
 const fs = require("fs");
 const { merge } = require("webpack-merge");
-const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 module.exports = {
   "stories": [
@@ -24,11 +23,6 @@ module.exports = {
           "emotion-theming": getPackageDir("@emotion/react"),
         },
       },
-      plugins: [
-        new MonacoWebpackPlugin({
-          languages: ['json'],
-        }),
-      ],
     });
   },
 }

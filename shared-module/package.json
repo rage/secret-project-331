@@ -61,7 +61,7 @@
     "@styled-system/css": "^5.1.5",
     "axios": "^0.24.0",
     "date-fns": "^2.24.0",
-    "i18next": "^21.3.3",
+    "i18next": "^21.4.0",
     "monaco-editor": "^0.29.1",
     "react-i18next": "^11.13.0",
     "react-query": "^3.31.0",

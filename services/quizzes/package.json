@@ -30,7 +30,7 @@
     "date-fns": "^2.25.0",
     "express": "^4.17.1",
     "http-proxy-middleware": "^2.0.1",
-    "i18next": "^21.3.3",
+    "i18next": "^21.4.0",
     "immer": "^9.0.6",
     "lodash": "^4.17.21",
     "monaco-editor": "^0.29.1",

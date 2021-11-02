@@ -51,4 +51,4 @@ bin/generate-bindings
 
 ## Testing the system
 
-Compile the system with `bin/test`. Try to use the different parts of the applications and see if anything looks funny. Try also running the system tests. Pay special attention to the `cms` service.
+Compile the system with `bin/dev` and `bin/test`. Try to use the different parts of the applications and see if anything looks funny. Try also running the system tests. Pay special attention to the `cms` service.

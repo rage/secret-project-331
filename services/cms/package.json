@@ -37,6 +37,7 @@
     "@wordpress/data": "^6.1.2",
     "@wordpress/deprecated": "^3.2.2",
     "@wordpress/format-library": "^3.0.4",
+    "@wordpress/keyboard-shortcuts": "^3.0.4",
     "axios": "^0.24.0",
     "date-fns": "^2.25.0",
     "express": "^4.17.1",

@@ -19,4 +19,4 @@ run_command kubectl exec -it "$RANDOM_POD_NAME" -- env PGPASSWORD=only-for-local
 
 run_command kubectl cp "$RELATIVE_PATH" "$RANDOM_POD_NAME":migrations
 
-run_command kubectl exec -it "$RANDOM_POD_NAME" -- cargo sqlx --database-url postgres://headless-lms:only-for-local-development-intentionally-public@postgres:5432/headless_lms_test database setup "$@"
+run_command kubectl exec -it "$RANDOM_POD_NAME" -- cargo sqlx database setup --database-url postgres://headless-lms:only-for-local-development-intentionally-public@postgres:5432/headless_lms_test "$@"

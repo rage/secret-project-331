@@ -14,6 +14,7 @@ const Component = SpeechBalloon
 
 type ComponentProps = React.ComponentProps<typeof Component>
 
+// @ts-ignore: seems to work
 const Template: Story<ComponentProps> = (args: ComponentProps) => <Component {...args} />
 
 export const Primary: Story<ComponentProps> = Template.bind({})

@@ -256,10 +256,18 @@ pub async fn set_chapter(
 }
 
 pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
-    let course_id = sqlx::query!("SELECT course_id FROM pages WHERE id = $1", id)
-        .fetch_one(conn)
-        .await?
-        .course_id;
+    let course_id = sqlx::query!(
+        "
+SELECT course_id
+FROM pages
+WHERE id = $1
+  AND deleted_at IS NULL;
+        ",
+        id
+    )
+    .fetch_one(conn)
+    .await?
+    .course_id;
     Ok(course_id)
 }
 
@@ -415,8 +423,9 @@ pub async fn get_page_with_user_data_by_path(
 
 pub async fn get_page_with_exercises(
     conn: &mut PgConnection,
-    page: Page,
+    id: Uuid,
 ) -> ModelResult<ContentManagementPage> {
+    let page = get_page(&mut *conn, id).await?;
     let exercises: Vec<CmsPageExercise> =
         crate::models::exercises::get_exercises_by_page_id(&mut *conn, page.id)
             .await?
@@ -631,7 +640,8 @@ pub async fn update_page(
     conn: &mut PgConnection,
     page_id: Uuid,
     page_update: CmsPageUpdate,
-    _author: Uuid,
+    author: Uuid,
+    retain_exercise_ids: bool,
 ) -> ModelResult<ContentManagementPage> {
     let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(page_update.content)?;
     if page_update.chapter_id.is_none()
@@ -676,9 +686,6 @@ RETURNING id,
     )
     .fetch_one(&mut tx)
     .await?;
-
-    // still use?
-    let retain_exercise_ids = false;
 
     // Exercises
     let existing_exercise_ids =
@@ -755,6 +762,19 @@ WHERE id = $2;
     )
     .execute(&mut tx)
     .await?;
+
+    let history_content = serde_json::to_value(&new_content)?;
+    crate::models::page_history::insert(
+        &mut tx,
+        page_id,
+        &page_update.title,
+        &history_content,
+        HistoryChangeReason::PageSaved,
+        author,
+        None,
+    )
+    .await
+    .context("Failed to create a page history entry")?;
 
     tx.commit().await?;
 
@@ -1011,103 +1031,6 @@ WHERE id = $2;
     .execute(conn)
     .await?;
     Ok(())
-}
-
-/// This has 3 stages: updating page, updating exercises, updating exercise tasks.
-/// This is currently implemented with multiple sql queries, but it could be optimized
-/// with data-modifying common table expressions if necessary.
-/// Regenerates exercise ids unless retain_exercise_ids is set to true.
-// #[deprecated(note = "Refactor to use new page update function.")]
-pub async fn update_page_legacy(
-    conn: &mut PgConnection,
-    page_id: Uuid,
-    page_update: PageUpdate,
-    author: Uuid,
-    retain_exercise_ids: bool,
-) -> ModelResult<Page> {
-    let normalized_document = normalize_from_json(page_update.content)
-        .context("Failed to normalize page update content")?;
-
-    if page_update.chapter_id.is_none()
-        && contains_blocks_not_allowed_in_top_level_pages(&normalized_document.content)
-    {
-        return Err(ModelError::Generic(
-                "Top level pages cannot contain exercises, exercise tasks or list of exercises in the chapter".to_string(),
-            ));
-    }
-
-    let NormalizedDocument { content, exercises } = normalized_document;
-    let content_as_json = serde_json::to_value(content)?;
-    let mut tx = conn.begin().await?;
-    // Updating page
-    let page = sqlx::query_as!(
-        Page,
-        r#"
-UPDATE pages
-SET content = $2,
-  url_path = $3,
-  title = $4,
-  chapter_id = $5
-WHERE id = $1
-RETURNING id,
-  created_at,
-  updated_at,
-  course_id,
-  chapter_id,
-  url_path,
-  title,
-  deleted_at,
-  content,
-  order_number,
-  copied_from
-            "#,
-        page_id,
-        content_as_json,
-        page_update.url_path.trim(),
-        page_update.title.trim(),
-        page_update.chapter_id
-    )
-    .fetch_one(&mut tx)
-    .await?;
-
-    let (result_exercises, new_content) =
-        upsert_exercises_and_exercise_tasks(&exercises, &page, &mut tx, retain_exercise_ids)
-            .await
-            .context("Failed to upser exercises and tasks")?;
-
-    let denormalized_content = denormalize(NormalizedDocument {
-        content: serde_json::from_value(new_content)?,
-        exercises: result_exercises,
-    })
-    .context("Failed to denormalize content")?;
-    let history_content = serde_json::to_value(&denormalized_content)?;
-    crate::models::page_history::insert(
-        &mut tx,
-        page_id,
-        &page_update.title,
-        &history_content,
-        HistoryChangeReason::PageSaved,
-        author,
-        None,
-    )
-    .await
-    .context("Failed to create a page history entry")?;
-
-    tx.commit().await?;
-
-    Ok(Page {
-        content: serde_json::to_value(denormalized_content)?,
-        course_id: page.course_id,
-        created_at: page.created_at,
-        updated_at: page.updated_at,
-        deleted_at: page.deleted_at,
-        id: page.id,
-        title: page.title,
-        url_path: page.url_path,
-        order_number: page.order_number,
-        chapter_id: page.chapter_id,
-        copied_from: page.copied_from,
-    })
 }
 
 #[derive(Debug)]

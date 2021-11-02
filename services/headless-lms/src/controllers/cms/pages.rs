@@ -42,15 +42,16 @@ async fn get_page(
     user: AuthUser,
 ) -> ControllerResult<Json<ContentManagementPage>> {
     let mut conn = pool.acquire().await?;
-    let page = crate::models::pages::get_page(&mut conn, *request_page_id).await?;
+    let course_id = crate::models::pages::get_course_id(&mut conn, *request_page_id).await?;
     authorize(
         &mut conn,
         Action::Edit,
         user.id,
-        Resource::Course(page.course_id),
+        Resource::Course(course_id),
     )
     .await?;
-    let cms_page = crate::models::pages::get_page_with_exercises(&mut conn, page).await?;
+    let cms_page =
+        crate::models::pages::get_page_with_exercises(&mut conn, *request_page_id).await?;
     Ok(Json(cms_page))
 }
 
@@ -116,7 +117,7 @@ async fn update_page(
     )
     .await?;
     let saved =
-        crate::models::pages::update_page(&mut conn, *request_page_id, page_update, user.id)
+        crate::models::pages::update_page(&mut conn, *request_page_id, page_update, user.id, false)
             .await?;
     Ok(Json(saved))
 }

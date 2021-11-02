@@ -21,7 +21,7 @@ use anyhow::Result;
 use oauth2::basic::BasicClient;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-use tracing_actix_web::TracingLogger;
+// use tracing_actix_web::TracingLogger;
 use tracing_error::ErrorLayer;
 use tracing_log::LogTracer;
 use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, EnvFilter};
@@ -59,7 +59,7 @@ pub fn configure<T: 'static + FileStore>(
         .app_data(json_config)
         .service(
             web::scope("/api/v0")
-                .wrap(TracingLogger::default())
+                // .wrap(TracingLogger::default())
                 .configure(controllers::configure_controllers::<T>),
         )
         .app_data(Data::new(file_store))

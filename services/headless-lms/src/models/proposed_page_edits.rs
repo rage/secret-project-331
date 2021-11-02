@@ -198,8 +198,8 @@ WHERE proposed_block_edits.deleted_at IS NULL
             accept_preview: merge_edits::merge(&original_text, &changed_text, &content),
             id: block_proposal_id,
             block_id,
-            current_text: content,
-            changed_text,
+            current_text: content.to_string(),
+            changed_text: changed_text.to_string(),
             status: block_proposal_status,
         });
     }

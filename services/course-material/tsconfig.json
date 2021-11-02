@@ -3,15 +3,8 @@
     "target": "esnext",
     "module": "esnext",
     "jsx": "preserve",
-    "lib": [
-      "dom",
-      "es2017"
-    ],
-    "typeRoots": [
-      "./src/shared-module/types",
-      "types",
-      "./node_modules/@types"
-    ],
+    "lib": ["dom", "es2017"],
+    "typeRoots": ["./src/shared-module/types", "types", "./node_modules/@types"],
     "moduleResolution": "node",
     "allowJs": true,
     "noEmit": true,
@@ -26,15 +19,9 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "incremental": true
   },
-  "exclude": [
-    "node_modules"
-  ],
-  "include": [
-    "next-env.d.ts",
-    "katex.d.ts",
-    "**/*.ts",
-    "**/*.tsx"
-  ]
+  "exclude": ["node_modules"],
+  "include": ["next-env.d.ts", "katex.d.ts", "**/*.ts", "**/*.tsx"]
 }

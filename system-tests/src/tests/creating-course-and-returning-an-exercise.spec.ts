@@ -129,7 +129,7 @@ test("test", async ({ page }) => {
   await page.keyboard.type("/exercise")
 
   // Click :nth-match(:text("Exercise"), 3
-  await page.click("text=Exercise")
+  await page.click(`button:text("Exercise")`)
 
   // Click [placeholder="Exercise name"]
   await page.click('[placeholder="Exercise name"]')

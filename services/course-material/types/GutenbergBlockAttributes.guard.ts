@@ -10,6 +10,8 @@ import {
   BlockAttributes,
   ButtonAttributes,
   ButtonsAttributes,
+  CellAttributes,
+  Cells,
   CodeAttributes,
   ColumnAttributes,
   ColumnsAttributes,
@@ -44,6 +46,9 @@ export function isParagraphAttributes(
     typeof obj.dropCap === "boolean" &&
     (typeof obj.placeholder === "undefined" || typeof obj.placeholder === "string") &&
     (typeof obj.direction === "undefined" || obj.direction === "ltr" || obj.direction === "rtl") &&
+    (typeof obj.lock === "undefined" ||
+      (obj.lock !== null && typeof obj.lock === "object") ||
+      typeof obj.lock === "function") &&
     (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
     (typeof obj.className === "undefined" || typeof obj.className === "string") &&
     (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
@@ -72,6 +77,9 @@ export function isImageAttributes(obj: any, _argumentName?: string): obj is Imag
     (typeof obj.sizeSlug === "undefined" || typeof obj.sizeSlug === "string") &&
     typeof obj.linkDestination === "string" &&
     (typeof obj.linkTarget === "undefined" || typeof obj.linkTarget === "string") &&
+    (typeof obj.lock === "undefined" ||
+      (obj.lock !== null && typeof obj.lock === "object") ||
+      typeof obj.lock === "function") &&
     (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
     (typeof obj.className === "undefined" || typeof obj.className === "string") &&
     (typeof obj.style === "undefined" ||
@@ -95,6 +103,9 @@ export function isHeadingAttributes(obj: any, _argumentName?: string): obj is He
       obj.align === "right" ||
       obj.align === "wide" ||
       obj.align === "full") &&
+    (typeof obj.lock === "undefined" ||
+      (obj.lock !== null && typeof obj.lock === "object") ||
+      typeof obj.lock === "function") &&
     (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
     (typeof obj.className === "undefined" || typeof obj.className === "string") &&
     (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
@@ -115,11 +126,15 @@ export function isListAttributes(obj: any, _argumentName?: string): obj is ListA
     (typeof obj.start === "undefined" || typeof obj.start === "number") &&
     (typeof obj.reversed === "undefined" || obj.reversed === false || obj.reversed === true) &&
     (typeof obj.placeholder === "undefined" || typeof obj.placeholder === "string") &&
+    (typeof obj.lock === "undefined" ||
+      (obj.lock !== null && typeof obj.lock === "object") ||
+      typeof obj.lock === "function") &&
     (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
     (typeof obj.className === "undefined" || typeof obj.className === "string") &&
     (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
     (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
     (typeof obj.gradient === "undefined" || typeof obj.gradient === "string") &&
+    (typeof obj.fontFamily === "undefined" || typeof obj.fontFamily === "string") &&
     (typeof obj.fontSize === "undefined" || typeof obj.fontSize === "string") &&
     (typeof obj.style === "undefined" ||
       (obj.style !== null && typeof obj.style === "object") ||
@@ -133,6 +148,9 @@ export function isQuoteAttributes(obj: any, _argumentName?: string): obj is Quot
     typeof obj.value === "string" &&
     typeof obj.citation === "string" &&
     (typeof obj.align === "undefined" || typeof obj.align === "string") &&
+    (typeof obj.lock === "undefined" ||
+      (obj.lock !== null && typeof obj.lock === "object") ||
+      typeof obj.lock === "function") &&
     (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
     (typeof obj.className === "undefined" || typeof obj.className === "string")
   )
@@ -144,7 +162,10 @@ export function isShortcodeAttributes(
 ): obj is ShortcodeAttributes {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.text === "undefined" || typeof obj.text === "string")
+    (typeof obj.text === "undefined" || typeof obj.text === "string") &&
+    (typeof obj.lock === "undefined" ||
+      (obj.lock !== null && typeof obj.lock === "object") ||
+      typeof obj.lock === "function")
   )
 }
 
@@ -164,6 +185,9 @@ export function isAudioAttributes(obj: any, _argumentName?: string): obj is Audi
       obj.align === "right" ||
       obj.align === "wide" ||
       obj.align === "full") &&
+    (typeof obj.lock === "undefined" ||
+      (obj.lock !== null && typeof obj.lock === "object") ||
+      typeof obj.lock === "function") &&
     (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
     (typeof obj.className === "undefined" || typeof obj.className === "string")
   )
@@ -189,8 +213,12 @@ export function isButtonAttributes(obj: any, _argumentName?: string): obj is But
       obj.align === "right" ||
       obj.align === "wide" ||
       obj.align === "full") &&
+    (typeof obj.lock === "undefined" ||
+      (obj.lock !== null && typeof obj.lock === "object") ||
+      typeof obj.lock === "function") &&
     (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
     (typeof obj.className === "undefined" || typeof obj.className === "string") &&
+    (typeof obj.fontFamily === "undefined" || typeof obj.fontFamily === "string") &&
     (typeof obj.fontSize === "undefined" || typeof obj.fontSize === "string") &&
     (typeof obj.style === "undefined" ||
       (obj.style !== null && typeof obj.style === "object") ||
@@ -211,8 +239,14 @@ export function isButtonsAttributes(obj: any, _argumentName?: string): obj is Bu
       obj.align === "right" ||
       obj.align === "wide" ||
       obj.align === "full") &&
+    (typeof obj.lock === "undefined" ||
+      (obj.lock !== null && typeof obj.lock === "object") ||
+      typeof obj.lock === "function") &&
     (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    (typeof obj.className === "undefined" || typeof obj.className === "string") &&
+    (typeof obj.style === "undefined" ||
+      (obj.style !== null && typeof obj.style === "object") ||
+      typeof obj.style === "function")
   )
 }
 
@@ -220,6 +254,9 @@ export function isCodeAttributes(obj: any, _argumentName?: string): obj is CodeA
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     (typeof obj.content === "undefined" || typeof obj.content === "string") &&
+    (typeof obj.lock === "undefined" ||
+      (obj.lock !== null && typeof obj.lock === "object") ||
+      typeof obj.lock === "function") &&
     (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
     (typeof obj.className === "undefined" || typeof obj.className === "string") &&
     (typeof obj.fontSize === "undefined" || typeof obj.fontSize === "string") &&
@@ -241,6 +278,9 @@ export function isColumnsAttributes(obj: any, _argumentName?: string): obj is Co
       obj.align === "right" ||
       obj.align === "wide" ||
       obj.align === "full") &&
+    (typeof obj.lock === "undefined" ||
+      (obj.lock !== null && typeof obj.lock === "object") ||
+      typeof obj.lock === "function") &&
     (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
     (typeof obj.className === "undefined" || typeof obj.className === "string") &&
     (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
@@ -257,10 +297,14 @@ export function isColumnAttributes(obj: any, _argumentName?: string): obj is Col
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     (typeof obj.verticalAlignment === "undefined" || typeof obj.verticalAlignment === "string") &&
     (typeof obj.width === "undefined" || typeof obj.width === "string") &&
+    (typeof obj.allowedBlocks === "undefined" || Array.isArray(obj.allowedBlocks)) &&
     (typeof obj.templateLock === "undefined" ||
       obj.templateLock === false ||
       obj.templateLock === "all" ||
       obj.templateLock === "insert") &&
+    (typeof obj.lock === "undefined" ||
+      (obj.lock !== null && typeof obj.lock === "object") ||
+      typeof obj.lock === "function") &&
     (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
     (typeof obj.className === "undefined" || typeof obj.className === "string") &&
     (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
@@ -289,6 +333,9 @@ export function isEmbedAttributes(obj: any, _argumentName?: string): obj is Embe
       obj.align === "right" ||
       obj.align === "wide" ||
       obj.align === "full") &&
+    (typeof obj.lock === "undefined" ||
+      (obj.lock !== null && typeof obj.lock === "object") ||
+      typeof obj.lock === "function") &&
     (typeof obj.className === "undefined" || typeof obj.className === "string")
   )
 }
@@ -298,6 +345,7 @@ export function isFileAttributes(obj: any, _argumentName?: string): obj is FileA
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     (typeof obj.id === "undefined" || typeof obj.id === "number") &&
     (typeof obj.href === "undefined" || typeof obj.href === "string") &&
+    (typeof obj.fileId === "undefined" || typeof obj.fileId === "string") &&
     (typeof obj.fileName === "undefined" || typeof obj.fileName === "string") &&
     (typeof obj.textLinkHref === "undefined" || typeof obj.textLinkHref === "string") &&
     (typeof obj.textLinkTarget === "undefined" || typeof obj.textLinkTarget === "string") &&
@@ -314,6 +362,9 @@ export function isFileAttributes(obj: any, _argumentName?: string): obj is FileA
       obj.align === "right" ||
       obj.align === "wide" ||
       obj.align === "full") &&
+    (typeof obj.lock === "undefined" ||
+      (obj.lock !== null && typeof obj.lock === "object") ||
+      typeof obj.lock === "function") &&
     (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
     (typeof obj.className === "undefined" || typeof obj.className === "string")
   )
@@ -334,6 +385,9 @@ export function isGroupAttributes(obj: any, _argumentName?: string): obj is Grou
       obj.align === "right" ||
       obj.align === "wide" ||
       obj.align === "full") &&
+    (typeof obj.lock === "undefined" ||
+      (obj.lock !== null && typeof obj.lock === "object") ||
+      typeof obj.lock === "function") &&
     (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
     (typeof obj.className === "undefined" || typeof obj.className === "string") &&
     (typeof obj.borderColor === "undefined" || typeof obj.borderColor === "string") &&
@@ -352,7 +406,10 @@ export function isGroupAttributes(obj: any, _argumentName?: string): obj is Grou
 export function isHtmlAttributes(obj: any, _argumentName?: string): obj is HtmlAttributes {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.content === "undefined" || typeof obj.content === "string")
+    (typeof obj.content === "undefined" || typeof obj.content === "string") &&
+    (typeof obj.lock === "undefined" ||
+      (obj.lock !== null && typeof obj.lock === "object") ||
+      typeof obj.lock === "function")
   )
 }
 
@@ -363,6 +420,9 @@ export function isPreformattedAttributes(
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.content === "string" &&
+    (typeof obj.lock === "undefined" ||
+      (obj.lock !== null && typeof obj.lock === "object") ||
+      typeof obj.lock === "function") &&
     (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
     (typeof obj.className === "undefined" || typeof obj.className === "string") &&
     (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
@@ -391,6 +451,9 @@ export function isPullquoteAttributes(
       obj.align === "right" ||
       obj.align === "wide" ||
       obj.align === "full") &&
+    (typeof obj.lock === "undefined" ||
+      (obj.lock !== null && typeof obj.lock === "object") ||
+      typeof obj.lock === "function") &&
     (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
     (typeof obj.className === "undefined" || typeof obj.className === "string") &&
     (typeof obj.borderColor === "undefined" || typeof obj.borderColor === "string") &&
@@ -421,6 +484,9 @@ export function isRssAttributes(obj: any, _argumentName?: string): obj is RssAtt
       obj.align === "right" ||
       obj.align === "wide" ||
       obj.align === "full") &&
+    (typeof obj.lock === "undefined" ||
+      (obj.lock !== null && typeof obj.lock === "object") ||
+      typeof obj.lock === "function") &&
     (typeof obj.className === "undefined" || typeof obj.className === "string")
   )
 }
@@ -440,6 +506,9 @@ export function isSeparatorAttributes(
       obj.align === "right" ||
       obj.align === "wide" ||
       obj.align === "full") &&
+    (typeof obj.lock === "undefined" ||
+      (obj.lock !== null && typeof obj.lock === "object") ||
+      typeof obj.lock === "function") &&
     (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
     (typeof obj.className === "undefined" || typeof obj.className === "string")
   )
@@ -448,7 +517,10 @@ export function isSeparatorAttributes(
 export function isBlockAttributes(obj: any, _argumentName?: string): obj is BlockAttributes {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.ref === "undefined" || typeof obj.ref === "number")
+    (typeof obj.ref === "undefined" || typeof obj.ref === "number") &&
+    (typeof obj.lock === "undefined" ||
+      (obj.lock !== null && typeof obj.lock === "object") ||
+      typeof obj.lock === "function")
   )
 }
 
@@ -457,6 +529,9 @@ export function isSpacerAttributes(obj: any, _argumentName?: string): obj is Spa
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.height === "number" &&
     (typeof obj.width === "undefined" || typeof obj.width === "number") &&
+    (typeof obj.lock === "undefined" ||
+      (obj.lock !== null && typeof obj.lock === "object") ||
+      typeof obj.lock === "function") &&
     (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
     (typeof obj.className === "undefined" || typeof obj.className === "string")
   )
@@ -468,8 +543,11 @@ export function isTableAttributes(obj: any, _argumentName?: string): obj is Tabl
     typeof obj.hasFixedLayout === "boolean" &&
     typeof obj.caption === "string" &&
     Array.isArray(obj.head) &&
+    obj.head.every((e: any) => isCells(e) as boolean) &&
     Array.isArray(obj.body) &&
+    obj.body.every((e: any) => isCells(e) as boolean) &&
     Array.isArray(obj.foot) &&
+    obj.foot.every((e: any) => isCells(e) as boolean) &&
     (typeof obj.align === "undefined" ||
       obj.align === "" ||
       obj.align === "left" ||
@@ -477,6 +555,9 @@ export function isTableAttributes(obj: any, _argumentName?: string): obj is Tabl
       obj.align === "right" ||
       obj.align === "wide" ||
       obj.align === "full") &&
+    (typeof obj.lock === "undefined" ||
+      (obj.lock !== null && typeof obj.lock === "object") ||
+      typeof obj.lock === "function") &&
     (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
     (typeof obj.className === "undefined" || typeof obj.className === "string") &&
     (typeof obj.borderColor === "undefined" || typeof obj.borderColor === "string") &&
@@ -489,6 +570,24 @@ export function isTableAttributes(obj: any, _argumentName?: string): obj is Tabl
   )
 }
 
+export function isCells(obj: any, _argumentName?: string): obj is Cells {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (typeof obj.cells === "undefined" ||
+      (Array.isArray(obj.cells) && obj.cells.every((e: any) => isCellAttributes(e) as boolean)))
+  )
+}
+
+export function isCellAttributes(obj: any, _argumentName?: string): obj is CellAttributes {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (typeof obj.content === "undefined" || typeof obj.content === "string") &&
+    (typeof obj.tag === "undefined" || typeof obj.tag === "string") &&
+    (typeof obj.scope === "undefined" || typeof obj.scope === "string") &&
+    (typeof obj.align === "undefined" || typeof obj.align === "string")
+  )
+}
+
 export function isTextColumnsAttributes(
   obj: any,
   _argumentName?: string,
@@ -498,6 +597,9 @@ export function isTextColumnsAttributes(
     Array.isArray(obj.content) &&
     typeof obj.columns === "number" &&
     (typeof obj.width === "undefined" || typeof obj.width === "string") &&
+    (typeof obj.lock === "undefined" ||
+      (obj.lock !== null && typeof obj.lock === "object") ||
+      typeof obj.lock === "function") &&
     (typeof obj.className === "undefined" || typeof obj.className === "string")
   )
 }
@@ -507,11 +609,15 @@ export function isVerseAttributes(obj: any, _argumentName?: string): obj is Vers
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.content === "string" &&
     (typeof obj.textAlign === "undefined" || typeof obj.textAlign === "string") &&
+    (typeof obj.lock === "undefined" ||
+      (obj.lock !== null && typeof obj.lock === "object") ||
+      typeof obj.lock === "function") &&
     (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
     (typeof obj.className === "undefined" || typeof obj.className === "string") &&
     (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
     (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
     (typeof obj.gradient === "undefined" || typeof obj.gradient === "string") &&
+    (typeof obj.fontFamily === "undefined" || typeof obj.fontFamily === "string") &&
     (typeof obj.fontSize === "undefined" || typeof obj.fontSize === "string") &&
     (typeof obj.style === "undefined" ||
       (obj.style !== null && typeof obj.style === "object") ||

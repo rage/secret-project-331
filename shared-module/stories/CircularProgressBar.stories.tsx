@@ -18,5 +18,4 @@ const Template: Story<ComponentProps> = (args: ComponentProps) => <Component {..
 export const Simple: Story<ComponentProps> = Template.bind({})
 Simple.args = {
   children: "CircularProgressBar",
-  variant: "large",
 }

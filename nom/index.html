@@ -1,9 +1,8 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="nom, eating data byte by byte"><meta name="keywords" content="rust, rustlang, rust-lang, nom"><title>nom - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../nom/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><h2 class="location">Crate nom</h2><div class="block version"><div class="narrow-helper"></div><p>Version 7.0.0</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all nom's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li><li><a href="#types">Type Definitions</a></li></ul></div><div id="sidebar-vars" data-name="nom" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">nom</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/nom/lib.rs.html#1-475" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h1 id="nom-eating-data-byte-by-byte" class="section-header"><a href="#nom-eating-data-byte-by-byte">nom, eating data byte by byte</a></h1>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="nom, eating data byte by byte"><meta name="keywords" content="rust, rustlang, rust-lang, nom"><title>nom - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../favicon.svg"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../nom/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><h2 class="location">Crate nom</h2><div class="block version"><div class="narrow-helper"></div><p>Version 7.0.0</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all nom's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li><li><a href="#types">Type Definitions</a></li></ul></div><div id="sidebar-vars" data-name="nom" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">nom</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/nom/lib.rs.html#1-475" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h1 id="nom-eating-data-byte-by-byte" class="section-header"><a href="#nom-eating-data-byte-by-byte">nom, eating data byte by byte</a></h1>
 <p>nom is a parser combinator library with a focus on safe parsing,
 streaming patterns, and as much as possible zero copy.</p>
 <h2 id="example" class="section-header"><a href="#example">Example</a></h2>
-<div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">use</span> <span class="ident">nom</span>::{
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">nom</span>::{
   <span class="ident">IResult</span>,
   <span class="ident">bytes::complete</span>::{<span class="ident">tag</span>, <span class="ident">take_while_m_n</span>},
   <span class="ident">combinator::map_res</span>,
@@ -44,7 +43,7 @@ streaming patterns, and as much as possible zero copy.</p>
     <span class="ident">green</span>: <span class="number">20</span>,
     <span class="ident">blue</span>: <span class="number">223</span>,
   })));
-}</pre></div>
+}</code></pre></div>
 <p>The code is available on <a href="https://github.com/Geal/nom">Github</a></p>
 <p>There are a few <a href="https://github.com/Geal/nom/tree/master/doc">guides</a> with more details
 about <a href="https://github.com/Geal/nom/blob/master/doc/making_a_new_parser_from_scratch.md">how to write parsers</a>,
@@ -74,8 +73,7 @@ written with other parser approaches.</p>
 </ul>
 <p>Here is an example of one such parser, to recognize text between parentheses:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">use</span> <span class="ident">nom</span>::{
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">nom</span>::{
   <span class="ident">IResult</span>,
   <span class="ident">sequence::delimited</span>,
   <span class="comment">// see the &quot;streaming/complete&quot; paragraph lower for an explanation of these submodules</span>
@@ -85,14 +83,13 @@ written with other parser approaches.</p>
 
 <span class="kw">fn</span> <span class="ident">parens</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
   <span class="ident">delimited</span>(<span class="ident">char</span>(<span class="string">&#39;(&#39;</span>), <span class="ident">is_not</span>(<span class="string">&quot;)&quot;</span>), <span class="ident">char</span>(<span class="string">&#39;)&#39;</span>))(<span class="ident">input</span>)
-}</pre></div>
+}</code></pre></div>
 <p>It defines a function named <code>parens</code> which will recognize a sequence of the
 character <code>(</code>, the longest byte array not containing <code>)</code>, then the character
 <code>)</code>, and will return the byte array in the middle.</p>
 <p>Here is another parser, written without using nom’s combinators this time:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">use</span> <span class="ident">nom</span>::{<span class="ident">IResult</span>, <span class="prelude-val">Err</span>, <span class="ident">Needed</span>};
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">nom</span>::{<span class="ident">IResult</span>, <span class="prelude-val">Err</span>, <span class="ident">Needed</span>};
 
 <span class="kw">fn</span> <span class="ident">take4</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>{
   <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">4</span> {
@@ -100,31 +97,27 @@ character <code>(</code>, the longest byte array not containing <code>)</code>, 
   } <span class="kw">else</span> {
     <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="ident">i</span>[<span class="number">4</span>..], <span class="kw-2">&amp;</span><span class="ident">i</span>[<span class="number">0</span>..<span class="number">4</span>]))
   }
-}</pre></div>
+}</code></pre></div>
 <p>This function takes a byte array as input, and tries to consume 4 bytes.
 Writing all the parsers manually, like this, is dangerous, despite Rust’s
 safety features. There are still a lot of mistakes one can make. That’s why
 nom provides a list of functions to help in developing parsers.</p>
 <p>With functions, you would write it like this:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">use</span> <span class="ident">nom</span>::{<span class="ident">IResult</span>, <span class="ident">bytes::streaming::take</span>};
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">nom</span>::{<span class="ident">IResult</span>, <span class="ident">bytes::streaming::take</span>};
 <span class="kw">fn</span> <span class="ident">take4</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
   <span class="ident">take</span>(<span class="number">4u8</span>)(<span class="ident">input</span>)
-}</pre></div>
+}</code></pre></div>
 <p>A parser in nom is a function which, for an input type <code>I</code>, an output type <code>O</code>
 and an optional error type <code>E</code>, will have the following signature:</p>
 
-<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
-<span class="kw">fn</span> <span class="ident">parser</span>(<span class="ident">input</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">E</span><span class="op">&gt;</span>;</pre></div>
+<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore"><code><span class="kw">fn</span> <span class="ident">parser</span>(<span class="ident">input</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">E</span><span class="op">&gt;</span>;</code></pre></div>
 <p>Or like this, if you don’t want to specify a custom error type (it will be <code>(I, ErrorKind)</code> by default):</p>
 
-<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
-<span class="kw">fn</span> <span class="ident">parser</span>(<span class="ident">input</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span><span class="op">&gt;</span>;</pre></div>
+<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore"><code><span class="kw">fn</span> <span class="ident">parser</span>(<span class="ident">input</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span><span class="op">&gt;</span>;</code></pre></div>
 <p><code>IResult</code> is an alias for the <code>Result</code> type:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">use</span> <span class="ident">nom</span>::{<span class="ident">Needed</span>, <span class="ident">error::Error</span>};
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">nom</span>::{<span class="ident">Needed</span>, <span class="ident">error::Error</span>};
 
 <span class="kw">type</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">E</span> <span class="op">=</span> <span class="ident">Error</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">I</span>, <span class="ident">O</span>), <span class="prelude-val">Err</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
@@ -132,7 +125,7 @@ and an optional error type <code>E</code>, will have the following signature:</p
   <span class="ident">Incomplete</span>(<span class="ident">Needed</span>),
   <span class="ident">Error</span>(<span class="ident">E</span>),
   <span class="ident">Failure</span>(<span class="ident">E</span>),
-}</pre></div>
+}</code></pre></div>
 <p>It can have the following values:</p>
 <ul>
 <li>A correct result <code>Ok((I,O))</code> with the first element being the remaining of the input (not parsed yet), and the second the output value;</li>
@@ -151,8 +144,7 @@ a number of bytes or character as argument) or even other parsers (like
 the second one if all are successful).</p>
 <p>Here are some examples:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">use</span> <span class="ident">nom::IResult</span>;
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">nom::IResult</span>;
 <span class="kw">use</span> <span class="ident">nom::bytes::complete</span>::{<span class="ident">tag</span>, <span class="ident">take</span>};
 <span class="kw">fn</span> <span class="ident">abcd_parser</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
   <span class="ident">tag</span>(<span class="string">&quot;abcd&quot;</span>)(<span class="ident">i</span>) <span class="comment">// will consume bytes if the input begins with &quot;abcd&quot;</span>
@@ -160,14 +152,13 @@ the second one if all are successful).</p>
 
 <span class="kw">fn</span> <span class="ident">take_10</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> {
   <span class="ident">take</span>(<span class="number">10u8</span>)(<span class="ident">i</span>) <span class="comment">// will consume and return 10 bytes of input</span>
-}</pre></div>
+}</code></pre></div>
 <h2 id="combining-parsers" class="section-header"><a href="#combining-parsers">Combining parsers</a></h2>
 <p>There are higher level patterns, like the <strong><code>alt</code></strong> combinator, which
 provides a choice between multiple parsers. If one branch fails, it tries
 the next, and returns the result of the first parser that succeeds:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">use</span> <span class="ident">nom::IResult</span>;
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">nom::IResult</span>;
 <span class="kw">use</span> <span class="ident">nom::branch::alt</span>;
 <span class="kw">use</span> <span class="ident">nom::bytes::complete::tag</span>;
 
@@ -175,22 +166,20 @@ the next, and returns the result of the first parser that succeeds:</p>
 
 <span class="macro">assert_eq!</span>(<span class="ident">alt_tags</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcdxxx&quot;</span>[..]), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;xxx&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;abcd&quot;</span>[..])));
 <span class="macro">assert_eq!</span>(<span class="ident">alt_tags</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;efghxxx&quot;</span>[..]), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;xxx&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;efgh&quot;</span>[..])));
-<span class="macro">assert_eq!</span>(<span class="ident">alt_tags</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;ijklxxx&quot;</span>[..]), <span class="prelude-val">Err</span>(<span class="ident">nom::Err::Error</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;ijklxxx&quot;</span>[..], <span class="ident">nom::error::ErrorKind::Tag</span>))));</pre></div>
+<span class="macro">assert_eq!</span>(<span class="ident">alt_tags</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;ijklxxx&quot;</span>[..]), <span class="prelude-val">Err</span>(<span class="ident">nom::Err::Error</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;ijklxxx&quot;</span>[..], <span class="ident">nom::error::ErrorKind::Tag</span>))));</code></pre></div>
 <p>The <strong><code>opt</code></strong> combinator makes a parser optional. If the child parser returns
 an error, <strong><code>opt</code></strong> will still succeed and return None:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">use</span> <span class="ident">nom</span>::{<span class="ident">IResult</span>, <span class="ident">combinator::opt</span>, <span class="ident">bytes::complete::tag</span>};
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">nom</span>::{<span class="ident">IResult</span>, <span class="ident">combinator::opt</span>, <span class="ident">bytes::complete::tag</span>};
 <span class="kw">fn</span> <span class="ident">abcd_opt</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span><span class="op">&gt;</span> {
   <span class="ident">opt</span>(<span class="ident">tag</span>(<span class="string">&quot;abcd&quot;</span>))(<span class="ident">i</span>)
 }
 
 <span class="macro">assert_eq!</span>(<span class="ident">abcd_opt</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcdxxx&quot;</span>[..]), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;xxx&quot;</span>[..], <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcd&quot;</span>[..]))));
-<span class="macro">assert_eq!</span>(<span class="ident">abcd_opt</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;efghxxx&quot;</span>[..]), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;efghxxx&quot;</span>[..], <span class="prelude-val">None</span>)));</pre></div>
+<span class="macro">assert_eq!</span>(<span class="ident">abcd_opt</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;efghxxx&quot;</span>[..]), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;efghxxx&quot;</span>[..], <span class="prelude-val">None</span>)));</code></pre></div>
 <p><strong><code>many0</code></strong> applies a parser 0 or more times, and returns a vector of the aggregated results:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">use</span> <span class="ident">nom</span>::{<span class="ident">IResult</span>, <span class="ident">multi::many0</span>, <span class="ident">bytes::complete::tag</span>};
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">nom</span>::{<span class="ident">IResult</span>, <span class="ident">multi::many0</span>, <span class="ident">bytes::complete::tag</span>};
 <span class="kw">use</span> <span class="ident">std::str</span>;
 
 <span class="kw">fn</span> <span class="ident">multi</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span> {
@@ -202,7 +191,7 @@ an error, <strong><code>opt</code></strong> will still succeed and return None:<
 <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="string">&quot;azerty&quot;</span>;
 <span class="macro">assert_eq!</span>(<span class="ident">multi</span>(<span class="ident">a</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;ef&quot;</span>,     <span class="macro">vec!</span>[<span class="string">&quot;abcd&quot;</span>])));
 <span class="macro">assert_eq!</span>(<span class="ident">multi</span>(<span class="ident">b</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;ef&quot;</span>,     <span class="macro">vec!</span>[<span class="string">&quot;abcd&quot;</span>, <span class="string">&quot;abcd&quot;</span>])));
-<span class="macro">assert_eq!</span>(<span class="ident">multi</span>(<span class="ident">c</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;azerty&quot;</span>, <span class="ident">Vec::new</span>())));</pre></div>
+<span class="macro">assert_eq!</span>(<span class="ident">multi</span>(<span class="ident">c</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;azerty&quot;</span>, <span class="ident">Vec::new</span>())));</code></pre></div>
 <p>Here are some basic combinators available:</p>
 <ul>
 <li><strong><code>opt</code></strong>: Will make the parser optional (if it returns the <code>O</code> type, the new parser returns <code>Option&lt;O&gt;</code>)</li>
@@ -213,8 +202,7 @@ an error, <strong><code>opt</code></strong> will still succeed and return None:<
 used to apply a series of parsers then assemble their results.</p>
 <p>Example with <code>tuple</code>:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">use</span> <span class="ident">nom</span>::{<span class="ident">error::ErrorKind</span>, <span class="ident">Needed</span>,
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">nom</span>::{<span class="ident">error::ErrorKind</span>, <span class="ident">Needed</span>,
 <span class="ident">number::streaming::be_u16</span>,
 <span class="ident">bytes::streaming</span>::{<span class="ident">tag</span>, <span class="ident">take</span>},
 <span class="ident">sequence::tuple</span>};
@@ -230,12 +218,11 @@ used to apply a series of parsers then assemble their results.</p>
 );
 <span class="macro">assert_eq!</span>(<span class="ident">tpl</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcde&quot;</span>[..]), <span class="prelude-val">Err</span>(<span class="ident">nom::Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">2</span>))));
 <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="string">b&quot;abcdejk&quot;</span>[..];
-<span class="macro">assert_eq!</span>(<span class="ident">tpl</span>(<span class="ident">input</span>), <span class="prelude-val">Err</span>(<span class="ident">nom::Err::Error</span>((<span class="kw-2">&amp;</span><span class="ident">input</span>[<span class="number">5</span>..], <span class="ident">ErrorKind::Tag</span>))));</pre></div>
+<span class="macro">assert_eq!</span>(<span class="ident">tpl</span>(<span class="ident">input</span>), <span class="prelude-val">Err</span>(<span class="ident">nom::Err::Error</span>((<span class="kw-2">&amp;</span><span class="ident">input</span>[<span class="number">5</span>..], <span class="ident">ErrorKind::Tag</span>))));</code></pre></div>
 <p>But you can also use a sequence of combinators written in imperative style,
 thanks to the <code>?</code> operator:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">use</span> <span class="ident">nom</span>::{<span class="ident">IResult</span>, <span class="ident">bytes::complete::tag</span>};
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">nom</span>::{<span class="ident">IResult</span>, <span class="ident">bytes::complete::tag</span>};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">struct</span> <span class="ident">A</span> {
@@ -257,7 +244,7 @@ thanks to the <code>?</code> operator:</p>
 }
 
 <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">f</span>(<span class="string">b&quot;abcdefghX&quot;</span>);
-<span class="macro">assert_eq!</span>(<span class="ident">r</span>, <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;X&quot;</span>[..], <span class="ident">A</span>{<span class="ident">a</span>: <span class="number">1</span>, <span class="ident">b</span>: <span class="number">2</span>})));</pre></div>
+<span class="macro">assert_eq!</span>(<span class="ident">r</span>, <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;X&quot;</span>[..], <span class="ident">A</span>{<span class="ident">a</span>: <span class="number">1</span>, <span class="ident">b</span>: <span class="number">2</span>})));</code></pre></div>
 <h2 id="streaming--complete" class="section-header"><a href="#streaming--complete">Streaming / Complete</a></h2>
 <p>Some of nom’s modules have <code>streaming</code> or <code>complete</code> submodules. They hold
 different variants of the same combinators.</p>
@@ -269,8 +256,7 @@ This will be the common case with small files that can be read entirely to
 memory.</p>
 <p>Here is how it works in practice:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">use</span> <span class="ident">nom</span>::{<span class="ident">IResult</span>, <span class="prelude-val">Err</span>, <span class="ident">Needed</span>, <span class="ident">error</span>::{<span class="ident">Error</span>, <span class="ident">ErrorKind</span>}, <span class="ident">bytes</span>, <span class="ident">character</span>};
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">nom</span>::{<span class="ident">IResult</span>, <span class="prelude-val">Err</span>, <span class="ident">Needed</span>, <span class="ident">error</span>::{<span class="ident">Error</span>, <span class="ident">ErrorKind</span>}, <span class="ident">bytes</span>, <span class="ident">character</span>};
 
 <span class="kw">fn</span> <span class="ident">take_streaming</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> {
   <span class="ident">bytes::streaming::take</span>(<span class="number">4u8</span>)(<span class="ident">i</span>)
@@ -310,7 +296,7 @@ memory.</p>
 <span class="macro">assert_eq!</span>(<span class="ident">alpha0_streaming</span>(<span class="string">&quot;abcd&quot;</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">1</span>))));
 
 <span class="comment">// while the complete version knows that all of the data is there</span>
-<span class="macro">assert_eq!</span>(<span class="ident">alpha0_complete</span>(<span class="string">&quot;abcd&quot;</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;&quot;</span>, <span class="string">&quot;abcd&quot;</span>)));</pre></div>
+<span class="macro">assert_eq!</span>(<span class="ident">alpha0_complete</span>(<span class="string">&quot;abcd&quot;</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;&quot;</span>, <span class="string">&quot;abcd&quot;</span>)));</code></pre></div>
 <p><strong>Going further:</strong> Read the <a href="https://github.com/Geal/nom/tree/master/doc">guides</a>,
 check out the [recipes]!</p>
 </div></details><h2 id="reexports" class="section-header"><a href="#reexports">Re-exports</a></h2>

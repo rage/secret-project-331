@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;hyper-0.14.13&#x2F;src&#x2F;upgrade.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>upgrade.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../hyper/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;hyper-0.14.13&#x2F;src&#x2F;upgrade.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>upgrade.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../hyper/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -339,8 +339,7 @@
 <span id="339">339</span>
 <span id="340">340</span>
 <span id="341">341</span>
-</pre><pre class="rust">
-<span class="doccomment">//! HTTP Upgrades</span>
+</pre><pre class="rust"><code><span class="doccomment">//! HTTP Upgrades</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! See [this example][example] showing how upgrades work with both</span>
 <span class="doccomment">//! Clients and Servers.</span>
@@ -359,8 +358,8 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http1&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http2&quot;</span>))]</span>
 <span class="kw">use</span> <span class="ident">tracing::trace</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::common::io::Rewind</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::common</span>::{<span class="ident">task</span>, <span class="ident">Future</span>, <span class="ident">Pin</span>, <span class="ident">Poll</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::common::io::Rewind</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::common</span>::{<span class="ident">task</span>, <span class="ident">Future</span>, <span class="ident">Pin</span>, <span class="ident">Poll</span>};
 
 <span class="doccomment">/// An upgraded HTTP connection.</span>
 <span class="doccomment">///</span>
@@ -378,7 +377,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// If no upgrade was available, or it doesn&#39;t succeed, yields an `Error`.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">OnUpgrade</span> {
-    <span class="ident">rx</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">oneshot::Receiver</span><span class="op">&lt;</span><span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="ident">Upgraded</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">rx</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">oneshot::Receiver</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Upgraded</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="doccomment">/// The deconstructed parts of an [`Upgraded`](Upgraded) type.</span>
@@ -408,7 +407,7 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http1&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http2&quot;</span>))]</span>
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct</span> <span class="ident">Pending</span> {
-    <span class="ident">tx</span>: <span class="ident">oneshot::Sender</span><span class="op">&lt;</span><span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="ident">Upgraded</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">tx</span>: <span class="ident">oneshot::Sender</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Upgraded</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http1&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http2&quot;</span>))]</span>
@@ -509,16 +508,16 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">OnUpgrade</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Upgraded</span>, <span class="kw">crate</span><span class="ident">::Error</span><span class="op">&gt;</span>;
+    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Upgraded</span>, <span class="ident"><span class="kw">crate</span>::Error</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">task::Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Output</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">task::Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">rx</span> {
             <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">rx</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Pin::new</span>(<span class="ident">rx</span>).<span class="ident">poll</span>(<span class="ident">cx</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">res</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">res</span> {
                 <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(<span class="ident">upgraded</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">upgraded</span>),
                 <span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>),
-                <span class="prelude-val">Err</span>(<span class="ident">_oneshot_canceled</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="kw">crate</span><span class="ident">::Error::new_canceled</span>().<span class="ident">with</span>(<span class="ident">UpgradeExpected</span>)),
+                <span class="prelude-val">Err</span>(<span class="ident">_oneshot_canceled</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::Error::new_canceled</span>().<span class="ident">with</span>(<span class="ident">UpgradeExpected</span>)),
             }),
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="kw">crate</span><span class="ident">::Error::new_user_no_upgrade</span>())),
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::Error::new_user_no_upgrade</span>())),
         }
     }
 }
@@ -543,7 +542,7 @@
     <span class="doccomment">/// upgrades are handled manually.</span>
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">manual</span>(<span class="self">self</span>) {
         <span class="macro">trace!</span>(<span class="string">&quot;pending upgrade handled manually&quot;</span>);
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">tx</span>.<span class="ident">send</span>(<span class="prelude-val">Err</span>(<span class="kw">crate</span><span class="ident">::Error::new_user_manual_upgrade</span>()));
+        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">tx</span>.<span class="ident">send</span>(<span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::Error::new_user_manual_upgrade</span>()));
     }
 }
 
@@ -594,13 +593,13 @@
 }
 
 <span class="kw">mod</span> <span class="ident">sealed</span> {
-    <span class="kw">use</span> <span class="kw">super</span><span class="ident">::OnUpgrade</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::OnUpgrade</span>;
 
     <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">CanUpgrade</span> {
         <span class="kw">fn</span> <span class="ident">on_upgrade</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OnUpgrade</span>;
     }
 
-    <span class="kw">impl</span> <span class="ident">CanUpgrade</span> <span class="kw">for</span> <span class="ident">http::Request</span><span class="op">&lt;</span><span class="kw">crate</span><span class="ident">::Body</span><span class="op">&gt;</span> {
+    <span class="kw">impl</span> <span class="ident">CanUpgrade</span> <span class="kw">for</span> <span class="ident">http::Request</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::Body</span><span class="op">&gt;</span> {
         <span class="kw">fn</span> <span class="ident">on_upgrade</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OnUpgrade</span> {
             <span class="self">self</span>.<span class="ident">extensions_mut</span>()
                 .<span class="ident">remove</span>::<span class="op">&lt;</span><span class="ident">OnUpgrade</span><span class="op">&gt;</span>()
@@ -608,7 +607,7 @@
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">CanUpgrade</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">http::Request</span><span class="op">&lt;</span><span class="kw">crate</span><span class="ident">::Body</span><span class="op">&gt;</span> {
+    <span class="kw">impl</span> <span class="ident">CanUpgrade</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">http::Request</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::Body</span><span class="op">&gt;</span> {
         <span class="kw">fn</span> <span class="ident">on_upgrade</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OnUpgrade</span> {
             <span class="self">self</span>.<span class="ident">extensions_mut</span>()
                 .<span class="ident">remove</span>::<span class="op">&lt;</span><span class="ident">OnUpgrade</span><span class="op">&gt;</span>()
@@ -616,7 +615,7 @@
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">CanUpgrade</span> <span class="kw">for</span> <span class="ident">http::Response</span><span class="op">&lt;</span><span class="kw">crate</span><span class="ident">::Body</span><span class="op">&gt;</span> {
+    <span class="kw">impl</span> <span class="ident">CanUpgrade</span> <span class="kw">for</span> <span class="ident">http::Response</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::Body</span><span class="op">&gt;</span> {
         <span class="kw">fn</span> <span class="ident">on_upgrade</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OnUpgrade</span> {
             <span class="self">self</span>.<span class="ident">extensions_mut</span>()
                 .<span class="ident">remove</span>::<span class="op">&lt;</span><span class="ident">OnUpgrade</span><span class="op">&gt;</span>()
@@ -624,7 +623,7 @@
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">CanUpgrade</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">http::Response</span><span class="op">&lt;</span><span class="kw">crate</span><span class="ident">::Body</span><span class="op">&gt;</span> {
+    <span class="kw">impl</span> <span class="ident">CanUpgrade</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">http::Response</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::Body</span><span class="op">&gt;</span> {
         <span class="kw">fn</span> <span class="ident">on_upgrade</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OnUpgrade</span> {
             <span class="self">self</span>.<span class="ident">extensions_mut</span>()
                 .<span class="ident">remove</span>::<span class="op">&lt;</span><span class="ident">OnUpgrade</span><span class="op">&gt;</span>()
@@ -681,7 +680,7 @@
         }
     }
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="hyper" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>

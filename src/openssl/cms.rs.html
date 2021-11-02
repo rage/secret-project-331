@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;openssl-0.10.36&#x2F;src&#x2F;cms.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>cms.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../openssl/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;openssl-0.10.36&#x2F;src&#x2F;cms.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>cms.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../openssl/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -331,8 +331,7 @@
 <span id="331">331</span>
 <span id="332">332</span>
 <span id="333">333</span>
-</pre><pre class="rust">
-<span class="doccomment">//! SMIME implementation using CMS</span>
+</pre><pre class="rust"><code><span class="doccomment">//! SMIME implementation using CMS</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! CMS (PKCS#7) is an encryption standard.  It allows signing and encrypting data using</span>
 <span class="doccomment">//! X.509 certificates.  The OpenSSL implementation of CMS is used in email encryption</span>
@@ -344,12 +343,12 @@
 <span class="kw">use</span> <span class="ident">libc::c_uint</span>;
 <span class="kw">use</span> <span class="ident">std::ptr</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::bio</span>::{<span class="ident">MemBio</span>, <span class="ident">MemBioSlice</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error::ErrorStack</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::pkey</span>::{<span class="ident">HasPrivate</span>, <span class="ident">PKeyRef</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::stack::StackRef</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::symm::Cipher</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::x509</span>::{<span class="ident">X509Ref</span>, <span class="ident">X509</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::bio</span>::{<span class="ident">MemBio</span>, <span class="ident">MemBioSlice</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::ErrorStack</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pkey</span>::{<span class="ident">HasPrivate</span>, <span class="ident">PKeyRef</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::stack::StackRef</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::symm::Cipher</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::x509</span>::{<span class="ident">X509Ref</span>, <span class="ident">X509</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">cvt</span>, <span class="ident">cvt_p</span>};
 
 <span class="macro">bitflags!</span> {
@@ -587,9 +586,9 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">test</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::pkcs12::Pkcs12</span>;
-    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::stack::Stack</span>;
-    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::x509::X509</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pkcs12::Pkcs12</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::stack::Stack</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::x509::X509</span>;
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">ossl300</span>, <span class="ident">ignore</span>)]</span> <span class="comment">// 3.0.0 can&#39;t load RC2-40-CBC</span>
@@ -665,7 +664,7 @@
         }
     }
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="openssl" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>

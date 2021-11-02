@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-web-4.0.0-beta.8&#x2F;src&#x2F;rmap.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>rmap.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_web/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-web-4.0.0-beta.10&#x2F;src&#x2F;rmap.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>rmap.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_web/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -406,57 +406,123 @@
 <span id="406">406</span>
 <span id="407">407</span>
 <span id="408">408</span>
-</pre><pre class="rust">
-<span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 <span class="kw">use</span> <span class="ident">std::rc</span>::{<span class="ident">Rc</span>, <span class="ident">Weak</span>};
 
 <span class="kw">use</span> <span class="ident">actix_router::ResourceDef</span>;
 <span class="kw">use</span> <span class="ident">ahash::AHashMap</span>;
 <span class="kw">use</span> <span class="ident">url::Url</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error::UrlGenerationError</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::request::HttpRequest</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::UrlGenerationError</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::request::HttpRequest</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ResourceMap</span> {
-    <span class="ident">root</span>: <span class="ident">ResourceDef</span>,
+    <span class="ident">pattern</span>: <span class="ident">ResourceDef</span>,
+
+    <span class="doccomment">/// Named resources within the tree or, for external resources,</span>
+    <span class="doccomment">/// it points to isolated nodes outside the tree.</span>
+    <span class="ident">named</span>: <span class="ident">AHashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">ResourceMap</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+
     <span class="ident">parent</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">Weak</span><span class="op">&lt;</span><span class="ident">ResourceMap</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">named</span>: <span class="ident">AHashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">ResourceDef</span><span class="op">&gt;</span>,
-    <span class="ident">patterns</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">ResourceDef</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">ResourceMap</span><span class="op">&gt;</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
+
+    <span class="doccomment">/// Must be `None` for &quot;edge&quot; nodes.</span>
+    <span class="ident">nodes</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">ResourceMap</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">ResourceMap</span> {
+    <span class="doccomment">/// Creates a _container_ node in the `ResourceMap` tree.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">root</span>: <span class="ident">ResourceDef</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">ResourceMap</span> {
-            <span class="ident">root</span>,
-            <span class="ident">parent</span>: <span class="ident">RefCell::new</span>(<span class="ident">Weak::new</span>()),
+            <span class="ident">pattern</span>: <span class="ident">root</span>,
             <span class="ident">named</span>: <span class="ident">AHashMap::default</span>(),
-            <span class="ident">patterns</span>: <span class="ident">Vec::new</span>(),
+            <span class="ident">parent</span>: <span class="ident">RefCell::new</span>(<span class="ident">Weak::new</span>()),
+            <span class="ident">nodes</span>: <span class="prelude-val">Some</span>(<span class="ident">Vec::new</span>()),
         }
     }
 
+    <span class="doccomment">/// Adds a (possibly nested) resource.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// To add a non-prefix pattern, `nested` must be `None`.</span>
+    <span class="doccomment">/// To add external resource, supply a pattern without a leading `/`.</span>
+    <span class="doccomment">/// The root pattern of `nested`, if present, should match `pattern`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pattern</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ResourceDef</span>, <span class="ident">nested</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">ResourceMap</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
-        <span class="ident">pattern</span>.<span class="ident">set_id</span>(<span class="self">self</span>.<span class="ident">patterns</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u16</span>);
-        <span class="self">self</span>.<span class="ident">patterns</span>.<span class="ident">push</span>((<span class="ident">pattern</span>.<span class="ident">clone</span>(), <span class="ident">nested</span>));
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">pattern</span>.<span class="ident">name</span>().<span class="ident">is_empty</span>() {
-            <span class="self">self</span>.<span class="ident">named</span>
-                .<span class="ident">insert</span>(<span class="ident">pattern</span>.<span class="ident">name</span>().<span class="ident">to_string</span>(), <span class="ident">pattern</span>.<span class="ident">clone</span>());
+        <span class="ident">pattern</span>.<span class="ident">set_id</span>(<span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u16</span>);
+
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">new_node</span>) <span class="op">=</span> <span class="ident">nested</span> {
+            <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">new_node</span>.<span class="ident">pattern</span>, <span class="ident">pattern</span>, <span class="string">&quot;`patern` and `nested` mismatch&quot;</span>);
+            <span class="self">self</span>.<span class="ident">named</span>.<span class="ident">extend</span>(<span class="ident">new_node</span>.<span class="ident">named</span>.<span class="ident">clone</span>().<span class="ident">into_iter</span>());
+            <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="ident">push</span>(<span class="ident">new_node</span>);
+        } <span class="kw">else</span> {
+            <span class="kw">let</span> <span class="ident">new_node</span> <span class="op">=</span> <span class="ident">Rc::new</span>(<span class="ident">ResourceMap</span> {
+                <span class="ident">pattern</span>: <span class="ident">pattern</span>.<span class="ident">clone</span>(),
+                <span class="ident">named</span>: <span class="ident">AHashMap::default</span>(),
+                <span class="ident">parent</span>: <span class="ident">RefCell::new</span>(<span class="ident">Weak::new</span>()),
+                <span class="ident">nodes</span>: <span class="prelude-val">None</span>,
+            });
+
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">name</span>) <span class="op">=</span> <span class="ident">pattern</span>.<span class="ident">name</span>() {
+                <span class="self">self</span>.<span class="ident">named</span>.<span class="ident">insert</span>(<span class="ident">name</span>.<span class="ident">to_owned</span>(), <span class="ident">Rc::clone</span>(<span class="kw-2">&amp;</span><span class="ident">new_node</span>));
+            }
+
+            <span class="kw">let</span> <span class="ident">is_external</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">pattern</span>.<span class="ident">pattern</span>() {
+                <span class="prelude-val">Some</span>(<span class="ident">p</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="op">!</span><span class="ident">p</span>.<span class="ident">is_empty</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">p</span>.<span class="ident">starts_with</span>(<span class="string">&#39;/&#39;</span>),
+                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            };
+
+            <span class="comment">// Don&#39;t add external resources to the tree</span>
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">is_external</span> {
+                <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="ident">push</span>(<span class="ident">new_node</span>);
+            }
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">finish</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">current</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">ResourceMap</span><span class="op">&gt;</span>) {
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">nested</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">patterns</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">nested</span>) <span class="op">=</span> <span class="ident">nested</span> {
-                <span class="kw-2">*</span><span class="ident">nested</span>.<span class="ident">parent</span>.<span class="ident">borrow_mut</span>() <span class="op">=</span> <span class="ident">Rc::downgrade</span>(<span class="kw-2">&amp;</span><span class="ident">current</span>);
-                <span class="ident">nested</span>.<span class="ident">finish</span>(<span class="ident">nested</span>.<span class="ident">clone</span>());
-            }
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">finish</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) {
+        <span class="kw">for</span> <span class="ident">node</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">iter</span>().<span class="ident">flatten</span>() {
+            <span class="ident">node</span>.<span class="ident">parent</span>.<span class="ident">replace</span>(<span class="ident">Rc::downgrade</span>(<span class="self">self</span>));
+            <span class="ident">ResourceMap::finish</span>(<span class="ident">node</span>);
         }
     }
 
     <span class="doccomment">/// Generate url for named resource</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Check [`HttpRequest::url_for()`](../struct.HttpRequest.html#method.</span>
-    <span class="doccomment">/// url_for) for detailed information.</span>
+    <span class="doccomment">/// Check [`HttpRequest::url_for`] for detailed information.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">url_for</span><span class="op">&lt;</span><span class="ident">U</span>, <span class="ident">I</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>,
@@ -467,192 +533,97 @@
         <span class="ident">U</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">I</span><span class="op">&gt;</span>,
         <span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">String::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">elements</span> <span class="op">=</span> <span class="ident">elements</span>.<span class="ident">into_iter</span>();
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">patterns_for</span>(<span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">elements</span>)<span class="question-mark">?</span>.<span class="ident">is_some</span>() {
-            <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">starts_with</span>(<span class="string">&#39;/&#39;</span>) {
-                <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">connection_info</span>();
-                <span class="prelude-val">Ok</span>(<span class="ident">Url::parse</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
-                    <span class="string">&quot;{}://{}{}&quot;</span>,
-                    <span class="ident">conn</span>.<span class="ident">scheme</span>(),
-                    <span class="ident">conn</span>.<span class="ident">host</span>(),
-                    <span class="ident">path</span>
-                ))<span class="question-mark">?</span>)
-            } <span class="kw">else</span> {
-                <span class="prelude-val">Ok</span>(<span class="ident">Url::parse</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>)<span class="question-mark">?</span>)
-            }
+        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">named</span>
+            .<span class="ident">get</span>(<span class="ident">name</span>)
+            .<span class="ident">ok_or</span>(<span class="ident">UrlGenerationError::ResourceNotFound</span>)<span class="question-mark">?</span>
+            .<span class="ident">root_rmap_fn</span>(<span class="ident">String::with_capacity</span>(<span class="number">24</span>), <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">acc</span>, <span class="ident">node</span><span class="op">|</span> {
+                <span class="ident">node</span>.<span class="ident">pattern</span>
+                    .<span class="ident">resource_path_from_iter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">acc</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">elements</span>)
+                    .<span class="ident">then</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">acc</span>)
+            })
+            .<span class="ident">ok_or</span>(<span class="ident">UrlGenerationError::NotEnoughElements</span>)<span class="question-mark">?</span>;
+
+        <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">starts_with</span>(<span class="string">&#39;/&#39;</span>) {
+            <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">connection_info</span>();
+            <span class="prelude-val">Ok</span>(<span class="ident">Url::parse</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
+                <span class="string">&quot;{}://{}{}&quot;</span>,
+                <span class="ident">conn</span>.<span class="ident">scheme</span>(),
+                <span class="ident">conn</span>.<span class="ident">host</span>(),
+                <span class="ident">path</span>
+            ))<span class="question-mark">?</span>)
         } <span class="kw">else</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">UrlGenerationError::ResourceNotFound</span>)
+            <span class="prelude-val">Ok</span>(<span class="ident">Url::parse</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>)<span class="question-mark">?</span>)
         }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_resource</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">is_empty</span>() { <span class="string">&quot;/&quot;</span> } <span class="kw">else</span> { <span class="ident">path</span> };
-
-        <span class="kw">for</span> (<span class="ident">pattern</span>, <span class="ident">rmap</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">patterns</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">rmap</span>) <span class="op">=</span> <span class="ident">rmap</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">plen</span>) <span class="op">=</span> <span class="ident">pattern</span>.<span class="ident">is_prefix_match</span>(<span class="ident">path</span>) {
-                    <span class="kw">return</span> <span class="ident">rmap</span>.<span class="ident">has_resource</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>[<span class="ident">plen</span>..]);
-                }
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">pattern</span>.<span class="ident">is_match</span>(<span class="ident">path</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">pattern</span>.<span class="ident">pattern</span>() <span class="op">=</span><span class="op">=</span> <span class="string">&quot;&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">path</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;/&quot;</span> {
-                <span class="kw">return</span> <span class="bool-val">true</span>;
-            }
-        }
-        <span class="bool-val">false</span>
+        <span class="self">self</span>.<span class="ident">find_matching_node</span>(<span class="ident">path</span>).<span class="ident">is_some</span>()
     }
 
     <span class="doccomment">/// Returns the name of the route that matches the given path or None if no full match</span>
-    <span class="doccomment">/// is possible.</span>
+    <span class="doccomment">/// is possible or the matching resource is not named.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">match_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">is_empty</span>() { <span class="string">&quot;/&quot;</span> } <span class="kw">else</span> { <span class="ident">path</span> };
-
-        <span class="kw">for</span> (<span class="ident">pattern</span>, <span class="ident">rmap</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">patterns</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">rmap</span>) <span class="op">=</span> <span class="ident">rmap</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">plen</span>) <span class="op">=</span> <span class="ident">pattern</span>.<span class="ident">is_prefix_match</span>(<span class="ident">path</span>) {
-                    <span class="kw">return</span> <span class="ident">rmap</span>.<span class="ident">match_name</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>[<span class="ident">plen</span>..]);
-                }
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">pattern</span>.<span class="ident">is_match</span>(<span class="ident">path</span>) {
-                <span class="kw">return</span> <span class="kw">match</span> <span class="ident">pattern</span>.<span class="ident">name</span>() {
-                    <span class="string">&quot;&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-                    <span class="ident">s</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">s</span>),
-                };
-            }
-        }
-
-        <span class="prelude-val">None</span>
+        <span class="self">self</span>.<span class="ident">find_matching_node</span>(<span class="ident">path</span>)<span class="question-mark">?</span>.<span class="ident">pattern</span>.<span class="ident">name</span>()
     }
 
     <span class="doccomment">/// Returns the full resource pattern matched against a path or None if no full match</span>
     <span class="doccomment">/// is possible.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">match_pattern</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">is_empty</span>() { <span class="string">&quot;/&quot;</span> } <span class="kw">else</span> { <span class="ident">path</span> };
-
-        <span class="comment">// ensure a full match exists</span>
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">has_resource</span>(<span class="ident">path</span>) {
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
-        }
-
-        <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">traverse_resource_pattern</span>(<span class="ident">path</span>))
+        <span class="self">self</span>.<span class="ident">find_matching_node</span>(<span class="ident">path</span>)<span class="question-mark">?</span>.<span class="ident">root_rmap_fn</span>(
+            <span class="ident">String::with_capacity</span>(<span class="number">24</span>),
+            <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">acc</span>, <span class="ident">node</span><span class="op">|</span> {
+                <span class="ident">acc</span>.<span class="ident">push_str</span>(<span class="ident">node</span>.<span class="ident">pattern</span>.<span class="ident">pattern</span>()<span class="question-mark">?</span>);
+                <span class="prelude-val">Some</span>(<span class="ident">acc</span>)
+            },
+        )
     }
 
-    <span class="doccomment">/// Takes remaining path and tries to match it up against a resource definition within the</span>
-    <span class="doccomment">/// current resource map recursively, returning a concatenation of all resource prefixes and</span>
-    <span class="doccomment">/// patterns matched in the tree.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Should only be used after checking the resource exists in the map so that partial match</span>
-    <span class="doccomment">/// patterns are not returned.</span>
-    <span class="kw">fn</span> <span class="ident">traverse_resource_pattern</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">remaining</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-        <span class="kw">for</span> (<span class="ident">pattern</span>, <span class="ident">rmap</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">patterns</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">rmap</span>) <span class="op">=</span> <span class="ident">rmap</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">prefix_len</span>) <span class="op">=</span> <span class="ident">pattern</span>.<span class="ident">is_prefix_match</span>(<span class="ident">remaining</span>) {
-                    <span class="kw">let</span> <span class="ident">prefix</span> <span class="op">=</span> <span class="ident">pattern</span>.<span class="ident">pattern</span>().<span class="ident">to_owned</span>();
-
-                    <span class="kw">return</span> [
-                        <span class="ident">prefix</span>,
-                        <span class="ident">rmap</span>.<span class="ident">traverse_resource_pattern</span>(<span class="kw-2">&amp;</span><span class="ident">remaining</span>[<span class="ident">prefix_len</span>..]),
-                    ]
-                    .<span class="ident">concat</span>();
-                }
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">pattern</span>.<span class="ident">is_match</span>(<span class="ident">remaining</span>) {
-                <span class="kw">return</span> <span class="ident">pattern</span>.<span class="ident">pattern</span>().<span class="ident">to_owned</span>();
-            }
-        }
-
-        <span class="ident">String::new</span>()
+    <span class="kw">fn</span> <span class="ident">find_matching_node</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ResourceMap</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">_find_matching_node</span>(<span class="ident">path</span>).<span class="ident">flatten</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">patterns_for</span><span class="op">&lt;</span><span class="ident">U</span>, <span class="ident">I</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">String</span>,
-        <span class="ident">elements</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">U</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>()<span class="op">&gt;</span>, <span class="ident">UrlGenerationError</span><span class="op">&gt;</span>
+    <span class="doccomment">/// Returns `None` if root pattern doesn&#39;t match;</span>
+    <span class="doccomment">/// `Some(None)` if root pattern matches but there is no matching child pattern.</span>
+    <span class="doccomment">/// Don&#39;t search sideways when `Some(none)` is returned.</span>
+    <span class="kw">fn</span> <span class="ident">_find_matching_node</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ResourceMap</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">matched_len</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pattern</span>.<span class="ident">find_match</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">path</span>[<span class="ident">matched_len</span>..];
+
+        <span class="prelude-val">Some</span>(<span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">nodes</span> {
+            <span class="comment">// find first sub-node to match remaining path</span>
+            <span class="prelude-val">Some</span>(<span class="ident">nodes</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">nodes</span>
+                .<span class="ident">iter</span>()
+                .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">node</span><span class="op">|</span> <span class="ident">node</span>.<span class="ident">_find_matching_node</span>(<span class="ident">path</span>))
+                .<span class="ident">next</span>()
+                .<span class="ident">flatten</span>(),
+
+            <span class="comment">// only terminate at edge nodes</span>
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="self">self</span>),
+        })
+    }
+
+    <span class="doccomment">/// Find `self`&#39;s highest ancestor and then run `F`, providing `B`, in that rmap context.</span>
+    <span class="kw">fn</span> <span class="ident">root_rmap_fn</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">B</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">init</span>: <span class="ident">B</span>, <span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">U</span>: <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">I</span><span class="op">&gt;</span>,
-        <span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">B</span>, <span class="kw-2">&amp;</span><span class="ident">ResourceMap</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>,
     {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">pattern_for</span>(<span class="ident">name</span>, <span class="ident">path</span>, <span class="ident">elements</span>)<span class="question-mark">?</span>.<span class="ident">is_some</span>() {
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(()))
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">parent_pattern_for</span>(<span class="ident">name</span>, <span class="ident">path</span>, <span class="ident">elements</span>)
-        }
+        <span class="self">self</span>.<span class="ident">_root_rmap_fn</span>(<span class="ident">init</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">f</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">pattern_for</span><span class="op">&lt;</span><span class="ident">U</span>, <span class="ident">I</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">String</span>,
-        <span class="ident">elements</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">U</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>()<span class="op">&gt;</span>, <span class="ident">UrlGenerationError</span><span class="op">&gt;</span>
+    <span class="doccomment">/// Run `F`, providing `B`, if `self` is top-level resource map, else recurse to parent map.</span>
+    <span class="kw">fn</span> <span class="ident">_root_rmap_fn</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">B</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">init</span>: <span class="ident">B</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">U</span>: <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">I</span><span class="op">&gt;</span>,
-        <span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">B</span>, <span class="kw-2">&amp;</span><span class="ident">ResourceMap</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>,
     {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pattern</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">named</span>.<span class="ident">get</span>(<span class="ident">name</span>) {
-            <span class="kw">if</span> <span class="ident">pattern</span>.<span class="ident">pattern</span>().<span class="ident">starts_with</span>(<span class="string">&#39;/&#39;</span>) {
-                <span class="self">self</span>.<span class="ident">fill_root</span>(<span class="ident">path</span>, <span class="ident">elements</span>)<span class="question-mark">?</span>;
-            }
-            <span class="kw">if</span> <span class="ident">pattern</span>.<span class="ident">resource_path</span>(<span class="ident">path</span>, <span class="ident">elements</span>) {
-                <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(()))
-            } <span class="kw">else</span> {
-                <span class="prelude-val">Err</span>(<span class="ident">UrlGenerationError::NotEnoughElements</span>)
-            }
-        } <span class="kw">else</span> {
-            <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">rmap</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">patterns</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">rmap</span>) <span class="op">=</span> <span class="ident">rmap</span> {
-                    <span class="kw">if</span> <span class="ident">rmap</span>.<span class="ident">pattern_for</span>(<span class="ident">name</span>, <span class="ident">path</span>, <span class="ident">elements</span>)<span class="question-mark">?</span>.<span class="ident">is_some</span>() {
-                        <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(()));
-                    }
-                }
-            }
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
-        }
-    }
+        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">parent</span>.<span class="ident">borrow</span>().<span class="ident">upgrade</span>() {
+            <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">parent</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">parent</span>.<span class="ident">_root_rmap_fn</span>(<span class="ident">init</span>, <span class="ident">f</span>)<span class="question-mark">?</span>,
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">init</span>,
+        };
 
-    <span class="kw">fn</span> <span class="ident">fill_root</span><span class="op">&lt;</span><span class="ident">U</span>, <span class="ident">I</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">String</span>,
-        <span class="ident">elements</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">U</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">UrlGenerationError</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">U</span>: <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">I</span><span class="op">&gt;</span>,
-        <span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
-    {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">parent</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parent</span>.<span class="ident">borrow</span>().<span class="ident">upgrade</span>() {
-            <span class="ident">parent</span>.<span class="ident">fill_root</span>(<span class="ident">path</span>, <span class="ident">elements</span>)<span class="question-mark">?</span>;
-        }
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">root</span>.<span class="ident">resource_path</span>(<span class="ident">path</span>, <span class="ident">elements</span>) {
-            <span class="prelude-val">Ok</span>(())
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">UrlGenerationError::NotEnoughElements</span>)
-        }
-    }
-
-    <span class="kw">fn</span> <span class="ident">parent_pattern_for</span><span class="op">&lt;</span><span class="ident">U</span>, <span class="ident">I</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">String</span>,
-        <span class="ident">elements</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">U</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>()<span class="op">&gt;</span>, <span class="ident">UrlGenerationError</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">U</span>: <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">I</span><span class="op">&gt;</span>,
-        <span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
-    {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">parent</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parent</span>.<span class="ident">borrow</span>().<span class="ident">upgrade</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pattern</span>) <span class="op">=</span> <span class="ident">parent</span>.<span class="ident">named</span>.<span class="ident">get</span>(<span class="ident">name</span>) {
-                <span class="self">self</span>.<span class="ident">fill_root</span>(<span class="ident">path</span>, <span class="ident">elements</span>)<span class="question-mark">?</span>;
-                <span class="kw">if</span> <span class="ident">pattern</span>.<span class="ident">resource_path</span>(<span class="ident">path</span>, <span class="ident">elements</span>) {
-                    <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(()))
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">Err</span>(<span class="ident">UrlGenerationError::NotEnoughElements</span>)
-                }
-            } <span class="kw">else</span> {
-                <span class="ident">parent</span>.<span class="ident">parent_pattern_for</span>(<span class="ident">name</span>, <span class="ident">path</span>, <span class="ident">elements</span>)
-            }
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
-        }
+        <span class="ident">f</span>(<span class="ident">data</span>, <span class="self">self</span>)
     }
 }
 
@@ -664,7 +635,7 @@
     <span class="kw">fn</span> <span class="ident">extract_matched_pattern</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">root</span> <span class="op">=</span> <span class="ident">ResourceMap::new</span>(<span class="ident">ResourceDef::root_prefix</span>(<span class="string">&quot;&quot;</span>));
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">user_map</span> <span class="op">=</span> <span class="ident">ResourceMap::new</span>(<span class="ident">ResourceDef::root_prefix</span>(<span class="string">&quot;&quot;</span>));
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">user_map</span> <span class="op">=</span> <span class="ident">ResourceMap::new</span>(<span class="ident">ResourceDef::root_prefix</span>(<span class="string">&quot;/user/{id}&quot;</span>));
         <span class="ident">user_map</span>.<span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ResourceDef::new</span>(<span class="string">&quot;/&quot;</span>), <span class="prelude-val">None</span>);
         <span class="ident">user_map</span>.<span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ResourceDef::new</span>(<span class="string">&quot;/profile&quot;</span>), <span class="prelude-val">None</span>);
         <span class="ident">user_map</span>.<span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ResourceDef::new</span>(<span class="string">&quot;/article/{id}&quot;</span>), <span class="prelude-val">None</span>);
@@ -680,9 +651,10 @@
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ResourceDef::root_prefix</span>(<span class="string">&quot;/user/{id}&quot;</span>),
             <span class="prelude-val">Some</span>(<span class="ident">Rc::new</span>(<span class="ident">user_map</span>)),
         );
+        <span class="ident">root</span>.<span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ResourceDef::new</span>(<span class="string">&quot;/info&quot;</span>), <span class="prelude-val">None</span>);
 
         <span class="kw">let</span> <span class="ident">root</span> <span class="op">=</span> <span class="ident">Rc::new</span>(<span class="ident">root</span>);
-        <span class="ident">root</span>.<span class="ident">finish</span>(<span class="ident">Rc::clone</span>(<span class="kw-2">&amp;</span><span class="ident">root</span>));
+        <span class="ident">ResourceMap::finish</span>(<span class="kw-2">&amp;</span><span class="ident">root</span>);
 
         <span class="comment">// sanity check resource map setup</span>
 
@@ -693,7 +665,7 @@
         <span class="macro">assert!</span>(<span class="ident">root</span>.<span class="ident">has_resource</span>(<span class="string">&quot;/v2&quot;</span>));
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">root</span>.<span class="ident">has_resource</span>(<span class="string">&quot;/v33&quot;</span>));
 
-        <span class="macro">assert!</span>(<span class="ident">root</span>.<span class="ident">has_resource</span>(<span class="string">&quot;/user/22&quot;</span>));
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">root</span>.<span class="ident">has_resource</span>(<span class="string">&quot;/user/22&quot;</span>));
         <span class="macro">assert!</span>(<span class="ident">root</span>.<span class="ident">has_resource</span>(<span class="string">&quot;/user/22/&quot;</span>));
         <span class="macro">assert!</span>(<span class="ident">root</span>.<span class="ident">has_resource</span>(<span class="string">&quot;/user/22/profile&quot;</span>));
 
@@ -738,15 +710,15 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">root</span> <span class="op">=</span> <span class="ident">ResourceMap::new</span>(<span class="ident">ResourceDef::root_prefix</span>(<span class="string">&quot;&quot;</span>));
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rdef</span> <span class="op">=</span> <span class="ident">ResourceDef::new</span>(<span class="string">&quot;/info&quot;</span>);
-        <span class="kw-2">*</span><span class="ident">rdef</span>.<span class="ident">name_mut</span>() <span class="op">=</span> <span class="string">&quot;root_info&quot;</span>.<span class="ident">to_owned</span>();
+        <span class="ident">rdef</span>.<span class="ident">set_name</span>(<span class="string">&quot;root_info&quot;</span>);
         <span class="ident">root</span>.<span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rdef</span>, <span class="prelude-val">None</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">user_map</span> <span class="op">=</span> <span class="ident">ResourceMap::new</span>(<span class="ident">ResourceDef::root_prefix</span>(<span class="string">&quot;&quot;</span>));
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">user_map</span> <span class="op">=</span> <span class="ident">ResourceMap::new</span>(<span class="ident">ResourceDef::root_prefix</span>(<span class="string">&quot;/user/{id}&quot;</span>));
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rdef</span> <span class="op">=</span> <span class="ident">ResourceDef::new</span>(<span class="string">&quot;/&quot;</span>);
         <span class="ident">user_map</span>.<span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rdef</span>, <span class="prelude-val">None</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rdef</span> <span class="op">=</span> <span class="ident">ResourceDef::new</span>(<span class="string">&quot;/post/{post_id}&quot;</span>);
-        <span class="kw-2">*</span><span class="ident">rdef</span>.<span class="ident">name_mut</span>() <span class="op">=</span> <span class="string">&quot;user_post&quot;</span>.<span class="ident">to_owned</span>();
+        <span class="ident">rdef</span>.<span class="ident">set_name</span>(<span class="string">&quot;user_post&quot;</span>);
         <span class="ident">user_map</span>.<span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rdef</span>, <span class="prelude-val">None</span>);
 
         <span class="ident">root</span>.<span class="ident">add</span>(
@@ -755,14 +727,14 @@
         );
 
         <span class="kw">let</span> <span class="ident">root</span> <span class="op">=</span> <span class="ident">Rc::new</span>(<span class="ident">root</span>);
-        <span class="ident">root</span>.<span class="ident">finish</span>(<span class="ident">Rc::clone</span>(<span class="kw-2">&amp;</span><span class="ident">root</span>));
+        <span class="ident">ResourceMap::finish</span>(<span class="kw-2">&amp;</span><span class="ident">root</span>);
 
         <span class="comment">// sanity check resource map setup</span>
 
         <span class="macro">assert!</span>(<span class="ident">root</span>.<span class="ident">has_resource</span>(<span class="string">&quot;/info&quot;</span>));
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">root</span>.<span class="ident">has_resource</span>(<span class="string">&quot;/bar&quot;</span>));
 
-        <span class="macro">assert!</span>(<span class="ident">root</span>.<span class="ident">has_resource</span>(<span class="string">&quot;/user/22&quot;</span>));
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">root</span>.<span class="ident">has_resource</span>(<span class="string">&quot;/user/22&quot;</span>));
         <span class="macro">assert!</span>(<span class="ident">root</span>.<span class="ident">has_resource</span>(<span class="string">&quot;/user/22/&quot;</span>));
         <span class="macro">assert!</span>(<span class="ident">root</span>.<span class="ident">has_resource</span>(<span class="string">&quot;/user/22/post/55&quot;</span>));
 
@@ -782,7 +754,7 @@
         <span class="comment">// ref: https://github.com/actix/actix-web/issues/1582</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">root</span> <span class="op">=</span> <span class="ident">ResourceMap::new</span>(<span class="ident">ResourceDef::root_prefix</span>(<span class="string">&quot;&quot;</span>));
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">user_map</span> <span class="op">=</span> <span class="ident">ResourceMap::new</span>(<span class="ident">ResourceDef::root_prefix</span>(<span class="string">&quot;&quot;</span>));
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">user_map</span> <span class="op">=</span> <span class="ident">ResourceMap::new</span>(<span class="ident">ResourceDef::root_prefix</span>(<span class="string">&quot;/user/{id}&quot;</span>));
         <span class="ident">user_map</span>.<span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ResourceDef::new</span>(<span class="string">&quot;/&quot;</span>), <span class="prelude-val">None</span>);
         <span class="ident">user_map</span>.<span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ResourceDef::new</span>(<span class="string">&quot;/profile&quot;</span>), <span class="prelude-val">None</span>);
         <span class="ident">user_map</span>.<span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ResourceDef::new</span>(<span class="string">&quot;/article/{id}&quot;</span>), <span class="prelude-val">None</span>);
@@ -798,24 +770,123 @@
         );
 
         <span class="kw">let</span> <span class="ident">root</span> <span class="op">=</span> <span class="ident">Rc::new</span>(<span class="ident">root</span>);
-        <span class="ident">root</span>.<span class="ident">finish</span>(<span class="ident">Rc::clone</span>(<span class="kw-2">&amp;</span><span class="ident">root</span>));
+        <span class="ident">ResourceMap::finish</span>(<span class="kw-2">&amp;</span><span class="ident">root</span>);
 
         <span class="comment">// check root has no parent</span>
         <span class="macro">assert!</span>(<span class="ident">root</span>.<span class="ident">parent</span>.<span class="ident">borrow</span>().<span class="ident">upgrade</span>().<span class="ident">is_none</span>());
         <span class="comment">// check child has parent reference</span>
-        <span class="macro">assert!</span>(<span class="ident">root</span>.<span class="ident">patterns</span>[<span class="number">0</span>].<span class="number">1</span>.<span class="ident">is_some</span>());
+        <span class="macro">assert!</span>(<span class="ident">root</span>.<span class="ident">nodes</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>()[<span class="number">0</span>]
+            .<span class="ident">parent</span>
+            .<span class="ident">borrow</span>()
+            .<span class="ident">upgrade</span>()
+            .<span class="ident">is_some</span>());
         <span class="comment">// check child&#39;s parent root id matches root&#39;s root id</span>
-        <span class="macro">assert_eq!</span>(
-            <span class="ident">root</span>.<span class="ident">patterns</span>[<span class="number">0</span>].<span class="number">1</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">root</span>.<span class="ident">id</span>(),
-            <span class="ident">root</span>.<span class="ident">root</span>.<span class="ident">id</span>()
-        );
+        <span class="macro">assert!</span>(<span class="ident">Rc::ptr_eq</span>(
+            <span class="kw-2">&amp;</span><span class="ident">root</span>.<span class="ident">nodes</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>()[<span class="number">0</span>]
+                .<span class="ident">parent</span>
+                .<span class="ident">borrow</span>()
+                .<span class="ident">upgrade</span>()
+                .<span class="ident">unwrap</span>(),
+            <span class="kw-2">&amp;</span><span class="ident">root</span>
+        ));
 
         <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">root</span>);
         <span class="macro">assert!</span>(<span class="ident">output</span>.<span class="ident">starts_with</span>(<span class="string">&quot;ResourceMap {&quot;</span>));
         <span class="macro">assert!</span>(<span class="ident">output</span>.<span class="ident">ends_with</span>(<span class="string">&quot; }&quot;</span>));
     }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">short_circuit</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">root</span> <span class="op">=</span> <span class="ident">ResourceMap::new</span>(<span class="ident">ResourceDef::prefix</span>(<span class="string">&quot;&quot;</span>));
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">user_root</span> <span class="op">=</span> <span class="ident">ResourceDef::prefix</span>(<span class="string">&quot;/user&quot;</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">user_map</span> <span class="op">=</span> <span class="ident">ResourceMap::new</span>(<span class="ident">user_root</span>.<span class="ident">clone</span>());
+        <span class="ident">user_map</span>.<span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ResourceDef::new</span>(<span class="string">&quot;/u1&quot;</span>), <span class="prelude-val">None</span>);
+        <span class="ident">user_map</span>.<span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ResourceDef::new</span>(<span class="string">&quot;/u2&quot;</span>), <span class="prelude-val">None</span>);
+
+        <span class="ident">root</span>.<span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ResourceDef::new</span>(<span class="string">&quot;/user/u3&quot;</span>), <span class="prelude-val">None</span>);
+        <span class="ident">root</span>.<span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">user_root</span>, <span class="prelude-val">Some</span>(<span class="ident">Rc::new</span>(<span class="ident">user_map</span>)));
+        <span class="ident">root</span>.<span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ResourceDef::new</span>(<span class="string">&quot;/user/u4&quot;</span>), <span class="prelude-val">None</span>);
+
+        <span class="kw">let</span> <span class="ident">rmap</span> <span class="op">=</span> <span class="ident">Rc::new</span>(<span class="ident">root</span>);
+        <span class="ident">ResourceMap::finish</span>(<span class="kw-2">&amp;</span><span class="ident">rmap</span>);
+
+        <span class="macro">assert!</span>(<span class="ident">rmap</span>.<span class="ident">has_resource</span>(<span class="string">&quot;/user/u1&quot;</span>));
+        <span class="macro">assert!</span>(<span class="ident">rmap</span>.<span class="ident">has_resource</span>(<span class="string">&quot;/user/u2&quot;</span>));
+        <span class="macro">assert!</span>(<span class="ident">rmap</span>.<span class="ident">has_resource</span>(<span class="string">&quot;/user/u3&quot;</span>));
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">rmap</span>.<span class="ident">has_resource</span>(<span class="string">&quot;/user/u4&quot;</span>));
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">url_for</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">root</span> <span class="op">=</span> <span class="ident">ResourceMap::new</span>(<span class="ident">ResourceDef::prefix</span>(<span class="string">&quot;&quot;</span>));
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">user_scope_rdef</span> <span class="op">=</span> <span class="ident">ResourceDef::prefix</span>(<span class="string">&quot;/user&quot;</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">user_scope_map</span> <span class="op">=</span> <span class="ident">ResourceMap::new</span>(<span class="ident">user_scope_rdef</span>.<span class="ident">clone</span>());
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">user_rdef</span> <span class="op">=</span> <span class="ident">ResourceDef::new</span>(<span class="string">&quot;/{user_id}&quot;</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">user_map</span> <span class="op">=</span> <span class="ident">ResourceMap::new</span>(<span class="ident">user_rdef</span>.<span class="ident">clone</span>());
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">post_rdef</span> <span class="op">=</span> <span class="ident">ResourceDef::new</span>(<span class="string">&quot;/post/{sub_id}&quot;</span>);
+        <span class="ident">post_rdef</span>.<span class="ident">set_name</span>(<span class="string">&quot;post&quot;</span>);
+
+        <span class="ident">user_map</span>.<span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">post_rdef</span>, <span class="prelude-val">None</span>);
+        <span class="ident">user_scope_map</span>.<span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">user_rdef</span>, <span class="prelude-val">Some</span>(<span class="ident">Rc::new</span>(<span class="ident">user_map</span>)));
+        <span class="ident">root</span>.<span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">user_scope_rdef</span>, <span class="prelude-val">Some</span>(<span class="ident">Rc::new</span>(<span class="ident">user_scope_map</span>)));
+
+        <span class="kw">let</span> <span class="ident">rmap</span> <span class="op">=</span> <span class="ident">Rc::new</span>(<span class="ident">root</span>);
+        <span class="ident">ResourceMap::finish</span>(<span class="kw-2">&amp;</span><span class="ident">rmap</span>);
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::test::TestRequest::default</span>();
+        <span class="ident">req</span>.<span class="ident">set_server_hostname</span>(<span class="string">&quot;localhost:8888&quot;</span>);
+        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">to_http_request</span>();
+
+        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">rmap</span>
+            .<span class="ident">url_for</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="string">&quot;post&quot;</span>, <span class="kw-2">&amp;</span>[<span class="string">&quot;u123&quot;</span>, <span class="string">&quot;foobar&quot;</span>])
+            .<span class="ident">unwrap</span>()
+            .<span class="ident">to_string</span>();
+        <span class="macro">assert_eq!</span>(<span class="ident">url</span>, <span class="string">&quot;http://localhost:8888/user/u123/post/foobar&quot;</span>);
+
+        <span class="macro">assert!</span>(<span class="ident">rmap</span>.<span class="ident">url_for</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="string">&quot;missing&quot;</span>, <span class="kw-2">&amp;</span>[<span class="string">&quot;u123&quot;</span>]).<span class="ident">is_err</span>());
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">external_resource_with_no_name</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">root</span> <span class="op">=</span> <span class="ident">ResourceMap::new</span>(<span class="ident">ResourceDef::prefix</span>(<span class="string">&quot;&quot;</span>));
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rdef</span> <span class="op">=</span> <span class="ident">ResourceDef::new</span>(<span class="string">&quot;https://duck.com/{query}&quot;</span>);
+        <span class="ident">root</span>.<span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rdef</span>, <span class="prelude-val">None</span>);
+
+        <span class="kw">let</span> <span class="ident">rmap</span> <span class="op">=</span> <span class="ident">Rc::new</span>(<span class="ident">root</span>);
+        <span class="ident">ResourceMap::finish</span>(<span class="kw-2">&amp;</span><span class="ident">rmap</span>);
+
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">rmap</span>.<span class="ident">has_resource</span>(<span class="string">&quot;https://duck.com/abc&quot;</span>));
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">external_resource_with_name</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">root</span> <span class="op">=</span> <span class="ident">ResourceMap::new</span>(<span class="ident">ResourceDef::prefix</span>(<span class="string">&quot;&quot;</span>));
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rdef</span> <span class="op">=</span> <span class="ident">ResourceDef::new</span>(<span class="string">&quot;https://duck.com/{query}&quot;</span>);
+        <span class="ident">rdef</span>.<span class="ident">set_name</span>(<span class="string">&quot;duck&quot;</span>);
+        <span class="ident">root</span>.<span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rdef</span>, <span class="prelude-val">None</span>);
+
+        <span class="kw">let</span> <span class="ident">rmap</span> <span class="op">=</span> <span class="ident">Rc::new</span>(<span class="ident">root</span>);
+        <span class="ident">ResourceMap::finish</span>(<span class="kw-2">&amp;</span><span class="ident">rmap</span>);
+
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">rmap</span>.<span class="ident">has_resource</span>(<span class="string">&quot;https://duck.com/abc&quot;</span>));
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::test::TestRequest::default</span>();
+        <span class="ident">req</span>.<span class="ident">set_server_hostname</span>(<span class="string">&quot;localhost:8888&quot;</span>);
+        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">to_http_request</span>();
+
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">rmap</span>.<span class="ident">url_for</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="string">&quot;duck&quot;</span>, <span class="kw-2">&amp;</span>[<span class="string">&quot;abcd&quot;</span>]).<span class="ident">unwrap</span>().<span class="ident">to_string</span>(),
+            <span class="string">&quot;https://duck.com/abcd&quot;</span>
+        );
+    }
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_web" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>

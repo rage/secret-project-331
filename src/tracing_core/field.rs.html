@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;tracing-core-0.1.21&#x2F;src&#x2F;field.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>field.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../tracing_core/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;tokio-rs&#x2F;tracing&#x2F;master&#x2F;assets&#x2F;logo-type.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;tracing-core-0.1.21&#x2F;src&#x2F;field.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>field.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../tracing_core/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;tokio-rs&#x2F;tracing&#x2F;master&#x2F;assets&#x2F;logo-type.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -1004,8 +1004,7 @@
 <span id="1004">1004</span>
 <span id="1005">1005</span>
 <span id="1006">1006</span>
-</pre><pre class="rust">
-<span class="doccomment">//! Span and `Event` key-value data.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Span and `Event` key-value data.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! Spans and events may be annotated with key-value data, referred to as known</span>
 <span class="doccomment">//! as _fields_. These fields consist of a mapping from a key (corresponding to</span>
@@ -1045,8 +1044,8 @@
 <span class="doccomment">//! [`event`]:  ../subscriber/trait.Subscriber.html#method.event</span>
 <span class="doccomment">//! [`Value::record`]: trait.Value.html#method.record</span>
 <span class="doccomment">//! [`Visit`]: trait.Visit.html</span>
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::callsite</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::stdlib</span>::{
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::callsite</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::stdlib</span>::{
     <span class="ident">borrow::Borrow</span>,
     <span class="ident">fmt</span>,
     <span class="ident">hash</span>::{<span class="ident">Hash</span>, <span class="ident">Hasher</span>},
@@ -1054,7 +1053,7 @@
     <span class="ident">ops::Range</span>,
 };
 
-<span class="kw">use</span> <span class="self">self</span><span class="ident">::private::ValidLen</span>;
+<span class="kw">use</span> <span class="ident"><span class="self">self</span>::private::ValidLen</span>;
 
 <span class="doccomment">/// An opaque key allowing _O_(1) access to a field in a `Span`&#39;s key-value</span>
 <span class="doccomment">/// data.</span>
@@ -1240,7 +1239,7 @@
 <span class="doccomment">/// their data should be recorded.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// [visitor]: trait.Visit.html</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Value</span>: <span class="kw">crate</span><span class="ident">::sealed::Sealed</span> {
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Value</span>: <span class="ident"><span class="kw">crate</span>::sealed::Sealed</span> {
     <span class="doccomment">/// Visits this value with the given `Visitor`.</span>
     <span class="kw">fn</span> <span class="ident">record</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="ident">visitor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Visit</span>);
 }
@@ -1361,9 +1360,9 @@
         <span class="macro">impl_one_value!</span>(<span class="ident">nonzero</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">value_ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">record</span>);
     };
     (<span class="ident">normal</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">value_ty</span>:<span class="ident">tt</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">record</span>:<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::sealed::Sealed</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">value_ty</span> {}
-        <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::field::Value</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">value_ty</span> {
-            <span class="kw">fn</span> <span class="ident">record</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::field::Field</span>, <span class="ident">visitor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::field::Visit</span>) {
+        <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::sealed::Sealed</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">value_ty</span> {}
+        <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::field::Value</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">value_ty</span> {
+            <span class="kw">fn</span> <span class="ident">record</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::field::Field</span>, <span class="ident">visitor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::field::Visit</span>) {
                 <span class="ident">visitor</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">record</span>(<span class="ident">key</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span>(<span class="kw-2">*</span><span class="self">self</span>))
             }
         }
@@ -1376,9 +1375,9 @@
         <span class="comment">// the `ty_to_nonzero!($value_ty)` invocation.</span>
         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::useless_attribute</span>, <span class="ident">unused</span>)]</span>
         <span class="kw">use</span> <span class="ident">num</span>::<span class="kw-2">*</span>;
-        <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::sealed::Sealed</span> <span class="kw">for</span> <span class="macro">ty_to_nonzero!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">value_ty</span>) {}
-        <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::field::Value</span> <span class="kw">for</span> <span class="macro">ty_to_nonzero!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">value_ty</span>) {
-            <span class="kw">fn</span> <span class="ident">record</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::field::Field</span>, <span class="ident">visitor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::field::Visit</span>) {
+        <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::sealed::Sealed</span> <span class="kw">for</span> <span class="macro">ty_to_nonzero!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">value_ty</span>) {}
+        <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::field::Value</span> <span class="kw">for</span> <span class="macro">ty_to_nonzero!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">value_ty</span>) {
+            <span class="kw">fn</span> <span class="ident">record</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::field::Field</span>, <span class="ident">visitor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::field::Visit</span>) {
                 <span class="ident">visitor</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">record</span>(<span class="ident">key</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span>(<span class="self">self</span>.<span class="ident">get</span>()))
             }
         }
@@ -1409,14 +1408,14 @@
     <span class="ident">record_f64</span>(<span class="ident">f64</span>, <span class="ident">f32</span> <span class="kw">as</span> <span class="ident">f64</span>)
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="kw">crate</span><span class="ident">::sealed::Sealed</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::sealed::Sealed</span> <span class="kw">for</span> <span class="ident">Wrapping</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {}
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="kw">crate</span><span class="ident">::field::Value</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::field::Value</span> <span class="kw">for</span> <span class="ident">Wrapping</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">record</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="kw">crate</span><span class="ident">::field::Field</span>, <span class="ident">visitor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="kw">crate</span><span class="ident">::field::Visit</span>) {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident"><span class="kw">crate</span>::sealed::Sealed</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::sealed::Sealed</span> <span class="kw">for</span> <span class="ident">Wrapping</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {}
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident"><span class="kw">crate</span>::field::Value</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::field::Value</span> <span class="kw">for</span> <span class="ident">Wrapping</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">record</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="kw">crate</span>::field::Field</span>, <span class="ident">visitor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident"><span class="kw">crate</span>::field::Visit</span>) {
         <span class="self">self</span>.<span class="number">0</span>.<span class="ident">record</span>(<span class="ident">key</span>, <span class="ident">visitor</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="kw">crate</span><span class="ident">::sealed::Sealed</span> <span class="kw">for</span> <span class="ident">str</span> {}
+<span class="kw">impl</span> <span class="ident"><span class="kw">crate</span>::sealed::Sealed</span> <span class="kw">for</span> <span class="ident">str</span> {}
 
 <span class="kw">impl</span> <span class="ident">Value</span> <span class="kw">for</span> <span class="ident">str</span> {
     <span class="kw">fn</span> <span class="ident">record</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="ident">visitor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Visit</span>) {
@@ -1425,7 +1424,7 @@
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="kw">crate</span><span class="ident">::sealed::Sealed</span> <span class="kw">for</span> <span class="kw">dyn</span> <span class="ident">std::error::Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> {}
+<span class="kw">impl</span> <span class="ident"><span class="kw">crate</span>::sealed::Sealed</span> <span class="kw">for</span> <span class="kw">dyn</span> <span class="ident">std::error::Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> {}
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)))]</span>
@@ -1435,7 +1434,7 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::sealed::Sealed</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span> <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">Value</span> <span class="op">+</span> <span class="kw">crate</span><span class="ident">::sealed::Sealed</span> <span class="op">+</span> <span class="lifetime">&#39;a</span> {}
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::sealed::Sealed</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span> <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">Value</span> <span class="op">+</span> <span class="ident"><span class="kw">crate</span>::sealed::Sealed</span> <span class="op">+</span> <span class="lifetime">&#39;a</span> {}
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="ident">Value</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span>
 <span class="kw">where</span>
@@ -1446,7 +1445,7 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::sealed::Sealed</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">T</span> <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">Value</span> <span class="op">+</span> <span class="kw">crate</span><span class="ident">::sealed::Sealed</span> <span class="op">+</span> <span class="lifetime">&#39;a</span> {}
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::sealed::Sealed</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">T</span> <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">Value</span> <span class="op">+</span> <span class="ident"><span class="kw">crate</span>::sealed::Sealed</span> <span class="op">+</span> <span class="lifetime">&#39;a</span> {}
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="ident">Value</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">T</span>
 <span class="kw">where</span>
@@ -1459,7 +1458,7 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::sealed::Sealed</span> <span class="kw">for</span> <span class="ident">fmt::Arguments</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {}
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::sealed::Sealed</span> <span class="kw">for</span> <span class="ident">fmt::Arguments</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {}
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Value</span> <span class="kw">for</span> <span class="ident">fmt::Arguments</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">record</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="ident">visitor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Visit</span>) {
@@ -1473,19 +1472,19 @@
         <span class="comment">// actually care about the field name here.</span>
         <span class="kw">struct</span> <span class="ident">NullCallsite</span>;
         <span class="kw">static</span> <span class="ident">NULL_CALLSITE</span>: <span class="ident">NullCallsite</span> <span class="op">=</span> <span class="ident">NullCallsite</span>;
-        <span class="kw">impl</span> <span class="kw">crate</span><span class="ident">::callsite::Callsite</span> <span class="kw">for</span> <span class="ident">NullCallsite</span> {
-            <span class="kw">fn</span> <span class="ident">set_interest</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw">crate</span><span class="ident">::subscriber::Interest</span>) {
+        <span class="kw">impl</span> <span class="ident"><span class="kw">crate</span>::callsite::Callsite</span> <span class="kw">for</span> <span class="ident">NullCallsite</span> {
+            <span class="kw">fn</span> <span class="ident">set_interest</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="ident"><span class="kw">crate</span>::subscriber::Interest</span>) {
                 <span class="macro">unreachable!</span>(<span class="string">&quot;you somehow managed to register the null callsite?&quot;</span>)
             }
 
-            <span class="kw">fn</span> <span class="ident">metadata</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw">crate</span><span class="ident">::Metadata</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
+            <span class="kw">fn</span> <span class="ident">metadata</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident"><span class="kw">crate</span>::Metadata</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
                 <span class="macro">unreachable!</span>(<span class="string">&quot;you somehow managed to access the null callsite?&quot;</span>)
             }
         }
 
         <span class="kw">static</span> <span class="ident">FIELD</span>: <span class="ident">Field</span> <span class="op">=</span> <span class="ident">Field</span> {
             <span class="ident">i</span>: <span class="number">0</span>,
-            <span class="ident">fields</span>: <span class="ident">FieldSet::new</span>(<span class="kw-2">&amp;</span>[], <span class="kw">crate</span><span class="macro">::identify_callsite!</span>(<span class="kw-2">&amp;</span><span class="ident">NULL_CALLSITE</span>)),
+            <span class="ident">fields</span>: <span class="ident">FieldSet::new</span>(<span class="kw-2">&amp;</span>[], <span class="macro">crate::identify_callsite!</span>(<span class="kw-2">&amp;</span><span class="ident">NULL_CALLSITE</span>)),
         };
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="prelude-val">Ok</span>(());
@@ -1504,7 +1503,7 @@
 
 <span class="comment">// ===== impl DisplayValue =====</span>
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">fmt::Display</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::sealed::Sealed</span> <span class="kw">for</span> <span class="ident">DisplayValue</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {}
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">fmt::Display</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::sealed::Sealed</span> <span class="kw">for</span> <span class="ident">DisplayValue</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {}
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Value</span> <span class="kw">for</span> <span class="ident">DisplayValue</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -1529,7 +1528,7 @@
 
 <span class="comment">// ===== impl DebugValue =====</span>
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">fmt::Debug</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::sealed::Sealed</span> <span class="kw">for</span> <span class="ident">DebugValue</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {}
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">fmt::Debug</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::sealed::Sealed</span> <span class="kw">for</span> <span class="ident">DebugValue</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {}
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Value</span> <span class="kw">for</span> <span class="ident">DebugValue</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -1546,13 +1545,13 @@
     }
 }
 
-<span class="kw">impl</span> <span class="kw">crate</span><span class="ident">::sealed::Sealed</span> <span class="kw">for</span> <span class="ident">Empty</span> {}
+<span class="kw">impl</span> <span class="ident"><span class="kw">crate</span>::sealed::Sealed</span> <span class="kw">for</span> <span class="ident">Empty</span> {}
 <span class="kw">impl</span> <span class="ident">Value</span> <span class="kw">for</span> <span class="ident">Empty</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">record</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Visit</span>) {}
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Value</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::sealed::Sealed</span> <span class="kw">for</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {}
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Value</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::sealed::Sealed</span> <span class="kw">for</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {}
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Value</span><span class="op">&gt;</span> <span class="ident">Value</span> <span class="kw">for</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">record</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="ident">visitor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Visit</span>) {
@@ -1716,7 +1715,7 @@
     <span class="kw">type</span> <span class="ident">IntoIter</span> <span class="op">=</span> <span class="ident">Iter</span>;
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">Field</span>;
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">into_iter</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::IntoIter</span> {
+    <span class="kw">fn</span> <span class="ident">into_iter</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::IntoIter</span> {
         <span class="self">self</span>.<span class="ident">iter</span>()
     }
 }
@@ -1865,8 +1864,8 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">test</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::metadata</span>::{<span class="ident">Kind</span>, <span class="ident">Level</span>, <span class="ident">Metadata</span>};
-    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::stdlib</span>::{<span class="ident">borrow::ToOwned</span>, <span class="ident">string::String</span>};
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::metadata</span>::{<span class="ident">Kind</span>, <span class="ident">Level</span>, <span class="ident">Metadata</span>};
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::stdlib</span>::{<span class="ident">borrow::ToOwned</span>, <span class="ident">string::String</span>};
 
     <span class="kw">struct</span> <span class="ident">TestCallsite1</span>;
     <span class="kw">static</span> <span class="ident">TEST_CALLSITE_1</span>: <span class="ident">TestCallsite1</span> <span class="op">=</span> <span class="ident">TestCallsite1</span>;
@@ -1879,8 +1878,8 @@
         <span class="ident">kind</span>: <span class="ident">Kind::SPAN</span>,
     };
 
-    <span class="kw">impl</span> <span class="kw">crate</span><span class="ident">::callsite::Callsite</span> <span class="kw">for</span> <span class="ident">TestCallsite1</span> {
-        <span class="kw">fn</span> <span class="ident">set_interest</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw">crate</span><span class="ident">::subscriber::Interest</span>) {
+    <span class="kw">impl</span> <span class="ident"><span class="kw">crate</span>::callsite::Callsite</span> <span class="kw">for</span> <span class="ident">TestCallsite1</span> {
+        <span class="kw">fn</span> <span class="ident">set_interest</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="ident"><span class="kw">crate</span>::subscriber::Interest</span>) {
             <span class="macro">unimplemented!</span>()
         }
 
@@ -1900,8 +1899,8 @@
         <span class="ident">kind</span>: <span class="ident">Kind::SPAN</span>,
     };
 
-    <span class="kw">impl</span> <span class="kw">crate</span><span class="ident">::callsite::Callsite</span> <span class="kw">for</span> <span class="ident">TestCallsite2</span> {
-        <span class="kw">fn</span> <span class="ident">set_interest</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw">crate</span><span class="ident">::subscriber::Interest</span>) {
+    <span class="kw">impl</span> <span class="ident"><span class="kw">crate</span>::callsite::Callsite</span> <span class="kw">for</span> <span class="ident">TestCallsite2</span> {
+        <span class="kw">fn</span> <span class="ident">set_interest</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="ident"><span class="kw">crate</span>::subscriber::Interest</span>) {
             <span class="macro">unimplemented!</span>()
         }
 
@@ -1967,7 +1966,7 @@
 
         <span class="kw">struct</span> <span class="ident">MyVisitor</span>;
         <span class="kw">impl</span> <span class="ident">Visit</span> <span class="kw">for</span> <span class="ident">MyVisitor</span> {
-            <span class="kw">fn</span> <span class="ident">record_debug</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> (<span class="kw">crate</span><span class="ident">::stdlib::fmt::Debug</span>)) {
+            <span class="kw">fn</span> <span class="ident">record_debug</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> (<span class="ident"><span class="kw">crate</span>::stdlib::fmt::Debug</span>)) {
                 <span class="macro">assert_eq!</span>(<span class="ident">field</span>.<span class="ident">callsite</span>(), <span class="ident">TEST_META_1</span>.<span class="ident">callsite</span>())
             }
         }
@@ -1986,7 +1985,7 @@
 
         <span class="kw">struct</span> <span class="ident">MyVisitor</span>;
         <span class="kw">impl</span> <span class="ident">Visit</span> <span class="kw">for</span> <span class="ident">MyVisitor</span> {
-            <span class="kw">fn</span> <span class="ident">record_debug</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> (<span class="kw">crate</span><span class="ident">::stdlib::fmt::Debug</span>)) {
+            <span class="kw">fn</span> <span class="ident">record_debug</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> (<span class="ident"><span class="kw">crate</span>::stdlib::fmt::Debug</span>)) {
                 <span class="macro">assert_eq!</span>(<span class="ident">field</span>.<span class="ident">name</span>(), <span class="string">&quot;bar&quot;</span>)
             }
         }
@@ -2005,13 +2004,13 @@
         <span class="kw">let</span> <span class="ident">valueset</span> <span class="op">=</span> <span class="ident">fields</span>.<span class="ident">value_set</span>(<span class="ident">values</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">String::new</span>();
         <span class="ident">valueset</span>.<span class="ident">record</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">|</span><span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">fmt::Debug</span><span class="op">|</span> {
-            <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::stdlib::fmt::Write</span>;
+            <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::stdlib::fmt::Write</span>;
             <span class="macro">write!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">result</span>, <span class="string">&quot;{:?}&quot;</span>, <span class="ident">value</span>).<span class="ident">unwrap</span>();
         });
         <span class="macro">assert_eq!</span>(<span class="ident">result</span>, <span class="string">&quot;123&quot;</span>.<span class="ident">to_owned</span>());
     }
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="tracing_core" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>

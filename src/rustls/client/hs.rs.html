@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;rustls-0.19.1&#x2F;src&#x2F;client&#x2F;hs.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>hs.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../rustls/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;rustls-0.19.1&#x2F;src&#x2F;client&#x2F;hs.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>hs.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../rustls/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -902,41 +902,40 @@
 <span id="902">902</span>
 <span id="903">903</span>
 <span id="904">904</span>
-</pre><pre class="rust">
+</pre><pre class="rust"><code><span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;logging&quot;</span>)]</span>
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::bs_debug</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::check::check_message</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::cipher</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::client::ClientSessionImpl</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::TLSError</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::key_schedule</span>::{<span class="ident">KeyScheduleEarly</span>, <span class="ident">KeyScheduleHandshake</span>};
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;logging&quot;</span>)]</span>
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::bs_debug</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::check::check_message</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::cipher</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::client::ClientSessionImpl</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error::TLSError</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::key_schedule</span>::{<span class="ident">KeyScheduleEarly</span>, <span class="ident">KeyScheduleHandshake</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;logging&quot;</span>)]</span>
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::log</span>::{<span class="ident">debug</span>, <span class="ident">trace</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::msgs::base::Payload</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::log</span>::{<span class="ident">debug</span>, <span class="ident">trace</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::base::Payload</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;quic&quot;</span>)]</span>
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::msgs::base::PayloadU16</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::msgs::codec</span>::{<span class="ident">Codec</span>, <span class="ident">Reader</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::msgs::enums</span>::{<span class="ident">AlertDescription</span>, <span class="ident">Compression</span>, <span class="ident">ProtocolVersion</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::msgs::enums</span>::{<span class="ident">ContentType</span>, <span class="ident">ExtensionType</span>, <span class="ident">HandshakeType</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::msgs::enums</span>::{<span class="ident">ECPointFormat</span>, <span class="ident">PSKKeyExchangeMode</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::msgs::handshake::HelloRetryRequest</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::msgs::handshake</span>::{<span class="ident">CertificateStatusRequest</span>, <span class="ident">SCTList</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::msgs::handshake</span>::{<span class="ident">ClientExtension</span>, <span class="ident">HasServerExtensions</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::msgs::handshake</span>::{<span class="ident">ClientHelloPayload</span>, <span class="ident">HandshakeMessagePayload</span>, <span class="ident">HandshakePayload</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::msgs::handshake</span>::{<span class="ident">ConvertProtocolNameList</span>, <span class="ident">ProtocolNameList</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::msgs::handshake</span>::{<span class="ident">ECPointFormatList</span>, <span class="ident">SupportedPointFormats</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::msgs::handshake</span>::{<span class="ident">Random</span>, <span class="ident">SessionID</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::msgs::message</span>::{<span class="ident">Message</span>, <span class="ident">MessagePayload</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::msgs::persist</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::rand</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::session::SessionSecrets</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::suites</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ticketer</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::verify</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::base::PayloadU16</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::codec</span>::{<span class="ident">Codec</span>, <span class="ident">Reader</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::enums</span>::{<span class="ident">AlertDescription</span>, <span class="ident">Compression</span>, <span class="ident">ProtocolVersion</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::enums</span>::{<span class="ident">ContentType</span>, <span class="ident">ExtensionType</span>, <span class="ident">HandshakeType</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::enums</span>::{<span class="ident">ECPointFormat</span>, <span class="ident">PSKKeyExchangeMode</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::handshake::HelloRetryRequest</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::handshake</span>::{<span class="ident">CertificateStatusRequest</span>, <span class="ident">SCTList</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::handshake</span>::{<span class="ident">ClientExtension</span>, <span class="ident">HasServerExtensions</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::handshake</span>::{<span class="ident">ClientHelloPayload</span>, <span class="ident">HandshakeMessagePayload</span>, <span class="ident">HandshakePayload</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::handshake</span>::{<span class="ident">ConvertProtocolNameList</span>, <span class="ident">ProtocolNameList</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::handshake</span>::{<span class="ident">ECPointFormatList</span>, <span class="ident">SupportedPointFormats</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::handshake</span>::{<span class="ident">Random</span>, <span class="ident">SessionID</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::message</span>::{<span class="ident">Message</span>, <span class="ident">MessagePayload</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::persist</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::rand</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::session::SessionSecrets</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::suites</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ticketer</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::verify</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::client::common</span>::{<span class="ident">ClientHelloDetails</span>, <span class="ident">ReceivedTicketDetails</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::client::common</span>::{<span class="ident">HandshakeDetails</span>, <span class="ident">ServerCertDetails</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::client</span>::{<span class="ident">tls12</span>, <span class="ident">tls13</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::client::common</span>::{<span class="ident">ClientHelloDetails</span>, <span class="ident">ReceivedTicketDetails</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::client::common</span>::{<span class="ident">HandshakeDetails</span>, <span class="ident">ServerCertDetails</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::client</span>::{<span class="ident">tls12</span>, <span class="ident">tls13</span>};
 
 <span class="kw">use</span> <span class="ident">webpki</span>;
 
@@ -1405,7 +1404,7 @@
             <span class="macro">require_handshake_msg!</span>(<span class="ident">m</span>, <span class="ident">HandshakeType::ServerHello</span>, <span class="ident">HandshakePayload::ServerHello</span>)<span class="question-mark">?</span>;
         <span class="macro">trace!</span>(<span class="string">&quot;We got ServerHello {:#?}&quot;</span>, <span class="ident">server_hello</span>);
 
-        <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ProtocolVersion</span>::{<span class="ident">TLSv1_2</span>, <span class="ident">TLSv1_3</span>};
+        <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ProtocolVersion</span>::{<span class="ident">TLSv1_2</span>, <span class="ident">TLSv1_3</span>};
         <span class="kw">let</span> <span class="ident">tls13_supported</span> <span class="op">=</span> <span class="ident">sess</span>.<span class="ident">config</span>.<span class="ident">supports_version</span>(<span class="ident">TLSv1_3</span>);
 
         <span class="kw">let</span> <span class="ident">server_version</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">server_hello</span>.<span class="ident">legacy_version</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TLSv1_2</span> {
@@ -1807,7 +1806,7 @@
 
     <span class="ident">err</span>
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="rustls" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
 </body></html>

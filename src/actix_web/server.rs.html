@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-web-4.0.0-beta.8&#x2F;src&#x2F;server.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>server.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_web/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-web-4.0.0-beta.10&#x2F;src&#x2F;server.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>server.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_web/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -670,8 +670,13 @@
 <span id="670">670</span>
 <span id="671">671</span>
 <span id="672">672</span>
-</pre><pre class="rust">
-<span class="kw">use</span> <span class="ident">std</span>::{
+<span id="673">673</span>
+<span id="674">674</span>
+<span id="675">675</span>
+<span id="676">676</span>
+<span id="677">677</span>
+<span id="678">678</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">any::Any</span>,
     <span class="ident">cmp</span>,
     <span class="ident">error::Error</span> <span class="kw">as</span> <span class="ident">StdError</span>,
@@ -968,6 +973,7 @@
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">svc</span> <span class="op">=</span> <span class="ident">HttpService::build</span>()
                         .<span class="ident">keep_alive</span>(<span class="ident">c</span>.<span class="ident">keep_alive</span>)
                         .<span class="ident">client_timeout</span>(<span class="ident">c</span>.<span class="ident">client_timeout</span>)
+                        .<span class="ident">client_disconnect</span>(<span class="ident">c</span>.<span class="ident">client_shutdown</span>)
                         .<span class="ident">local_addr</span>(<span class="ident">addr</span>);
 
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">handler</span>) <span class="op">=</span> <span class="ident">on_connect_fn</span>.<span class="ident">clone</span>() {
@@ -1025,7 +1031,8 @@
                     <span class="kw">let</span> <span class="ident">svc</span> <span class="op">=</span> <span class="ident">HttpService::build</span>()
                         .<span class="ident">keep_alive</span>(<span class="ident">c</span>.<span class="ident">keep_alive</span>)
                         .<span class="ident">client_timeout</span>(<span class="ident">c</span>.<span class="ident">client_timeout</span>)
-                        .<span class="ident">client_disconnect</span>(<span class="ident">c</span>.<span class="ident">client_shutdown</span>);
+                        .<span class="ident">client_disconnect</span>(<span class="ident">c</span>.<span class="ident">client_shutdown</span>)
+                        .<span class="ident">local_addr</span>(<span class="ident">addr</span>);
 
                     <span class="kw">let</span> <span class="ident">svc</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">handler</span>) <span class="op">=</span> <span class="ident">on_connect_fn</span>.<span class="ident">clone</span>() {
                         <span class="ident">svc</span>.<span class="ident">on_connect_ext</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">io</span>: <span class="kw-2">&amp;</span><span class="kw">_</span>, <span class="ident">ext</span>: <span class="kw">_</span><span class="op">|</span> {
@@ -1196,10 +1203,11 @@
             <span class="ident">addr</span>: <span class="ident">socket_addr</span>,
         });
 
-        <span class="kw">let</span> <span class="ident">addr</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;actix-web-service-{:?}&quot;</span>, <span class="ident">lst</span>.<span class="ident">local_addr</span>()<span class="question-mark">?</span>);
+        <span class="kw">let</span> <span class="ident">addr</span> <span class="op">=</span> <span class="ident">lst</span>.<span class="ident">local_addr</span>()<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;actix-web-service-{:?}&quot;</span>, <span class="ident">addr</span>);
         <span class="kw">let</span> <span class="ident">on_connect_fn</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">on_connect_fn</span>.<span class="ident">clone</span>();
 
-        <span class="self">self</span>.<span class="ident">builder</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">builder</span>.<span class="ident">listen_uds</span>(<span class="ident">addr</span>, <span class="ident">lst</span>, <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
+        <span class="self">self</span>.<span class="ident">builder</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">builder</span>.<span class="ident">listen_uds</span>(<span class="ident">name</span>, <span class="ident">lst</span>, <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">cfg</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
             <span class="kw">let</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">AppConfig::new</span>(
                 <span class="bool-val">false</span>,
@@ -1210,7 +1218,8 @@
             <span class="ident">fn_service</span>(<span class="op">|</span><span class="ident">io</span>: <span class="ident">UnixStream</span><span class="op">|</span> <span class="kw">async</span> { <span class="prelude-val">Ok</span>((<span class="ident">io</span>, <span class="ident">Protocol::Http1</span>, <span class="prelude-val">None</span>)) }).<span class="ident">and_then</span>({
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">svc</span> <span class="op">=</span> <span class="ident">HttpService::build</span>()
                     .<span class="ident">keep_alive</span>(<span class="ident">c</span>.<span class="ident">keep_alive</span>)
-                    .<span class="ident">client_timeout</span>(<span class="ident">c</span>.<span class="ident">client_timeout</span>);
+                    .<span class="ident">client_timeout</span>(<span class="ident">c</span>.<span class="ident">client_timeout</span>)
+                    .<span class="ident">client_disconnect</span>(<span class="ident">c</span>.<span class="ident">client_shutdown</span>);
 
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">handler</span>) <span class="op">=</span> <span class="ident">on_connect_fn</span>.<span class="ident">clone</span>() {
                     <span class="ident">svc</span> <span class="op">=</span> <span class="ident">svc</span>
@@ -1227,8 +1236,8 @@
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
     <span class="doccomment">/// Start listening for incoming unix domain connections.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bind_uds</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">addr</span>: <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">A</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">std::path::Path</span><span class="op">&gt;</span>,
@@ -1241,6 +1250,7 @@
         <span class="kw">let</span> <span class="ident">factory</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">factory</span>.<span class="ident">clone</span>();
         <span class="kw">let</span> <span class="ident">socket_addr</span> <span class="op">=</span>
             <span class="ident">net::SocketAddr::new</span>(<span class="ident">net::IpAddr::V4</span>(<span class="ident">net::Ipv4Addr::new</span>(<span class="number">127</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>)), <span class="number">8080</span>);
+
         <span class="self">self</span>.<span class="ident">sockets</span>.<span class="ident">push</span>(<span class="ident">Socket</span> {
             <span class="ident">scheme</span>: <span class="string">&quot;http&quot;</span>,
             <span class="ident">addr</span>: <span class="ident">socket_addr</span>,
@@ -1265,6 +1275,7 @@
                     <span class="ident">HttpService::build</span>()
                         .<span class="ident">keep_alive</span>(<span class="ident">c</span>.<span class="ident">keep_alive</span>)
                         .<span class="ident">client_timeout</span>(<span class="ident">c</span>.<span class="ident">client_timeout</span>)
+                        .<span class="ident">client_disconnect</span>(<span class="ident">c</span>.<span class="ident">client_shutdown</span>)
                         .<span class="ident">finish</span>(<span class="ident">map_config</span>(<span class="ident">fac</span>, <span class="kw">move</span> <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">config</span>.<span class="ident">clone</span>())),
                 )
             },
@@ -1343,7 +1354,7 @@
 
     <span class="prelude-val">Ok</span>(<span class="ident">builder</span>.<span class="ident">build</span>())
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_web" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;lettre-0.10.0-rc.3&#x2F;src&#x2F;transport&#x2F;smtp&#x2F;client&#x2F;tls.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>tls.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../../storage.js"></script><script src="../../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;lettre.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../../lettre/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;avatars0.githubusercontent.com&#x2F;u&#x2F;15113230?v=4' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;lettre-0.10.0-rc.4&#x2F;src&#x2F;transport&#x2F;smtp&#x2F;client&#x2F;tls.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>tls.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../../storage.js"></script><script src="../../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;lettre.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../../lettre/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;avatars0.githubusercontent.com&#x2F;u&#x2F;15113230?v=4' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -294,18 +294,38 @@
 <span id="294">294</span>
 <span id="295">295</span>
 <span id="296">296</span>
-</pre><pre class="rust">
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>))]</span>
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::transport::smtp</span>::{<span class="ident">error</span>, <span class="ident">Error</span>};
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+</pre><pre class="rust"><code><span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>))]</span>
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::transport::smtp</span>::{<span class="ident">error</span>, <span class="ident">Error</span>};
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">native_tls</span>::{<span class="ident">Protocol</span>, <span class="ident">TlsConnector</span>};
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">rustls</span>::{<span class="ident">ClientConfig</span>, <span class="ident">RootCertStore</span>, <span class="ident">ServerCertVerified</span>, <span class="ident">ServerCertVerifier</span>, <span class="ident">TLSError</span>};
+<span class="kw">use</span> <span class="ident">rustls</span>::{
+    <span class="ident">client</span>::{<span class="ident">ServerCertVerified</span>, <span class="ident">ServerCertVerifier</span>, <span class="ident">WebPkiVerifier</span>},
+    <span class="ident">ClientConfig</span>, <span class="ident">Error</span> <span class="kw">as</span> <span class="ident">TlsError</span>, <span class="ident">OwnedTrustAnchor</span>, <span class="ident">RootCertStore</span>, <span class="ident">ServerName</span>,
+};
 <span class="kw">use</span> <span class="ident">std::fmt</span>::{<span class="self">self</span>, <span class="ident">Debug</span>};
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">webpki::DNSNameRef</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">sync::Arc</span>, <span class="ident">time::SystemTime</span>};
 
 <span class="doccomment">/// Accepted protocols by default.</span>
 <span class="doccomment">/// This removes TLS 1.0 and 1.1 compared to tls-native defaults.</span>
@@ -336,13 +356,13 @@
 <span class="kw">impl</span> <span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">Tls</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span> {
-            <span class="self">Self</span><span class="ident">::None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">pad</span>(<span class="string">&quot;None&quot;</span>),
+            <span class="ident"><span class="self">Self</span>::None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">pad</span>(<span class="string">&quot;None&quot;</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>))]</span>
-            <span class="self">Self</span><span class="ident">::Opportunistic</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">pad</span>(<span class="string">&quot;Opportunistic&quot;</span>),
+            <span class="ident"><span class="self">Self</span>::Opportunistic</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">pad</span>(<span class="string">&quot;Opportunistic&quot;</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>))]</span>
-            <span class="self">Self</span><span class="ident">::Required</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">pad</span>(<span class="string">&quot;Required&quot;</span>),
+            <span class="ident"><span class="self">Self</span>::Required</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">pad</span>(<span class="string">&quot;Required&quot;</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>))]</span>
-            <span class="self">Self</span><span class="ident">::Wrapper</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">pad</span>(<span class="string">&quot;Wrapper&quot;</span>),
+            <span class="ident"><span class="self">Self</span>::Wrapper</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">pad</span>(<span class="string">&quot;Wrapper&quot;</span>),
         }
     }
 }
@@ -460,21 +480,35 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>)))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_rustls</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TlsParameters</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">webpki_roots::TLS_SERVER_ROOTS</span>;
+        <span class="kw">let</span> <span class="ident">tls</span> <span class="op">=</span> <span class="ident">ClientConfig::builder</span>();
+        <span class="kw">let</span> <span class="ident">tls</span> <span class="op">=</span> <span class="ident">tls</span>.<span class="ident">with_safe_defaults</span>();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tls</span> <span class="op">=</span> <span class="ident">ClientConfig::new</span>();
-
-        <span class="kw">for</span> <span class="ident">cert</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">root_certs</span> {
-            <span class="kw">for</span> <span class="ident">rustls_cert</span> <span class="kw">in</span> <span class="ident">cert</span>.<span class="ident">rustls</span> {
-                <span class="ident">tls</span>.<span class="ident">root_store</span>.<span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="ident">rustls_cert</span>).<span class="ident">map_err</span>(<span class="ident">error::tls</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">tls</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">accept_invalid_certs</span> {
+            <span class="ident">tls</span>.<span class="ident">with_custom_certificate_verifier</span>(<span class="ident">Arc::new</span>(<span class="ident">InvalidCertsVerifier</span> {}))
+        } <span class="kw">else</span> {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">root_cert_store</span> <span class="op">=</span> <span class="ident">RootCertStore::empty</span>();
+            <span class="kw">for</span> <span class="ident">cert</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">root_certs</span> {
+                <span class="kw">for</span> <span class="ident">rustls_cert</span> <span class="kw">in</span> <span class="ident">cert</span>.<span class="ident">rustls</span> {
+                    <span class="ident">root_cert_store</span>.<span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="ident">rustls_cert</span>).<span class="ident">map_err</span>(<span class="ident">error::tls</span>)<span class="question-mark">?</span>;
+                }
             }
-        }
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">accept_invalid_certs</span> {
-            <span class="ident">tls</span>.<span class="ident">dangerous</span>()
-                .<span class="ident">set_certificate_verifier</span>(<span class="ident">Arc::new</span>(<span class="ident">InvalidCertsVerifier</span> {}));
-        }
+            <span class="ident">root_cert_store</span>.<span class="ident">add_server_trust_anchors</span>(<span class="ident">webpki_roots::TLS_SERVER_ROOTS</span>.<span class="number">0</span>.<span class="ident">iter</span>().<span class="ident">map</span>(
+                <span class="op">|</span><span class="ident">ta</span><span class="op">|</span> {
+                    <span class="ident">OwnedTrustAnchor::from_subject_spki_name_constraints</span>(
+                        <span class="ident">ta</span>.<span class="ident">subject</span>,
+                        <span class="ident">ta</span>.<span class="ident">spki</span>,
+                        <span class="ident">ta</span>.<span class="ident">name_constraints</span>,
+                    )
+                },
+            ));
 
-        <span class="ident">tls</span>.<span class="ident">root_store</span>.<span class="ident">add_server_trust_anchors</span>(<span class="kw-2">&amp;</span><span class="ident">TLS_SERVER_ROOTS</span>);
+            <span class="ident">tls</span>.<span class="ident">with_custom_certificate_verifier</span>(<span class="ident">Arc::new</span>(<span class="ident">WebPkiVerifier::new</span>(
+                <span class="ident">root_cert_store</span>,
+                <span class="prelude-val">None</span>,
+            )))
+        };
+        <span class="kw">let</span> <span class="ident">tls</span> <span class="op">=</span> <span class="ident">tls</span>.<span class="ident">with_no_client_auth</span>();
+
         <span class="prelude-val">Ok</span>(<span class="ident">TlsParameters</span> {
             <span class="ident">connector</span>: <span class="ident">InnerTlsParameters::RustlsTls</span>(<span class="ident">Arc::new</span>(<span class="ident">tls</span>)),
             <span class="ident">domain</span>: <span class="self">self</span>.<span class="ident">domain</span>,
@@ -554,11 +588,14 @@
 
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>)]</span>
         <span class="kw">let</span> <span class="ident">rustls_cert</span> <span class="op">=</span> {
-            <span class="kw">use</span> <span class="ident">rustls::internal::pemfile</span>;
             <span class="kw">use</span> <span class="ident">std::io::Cursor</span>;
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pem</span> <span class="op">=</span> <span class="ident">Cursor::new</span>(<span class="ident">pem</span>);
-            <span class="ident">pemfile::certs</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">pem</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">error::tls</span>(<span class="string">&quot;invalid certificates&quot;</span>))<span class="question-mark">?</span>
+            <span class="ident">rustls_pemfile::certs</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">pem</span>)
+                .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">error::tls</span>(<span class="string">&quot;invalid certificates&quot;</span>))<span class="question-mark">?</span>
+                .<span class="ident">into_iter</span>()
+                .<span class="ident">map</span>(<span class="ident">rustls::Certificate</span>)
+                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
         };
 
         <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
@@ -583,15 +620,17 @@
 <span class="kw">impl</span> <span class="ident">ServerCertVerifier</span> <span class="kw">for</span> <span class="ident">InvalidCertsVerifier</span> {
     <span class="kw">fn</span> <span class="ident">verify_server_cert</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">_roots</span>: <span class="kw-2">&amp;</span><span class="ident">RootCertStore</span>,
-        <span class="ident">_presented_certs</span>: <span class="kw-2">&amp;</span>[<span class="ident">rustls::Certificate</span>],
-        <span class="ident">_dns_name</span>: <span class="ident">DNSNameRef</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">_end_entity</span>: <span class="kw-2">&amp;</span><span class="ident">rustls::Certificate</span>,
+        <span class="ident">_intermediates</span>: <span class="kw-2">&amp;</span>[<span class="ident">rustls::Certificate</span>],
+        <span class="ident">_server_name</span>: <span class="kw-2">&amp;</span><span class="ident">ServerName</span>,
+        <span class="ident">_scts</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>,
         <span class="ident">_ocsp_response</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ServerCertVerified</span>, <span class="ident">TLSError</span><span class="op">&gt;</span> {
+        <span class="ident">_now</span>: <span class="ident">SystemTime</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ServerCertVerified</span>, <span class="ident">TlsError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">ServerCertVerified::assertion</span>())
     }
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../../" data-current-crate="lettre" data-search-index-js="../../../../../search-index.js" data-search-js="../../../../../search.js"></div>
     <script src="../../../../../main.js"></script><script src="../../../../../source-script.js"></script><script src="../../../../../source-files.js"></script>
 </body></html>

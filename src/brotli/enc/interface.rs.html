@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;brotli-3.3.2&#x2F;src&#x2F;enc&#x2F;interface.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>interface.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../brotli/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;brotli-3.3.2&#x2F;src&#x2F;enc&#x2F;interface.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>interface.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../brotli/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -789,12 +789,11 @@
 <span id="789">789</span>
 <span id="790">790</span>
 <span id="791">791</span>
-</pre><pre class="rust">
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_imports</span>)]</span> <span class="comment">// right now just used in feature flag</span>
+</pre><pre class="rust"><code><span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_imports</span>)]</span> <span class="comment">// right now just used in feature flag</span>
 <span class="kw">use</span> <span class="ident">core</span>;
 <span class="kw">use</span> <span class="ident">alloc</span>::{<span class="ident">SliceWrapper</span>, <span class="ident">Allocator</span>, <span class="ident">SliceWrapperMut</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">super</span><span class="ident">::input_pair</span>::{<span class="ident">InputPair</span>,<span class="ident">InputReference</span>, <span class="ident">InputReferenceMut</span>};
-<span class="kw">use</span> <span class="kw">super</span><span class="ident">::histogram</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::input_pair</span>::{<span class="ident">InputPair</span>,<span class="ident">InputReference</span>, <span class="ident">InputReferenceMut</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::histogram</span>;
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>,<span class="ident">Copy</span>,<span class="ident">Clone</span>,<span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BlockSwitch</span>(<span class="kw">pub</span> <span class="ident">u8</span>);
 <span class="comment">// Commands that can instantiate as a no-op should implement this.</span>
@@ -908,16 +907,16 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_stride_context_speed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">speed_max</span>: [(<span class="ident">u16</span>, <span class="ident">u16</span>);<span class="number">2</span>]) {
         <span class="kw">let</span> <span class="ident">cm_slice</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">predmode_speed_and_distance_context_map</span>.<span class="ident">slice_mut</span>();
         <span class="kw">for</span> <span class="ident">high</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">2</span> {
-          <span class="ident">cm_slice</span>[<span class="self">Self</span><span class="ident">::stride_context_speed_offset</span>()<span class="op">+</span><span class="ident">high</span>] <span class="op">=</span> <span class="self">Self</span><span class="ident">::u16_to_f8</span>(<span class="ident">speed_max</span>[<span class="ident">high</span>].<span class="number">0</span>);
-          <span class="ident">cm_slice</span>[<span class="self">Self</span><span class="ident">::stride_context_speed_max_offset</span>()<span class="op">+</span><span class="ident">high</span>] <span class="op">=</span> <span class="self">Self</span><span class="ident">::u16_to_f8</span>(<span class="ident">speed_max</span>[<span class="ident">high</span>].<span class="number">1</span>);
+          <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::stride_context_speed_offset</span>()<span class="op">+</span><span class="ident">high</span>] <span class="op">=</span> <span class="ident"><span class="self">Self</span>::u16_to_f8</span>(<span class="ident">speed_max</span>[<span class="ident">high</span>].<span class="number">0</span>);
+          <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::stride_context_speed_max_offset</span>()<span class="op">+</span><span class="ident">high</span>] <span class="op">=</span> <span class="ident"><span class="self">Self</span>::u16_to_f8</span>(<span class="ident">speed_max</span>[<span class="ident">high</span>].<span class="number">1</span>);
         }
     }
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_context_map_speed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">speed_max</span>: [(<span class="ident">u16</span>, <span class="ident">u16</span>);<span class="number">2</span>]) {
         <span class="kw">let</span> <span class="ident">cm_slice</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">predmode_speed_and_distance_context_map</span>.<span class="ident">slice_mut</span>();
         <span class="kw">for</span> <span class="ident">high</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">2</span> {
-          <span class="ident">cm_slice</span>[<span class="self">Self</span><span class="ident">::context_map_speed_offset</span>()<span class="op">+</span><span class="ident">high</span>] <span class="op">=</span> <span class="self">Self</span><span class="ident">::u16_to_f8</span>(<span class="ident">speed_max</span>[<span class="ident">high</span>].<span class="number">0</span>);
-          <span class="ident">cm_slice</span>[<span class="self">Self</span><span class="ident">::context_map_speed_max_offset</span>()<span class="op">+</span><span class="ident">high</span>] <span class="op">=</span> <span class="self">Self</span><span class="ident">::u16_to_f8</span>(<span class="ident">speed_max</span>[<span class="ident">high</span>].<span class="number">1</span>);
+          <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::context_map_speed_offset</span>()<span class="op">+</span><span class="ident">high</span>] <span class="op">=</span> <span class="ident"><span class="self">Self</span>::u16_to_f8</span>(<span class="ident">speed_max</span>[<span class="ident">high</span>].<span class="number">0</span>);
+          <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::context_map_speed_max_offset</span>()<span class="op">+</span><span class="ident">high</span>] <span class="op">=</span> <span class="ident"><span class="self">Self</span>::u16_to_f8</span>(<span class="ident">speed_max</span>[<span class="ident">high</span>].<span class="number">1</span>);
         }
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_mixing_math</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">math_enum</span>: <span class="ident">u8</span>) {
@@ -942,8 +941,8 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_combined_stride_context_speed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">speed_max</span>: [(<span class="ident">u16</span>, <span class="ident">u16</span>);<span class="number">2</span>]) {
         <span class="kw">let</span> <span class="ident">cm_slice</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">predmode_speed_and_distance_context_map</span>.<span class="ident">slice_mut</span>();
         <span class="kw">for</span> <span class="ident">high</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">2</span> {
-          <span class="ident">cm_slice</span>[<span class="self">Self</span><span class="ident">::combined_stride_context_speed_offset</span>()<span class="op">+</span><span class="ident">high</span>] <span class="op">=</span> <span class="self">Self</span><span class="ident">::u16_to_f8</span>(<span class="ident">speed_max</span>[<span class="ident">high</span>].<span class="number">0</span>);
-          <span class="ident">cm_slice</span>[<span class="self">Self</span><span class="ident">::combined_stride_context_speed_max_offset</span>()<span class="op">+</span><span class="ident">high</span>] <span class="op">=</span> <span class="self">Self</span><span class="ident">::u16_to_f8</span>(<span class="ident">speed_max</span>[<span class="ident">high</span>].<span class="number">1</span>);
+          <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::combined_stride_context_speed_offset</span>()<span class="op">+</span><span class="ident">high</span>] <span class="op">=</span> <span class="ident"><span class="self">Self</span>::u16_to_f8</span>(<span class="ident">speed_max</span>[<span class="ident">high</span>].<span class="number">0</span>);
+          <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::combined_stride_context_speed_max_offset</span>()<span class="op">+</span><span class="ident">high</span>] <span class="op">=</span> <span class="ident"><span class="self">Self</span>::u16_to_f8</span>(<span class="ident">speed_max</span>[<span class="ident">high</span>].<span class="number">1</span>);
         }
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_literal_prediction_mode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="ident">LiteralPredictionModeNibble</span>) {
@@ -955,7 +954,7 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_mut</span><span class="op">&lt;</span><span class="ident">Other</span>:<span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">other</span>: <span class="ident">PredictionModeContextMap</span><span class="op">&lt;</span><span class="ident">Other</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PredictionModeContextMap</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">SliceType</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Other</span><span class="op">&gt;</span>{
         <span class="ident">PredictionModeContextMap</span>::<span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span>{
-            <span class="ident">literal_context_map</span>:<span class="ident">SliceType</span><span class="ident">::from</span>(<span class="ident">other</span>.<span class="ident">literal_context_map</span>),
+            <span class="ident">literal_context_map</span>:<span class="ident">SliceType::from</span>(<span class="ident">other</span>.<span class="ident">literal_context_map</span>),
             <span class="ident">predmode_speed_and_distance_context_map</span>: <span class="ident">SliceType::from</span>(<span class="ident">other</span>.<span class="ident">predmode_speed_and_distance_context_map</span>),
         }
     }
@@ -1002,11 +1001,11 @@
     }
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">f8_to_u16</span>(<span class="ident">data</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u16</span> {
-        <span class="self">self</span><span class="ident">::u8_to_speed</span>(<span class="ident">data</span>)
+        <span class="ident"><span class="self">self</span>::u8_to_speed</span>(<span class="ident">data</span>)
     }
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">u16_to_f8</span>(<span class="ident">data</span>: <span class="ident">u16</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u8</span> {
-        <span class="self">self</span><span class="ident">::speed_to_u8</span>(<span class="ident">data</span>)
+        <span class="ident"><span class="self">self</span>::speed_to_u8</span>(<span class="ident">data</span>)
     }
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stride_context_speed_offset</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
@@ -1043,44 +1042,44 @@
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stride_context_speed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> [(<span class="ident">u16</span>, <span class="ident">u16</span>);<span class="number">2</span>] {
        <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">stride_context_speed_f8</span>();
-       [(<span class="self">self</span><span class="ident">::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">0</span>].<span class="number">0</span>), <span class="self">self</span><span class="ident">::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">0</span>].<span class="number">1</span>)),
-        (<span class="self">self</span><span class="ident">::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">1</span>].<span class="number">0</span>), <span class="self">self</span><span class="ident">::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">1</span>].<span class="number">1</span>))]
+       [(<span class="ident"><span class="self">self</span>::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">0</span>].<span class="number">0</span>), <span class="ident"><span class="self">self</span>::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">0</span>].<span class="number">1</span>)),
+        (<span class="ident"><span class="self">self</span>::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">1</span>].<span class="number">0</span>), <span class="ident"><span class="self">self</span>::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">1</span>].<span class="number">1</span>))]
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">context_map_speed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> [(<span class="ident">u16</span>, <span class="ident">u16</span>);<span class="number">2</span>] {
        <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">context_map_speed_f8</span>();
-       [(<span class="self">self</span><span class="ident">::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">0</span>].<span class="number">0</span>), <span class="self">self</span><span class="ident">::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">0</span>].<span class="number">1</span>)),
-        (<span class="self">self</span><span class="ident">::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">1</span>].<span class="number">0</span>), <span class="self">self</span><span class="ident">::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">1</span>].<span class="number">1</span>))]
+       [(<span class="ident"><span class="self">self</span>::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">0</span>].<span class="number">0</span>), <span class="ident"><span class="self">self</span>::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">0</span>].<span class="number">1</span>)),
+        (<span class="ident"><span class="self">self</span>::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">1</span>].<span class="number">0</span>), <span class="ident"><span class="self">self</span>::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">1</span>].<span class="number">1</span>))]
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">combined_stride_context_speed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> [(<span class="ident">u16</span>, <span class="ident">u16</span>);<span class="number">2</span>] {
        <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">combined_stride_context_speed_f8</span>();
-       [(<span class="self">self</span><span class="ident">::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">0</span>].<span class="number">0</span>), <span class="self">self</span><span class="ident">::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">0</span>].<span class="number">1</span>)),
-        (<span class="self">self</span><span class="ident">::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">1</span>].<span class="number">0</span>), <span class="self">self</span><span class="ident">::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">1</span>].<span class="number">1</span>))]
+       [(<span class="ident"><span class="self">self</span>::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">0</span>].<span class="number">0</span>), <span class="ident"><span class="self">self</span>::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">0</span>].<span class="number">1</span>)),
+        (<span class="ident"><span class="self">self</span>::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">1</span>].<span class="number">0</span>), <span class="ident"><span class="self">self</span>::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">1</span>].<span class="number">1</span>))]
     }
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stride_context_speed_f8</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> [(<span class="ident">u8</span>, <span class="ident">u8</span>);<span class="number">2</span>] {
         <span class="kw">let</span> <span class="ident">cm_slice</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">predmode_speed_and_distance_context_map</span>.<span class="ident">slice</span>();
-        <span class="kw">let</span> <span class="ident">low_speed</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="self">Self</span><span class="ident">::stride_context_speed_offset</span>()];
-        <span class="kw">let</span> <span class="ident">high_speed</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="self">Self</span><span class="ident">::stride_context_speed_offset</span>() <span class="op">+</span> <span class="number">1</span>];
-        <span class="kw">let</span> <span class="ident">low_max</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="self">Self</span><span class="ident">::stride_context_speed_max_offset</span>()];
-        <span class="kw">let</span> <span class="ident">high_max</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="self">Self</span><span class="ident">::stride_context_speed_max_offset</span>() <span class="op">+</span> <span class="number">1</span>];
+        <span class="kw">let</span> <span class="ident">low_speed</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::stride_context_speed_offset</span>()];
+        <span class="kw">let</span> <span class="ident">high_speed</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::stride_context_speed_offset</span>() <span class="op">+</span> <span class="number">1</span>];
+        <span class="kw">let</span> <span class="ident">low_max</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::stride_context_speed_max_offset</span>()];
+        <span class="kw">let</span> <span class="ident">high_max</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::stride_context_speed_max_offset</span>() <span class="op">+</span> <span class="number">1</span>];
         [(<span class="ident">low_speed</span>, <span class="ident">low_max</span>), (<span class="ident">high_speed</span>, <span class="ident">high_max</span>)]
     }
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">combined_stride_context_speed_f8</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> [(<span class="ident">u8</span>, <span class="ident">u8</span>);<span class="number">2</span>] {
         <span class="kw">let</span> <span class="ident">cm_slice</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">predmode_speed_and_distance_context_map</span>.<span class="ident">slice</span>();
-        <span class="kw">let</span> <span class="ident">low_speed</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="self">Self</span><span class="ident">::combined_stride_context_speed_offset</span>()];
-        <span class="kw">let</span> <span class="ident">high_speed</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="self">Self</span><span class="ident">::combined_stride_context_speed_offset</span>() <span class="op">+</span> <span class="number">1</span>];
-        <span class="kw">let</span> <span class="ident">low_max</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="self">Self</span><span class="ident">::combined_stride_context_speed_max_offset</span>()];
-        <span class="kw">let</span> <span class="ident">high_max</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="self">Self</span><span class="ident">::combined_stride_context_speed_max_offset</span>() <span class="op">+</span> <span class="number">1</span>];
+        <span class="kw">let</span> <span class="ident">low_speed</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::combined_stride_context_speed_offset</span>()];
+        <span class="kw">let</span> <span class="ident">high_speed</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::combined_stride_context_speed_offset</span>() <span class="op">+</span> <span class="number">1</span>];
+        <span class="kw">let</span> <span class="ident">low_max</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::combined_stride_context_speed_max_offset</span>()];
+        <span class="kw">let</span> <span class="ident">high_max</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::combined_stride_context_speed_max_offset</span>() <span class="op">+</span> <span class="number">1</span>];
         [(<span class="ident">low_speed</span>, <span class="ident">low_max</span>), (<span class="ident">high_speed</span>, <span class="ident">high_max</span>)]
     }
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">context_map_speed_f8</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> [(<span class="ident">u8</span>, <span class="ident">u8</span>);<span class="number">2</span>] {
         <span class="kw">let</span> <span class="ident">cm_slice</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">predmode_speed_and_distance_context_map</span>.<span class="ident">slice</span>();
-        <span class="kw">let</span> <span class="ident">low_speed</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="self">Self</span><span class="ident">::context_map_speed_offset</span>()];
-        <span class="kw">let</span> <span class="ident">high_speed</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="self">Self</span><span class="ident">::context_map_speed_offset</span>() <span class="op">+</span> <span class="number">1</span>];
-        <span class="kw">let</span> <span class="ident">low_max</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="self">Self</span><span class="ident">::context_map_speed_max_offset</span>()];
-        <span class="kw">let</span> <span class="ident">high_max</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="self">Self</span><span class="ident">::context_map_speed_max_offset</span>() <span class="op">+</span> <span class="number">1</span>];
+        <span class="kw">let</span> <span class="ident">low_speed</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::context_map_speed_offset</span>()];
+        <span class="kw">let</span> <span class="ident">high_speed</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::context_map_speed_offset</span>() <span class="op">+</span> <span class="number">1</span>];
+        <span class="kw">let</span> <span class="ident">low_max</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::context_map_speed_max_offset</span>()];
+        <span class="kw">let</span> <span class="ident">high_max</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::context_map_speed_max_offset</span>() <span class="op">+</span> <span class="number">1</span>];
         [(<span class="ident">low_speed</span>, <span class="ident">low_max</span>), (<span class="ident">high_speed</span>, <span class="ident">high_max</span>)]
     }
 }
@@ -1430,7 +1429,7 @@
         <span class="ident">Command::Literal</span>(<span class="kw-2">ref</span> <span class="ident">lit</span>) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="ident">Command::Literal</span>(<span class="ident">LiteralCommand</span>{
                 <span class="ident">data</span>:<span class="ident">lit</span>.<span class="ident">data</span>.<span class="ident">thaw_pair</span>(<span class="ident">data</span>).<span class="ident">unwrap</span>(),
-                <span class="ident">prob</span>:<span class="ident">FeatureFlagSliceType</span><span class="ident">::default</span>(),
+                <span class="ident">prob</span>:<span class="ident">FeatureFlagSliceType::default</span>(),
                 <span class="ident">high_entropy</span>: <span class="ident">lit</span>.<span class="ident">high_entropy</span>,
             })
         },
@@ -1463,7 +1462,7 @@
         <span class="ident">Command::Literal</span>(<span class="kw-2">ref</span> <span class="ident">lit</span>) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="ident">Command::Literal</span>(<span class="ident">LiteralCommand</span>{
                 <span class="ident">data</span>:<span class="ident">lit</span>.<span class="ident">data</span>.<span class="ident">thaw</span>(<span class="ident">data</span>),
-                <span class="ident">prob</span>:<span class="ident">FeatureFlagSliceType</span><span class="ident">::default</span>(),
+                <span class="ident">prob</span>:<span class="ident">FeatureFlagSliceType::default</span>(),
                 <span class="ident">high_entropy</span>: <span class="ident">lit</span>.<span class="ident">high_entropy</span>,
             })
         },
@@ -1497,7 +1496,7 @@
           <span class="ident">Command::Literal</span>(<span class="kw-2">ref</span> <span class="ident">lit</span>) <span class="op">=</span><span class="op">&gt;</span> {
               <span class="ident">Command::Literal</span>(<span class="ident">LiteralCommand</span>{
                   <span class="ident">data</span>:<span class="ident">lit</span>.<span class="ident">data</span>.<span class="ident">freeze</span>(),
-                  <span class="ident">prob</span>:<span class="ident">FeatureFlagSliceType</span><span class="ident">::default</span>(),
+                  <span class="ident">prob</span>:<span class="ident">FeatureFlagSliceType::default</span>(),
                   <span class="ident">high_entropy</span>: <span class="ident">lit</span>.<span class="ident">high_entropy</span>,
               })
           },
@@ -1551,8 +1550,8 @@
 }
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="kw">super</span><span class="ident">::speed_to_u8</span>;
-    <span class="kw">use</span> <span class="kw">super</span><span class="ident">::u8_to_speed</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::speed_to_u8</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::u8_to_speed</span>;
     <span class="kw">fn</span> <span class="ident">tst_u8_to_speed</span>(<span class="ident">data</span>: <span class="ident">u16</span>) {
         <span class="macro">assert_eq!</span>(<span class="ident">u8_to_speed</span>(<span class="ident">speed_to_u8</span>(<span class="ident">data</span>)), <span class="ident">data</span>);
     }
@@ -1581,7 +1580,7 @@
         <span class="ident">tst_u8_to_speed</span>(<span class="number">1664</span>);
     }
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
 </body></html>

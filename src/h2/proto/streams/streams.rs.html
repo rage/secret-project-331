@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;h2-0.3.6&#x2F;src&#x2F;proto&#x2F;streams&#x2F;streams.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>streams.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../h2/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;h2-0.3.6&#x2F;src&#x2F;proto&#x2F;streams&#x2F;streams.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>streams.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../h2/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -1539,13 +1539,12 @@
 <span id="1539">1539</span>
 <span id="1540">1540</span>
 <span id="1541">1541</span>
-</pre><pre class="rust">
-<span class="kw">use</span> <span class="kw">super</span><span class="ident">::recv::RecvHeaderBlockError</span>;
-<span class="kw">use</span> <span class="kw">super</span><span class="ident">::store</span>::{<span class="self">self</span>, <span class="ident">Entry</span>, <span class="ident">Resolve</span>, <span class="ident">Store</span>};
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">super</span>::recv::RecvHeaderBlockError</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::store</span>::{<span class="self">self</span>, <span class="ident">Entry</span>, <span class="ident">Resolve</span>, <span class="ident">Store</span>};
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">Buffer</span>, <span class="ident">Config</span>, <span class="ident">Counts</span>, <span class="ident">Prioritized</span>, <span class="ident">Recv</span>, <span class="ident">Send</span>, <span class="ident">Stream</span>, <span class="ident">StreamId</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::codec</span>::{<span class="ident">Codec</span>, <span class="ident">SendError</span>, <span class="ident">UserError</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::frame</span>::{<span class="self">self</span>, <span class="ident">Frame</span>, <span class="ident">Reason</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::proto</span>::{<span class="ident">peer</span>, <span class="ident">Error</span>, <span class="ident">Initiator</span>, <span class="ident">Open</span>, <span class="ident">Peer</span>, <span class="ident">WindowSize</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::codec</span>::{<span class="ident">Codec</span>, <span class="ident">SendError</span>, <span class="ident">UserError</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::frame</span>::{<span class="self">self</span>, <span class="ident">Frame</span>, <span class="ident">Reason</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::proto</span>::{<span class="ident">peer</span>, <span class="ident">Error</span>, <span class="ident">Initiator</span>, <span class="ident">Open</span>, <span class="ident">Peer</span>, <span class="ident">WindowSize</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">client</span>, <span class="ident">proto</span>, <span class="ident">server</span>};
 
 <span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">Buf</span>, <span class="ident">Bytes</span>};
@@ -1553,7 +1552,7 @@
 <span class="kw">use</span> <span class="ident">std::task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>, <span class="ident">Waker</span>};
 <span class="kw">use</span> <span class="ident">tokio::io::AsyncWrite</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::PollExt</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::PollExt</span>;
 <span class="kw">use</span> <span class="ident">std::sync</span>::{<span class="ident">Arc</span>, <span class="ident">Mutex</span>};
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fmt</span>, <span class="ident">io</span>};
 
@@ -1753,7 +1752,7 @@
         <span class="ident">end_of_stream</span>: <span class="ident">bool</span>,
         <span class="ident">pending</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">OpaqueStreamRef</span><span class="op">&gt;</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">StreamRef</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">SendError</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="kw">super</span><span class="ident">::stream::ContentLength</span>;
+        <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::stream::ContentLength</span>;
         <span class="kw">use</span> <span class="ident">http::Method</span>;
 
         <span class="comment">// Clear before taking lock, incase extensions contain a StreamRef.</span>
@@ -2058,7 +2057,7 @@
                     <span class="kw">let</span> <span class="ident">sz</span> <span class="op">=</span> <span class="ident">frame</span>.<span class="ident">payload</span>().<span class="ident">len</span>();
                     <span class="comment">// This should have been enforced at the codec::FramedRead layer, so</span>
                     <span class="comment">// this is just a sanity check.</span>
-                    <span class="macro">assert!</span>(<span class="ident">sz</span> <span class="op">&lt;</span><span class="op">=</span> <span class="kw">super</span><span class="ident">::MAX_WINDOW_SIZE</span> <span class="kw">as</span> <span class="ident">usize</span>);
+                    <span class="macro">assert!</span>(<span class="ident">sz</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident"><span class="kw">super</span>::MAX_WINDOW_SIZE</span> <span class="kw">as</span> <span class="ident">usize</span>);
                     <span class="kw">let</span> <span class="ident">sz</span> <span class="op">=</span> <span class="ident">sz</span> <span class="kw">as</span> <span class="ident">WindowSize</span>;
 
                     <span class="self">self</span>.<span class="ident">actions</span>.<span class="ident">recv</span>.<span class="ident">ignore_data</span>(<span class="ident">sz</span>)<span class="question-mark">?</span>;
@@ -2434,7 +2433,7 @@
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="ident">Context</span>,
         <span class="ident">pending</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">OpaqueStreamRef</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="kw">crate</span><span class="ident">::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="kw">crate</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">me</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">me</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">me</span>;
 
@@ -2654,7 +2653,7 @@
         <span class="kw">let</span> <span class="ident">pushed</span> <span class="op">=</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stream</span> <span class="op">=</span> <span class="ident">me</span>.<span class="ident">store</span>.<span class="ident">resolve</span>(<span class="self">self</span>.<span class="ident">opaque</span>.<span class="ident">key</span>);
 
-            <span class="kw">let</span> <span class="ident">frame</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::server::Peer::convert_push_message</span>(<span class="ident">stream</span>.<span class="ident">id</span>, <span class="ident">promised_id</span>, <span class="ident">request</span>)<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">frame</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::server::Peer::convert_push_message</span>(<span class="ident">stream</span>.<span class="ident">id</span>, <span class="ident">promised_id</span>, <span class="ident">request</span>)<span class="question-mark">?</span>;
 
             <span class="ident">actions</span>
                 .<span class="ident">send</span>
@@ -2736,7 +2735,7 @@
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="ident">Context</span>,
         <span class="ident">mode</span>: <span class="ident">proto::PollReset</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Reason</span>, <span class="kw">crate</span><span class="ident">::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Reason</span>, <span class="ident"><span class="kw">crate</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">me</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">opaque</span>.<span class="ident">inner</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">me</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">me</span>;
 
@@ -3081,7 +3080,7 @@
         <span class="self">self</span>.<span class="ident">send</span>.<span class="ident">clear_queues</span>(<span class="ident">store</span>, <span class="ident">counts</span>);
     }
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="h2" data-search-index-js="../../../../search-index.js" data-search-js="../../../../search.js"></div>
     <script src="../../../../main.js"></script><script src="../../../../source-script.js"></script><script src="../../../../source-files.js"></script>
 </body></html>

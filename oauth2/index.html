@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="An extensible, strongly-typed implementation of OAuth2 (RFC 6749) including token introspection (RFC 7662) and token revocation (RFC 7009)."><meta name="keywords" content="rust, rustlang, rust-lang, oauth2"><title>oauth2 - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../oauth2/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><h2 class="location">Crate oauth2</h2><div class="block version"><div class="narrow-helper"></div><p>Version 4.1.0</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all oauth2's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li></ul></div><div id="sidebar-vars" data-name="oauth2" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">oauth2</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/oauth2/lib.rs.html#1-3105" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>An extensible, strongly-typed implementation of OAuth2
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="An extensible, strongly-typed implementation of OAuth2 (RFC 6749) including token introspection (RFC 7662) and token revocation (RFC 7009)."><meta name="keywords" content="rust, rustlang, rust-lang, oauth2"><title>oauth2 - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../favicon.svg"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../oauth2/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><h2 class="location">Crate oauth2</h2><div class="block version"><div class="narrow-helper"></div><p>Version 4.1.0</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all oauth2's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li></ul></div><div id="sidebar-vars" data-name="oauth2" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">oauth2</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/oauth2/lib.rs.html#1-3105" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>An extensible, strongly-typed implementation of OAuth2
 (<a href="https://tools.ietf.org/html/rfc6749">RFC 6749</a>) including token introspection (<a href="https://tools.ietf.org/html/rfc7662">RFC 7662</a>)
 and token revocation (<a href="https://tools.ietf.org/html/rfc7009">RFC 7009</a>).</p>
 <h1 id="contents" class="section-header"><a href="#contents">Contents</a></h1>
@@ -27,7 +27,7 @@ and token revocation (<a href="https://tools.ietf.org/html/rfc7009">RFC 7009</a>
 <p><strong>Synchronous (blocking)</strong></p>
 <p>The synchronous interface is available for any combination of feature flags.</p>
 <p>Example import in <code>Cargo.toml</code>:</p>
-<div class="example-wrap"><pre class="language-toml">oauth2 = &quot;4.1&quot;</pre></div></li>
+<div class="example-wrap"><pre class="language-toml"><code>oauth2 = &quot;4.1&quot;</code></pre></div></li>
 </ul>
 <p>For the HTTP client modes described above, the following HTTP client implementations can be
 used:</p>
@@ -56,19 +56,17 @@ the synchronous HTTP client mode and can be enabled in <code>Cargo.toml</code> v
 an <a href="struct.HttpRequest.html" title="HttpRequest"><code>HttpRequest</code></a> and return an <a href="struct.HttpResponse.html" title="HttpResponse"><code>HttpResponse</code></a> or error. Users writing their own clients
 may wish to disable the default <code>reqwest</code> 0.10 dependency by specifying
 <code>default-features = false</code> in <code>Cargo.toml</code>:</p>
-<div class="example-wrap"><pre class="language-toml">oauth2 = { version = &quot;4.1&quot;, default-features = false }</pre></div>
+<div class="example-wrap"><pre class="language-toml"><code>oauth2 = { version = &quot;4.1&quot;, default-features = false }</code></pre></div>
 <p>Synchronous HTTP clients should implement the following trait:</p>
 
-<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
-<span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">RE</span><span class="op">&gt;</span>
-<span class="kw">where</span> <span class="ident">RE</span>: <span class="ident">std::error::Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span></pre></div>
+<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore"><code><span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">RE</span><span class="op">&gt;</span>
+<span class="kw">where</span> <span class="ident">RE</span>: <span class="ident">std::error::Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span></code></pre></div>
 <p>Async/await HTTP clients should implement the following trait:</p>
 
-<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
-<span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">F</span>
+<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore"><code><span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">F</span>
 <span class="kw">where</span>
   <span class="ident">F</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">RE</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-  <span class="ident">RE</span>: <span class="ident">std::error::Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span></pre></div>
+  <span class="ident">RE</span>: <span class="ident">std::error::Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span></code></pre></div>
 </li>
 </ul>
 <h1 id="getting-started-authorization-code-grant-w-pkce" class="section-header"><a href="#getting-started-authorization-code-grant-w-pkce">Getting started: Authorization Code Grant w/ PKCE</a></h1>
@@ -78,8 +76,7 @@ client-side web applications).</p>
 <h2 id="example-synchronous-blocking-api" class="section-header"><a href="#example-synchronous-blocking-api">Example: Synchronous (blocking) API</a></h2>
 <p>This example works with <code>oauth2</code>’s default feature flags, which include <code>reqwest</code> 0.10.</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">use</span> <span class="ident">anyhow</span>;
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">anyhow</span>;
 <span class="kw">use</span> <span class="ident">oauth2</span>::{
     <span class="ident">AuthorizationCode</span>,
     <span class="ident">AuthUrl</span>,
@@ -137,12 +134,11 @@ client-side web applications).</p>
         .<span class="ident">set_pkce_verifier</span>(<span class="ident">pkce_verifier</span>)
         .<span class="ident">request</span>(<span class="ident">http_client</span>)<span class="question-mark">?</span>;
 
-<span class="comment">// Unwrapping token_result will either produce a Token or a RequestTokenError.</span></pre></div>
+<span class="comment">// Unwrapping token_result will either produce a Token or a RequestTokenError.</span></code></pre></div>
 <h2 id="example-asyncawait-api" class="section-header"><a href="#example-asyncawait-api">Example: Async/Await API</a></h2>
 <p>One can use async/await as follows:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">use</span> <span class="ident">anyhow</span>;
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">anyhow</span>;
 <span class="kw">use</span> <span class="ident">oauth2</span>::{
     <span class="ident">AuthorizationCode</span>,
     <span class="ident">AuthUrl</span>,
@@ -200,14 +196,13 @@ client-side web applications).</p>
     .<span class="ident">request_async</span>(<span class="ident">async_http_client</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-<span class="comment">// Unwrapping token_result will either produce a Token or a RequestTokenError.</span></pre></div>
+<span class="comment">// Unwrapping token_result will either produce a Token or a RequestTokenError.</span></code></pre></div>
 <h1 id="implicit-grant" class="section-header"><a href="#implicit-grant">Implicit Grant</a></h1>
 <p>This flow fetches an access token directly from the authorization endpoint. Be sure to
 understand the security implications of this flow before using it. In most cases, the
 Authorization Code Grant flow is preferable to the Implicit Grant flow.</p>
 <h2 id="example" class="section-header"><a href="#example">Example</a></h2>
-<div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">use</span> <span class="ident">anyhow</span>;
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">anyhow</span>;
 <span class="kw">use</span> <span class="ident">oauth2</span>::{
     <span class="ident">AuthUrl</span>,
     <span class="ident">ClientId</span>,
@@ -240,13 +235,12 @@ Authorization Code Grant flow is preferable to the Implicit Grant flow.</p>
 <span class="comment">// Once the user has been redirected to the redirect URL, you&#39;ll have the access code.</span>
 <span class="comment">// For security reasons, your code should verify that the `state` parameter returned by the</span>
 <span class="comment">// server matches `csrf_state`.</span>
-</pre></div>
+</code></pre></div>
 <h1 id="resource-owner-password-credentials-grant" class="section-header"><a href="#resource-owner-password-credentials-grant">Resource Owner Password Credentials Grant</a></h1>
 <p>You can ask for a <em>password</em> access token by calling the <code>Client::exchange_password</code> method,
 while including the username and password.</p>
 <h2 id="example-1" class="section-header"><a href="#example-1">Example</a></h2>
-<div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">use</span> <span class="ident">anyhow</span>;
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">anyhow</span>;
 <span class="kw">use</span> <span class="ident">oauth2</span>::{
     <span class="ident">AuthUrl</span>,
     <span class="ident">ClientId</span>,
@@ -276,13 +270,12 @@ while including the username and password.</p>
             <span class="kw-2">&amp;</span><span class="ident">ResourceOwnerPassword::new</span>(<span class="string">&quot;pass&quot;</span>.<span class="ident">to_string</span>())
         )
         .<span class="ident">add_scope</span>(<span class="ident">Scope::new</span>(<span class="string">&quot;read&quot;</span>.<span class="ident">to_string</span>()))
-        .<span class="ident">request</span>(<span class="ident">http_client</span>)<span class="question-mark">?</span>;</pre></div>
+        .<span class="ident">request</span>(<span class="ident">http_client</span>)<span class="question-mark">?</span>;</code></pre></div>
 <h1 id="client-credentials-grant" class="section-header"><a href="#client-credentials-grant">Client Credentials Grant</a></h1>
 <p>You can ask for a <em>client credentials</em> access token by calling the
 <code>Client::exchange_client_credentials</code> method.</p>
 <h2 id="example-2" class="section-header"><a href="#example-2">Example</a></h2>
-<div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">use</span> <span class="ident">anyhow</span>;
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">anyhow</span>;
 <span class="kw">use</span> <span class="ident">oauth2</span>::{
     <span class="ident">AuthUrl</span>,
     <span class="ident">ClientId</span>,
@@ -306,7 +299,7 @@ while including the username and password.</p>
 <span class="kw">let</span> <span class="ident">token_result</span> <span class="op">=</span> <span class="ident">client</span>
     .<span class="ident">exchange_client_credentials</span>()
     .<span class="ident">add_scope</span>(<span class="ident">Scope::new</span>(<span class="string">&quot;read&quot;</span>.<span class="ident">to_string</span>()))
-    .<span class="ident">request</span>(<span class="ident">http_client</span>)<span class="question-mark">?</span>;</pre></div>
+    .<span class="ident">request</span>(<span class="ident">http_client</span>)<span class="question-mark">?</span>;</code></pre></div>
 <h1 id="device-code-flow" class="section-header"><a href="#device-code-flow">Device Code Flow</a></h1>
 <p>Device Code Flow allows users to sign in on browserless or input-constrained
 devices.  This is a two-stage process; first a user-code and verification
@@ -314,8 +307,7 @@ URL are obtained by using the <code>Client::exchange_client_credentials</code>
 method. Those are displayed to the user, then are used in a second client
 to poll the token endpoint for a token.</p>
 <h2 id="example-3" class="section-header"><a href="#example-3">Example</a></h2>
-<div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">use</span> <span class="ident">anyhow</span>;
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">anyhow</span>;
 <span class="kw">use</span> <span class="ident">oauth2</span>::{
     <span class="ident">AuthUrl</span>,
     <span class="ident">ClientId</span>,
@@ -355,7 +347,7 @@ to poll the token endpoint for a token.</p>
     <span class="ident">client</span>
     .<span class="ident">exchange_device_access_token</span>(<span class="kw-2">&amp;</span><span class="ident">details</span>)
     .<span class="ident">request</span>(<span class="ident">http_client</span>, <span class="ident">std::thread::sleep</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
-</pre></div>
+</code></pre></div>
 <h1 id="other-examples" class="section-header"><a href="#other-examples">Other examples</a></h1>
 <p>More specific implementations are available as part of the examples:</p>
 <ul>

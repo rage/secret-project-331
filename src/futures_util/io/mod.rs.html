@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;futures-util-0.3.17&#x2F;src&#x2F;io&#x2F;mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../futures_util/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;futures-util-0.3.17&#x2F;src&#x2F;io&#x2F;mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../futures_util/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -843,8 +843,7 @@
 <span id="843">843</span>
 <span id="844">844</span>
 <span id="845">845</span>
-</pre><pre class="rust">
-<span class="doccomment">//! Asynchronous I/O.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Asynchronous I/O.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! This module is the asynchronous version of `std::io`. It defines four</span>
 <span class="doccomment">//! traits, [`AsyncRead`], [`AsyncWrite`], [`AsyncSeek`], and [`AsyncBufRead`],</span>
@@ -864,9 +863,9 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;io-compat&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;io-compat&quot;</span>)))]</span>
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::compat::Compat</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::future::assert_future</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::stream::assert_stream</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::compat::Compat</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::future::assert_future</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::stream::assert_stream</span>;
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">pin::Pin</span>, <span class="ident">ptr</span>};
 
 <span class="comment">// Re-export some types from `std::io` so that users don&#39;t have to deal</span>
@@ -899,100 +898,100 @@
 }
 
 <span class="kw">mod</span> <span class="ident">allow_std</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::allow_std::AllowStdIo</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::allow_std::AllowStdIo</span>;
 
 <span class="kw">mod</span> <span class="ident">buf_reader</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::buf_reader</span>::{<span class="ident">BufReader</span>, <span class="ident">SeeKRelative</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::buf_reader</span>::{<span class="ident">BufReader</span>, <span class="ident">SeeKRelative</span>};
 
 <span class="kw">mod</span> <span class="ident">buf_writer</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::buf_writer::BufWriter</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::buf_writer::BufWriter</span>;
 
 <span class="kw">mod</span> <span class="ident">chain</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::chain::Chain</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::chain::Chain</span>;
 
 <span class="kw">mod</span> <span class="ident">close</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::close::Close</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::close::Close</span>;
 
 <span class="kw">mod</span> <span class="ident">copy</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::copy</span>::{<span class="ident">copy</span>, <span class="ident">Copy</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::copy</span>::{<span class="ident">copy</span>, <span class="ident">Copy</span>};
 
 <span class="kw">mod</span> <span class="ident">copy_buf</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::copy_buf</span>::{<span class="ident">copy_buf</span>, <span class="ident">CopyBuf</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::copy_buf</span>::{<span class="ident">copy_buf</span>, <span class="ident">CopyBuf</span>};
 
 <span class="kw">mod</span> <span class="ident">cursor</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::cursor::Cursor</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::cursor::Cursor</span>;
 
 <span class="kw">mod</span> <span class="ident">empty</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::empty</span>::{<span class="ident">empty</span>, <span class="ident">Empty</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::empty</span>::{<span class="ident">empty</span>, <span class="ident">Empty</span>};
 
 <span class="kw">mod</span> <span class="ident">fill_buf</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::fill_buf::FillBuf</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::fill_buf::FillBuf</span>;
 
 <span class="kw">mod</span> <span class="ident">flush</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::flush::Flush</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::flush::Flush</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sink&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sink&quot;</span>)))]</span>
 <span class="kw">mod</span> <span class="ident">into_sink</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sink&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sink&quot;</span>)))]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::into_sink::IntoSink</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::into_sink::IntoSink</span>;
 
 <span class="kw">mod</span> <span class="ident">lines</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::lines::Lines</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::lines::Lines</span>;
 
 <span class="kw">mod</span> <span class="ident">read</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::read::Read</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::read::Read</span>;
 
 <span class="kw">mod</span> <span class="ident">read_vectored</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::read_vectored::ReadVectored</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::read_vectored::ReadVectored</span>;
 
 <span class="kw">mod</span> <span class="ident">read_exact</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::read_exact::ReadExact</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::read_exact::ReadExact</span>;
 
 <span class="kw">mod</span> <span class="ident">read_line</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::read_line::ReadLine</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::read_line::ReadLine</span>;
 
 <span class="kw">mod</span> <span class="ident">read_to_end</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::read_to_end::ReadToEnd</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::read_to_end::ReadToEnd</span>;
 
 <span class="kw">mod</span> <span class="ident">read_to_string</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::read_to_string::ReadToString</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::read_to_string::ReadToString</span>;
 
 <span class="kw">mod</span> <span class="ident">read_until</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::read_until::ReadUntil</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::read_until::ReadUntil</span>;
 
 <span class="kw">mod</span> <span class="ident">repeat</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::repeat</span>::{<span class="ident">repeat</span>, <span class="ident">Repeat</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::repeat</span>::{<span class="ident">repeat</span>, <span class="ident">Repeat</span>};
 
 <span class="kw">mod</span> <span class="ident">seek</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::seek::Seek</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::seek::Seek</span>;
 
 <span class="kw">mod</span> <span class="ident">sink</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::sink</span>::{<span class="ident">sink</span>, <span class="ident">Sink</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::sink</span>::{<span class="ident">sink</span>, <span class="ident">Sink</span>};
 
 <span class="kw">mod</span> <span class="ident">split</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::split</span>::{<span class="ident">ReadHalf</span>, <span class="ident">ReuniteError</span>, <span class="ident">WriteHalf</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::split</span>::{<span class="ident">ReadHalf</span>, <span class="ident">ReuniteError</span>, <span class="ident">WriteHalf</span>};
 
 <span class="kw">mod</span> <span class="ident">take</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::take::Take</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::take::Take</span>;
 
 <span class="kw">mod</span> <span class="ident">window</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::window::Window</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::window::Window</span>;
 
 <span class="kw">mod</span> <span class="ident">write</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::write::Write</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::write::Write</span>;
 
 <span class="kw">mod</span> <span class="ident">write_vectored</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::write_vectored::WriteVectored</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::write_vectored::WriteVectored</span>;
 
 <span class="kw">mod</span> <span class="ident">write_all</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::write_all::WriteAll</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::write_all::WriteAll</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;write-all-vectored&quot;</span>)]</span>
 <span class="kw">mod</span> <span class="ident">write_all_vectored</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;write-all-vectored&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::write_all_vectored::WriteAllVectored</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::write_all_vectored::WriteAllVectored</span>;
 
 <span class="doccomment">/// An extension trait which adds utility methods to `AsyncRead` types.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">AsyncReadExt</span>: <span class="ident">AsyncRead</span> {
@@ -1435,7 +1434,7 @@
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">Sized</span>,
     {
-        <span class="kw">crate</span><span class="ident">::sink::assert_sink</span>::<span class="op">&lt;</span><span class="ident">Item</span>, <span class="ident">Error</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">IntoSink::new</span>(<span class="self">self</span>))
+        <span class="ident"><span class="kw">crate</span>::sink::assert_sink</span>::<span class="op">&lt;</span><span class="ident">Item</span>, <span class="ident">Error</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">IntoSink::new</span>(<span class="self">self</span>))
     }
 }
 
@@ -1689,7 +1688,7 @@
 {
     <span class="ident">writer</span>
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="futures_util" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
 </body></html>

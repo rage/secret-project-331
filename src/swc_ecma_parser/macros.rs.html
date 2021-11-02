@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;swc_ecma_parser-0.52.2&#x2F;src&#x2F;macros.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>macros.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../swc_ecma_parser/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;swc_ecma_parser-0.52.2&#x2F;src&#x2F;macros.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>macros.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../swc_ecma_parser/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -378,376 +378,375 @@
 <span id="378">378</span>
 <span id="379">379</span>
 <span id="380">380</span>
-</pre><pre class="rust">
-<span class="macro">macro_rules!</span> <span class="ident">tok</span> {
+</pre><pre class="rust"><code><span class="macro">macro_rules!</span> <span class="ident">tok</span> {
     (<span class="string">&#39;`&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::BackQuote</span>
+        <span class="ident"><span class="kw">crate</span>::token::Token::BackQuote</span>
     };
     <span class="comment">// (&#39;;&#39;) =&gt; { Token::Semi };</span>
     (<span class="string">&#39;@&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::At</span>
+        <span class="ident"><span class="kw">crate</span>::token::Token::At</span>
     };
     (<span class="string">&#39;#&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Hash</span>
+        <span class="ident"><span class="kw">crate</span>::token::Token::Hash</span>
     };
 
     (<span class="string">&#39;&amp;&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::BinOp</span>(<span class="kw">crate</span><span class="ident">::token::BinOpToken::BitAnd</span>)
+        <span class="ident"><span class="kw">crate</span>::token::Token::BinOp</span>(<span class="ident"><span class="kw">crate</span>::token::BinOpToken::BitAnd</span>)
     };
     (<span class="string">&#39;+&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::BinOp</span>(<span class="kw">crate</span><span class="ident">::token::BinOpToken::Add</span>)
+        <span class="ident"><span class="kw">crate</span>::token::Token::BinOp</span>(<span class="ident"><span class="kw">crate</span>::token::BinOpToken::Add</span>)
     };
     (<span class="string">&#39;-&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::BinOp</span>(<span class="kw">crate</span><span class="ident">::token::BinOpToken::Sub</span>)
+        <span class="ident"><span class="kw">crate</span>::token::Token::BinOp</span>(<span class="ident"><span class="kw">crate</span>::token::BinOpToken::Sub</span>)
     };
     (<span class="string">&quot;??&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::BinOp</span>(<span class="kw">crate</span><span class="ident">::token::BinOpToken::NullishCoalescing</span>)
+        <span class="ident"><span class="kw">crate</span>::token::Token::BinOp</span>(<span class="ident"><span class="kw">crate</span>::token::BinOpToken::NullishCoalescing</span>)
     };
     (<span class="string">&#39;~&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Tilde</span>
+        <span class="ident"><span class="kw">crate</span>::token::Token::Tilde</span>
     };
     (<span class="string">&#39;!&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Bang</span>
+        <span class="ident"><span class="kw">crate</span>::token::Token::Bang</span>
     };
     (<span class="string">&quot;&amp;&amp;=&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::AssignOp</span>(<span class="kw">crate</span><span class="ident">::token::AssignOpToken::AndAssign</span>)
+        <span class="ident"><span class="kw">crate</span>::token::Token::AssignOp</span>(<span class="ident"><span class="kw">crate</span>::token::AssignOpToken::AndAssign</span>)
     };
     (<span class="string">&quot;||=&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::AssignOp</span>(<span class="kw">crate</span><span class="ident">::token::AssignOpToken::OrAssign</span>)
+        <span class="ident"><span class="kw">crate</span>::token::Token::AssignOp</span>(<span class="ident"><span class="kw">crate</span>::token::AssignOpToken::OrAssign</span>)
     };
     (<span class="string">&quot;??=&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::AssignOp</span>(<span class="kw">crate</span><span class="ident">::token::AssignOpToken::NullishAssign</span>)
+        <span class="ident"><span class="kw">crate</span>::token::Token::AssignOp</span>(<span class="ident"><span class="kw">crate</span>::token::AssignOpToken::NullishAssign</span>)
     };
 
     (<span class="string">&#39;|&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::BinOp</span>(<span class="kw">crate</span><span class="ident">::token::BinOpToken::BitOr</span>)
+        <span class="ident"><span class="kw">crate</span>::token::Token::BinOp</span>(<span class="ident"><span class="kw">crate</span>::token::BinOpToken::BitOr</span>)
     };
 
     (<span class="string">&#39;,&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Comma</span>
+        <span class="ident"><span class="kw">crate</span>::token::Token::Comma</span>
     };
     (<span class="string">&#39;?&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::QuestionMark</span>
+        <span class="ident"><span class="kw">crate</span>::token::Token::QuestionMark</span>
     };
     (<span class="string">&#39;:&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Colon</span>
+        <span class="ident"><span class="kw">crate</span>::token::Token::Colon</span>
     };
     (<span class="string">&quot;::&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::ColonColon</span>
+        <span class="ident"><span class="kw">crate</span>::token::Token::ColonColon</span>
     };
     (<span class="string">&#39;.&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Dot</span>
+        <span class="ident"><span class="kw">crate</span>::token::Token::Dot</span>
     };
     (<span class="string">&quot;=&gt;&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Arrow</span>
+        <span class="ident"><span class="kw">crate</span>::token::Token::Arrow</span>
     };
     (<span class="string">&quot;...&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::DotDotDot</span>
+        <span class="ident"><span class="kw">crate</span>::token::Token::DotDotDot</span>
     };
     (<span class="string">&quot;${&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::DollarLBrace</span>
+        <span class="ident"><span class="kw">crate</span>::token::Token::DollarLBrace</span>
     };
 
     (<span class="string">&#39;+&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::BinOp</span>(<span class="kw">crate</span><span class="ident">::token::BinOpToken::Add</span>)
+        <span class="ident"><span class="kw">crate</span>::token::Token::BinOp</span>(<span class="ident"><span class="kw">crate</span>::token::BinOpToken::Add</span>)
     };
     (<span class="string">&#39;-&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::BinOp</span>(<span class="kw">crate</span><span class="ident">::token::BinOpToken::Sub</span>)
+        <span class="ident"><span class="kw">crate</span>::token::Token::BinOp</span>(<span class="ident"><span class="kw">crate</span>::token::BinOpToken::Sub</span>)
     };
     (<span class="string">&#39;*&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::BinOp</span>(<span class="kw">crate</span><span class="ident">::token::BinOpToken::Mul</span>)
+        <span class="ident"><span class="kw">crate</span>::token::Token::BinOp</span>(<span class="ident"><span class="kw">crate</span>::token::BinOpToken::Mul</span>)
     };
     (<span class="string">&#39;/&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::BinOp</span>(<span class="kw">crate</span><span class="ident">::token::BinOpToken::Div</span>)
+        <span class="ident"><span class="kw">crate</span>::token::Token::BinOp</span>(<span class="ident"><span class="kw">crate</span>::token::BinOpToken::Div</span>)
     };
     (<span class="string">&quot;/=&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::AssignOp</span>(<span class="ident">DivAssign</span>)
+        <span class="ident"><span class="kw">crate</span>::token::Token::AssignOp</span>(<span class="ident">DivAssign</span>)
     };
     (<span class="string">&#39;%&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::BinOp</span>(<span class="ident">Mod</span>)
+        <span class="ident"><span class="kw">crate</span>::token::Token::BinOp</span>(<span class="ident">Mod</span>)
     };
     (<span class="string">&#39;~&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Tilde</span>
+        <span class="ident"><span class="kw">crate</span>::token::Token::Tilde</span>
     };
     (<span class="string">&#39;&lt;&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::BinOp</span>(<span class="kw">crate</span><span class="ident">::token::BinOpToken::Lt</span>)
+        <span class="ident"><span class="kw">crate</span>::token::Token::BinOp</span>(<span class="ident"><span class="kw">crate</span>::token::BinOpToken::Lt</span>)
     };
     (<span class="string">&#39;&gt;&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::BinOp</span>(<span class="kw">crate</span><span class="ident">::token::BinOpToken::Gt</span>)
+        <span class="ident"><span class="kw">crate</span>::token::Token::BinOp</span>(<span class="ident"><span class="kw">crate</span>::token::BinOpToken::Gt</span>)
     };
 
     (<span class="string">&quot;++&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::PlusPlus</span>
+        <span class="ident"><span class="kw">crate</span>::token::Token::PlusPlus</span>
     };
     (<span class="string">&quot;--&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::MinusMinus</span>
+        <span class="ident"><span class="kw">crate</span>::token::Token::MinusMinus</span>
     };
 
     (<span class="string">&#39;=&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::AssignOp</span>(<span class="kw">crate</span><span class="ident">::token::AssignOpToken::Assign</span>)
+        <span class="ident"><span class="kw">crate</span>::token::Token::AssignOp</span>(<span class="ident"><span class="kw">crate</span>::token::AssignOpToken::Assign</span>)
     };
 
     (<span class="string">&#39;(&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::LParen</span>
+        <span class="ident"><span class="kw">crate</span>::token::Token::LParen</span>
     };
     (<span class="string">&#39;)&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::RParen</span>
+        <span class="ident"><span class="kw">crate</span>::token::Token::RParen</span>
     };
     (<span class="string">&#39;{&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::LBrace</span>
+        <span class="ident"><span class="kw">crate</span>::token::Token::LBrace</span>
     };
     (<span class="string">&#39;}&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::RBrace</span>
+        <span class="ident"><span class="kw">crate</span>::token::Token::RBrace</span>
     };
     (<span class="string">&#39;[&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::LBracket</span>
+        <span class="ident"><span class="kw">crate</span>::token::Token::LBracket</span>
     };
     (<span class="string">&#39;]&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::RBracket</span>
+        <span class="ident"><span class="kw">crate</span>::token::Token::RBracket</span>
     };
 
     (<span class="string">&quot;async&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;async&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;async&quot;</span>)))
     };
     (<span class="string">&quot;as&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;as&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;as&quot;</span>)))
     };
     (<span class="string">&quot;await&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::Await</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::Await</span>))
     };
     (<span class="string">&quot;break&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::Break</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::Break</span>))
     };
     (<span class="string">&quot;case&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::Case</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::Case</span>))
     };
     (<span class="string">&quot;catch&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::Catch</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::Catch</span>))
     };
     (<span class="string">&quot;class&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::Class</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::Class</span>))
     };
     (<span class="string">&quot;const&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::Const</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::Const</span>))
     };
     (<span class="string">&quot;continue&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::Continue</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::Continue</span>))
     };
     (<span class="string">&quot;debugger&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::Debugger</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::Debugger</span>))
     };
     (<span class="string">&quot;default&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::Default_</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::Default_</span>))
     };
     (<span class="string">&quot;delete&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::Delete</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::Delete</span>))
     };
     (<span class="string">&quot;do&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::Do</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::Do</span>))
     };
     (<span class="string">&quot;else&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::Else</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::Else</span>))
     };
     (<span class="string">&quot;export&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::Export</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::Export</span>))
     };
     (<span class="string">&quot;extends&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::Extends</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::Extends</span>))
     };
     (<span class="string">&quot;false&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::False</span>)
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::False</span>)
     };
     (<span class="string">&quot;finally&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::Finally</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::Finally</span>))
     };
     (<span class="string">&quot;for&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::For</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::For</span>))
     };
     (<span class="string">&quot;from&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;from&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;from&quot;</span>)))
     };
     (<span class="string">&quot;function&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::Function</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::Function</span>))
     };
     (<span class="string">&quot;if&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::If</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::If</span>))
     };
     (<span class="string">&quot;in&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::In</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::In</span>))
     };
     (<span class="string">&quot;import&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::Import</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::Import</span>))
     };
     (<span class="string">&quot;let&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::Let</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::Let</span>))
     };
     (<span class="string">&quot;new&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::New</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::New</span>))
     };
     (<span class="string">&quot;null&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Null</span>)
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Null</span>)
     };
     (<span class="string">&quot;of&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;of&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;of&quot;</span>)))
     };
     (<span class="string">&quot;return&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::Return</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::Return</span>))
     };
     (<span class="string">&quot;super&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::Super</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::Super</span>))
     };
     (<span class="string">&quot;static&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;static&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;static&quot;</span>)))
     };
     (<span class="string">&quot;switch&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::Switch</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::Switch</span>))
     };
     (<span class="string">&quot;target&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;target&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;target&quot;</span>)))
     };
     (<span class="string">&quot;this&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::This</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::This</span>))
     };
     (<span class="string">&quot;throw&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::Throw</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::Throw</span>))
     };
     (<span class="string">&quot;true&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::True</span>)
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::True</span>)
     };
     (<span class="string">&quot;try&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::Try</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::Try</span>))
     };
     (<span class="string">&quot;typeof&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::TypeOf</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::TypeOf</span>))
     };
     (<span class="string">&quot;var&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::Var</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::Var</span>))
     };
     (<span class="string">&quot;void&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::Void</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::Void</span>))
     };
     (<span class="string">&quot;while&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::While</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::While</span>))
     };
     (<span class="string">&quot;with&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::With</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::With</span>))
     };
     (<span class="string">&quot;yield&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Keyword</span>(<span class="kw">crate</span><span class="ident">::token::Keyword::Yield</span>))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Keyword</span>(<span class="ident"><span class="kw">crate</span>::token::Keyword::Yield</span>))
     };
 
     <span class="comment">// ----------</span>
     <span class="comment">// JSX</span>
     <span class="comment">// ----------</span>
     (<span class="ident">JSXTagStart</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::JSXTagStart</span>
+        <span class="ident"><span class="kw">crate</span>::token::Token::JSXTagStart</span>
     };
 
     (<span class="ident">JSXTagEnd</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::JSXTagEnd</span>
+        <span class="ident"><span class="kw">crate</span>::token::Token::JSXTagEnd</span>
     };
 
     <span class="comment">// ----------</span>
     <span class="comment">// Typescript</span>
     <span class="comment">// ----------</span>
     (<span class="string">&quot;asserts&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;asserts&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;asserts&quot;</span>)))
     };
     (<span class="string">&quot;implements&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;implements&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;implements&quot;</span>)))
     };
     (<span class="string">&quot;is&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;is&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;is&quot;</span>)))
     };
     (<span class="string">&quot;new&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;new&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;new&quot;</span>)))
     };
     (<span class="string">&quot;keyof&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;keyof&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;keyof&quot;</span>)))
     };
     (<span class="string">&quot;unique&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;unique&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;unique&quot;</span>)))
     };
     (<span class="string">&quot;object&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;object&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;object&quot;</span>)))
     };
     (<span class="string">&quot;global&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;global&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;global&quot;</span>)))
     };
     (<span class="string">&quot;require&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;require&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;require&quot;</span>)))
     };
     (<span class="string">&quot;enum&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;enum&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;enum&quot;</span>)))
     };
     (<span class="string">&quot;readonly&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;readonly&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;readonly&quot;</span>)))
     };
     (<span class="string">&quot;as&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;as&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;as&quot;</span>)))
     };
     (<span class="string">&quot;namespace&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;namespace&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;namespace&quot;</span>)))
     };
     (<span class="string">&quot;abstract&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;abstract&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;abstract&quot;</span>)))
     };
     (<span class="string">&quot;infer&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;infer&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;infer&quot;</span>)))
     };
     (<span class="string">&quot;any&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;any&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;any&quot;</span>)))
     };
     (<span class="string">&quot;boolean&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;boolean&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;boolean&quot;</span>)))
     };
     (<span class="string">&quot;bigint&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;bigint&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;bigint&quot;</span>)))
     };
     (<span class="string">&quot;intrinsic&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;intrinsic&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;intrinsic&quot;</span>)))
     };
     (<span class="string">&quot;never&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;never&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;never&quot;</span>)))
     };
     (<span class="string">&quot;number&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;number&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;number&quot;</span>)))
     };
     (<span class="string">&quot;string&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;string&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;string&quot;</span>)))
     };
     (<span class="string">&quot;symbol&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;symbol&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;symbol&quot;</span>)))
     };
     (<span class="string">&quot;unknown&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;unknown&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;unknown&quot;</span>)))
     };
     (<span class="string">&quot;require&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;require&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;require&quot;</span>)))
     };
     (<span class="string">&quot;interface&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;interface&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;interface&quot;</span>)))
     };
     (<span class="string">&quot;declare&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;declare&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;declare&quot;</span>)))
     };
     (<span class="string">&quot;undefined&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;undefined&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;undefined&quot;</span>)))
     };
     (<span class="string">&quot;meta&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;meta&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;meta&quot;</span>)))
     };
     (<span class="string">&quot;type&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;type&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;type&quot;</span>)))
     };
     (<span class="string">&quot;assert&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;assert&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;assert&quot;</span>)))
     };
     (<span class="string">&quot;get&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;get&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;get&quot;</span>)))
     };
     (<span class="string">&quot;set&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::token::Token::Word</span>(<span class="kw">crate</span><span class="ident">::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;set&quot;</span>)))
+        <span class="ident"><span class="kw">crate</span>::token::Token::Word</span>(<span class="ident"><span class="kw">crate</span>::token::Word::Ident</span>(<span class="macro">swc_atoms::js_word!</span>(<span class="string">&quot;set&quot;</span>)))
     };
 }
 
@@ -759,7 +758,7 @@
         <span class="macro">tok!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)
     };
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="swc_ecma_parser" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>

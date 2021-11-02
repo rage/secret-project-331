@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;sqlx-core-0.5.7&#x2F;src&#x2F;postgres&#x2F;connection&#x2F;describe.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>describe.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../sqlx_core/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;sqlx-core-0.5.7&#x2F;src&#x2F;postgres&#x2F;connection&#x2F;describe.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>describe.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../sqlx_core/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -499,17 +499,16 @@
 <span id="499">499</span>
 <span id="500">500</span>
 <span id="501">501</span>
-</pre><pre class="rust">
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error::Error</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ext::ustr::UStr</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::postgres::message</span>::{<span class="ident">ParameterDescription</span>, <span class="ident">RowDescription</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::postgres::statement::PgStatementMetadata</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::postgres::type_info</span>::{<span class="ident">PgCustomType</span>, <span class="ident">PgType</span>, <span class="ident">PgTypeKind</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::postgres</span>::{<span class="ident">PgArguments</span>, <span class="ident">PgColumn</span>, <span class="ident">PgConnection</span>, <span class="ident">PgTypeInfo</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::query_as::query_as</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::query_scalar</span>::{<span class="ident">query_scalar</span>, <span class="ident">query_scalar_with</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::types::Json</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::HashMap</span>;
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ext::ustr::UStr</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::message</span>::{<span class="ident">ParameterDescription</span>, <span class="ident">RowDescription</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::statement::PgStatementMetadata</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::type_info</span>::{<span class="ident">PgCustomType</span>, <span class="ident">PgType</span>, <span class="ident">PgTypeKind</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres</span>::{<span class="ident">PgArguments</span>, <span class="ident">PgColumn</span>, <span class="ident">PgConnection</span>, <span class="ident">PgTypeInfo</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::query_as::query_as</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::query_scalar</span>::{<span class="ident">query_scalar</span>, <span class="ident">query_scalar_with</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types::Json</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::HashMap</span>;
 <span class="kw">use</span> <span class="ident">futures_core::future::BoxFuture</span>;
 <span class="kw">use</span> <span class="ident">std::convert::TryFrom</span>;
 <span class="kw">use</span> <span class="ident">std::fmt::Write</span>;
@@ -530,14 +529,14 @@
 <span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TypType</span> {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> ();
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">t</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span><span class="ident">::Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">t</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">t</span> {
-            <span class="string">b&#39;b&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Base</span>,
-            <span class="string">b&#39;c&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Composite</span>,
-            <span class="string">b&#39;d&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Domain</span>,
-            <span class="string">b&#39;e&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Enum</span>,
-            <span class="string">b&#39;p&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Pseudo</span>,
-            <span class="string">b&#39;r&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Range</span>,
+            <span class="string">b&#39;b&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Base</span>,
+            <span class="string">b&#39;c&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Composite</span>,
+            <span class="string">b&#39;d&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Domain</span>,
+            <span class="string">b&#39;e&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Enum</span>,
+            <span class="string">b&#39;p&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Pseudo</span>,
+            <span class="string">b&#39;r&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Range</span>,
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(()),
         };
         <span class="prelude-val">Ok</span>(<span class="ident">t</span>)
@@ -568,23 +567,23 @@
 <span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TypCategory</span> {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> ();
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">c</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span><span class="ident">::Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">c</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">c</span> {
-            <span class="string">b&#39;A&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Array</span>,
-            <span class="string">b&#39;B&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Boolean</span>,
-            <span class="string">b&#39;C&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Composite</span>,
-            <span class="string">b&#39;D&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::DateTime</span>,
-            <span class="string">b&#39;E&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Enum</span>,
-            <span class="string">b&#39;G&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Geometric</span>,
-            <span class="string">b&#39;I&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Network</span>,
-            <span class="string">b&#39;N&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Numeric</span>,
-            <span class="string">b&#39;P&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Pseudo</span>,
-            <span class="string">b&#39;R&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Range</span>,
-            <span class="string">b&#39;S&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::String</span>,
-            <span class="string">b&#39;T&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Timespan</span>,
-            <span class="string">b&#39;U&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::User</span>,
-            <span class="string">b&#39;V&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::BitString</span>,
-            <span class="string">b&#39;X&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Unknown</span>,
+            <span class="string">b&#39;A&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Array</span>,
+            <span class="string">b&#39;B&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Boolean</span>,
+            <span class="string">b&#39;C&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Composite</span>,
+            <span class="string">b&#39;D&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::DateTime</span>,
+            <span class="string">b&#39;E&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Enum</span>,
+            <span class="string">b&#39;G&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Geometric</span>,
+            <span class="string">b&#39;I&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Network</span>,
+            <span class="string">b&#39;N&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Numeric</span>,
+            <span class="string">b&#39;P&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Pseudo</span>,
+            <span class="string">b&#39;R&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Range</span>,
+            <span class="string">b&#39;S&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::String</span>,
+            <span class="string">b&#39;T&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Timespan</span>,
+            <span class="string">b&#39;U&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::User</span>,
+            <span class="string">b&#39;V&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::BitString</span>,
+            <span class="string">b&#39;X&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Unknown</span>,
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(()),
         };
         <span class="prelude-val">Ok</span>(<span class="ident">c</span>)
@@ -1001,7 +1000,7 @@ SELECT oid FROM pg_catalog.pg_type WHERE typname ILIKE $1
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;Plans&quot;</span>)]</span>
     <span class="ident">plans</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Plan</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-search-index-js="../../../../search-index.js" data-search-js="../../../../search.js"></div>
     <script src="../../../../main.js"></script><script src="../../../../source-script.js"></script><script src="../../../../source-files.js"></script>
 </body></html>

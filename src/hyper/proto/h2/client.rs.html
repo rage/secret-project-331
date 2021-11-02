@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;hyper-0.14.13&#x2F;src&#x2F;proto&#x2F;h2&#x2F;client.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>client.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../hyper/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;hyper-0.14.13&#x2F;src&#x2F;proto&#x2F;h2&#x2F;client.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>client.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../hyper/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -368,8 +368,7 @@
 <span id="368">368</span>
 <span id="369">369</span>
 <span id="370">370</span>
-</pre><pre class="rust">
-<span class="kw">use</span> <span class="ident">std::error::Error</span> <span class="kw">as</span> <span class="ident">StdError</span>;
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::error::Error</span> <span class="kw">as</span> <span class="ident">StdError</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;runtime&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">std::time::Duration</span>;
 
@@ -383,15 +382,15 @@
 <span class="kw">use</span> <span class="ident">tracing</span>::{<span class="ident">debug</span>, <span class="ident">trace</span>, <span class="ident">warn</span>};
 
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">ping</span>, <span class="ident">H2Upgraded</span>, <span class="ident">PipeToSendStream</span>, <span class="ident">SendBuf</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::body::HttpBody</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::common</span>::{<span class="ident">exec::Exec</span>, <span class="ident">task</span>, <span class="ident">Future</span>, <span class="ident">Never</span>, <span class="ident">Pin</span>, <span class="ident">Poll</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::headers</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::proto::h2::UpgradedSendStream</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::proto::Dispatched</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::upgrade::Upgraded</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::body::HttpBody</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::common</span>::{<span class="ident">exec::Exec</span>, <span class="ident">task</span>, <span class="ident">Future</span>, <span class="ident">Never</span>, <span class="ident">Pin</span>, <span class="ident">Poll</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::headers</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::proto::h2::UpgradedSendStream</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::proto::Dispatched</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::upgrade::Upgraded</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Body</span>, <span class="ident">Request</span>, <span class="ident">Response</span>};
 
-<span class="kw">type</span> <span class="ident">ClientRx</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::client::dispatch::Receiver</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">Body</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+<span class="kw">type</span> <span class="ident">ClientRx</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::client::dispatch::Receiver</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">Body</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
 <span class="comment">///// An mpsc channel is used to help notify the `Connection` task when *all*</span>
 <span class="comment">///// other handles to it have been dropped, so that it can shutdown.</span>
@@ -475,7 +474,7 @@
     <span class="ident">req_rx</span>: <span class="ident">ClientRx</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>,
     <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">Config</span>,
     <span class="ident">exec</span>: <span class="ident">Exec</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="ident">ClientTask</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span>
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">ClientTask</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">AsyncWrite</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Unpin</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     <span class="ident">B</span>: <span class="ident">HttpBody</span>,
@@ -484,7 +483,7 @@
     <span class="kw">let</span> (<span class="ident">h2_tx</span>, <span class="kw-2">mut</span> <span class="ident">conn</span>) <span class="op">=</span> <span class="ident">new_builder</span>(<span class="ident">config</span>)
         .<span class="ident">handshake</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">SendBuf</span><span class="op">&lt;</span><span class="ident">B::Data</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">io</span>)
         .<span class="kw">await</span>
-        .<span class="ident">map_err</span>(<span class="kw">crate</span><span class="ident">::Error::new_h2</span>)<span class="question-mark">?</span>;
+        .<span class="ident">map_err</span>(<span class="ident"><span class="kw">crate</span>::Error::new_h2</span>)<span class="question-mark">?</span>;
 
     <span class="comment">// An mpsc channel is used entirely to detect when the</span>
     <span class="comment">// &#39;Client&#39; has been dropped. This is to get around a bug</span>
@@ -577,9 +576,9 @@
     <span class="ident">B::Data</span>: <span class="ident">Send</span>,
     <span class="ident">B::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="ident">Dispatched</span><span class="op">&gt;</span>;
+    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Dispatched</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">task::Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Output</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">task::Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
         <span class="kw">loop</span> {
             <span class="kw">match</span> <span class="macro">ready!</span>(<span class="self">self</span>.<span class="ident">h2_tx</span>.<span class="ident">poll_ready</span>(<span class="ident">cx</span>)) {
                 <span class="prelude-val">Ok</span>(()) <span class="op">=</span><span class="op">&gt;</span> (),
@@ -589,7 +588,7 @@
                         <span class="macro">trace!</span>(<span class="string">&quot;connection gracefully shutdown&quot;</span>);
                         <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">Dispatched::Shutdown</span>))
                     } <span class="kw">else</span> {
-                        <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="kw">crate</span><span class="ident">::Error::new_h2</span>(<span class="ident">err</span>)))
+                        <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::Error::new_h2</span>(<span class="ident">err</span>)))
                     };
                 }
             };
@@ -603,7 +602,7 @@
                     }
                     <span class="kw">let</span> (<span class="ident">head</span>, <span class="ident">body</span>) <span class="op">=</span> <span class="ident">req</span>.<span class="ident">into_parts</span>();
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">::http::Request::from_parts</span>(<span class="ident">head</span>, ());
-                    <span class="kw">super</span><span class="ident">::strip_connection_headers</span>(<span class="ident">req</span>.<span class="ident">headers_mut</span>(), <span class="bool-val">true</span>);
+                    <span class="ident"><span class="kw">super</span>::strip_connection_headers</span>(<span class="ident">req</span>.<span class="ident">headers_mut</span>(), <span class="bool-val">true</span>);
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">body</span>.<span class="ident">size_hint</span>().<span class="ident">exact</span>() {
                         <span class="kw">if</span> <span class="ident">len</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">headers::method_has_defined_payload_semantics</span>(<span class="ident">req</span>.<span class="ident">method</span>()) {
                             <span class="ident">headers::set_content_length_if_missing</span>(<span class="ident">req</span>.<span class="ident">headers_mut</span>(), <span class="ident">len</span>);
@@ -620,7 +619,7 @@
                         {
                             <span class="macro">warn!</span>(<span class="string">&quot;h2 connect request with non-zero body not supported&quot;</span>);
                             <span class="ident">cb</span>.<span class="ident">send</span>(<span class="prelude-val">Err</span>((
-                                <span class="kw">crate</span><span class="ident">::Error::new_h2</span>(<span class="ident">h2::Reason::INTERNAL_ERROR</span>.<span class="ident">into</span>()),
+                                <span class="ident"><span class="kw">crate</span>::Error::new_h2</span>(<span class="ident">h2::Reason::INTERNAL_ERROR</span>.<span class="ident">into</span>()),
                                 <span class="prelude-val">None</span>,
                             )));
                             <span class="kw">continue</span>;
@@ -631,7 +630,7 @@
                         <span class="prelude-val">Ok</span>(<span class="ident">ok</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ok</span>,
                         <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
                             <span class="macro">debug!</span>(<span class="string">&quot;client send request error: {}&quot;</span>, <span class="ident">err</span>);
-                            <span class="ident">cb</span>.<span class="ident">send</span>(<span class="prelude-val">Err</span>((<span class="kw">crate</span><span class="ident">::Error::new_h2</span>(<span class="ident">err</span>), <span class="prelude-val">None</span>)));
+                            <span class="ident">cb</span>.<span class="ident">send</span>(<span class="prelude-val">Err</span>((<span class="ident"><span class="kw">crate</span>::Error::new_h2</span>(<span class="ident">err</span>), <span class="prelude-val">None</span>)));
                             <span class="kw">continue</span>;
                         }
                     };
@@ -684,14 +683,14 @@
 
                                     <span class="ident">send_stream</span>.<span class="ident">send_reset</span>(<span class="ident">h2::Reason::INTERNAL_ERROR</span>);
                                     <span class="kw">return</span> <span class="prelude-val">Err</span>((
-                                        <span class="kw">crate</span><span class="ident">::Error::new_h2</span>(<span class="ident">h2::Reason::INTERNAL_ERROR</span>.<span class="ident">into</span>()),
+                                        <span class="ident"><span class="kw">crate</span>::Error::new_h2</span>(<span class="ident">h2::Reason::INTERNAL_ERROR</span>.<span class="ident">into</span>()),
                                         <span class="prelude-val">None</span>,
                                     ));
                                 }
                                 <span class="kw">let</span> (<span class="ident">parts</span>, <span class="ident">recv_stream</span>) <span class="op">=</span> <span class="ident">res</span>.<span class="ident">into_parts</span>();
                                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response::from_parts</span>(<span class="ident">parts</span>, <span class="ident">Body::empty</span>());
 
-                                <span class="kw">let</span> (<span class="ident">pending</span>, <span class="ident">on_upgrade</span>) <span class="op">=</span> <span class="kw">crate</span><span class="ident">::upgrade::pending</span>();
+                                <span class="kw">let</span> (<span class="ident">pending</span>, <span class="ident">on_upgrade</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::upgrade::pending</span>();
                                 <span class="kw">let</span> <span class="ident">io</span> <span class="op">=</span> <span class="ident">H2Upgraded</span> {
                                     <span class="ident">ping</span>,
                                     <span class="ident">send_stream</span>: <span class="kw">unsafe</span> { <span class="ident">UpgradedSendStream::new</span>(<span class="ident">send_stream</span>) },
@@ -707,7 +706,7 @@
                             } <span class="kw">else</span> {
                                 <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">stream</span><span class="op">|</span> {
                                     <span class="kw">let</span> <span class="ident">ping</span> <span class="op">=</span> <span class="ident">ping</span>.<span class="ident">for_stream</span>(<span class="kw-2">&amp;</span><span class="ident">stream</span>);
-                                    <span class="kw">crate</span><span class="ident">::Body::h2</span>(<span class="ident">stream</span>, <span class="ident">content_length</span>.<span class="ident">into</span>(), <span class="ident">ping</span>)
+                                    <span class="ident"><span class="kw">crate</span>::Body::h2</span>(<span class="ident">stream</span>, <span class="ident">content_length</span>.<span class="ident">into</span>(), <span class="ident">ping</span>)
                                 });
                                 <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
                             }
@@ -716,7 +715,7 @@
                             <span class="ident">ping</span>.<span class="ident">ensure_not_timed_out</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> (<span class="ident">e</span>, <span class="prelude-val">None</span>))<span class="question-mark">?</span>;
 
                             <span class="macro">debug!</span>(<span class="string">&quot;client response error: {}&quot;</span>, <span class="ident">err</span>);
-                            <span class="prelude-val">Err</span>((<span class="kw">crate</span><span class="ident">::Error::new_h2</span>(<span class="ident">err</span>), <span class="prelude-val">None</span>))
+                            <span class="prelude-val">Err</span>((<span class="ident"><span class="kw">crate</span>::Error::new_h2</span>(<span class="ident">err</span>), <span class="prelude-val">None</span>))
                         }
                     });
                     <span class="self">self</span>.<span class="ident">executor</span>.<span class="ident">execute</span>(<span class="ident">cb</span>.<span class="ident">send_when</span>(<span class="ident">fut</span>));
@@ -739,7 +738,7 @@
         }
     }
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="hyper" data-search-index-js="../../../../search-index.js" data-search-js="../../../../search.js"></div>
     <script src="../../../../main.js"></script><script src="../../../../source-script.js"></script><script src="../../../../source-files.js"></script>
 </body></html>

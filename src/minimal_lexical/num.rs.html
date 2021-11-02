@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;minimal-lexical-0.1.3&#x2F;src&#x2F;num.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>num.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../minimal_lexical/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;minimal-lexical-0.1.3&#x2F;src&#x2F;num.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>num.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../minimal_lexical/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -306,15 +306,14 @@
 <span id="306">306</span>
 <span id="307">307</span>
 <span id="308">308</span>
-</pre><pre class="rust">
-<span class="doccomment">//! Utilities for Rust numbers.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Utilities for Rust numbers.</span>
 
 <span class="attribute">#![<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>), <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compact&quot;</span>))]</span>
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::libm</span>::{<span class="ident">powd</span>, <span class="ident">powf</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::libm</span>::{<span class="ident">powd</span>, <span class="ident">powf</span>};
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compact&quot;</span>))]</span>
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::table</span>::{<span class="ident">SMALL_F32_POW10</span>, <span class="ident">SMALL_F64_POW10</span>, <span class="ident">SMALL_INT_POW10</span>, <span class="ident">SMALL_INT_POW5</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::table</span>::{<span class="ident">SMALL_F32_POW10</span>, <span class="ident">SMALL_F64_POW10</span>, <span class="ident">SMALL_INT_POW10</span>, <span class="ident">SMALL_INT_POW5</span>};
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compact&quot;</span>))]</span>
 <span class="kw">use</span> <span class="ident">core::hint</span>;
 <span class="kw">use</span> <span class="ident">core::ops</span>;
@@ -401,10 +400,10 @@
     <span class="kw">const</span> <span class="ident">INVALID_FP</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="op">-</span><span class="number">0x8000</span>;
 
     <span class="comment">// Maximum mantissa for the fast-path (`1 &lt;&lt; 53` for f64).</span>
-    <span class="kw">const</span> <span class="ident">MAX_MANTISSA_FAST_PATH</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">2_u64</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="self">Self</span><span class="ident">::MANTISSA_SIZE</span>;
+    <span class="kw">const</span> <span class="ident">MAX_MANTISSA_FAST_PATH</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">2_u64</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident"><span class="self">Self</span>::MANTISSA_SIZE</span>;
 
     <span class="comment">// Largest exponent value `(1 &lt;&lt; EXP_BITS) - 1`.</span>
-    <span class="kw">const</span> <span class="ident">INFINITE_POWER</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::MAX_EXPONENT</span> <span class="op">+</span> <span class="self">Self</span><span class="ident">::EXPONENT_BIAS</span>;
+    <span class="kw">const</span> <span class="ident">INFINITE_POWER</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::MAX_EXPONENT</span> <span class="op">+</span> <span class="ident"><span class="self">Self</span>::EXPONENT_BIAS</span>;
 
     <span class="comment">// Round-to-even only happens for negative values of q</span>
     <span class="comment">// when q ≥ −4 in the 64-bit case and when q ≥ −17 in</span>
@@ -482,28 +481,28 @@
     <span class="doccomment">/// Returns true if the float is a denormal.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">is_denormal</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">to_bits</span>() <span class="op">&amp;</span> <span class="self">Self</span><span class="ident">::EXPONENT_MASK</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>
+        <span class="self">self</span>.<span class="ident">to_bits</span>() <span class="op">&amp;</span> <span class="ident"><span class="self">Self</span>::EXPONENT_MASK</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>
     }
 
     <span class="doccomment">/// Get exponent component from the float.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">exponent</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_denormal</span>() {
-            <span class="kw">return</span> <span class="self">Self</span><span class="ident">::DENORMAL_EXPONENT</span>;
+            <span class="kw">return</span> <span class="ident"><span class="self">Self</span>::DENORMAL_EXPONENT</span>;
         }
 
         <span class="kw">let</span> <span class="ident">bits</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">to_bits</span>();
-        <span class="kw">let</span> <span class="ident">biased_e</span>: <span class="ident">i32</span> <span class="op">=</span> ((<span class="ident">bits</span> <span class="op">&amp;</span> <span class="self">Self</span><span class="ident">::EXPONENT_MASK</span>) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::MANTISSA_SIZE</span>) <span class="kw">as</span> <span class="ident">i32</span>;
-        <span class="ident">biased_e</span> <span class="op">-</span> <span class="self">Self</span><span class="ident">::EXPONENT_BIAS</span>
+        <span class="kw">let</span> <span class="ident">biased_e</span>: <span class="ident">i32</span> <span class="op">=</span> ((<span class="ident">bits</span> <span class="op">&amp;</span> <span class="ident"><span class="self">Self</span>::EXPONENT_MASK</span>) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::MANTISSA_SIZE</span>) <span class="kw">as</span> <span class="ident">i32</span>;
+        <span class="ident">biased_e</span> <span class="op">-</span> <span class="ident"><span class="self">Self</span>::EXPONENT_BIAS</span>
     }
 
     <span class="doccomment">/// Get mantissa (significand) component from float.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">mantissa</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u64</span> {
         <span class="kw">let</span> <span class="ident">bits</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">to_bits</span>();
-        <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">bits</span> <span class="op">&amp;</span> <span class="self">Self</span><span class="ident">::MANTISSA_MASK</span>;
+        <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">bits</span> <span class="op">&amp;</span> <span class="ident"><span class="self">Self</span>::MANTISSA_MASK</span>;
         <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">is_denormal</span>() {
-            <span class="ident">s</span> <span class="op">+</span> <span class="self">Self</span><span class="ident">::HIDDEN_BIT_MASK</span>
+            <span class="ident">s</span> <span class="op">+</span> <span class="ident"><span class="self">Self</span>::HIDDEN_BIT_MASK</span>
         } <span class="kw">else</span> {
             <span class="ident">s</span>
         }
@@ -517,9 +516,9 @@
     <span class="kw">const</span> <span class="ident">HIDDEN_BIT_MASK</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">0x00800000</span>;
     <span class="kw">const</span> <span class="ident">MANTISSA_MASK</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">0x007FFFFF</span>;
     <span class="kw">const</span> <span class="ident">MANTISSA_SIZE</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">23</span>;
-    <span class="kw">const</span> <span class="ident">EXPONENT_BIAS</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">127</span> <span class="op">+</span> <span class="self">Self</span><span class="ident">::MANTISSA_SIZE</span>;
-    <span class="kw">const</span> <span class="ident">DENORMAL_EXPONENT</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">1</span> <span class="op">-</span> <span class="self">Self</span><span class="ident">::EXPONENT_BIAS</span>;
-    <span class="kw">const</span> <span class="ident">MAX_EXPONENT</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">0xFF</span> <span class="op">-</span> <span class="self">Self</span><span class="ident">::EXPONENT_BIAS</span>;
+    <span class="kw">const</span> <span class="ident">EXPONENT_BIAS</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">127</span> <span class="op">+</span> <span class="ident"><span class="self">Self</span>::MANTISSA_SIZE</span>;
+    <span class="kw">const</span> <span class="ident">DENORMAL_EXPONENT</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">1</span> <span class="op">-</span> <span class="ident"><span class="self">Self</span>::EXPONENT_BIAS</span>;
+    <span class="kw">const</span> <span class="ident">MAX_EXPONENT</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">0xFF</span> <span class="op">-</span> <span class="ident"><span class="self">Self</span>::EXPONENT_BIAS</span>;
     <span class="kw">const</span> <span class="ident">CARRY_MASK</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">0x1000000</span>;
     <span class="kw">const</span> <span class="ident">MIN_EXPONENT_ROUND_TO_EVEN</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="op">-</span><span class="number">17</span>;
     <span class="kw">const</span> <span class="ident">MAX_EXPONENT_ROUND_TO_EVEN</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">10</span>;
@@ -565,9 +564,9 @@
     <span class="kw">const</span> <span class="ident">HIDDEN_BIT_MASK</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">0x0010000000000000</span>;
     <span class="kw">const</span> <span class="ident">MANTISSA_MASK</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">0x000FFFFFFFFFFFFF</span>;
     <span class="kw">const</span> <span class="ident">MANTISSA_SIZE</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">52</span>;
-    <span class="kw">const</span> <span class="ident">EXPONENT_BIAS</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">1023</span> <span class="op">+</span> <span class="self">Self</span><span class="ident">::MANTISSA_SIZE</span>;
-    <span class="kw">const</span> <span class="ident">DENORMAL_EXPONENT</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">1</span> <span class="op">-</span> <span class="self">Self</span><span class="ident">::EXPONENT_BIAS</span>;
-    <span class="kw">const</span> <span class="ident">MAX_EXPONENT</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">0x7FF</span> <span class="op">-</span> <span class="self">Self</span><span class="ident">::EXPONENT_BIAS</span>;
+    <span class="kw">const</span> <span class="ident">EXPONENT_BIAS</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">1023</span> <span class="op">+</span> <span class="ident"><span class="self">Self</span>::MANTISSA_SIZE</span>;
+    <span class="kw">const</span> <span class="ident">DENORMAL_EXPONENT</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">1</span> <span class="op">-</span> <span class="ident"><span class="self">Self</span>::EXPONENT_BIAS</span>;
+    <span class="kw">const</span> <span class="ident">MAX_EXPONENT</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">0x7FF</span> <span class="op">-</span> <span class="ident"><span class="self">Self</span>::EXPONENT_BIAS</span>;
     <span class="kw">const</span> <span class="ident">CARRY_MASK</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">0x20000000000000</span>;
     <span class="kw">const</span> <span class="ident">MIN_EXPONENT_ROUND_TO_EVEN</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="op">-</span><span class="number">4</span>;
     <span class="kw">const</span> <span class="ident">MAX_EXPONENT_ROUND_TO_EVEN</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">23</span>;
@@ -615,7 +614,7 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">powd</span>(<span class="ident">x</span>: <span class="ident">f64</span>, <span class="ident">y</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
     <span class="ident">x</span>.<span class="ident">powf</span>(<span class="ident">y</span>)
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="minimal_lexical" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>

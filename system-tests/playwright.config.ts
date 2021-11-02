@@ -36,6 +36,8 @@ if (process.env.RECORD_VIDEO) {
 
 if (process.env.PWDEBUG === "1") {
   config.workers = 1
+  config.use.navigationTimeout = 0
+  config.use.actionTimeout = 0
 }
 
 if (process.env.HTML) {

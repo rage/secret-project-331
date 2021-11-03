@@ -5500,6 +5500,47 @@
       "nullable": [false]
     }
   },
+  "ab49d00f182c6247b5a845f8017f6928288db8cf1546192a67c9b4732e6ac671": {
+    "query": "\nSELECT *\nFROM users\nWHERE id IN (\n    SELECT user_id\n    FROM course_instance_enrollments\n    WHERE course_instance_id = $1\n  )\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "upstream_id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 5,
+          "name": "email",
+          "type_info": "Varchar"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, true, true, false]
+    }
+  },
   "af3cc7251e94a36c15dd0d43cdf914d6aab499480d6992ac001be602d4b06d73": {
     "query": "\nINSERT INTO course_instance_enrollments (user_id, course_id, course_instance_id)\nVALUES ($1, $2, $3)\nRETURNING *;\n",
     "describe": {
@@ -7190,6 +7231,72 @@
         "Left": []
       },
       "nullable": [false, false, false, true, false, false, false, true, false]
+    }
+  },
+  "e61131d011c1d20d96a72fb2268e0df0d71725600de9daec9c333a4ec4a01977": {
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  name,\n  course_id,\n  deleted_at,\n  chapter_image_path,\n  chapter_number,\n  front_page_id,\n  opens_at,\n  copied_from\nFROM chapters\nWHERE course_id = (SELECT course_id FROM course_instances WHERE id = $1)\n  AND deleted_at IS NULL;\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 4,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "chapter_image_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "chapter_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 8,
+          "name": "front_page_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 9,
+          "name": "opens_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 10,
+          "name": "copied_from",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false, false, true, true, false, true, true, true]
     }
   },
   "e6f687f777bbf1f390fd79b39ebe2f71adc27844198a74a5370382ba150abb44": {

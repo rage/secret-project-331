@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Henrik Nygren <nygrenh@gmail.com>"]
 edition = "2018"
 default-run = "headless-lms-actix"
+rust-version = "1.54.0"  # minimum required Rust version, update if you use a new API
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 # To add a new dependency, search for it using `cargo search` and take the latest version of the package

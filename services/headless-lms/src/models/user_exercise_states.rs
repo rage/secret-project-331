@@ -505,6 +505,14 @@ GROUP BY user_id
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+    use crate::{
+        models::{
+            exercises, gradings,
+            submissions::{self, GradingResult, SubmissionData},
+        },
+        test_helper::{insert_data, Conn},
+    };
 
     mod figure_out_new_score_given {
         use crate::{
@@ -704,5 +712,55 @@ mod tests {
                 ActivityProgress::Completed
             );
         }
+    }
+
+    #[tokio::test]
+    async fn updates_exercise_states() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+
+        let data = insert_data(tx.as_mut(), "").await.unwrap();
+
+        let submission = submissions::insert_with_id(
+            tx.as_mut(),
+            &SubmissionData {
+                exercise_id: data.exercise,
+                course_id: data.course,
+                exercise_task_id: data.task,
+                user_id: data.user,
+                course_instance_id: data.instance,
+                data_json: serde_json::json! {"abcd"},
+                id: Uuid::new_v4(),
+            },
+        )
+        .await
+        .unwrap();
+        let submission = submissions::get_by_id(tx.as_mut(), submission)
+            .await
+            .unwrap();
+        let grading = gradings::new_grading(tx.as_mut(), &submission)
+            .await
+            .unwrap();
+        let exercise = exercises::get_by_id(tx.as_mut(), data.exercise)
+            .await
+            .unwrap();
+        let grading = gradings::update_grading(
+            tx.as_mut(),
+            &grading,
+            &GradingResult {
+                feedback_json: None,
+                feedback_text: None,
+                grading_progress: GradingProgress::FullyGraded,
+                score_given: 100.0,
+                score_maximum: 100,
+            },
+            &exercise,
+        )
+        .await
+        .unwrap();
+        let state = update_user_exercise_state(tx.as_mut(), &grading, &submission)
+            .await
+            .unwrap();
+        assert!(state.score_given.is_some());
     }
 }

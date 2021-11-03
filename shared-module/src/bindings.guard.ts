@@ -11,6 +11,7 @@ import {
   BlockProposalAction,
   BlockProposalInfo,
   Chapter,
+  ChapterScore,
   ChapterStatus,
   ChapterUpdate,
   ChapterWithStatus,
@@ -79,6 +80,7 @@ import {
   SubmissionInfo,
   SubmissionResult,
   UploadResult,
+  User,
   UserCourseInstanceChapterExerciseProgress,
   UserCourseInstanceChapterProgress,
   UserCourseInstanceProgress,
@@ -722,16 +724,47 @@ export function isErrorResponse(obj: any, _argumentName?: string): obj is ErrorR
   )
 }
 
+export function isChapterScore(obj: any, _argumentName?: string): obj is ChapterScore {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    typeof obj.name === "string" &&
+    typeof obj.course_id === "string" &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    (obj.chapter_image_path === null || typeof obj.chapter_image_path === "string") &&
+    typeof obj.chapter_number === "number" &&
+    (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
+    (obj.opens_at === null || obj.opens_at instanceof Date) &&
+    (obj.copied_from === null || typeof obj.copied_from === "string") &&
+    typeof obj.score_given === "number" &&
+    typeof obj.score_total === "number"
+  )
+}
+
+export function isUser(obj: any, _argumentName?: string): obj is User {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    (obj.upstream_id === null || typeof obj.upstream_id === "number") &&
+    typeof obj.email === "string"
+  )
+}
+
 export function isPoints(obj: any, _argumentName?: string): obj is Points {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    Array.isArray(obj.exercises) &&
-    obj.exercises.every((e: any) => isExercise(e) as boolean) &&
+    Array.isArray(obj.chapter_points) &&
+    obj.chapter_points.every((e: any) => isChapterScore(e) as boolean) &&
     Array.isArray(obj.users) &&
-    obj.users.every((e: any) => typeof e === "string") &&
-    ((obj.user_exercise_points !== null && typeof obj.user_exercise_points === "object") ||
-      typeof obj.user_exercise_points === "function") &&
-    Object.entries(obj.user_exercise_points).every(
+    obj.users.every((e: any) => isUser(e) as boolean) &&
+    ((obj.user_chapter_points !== null && typeof obj.user_chapter_points === "object") ||
+      typeof obj.user_chapter_points === "function") &&
+    Object.entries(obj.user_chapter_points).every(
       ([key, value]) =>
         ((value !== null && typeof value === "object") || typeof value === "function") &&
         Object.entries(value).every(

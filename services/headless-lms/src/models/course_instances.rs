@@ -1,5 +1,8 @@
-use super::{exercises::Exercise, ModelResult};
-use crate::{models::exercises, utils::pagination::Pagination};
+use super::{chapters::DatabaseChapter, users::User, ModelResult};
+use crate::{
+    models::{chapters, exercises},
+    utils::pagination::Pagination,
+};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{PgConnection, Type};
@@ -224,11 +227,18 @@ WHERE id = $2;
 }
 
 #[derive(Debug, Serialize, TS)]
+pub struct ChapterScore {
+    #[serde(flatten)]
+    chapter: DatabaseChapter,
+    score_given: f32,
+    score_total: i32,
+}
+
+#[derive(Debug, Serialize, TS)]
 pub struct Points {
-    exercises: Vec<Exercise>,
-    users: Vec<Uuid>,
-    /// user_id -> exercise_id -> points
-    user_exercise_points: HashMap<Uuid, HashMap<Uuid, f32>>,
+    chapter_points: Vec<ChapterScore>,
+    users: Vec<User>,
+    user_chapter_points: HashMap<Uuid, HashMap<Uuid, f32>>,
 }
 
 pub async fn get_points(
@@ -236,7 +246,34 @@ pub async fn get_points(
     instance_id: Uuid,
     pagination: &Pagination,
 ) -> ModelResult<Points> {
+    let mut chapter_point_totals = HashMap::<Uuid, i32>::new();
+    let mut exercise_to_chapter_id = HashMap::new();
     let exercises = exercises::get_exercises_by_course_instance_id(&mut *conn, instance_id).await?;
+    for exercise in exercises {
+        let total = chapter_point_totals.entry(exercise.chapter_id).or_default();
+        *total += exercise.score_maximum;
+        exercise_to_chapter_id.insert(exercise.id, exercise.chapter_id);
+    }
+
+    let users: HashMap<Uuid, User> = sqlx::query_as!(
+        User,
+        "
+SELECT *
+FROM users
+WHERE id IN (
+    SELECT user_id
+    FROM course_instance_enrollments
+    WHERE course_instance_id = $1
+  )
+",
+        instance_id
+    )
+    .fetch_all(&mut *conn)
+    .await?
+    .into_iter()
+    .map(|u| (u.id, u))
+    .collect();
+    let mut chapter_points_given = HashMap::<Uuid, f32>::new();
     let states = sqlx::query!(
         "
 SELECT user_id,
@@ -251,21 +288,45 @@ LIMIT $2 OFFSET $3
         pagination.limit(),
         pagination.offset()
     )
-    .fetch_all(conn)
+    .fetch_all(&mut *conn)
     .await?;
-    let mut users = vec![];
-    let mut user_exercise_points: HashMap<Uuid, HashMap<Uuid, f32>> = HashMap::new();
+    let mut user_chapter_points = HashMap::<Uuid, HashMap<Uuid, f32>>::new();
     for state in states {
-        users.push(state.user_id);
-        let exercise_points = user_exercise_points.entry(state.user_id).or_default();
-        exercise_points.insert(state.exercise_id, state.score_given.unwrap_or_default());
+        let user = match users.get(&state.user_id) {
+            Some(user) => user,
+            None => {
+                tracing::warn!(
+                    "user {} has an exercise state but no enrollment",
+                    state.user_id
+                );
+                continue;
+            }
+        };
+        if let Some(chapter_id) = exercise_to_chapter_id.get(&state.exercise_id).copied() {
+            let chapter_points = user_chapter_points.entry(user.id).or_default();
+            let user_given = chapter_points.entry(chapter_id).or_default();
+            let chapter_given = chapter_points_given.entry(chapter_id).or_default();
+            let score_given = state.score_given.unwrap_or_default();
+            *user_given += score_given;
+            *chapter_given += score_given;
+        }
     }
-    // the states are ordered by user id so dedup will remove all duplicates
-    users.dedup();
+
+    let chapters = chapters::course_instance_chapters(&mut *conn, instance_id).await?;
+    let mut chapter_points: Vec<ChapterScore> = chapters
+        .into_iter()
+        .map(|c| ChapterScore {
+            score_given: chapter_points_given.get(&c.id).copied().unwrap_or_default(),
+            score_total: chapter_point_totals.get(&c.id).copied().unwrap_or_default(),
+            chapter: c,
+        })
+        .collect();
+    chapter_points.sort_by_key(|c| c.chapter.chapter_number);
+
     Ok(Points {
-        exercises,
-        users,
-        user_exercise_points,
+        chapter_points,
+        users: users.into_values().collect(),
+        user_chapter_points,
     })
 }
 

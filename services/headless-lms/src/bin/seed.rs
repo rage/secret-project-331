@@ -1699,11 +1699,27 @@ async fn create_page(
         course_id,
         chapter_id: Some(chapter_id),
         front_page_of_chapter_id: None,
-        exercises: page_data.exercises,
-        exercise_slides: page_data.exercise_slides,
-        exercise_tasks: page_data.exercise_tasks,
+        exercises: vec![],
+        exercise_slides: vec![],
+        exercise_tasks: vec![],
     };
     let page = pages::insert_page(conn, new_page, author).await?;
+    pages::update_page(
+        conn,
+        page.id,
+        CmsPageUpdate {
+            content: page_data.content,
+            exercises: page_data.exercises,
+            exercise_slides: page_data.exercise_slides,
+            exercise_tasks: page_data.exercise_tasks,
+            url_path: page_data.url_path,
+            title: page_data.title,
+            chapter_id: Some(chapter_id),
+        },
+        author,
+        true,
+    )
+    .await?;
     Ok(page.id)
 }
 
@@ -1760,7 +1776,7 @@ fn example_exercise(
     let exercise_task = CmsPageExerciseTask {
         id: exercise_task_id,
         exercise_slide_id,
-        assignment: serde_json::to_value(paragraph("Answer this question.", paragraph_id)).unwrap(),
+        assignment: serde_json::json!([paragraph("Answer this question.", paragraph_id)]),
         exercise_type: "example-exercise".to_string(),
         private_spec: Some(serde_json::json!([
             {

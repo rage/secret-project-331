@@ -312,19 +312,15 @@ export interface EmailTemplateUpdate {
 }
 
 export interface NewPage {
+  exercises: Array<CmsPageExercise>
+  exercise_slides: Array<CmsPageExerciseSlide>
+  exercise_tasks: Array<CmsPageExerciseTask>
   content: unknown
   url_path: string
   title: string
   course_id: string
   chapter_id: string | null
   front_page_of_chapter_id: string | null
-}
-
-export interface PageUpdate {
-  content: unknown
-  url_path: string
-  title: string
-  chapter_id: string | null
 }
 
 export interface NewSubmission {

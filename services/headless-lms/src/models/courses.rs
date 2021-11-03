@@ -569,6 +569,9 @@ RETURNING id,
         front_page_of_chapter_id: None,
         title: course.name.clone(),
         url_path: String::from("/"),
+        exercises: vec![],
+        exercise_slides: vec![],
+        exercise_tasks: vec![],
     };
     let page = crate::models::pages::insert_page(&mut tx, course_front_page, user).await?;
 

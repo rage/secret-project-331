@@ -1699,25 +1699,12 @@ async fn create_page(
         course_id,
         chapter_id: Some(chapter_id),
         front_page_of_chapter_id: None,
+        exercises: page_data.exercises,
+        exercise_slides: page_data.exercise_slides,
+        exercise_tasks: page_data.exercise_tasks,
     };
     let page = pages::insert_page(conn, new_page, author).await?;
-    let page = pages::update_page(
-        conn,
-        page.id,
-        CmsPageUpdate {
-            chapter_id: Some(chapter_id),
-            url_path: page_data.url_path,
-            title: page_data.title,
-            content: page_data.content,
-            exercises: page_data.exercises,
-            exercise_slides: page_data.exercise_slides,
-            exercise_tasks: page_data.exercise_tasks,
-        },
-        author,
-        true,
-    )
-    .await?;
-    Ok(page.page.id)
+    Ok(page.id)
 }
 
 fn paragraph(content: &str, block: Uuid) -> GutenbergBlock {

@@ -11,11 +11,7 @@ test("widget, essay", async ({ page, headless }) => {
   // Go to http://project-331.local/playground
   await page.goto("http://project-331.local/playground")
 
-  // Click div[role="button"]:has-text("")
-  await page.click('div[role="button"]:has-text("​")')
-
-  // Click text=Quizzes example, scale
-  await page.click("text=Quizzes example, essay")
+  await page.selectOption("select", { label: "Quizzes example, essay" })
 
   const frame = await waitForFunction(page, () =>
     page.frames().find((f) => {
@@ -24,6 +20,7 @@ test("widget, essay", async ({ page, headless }) => {
   )
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-essay",
     waitForThisToBeVisibleAndStable: [`text="Of the lamps of Fëanor"`],
@@ -36,6 +33,7 @@ test("widget, essay", async ({ page, headless }) => {
   )
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-essay-answered",
     waitForThisToBeVisibleAndStable: [`text="Of the lamps of Fëanor"`],
@@ -54,6 +52,7 @@ test("widget, essay", async ({ page, headless }) => {
   )
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-essay-long-answer",
     waitForThisToBeVisibleAndStable: [`text="Of the lamps of Fëanor"`, `text="Word count: 481"`],

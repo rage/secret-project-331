@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import Layout from "../../../../components/Layout"
@@ -22,19 +23,26 @@ interface ProcessedUser {
   chapterPoints: Record<string, number>
 }
 
+const NAME = "name"
+const NUMBER = "number"
+const SCORE = "score"
+const EMAIL = "email"
+const DOWN_ARROW = "v"
+
 const PointList: React.FC<PointListProps> = ({ query }) => {
   const courseInstanceId = query.id
+  const { t } = useTranslation()
 
-  const [sorting, setSorting] = useState("name")
+  const [sorting, setSorting] = useState(NAME)
 
   function sortUsers(first: ProcessedUser, second: ProcessedUser): number {
-    if (sorting == "name") {
+    if (sorting == NAME) {
       return first.user.email.localeCompare(second.user.email)
-    } else if (sorting == "number") {
+    } else if (sorting == NUMBER) {
       return first.user.id.localeCompare(second.user.id)
-    } else if (sorting == "score") {
+    } else if (sorting == SCORE) {
       return first.totalPoints - second.totalPoints
-    } else if (sorting == "email") {
+    } else if (sorting == EMAIL) {
       return first.user.email.localeCompare(second.user.email)
     } else {
       return first.chapterPoints[sorting] - second.chapterPoints[sorting]
@@ -48,20 +56,20 @@ const PointList: React.FC<PointListProps> = ({ query }) => {
   if (error) {
     let message
     if (isErrorResponse(error)) {
-      message = `Failed to fetch points: ${error.message}`
+      message = `${t("error-title")}: ${error.message}`
     } else {
-      message = `Unexpected error while fetching points: ${JSON.stringify(error)}`
+      message = `${t("error-title")}: ${JSON.stringify(error)}`
     }
     return (
       <div>
-        <h1>Error</h1>
+        <h1>{t("error-title")}:</h1>
         <pre>{message}</pre>
       </div>
     )
   }
 
   if (isLoading || !data) {
-    return <div>Loading page...</div>
+    return <div>{t("loading-text")}:</div>
   }
 
   const instanceTotalPoints = data.chapter_points.reduce((prev, curr) => prev + curr.score_total, 0)
@@ -75,7 +83,7 @@ const PointList: React.FC<PointListProps> = ({ query }) => {
           background: #f5f5f5;
           color: #707070;
           font-weight: 600;
-          font-family: Josefin Sans;
+          font-family: Josefin Sans, sans-serif;
 
           padding: 51px 24px;
           @media (min-width: 768px) {
@@ -89,7 +97,7 @@ const PointList: React.FC<PointListProps> = ({ query }) => {
             line-height: 45px;
           `}
         >
-          Point Summary: {courseInstanceId}
+          {t("point-summary")}: {courseInstanceId}
         </h2>
         <div
           className={css`
@@ -100,7 +108,7 @@ const PointList: React.FC<PointListProps> = ({ query }) => {
             border: 1px solid rgba(190, 190, 190, 0.6);
           `}
         >
-          <h3>TOTAL POINT DASHBOARD</h3>
+          <h3>{t("total-point-dashboard")}</h3>
           <div
             className={css`
               margin-top: 22px;
@@ -110,7 +118,7 @@ const PointList: React.FC<PointListProps> = ({ query }) => {
               opacity: 0.8;
             `}
           >
-            Number Of Students: {data.users.length}
+            : {data.users.length}
           </div>
           <div
             className={css`
@@ -194,36 +202,37 @@ const PointList: React.FC<PointListProps> = ({ query }) => {
                 `}
               >
                 <th>
-                  Student name{" "}
-                  <a href="#name" onClick={() => setSorting("name")}>
-                    v
+                  {t("student-name")}{" "}
+                  <a href="#name" onClick={() => setSorting(NAME)}>
+                    {DOWN_ARROW}
                   </a>
                 </th>
                 <th>
-                  Serial number{" "}
-                  <a href="#number" onClick={() => setSorting("number")}>
-                    v
+                  {t("serial-number")}{" "}
+                  <a href="#number" onClick={() => setSorting(NUMBER)}>
+                    {DOWN_ARROW}
                   </a>
                 </th>
                 <th>
-                  Score{" "}
-                  <a href="#score" onClick={() => setSorting("score")}>
-                    v
+                  {t(SCORE)}{" "}
+                  <a href="#score" onClick={() => setSorting(SCORE)}>
+                    {DOWN_ARROW}
                   </a>
                 </th>
                 <th>
-                  Email{" "}
-                  <a href="#email" onClick={() => setSorting("email")}>
-                    v
+                  {t("label-email")}{" "}
+                  <a href="#email" onClick={() => setSorting(EMAIL)}>
+                    {DOWN_ARROW}
                   </a>
                 </th>
                 {data.chapter_points.map((c) => {
+                  // eslint-disable-next-line i18next/no-literal-string
                   const courseSorting = `#ch${c.chapter_number}`
                   return (
                     <th key={c.id}>
                       {c.name}{" "}
                       <a href={courseSorting} onClick={() => setSorting(courseSorting)}>
-                        v
+                        {DOWN_ARROW}
                       </a>
                     </th>
                   )
@@ -233,15 +242,14 @@ const PointList: React.FC<PointListProps> = ({ query }) => {
             <tbody>
               {data.users
                 .map((user) => {
-                  const totalPoints = Object.values(data.user_chapter_points[user.id]).reduce(
-                    (prev, curr) => prev + curr,
-                    0,
-                  )
-                  const userChapterPoints = data.user_chapter_points[user.id]
+                  const totalPoints = Object.values(
+                    data.user_chapter_points.get(user.id) || new Map(),
+                  ).reduce((prev, curr) => prev + curr, 0)
+                  const userChapterPoints = data.user_chapter_points.get(user.id) || new Map()
                   const chapterPoints = Object.fromEntries(
                     data.chapter_points.map((c) => [
                       `ch${c.chapter_number}`,
-                      userChapterPoints[c.id],
+                      userChapterPoints.get(c.id) || new Map(),
                     ]),
                   )
                   return { user, totalPoints, chapterPoints }
@@ -279,8 +287,8 @@ const PointList: React.FC<PointListProps> = ({ query }) => {
                       </td>
                       <td>{user.email}</td>
                       {data.chapter_points.map((c) => {
-                        const userChapterPoints = data.user_chapter_points[user.id]
-                        const chapterPoints = userChapterPoints[c.id]
+                        const userChapterPoints = data.user_chapter_points.get(user.id) || new Map()
+                        const chapterPoints = userChapterPoints.get(c.id)
                         return (
                           <td key={user.id + c.id}>
                             {chapterPoints || 0}/{c.score_total}

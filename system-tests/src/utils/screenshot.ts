@@ -19,6 +19,7 @@ interface ExpectScreenshotsToMatchSnapshotsProps {
   beforeScreenshot?: () => Promise<void>
   page?: Page
   frame?: Frame
+  axeSkip: boolean
 }
 
 export default async function expectScreenshotsToMatchSnapshots({
@@ -29,6 +30,8 @@ export default async function expectScreenshotsToMatchSnapshots({
   beforeScreenshot,
   frame,
   page,
+  // keep false for new screenshots
+  axeSkip = false,
 }: ExpectScreenshotsToMatchSnapshotsProps): Promise<void> {
   if (!page && !frame) {
     throw new Error("No page or frame provided to expectScreenshotsToMatchSnapshots")
@@ -63,6 +66,7 @@ export default async function expectScreenshotsToMatchSnapshots({
     page,
     frame,
     headless,
+    axeSkip,
   })
 
   await snapshotWithViewPort({
@@ -74,6 +78,7 @@ export default async function expectScreenshotsToMatchSnapshots({
     page,
     frame,
     headless,
+    axeSkip,
   })
 
   // always restore the original viewport
@@ -89,6 +94,8 @@ interface SnapshotWithViewPortProps {
   page?: Page
   frame?: Frame
   headless: boolean
+  persistMousePosition?: boolean
+  axeSkip: boolean
 }
 
 async function snapshotWithViewPort({
@@ -100,7 +107,13 @@ async function snapshotWithViewPort({
   frame,
   page,
   headless,
+  persistMousePosition,
+  axeSkip,
 }: SnapshotWithViewPortProps) {
+  if (!persistMousePosition && page) {
+    await page.mouse.move(0, 0)
+  }
+
   let pageObjectToUse = page
   let thingBeingScreenshotted: Page | ElementHandle<Node> = page
   let thingBeingScreenshottedObject: Page | Frame = page
@@ -128,15 +141,21 @@ async function snapshotWithViewPort({
 
   const screenshotName = `${snapshotName}-${viewPortName}.png`
   if (headless) {
-    const screenshot = await thingBeingScreenshotted.screenshot()
-    expect(screenshot).toMatchSnapshot(screenshotName, toMatchSnapshotOptions)
+    await takeScreenshotAndComparetoSnapshot(
+      thingBeingScreenshotted,
+      screenshotName,
+      toMatchSnapshotOptions,
+      pageObjectToUse,
+    )
   } else {
     console.warn("Not in headless mode, skipping screenshot")
   }
 
-  // we do a accessibility check for every screenshot because the places we screenshot tend to also be important
-  // for accessibility
-  await accessibilityCheck(pageObjectToUse, screenshotName)
+  if (!axeSkip) {
+    // we do a accessibility check for every screenshot because the places we screenshot tend to also be important
+    // for accessibility
+    await accessibilityCheck(pageObjectToUse, screenshotName)
+  }
   // show the typing caret again
   await style.evaluate((handle) => {
     if (handle instanceof Element) {
@@ -150,6 +169,26 @@ async function snapshotWithViewPort({
 interface WaitToBeVisibleProps {
   waitForThisToBeVisibleAndStable: string | ElementHandle | (string | ElementHandle)[]
   container: Page | Frame
+}
+
+export async function takeScreenshotAndComparetoSnapshot(
+  thingBeingScreenshotted: ElementHandle<Node> | Page,
+  screenshotName: string,
+  toMatchSnapshotOptions: ToMatchSnapshotOptions,
+  page: Page,
+): Promise<void> {
+  try {
+    const screenshot = await thingBeingScreenshotted.screenshot()
+    expect(screenshot).toMatchSnapshot(screenshotName, toMatchSnapshotOptions)
+  } catch (e: unknown) {
+    // sometimes snapshots have wild race conditions, lets try again in a moment
+    console.warn(
+      "Screenshot did not match snapshots retrying... Note that if this passes, the test is unstable",
+    )
+    await page.waitForTimeout(100)
+    const screenshot = await thingBeingScreenshotted.screenshot()
+    expect(screenshot).toMatchSnapshot(screenshotName, toMatchSnapshotOptions)
+  }
 }
 
 export async function waitToBeVisible({

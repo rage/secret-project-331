@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import { Meta, Story } from "@storybook/react"
 import React from "react"
 
@@ -26,10 +27,12 @@ Secondary.args = {
   children: "Button",
   variant: "secondary",
   size: "large",
+  transform: "normal",
 }
 export const Tertiary: Story<ComponentProps> = Template.bind({})
 Tertiary.args = {
   children: "Button",
   variant: "tertiary",
-  size: "large",
+  size: "medium",
+  transform: "uppercase",
 }

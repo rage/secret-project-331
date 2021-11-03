@@ -11,11 +11,8 @@ test("widget, scale", async ({ page, headless }) => {
   // Go to http://project-331.local/playground
   await page.goto("http://project-331.local/playground")
 
-  // Click div[role="button"]:has-text("")
-  await page.click('div[role="button"]:has-text("​")')
-
   // Click text=Quizzes example, scale
-  await page.click("text=Quizzes example, scale")
+  await page.selectOption("select", { label: "Quizzes example, scale" })
 
   const frame = await waitForFunction(page, () =>
     page.frames().find((f) => {
@@ -24,6 +21,7 @@ test("widget, scale", async ({ page, headless }) => {
   )
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-scale-initial",
     waitForThisToBeVisibleAndStable: [`text="Regex is generally readable."`, `text="15"`],
@@ -40,6 +38,7 @@ test("widget, scale", async ({ page, headless }) => {
   await frame.click('text=123456789101112131415 >> input[type="radio"]')
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-scale-leftmost",
     waitForThisToBeVisibleAndStable: [`text="Regex is generally readable."`, `text="15"`],
@@ -56,6 +55,7 @@ test("widget, scale", async ({ page, headless }) => {
   await frame.click("div:nth-child(3) div:nth-child(15) input")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-scale-mixed",
     waitForThisToBeVisibleAndStable: [`text="Regex is generally readable."`, `text="15"`],

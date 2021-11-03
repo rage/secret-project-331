@@ -1,8 +1,10 @@
 import { css } from "@emotion/css"
 import { Fade } from "@material-ui/core"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 const GenericLoading: React.FC = () => {
+  const { t } = useTranslation()
   return (
     <Fade
       in={true}
@@ -12,7 +14,7 @@ const GenericLoading: React.FC = () => {
       `}
       unmountOnExit
     >
-      <p>Loading...</p>
+      <p>{t("loading")}</p>
     </Fade>
   )
 }

@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { TextField } from "@material-ui/core"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import Button from "../../shared-module/components/Button"
 
@@ -21,6 +22,7 @@ interface NewEmailTemplateForm {
 }
 
 const NewEmailTemplateForm: React.FC<NewEmailTemplateForm> = ({ onSubmitForm }) => {
+  const { t } = useTranslation()
   const [name, setName] = useState("")
 
   return (
@@ -35,7 +37,7 @@ const NewEmailTemplateForm: React.FC<NewEmailTemplateForm> = ({ onSubmitForm }) 
             required
             id="outlined-required"
             fullWidth
-            label="Name"
+            label={t("text-field-label-name")}
             variant="outlined"
             value={name}
             onChange={(e) => {
@@ -46,7 +48,7 @@ const NewEmailTemplateForm: React.FC<NewEmailTemplateForm> = ({ onSubmitForm }) 
       </div>
       <div>
         <StyledButton size="medium" variant="primary" onClick={() => onSubmitForm(name)}>
-          Create e-mail template
+          {t("button-text-create")}
         </StyledButton>
       </div>
     </div>

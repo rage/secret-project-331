@@ -1,16 +1,9 @@
 import { css } from "@emotion/css"
-import {
-  Alert,
-  FormControl,
-  Grow,
-  InputLabel,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
-} from "@material-ui/core"
+import { Alert, Grow } from "@material-ui/core"
 import TextField from "@material-ui/core/TextField"
 import dynamic from "next/dynamic"
-import React, { useEffect, useState } from "react"
+import React, { ChangeEvent, useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useMutation, useQuery } from "react-query"
 
 import Layout from "../components/Layout"
@@ -23,16 +16,18 @@ import {
 import { PlaygroundExample } from "../shared-module/bindings"
 import Button from "../shared-module/components/Button"
 import MessageChannelIFrame from "../shared-module/components/MessageChannelIFrame"
+import Spinner from "../shared-module/components/Spinner"
 import { normalWidthCenteredComponentStyles } from "../shared-module/styles/componentStyles"
 import { defaultContainerWidth } from "../shared-module/styles/constants"
 
-const MonacoLoading = <div>Loading editor...</div>
 const Editor = dynamic(() => import("@monaco-editor/react"), {
   ssr: false,
-  loading: () => MonacoLoading,
+  // eslint-disable-next-line react/display-name
+  loading: () => <Spinner variant="medium" />,
 })
 
 const Home: React.FC = () => {
+  const { t } = useTranslation()
   const [exampleUrl, setExampleUrl] = useState<string>("")
   const [exampleWidth, setExampleWidth] = useState<number>(defaultContainerWidth)
   const [exampleData, setExampleData] = useState<string>("")
@@ -46,41 +41,43 @@ const Home: React.FC = () => {
   )
   const saveMutation = useMutation(savePlaygroundExample, {
     onSuccess: () => {
-      setMsg("Example saved succesfully")
+      setMsg(t("message-saved-succesfully"))
       refetch()
       setTimeout(() => saveMutation.reset(), 5000)
     },
     onError: () => {
-      setMsg("Something went wrong, couldn't save example")
+      setMsg(t("message-saving-failed"))
       setTimeout(() => saveMutation.reset(), 5000)
     },
   })
   const updateMutation = useMutation(updatePlaygroundExample, {
     onSuccess: () => {
-      setMsg("Example updated succesfully")
+      setMsg(t("message-update-succesful"))
       refetch()
       setTimeout(() => updateMutation.reset(), 5000)
     },
     onError: () => {
-      setMsg("Something went wrong, couldn't update example")
+      setMsg(t("message-update-failed"))
       setTimeout(() => updateMutation.reset(), 5000)
     },
   })
   const deleteMutation = useMutation(deletePlaygroundExample, {
     onSuccess: () => {
-      setMsg("Example deleted succesfully")
+      setMsg(t("message-deleting-succesful"))
       refetch()
       setSelectedExample(null)
       setTimeout(() => deleteMutation.reset(), 5000)
     },
     onError: () => {
-      setMsg("Something went wrong, couldn't delete example")
+      setMsg(t("message-deleting-failed"))
       setTimeout(() => deleteMutation.reset(), 5000)
     },
   })
 
   const onChannelEstablished = (port: MessagePort) => {
+    // eslint-disable-next-line i18next/no-literal-string
     console.log("channel established", port)
+    // eslint-disable-next-line i18next/no-literal-string
     console.log("Posting data to iframe")
     if (exampleData) {
       port.postMessage({ message: "set-state", data: JSON.parse(exampleData) })
@@ -89,6 +86,7 @@ const Home: React.FC = () => {
 
   const onMessage = (message: unknown, responsePort: MessagePort) => {
     console.log(responsePort)
+    // eslint-disable-next-line i18next/no-literal-string
     console.log("received message from iframe", message)
   }
 
@@ -98,6 +96,7 @@ const Home: React.FC = () => {
       return
     }
     try {
+      // eslint-disable-next-line i18next/no-literal-string
       const newUrl = new URL(exampleUrl + `?width=${exampleWidth}`)
       setCombinedUrl(newUrl.toString())
       setInvalidUrl(false)
@@ -125,7 +124,7 @@ const Home: React.FC = () => {
     }
   }
 
-  const handleExampleChange = (event: SelectChangeEvent) => {
+  const handleExampleChange = (event: ChangeEvent<HTMLSelectElement>) => {
     const example: PlaygroundExample = JSON.parse(event.target.value) as PlaygroundExample
     setExampleUrl(example.url)
     setExampleWidth(example.width)
@@ -164,7 +163,7 @@ const Home: React.FC = () => {
   }
 
   if (isLoading || !data) {
-    return <p>loading</p>
+    return <p>{t("loading-text")}</p>
   }
 
   if (error) {
@@ -200,41 +199,35 @@ const Home: React.FC = () => {
             </div>
           </Alert>
         </Grow>
-        <h2>Playground for exercise IFrames</h2>
+        <h2>{t("title-playground-exercise-iframe")}</h2>
         {data.length > 0 && (
           <div>
-            <h4>List of examples</h4>
+            <h4>{t("title-list-of-examples")}</h4>
             <div
               className={css`
                 margin-bottom: 1rem;
                 margin-top: 0.5rem;
               `}
             >
-              <FormControl fullWidth>
-                <InputLabel id="playground-examples-label-id">Examples</InputLabel>
-                <Select
-                  id="playground-examples"
-                  labelId="playground-examples-label-id"
-                  label="Examples"
-                  onChange={handleExampleChange}
-                  fullWidth
-                  value={selectedExample ? JSON.stringify(selectedExample) : ""}
-                >
-                  {data.map((example) => (
-                    <MenuItem key={JSON.stringify(example)} value={JSON.stringify(example)}>
-                      {example.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              {/* eslint-disable-next-line jsx-a11y/no-onchange */}
+              <select onChange={handleExampleChange} name="playground-examples">
+                <option selected disabled label={t("label-examples")} />
+                {data.map((example) => (
+                  <option
+                    key={JSON.stringify(example)}
+                    value={JSON.stringify(example)}
+                    label={example.name}
+                  />
+                ))}
+              </select>
             </div>
           </div>
         )}
         <TextField
           value={exampleUrl || ""}
           fullWidth
-          placeholder={invalidUrl ? "Invalid URL" : "URL"}
-          label="URL"
+          placeholder={invalidUrl ? t("invalid-url") : t("label-url")}
+          label={t("label-url")}
           onChange={handleUrlChange}
           error={invalidUrl}
           className={css`
@@ -243,8 +236,8 @@ const Home: React.FC = () => {
         />
         <TextField
           value={exampleWidth || ""}
-          placeholder="Width"
-          label="Width"
+          placeholder={t("label-width")}
+          label={t("label-width")}
           fullWidth
           onChange={handleWidthChange}
           className={css`
@@ -253,8 +246,8 @@ const Home: React.FC = () => {
         />
         <TextField
           value={exampleName}
-          placeholder="Example name"
-          label="Example name"
+          placeholder={t("label-example-name")}
+          label={t("label-example-name")}
           fullWidth
           onChange={handleNameChange}
           className={css`
@@ -265,6 +258,7 @@ const Home: React.FC = () => {
         <Editor
           defaultLanguage="json"
           options={{
+            // eslint-disable-next-line i18next/no-literal-string
             wordWrap: "on",
             readOnly: false,
             scrollBeyondLastLine: false,
@@ -292,7 +286,7 @@ const Home: React.FC = () => {
             `}
             disabled={saveMutation.isLoading}
           >
-            Save example
+            {t("button-text-save")}
           </Button>
         )}
         {selectedExample && (
@@ -303,7 +297,7 @@ const Home: React.FC = () => {
               size="medium"
               disabled={updateMutation.isLoading}
             >
-              Update example
+              {t("button-text-update")}
             </Button>
             <Button
               onClick={handleExampleDeletion}
@@ -314,7 +308,7 @@ const Home: React.FC = () => {
                 margin-left: 1rem;
               `}
             >
-              Delete example
+              {t("button-text-delete")}
             </Button>
           </>
         )}

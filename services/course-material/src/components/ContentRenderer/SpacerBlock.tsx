@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import React from "react"
 
-import { SpacerAttributes } from "../../types/GutenbergBlockAttributes"
+import { SpacerAttributes } from "../../../types/GutenbergBlockAttributes"
 
 import { BlockRendererProps } from "."
 

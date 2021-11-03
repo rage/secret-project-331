@@ -17,8 +17,10 @@ export const updateChapter = async (chapterId: string, data: ChapterUpdate): Pro
 }
 
 export const setChapterImage = async (chapterId: string, file: File): Promise<Chapter> => {
+  // eslint-disable-next-line i18next/no-literal-string
   validateFile(file, ["image"])
   const data = new FormData()
+  // eslint-disable-next-line i18next/no-literal-string
   data.append("file", file, file.name || "unknown")
   const res = await mainFrontendClient.put(`/chapters/${chapterId}/image`, data)
   return res.data

@@ -54,6 +54,7 @@ test("test", async ({ headless, page }) => {
   })
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "feedback-tooltip",
@@ -74,6 +75,7 @@ test("test", async ({ headless, page }) => {
   )
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "feedback-input",
@@ -83,7 +85,7 @@ test("test", async ({ headless, page }) => {
 
   // Click text=Submit
   await page.click('text="Add comment"')
-  await page.click('text="Send"')
+  await page.click(`button:text("Send")`)
   await page.waitForSelector("text=Feedback submitted successfully")
 
   await logout(page)
@@ -113,6 +115,7 @@ test("test", async ({ headless, page }) => {
 
   // Unread feedback view
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "feedback-unread",
@@ -131,6 +134,7 @@ test("test", async ({ headless, page }) => {
   await page.click("text=Mark as read")
   await page.waitForSelector("text=I dont think we need these paragraphs", { state: "hidden" })
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "feedback-empty",

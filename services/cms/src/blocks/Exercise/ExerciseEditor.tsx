@@ -3,6 +3,7 @@ import styled from "@emotion/styled"
 import { TextField } from "@material-ui/core"
 import { InnerBlocks } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
+import { useTranslation } from "react-i18next"
 
 import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 
@@ -24,6 +25,7 @@ const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
   attributes,
   setAttributes,
 }) => {
+  const { t } = useTranslation()
   return (
     <ExerciseEditorCard id={attributes.id}>
       <div className={normalWidthCenteredComponentStyles}>
@@ -34,12 +36,12 @@ const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
             margin-bottom: 1.5rem;
           `}
         >
-          Exercise
+          {t("exercise-title")}
         </div>
         <TextField
           fullWidth
           variant="outlined"
-          placeholder="Exercise name"
+          placeholder={t("exercise-name")}
           value={attributes.name}
           onChange={(e) => setAttributes({ name: e.target.value })}
           className={css`

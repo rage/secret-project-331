@@ -131,3 +131,6 @@ system-tests/src/states/
 
 # vagrant
 .vagrant
+
+# Typescript
+*.tsbuildinfo

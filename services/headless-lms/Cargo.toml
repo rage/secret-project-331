@@ -2,22 +2,22 @@
 name = "headless-lms-actix"
 version = "0.1.0"
 authors = ["Henrik Nygren <nygrenh@gmail.com>"]
-edition = "2018"
+edition = "2021"
 default-run = "headless-lms-actix"
-rust-version = "1.54.0"  # minimum required Rust version, update if you use a new API
+rust-version = "1.56.0"  # minimum required Rust version, update if you use a new API
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 # To add a new dependency, search for it using `cargo search` and take the latest version of the package
 # and the comment from there.
 [dependencies]
 # Actix Web is a powerful, pragmatic, and extremely fast web framework for Rust
-actix-web = "=4.0.0-beta.8"
+actix-web = "=4.0.0-beta.10"
 # Tokio-based single-threaded async runtime for the Actix ecosystem
 actix-rt = "2.1.0"
 # Static file serving for Actix Web
-actix-files = "=0.6.0-beta.6"
+actix-files = "=0.6.0-beta.8"
 # Multipart form support for Actix web.
-actix-multipart = "=0.4.0-beta.5"
+actix-multipart = "=0.4.0-beta.7"
 # Strongly Typed Mimes
 mime = "0.3.16"
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
@@ -72,7 +72,7 @@ walkdir = "2.3.2"
 # higher level HTTP client library
 reqwest = { version = "0.11.3", features = ["brotli", "gzip", "json"] }
 # Sessions for Actix web
-actix-session = "=0.5.0-beta.2"
+actix-session = "=0.5.0-beta.3"
 # An extensible, strongly-typed implementation of OAuth2
 oauth2 = "4"
 # URL library for Rust, based on the WHATWG URL Standard
@@ -82,7 +82,7 @@ tracing = "0.1"
 # Utilities for implementing and composing `tracing` subscribers.
 tracing-subscriber = "0.2"
 # Structured logging middleware for actix-web.
-tracing-actix-web = "=0.4.0-beta.11"
+tracing-actix-web = "=0.5.0-beta.1"
 # Utilities for enriching errors with `tracing`.
 tracing-error = "0.1"
 # Provides compatibility between `tracing` and the `log` crate.
@@ -98,13 +98,13 @@ ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "67f765076b9d0eaf8283
 ] }
 # restricting the transitive dependencies of actix-web during beta.
 # HTTP primitives for the Actix ecosystem .
-actix-http = "=3.0.0-beta.9"
+actix-http = "=3.0.0-beta.11"
 # Service trait and combinators for representing asynchronous request/response operations.
 actix-service = "2.0"
 # Fast CSV parsing with support for serde.
 csv = "1"
 # Email client
-lettre = "0.10.0-rc.3"
+lettre = "0.10.0-rc.4"
 # An implementation of regular expressions for Rust.
 regex = "1.5.4"
 # Single assignment cells and lazy values.
@@ -117,7 +117,7 @@ indexmap = "=1.6.2"
 
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.
-pretty_assertions = "0.7.1"
+pretty_assertions = "1.0.0"
 # HTTP mocking for Rust.
 mockito = "0.30"
 

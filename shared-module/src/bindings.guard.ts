@@ -18,6 +18,7 @@ import {
   Course,
   CourseInstance,
   CourseInstanceEnrollment,
+  CourseInstanceForm,
   CourseMaterialExercise,
   CourseMaterialExerciseServiceInfo,
   CourseMaterialExerciseTask,
@@ -235,7 +236,10 @@ export function isCourseInstance(obj: any, _argumentName?: string): obj is Cours
     (obj.ends_at === null || obj.ends_at instanceof Date) &&
     (obj.name === null || typeof obj.name === "string") &&
     (obj.description === null || typeof obj.description === "string") &&
-    (isVariantStatus(obj.variant_status) as boolean)
+    (isVariantStatus(obj.variant_status) as boolean) &&
+    typeof obj.teacher_in_charge_name === "string" &&
+    typeof obj.teacher_in_charge_email === "string" &&
+    (obj.support_email === null || typeof obj.support_email === "string")
   )
 }
 
@@ -517,7 +521,9 @@ export function isNewCourse(obj: any, _argumentName?: string): obj is NewCourse 
     typeof obj.name === "string" &&
     typeof obj.slug === "string" &&
     typeof obj.organization_id === "string" &&
-    typeof obj.language_code === "string"
+    typeof obj.language_code === "string" &&
+    typeof obj.teacher_in_charge_name === "string" &&
+    typeof obj.teacher_in_charge_email === "string"
   )
 }
 
@@ -648,6 +654,19 @@ export function isGetFeedbackQuery(obj: any, _argumentName?: string): obj is Get
   )
 }
 
+export function isCourseInstanceForm(obj: any, _argumentName?: string): obj is CourseInstanceForm {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (obj.name === null || typeof obj.name === "string") &&
+    (obj.description === null || typeof obj.description === "string") &&
+    typeof obj.teacher_in_charge_name === "string" &&
+    typeof obj.teacher_in_charge_email === "string" &&
+    (obj.support_email === null || typeof obj.support_email === "string") &&
+    (obj.opening_time === null || obj.opening_time instanceof Date) &&
+    (obj.closing_time === null || obj.closing_time instanceof Date)
+  )
+}
+
 export function isPageProposal(obj: any, _argumentName?: string): obj is PageProposal {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
@@ -762,16 +781,7 @@ export function isPoints(obj: any, _argumentName?: string): obj is Points {
     obj.chapter_points.every((e: any) => isChapterScore(e) as boolean) &&
     Array.isArray(obj.users) &&
     obj.users.every((e: any) => isUser(e) as boolean) &&
-    ((obj.user_chapter_points !== null && typeof obj.user_chapter_points === "object") ||
-      typeof obj.user_chapter_points === "function") &&
-    Object.entries(obj.user_chapter_points).every(
-      ([key, value]) =>
-        ((value !== null && typeof value === "object") || typeof value === "function") &&
-        Object.entries(value).every(
-          ([key, value]) => typeof value === "number" && typeof key === "string",
-        ) &&
-        typeof key === "string",
-    )
+    obj.user_chapter_points instanceof Map
   )
 }
 

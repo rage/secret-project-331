@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import { renderHook } from "@testing-library/react-hooks/dom"
 import { QueryClient, QueryClientProvider } from "react-query"
 

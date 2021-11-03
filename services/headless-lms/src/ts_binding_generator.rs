@@ -14,7 +14,9 @@ use crate::{
             UserCourseInstanceChapterProgress,
         },
         course_instance_enrollments::CourseInstanceEnrollment,
-        course_instances::{ChapterScore, CourseInstance, Points, VariantStatus},
+        course_instances::{
+            ChapterScore, CourseInstance, CourseInstanceForm, Points, VariantStatus,
+        },
         courses::{Course, CourseStructure, CourseUpdate, NewCourse},
         email_templates::{EmailTemplate, EmailTemplateNew, EmailTemplateUpdate},
         exercise_service_info::{CourseMaterialExerciseServiceInfo, ExerciseServiceInfoApi},
@@ -104,6 +106,7 @@ ts_rs::export! {
   FeedbackBlock,
   FeedbackCount,
   GetFeedbackQuery,
+  CourseInstanceForm,
   PageProposal,
   BlockProposal,
   ProposalCount,

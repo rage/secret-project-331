@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { FormControlLabel, Radio, RadioGroup, TextField } from "@material-ui/core"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { NewCourse } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
@@ -17,10 +18,18 @@ interface NewCourseFormProps {
   onSubmitForm: (newCourse: NewCourse) => Promise<void>
 }
 
+const AMERICAN_ENGLISH_LANGUAGE_CODE = "en-US"
+const FINNISH_LANGUAGE_CODE = "fi-FI"
+const SWEDISH_LANGUAGE_CODE = "sv-SE"
+const DEFAULT_LANGUAGE_CODE = AMERICAN_ENGLISH_LANGUAGE_CODE
+
 const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitForm }) => {
+  const { t } = useTranslation()
   const [name, setName] = useState("")
   const [slug, setSlug] = useState("")
-  const [languageCode, setLanguageCode] = useState("en-US")
+  const [teacherInChargeName, setTeacherInChargeName] = useState("")
+  const [teacherInChargeEmail, setTeacherInChargeEmail] = useState("")
+  const [languageCode, setLanguageCode] = useState(DEFAULT_LANGUAGE_CODE)
   const [showCustomLanguageCode, setShowCustomLanguageCode] = useState(false)
   const [languageCodeValidationError, setLanguageCodeValidationError] = useState<string | null>(
     null,
@@ -37,10 +46,12 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
         slug,
         organization_id: organizationId,
         language_code: normalizedLanguageCode,
+        teacher_in_charge_name: teacherInChargeName,
+        teacher_in_charge_email: teacherInChargeEmail,
       })
       setName("")
       setSlug("")
-      setLanguageCode("en-US")
+      setLanguageCode(DEFAULT_LANGUAGE_CODE)
       setError(null)
     } catch (e) {
       if (!(e instanceof Error)) {
@@ -75,7 +86,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
             required
             fullWidth
             id="outlined-required"
-            label="Course name"
+            label={t("text-field-label-name")}
             variant="outlined"
             value={name}
             onChange={(e) => {
@@ -89,7 +100,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
             required
             fullWidth
             id="outlined-required"
-            label="Slug"
+            label={t("text-field-label-or-header-slug-or-short-name")}
             variant="outlined"
             value={slug}
             onChange={(e) => {
@@ -97,16 +108,63 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
             }}
           />
         </FieldContainer>
-        <div>Course language</div>
-        <FieldContainer aria-labelledby="Course version selection">
+        <FieldContainer>
+          <TextField
+            required
+            fullWidth
+            id="teacher-in-charge-name"
+            label={t("teacher-in-charge-name")}
+            variant="outlined"
+            value={teacherInChargeName}
+            onChange={(e) => {
+              setTeacherInChargeName(e.target.value)
+            }}
+          />
+        </FieldContainer>
+        <FieldContainer>
+          <TextField
+            required
+            fullWidth
+            id="teacher-in-charge-email"
+            label={t("teacher-in-charge-email")}
+            variant="outlined"
+            value={teacherInChargeEmail}
+            onChange={(e) => {
+              setTeacherInChargeEmail(e.target.value)
+            }}
+          />
+        </FieldContainer>
+        <div>{t("course-language")}</div>
+        <FieldContainer aria-labelledby={t("course-version-selection")}>
           <RadioGroup
-            value={showCustomLanguageCode ? "other" : languageCode}
+            value={showCustomLanguageCode ? t("other-language") : languageCode}
             onChange={(e) => handleLanguageSelectionChange(e.target.value)}
           >
-            <FormControlLabel control={<Radio />} key="en-US" label="English" value="en-US" />
-            <FormControlLabel control={<Radio />} key="fi-FI" label="Finnish" value="fi-FI" />
-            <FormControlLabel control={<Radio />} key="se-SV" label="Swedish" value="se-SV" />
-            <FormControlLabel control={<Radio />} key="other" label="other" value="other" />
+            <FormControlLabel
+              control={<Radio />}
+              key={AMERICAN_ENGLISH_LANGUAGE_CODE}
+              label={t("english")}
+              value={AMERICAN_ENGLISH_LANGUAGE_CODE}
+            />
+            <FormControlLabel
+              control={<Radio />}
+              key={FINNISH_LANGUAGE_CODE}
+              label={t("finnish")}
+              value={FINNISH_LANGUAGE_CODE}
+            />
+            <FormControlLabel
+              control={<Radio />}
+              key={SWEDISH_LANGUAGE_CODE}
+              label={t("swedish")}
+              value={SWEDISH_LANGUAGE_CODE}
+            />
+            <FormControlLabel
+              control={<Radio />}
+              key="other"
+              label={t("other-language")}
+              // eslint-disable-next-line i18next/no-literal-string
+              value="other"
+            />
           </RadioGroup>
         </FieldContainer>
         {showCustomLanguageCode && (
@@ -117,7 +175,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
                 required
                 fullWidth
                 id="outlined-required"
-                label="Language code"
+                label={t("language-code")}
                 variant="outlined"
                 value={languageCode}
                 onChange={(e) => {
@@ -126,9 +184,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
                     normalizeIETFLanguageTag(e.target.value)
                     setLanguageCodeValidationError(null)
                   } catch (e) {
-                    setLanguageCodeValidationError(
-                      "Language tag should follow the format aa-BB or aa-Bbbb-CC",
-                    )
+                    setLanguageCodeValidationError(t("laguage-code-validation-error"))
                   }
                 }}
               />
@@ -138,7 +194,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
       </div>
       <div>
         <Button size="medium" variant="primary" onClick={createNewCourse} disabled={submitDisabled}>
-          Create course
+          {t("button-text-create")}
         </Button>
       </div>
     </div>

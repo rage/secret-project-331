@@ -1,11 +1,11 @@
 import { css } from "@emotion/css"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 import Layout from "../../../../components/Layout"
 import CourseSubmissionsByDay from "../../../../components/stats/CourseSubmissionsByDay"
 import CourseSubmissionsByWeekdayAndHour from "../../../../components/stats/CourseSubmissionsByWeekdayAndHour"
 import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
-import basePath from "../../../../shared-module/utils/base-path"
 import {
   dontRenderUntilQueryParametersReady,
   SimplifiedUrlQuery,
@@ -17,6 +17,7 @@ interface StatsPageProps {
 }
 
 const StatsPage: React.FC<StatsPageProps> = ({ query }) => {
+  const { t } = useTranslation()
   const id = query.id
   return (
     <Layout navVariant="complex">
@@ -26,10 +27,10 @@ const StatsPage: React.FC<StatsPageProps> = ({ query }) => {
           margin-bottom: 1rem;
         `}
       >
-        <h1>Statistics</h1>
-        <h2>Number of submissions per day</h2>
+        <h1>{t("title-statistics")}</h1>
+        <h2>{t("title-number-of-submissions-per-day")}</h2>
         <CourseSubmissionsByDay courseId={id} />
-        <h2>Number of submissions hourly per weekday</h2>
+        <h2>{t("title-number-of-submissions-per-weekday-and-hour")}</h2>
         <CourseSubmissionsByWeekdayAndHour courseId={id} />
       </div>
     </Layout>

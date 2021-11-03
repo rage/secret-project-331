@@ -16,6 +16,7 @@ from { opacity: 0; height: 0; padding: 0;}
 to { opacity: 1; height: 100%; padding: 10px;}
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const TextWrapper = styled.div`
   padding: 0;
   margin: 0;
@@ -90,6 +91,9 @@ const TextWrapper = styled.div`
     margin-left: 2rem !important;
   }
 `
+
+const PLACEHOLDER_HEADING = "This is a heading:"
+const PLACEHOLDER_LIST_ITEM = "This is a list item"
 export interface AccordionExtraProps {
   variant: "simple" | "detail"
 }
@@ -104,30 +108,30 @@ const Accordion: React.FC<AccordionProps> = (props) => {
     <div>
       <TextWrapper>
         <details>
-          <summary>This is a heading:</summary>
+          <summary>{PLACEHOLDER_HEADING}</summary>
           <ul>
-            <li>This is a list item</li>
-            <li>This is a list item</li>
-            <li>This is a list item</li>
-            <li>This is a list item</li>
+            <li>{PLACEHOLDER_LIST_ITEM}</li>
+            <li>{PLACEHOLDER_LIST_ITEM}</li>
+            <li>{PLACEHOLDER_LIST_ITEM}</li>
+            <li>{PLACEHOLDER_LIST_ITEM}</li>
           </ul>
         </details>
         <details>
-          <summary>This is a heading:</summary>
+          <summary>{PLACEHOLDER_HEADING}</summary>
           <ul>
-            <li>This is a list item</li>
-            <li>This is a list item</li>
-            <li>This is a list item</li>
-            <li>This is a list item</li>
+            <li>{PLACEHOLDER_LIST_ITEM}</li>
+            <li>{PLACEHOLDER_LIST_ITEM}</li>
+            <li>{PLACEHOLDER_LIST_ITEM}</li>
+            <li>{PLACEHOLDER_LIST_ITEM}</li>
           </ul>
         </details>
         <details>
-          <summary>This is a heading:</summary>
+          <summary>{PLACEHOLDER_HEADING}</summary>
           <ul>
-            <li>This is a list item</li>
-            <li>This is a list item</li>
-            <li>This is a list item</li>
-            <li>This is a list item</li>
+            <li>{PLACEHOLDER_LIST_ITEM}</li>
+            <li>{PLACEHOLDER_LIST_ITEM}</li>
+            <li>{PLACEHOLDER_LIST_ITEM}</li>
+            <li>{PLACEHOLDER_LIST_ITEM}</li>
           </ul>
         </details>
       </TextWrapper>

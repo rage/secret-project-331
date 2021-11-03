@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { TextField } from "@material-ui/core"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { updateCourse } from "../../services/backend/courses"
 import Button from "../../shared-module/components/Button"
@@ -21,6 +22,7 @@ const UpdateCourseForm: React.FC<UpdateCourseFormProps> = ({
   courseName,
   onSubmitForm,
 }) => {
+  const { t } = useTranslation()
   const [name, setName] = useState(courseName)
 
   const onUpdateCourseForm = async () => {
@@ -43,7 +45,7 @@ const UpdateCourseForm: React.FC<UpdateCourseFormProps> = ({
             required
             fullWidth
             id="outlined-required"
-            label="Course name"
+            label={t("text-field-label-name")}
             variant="outlined"
             value={name}
             onChange={(e) => {
@@ -54,7 +56,7 @@ const UpdateCourseForm: React.FC<UpdateCourseFormProps> = ({
       </div>
       <div>
         <Button size="medium" variant="primary" onClick={onUpdateCourseForm}>
-          Update course
+          {t("button-text-update")}
         </Button>
       </div>
     </div>

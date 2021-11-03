@@ -1,9 +1,11 @@
 import Link from "next/link"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import { fetchCourseLanguageVersions } from "../../services/backend/courses"
 
+// eslint-disable-next-line i18next/no-literal-string
 export const formatQueryKey = (courseId: string): string => `course-${courseId}-language-versions`
 
 export interface CourseTranslationsListProps {
@@ -11,6 +13,7 @@ export interface CourseTranslationsListProps {
 }
 
 const CourseLanguageVersionsList: React.FC<CourseTranslationsListProps> = ({ courseId }) => {
+  const { t } = useTranslation()
   const { isLoading, error, data } = useQuery(formatQueryKey(courseId), () =>
     fetchCourseLanguageVersions(courseId),
   )
@@ -20,7 +23,7 @@ const CourseLanguageVersionsList: React.FC<CourseTranslationsListProps> = ({ cou
   }
 
   if (isLoading || !data) {
-    return <>Loading...</>
+    return <>{t("loading-text")}</>
   }
 
   return (
@@ -33,7 +36,7 @@ const CourseLanguageVersionsList: React.FC<CourseTranslationsListProps> = ({ cou
               query: { id: course.id },
             }}
           >
-            {course.name ?? "Default"}
+            {course.name}
           </Link>{" "}
           <span>({course.language_code})</span>
         </li>

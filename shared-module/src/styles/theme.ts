@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 export const baseTheme = {
   space: [0, 2, 4, 8, 16, 32],
   fontSizes: [14, 16, 18, 24, 32],
@@ -23,7 +24,7 @@ export const baseTheme = {
       500: "#9e9e9e",
       600: "#757575",
       700: "#616161",
-      800: "#333333",
+      800: "#2f2f2f",
     },
     red: {
       0: "#FF000033",
@@ -38,11 +39,14 @@ export const baseTheme = {
     },
     neutral: {
       100: "#ffffff",
-      // 200: "#f4f5f7",
-      // 300: "#e1e1e1",
-      // 400: "#737581",
-      // 500: "#4a4b53",
-      200: "#000000",
+      200: "#f4f5f7",
+      300: "#e1e1e1",
+      400: "#c4c4c4",
+      500: "#c5c5c5",
+      600: "#858585",
+      700: "#4a4b53",
+      800: "#000000",
+      900: "#333333",
     },
   },
 }
@@ -51,10 +55,10 @@ export const theme = {
   primary: {
     text: baseTheme.colors.neutral[100],
     border: baseTheme.colors.neutral[100],
-    bg: baseTheme.colors.blue[100],
+    bg: baseTheme.colors.green[100],
     hoverText: baseTheme.colors.blue[200],
     hoverBg: baseTheme.colors.neutral[100],
-    hoverBorder: baseTheme.colors.blue[100],
+    hoverBorder: baseTheme.colors.green[100],
     focusBorder: baseTheme.colors.neutral[100],
     activeBg: baseTheme.colors.neutral[100],
     disabledText: baseTheme.colors.neutral[100],
@@ -62,12 +66,12 @@ export const theme = {
     disabledBorder: baseTheme.colors.neutral[100],
   },
   secondary: {
-    text: baseTheme.colors.neutral[100],
+    text: baseTheme.colors.neutral[800],
     border: baseTheme.colors.neutral[100],
-    bg: baseTheme.colors.red[100],
-    hoverText: baseTheme.colors.neutral[100],
-    hoverBg: baseTheme.colors.red[200],
-    hoverBorder: baseTheme.colors.neutral[100],
+    bg: baseTheme.colors.neutral[400],
+    hoverText: baseTheme.colors.neutral[800],
+    hoverBg: baseTheme.colors.neutral[300],
+    hoverBorder: baseTheme.colors.neutral[600],
     focusBorder: baseTheme.colors.neutral[100],
     activeBg: baseTheme.colors.neutral[100],
     disabledText: baseTheme.colors.neutral[100],
@@ -94,7 +98,7 @@ export const theme = {
     },
     large: {
       fontSize: baseTheme.fontSizes[4],
-      padding: `18px 36px`,
+      padding: `16px 34px`,
     },
   },
 }

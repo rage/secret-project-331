@@ -108,6 +108,9 @@ export interface CourseInstance {
   name: string | null
   description: string | null
   variant_status: VariantStatus
+  teacher_in_charge_name: string
+  teacher_in_charge_email: string
+  support_email: string | null
 }
 
 export interface ChapterWithStatus {
@@ -298,6 +301,8 @@ export interface NewCourse {
   slug: string
   organization_id: string
   language_code: string
+  teacher_in_charge_name: string
+  teacher_in_charge_email: string
 }
 
 export interface CourseUpdate {
@@ -382,6 +387,16 @@ export interface GetFeedbackQuery {
   limit?: number
 }
 
+export interface CourseInstanceForm {
+  name: string | null
+  description: string | null
+  teacher_in_charge_name: string
+  teacher_in_charge_email: string
+  support_email: string | null
+  opening_time: Date | null
+  closing_time: Date | null
+}
+
 export interface PageProposal {
   id: string
   page_id: string
@@ -456,7 +471,7 @@ export interface User {
 export interface Points {
   chapter_points: Array<ChapterScore>
   users: Array<User>
-  user_chapter_points: Record<string, Record<string, number>>
+  user_chapter_points: Map<string, Map<string, number>>
 }
 
 export type VariantStatus = "Draft" | "Upcoming" | "Active" | "Ended"

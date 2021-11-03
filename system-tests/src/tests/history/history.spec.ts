@@ -46,6 +46,7 @@ test("test", async ({ page, headless }) => {
   await page.waitForLoadState("networkidle")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "initial-page",
@@ -131,7 +132,7 @@ test("test", async ({ page, headless }) => {
   // Click text=Home
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
-    page.click('[aria-label="Front page"]'),
+    page.click('[aria-label="Home page"]'),
   ])
 
   // Click text=University of Helsinki, Department of Computer Science
@@ -160,9 +161,21 @@ test("test", async ({ page, headless }) => {
     page.click("text=New title!(/chapter-1/page-1) history >> :nth-match(a, 2)"),
   ])
 
+  await page.waitForSelector("text=core/paragraph")
+
+  // Go back and navigate to the page again to workaround a race condition related to monaco editor fonts. This way the font used by monaco editor is already cached
+  await page.goBack()
+  await page.waitForSelector("text=Course overview for Introduction to history")
+
+  await Promise.all([
+    page.waitForNavigation(),
+    page.click("text=New title!(/chapter-1/page-1) history >> :nth-match(a, 2)"),
+  ])
+
   const stableElement = await page.waitForSelector("text=core/paragraph")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "history-view-p1",
@@ -180,6 +193,7 @@ test("test", async ({ page, headless }) => {
   const stableElement2 = await page.waitForSelector("text=core/paragraph")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "history-view-p4-before-compare",
@@ -212,6 +226,7 @@ test("test", async ({ page, headless }) => {
   await page.waitForSelector("text=Best exercise")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "history-view-p4-after-compare",
@@ -237,6 +252,7 @@ test("test", async ({ page, headless }) => {
   await page.waitForTimeout(100)
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "history-view-after-restore",
@@ -250,7 +266,7 @@ test("test", async ({ page, headless }) => {
   // Click text=Home
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
-    page.click('[aria-label="Front page"]'),
+    page.click('[aria-label="Home page"]'),
   ])
 
   // Click text=University of Helsinki, Department of Computer Science
@@ -279,6 +295,7 @@ test("test", async ({ page, headless }) => {
 
   await page.waitForLoadState("networkidle")
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "page-after-restore",

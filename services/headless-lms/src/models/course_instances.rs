@@ -37,19 +37,54 @@ pub struct CourseInstance {
     pub name: Option<String>,
     pub description: Option<String>,
     pub variant_status: VariantStatus,
+    pub teacher_in_charge_name: String,
+    pub teacher_in_charge_email: String,
+    pub support_email: Option<String>,
+}
+
+#[derive(Debug, Deserialize, TS)]
+pub struct CourseInstanceForm {
+    pub name: Option<String>,
+    pub description: Option<String>,
+    pub teacher_in_charge_name: String,
+    pub teacher_in_charge_email: String,
+    pub support_email: Option<String>,
+    pub opening_time: Option<DateTime<Utc>>,
+    pub closing_time: Option<DateTime<Utc>>,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct NewCourseInstance<'a> {
+    pub id: Uuid,
+    pub course_id: Uuid,
+    pub name: Option<&'a str>,
+    pub description: Option<&'a str>,
+    pub variant_status: Option<VariantStatus>,
+    pub teacher_in_charge_name: &'a str,
+    pub teacher_in_charge_email: &'a str,
+    pub support_email: Option<&'a str>,
+    pub opening_time: Option<DateTime<Utc>>,
+    pub closing_time: Option<DateTime<Utc>>,
 }
 
 pub async fn insert(
     conn: &mut PgConnection,
-    course_id: Uuid,
-    name: Option<&str>,
-    variant_status: Option<VariantStatus>,
+    new_course_instance: NewCourseInstance<'_>,
 ) -> ModelResult<CourseInstance> {
     let course_instance = sqlx::query_as!(
         CourseInstance,
         r#"
-INSERT INTO course_instances (course_id, name, variant_status)
-VALUES ($1, $2, $3)
+INSERT INTO course_instances (
+    id,
+    course_id,
+    name,
+    description,
+    variant_status,
+    teacher_in_charge_name,
+    teacher_in_charge_email,
+    support_email
+  )
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING id,
   created_at,
   updated_at,
@@ -59,11 +94,19 @@ RETURNING id,
   ends_at,
   name,
   description,
-  variant_status AS "variant_status: VariantStatus"
+  variant_status AS "variant_status: VariantStatus",
+  teacher_in_charge_name,
+  teacher_in_charge_email,
+  support_email
 "#,
-        course_id,
-        name,
-        variant_status.unwrap_or_default() as VariantStatus,
+        new_course_instance.id,
+        new_course_instance.course_id,
+        new_course_instance.name,
+        new_course_instance.description,
+        new_course_instance.variant_status.unwrap_or_default() as VariantStatus,
+        new_course_instance.teacher_in_charge_name,
+        new_course_instance.teacher_in_charge_email,
+        new_course_instance.support_email,
     )
     .fetch_one(conn)
     .await?;
@@ -86,7 +129,10 @@ SELECT id,
   ends_at,
   name,
   description,
-  variant_status AS "variant_status: VariantStatus"
+  variant_status AS "variant_status: VariantStatus",
+  teacher_in_charge_name,
+  teacher_in_charge_email,
+  support_email
 FROM course_instances
 WHERE id = $1
   AND deleted_at IS NULL;
@@ -115,7 +161,10 @@ SELECT i.id,
   i.ends_at,
   i.name,
   i.description,
-  i.variant_status AS "variant_status: VariantStatus"
+  i.variant_status AS "variant_status: VariantStatus",
+  i.teacher_in_charge_name,
+  i.teacher_in_charge_email,
+  i.support_email
 FROM user_course_settings ucs
   JOIN course_instances i ON (ucs.current_course_instance_id = i.id)
 WHERE ucs.user_id = $1
@@ -147,7 +196,10 @@ SELECT i.id,
   i.ends_at,
   i.name,
   i.description,
-  i.variant_status AS "variant_status: VariantStatus"
+  i.variant_status AS "variant_status: VariantStatus",
+  i.teacher_in_charge_name,
+  i.teacher_in_charge_email,
+  i.support_email
 FROM course_instances i
   JOIN course_instance_enrollments ie ON (i.id = ie.course_id)
 WHERE i.course_id = $1
@@ -168,10 +220,21 @@ pub async fn get_all_course_instances(conn: &mut PgConnection) -> ModelResult<Ve
     let course_instances = sqlx::query_as!(
         CourseInstance,
         r#"
-SELECT
-    id, created_at, updated_at, deleted_at, course_id, starts_at, ends_at, name, description, variant_status as "variant_status: VariantStatus"
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  course_id,
+  starts_at,
+  ends_at,
+  name,
+  description,
+  variant_status as "variant_status: VariantStatus",
+  teacher_in_charge_name,
+  teacher_in_charge_email,
+  support_email
 FROM course_instances
-WHERE deleted_at IS NULL;
+WHERE deleted_at IS NULL
 "#
     )
     .fetch_all(conn)
@@ -195,7 +258,10 @@ SELECT id,
   ends_at,
   name,
   description,
-  variant_status as "variant_status: VariantStatus"
+  variant_status as "variant_status: VariantStatus",
+  teacher_in_charge_name,
+  teacher_in_charge_email,
+  support_email
 FROM course_instances
 WHERE course_id = $1
   AND deleted_at IS NULL;
@@ -238,6 +304,7 @@ pub struct ChapterScore {
 pub struct Points {
     chapter_points: Vec<ChapterScore>,
     users: Vec<User>,
+    #[ts(type = "Map<string, Map<string, number>>")]
     user_chapter_points: HashMap<Uuid, HashMap<Uuid, f32>>,
 }
 
@@ -330,11 +397,56 @@ LIMIT $2 OFFSET $3
     })
 }
 
+pub async fn edit(
+    conn: &mut PgConnection,
+    instance_id: Uuid,
+    update: CourseInstanceForm,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE course_instances
+SET name = $1,
+  description = $2,
+  teacher_in_charge_name = $3,
+  teacher_in_charge_email = $4,
+  support_email = $5,
+  starts_at = $6,
+  ends_at = $7
+WHERE id = $8
+",
+        update.name,
+        update.description,
+        update.teacher_in_charge_name,
+        update.teacher_in_charge_email,
+        update.support_email,
+        update.opening_time,
+        update.closing_time,
+        instance_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE course_instances
+SET deleted_at = now()
+WHERE id = $1
+",
+        id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
     use crate::{
-        models::{course_language_groups, courses, organizations},
+        models::{course_language_groups, courses, organizations, users},
         test_helper::Conn,
     };
 
@@ -378,12 +490,61 @@ mod test {
         )
         .await
         .unwrap();
+        users::insert(tx.as_mut(), "user@example.com")
+            .await
+            .unwrap();
 
-        let _course_1_instance_1 = insert(tx.as_mut(), course_1_id, None, None).await.unwrap();
-        let course_2_instance_1 = insert(tx.as_mut(), course_2_id, None, None).await;
+        let _course_1_instance_1 = insert(
+            tx.as_mut(),
+            NewCourseInstance {
+                id: Uuid::new_v4(),
+                course_id: course_1_id,
+                name: None,
+                description: None,
+                variant_status: None,
+                teacher_in_charge_name: "teacher",
+                teacher_in_charge_email: "teacher@example.com",
+                support_email: None,
+                opening_time: None,
+                closing_time: None,
+            },
+        )
+        .await
+        .unwrap();
+        let course_2_instance_1 = insert(
+            tx.as_mut(),
+            NewCourseInstance {
+                id: Uuid::new_v4(),
+                course_id: course_2_id,
+                name: None,
+                description: None,
+                variant_status: None,
+                teacher_in_charge_name: "teacher",
+                teacher_in_charge_email: "teacher@example.com",
+                support_email: None,
+                opening_time: None,
+                closing_time: None,
+            },
+        )
+        .await;
         assert!(course_2_instance_1.is_ok());
 
-        let course_1_instance_2 = insert(tx.as_mut(), course_1_id, None, None).await;
+        let course_1_instance_2 = insert(
+            tx.as_mut(),
+            NewCourseInstance {
+                id: Uuid::new_v4(),
+                course_id: course_1_id,
+                name: None,
+                description: None,
+                variant_status: None,
+                teacher_in_charge_name: "teacher",
+                teacher_in_charge_email: "teacher@example.com",
+                support_email: None,
+                opening_time: None,
+                closing_time: None,
+            },
+        )
+        .await;
         assert!(course_1_instance_2.is_err());
     }
 }

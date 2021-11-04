@@ -68,6 +68,9 @@ function gradeAnswer(assessedAnswer: QuizItemAnswerGrading[], quiz: Quiz): numbe
   return points
 }
 
+// Function, which goes through every quizItemAnswer and either marks it correct or incorrect
+// Different quizItems have special functions which asseses them
+// Returns a list of object, which tells whether answer was correct or not
 function asssesAnswers(quizAnswer: QuizAnswer, quiz: Quiz): QuizItemAnswerGrading[] {
   const result = quizAnswer.itemAnswers.map((ia) => {
     const item = quiz.items.find((i) => i.id === ia.quizItemId)

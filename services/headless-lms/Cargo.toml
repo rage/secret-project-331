@@ -90,7 +90,7 @@ tracing-log = "0.1"
 # This library provides a convenient derive macro for the standard library's std::error::Error trait.
 thiserror = "1"
 # generate typescript bindings from rust types
-ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "67f765076b9d0eaf8283a9374b4a3ecd814c75e2", features = [
+ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "db1580718a3cc10ac9e7d07173dec2700c119ca0", features = [
   "chrono-impl",
   "serde-compat",
   "serde-json-impl",

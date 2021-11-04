@@ -34,9 +34,9 @@ pub struct UserExerciseState {
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
 pub struct UserCourseInstanceProgress {
     score_given: f32,
-    score_maximum: Option<i64>,
-    total_exercises: Option<i64>,
-    completed_exercises: Option<i64>,
+    score_maximum: Option<u32>,
+    total_exercises: Option<u32>,
+    completed_exercises: Option<u32>,
 }
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
 pub struct UserCourseInstanceChapterExerciseProgress {
@@ -153,9 +153,18 @@ pub async fn get_user_course_instance_progress(
     .await?;
     let result = UserCourseInstanceProgress {
         score_given: option_f32_to_f32_two_decimals(user_metrics.score_given),
-        completed_exercises: user_metrics.completed_exercises,
-        score_maximum: course_metrics.score_maximum,
-        total_exercises: course_metrics.total_exercises,
+        completed_exercises: user_metrics
+            .completed_exercises
+            .map(TryInto::try_into)
+            .transpose()?,
+        score_maximum: course_metrics
+            .score_maximum
+            .map(TryInto::try_into)
+            .transpose()?,
+        total_exercises: course_metrics
+            .total_exercises
+            .map(TryInto::try_into)
+            .transpose()?,
     };
     Ok(result)
 }
@@ -758,9 +767,13 @@ mod tests {
         )
         .await
         .unwrap();
-        let state = update_user_exercise_state(tx.as_mut(), &grading, &submission)
+        submissions::set_grading_id(tx.as_mut(), grading.id, submission.id)
             .await
             .unwrap();
+        let state =
+            get_or_create_user_exercise_state(tx.as_mut(), data.user, exercise.id, data.instance)
+                .await
+                .unwrap();
         assert!(state.score_given.is_some());
     }
 }

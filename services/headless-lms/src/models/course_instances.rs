@@ -300,12 +300,15 @@ pub struct ChapterScore {
     score_total: i32,
 }
 
+#[derive(Debug, Default, Serialize, TS)]
+pub struct PointMap(pub HashMap<Uuid, f32>);
+
 #[derive(Debug, Serialize, TS)]
 pub struct Points {
     chapter_points: Vec<ChapterScore>,
     users: Vec<User>,
-    #[ts(type = "Map<string, Map<string, number>>")]
-    user_chapter_points: HashMap<Uuid, HashMap<Uuid, f32>>,
+    // PointMap is a workaround for https://github.com/rhys-vdw/ts-auto-guard/issues/158
+    user_chapter_points: HashMap<Uuid, PointMap>,
 }
 
 pub async fn get_points(
@@ -357,7 +360,7 @@ LIMIT $2 OFFSET $3
     )
     .fetch_all(&mut *conn)
     .await?;
-    let mut user_chapter_points = HashMap::<Uuid, HashMap<Uuid, f32>>::new();
+    let mut user_chapter_points = HashMap::<Uuid, PointMap>::new();
     for state in states {
         let user = match users.get(&state.user_id) {
             Some(user) => user,
@@ -371,7 +374,7 @@ LIMIT $2 OFFSET $3
         };
         if let Some(chapter_id) = exercise_to_chapter_id.get(&state.exercise_id).copied() {
             let chapter_points = user_chapter_points.entry(user.id).or_default();
-            let user_given = chapter_points.entry(chapter_id).or_default();
+            let user_given = chapter_points.0.entry(chapter_id).or_default();
             let chapter_given = chapter_points_given.entry(chapter_id).or_default();
             let score_given = state.score_given.unwrap_or_default();
             *user_given += score_given;

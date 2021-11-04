@@ -71,6 +71,7 @@ import {
   Pagination,
   PlaygroundExample,
   PlaygroundExampleData,
+  PointMap,
   Points,
   ProposalCount,
   ProposalStatus,
@@ -774,6 +775,15 @@ export function isUser(obj: any, _argumentName?: string): obj is User {
   )
 }
 
+export function isPointMap(obj: any, _argumentName?: string): obj is PointMap {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    Object.entries(obj).every(
+      ([key, value]) => typeof value === "number" && typeof key === "string",
+    )
+  )
+}
+
 export function isPoints(obj: any, _argumentName?: string): obj is Points {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
@@ -781,7 +791,11 @@ export function isPoints(obj: any, _argumentName?: string): obj is Points {
     obj.chapter_points.every((e: any) => isChapterScore(e) as boolean) &&
     Array.isArray(obj.users) &&
     obj.users.every((e: any) => isUser(e) as boolean) &&
-    obj.user_chapter_points instanceof Map
+    ((obj.user_chapter_points !== null && typeof obj.user_chapter_points === "object") ||
+      typeof obj.user_chapter_points === "function") &&
+    Object.entries(obj.user_chapter_points).every(
+      ([key, value]) => (isPointMap(value) as boolean) && typeof key === "string",
+    )
   )
 }
 

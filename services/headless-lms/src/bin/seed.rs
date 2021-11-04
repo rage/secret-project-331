@@ -25,10 +25,13 @@ use serde_json::Value;
 use sqlx::migrate::MigrateDatabase;
 use sqlx::{Connection, PgConnection, Postgres};
 use std::{env, process::Command};
+use tracing::info;
 use uuid::Uuid;
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    env::set_var("RUST_LOG", "info,sqlx=warn");
+
     dotenv::dotenv().ok();
     setup_tracing()?;
 
@@ -36,6 +39,7 @@ async fn main() -> Result<()> {
     let db_url = env::var("DATABASE_URL")?;
 
     if clean {
+        info!("cleaning");
         // hardcoded for now
         let status = Command::new("dropdb")
             .args(["-U", "headless-lms"])
@@ -50,10 +54,12 @@ async fn main() -> Result<()> {
     }
     let mut conn = PgConnection::connect(&db_url).await?;
     if clean {
+        info!("running migrations");
         sqlx::migrate!("./migrations").run(&mut conn).await?;
     }
 
     // exercise services
+    info!("inserting exercise services");
     let _example_exercise_exercise_service = exercise_services::insert_exercise_service(
         &mut conn,
         &exercise_services::ExerciseServiceNewOrUpdate {
@@ -82,6 +88,7 @@ async fn main() -> Result<()> {
     .await?;
 
     // users
+    info!("inserting users");
     let admin = users::insert_with_id(
         &mut conn,
         "admin@example.com",
@@ -142,6 +149,7 @@ async fn main() -> Result<()> {
     ];
 
     // uh-cs
+    info!("uh-cs");
     let uh_cs = organizations::insert(
         &mut conn,
         "University of Helsinki, Department of Computer Science",
@@ -151,6 +159,7 @@ async fn main() -> Result<()> {
     )
     .await?;
 
+    info!("inserting uh-cs courses");
     let cs_intro = seed_sample_course(
         &mut conn,
         uh_cs,
@@ -944,6 +953,7 @@ async fn seed_sample_course(
     student: Uuid,
     users: &[Uuid],
 ) -> Result<Uuid> {
+    info!("inserting sample course {}", course_name);
     let new_course = NewCourse {
         name: course_name.to_string(),
         organization_id: org,
@@ -960,7 +970,7 @@ async fn seed_sample_course(
         admin,
     )
     .await?;
-    let course_instance = course_instances::insert(
+    course_instances::insert(
         conn,
         NewCourseInstance {
             id: Uuid::new_v5(&course_id, b"67f077b4-0562-47ae-a2b9-db2f08f168a9"),
@@ -1179,7 +1189,7 @@ async fn seed_sample_course(
             course.id,
             exercise_task_c1p1e1_1,
             user_id,
-            course_instance.id,
+            default_instance.id,
             spec_c1p1e1t1_1.to_string(),
             100.0,
         )
@@ -1192,7 +1202,7 @@ async fn seed_sample_course(
             course.id,
             exercise_task_c1p1e1_1,
             user_id,
-            course_instance.id,
+            default_instance.id,
             spec_c1p1e1t1_2.to_string(),
             1.0,
         )
@@ -1204,7 +1214,7 @@ async fn seed_sample_course(
             course.id,
             exercise_task_c1p1e1_1,
             user_id,
-            course_instance.id,
+            default_instance.id,
             spec_c1p1e1t1_3.to_string(),
             0.0,
         )
@@ -1216,7 +1226,7 @@ async fn seed_sample_course(
             course.id,
             exercise_task_c1p1e1_1,
             user_id,
-            course_instance.id,
+            default_instance.id,
             spec_c1p1e1t1_1.to_string(),
             60.0,
         )
@@ -1228,7 +1238,7 @@ async fn seed_sample_course(
             course.id,
             exercise_task_c1p2e1_1,
             user_id,
-            course_instance.id,
+            default_instance.id,
             spec_c1p2e1t1_1.to_string(),
             70.0,
         )
@@ -1240,7 +1250,7 @@ async fn seed_sample_course(
             course.id,
             exercise_task_c2p1e1_1,
             user_id,
-            course_instance.id,
+            default_instance.id,
             spec_c2p1e1t1_1.to_string(),
             80.0,
         )
@@ -1252,7 +1262,7 @@ async fn seed_sample_course(
             course.id,
             exercise_task_c1p1e1_1,
             user_id,
-            course_instance.id,
+            default_instance.id,
             spec_c1p1e1t1_1.to_string(),
             90.0,
         )

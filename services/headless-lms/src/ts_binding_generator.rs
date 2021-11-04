@@ -15,7 +15,7 @@ use crate::{
         },
         course_instance_enrollments::CourseInstanceEnrollment,
         course_instances::{
-            ChapterScore, CourseInstance, CourseInstanceForm, Points, VariantStatus,
+            ChapterScore, CourseInstance, CourseInstanceForm, PointMap, Points, VariantStatus,
         },
         courses::{Course, CourseStructure, CourseUpdate, NewCourse},
         email_templates::{EmailTemplate, EmailTemplateNew, EmailTemplateUpdate},
@@ -116,6 +116,7 @@ ts_rs::export! {
   ErrorResponse,
   ChapterScore,
   User,
+  PointMap,
   Points,
   // dependencies
   VariantStatus,

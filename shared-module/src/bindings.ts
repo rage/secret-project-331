@@ -468,10 +468,12 @@ export interface User {
   email: string
 }
 
+export type PointMap = Record<string, number>
+
 export interface Points {
   chapter_points: Array<ChapterScore>
   users: Array<User>
-  user_chapter_points: Map<string, Map<string, number>>
+  user_chapter_points: Record<string, PointMap>
 }
 
 export type VariantStatus = "Draft" | "Upcoming" | "Active" | "Ended"

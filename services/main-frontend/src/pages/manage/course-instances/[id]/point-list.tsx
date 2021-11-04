@@ -118,7 +118,7 @@ const PointList: React.FC<PointListProps> = ({ query }) => {
               opacity: 0.8;
             `}
           >
-            : {data.users.length}
+            {t("number-of-students")}: {data.users.length}
           </div>
           <div
             className={css`
@@ -171,7 +171,7 @@ const PointList: React.FC<PointListProps> = ({ query }) => {
                       padding-top: 8px;
                     `}
                   >
-                    {c.score_given}/{c.score_total}
+                    {Math.round(c.score_given)}/{c.score_total * data.users.length}
                   </div>
                 </div>
               </div>
@@ -242,14 +242,15 @@ const PointList: React.FC<PointListProps> = ({ query }) => {
             <tbody>
               {data.users
                 .map((user) => {
-                  const totalPoints = Object.values(
-                    data.user_chapter_points.get(user.id) || new Map(),
-                  ).reduce((prev, curr) => prev + curr, 0)
-                  const userChapterPoints = data.user_chapter_points.get(user.id) || new Map()
+                  const totalPoints = Object.values(data.user_chapter_points[user.id] || {}).reduce(
+                    (prev, curr) => prev + curr,
+                    0,
+                  )
+                  const userChapterPoints = data.user_chapter_points[user.id] || {}
                   const chapterPoints = Object.fromEntries(
                     data.chapter_points.map((c) => [
                       `ch${c.chapter_number}`,
-                      userChapterPoints.get(c.id) || new Map(),
+                      userChapterPoints[c.id] || 0,
                     ]),
                   )
                   return { user, totalPoints, chapterPoints }
@@ -287,11 +288,11 @@ const PointList: React.FC<PointListProps> = ({ query }) => {
                       </td>
                       <td>{user.email}</td>
                       {data.chapter_points.map((c) => {
-                        const userChapterPoints = data.user_chapter_points.get(user.id) || new Map()
-                        const chapterPoints = userChapterPoints.get(c.id)
+                        const userChapterPoints = data.user_chapter_points[user.id] || {}
+                        const chapterPoints = userChapterPoints[c.id] || 0
                         return (
                           <td key={user.id + c.id}>
-                            {chapterPoints || 0}/{c.score_total}
+                            {chapterPoints}/{c.score_total}
                           </td>
                         )
                       })}

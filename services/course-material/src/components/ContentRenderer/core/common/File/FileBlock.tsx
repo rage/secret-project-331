@@ -36,7 +36,7 @@ const FileBlock: React.FC<BlockRendererProps<FileAttributes>> = ({ data }) => {
           rel="noopener"
         >
           {fileName}
-          {textLinkTarget === "_blank" && (
+          {textLinkTarget && textLinkTarget.includes("_blank") && (
             <div>
               <span className="screen-reader-only">{t("screen-reader-opens-in-new-tab")}</span>
               <ExternalLinkSVG />

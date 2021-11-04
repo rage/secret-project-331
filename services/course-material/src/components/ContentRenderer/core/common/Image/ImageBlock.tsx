@@ -28,7 +28,7 @@ const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => 
   } = data.attributes
 
   const ENSURE_REL_NO_OPENER_IF_TARGET_BLANK =
-    linkTarget && linkTarget.includes("blank")
+    linkTarget && linkTarget.includes("_blank")
       ? rel && !rel.includes("noopener")
         ? rel.split(" ").join(" ").concat(" noopener")
         : "noopener"
@@ -74,7 +74,7 @@ const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => 
               src={url}
               alt={alt}
             />
-            {linkTarget === "_blank" && (
+            {linkTarget && linkTarget.includes("_blank") && (
               <span className="screen-reader-only">{t("screen-reader-opens-in-new-tab")}</span>
             )}
           </a>

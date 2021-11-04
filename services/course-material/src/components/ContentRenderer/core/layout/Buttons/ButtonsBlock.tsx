@@ -47,7 +47,7 @@ const ButtonsBlock: React.FC<BlockRendererProps<ButtonsAttributes>> = ({ data })
     } = button.attributes as ButtonAttributes
 
     const ENSURE_REL_NO_OPENER_IF_TARGET_BLANK =
-      linkTarget && linkTarget.includes("blank")
+      linkTarget && linkTarget.includes("_blank")
         ? rel && !rel.includes("noopener")
           ? rel.split(" ").join(" ").concat(" noopener")
           : "noopener"
@@ -81,7 +81,7 @@ const ButtonsBlock: React.FC<BlockRendererProps<ButtonsAttributes>> = ({ data })
           {...(anchor && { id: anchor })}
           dangerouslySetInnerHTML={{ __html: text ?? placeholder ?? "BUTTON" }}
         />
-        {linkTarget === "_blank" && (
+        {linkTarget && linkTarget.includes("_blank") && (
           <span className="screen-reader-only">{t("screen-reader-opens-in-new-tab")}</span>
         )}
       </a>

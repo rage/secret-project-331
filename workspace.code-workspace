@@ -83,7 +83,8 @@
     "usernamehw.errorlens",
     "coenraads.bracket-pair-colorizer-2",
     "jebbs.plantuml",
-    "wix.vscode-import-cost"
+    "wix.vscode-import-cost",
+    "serayuzgur.crates"
   ],
   "launch": {
     "configurations": [],

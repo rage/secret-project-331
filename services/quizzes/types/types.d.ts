@@ -69,6 +69,29 @@ export interface PublicQuiz {
   body: string
 }
 
+export interface ModelSolutionQuiz {
+  id: string
+  courseId: string
+  part: number
+  section: number
+  points: number
+  deadline: Date | null
+  open: Date | null
+  excludedFromScore: boolean
+  createdAt: Date
+  updatedAt: Date
+  autoConfirm: boolean
+  tries: number
+  triesLimited: boolean
+  awardPointsEvenIfWrong: boolean
+  grantPointsPolicy: "grant_whenever_possible" | "grant_only_when_answer_fully_correct"
+  autoReject: boolean
+  items: ModelSolutionQuizItem[]
+  title: string
+  body: string
+  submitMessage: string | null
+}
+
 export interface QuizItem {
   id: string
   quizId: string
@@ -89,12 +112,25 @@ export interface QuizItem {
   options: QuizItemOption[]
   title: string
   body: string
-  successMessage: null
-  failureMessage: null
+  successMessage: string | null
+  failureMessage: string | null
   sharedOptionFeedbackMessage: null
   allAnswersCorrect: boolean
   direction: "row" | "column"
   feedbackDisplayPolicy: "DisplayFeedbackOnQuizItem" | "DisplayFeedbackOnAllOptions"
+}
+
+export interface QuizItemModelSolution {
+  quizItemId: string
+  options?: OptionsFeedback[]
+  successMessage?: string
+  failureMessage?: string
+}
+
+export interface OptionsFeedback {
+  optionId: string
+  successMessage?: string
+  failureMessage?: string
 }
 
 export interface NormalizedQuizItem {
@@ -159,6 +195,8 @@ export interface PublicQuizItem {
   body: string
   direction: "row" | "column"
 }
+
+export type ModelSolutionQuizItem = Omit<QuizItem, "validityRegex">
 
 export interface QuizItemOption {
   id: string

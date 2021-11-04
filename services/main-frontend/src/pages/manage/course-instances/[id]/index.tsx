@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import { isPast } from "date-fns"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useMutation, useQuery } from "react-query"
 
 import Layout from "../../../../components/Layout"
@@ -14,6 +15,7 @@ import {
 import { CourseInstanceForm } from "../../../../shared-module/bindings"
 import { isErrorResponse } from "../../../../shared-module/bindings.guard"
 import Button from "../../../../shared-module/components/Button"
+import Spinner from "../../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import basePath from "../../../../shared-module/utils/base-path"
@@ -27,6 +29,7 @@ interface ManageCourseInstancesProps {
 }
 
 const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) => {
+  const { t } = useTranslation()
   const courseInstanceId = query.id
   const router = useRouter()
 
@@ -46,9 +49,9 @@ const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) 
       },
       onError: (err) => {
         if (isErrorResponse(err)) {
-          setErrorMessage(`Failed to update course instance: ${err.message}`)
+          setErrorMessage(t("message-saving-failed"))
         } else {
-          setErrorMessage(`Unexpected error while updating course instance: ${JSON.stringify(err)}`)
+          setErrorMessage(t("message-update-failed"))
         }
       },
     },
@@ -60,25 +63,26 @@ const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) 
     },
     {
       onSuccess: (_, courseId) => {
+        // eslint-disable-next-line i18next/no-literal-string
         router.push(`/manage/courses/${courseId}`)
       },
       onError: (err) => {
         if (err instanceof Error) {
-          setErrorMessage(`Failed to delete course instance: ${err.toString()}`)
+          setErrorMessage(t("message-deleting-failed"))
         } else {
-          setErrorMessage(`Unexpected error while deleting course instance: ${JSON.stringify(err)}`)
+          setErrorMessage(t("message-deleting-failed"))
         }
       },
     },
   )
 
   if (isLoading) {
-    return <div>Loading...</div>
+    return <Spinner variant="medium" />
   }
   if (error || !data) {
     return (
       <div>
-        Failed to fetch course instance...
+        {t("error-title")}
         <pre>{JSON.stringify(error, null, 2)}</pre>
       </div>
     )
@@ -98,49 +102,54 @@ const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) 
     )
   } else {
     const supportEmail = data.support_email ? (
-      <div>Support email: {data.support_email}</div>
+      <div>
+        {t("support-email")}: {data.support_email}
+      </div>
     ) : (
-      <div>No support email set</div>
+      <div>{t("no-support-email-set")}</div>
     )
     let schedule
     if (data.ends_at && isPast(data.ends_at)) {
       // instance is over
-      schedule = <div>Instance ended at {data.ends_at.toISOString()}</div>
+      schedule = <div>{t("instance-ended-at-time", { time: data.ends_at.toISOString() })}</div>
     } else if (data.starts_at && isPast(data.starts_at)) {
       // course is currently open
       if (data.ends_at) {
-        schedule = <div>Instance is open and ends at {data.ends_at.toISOString()}</div>
+        schedule = (
+          <div>{t("instance-is-open-and-ends-at-time", { time: data.ends_at.toISOString() })}</div>
+        )
       } else {
-        schedule = <div>Instance is currently open and has no set ending time</div>
+        schedule = <div>{t("instance-is-currently-open-and-has-no-set-ending-time")}</div>
       }
     } else if (data.starts_at) {
       // course is not open yet
-      schedule = <div>Instance opens at {data.starts_at.toISOString()}</div>
+      schedule = <div>{t("instance-opens-at-time", { time: data.starts_at.toISOString() })}</div>
     } else {
-      schedule = <div>Instance has no set opening time</div>
+      schedule = <div>{t("instance-has-no-set-opening-time")}</div>
     }
     instanceInfo = (
       <>
         <h2>{data.name}</h2>
         <div>{data.description}</div>
         <hr />
-        <div>Teacher-in-charge name: {data.teacher_in_charge_name}</div>
-        <div>Teacher-in-charge email: {data.teacher_in_charge_email}</div>
-        {supportEmail}
         <div>
-          Support emails are sent to this address if it is set, and to the teacher-in-charge email
-          otherwise
+          {t("teacher-in-charge-name")}: {data.teacher_in_charge_name}
         </div>
+        <div>
+          {t("teacher-in-charge-email")}: {data.teacher_in_charge_email}
+        </div>
+        {supportEmail}
+        <div>{t("support-email-description")}</div>
         {schedule}
         <Button variant="tertiary" size="medium" onClick={() => setEditing(true)}>
-          Edit
+          {t("edit")}
         </Button>
         <Button
           variant="secondary"
           size="medium"
           onClick={() => deleteMutation.mutate(data.course_id)}
         >
-          Delete
+          {t("button-text-delete")}
         </Button>
       </>
     )
@@ -155,7 +164,7 @@ const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) 
         `}
       >
         <h1>
-          Course instance {data.name ?? "default"} ({data.id})
+          {t("label-course-instance")} {data.name ?? t("default-course-instance-name")} ({data.id})
         </h1>
         {errorMessage && <div>{errorMessage}</div>}
         {instanceInfo}

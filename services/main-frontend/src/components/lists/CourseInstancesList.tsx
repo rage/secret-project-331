@@ -1,5 +1,6 @@
 import Link from "next/link"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import { fetchCourseInstances } from "../../services/backend/courses"
@@ -10,6 +11,7 @@ export interface CourseInstancesListProps {
 }
 
 const CourseInstancesList: React.FC<CourseInstancesListProps> = ({ courseId }) => {
+  const { t } = useTranslation()
   const { isLoading, error, data } = useQuery(`course-${courseId}-course-instances`, () =>
     fetchCourseInstances(courseId),
   )
@@ -19,37 +21,45 @@ const CourseInstancesList: React.FC<CourseInstancesListProps> = ({ courseId }) =
   }
 
   if (isLoading || !data) {
-    return <>Loading...</>
+    return <>{t("loading-text")}</>
   }
 
   return (
     <>
       <ul>
         {data.map((instance) => {
+          const name = instance.name ?? t("default-course-instance-name")
           return (
             <li key={instance.id}>
-              {instance.name ?? "Default"}{" "}
+              {name}{" "}
               <Link
                 href={{
                   pathname: "/manage/course-instances/[id]",
                   query: { id: instance.id },
                 }}
+                passHref
               >
-                Manage
+                <a href="replace" aria-label={`${t("link-manage")} (${name})`}>
+                  {t("link-manage")}
+                </a>
               </Link>{" "}
               <Link
                 href={{
                   pathname: "/manage/course-instances/[id]/emails",
                   query: { id: instance.id },
                 }}
+                passHref
               >
-                Manage emails
+                <a href="replace" aria-label={`${t("link-manage-emails")} (${name})`}>
+                  {t("link-manage-emails")}
+                </a>
               </Link>{" "}
               <a
                 href={`/api/v0/main-frontend/course-instances/${instance.id}/point_export`}
                 download
+                aria-label={`${t("link-export-points")} (${name})`}
               >
-                Export points
+                {t("link-export-points")}
               </a>
             </li>
           )
@@ -61,7 +71,7 @@ const CourseInstancesList: React.FC<CourseInstancesListProps> = ({ courseId }) =
       >
         <a href="replace">
           <Button variant="primary" size="medium">
-            New course instance
+            {t("button-text-new")}
           </Button>
         </a>
       </Link>

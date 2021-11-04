@@ -1,12 +1,14 @@
 import { useRouter } from "next/dist/client/router"
 import { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
+import { PublicQuiz } from "../../types/types"
 import Widget, { State } from "../components/widget"
 import { isSetStateMessage } from "../shared-module/iframe-protocol-types.guard"
-import { PublicQuiz } from "../types/types"
 
 const ExercisePage: React.FC = () => {
+  const { t } = useTranslation()
   const [port, setPort] = useState<MessagePort | null>(null)
   const [quiz, setQuiz] = useState<PublicQuiz | null>(null)
 
@@ -24,17 +26,21 @@ const ExercisePage: React.FC = () => {
       }
       const port = message.ports[0]
       if (port) {
-        console.log("Frame received a port:", port)
+        // eslint-disable-next-line i18next/no-literal-string
+        console.info("Frame received a port:", port)
         setPort(port)
         port.onmessage = (message: WindowEventMap["message"]) => {
+          // eslint-disable-next-line i18next/no-literal-string
           console.log("Frame received a message from port", JSON.stringify(message.data))
           const msg = message.data
           if (isSetStateMessage(msg)) {
             if (msg.view_type === "exercise") {
+              // eslint-disable-next-line i18next/no-literal-string
               console.log("Frame: setting state from message")
               // Quiz should be sent to the widget as a quiz object, not as a list containing the quiz object
               setQuiz(msg.data as PublicQuiz)
             } else {
+              // eslint-disable-next-line i18next/no-literal-string
               console.error("Frame received an unknown message from message port")
             }
           }
@@ -57,11 +63,11 @@ const ExercisePage: React.FC = () => {
   }
 
   if (!port) {
-    return <>Waiting for port...</>
+    return <>{t("waiting-for-port")}</>
   }
 
   if (!quiz) {
-    return <>Waiting for data...</>
+    return <>{t("waiting-for-content")}</>
   }
 
   const quiz_answer_id = v4()
@@ -72,6 +78,7 @@ const ExercisePage: React.FC = () => {
       quizId: quiz.id,
       createdAt: Date.now().toString(),
       updatedAt: Date.now().toString(),
+      // eslint-disable-next-line i18next/no-literal-string
       status: "open",
       itemAnswers: quiz.items.map((qi) => {
         return {

@@ -4,7 +4,7 @@ import React from "react"
 import ArrowSVGIcon from "../img/arrow.svg"
 import { baseTheme, headingFont } from "../styles"
 
-const Wrapper = styled.aside`
+const Wrapper = styled.div`
   border-radius: 10px;
   position: relative;
   width: 100%;
@@ -95,7 +95,7 @@ const PagesInChapterBox: React.FC<PagesInChapterBoxProps> = (props) => {
               <span>{props.chapterIndex}</span>
             </PageNumberBox>
             <span>{props.chapterTitle}</span>
-            <ArrowSVGIcon alt="next icon" width="20" />
+            <ArrowSVGIcon role="presentation" alt="" width="20" />
           </ChapterParts>
         </Link>
       </>

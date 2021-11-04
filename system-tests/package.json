@@ -4,12 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "../bin/setup-system-test-db && npx playwright test --browser chromium",
+    "test": "env HTML=1 npm run test-nohtml",
+    "test-nohtml": "../bin/setup-system-test-db && npx playwright test --browser chromium",
     "test-without-database-reset": "npx playwright test --browser chromium",
-    "test-headed": "npm run test -- --headed",
-    "test-slowmo": "env SLOWMO=200 npm run test -- --headed",
-    "test-video": "env RECORD_VIDEO=1 npm run test",
-    "test-debug": "env PWDEBUG=1 npm run test",
+    "test-headed": "npm run test-nohtml -- --headed",
+    "test-slowmo": "env SLOWMO=200 npm run test-nohtml -- --headed",
+    "test-video": "env RECORD_VIDEO=1 npm run test-nohtml",
+    "test-debug": "env PWDEBUG=1 npm run test-nohtml",
     "test-firefox": "../bin/setup-system-test-db && npx playwright test --browser firefox",
     "test-without-database-reset-firefox": "npx playwright test -- --browser firefox",
     "test-headed-firefox": "npm run test-firefox -- --headed",
@@ -26,18 +27,19 @@
     "test-debug-logs": "env DEBUG=pw:api npm run test",
     "open": "npx playwright open project-331.local",
     "open-firefox": "npx playwright open project-331.local --browser firefox",
-    "update-snapshots": "npm run test -- --update-snapshots --browser=chromium",
+    "update-snapshots": "npm run test-nohtml -- --update-snapshots --browser=chromium",
     "reset-db": "../bin/setup-system-test-db",
-    "view-trace": "npx playwright show-trace"
+    "view-trace": "npx playwright show-trace",
+    "show-report": "npx playwright show-report"
   },
   "keywords": [],
   "devDependencies": {
-    "@playwright/test": "^1.15.0",
-    "playwright": "^1.15.0",
-    "typescript": "^4.4.3"
+    "@playwright/test": "^1.16.1",
+    "playwright": "^1.16.1",
+    "typescript": "^4.4.4"
   },
   "dependencies": {
     "@axe-core/playwright": "^4.3.1",
-    "axe-core": "^4.3.3"
+    "axe-core": "^4.3.4"
   }
 }

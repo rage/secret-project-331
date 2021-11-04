@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import Link from "next/link"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import { fetchOrganizations } from "../../services/backend/organizations"
@@ -11,16 +12,17 @@ import { respondToOrLarger } from "../../shared-module/styles/respond"
 import basePath from "../../shared-module/utils/base-path"
 
 const OrganizationsList: React.FC = () => {
+  const { t } = useTranslation()
   const { isLoading, error, data } = useQuery(`organizations`, () => fetchOrganizations(), {
     cacheTime: 60000,
   })
 
   if (error) {
-    return <div>Error loading organizations.</div>
+    return <div>{t("error-loading-organizations")}</div>
   }
 
   if (isLoading || !data) {
-    return <div>Loading...</div>
+    return <div>{t("loading-text")}</div>
   }
 
   return (
@@ -36,10 +38,10 @@ const OrganizationsList: React.FC = () => {
           font-weight: 600;
           font-size: 3em;
           margin: 2em 0em;
-          color: #707070;
+          color: #656565;
         `}
       >
-        Organizations
+        {t("organizations-heading")}
       </h1>
       <div
         className={css`
@@ -54,10 +56,14 @@ const OrganizationsList: React.FC = () => {
               query: { id: organization.id },
             }}
             aria-label={organization.name}
+            passHref
           >
-            <div
+            <a
+              href="replace"
               className={css`
                 padding: 0em 1em;
+                text-decoration: none;
+                color: #656565;
               `}
             >
               <div
@@ -117,7 +123,7 @@ const OrganizationsList: React.FC = () => {
                 >
                   <h2
                     className={css`
-                      color: #707070;
+                      color: #656565;
                       font-weight: 600;
                       font-size: 1.5em;
                     `}
@@ -127,7 +133,7 @@ const OrganizationsList: React.FC = () => {
                   <span>{organization.description}</span>
                 </div>
               </div>
-            </div>
+            </a>
           </Link>
         ))}
       </div>

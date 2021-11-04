@@ -11,7 +11,8 @@ module.exports = {
     "@storybook/addon-links",
     "@storybook/addon-essentials",
     '@storybook/addon-a11y',
-    '@storybook/addon-storysource'
+    '@storybook/addon-storysource',
+    'storybook-react-i18next'
   ],
   webpackFinal: async (config) => {
     return merge(config, {

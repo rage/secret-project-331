@@ -41,7 +41,7 @@ test("test", async ({ page, headless }) => {
   ])
 
   // Click text=Search
-  await page.click('[aria-label="Search page"]')
+  await page.click('[aria-label="Search for pages"]')
 
   // Click [placeholder="Search..."]
   await page.click('[placeholder="Search..."]')
@@ -51,6 +51,7 @@ test("test", async ({ page, headless }) => {
   await page.waitForSelector("text=Human-machine interface")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     headless,
     page,
     snapshotName: "search-content-with-short-prefix",
@@ -65,7 +66,7 @@ test("test", async ({ page, headless }) => {
   )
 
   // Click text=Search
-  await page.click('[aria-label="Search page"]')
+  await page.click('[aria-label="Search for pages"]')
 
   // Click [placeholder="Search..."]
   await page.click('[placeholder="Search..."]')
@@ -75,6 +76,7 @@ test("test", async ({ page, headless }) => {
   await page.waitForSelector("text=Introduction to Course Material")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "search-content-with-two-words-not-just-after-each-other",
@@ -88,6 +90,7 @@ test("test", async ({ page, headless }) => {
   await page.waitForSelector("text=banana cat enim")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "search-continuous-phrases-ranked-higher-than-word-matches",

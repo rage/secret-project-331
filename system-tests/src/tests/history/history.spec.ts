@@ -46,6 +46,7 @@ test("test", async ({ page, headless }) => {
   await page.waitForLoadState("networkidle")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "initial-page",
@@ -131,7 +132,7 @@ test("test", async ({ page, headless }) => {
   // Click text=Home
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
-    page.click('[aria-label="Front page"]'),
+    page.click('[aria-label="Home page"]'),
   ])
 
   // Click text=University of Helsinki, Department of Computer Science
@@ -174,6 +175,7 @@ test("test", async ({ page, headless }) => {
   const stableElement = await page.waitForSelector("text=core/paragraph")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "history-view-p1",
@@ -191,6 +193,7 @@ test("test", async ({ page, headless }) => {
   const stableElement2 = await page.waitForSelector("text=core/paragraph")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "history-view-p4-before-compare",
@@ -223,6 +226,7 @@ test("test", async ({ page, headless }) => {
   await page.waitForSelector("text=Best exercise")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "history-view-p4-after-compare",
@@ -248,6 +252,7 @@ test("test", async ({ page, headless }) => {
   await page.waitForTimeout(100)
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "history-view-after-restore",
@@ -261,7 +266,7 @@ test("test", async ({ page, headless }) => {
   // Click text=Home
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
-    page.click('[aria-label="Front page"]'),
+    page.click('[aria-label="Home page"]'),
   ])
 
   // Click text=University of Helsinki, Department of Computer Science
@@ -290,6 +295,7 @@ test("test", async ({ page, headless }) => {
 
   await page.waitForLoadState("networkidle")
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "page-after-restore",

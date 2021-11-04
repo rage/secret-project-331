@@ -69,6 +69,7 @@ impl<W: Write + Send + 'static> CsvWriter<W> {
         }
 
         let writer = tokio::task::spawn_blocking(move || {
+            let _ = &self;
             Arc::try_unwrap(self.csv_writer)
                 .map_err(|_| anyhow::anyhow!("Failed to extract inner writer from arc"))?
                 .into_inner()

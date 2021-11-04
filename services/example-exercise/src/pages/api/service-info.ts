@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import type { NextApiRequest, NextApiResponse } from "next"
 
 import { ExerciseServiceInfoApi } from "../../shared-module/bindings"

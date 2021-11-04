@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import Layout from "../../components/Layout"
@@ -15,6 +16,7 @@ interface SubmissionPageProps {
 }
 
 const Submission: React.FC<SubmissionPageProps> = ({ query }) => {
+  const { t } = useTranslation()
   const { isLoading, error, data } = useQuery(`submission-${query.id}`, () =>
     fetchSubmissionInfo(query.id),
   )
@@ -24,7 +26,7 @@ const Submission: React.FC<SubmissionPageProps> = ({ query }) => {
   }
 
   if (isLoading || !data) {
-    return <>Loading...</>
+    return <>{t("loading-text")}</>
   }
 
   let grading = <></>
@@ -32,10 +34,16 @@ const Submission: React.FC<SubmissionPageProps> = ({ query }) => {
     grading = (
       <div>
         <div>
-          Points: {data.grading.score_given} out of {data.exercise.score_maximum}
+          {t("points-out-of", {
+            points: data.grading.score_given,
+            maxPoints: data.exercise.score_maximum,
+          })}
         </div>
         <div>
-          Submitted at {data.submission.created_at.toDateString()} by {data.submission.user_id}
+          {t("submitted-at-by", {
+            time: data.submission.created_at.toDateString(),
+            user: data.submission.user_id,
+          })}
         </div>
       </div>
     )
@@ -44,7 +52,7 @@ const Submission: React.FC<SubmissionPageProps> = ({ query }) => {
   return (
     <Layout navVariant="complex">
       <div className={normalWidthCenteredComponentStyles}>
-        <h1>Submission {data.submission.id}</h1>
+        <h1>{t("title-submission-id", { id: data.submission.id })}</h1>
         {grading}
         <SubmissionIFrame
           url={`${data.iframe_path}?width=700`} // todo: move constants to shared module?

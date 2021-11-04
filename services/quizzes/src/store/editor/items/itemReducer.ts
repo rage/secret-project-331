@@ -2,8 +2,8 @@ import produce from "immer"
 import { normalize } from "normalizr"
 import { createReducer } from "typesafe-actions"
 
+import { action, NormalizedQuizItem, Quiz } from "../../../../types/types"
 import { normalizedQuiz } from "../../../schemas"
-import { action, NormalizedQuizItem, Quiz } from "../../../types/types"
 import {
   createdNewItem,
   createdNewOption,

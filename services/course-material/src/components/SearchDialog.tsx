@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Dialog, Paper, TextField } from "@material-ui/core"
 import Link from "next/link"
 import React, { useEffect, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 import sanitizeHtml from "sanitize-html"
 import { useDebounce } from "use-debounce"
 
@@ -34,6 +35,7 @@ const StyledIcon = css`
 `
 
 const SearchDialog: React.FC<SearchDialogProps> = ({ courseId }) => {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState<string | null>(null)
   const [debouncedQuery] = useDebounce(query, 200)
@@ -100,9 +102,10 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId }) => {
       <FontAwesomeIcon
         className={cx(StyledIcon)}
         icon={faSearch}
-        aria-label="Search page"
+        aria-label={t("button-label-search-for-pages")}
         onClick={openModal}
       />
+      {/* eslint-disable-next-line i18next/no-literal-string */}
       <Dialog maxWidth="xl" open={open} onClose={closeModal}>
         <Paper
           className={css`
@@ -112,7 +115,7 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId }) => {
           `}
         >
           <HeaderBar>
-            <h1>Search</h1>
+            <h1>{t("search")}</h1>
             <div
               className={css`
                 flex-grow: 1;
@@ -120,7 +123,7 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId }) => {
             />
             <DebugModal data={{ phraseSearchResults, wordSearchResults, combinedResults }} />
             <Button size="medium" variant="secondary" onClick={closeModal}>
-              Close
+              {t("close")}
             </Button>
           </HeaderBar>
           <div
@@ -135,7 +138,7 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId }) => {
                 setQuery(e.target.value)
               }}
               fullWidth
-              placeholder="Search..."
+              placeholder={t("search-field-placeholder")}
             />
             <div
               className={css`

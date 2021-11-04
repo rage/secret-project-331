@@ -1,6 +1,7 @@
 import { Alert } from "@material-ui/lab"
 import { BlockEditProps } from "@wordpress/blocks"
 import React, { PropsWithChildren, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import MessageChannelIFrame from "../../shared-module/components/MessageChannelIFrame"
 import { SetStateMessage } from "../../shared-module/iframe-protocol-types"
@@ -15,14 +16,15 @@ interface IFrameEditorProps {
 }
 
 const IFrameEditor: React.FC<IFrameEditorProps> = ({ url, props }) => {
+  const { t } = useTranslation()
   const [specParseable, setSpecParseable] = useState(true)
   if (!url || url.trim() === "") {
-    return <Alert severity="error">Cannot render exercise task, missing url.</Alert>
+    return <Alert severity="error">{t("error-cannot-render-exercise-task-missing-url")}</Alert>
   }
   if (!specParseable) {
     return (
       <>
-        <Alert severity="error">Spec not parseable.</Alert>
+        <Alert severity="error">{t("error-spec-not-parseable")}</Alert>
         <pre>{props.attributes.private_spec}</pre>
       </>
     )
@@ -31,7 +33,8 @@ const IFrameEditor: React.FC<IFrameEditorProps> = ({ url, props }) => {
     <MessageChannelIFrame
       url={url}
       onCommunicationChannelEstabilished={(port) => {
-        console.log("communication channel established")
+        // eslint-disable-next-line i18next/no-literal-string
+        console.info("communication channel established")
         let parsedPrivateSpec = null
         try {
           parsedPrivateSpec = JSON.parse(props.attributes.private_spec ?? null)
@@ -40,7 +43,9 @@ const IFrameEditor: React.FC<IFrameEditorProps> = ({ url, props }) => {
           return
         }
         const message: SetStateMessage = {
+          // eslint-disable-next-line i18next/no-literal-string
           message: "set-state",
+          // eslint-disable-next-line i18next/no-literal-string
           view_type: "exercise-editor",
           data: parsedPrivateSpec,
         }
@@ -53,6 +58,7 @@ const IFrameEditor: React.FC<IFrameEditorProps> = ({ url, props }) => {
             private_spec: JSON.stringify((messageContainer.data as any).private_spec),
           })
         } else {
+          // eslint-disable-next-line i18next/no-literal-string
           console.error("Unexpected message or structure is not valid.")
         }
       }}

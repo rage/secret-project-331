@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import { render, waitFor } from "@testing-library/react"
 import { rest } from "msw"
 import { setupServer } from "msw/node"

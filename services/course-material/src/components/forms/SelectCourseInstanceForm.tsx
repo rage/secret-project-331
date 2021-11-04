@@ -1,6 +1,7 @@
 import styled from "@emotion/styled"
 import { FormControlLabel, Radio, RadioGroup } from "@material-ui/core"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { CourseInstance } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
@@ -15,6 +16,7 @@ interface NewCourseFormProps {
 }
 
 const NewCourseForm: React.FC<NewCourseFormProps> = ({ courseInstances, onSubmitForm }) => {
+  const { t } = useTranslation()
   const [instance, setInstance] = useState(onlyItemOrUndefined(courseInstances)?.id ?? "")
 
   const enrollOnCourse = async () => {
@@ -25,13 +27,13 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ courseInstances, onSubmit
 
   return (
     <div>
-      <FieldContainer aria-labelledby="Course version selection">
+      <FieldContainer>
         <RadioGroup value={instance} onChange={(e) => setInstance(e.target.value)}>
           {courseInstances.map((x) => (
             <FormControlLabel
               control={<Radio />}
               key={x.id}
-              label={x.name || "default"}
+              label={x.name || t("default-course-instance-name")}
               value={x.id}
             />
           ))}
@@ -39,7 +41,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ courseInstances, onSubmit
       </FieldContainer>
       <div>
         <Button size="medium" variant="primary" onClick={enrollOnCourse} disabled={!instance}>
-          Continue
+          {t("continue")}
         </Button>
       </div>
     </div>

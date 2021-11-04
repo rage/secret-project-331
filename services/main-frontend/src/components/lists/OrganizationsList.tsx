@@ -7,7 +7,7 @@ import { useQuery } from "react-query"
 import { fetchOrganizations } from "../../services/backend/organizations"
 import DebugModal from "../../shared-module/components/DebugModal"
 import UHNoBG from "../../shared-module/img/uh_without_background.svg"
-import { wideWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
+import { frontendWideWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 import basePath from "../../shared-module/utils/base-path"
 
@@ -29,7 +29,7 @@ const OrganizationsList: React.FC = () => {
     <div
       className={css`
         margin: 1em 0;
-        ${wideWidthCenteredComponentStyles}
+        ${frontendWideWidthCenteredComponentStyles}
       `}
     >
       <h1

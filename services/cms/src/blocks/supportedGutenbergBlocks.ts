@@ -6,25 +6,22 @@ export const supportedCoreBlocks: string[] = [
   "core/heading",
   "core/list",
   "core/quote",
-  "core/shortcode",
   "core/audio",
-  "core/button",
-  "core/buttons",
   "core/code",
+  "core/buttons",
+  "core/button", // Don't remove button even though deprecated, as they are now children of core/buttons
   "core/columns",
-  "core/column",
+  "core/column", // core/column is child of core/columns
   "core/embed", // This is used by youtube, twitter etc.
   "core/file",
-  "core/group",
   "core/html",
   "core/preformatted",
   "core/pullquote",
-  "core/rss",
+  // "core/rss", // TODO
   "core/separator",
   "core/block",
   "core/spacer",
   "core/table",
-  "core/text-columns",
   "core/verse",
 ]
 

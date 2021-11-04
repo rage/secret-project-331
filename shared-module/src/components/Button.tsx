@@ -8,7 +8,7 @@ export interface ButtonExtraProps {
   variant: "primary" | "secondary" | "tertiary"
   size: "medium" | "large"
   transform?: "normal" | "uppercase"
-  children: React.ReactNode
+  children?: React.ReactNode
 }
 
 export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & ButtonExtraProps

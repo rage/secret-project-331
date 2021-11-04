@@ -2,13 +2,13 @@ import { css } from "@emotion/css"
 
 import Layout from "../../components/Layout"
 import { baseTheme } from "../../shared-module/styles"
-import { wideWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
+import { frontendWideWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 
 const Home: React.FC = () => {
   return (
     <Layout>
-      <div className={wideWidthCenteredComponentStyles}>
+      <div className={frontendWideWidthCenteredComponentStyles}>
         <div
           className={css`
             display: grid;

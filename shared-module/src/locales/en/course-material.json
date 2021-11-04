@@ -72,5 +72,6 @@
   "button-label-search-for-pages": "Search for pages",
   "search": "Search",
   "search-field-placeholder": "Search...",
-  "available-in-languages": "Available in {{num}} languages"
+  "available-in-languages": "Available in {{num}} languages",
+  "screen-reader-opens-in-new-tab": "(opens in a new tab)"
 }

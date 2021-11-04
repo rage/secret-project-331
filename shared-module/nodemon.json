@@ -1,9 +1,6 @@
 {
   "restartable": "rs",
-  "ignore": [
-    ".git",
-    "node_modules/**/node_modules"
-  ],
+  "ignore": [".git", "node_modules/**/node_modules"],
   "verbose": true,
   "execMap": {
     "js": "node --harmony"
@@ -12,9 +9,7 @@
     "restart": "cd .. && npm run postinstall",
     "start": "cd .. && npm run postinstall"
   },
-  "watch": [
-    "src"
-  ],
+  "watch": ["src"],
   "ext": "js ts tsx json jsx svg png",
   "env": {
     "NODE_ENV": "development"

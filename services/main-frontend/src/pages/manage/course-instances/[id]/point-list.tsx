@@ -115,7 +115,6 @@ const PointList: React.FC<PointListProps> = ({ query }) => {
 
               font-size: 22px;
               line-height: 22px;
-              opacity: 0.8;
             `}
           >
             {t("number-of-students")}: {data.users.length}
@@ -157,13 +156,7 @@ const PointList: React.FC<PointListProps> = ({ query }) => {
                     margin-left: 20px;
                   `}
                 >
-                  <div
-                    className={css`
-                      opacity: 0.7;
-                    `}
-                  >
-                    {c.name}
-                  </div>
+                  {c.name}
                   <div
                     className={css`
                       font-size: 30px;
@@ -198,7 +191,6 @@ const PointList: React.FC<PointListProps> = ({ query }) => {
               <tr
                 className={css`
                   text-align: left;
-                  opacity: 0.8;
                 `}
               >
                 <th>

@@ -595,20 +595,6 @@ export interface ExerciseWithExerciseTasks {
   score_maximum: number
 }
 
-export interface NormalizedCmsExercise {
-  id: string
-  name: string
-  order_number: number
-  exercise_tasks: Array<NormalizedCmsExerciseTask>
-}
-
-export interface NormalizedCmsExerciseTask {
-  id: string
-  exercise_type: string
-  assignment: unknown
-  private_spec: unknown | null
-}
-
 export interface UserCourseSettings {
   user_id: string
   course_language_group_id: string

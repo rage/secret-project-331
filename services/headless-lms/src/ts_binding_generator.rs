@@ -31,9 +31,8 @@ use crate::{
         pages::{
             CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate,
             ContentManagementPage, CoursePageWithUserData, ExerciseWithExerciseTasks,
-            HistoryRestoreData, NewPage, NormalizedCmsExercise, NormalizedCmsExerciseTask, Page,
-            PageRoutingDataWithChapterStatus, PageSearchRequest, PageSearchResult,
-            PageWithExercises,
+            HistoryRestoreData, NewPage, Page, PageRoutingDataWithChapterStatus, PageSearchRequest,
+            PageSearchResult, PageWithExercises,
         },
         playground_examples::{PlaygroundExample, PlaygroundExampleData},
         proposed_block_edits::{
@@ -135,8 +134,6 @@ ts_rs::export! {
   // returned from the API as serde_json::Value
   ExerciseTask,
   ExerciseWithExerciseTasks,
-  NormalizedCmsExercise,
-  NormalizedCmsExerciseTask,
   UserCourseSettings,
   PlaygroundExample,PlaygroundExampleData,
   CoursePageWithUserData

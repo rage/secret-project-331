@@ -93,30 +93,11 @@ pub struct NewPage {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
-pub struct NormalizedCmsExercise {
-    // The id will be validated so that the client can't change it on us.
-    pub id: Uuid,
-    pub name: String,
-    pub order_number: i32,
-    pub exercise_tasks: Vec<NormalizedCmsExerciseTask>,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct NormalizedCmsExerciseTask {
     pub id: Uuid,
     pub exercise_type: String,
     pub assignment: serde_json::Value,
     pub private_spec: Option<serde_json::Value>,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct NormalizedCmsExerciseTaskWithExerciseId {
-    pub id: Uuid,
-    pub exercise_type: String,
-    pub assignment: serde_json::Value,
-    pub public_spec: Option<serde_json::Value>,
-    pub private_spec: Option<serde_json::Value>,
-    pub exercise_id: Uuid,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]

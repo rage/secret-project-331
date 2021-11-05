@@ -61,8 +61,6 @@ import {
   NewProposedBlockEdit,
   NewProposedPageEdits,
   NewSubmission,
-  NormalizedCmsExercise,
-  NormalizedCmsExerciseTask,
   Organization,
   Page,
   PageHistory,
@@ -987,31 +985,6 @@ export function isExerciseWithExerciseTasks(
     Array.isArray(obj.exercise_tasks) &&
     obj.exercise_tasks.every((e: any) => isExerciseTask(e) as boolean) &&
     typeof obj.score_maximum === "number"
-  )
-}
-
-export function isNormalizedCmsExercise(
-  obj: any,
-  _argumentName?: string,
-): obj is NormalizedCmsExercise {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    typeof obj.name === "string" &&
-    typeof obj.order_number === "number" &&
-    Array.isArray(obj.exercise_tasks) &&
-    obj.exercise_tasks.every((e: any) => isNormalizedCmsExerciseTask(e) as boolean)
-  )
-}
-
-export function isNormalizedCmsExerciseTask(
-  obj: any,
-  _argumentName?: string,
-): obj is NormalizedCmsExerciseTask {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    typeof obj.exercise_type === "string"
   )
 }
 

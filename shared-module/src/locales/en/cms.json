@@ -1,4 +1,5 @@
 {
+  "add-slide": "Add slide",
   "add-task": "Add task",
   "chapter-progress-placeholder": "Chapter progress placeholder",
   "chapter-progress-placeholder-explanation": "This block is used to display Chapter progress. To display the whole course progress, you should use the Course Progress block.",

@@ -10,18 +10,19 @@ import { useTranslation } from "react-i18next"
 import { blockTypeMapForPages, blockTypeMapForTopLevelPages } from "../../blocks"
 import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import { EditorContentDispatch, editorContentReducer } from "../../contexts/EditorContentContext"
-import { Page, PageUpdate } from "../../shared-module/bindings"
+import { CmsPageUpdate, ContentManagementPage, Page } from "../../shared-module/bindings"
 import DebugModal from "../../shared-module/components/DebugModal"
 import Spinner from "../../shared-module/components/Spinner"
 import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
+import { denormalizeDocument, normalizeDocument } from "../../utils/documentSchemaProcessor"
 import SerializeGutenbergModal from "../SerializeGutenbergModal"
 import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
 
 interface PageEditorProps {
   data: Page
-  handleSave: (page: PageUpdate) => Promise<Page>
+  handleSave: (page: CmsPageUpdate) => Promise<ContentManagementPage>
 }
 
 const EditorLoading = <Spinner variant="medium" />
@@ -62,14 +63,17 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
   const handleOnSave = async () => {
     setSaving(true)
     try {
-      const res = await handleSave({
-        title,
-        url_path: data.url_path,
-        content: removeUnsupportedBlockType(content),
-        chapter_id: data.chapter_id,
-      })
+      const res = await handleSave(
+        normalizeDocument(
+          data.id,
+          removeUnsupportedBlockType(content),
+          title,
+          data.url_path,
+          data.chapter_id,
+        ),
+      )
       setError(null)
-      contentDispatch({ type: "setContent", payload: res.content as BlockInstance[] })
+      contentDispatch({ type: "setContent", payload: denormalizeDocument(res) })
     } catch (e: unknown) {
       if (!(e instanceof Error)) {
         throw e

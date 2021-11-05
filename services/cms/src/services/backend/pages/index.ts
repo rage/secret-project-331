@@ -1,4 +1,4 @@
-import { CmsPageUpdate, ContentManagementPage, Page } from "../../../shared-module/bindings"
+import { CmsPageUpdate, ContentManagementPage } from "../../../shared-module/bindings"
 import { cmsClient } from "../cmsClient"
 
 export const fetchPageWithId = async (pageId: string): Promise<ContentManagementPage> => {
@@ -6,7 +6,10 @@ export const fetchPageWithId = async (pageId: string): Promise<ContentManagement
   return data
 }
 
-export const updateExistingPage = async (page_id: string, data: CmsPageUpdate): Promise<Page> => {
+export const updateExistingPage = async (
+  page_id: string,
+  data: CmsPageUpdate,
+): Promise<ContentManagementPage> => {
   const response = await cmsClient.put(`/pages/${page_id}`, data, {
     headers: { "Content-Type": "application/json" },
   })

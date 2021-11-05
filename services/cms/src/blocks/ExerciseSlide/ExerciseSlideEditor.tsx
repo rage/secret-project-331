@@ -6,6 +6,8 @@ import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import { EditorContentDispatch } from "../../contexts/EditorContentContext"
+import Button from "../../shared-module/components/Button"
+import { primaryFont, typography } from "../../shared-module/styles"
 import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import { gutenbergControlsHidden } from "../../styles/EditorStyles"
 
@@ -37,8 +39,8 @@ const ExerciseSlideEditor: React.FC<BlockEditProps<ExerciseSlideAttributes>> = (
     <ExerciseSlideEditorCard id={attributes.id}>
       <div
         className={css`
-          font-size: 18pt;
-          font-weight: normal;
+          font-family: ${primaryFont};
+          font-size: ${typography.h5};
           margin-bottom: 1.5rem;
         `}
       >
@@ -48,7 +50,9 @@ const ExerciseSlideEditor: React.FC<BlockEditProps<ExerciseSlideAttributes>> = (
         <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
       </div>
       <div className={normalWidthCenteredComponentStyles}>
-        <button onClick={handleAddNewTask}>{t("add-task")}</button>
+        <Button variant="secondary" size="medium" onClick={handleAddNewTask}>
+          {t("add-task")}
+        </Button>
       </div>
     </ExerciseSlideEditorCard>
   )

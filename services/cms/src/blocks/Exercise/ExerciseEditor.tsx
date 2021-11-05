@@ -7,13 +7,14 @@ import { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import { EditorContentDispatch } from "../../contexts/EditorContentContext"
+import Button from "../../shared-module/components/Button"
+import { primaryFont, typography } from "../../shared-module/styles"
 import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import { gutenbergControlsHidden } from "../../styles/EditorStyles"
 
 import { ExerciseAttributes } from "."
 
 const ALLOWED_NESTED_BLOCKS = ["moocfi/exercise-slide"]
-const ADD_SLIDE_TO_BE_FIXED = "Add slide"
 
 const ExerciseEditorCard = styled.div`
   padding: 2rem 0;
@@ -43,8 +44,8 @@ const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
       <div className={normalWidthCenteredComponentStyles}>
         <div
           className={css`
-            font-size: 18pt;
-            font-weight: normal;
+            font-family: ${primaryFont};
+            font-size: ${typography.h4};
             margin-bottom: 1.5rem;
           `}
         >
@@ -65,8 +66,9 @@ const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
         <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
       </div>
       <div className={normalWidthCenteredComponentStyles}>
-        {/** eslint-disable-next-line i18next/no-literal-string */}
-        <button onClick={handleAddNewSlide}>{ADD_SLIDE_TO_BE_FIXED}</button>
+        <Button variant="primary" size="medium" onClick={handleAddNewSlide}>
+          {t("add-slide")}
+        </Button>
       </div>
     </ExerciseEditorCard>
   )

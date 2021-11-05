@@ -113,7 +113,7 @@ export const editorContentReducer = (
         return { ...block, innerBlocks }
       })
     case "setContent":
-      return action.payload as BlockInstance[]
+      return action.payload
   }
 }
 

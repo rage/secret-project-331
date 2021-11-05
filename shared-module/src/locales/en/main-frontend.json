@@ -162,9 +162,9 @@
   "instance-is-currently-open-and-has-no-set-ending-time": "Instance is currently open and has no set ending time",
   "instance-opens-at-time": "Instance opens at {{time}}",
   "instance-has-no-set-opening-time": "Instance has no set opening time",
-  "point-summary": "Point Summary",
-  "total-point-dashboard": "TOTAL POINT DASHBOARD",
-  "number-of-students": "Number Of Students",
+  "point-summary": "Point summary",
+  "total-point-dashboard": "Total point dashboard",
+  "number-of-students": "Number of students",
   "student-name": "Student name",
   "serial-number": "Serial number",
   "score": "Score"

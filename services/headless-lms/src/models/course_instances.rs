@@ -314,7 +314,7 @@ pub struct Points {
 pub async fn get_points(
     conn: &mut PgConnection,
     instance_id: Uuid,
-    pagination: &Pagination,
+    _pagination: &Pagination, // TODO
 ) -> ModelResult<Points> {
     let mut chapter_point_totals = HashMap::<Uuid, i32>::new();
     let mut exercise_to_chapter_id = HashMap::new();
@@ -334,6 +334,7 @@ WHERE id IN (
     SELECT user_id
     FROM course_instance_enrollments
     WHERE course_instance_id = $1
+      AND deleted_at IS NULL
   )
 ",
         instance_id
@@ -352,11 +353,8 @@ SELECT user_id,
 FROM user_exercise_states
 WHERE course_instance_id = $1
 ORDER BY user_id ASC
-LIMIT $2 OFFSET $3
 ",
         instance_id,
-        pagination.limit(),
-        pagination.offset()
     )
     .fetch_all(&mut *conn)
     .await?;

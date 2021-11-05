@@ -8,9 +8,12 @@ import { getPoints } from "../../../../services/backend/course-instances"
 import { User } from "../../../../shared-module/bindings"
 import { isErrorResponse } from "../../../../shared-module/bindings.guard"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
+import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import { roundDown } from "../../../../shared-module/utils/numbers"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 export interface PointListProps {
@@ -78,16 +81,16 @@ const PointList: React.FC<PointListProps> = ({ query }) => {
     <Layout navVariant="complex">
       <div
         className={css`
+          ${wideWidthCenteredComponentStyles}
           display: flex;
           flex-direction: column;
-          background: #f5f5f5;
           color: #707070;
           font-weight: 600;
           font-family: Josefin Sans, sans-serif;
 
-          padding: 51px 24px;
-          @media (min-width: 768px) {
-            padding: 149px 82px 127px 155px;
+          margin-top: 40px;
+          ${respondToOrLarger.sm} {
+            margin-top: 80px;
           }
         `}
       >
@@ -95,6 +98,7 @@ const PointList: React.FC<PointListProps> = ({ query }) => {
           className={css`
             font-size: 45px;
             line-height: 45px;
+            text-transform: capitalize;
           `}
         >
           {t("point-summary")}: {courseInstanceId}
@@ -108,13 +112,20 @@ const PointList: React.FC<PointListProps> = ({ query }) => {
             border: 1px solid rgba(190, 190, 190, 0.6);
           `}
         >
-          <h3>{t("total-point-dashboard")}</h3>
+          <h3
+            className={css`
+              text-transform: uppercase;
+            `}
+          >
+            {t("total-point-dashboard")}
+          </h3>
           <div
             className={css`
               margin-top: 22px;
 
               font-size: 22px;
               line-height: 22px;
+              text-transform: capitalize;
             `}
           >
             {t("number-of-students")}: {data.users.length}
@@ -164,7 +175,7 @@ const PointList: React.FC<PointListProps> = ({ query }) => {
                       padding-top: 8px;
                     `}
                   >
-                    {Math.round(c.score_given)}/{c.score_total * data.users.length}
+                    {roundDown(c.score_given, 2)}/{c.score_total * data.users.length}
                   </div>
                 </div>
               </div>
@@ -275,7 +286,7 @@ const PointList: React.FC<PointListProps> = ({ query }) => {
                       <td>{user.email}</td>
                       <td>{user.id}</td>
                       <td>
-                        {totalPoints}/{instanceTotalPoints} (
+                        {roundDown(totalPoints, 2)}/{instanceTotalPoints} (
                         {Math.round(totalPoints / instanceTotalPoints)}%)
                       </td>
                       <td>{user.email}</td>
@@ -284,7 +295,7 @@ const PointList: React.FC<PointListProps> = ({ query }) => {
                         const chapterPoints = userChapterPoints[c.id] || 0
                         return (
                           <td key={user.id + c.id}>
-                            {chapterPoints}/{c.score_total}
+                            {roundDown(chapterPoints, 2)}/{c.score_total}
                           </td>
                         )
                       })}

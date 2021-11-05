@@ -1,9 +1,9 @@
 import React from 'react'
 import styled from '@emotion/styled'
 
-interface TextFieldPropsExtraProps {
+interface TextFieldExtraProps {
   type?: "email" | "password" | "text"
-  label?: string
+  label: string
   hint?: string
   errorMessage?: string
   placeholder?: string
@@ -13,12 +13,14 @@ interface TextFieldPropsExtraProps {
   onChange: (value:string, name?:string) => void
 }
 
-export type TextFieldProps = React.HTMLAttributes<HTMLInputElement> & TextFieldPropsExtraProps
+export type TextFieldProps = React.HTMLAttributes<HTMLInputElement> & TextFieldExtraProps
 
-const TextField = ({onChange, ...rest}: TextFieldPropsExtraProps) => {
+const TextField = ({onChange, ...rest}: TextFieldExtraProps) => {
 
   return (
+    <label><span>{rest.label}</span>
     <input onChange={({ target: { value }}) => onChange(value)} {...rest} />
+    </label>
   )
 }
 

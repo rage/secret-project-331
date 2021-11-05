@@ -1,25 +1,17 @@
-import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { useLayoutEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
+import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
 import { Alternative } from "../util/stateInterfaces"
 
 import ButtonEditor from "./ButtonEditor"
 interface Props {
   state: Alternative[]
   setState: (newState: Alternative[]) => void
-  onHeightChange: (newHeight: number, port: MessagePort) => void
-  port: MessagePort
   maxWidth: number
+  port: MessagePort
 }
-
-const Wrapper = styled.div`
-  /* Overflows break height calculations */
-  overflow: hidden;
-  box-sizing: border-box;
-`
 
 // eslint-disable-next-line i18next/no-literal-string
 const ButtonWrapper = styled.div`
@@ -41,29 +33,10 @@ const NewButton = styled.button`
   }
 `
 
-const Editor: React.FC<Props> = ({ state, setState, onHeightChange, port, maxWidth }) => {
+const Editor: React.FC<Props> = ({ state, setState, port }) => {
   const { t } = useTranslation()
-  const contentRef = useRef<HTMLDivElement>(null)
-  // Automatic height resizing events
-  useLayoutEffect(() => {
-    const ref = contentRef.current
-    if (!ref) {
-      return
-    }
-    onHeightChange(ref.getBoundingClientRect().height, port)
-  })
   return (
-    <Wrapper
-      className={css`
-        /* Overflows break height calculations */
-        overflow: hidden;
-        box-sizing: border-box;
-        width: 100%;
-        max-width: ${maxWidth}rem;
-        margin: 0 auto;
-      `}
-      ref={contentRef}
-    >
+    <HeightTrackingContainer port={port}>
       <ButtonWrapper>
         {state.map((o) => (
           <ButtonEditor
@@ -94,7 +67,7 @@ const Editor: React.FC<Props> = ({ state, setState, onHeightChange, port, maxWid
           {t("new")}
         </NewButton>
       </ButtonWrapper>
-    </Wrapper>
+    </HeightTrackingContainer>
   )
 }
 

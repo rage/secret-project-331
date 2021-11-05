@@ -8,11 +8,12 @@ import ExerciseBase from "./ExerciseBase"
 
 interface Props {
   state: PublicAlternative[]
-  port: MessagePort
+  setState: (newState: PublicAlternative[]) => void
   maxWidth: number | null
+  port: MessagePort
 }
 
-const Exercise: React.FC<Props> = ({ port, maxWidth, state }) => {
+const Exercise: React.FC<Props> = ({ maxWidth, state, setState, port }) => {
   const [selectedId, _setSelectedId] = useState<string | null>(null)
 
   const setSelectedId: typeof _setSelectedId = (value) => {

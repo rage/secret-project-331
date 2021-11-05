@@ -1681,6 +1681,24 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
     };
     create_page(conn, course.id, admin, chapter_2.id, page_content).await?;
 
+    let page_content = include_str!("../assets/example-page.json");
+    let parse_page_content = serde_json::from_str(page_content)?;
+    create_page(
+        conn,
+        course.id,
+        admin,
+        chapter_2.id,
+        CmsPageUpdate {
+            content: parse_page_content,
+            exercises: vec![],
+            exercise_slides: vec![],
+            exercise_tasks: vec![],
+            url_path: "/chapter-2/content-rendering".to_string(),
+            title: "Content rendering".to_string(),
+            chapter_id: Some(chapter_2.id),
+        },
+    )
+    .await?;
     Ok(course.id)
 }
 

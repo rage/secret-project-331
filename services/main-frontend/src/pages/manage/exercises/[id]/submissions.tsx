@@ -6,7 +6,7 @@ import { useQuery } from "react-query"
 import Layout from "../../../../components/Layout"
 import { fetchExerciseSubmissions } from "../../../../services/backend/exercises"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
-import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import { frontendWideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import {
   dontRenderUntilQueryParametersReady,
   SimplifiedUrlQuery,
@@ -33,7 +33,7 @@ const SubmissionsPage: React.FC<SubmissionPageProps> = ({ query }) => {
 
   return (
     <Layout navVariant="complex">
-      <div className={wideWidthCenteredComponentStyles}>
+      <div className={frontendWideWidthCenteredComponentStyles}>
         <h4>{t("header-submissions")}</h4>
         <table>
           <thead>

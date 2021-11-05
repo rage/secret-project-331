@@ -102,15 +102,17 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
           <UpdatePageDetailsForm title={title} setTitle={setTitle} />
         </div>
       </div>
-      <GutenbergEditor
-        content={content}
-        onContentChange={(value) => contentDispatch({ type: "setContent", payload: value })}
-        customBlocks={
-          data.chapter_id !== null ? blockTypeMapForPages : blockTypeMapForTopLevelPages
-        }
-        allowedBlocks={supportedCoreBlocks}
-        allowedBlockVariations={allowedBlockVariants}
-      />
+      <div className={normalWidthCenteredComponentStyles}>
+        <GutenbergEditor
+          content={content}
+          onContentChange={(value) => contentDispatch({ type: "setContent", payload: value })}
+          customBlocks={
+            data.chapter_id !== null ? blockTypeMapForPages : blockTypeMapForTopLevelPages
+          }
+          allowedBlocks={supportedCoreBlocks}
+          allowedBlockVariations={allowedBlockVariants}
+        />
+      </div>
       <div className="editor__component">
         <div
           className={css`
@@ -119,7 +121,13 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
             margin-bottom: 1rem;
           `}
         >
-          <SerializeGutenbergModal content={content} />
+          <div
+            className={css`
+              margin-bottom: 0.5rem;
+            `}
+          >
+            <SerializeGutenbergModal content={content} />
+          </div>
           <DebugModal data={content} />
         </div>
       </div>

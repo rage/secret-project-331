@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next"
 import Layout from "../../../../components/Layout"
 import EditProposalList from "../../../../components/lists/EditProposalList"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
-import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import { frontendWideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import {
   dontRenderUntilQueryParametersReady,
   SimplifiedUrlQuery,
@@ -40,7 +40,7 @@ const ChangeRequestsPage: React.FC<ChangeRequestsProps> = ({ query }) => {
   const pending = tab == 0
   return (
     <Layout navVariant={"complex"}>
-      <div className={wideWidthCenteredComponentStyles}>
+      <div className={frontendWideWidthCenteredComponentStyles}>
         <h3>{t("title-change-requests")}</h3>
         <Paper square>
           <Tabs

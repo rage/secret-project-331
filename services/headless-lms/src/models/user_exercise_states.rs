@@ -770,6 +770,12 @@ mod tests {
         submissions::set_grading_id(tx.as_mut(), grading.id, submission.id)
             .await
             .unwrap();
+        let submission = submissions::get_by_id(tx.as_mut(), submission.id)
+            .await
+            .unwrap();
+        update_user_exercise_state(tx.as_mut(), &grading, &submission)
+            .await
+            .unwrap();
         let state =
             get_or_create_user_exercise_state(tx.as_mut(), data.user, exercise.id, data.instance)
                 .await

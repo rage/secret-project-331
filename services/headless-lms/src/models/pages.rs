@@ -2,24 +2,24 @@ use super::{
     chapters::{self, ChapterStatus},
     course_instances::{self, CourseInstance},
     courses::Course,
+    exercise_slides::ExerciseSlide,
     user_course_settings::{self, UserCourseSettings},
     ModelResult,
 };
 use crate::{
     domain::authorization::AuthUser,
     models::{
+        self,
         chapters::DatabaseChapter,
         exercise_service_info,
         exercise_services::{get_internal_public_spec_url, get_model_solution_url},
-        exercise_slides,
         exercise_tasks::ExerciseTask,
         exercises::Exercise,
         page_history::HistoryChangeReason,
         ModelError,
     },
     utils::document_schema_processor::{
-        self, contains_blocks_not_allowed_in_top_level_pages, denormalize, normalize_from_json,
-        GutenbergBlock, NormalizedDocument,
+        contains_blocks_not_allowed_in_top_level_pages, GutenbergBlock,
     },
 };
 
@@ -80,6 +80,9 @@ pub struct PageWithExercises {
 // Represents the subset of page fields that are required to create a new page.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct NewPage {
+    pub exercises: Vec<CmsPageExercise>,
+    pub exercise_slides: Vec<CmsPageExerciseSlide>,
+    pub exercise_tasks: Vec<CmsPageExerciseTask>,
     pub content: serde_json::Value,
     pub url_path: String,
     pub title: String,
@@ -89,40 +92,12 @@ pub struct NewPage {
     pub front_page_of_chapter_id: Option<Uuid>,
 }
 
-// Represents the subset of page fields that the user is allowed to modify.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
-pub struct PageUpdate {
-    pub content: serde_json::Value,
-    pub url_path: String,
-    pub title: String,
-    pub chapter_id: Option<Uuid>,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
-pub struct NormalizedCmsExercise {
-    // The id will be validated so that the client can't change it on us.
-    pub id: Uuid,
-    pub name: String,
-    pub order_number: i32,
-    pub exercise_tasks: Vec<NormalizedCmsExerciseTask>,
-}
-
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct NormalizedCmsExerciseTask {
     pub id: Uuid,
     pub exercise_type: String,
     pub assignment: serde_json::Value,
     pub private_spec: Option<serde_json::Value>,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct NormalizedCmsExerciseTaskWithExerciseId {
-    pub id: Uuid,
-    pub exercise_type: String,
-    pub assignment: serde_json::Value,
-    pub public_spec: Option<serde_json::Value>,
-    pub private_spec: Option<serde_json::Value>,
-    pub exercise_id: Uuid,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -162,6 +137,14 @@ pub struct PageSearchResult {
     rank: Option<f32>,
     content_headline: Option<String>,
     url_path: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+pub struct ContentManagementPage {
+    pub page: Page,
+    pub exercises: Vec<CmsPageExercise>,
+    pub exercise_slides: Vec<CmsPageExerciseSlide>,
+    pub exercise_tasks: Vec<CmsPageExerciseTask>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
@@ -247,10 +230,18 @@ pub async fn set_chapter(
 }
 
 pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
-    let course_id = sqlx::query!("SELECT course_id FROM pages WHERE id = $1", id)
-        .fetch_one(conn)
-        .await?
-        .course_id;
+    let course_id = sqlx::query!(
+        "
+SELECT course_id
+FROM pages
+WHERE id = $1
+  AND deleted_at IS NULL;
+        ",
+        id
+    )
+    .fetch_one(conn)
+    .await?
+    .course_id;
     Ok(course_id)
 }
 
@@ -404,144 +395,133 @@ pub async fn get_page_with_user_data_by_path(
     }
 }
 
-pub async fn get_page_with_exercises(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<Page> {
-    let mut page = sqlx::query_as!(
-        Page,
-        "
-SELECT id,
-  created_at,
-  updated_at,
-  course_id,
-  chapter_id,
-  url_path,
-  title,
-  deleted_at,
-  content,
-  order_number,
-  copied_from
-FROM pages
-WHERE id = $1;
-    ",
-        page_id
-    )
-    .fetch_one(&mut *conn)
-    .await?;
-
-    let exercises: Vec<Exercise> = sqlx::query_as!(
-        Exercise,
-        "
-SELECT *
-FROM exercises
-WHERE page_id = $1
-",
-        page_id
-    )
-    .fetch_all(&mut *conn)
-    .await?;
-
-    let exercise_tasks: Vec<NormalizedCmsExerciseTaskWithExerciseId> = sqlx::query_as!(
-        NormalizedCmsExerciseTaskWithExerciseId,
-        "
-SELECT t.id,
-  t.exercise_type,
-  t.assignment,
-  t.public_spec,
-  t.private_spec,
-  s.exercise_id
-FROM exercise_tasks t
-  JOIN exercise_slides s ON (t.exercise_slide_id = s.id)
-WHERE t.deleted_at IS NULL
-  AND s.deleted_at IS NULL
-  AND s.exercise_id IN (
-    SELECT id
-    FROM exercises
-    WHERE page_id = $1
-      AND deleted_at IS NULL
-  );
-",
-        page_id
-    )
-    .fetch_all(&mut *conn)
-    .await?;
-
-    let mut exercise_tasks_by_exercise: HashMap<Uuid, Vec<NormalizedCmsExerciseTask>> =
-        exercise_tasks
+pub async fn get_page_with_exercises(
+    conn: &mut PgConnection,
+    id: Uuid,
+) -> ModelResult<ContentManagementPage> {
+    let page = get_page(&mut *conn, id).await?;
+    let exercises: Vec<CmsPageExercise> =
+        crate::models::exercises::get_exercises_by_page_id(&mut *conn, page.id)
+            .await?
             .into_iter()
-            .into_group_map_by(|et| et.exercise_id)
-            .into_iter()
-            .map(|(key, value)| {
-                (
-                    key,
-                    value
-                        .into_iter()
-                        .map(|i| NormalizedCmsExerciseTask {
-                            id: i.id,
-                            exercise_type: i.exercise_type,
-                            assignment: i.assignment,
-                            private_spec: i.private_spec,
-                        })
-                        .collect(),
-                )
-            })
+            .map(|x| x.into())
             .collect();
-
-    let exercises_with_tasks: Vec<NormalizedCmsExercise> = exercises
+    let exercise_slides: Vec<CmsPageExerciseSlide> =
+        crate::models::exercise_slides::get_exercise_slides_by_exercise_ids(
+            &mut *conn,
+            &exercises.iter().map(|x| x.id).collect::<Vec<Uuid>>(),
+        )
+        .await?
         .into_iter()
-        .map(|e| {
-            let exercise_tasks = match exercise_tasks_by_exercise.remove(&e.id) {
-                Some(et) => et,
-                None => Vec::new(),
-            };
-            NormalizedCmsExercise {
-                id: e.id,
-                name: e.name,
-                order_number: e.order_number,
-                exercise_tasks,
-            }
-        })
+        .map(|x| x.into())
         .collect();
-    // This is for cms so we need to put exercises back inside the content
-    let normalized_document = NormalizedDocument {
-        content: serde_json::from_value(page.content)?,
-        exercises: exercises_with_tasks,
-    };
-
-    let denormalized_content = denormalize(normalized_document)?;
-    let content_json = serde_json::to_value(&denormalized_content)?;
-    page.content = content_json;
-
-    Ok(page)
+    let exercise_tasks: Vec<CmsPageExerciseTask> =
+        crate::models::exercise_tasks::get_exercise_tasks_by_exercise_slide_ids(
+            &mut *conn,
+            &exercise_slides.iter().map(|x| x.id).collect::<Vec<Uuid>>(),
+        )
+        .await?
+        .into_iter()
+        .map(|x| x.into())
+        .collect();
+    Ok(ContentManagementPage {
+        page,
+        exercises,
+        exercise_slides,
+        exercise_tasks,
+    })
 }
 
-/// This has 3 stages: updating page, updating exercises, updating exercise tasks.
-/// This is currently implemented with multiple sql queries, but it could be optimized
-/// with data-modifying common table expressions if necessary.
-/// Regenerates exercise ids unless retain_exercise_ids is set to true.
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
+pub struct CmsPageExercise {
+    pub id: Uuid,
+    pub name: String,
+    pub order_number: i32,
+}
+
+impl From<Exercise> for CmsPageExercise {
+    fn from(exercise: Exercise) -> Self {
+        Self {
+            id: exercise.id,
+            name: exercise.name,
+            order_number: exercise.order_number,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
+pub struct CmsPageExerciseSlide {
+    pub id: Uuid,
+    pub exercise_id: Uuid,
+    pub order_number: i32,
+}
+
+impl From<ExerciseSlide> for CmsPageExerciseSlide {
+    fn from(slide: ExerciseSlide) -> Self {
+        Self {
+            id: slide.id,
+            exercise_id: slide.exercise_id,
+            order_number: slide.order_number,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
+pub struct CmsPageExerciseTask {
+    pub id: Uuid,
+    pub exercise_slide_id: Uuid,
+    pub assignment: serde_json::Value,
+    pub exercise_type: String,
+    pub private_spec: Option<serde_json::Value>,
+}
+
+impl From<ExerciseTask> for CmsPageExerciseTask {
+    fn from(task: ExerciseTask) -> Self {
+        CmsPageExerciseTask {
+            id: task.id,
+            exercise_slide_id: task.exercise_slide_id,
+            assignment: task.assignment,
+            exercise_type: task.exercise_type,
+            private_spec: task.private_spec,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
+pub struct CmsPageUpdate {
+    pub content: serde_json::Value,
+    pub exercises: Vec<CmsPageExercise>,
+    pub exercise_slides: Vec<CmsPageExerciseSlide>,
+    pub exercise_tasks: Vec<CmsPageExerciseTask>,
+    pub url_path: String,
+    pub title: String,
+    pub chapter_id: Option<Uuid>,
+}
+
 pub async fn update_page(
     conn: &mut PgConnection,
     page_id: Uuid,
-    page_update: PageUpdate,
+    page_update: CmsPageUpdate,
     author: Uuid,
     retain_exercise_ids: bool,
-) -> ModelResult<Page> {
-    let normalized_document = normalize_from_json(page_update.content)
-        .context("Failed to normalize page update content")?;
-
+) -> ModelResult<ContentManagementPage> {
+    let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(page_update.content)?;
     if page_update.chapter_id.is_none()
-        && contains_blocks_not_allowed_in_top_level_pages(&normalized_document.content)
+        && contains_blocks_not_allowed_in_top_level_pages(&parsed_content)
     {
         return Err(ModelError::Generic(
                 "Top level pages cannot contain exercises, exercise tasks or list of exercises in the chapter".to_string(),
             ));
     }
 
-    let NormalizedDocument { content, exercises } = normalized_document;
-    let content_as_json = serde_json::to_value(content)?;
     let mut tx = conn.begin().await?;
+
+    // TODO: Make sure that the content maches provided exercises.
+
     // Updating page
     let page = sqlx::query_as!(
         Page,
-        r#"
+        r"
 UPDATE pages
 SET content = $2,
   url_path = $3,
@@ -559,9 +539,9 @@ RETURNING id,
   content,
   order_number,
   copied_from
-            "#,
+        ",
         page_id,
-        content_as_json,
+        serde_json::to_value(parsed_content)?,
         page_update.url_path.trim(),
         page_update.title.trim(),
         page_update.chapter_id
@@ -569,17 +549,95 @@ RETURNING id,
     .fetch_one(&mut tx)
     .await?;
 
-    let (result_exercises, new_content) =
-        upsert_exercises_and_exercise_tasks(&exercises, &page, &mut tx, retain_exercise_ids)
-            .await
-            .context("Failed to upser exercises and tasks")?;
+    // Exercises
+    let existing_exercise_ids =
+        models::exercises::delete_exercises_by_page_id(&mut tx, page.id).await?;
+    let remapped_exercises = upsert_exercises(
+        &mut tx,
+        &page,
+        &existing_exercise_ids,
+        &page_update.exercises,
+        retain_exercise_ids,
+    )
+    .await?;
 
-    let denormalized_content = denormalize(NormalizedDocument {
-        content: serde_json::from_value(new_content)?,
-        exercises: result_exercises,
-    })
-    .context("Failed to denormalize content")?;
-    let history_content = serde_json::to_value(&denormalized_content)?;
+    // Exercise slides
+    let existing_exercise_slide_ids =
+        models::exercise_slides::delete_exercise_slides_by_exercise_ids(
+            &mut tx,
+            &existing_exercise_ids,
+        )
+        .await?;
+    let remapped_exercise_slides = upsert_exercise_slides(
+        &mut tx,
+        &remapped_exercises,
+        &existing_exercise_slide_ids,
+        &page_update.exercise_slides,
+        retain_exercise_ids,
+    )
+    .await?;
+
+    // Set as deleted and get existing specs
+    let existing_exercise_task_specs = sqlx::query_as!(
+        ExerciseTaskIdAndSpec,
+        "
+UPDATE exercise_tasks
+SET deleted_at = now()
+WHERE exercise_slide_id = ANY($1)
+RETURNING id,
+  exercise_slide_id,
+  private_spec,
+  public_spec,
+  model_solution_spec;
+        ",
+        &existing_exercise_ids,
+    )
+    .fetch_all(&mut tx)
+    .await?;
+    let remapped_exercise_tasks = upsert_exercise_tasks(
+        &mut tx,
+        &remapped_exercise_slides,
+        &existing_exercise_task_specs,
+        &page_update.exercise_tasks,
+        retain_exercise_ids,
+    )
+    .await?;
+
+    // Now, we might have changed some of the exercise ids and need to do the same changes in the page content as well
+    // TODO: change signature of this function to avoid copying.
+    let new_content = update_ids_in_content(
+        &page.content,
+        remapped_exercises
+            .iter()
+            .map(|(id, e)| (*id, e.id))
+            .collect::<HashMap<Uuid, Uuid>>(),
+    )?;
+
+    let page = sqlx::query_as!(
+        Page,
+        "
+UPDATE pages
+SET content = $1
+WHERE id = $2
+RETURNING id,
+  created_at,
+  updated_at,
+  course_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number,
+  copied_from;
+        ",
+        new_content,
+        page.id
+    )
+    .fetch_one(&mut tx)
+    .await?;
+
+    let history_content = serde_json::to_value(&new_content)?;
     crate::models::page_history::insert(
         &mut tx,
         page_id,
@@ -594,152 +652,36 @@ RETURNING id,
 
     tx.commit().await?;
 
-    Ok(Page {
-        content: serde_json::to_value(denormalized_content)?,
-        course_id: page.course_id,
-        created_at: page.created_at,
-        updated_at: page.updated_at,
-        deleted_at: page.deleted_at,
-        id: page.id,
-        title: page.title,
-        url_path: page.url_path,
-        order_number: page.order_number,
-        chapter_id: page.chapter_id,
-        copied_from: page.copied_from,
+    Ok(ContentManagementPage {
+        page,
+        exercises: remapped_exercises.into_values().collect(),
+        exercise_slides: remapped_exercise_slides.into_values().collect(),
+        exercise_tasks: remapped_exercise_tasks,
     })
 }
 
-#[derive(Debug)]
-struct ExerciseTaskIdAndSpec {
-    id: Uuid,
-    exercise_slide_id: Uuid,
-    private_spec: Option<serde_json::Value>,
-    public_spec: Option<serde_json::Value>,
-    model_solution_spec: Option<serde_json::Value>,
-}
-
-/// Used by page inserts and page updates. The logic can be shared since the allowed inputs are the same.
-/// Regenerates exercise ids unless retain_exercise_ids is set to true.
-/// Updates the page but does not create a new history entry.
-async fn upsert_exercises_and_exercise_tasks(
-    exercises: &[NormalizedCmsExercise],
-    page: &Page,
+/// Remaps ids from updates to exercises that may have their ids regenerated.
+async fn upsert_exercises(
     conn: &mut PgConnection,
+    page: &Page,
+    existing_exercise_ids: &[Uuid],
+    exercise_updates: &[CmsPageExercise],
     retain_exercise_ids: bool,
-) -> ModelResult<(Vec<NormalizedCmsExercise>, serde_json::Value)> {
-    // All related exercises and items should be deleted if not included in the update
-    // We accomplish this by deleting everyting first in the transaction and then
-    // undeleting the necessary items when doing the actual updates
-    // We need existing exercise ids to check which ids are client generated and need to be replaced.
-    sqlx::query!(
-        r#"
-        UPDATE exercises SET deleted_at = now() WHERE page_id = $1
-            "#,
-        page.id
-    )
-    .execute(&mut *conn)
-    .await?;
-
-    sqlx::query!(
-        "
-UPDATE exercise_slides
-SET deleted_at = now()
-WHERE exercise_id IN (
-    SELECT id
-    FROM exercises
-    WHERE page_id = $1
-  );
-        ",
-        page.id
-    )
-    .execute(&mut *conn)
-    .await?;
-
-    sqlx::query!(
-        r#"
-UPDATE exercise_tasks
-SET deleted_at = now()
-WHERE exercise_slide_id IN (
-    SELECT s.id
-    FROM exercise_slides s
-      JOIN exercises e ON (s.exercise_id = e.id)
-    WHERE e.page_id = $1
-  );
-            "#,
-        page.id
-    )
-    .execute(&mut *conn)
-    .await?;
-
-    // We need existing exercise ids to check which ids are client generated and need to be replaced.
-    let existing_exercise_ids = sqlx::query!(
-        r#"
-    SELECT id from exercises WHERE page_id = $1
-        "#,
-        page.id
-    )
-    .fetch_all(&mut *conn)
-    .await?;
-
-    // let exercise_infos_by_type = get_all_exercise_services_by_type(conn).await?;
-    let existing_exercise_tasks = sqlx::query_as!(
-        ExerciseTaskIdAndSpec,
-        r#"
-SELECT et.id,
-  et.exercise_slide_id,
-  et.private_spec,
-  et.public_spec,
-  et.model_solution_spec
-from exercise_tasks et
-  JOIN exercise_slides es ON (es.id = et.exercise_slide_id)
-  JOIN exercises e ON (es.exercise_id = e.id)
-WHERE page_id = $1
-        "#,
-        page.id
-    )
-    .fetch_all(&mut *conn)
-    .await?;
-
-    // For generating public specs for exercises.
-    let exercise_types: Vec<String> = exercises
-        .iter()
-        .flat_map(|exercise| &exercise.exercise_tasks)
-        .map(|task| task.exercise_type.clone())
-        .unique()
-        .collect();
-    let client = reqwest::Client::new();
-
-    let exercise_service_hashmap =
-        exercise_service_info::get_selected_exercise_services_by_type(conn, &exercise_types)
-            .await?;
-    let public_spec_urls_by_exercise_type = exercise_service_hashmap
-        .iter()
-        .map(|(key, (service, info))| Ok((key, get_internal_public_spec_url(service, info)?)))
-        .collect::<ModelResult<HashMap<&String, Url>>>()?;
-    let model_solution_urls_by_exercise_type = exercise_service_hashmap
-        .iter()
-        .map(|(key, (service, info))| Ok((key, get_model_solution_url(service, info)?)))
-        .collect::<ModelResult<HashMap<&String, Url>>>()?;
-    // for returning the inserted values
-    let mut result_exercises: Vec<NormalizedCmsExercise> = Vec::new();
-    let mut changed_ids: HashMap<Uuid, Uuid> = HashMap::new();
-    for exercise_update in exercises.iter() {
-        let mut exercise_exercise_tasks: Vec<NormalizedCmsExerciseTask> = Vec::new();
-
+) -> ModelResult<HashMap<Uuid, CmsPageExercise>> {
+    let mut remapped_exercises = HashMap::new();
+    for exercise_update in exercise_updates.iter() {
         let exercise_exists = existing_exercise_ids
             .iter()
-            .any(|o| o.id == exercise_update.id);
+            .any(|id| *id == exercise_update.id);
         let safe_for_db_exercise_id = if retain_exercise_ids || exercise_exists {
             exercise_update.id
         } else {
-            let new_uuid = Uuid::new_v4();
-            changed_ids.insert(exercise_update.id, new_uuid);
-            new_uuid
+            Uuid::new_v4()
         };
-        // Upsert
-        let exercise: Exercise = sqlx::query_as!(
-            Exercise,
-            r#"
+
+        let exercise = sqlx::query_as!(
+            CmsPageExercise,
+            "
 INSERT INTO exercises(
     id,
     course_id,
@@ -756,8 +698,10 @@ SET course_id = $2,
   page_id = $5,
   chapter_id = $6,
   deleted_at = NULL
-RETURNING *;
-        "#,
+RETURNING id,
+  name,
+  order_number;
+            ",
             safe_for_db_exercise_id,
             page.course_id,
             exercise_update.name,
@@ -767,92 +711,209 @@ RETURNING *;
         )
         .fetch_one(&mut *conn)
         .await?;
-        for task_update in exercise_update.exercise_tasks.iter() {
-            let existing_exercise_task = existing_exercise_tasks
-                .iter()
-                .find(|o| o.id == task_update.id);
-            let safe_for_db_exercise_task_id = match existing_exercise_task {
-                Some(_) => task_update.id,
-                _ if retain_exercise_ids => task_update.id,
-                None => {
-                    // No need to add this to changed ids because exercise task ids
-                    // are not supposed to appear in the content json.
-                    Uuid::new_v4()
-                }
-            };
-            let model_solution_spec = fetch_derived_spec(
-                existing_exercise_task,
-                task_update,
-                &model_solution_urls_by_exercise_type,
-                &client,
-                existing_exercise_task
-                    .map(|value| value.model_solution_spec.clone())
-                    .flatten(),
-            )
-            .await?;
-            let public_spec: Option<serde_json::Value> = fetch_derived_spec(
-                existing_exercise_task,
-                task_update,
-                &public_spec_urls_by_exercise_type,
-                &client,
-                existing_exercise_task
-                    .map(|value| value.public_spec.clone())
-                    .flatten(),
-            )
-            .await?;
-            // Use existing exercise slide or create new record.
-            let exercise_slide_id = if let Some(existing_task) = existing_exercise_task {
-                exercise_slides::upsert(
-                    &mut *conn,
-                    existing_task.exercise_slide_id,
-                    safe_for_db_exercise_id,
-                    0,
-                )
-                .await?
-            } else {
-                exercise_slides::insert(&mut *conn, safe_for_db_exercise_id, 0).await?
-            };
-            // Upsert
-            let exercise_task: NormalizedCmsExerciseTask = sqlx::query_as!(
-                NormalizedCmsExerciseTask,
-                r#"
-INSERT INTO exercise_tasks(id, exercise_slide_id, exercise_type, assignment, public_spec, private_spec, model_solution_spec)
-VALUES ($1, $2, $3, $4, $5, $6, $7)
-ON CONFLICT (id) DO UPDATE
-SET exercise_slide_id=$2, exercise_type=$3, assignment=$4, public_spec=$5, private_spec=$6, deleted_at=NULL
-RETURNING id, exercise_type, assignment, private_spec;
-        "#,
-                safe_for_db_exercise_task_id,
-                exercise_slide_id,
-                task_update.exercise_type,
-                task_update.assignment,
-                public_spec,
-                task_update.private_spec,
-                model_solution_spec,
-            )
-            .fetch_one(&mut *conn)
-            .await?;
-            exercise_exercise_tasks.push(exercise_task);
-        }
-        result_exercises.push(NormalizedCmsExercise {
-            id: exercise.id,
-            name: exercise.name,
-            order_number: exercise.order_number,
-            exercise_tasks: exercise_exercise_tasks,
-        })
+        remapped_exercises.insert(exercise_update.id, exercise);
     }
+    Ok(remapped_exercises)
+}
 
-    // Now, we might have changed some of the exercise ids and need to do the same changes in the page content as well
-    let new_content = update_ids_in_content(&page.content, changed_ids)?;
+/// Remaps ids from updates to exercise slides that may have their ids changed.
+async fn upsert_exercise_slides(
+    conn: &mut PgConnection,
+    remapped_exercises: &HashMap<Uuid, CmsPageExercise>,
+    existing_slide_ids: &[Uuid],
+    slide_updates: &[CmsPageExerciseSlide],
+    retain_exercise_ids: bool,
+) -> ModelResult<HashMap<Uuid, CmsPageExerciseSlide>> {
+    let mut remapped_exercise_slides = HashMap::new();
+    for slide_update in slide_updates.iter() {
+        let slide_exists = existing_slide_ids.iter().any(|id| *id == slide_update.id);
+        let safe_for_db_slide_id = if retain_exercise_ids || slide_exists {
+            slide_update.id
+        } else {
+            Uuid::new_v4()
+        };
+        let safe_for_db_exercise_id = remapped_exercises
+            .get(&slide_update.exercise_id)
+            .ok_or_else(|| {
+                ModelError::PreconditionFailed(
+                    "Illegal exercise id for exercise slide.".to_string(),
+                )
+            })?
+            .id;
+
+        let exercise_slide = sqlx::query_as!(
+            CmsPageExerciseSlide,
+            "
+INSERT INTO exercise_slides (id, exercise_id, order_number)
+VALUES ($1, $2, $3) ON CONFLICT (id) DO
+UPDATE
+SET exercise_id = $2,
+  order_number = $3,
+  deleted_at = NULL
+RETURNING id,
+  exercise_id,
+  order_number;
+            ",
+            safe_for_db_slide_id,
+            safe_for_db_exercise_id,
+            slide_update.order_number,
+        )
+        .fetch_one(&mut *conn)
+        .await?;
+
+        remapped_exercise_slides.insert(slide_update.id, exercise_slide);
+    }
+    Ok(remapped_exercise_slides)
+}
+
+/// Remaps ids from updates to exercise tasks that may have their ids changed.
+async fn upsert_exercise_tasks(
+    conn: &mut PgConnection,
+    remapped_slides: &HashMap<Uuid, CmsPageExerciseSlide>,
+    existing_task_specs: &[ExerciseTaskIdAndSpec],
+    task_updates: &[CmsPageExerciseTask],
+    retain_exercise_ids: bool,
+) -> ModelResult<Vec<CmsPageExerciseTask>> {
+    // For generating public specs for exercises.
+    let client = reqwest::Client::new();
+    let exercise_types: Vec<String> = task_updates
+        .iter()
+        .map(|task| task.exercise_type.clone())
+        .unique()
+        .collect();
+    let exercise_service_hashmap =
+        exercise_service_info::get_selected_exercise_services_by_type(&mut *conn, &exercise_types)
+            .await?;
+    let public_spec_urls_by_exercise_type = exercise_service_hashmap
+        .iter()
+        .map(|(key, (service, info))| Ok((key, get_internal_public_spec_url(service, info)?)))
+        .collect::<ModelResult<HashMap<&String, Url>>>()?;
+    let model_solution_urls_by_exercise_type = exercise_service_hashmap
+        .iter()
+        .map(|(key, (service, info))| Ok((key, get_model_solution_url(service, info)?)))
+        .collect::<ModelResult<HashMap<&String, Url>>>()?;
+
+    let mut remapped_exercise_tasks = Vec::new();
+    for task_update in task_updates.iter() {
+        let existing_exercise_task = existing_task_specs.iter().find(|o| o.id == task_update.id);
+        let safe_for_db_exercise_task_id = match existing_exercise_task {
+            Some(_) => task_update.id,
+            _ if retain_exercise_ids => task_update.id,
+            None => Uuid::new_v4(),
+        };
+
+        let task_exists = existing_task_specs
+            .iter()
+            .any(|task| task.id == task_update.id);
+        let safe_for_db_task_id = if retain_exercise_ids || task_exists {
+            task_update.id
+        } else {
+            Uuid::new_v4()
+        };
+        let normalized_task = NormalizedCmsExerciseTask {
+            id: safe_for_db_task_id,
+            assignment: task_update.assignment.clone(),
+            exercise_type: task_update.exercise_type.clone(),
+            private_spec: task_update.private_spec.clone(),
+        };
+        let model_solution_spec = fetch_derived_spec(
+            existing_exercise_task,
+            &normalized_task,
+            &model_solution_urls_by_exercise_type,
+            &client,
+            existing_exercise_task
+                .map(|value| value.model_solution_spec.clone())
+                .flatten(),
+        )
+        .await?;
+        let public_spec: Option<serde_json::Value> = fetch_derived_spec(
+            existing_exercise_task,
+            &normalized_task,
+            &public_spec_urls_by_exercise_type,
+            &client,
+            existing_exercise_task
+                .map(|value| value.public_spec.clone())
+                .flatten(),
+        )
+        .await?;
+        let safe_for_db_exercise_slide_id = remapped_slides
+            .get(&task_update.exercise_slide_id)
+            .ok_or_else(|| {
+                ModelError::PreconditionFailed(
+                    "Illegal exercise slide id for exercise task.".to_string(),
+                )
+            })?
+            .id;
+
+        // Upsert
+        let exercise_task = sqlx::query_as!(
+            CmsPageExerciseTask,
+            "
+INSERT INTO exercise_tasks(
+    id,
+    exercise_slide_id,
+    exercise_type,
+    assignment,
+    public_spec,
+    private_spec,
+    model_solution_spec
+  )
+VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (id) DO
+UPDATE
+SET exercise_slide_id = $2,
+  exercise_type = $3,
+  assignment = $4,
+  public_spec = $5,
+  private_spec = $6,
+  deleted_at = NULL
+RETURNING id,
+  exercise_slide_id,
+  assignment,
+  exercise_type,
+  private_spec;
+                ",
+            safe_for_db_exercise_task_id,
+            safe_for_db_exercise_slide_id,
+            task_update.exercise_type,
+            task_update.assignment,
+            public_spec,
+            task_update.private_spec,
+            model_solution_spec,
+        )
+        .fetch_one(&mut *conn)
+        .await?;
+        remapped_exercise_tasks.push(exercise_task)
+    }
+    Ok(remapped_exercise_tasks)
+}
+
+/// Only used when testing.
+pub async fn update_page_content(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+    content: &serde_json::Value,
+) -> ModelResult<()> {
     sqlx::query!(
-        r#"UPDATE pages SET content = $1 WHERE id = $2;"#,
-        new_content,
-        page.id
+        "
+UPDATE pages
+SET content = $1
+WHERE id = $2;
+",
+        content,
+        page_id
     )
-    .execute(&mut *conn)
+    .execute(conn)
     .await?;
+    Ok(())
+}
 
-    Ok((result_exercises, new_content))
+#[derive(Debug)]
+struct ExerciseTaskIdAndSpec {
+    id: Uuid,
+    exercise_slide_id: Uuid,
+    private_spec: Option<serde_json::Value>,
+    public_spec: Option<serde_json::Value>,
+    model_solution_spec: Option<serde_json::Value>,
 }
 
 async fn fetch_derived_spec(
@@ -911,27 +972,13 @@ pub async fn insert_page(
     new_page: NewPage,
     author: Uuid,
 ) -> ModelResult<Page> {
-    let normalized_document = normalize_from_json(new_page.content)?;
-
-    if new_page.chapter_id.is_none()
-        && contains_blocks_not_allowed_in_top_level_pages(&normalized_document.content)
-    {
-        return Err(ModelError::Generic(
-                "Top level pages cannot contain exercises, exercise tasks or list of exercises in the chapter".to_string(),
-            ));
-    }
-
-    let NormalizedDocument { content, exercises } = normalized_document;
-    let content_as_json = serde_json::to_value(content.clone())?;
     let next_order_number = match new_page.chapter_id {
         Some(id) => get_next_page_order_number_in_chapter(conn, id).await?,
         None => get_next_order_number_for_courses_top_level_pages(conn, new_page.course_id).await?,
     };
-    let mut tx = conn.begin().await?;
-    // For sharing the transaction between functions
-    // let transaction_holder = RefCell::new(transaction);
+    let course = crate::models::courses::get_course(conn, new_page.course_id).await?;
 
-    let course = crate::models::courses::get_course(&mut tx, new_page.course_id).await?;
+    let mut tx = conn.begin().await?;
 
     let page = sqlx::query_as!(
         Page,
@@ -959,7 +1006,7 @@ RETURNING id,
   copied_from
           "#,
         new_page.course_id,
-        content_as_json,
+        new_page.content,
         new_page.url_path.trim(),
         new_page.title.trim(),
         next_order_number,
@@ -969,22 +1016,20 @@ RETURNING id,
     .fetch_one(&mut tx)
     .await?;
 
-    let (result_exercises, new_content) =
-        upsert_exercises_and_exercise_tasks(&exercises, &page, &mut tx, false).await?;
-
-    let denormalized_content = denormalize(NormalizedDocument {
-        content: serde_json::from_value(new_content)?,
-        exercises: result_exercises,
-    })?;
-    let history_content = serde_json::to_value(&denormalized_content)?;
-    crate::models::page_history::insert(
+    let cms_page = update_page(
         &mut tx,
         page.id,
-        &new_page.title,
-        &history_content,
-        HistoryChangeReason::PageSaved,
+        CmsPageUpdate {
+            content: page.content,
+            exercises: new_page.exercises,
+            exercise_slides: new_page.exercise_slides,
+            exercise_tasks: new_page.exercise_tasks,
+            url_path: page.url_path,
+            title: page.title,
+            chapter_id: page.chapter_id,
+        },
         author,
-        None,
+        false,
     )
     .await?;
 
@@ -1007,14 +1052,14 @@ RETURNING *;
 
     tx.commit().await?;
     Ok(Page {
-        content: serde_json::to_value(denormalized_content)?,
+        content: cms_page.page.content,
         course_id: page.course_id,
         created_at: page.created_at,
         updated_at: page.updated_at,
         deleted_at: page.deleted_at,
         id: page.id,
-        title: page.title,
-        url_path: page.url_path,
+        title: cms_page.page.title,
+        url_path: cms_page.page.url_path,
         order_number: page.order_number,
         chapter_id: page.chapter_id,
         copied_from: page.copied_from,
@@ -1599,39 +1644,27 @@ WHERE id = $1
     )
     .fetch_one(&mut tx)
     .await?;
-    let NormalizedDocument { content, exercises } =
-        normalize_from_json(content_to_restore.content)?;
 
     // restore page content
-    let page_content = serde_json::to_value(&content)?;
     sqlx::query!(
         "
 UPDATE pages
 SET content = $1
 WHERE id = $2
 ",
-        page_content,
+        content_to_restore.content,
         page_id,
     )
     .execute(&mut tx)
     .await?;
 
-    // restore exercises
-    let (updated_exercises, updated_content) =
-        upsert_exercises_and_exercise_tasks(&exercises, &page, &mut tx, false).await?;
+    // TODO(?): Update exercises according to content.
 
-    // create new history entry
-    let updated_content = serde_json::from_value(updated_content)?;
-    let blocks = document_schema_processor::denormalize(NormalizedDocument {
-        content: updated_content,
-        exercises: updated_exercises,
-    })?;
-    let history_content = serde_json::to_value(&blocks)?;
     let history_id = crate::models::page_history::insert(
         &mut tx,
         page_id,
         &content_to_restore.title,
-        &history_content,
+        &page.content,
         HistoryChangeReason::HistoryRestored,
         author,
         Some(history_id),

@@ -3,13 +3,18 @@ import styled from "@emotion/styled"
 import { TextField } from "@material-ui/core"
 import { InnerBlocks } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
+import { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
+import { EditorContentDispatch } from "../../contexts/EditorContentContext"
+import Button from "../../shared-module/components/Button"
+import { primaryFont, typography } from "../../shared-module/styles"
 import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
+import { gutenbergControlsHidden } from "../../styles/EditorStyles"
 
 import { ExerciseAttributes } from "."
 
-const ALLOWED_NESTED_BLOCKS = ["moocfi/exercise-task"]
+const ALLOWED_NESTED_BLOCKS = ["moocfi/exercise-slide"]
 
 const ExerciseEditorCard = styled.div`
   padding: 2rem 0;
@@ -23,16 +28,24 @@ const ExerciseEditorCard = styled.div`
 
 const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
   attributes,
+  clientId,
   setAttributes,
 }) => {
+  const dispatch = useContext(EditorContentDispatch)
+
   const { t } = useTranslation()
+
+  const handleAddNewSlide = () => {
+    dispatch({ type: "addExerciseSlide", payload: { clientId } })
+  }
+
   return (
     <ExerciseEditorCard id={attributes.id}>
       <div className={normalWidthCenteredComponentStyles}>
         <div
           className={css`
-            font-size: 18pt;
-            font-weight: normal;
+            font-family: ${primaryFont};
+            font-size: ${typography.h4};
             margin-bottom: 1.5rem;
           `}
         >
@@ -49,7 +62,14 @@ const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
           `}
         />
       </div>
-      <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
+      <div className={gutenbergControlsHidden}>
+        <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
+      </div>
+      <div className={normalWidthCenteredComponentStyles}>
+        <Button variant="primary" size="medium" onClick={handleAddNewSlide}>
+          {t("add-slide")}
+        </Button>
+      </div>
     </ExerciseEditorCard>
   )
 }

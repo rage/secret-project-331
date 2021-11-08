@@ -159,6 +159,25 @@ WHERE exercise_slide_id = $1
     Ok(exercise_tasks)
 }
 
+pub async fn get_exercise_tasks_by_exercise_slide_ids(
+    conn: &mut PgConnection,
+    exercise_slide_ids: &[Uuid],
+) -> ModelResult<Vec<ExerciseTask>> {
+    let exercise_tasks = sqlx::query_as!(
+        ExerciseTask,
+        "
+SELECT *
+FROM exercise_tasks
+WHERE exercise_slide_id = ANY($1)
+  AND deleted_at IS NULL;
+        ",
+        exercise_slide_ids,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(exercise_tasks)
+}
+
 pub async fn get_existing_user_exercise_task_for_course_instance(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -245,4 +264,25 @@ WHERE s.exercise_id = $1
     .fetch_all(conn)
     .await?;
     Ok(exercise_tasks)
+}
+
+pub async fn delete_exercise_tasks_by_slide_ids(
+    conn: &mut PgConnection,
+    exercise_slide_ids: &[Uuid],
+) -> ModelResult<Vec<Uuid>> {
+    let deleted_ids = sqlx::query!(
+        "
+UPDATE exercise_tasks
+SET deleted_at = now()
+WHERE exercise_slide_id = ANY($1)
+RETURNING id;
+        ",
+        &exercise_slide_ids,
+    )
+    .fetch_all(conn)
+    .await?
+    .into_iter()
+    .map(|x| x.id)
+    .collect();
+    Ok(deleted_ids)
 }

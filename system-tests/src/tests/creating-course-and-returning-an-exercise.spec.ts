@@ -136,8 +136,14 @@ test("test", async ({ page }) => {
   // Fill [placeholder="Exercise name"]
   await page.fill('[placeholder="Exercise name"]', "What is system testing")
 
-  // Click [aria-label="Add ExerciseTask"]
-  await page.click('[aria-label="Add ExerciseTask"]')
+  // Click text=Add slide
+  await page.click("text=Add slide")
+
+  // Click text=Add task
+  await page.click("text=Add task")
+
+  // Click [aria-label="Block: ExerciseTask"] div[role="button"]
+  await page.click('[aria-label="Block: ExerciseTask"] div[role="button"]')
 
   // Click text=Type / to choose a block
   await page.click("text=Type / to choose a block")

@@ -1,23 +1,16 @@
 /* eslint-disable i18next/no-literal-string */
 import { BlockConfiguration, BlockEditProps } from "@wordpress/blocks"
-import { ComponentType } from "react"
+import { ComponentType, useEffect } from "react"
 import { v4 } from "uuid"
 
-import ExerciseTaskEditor from "./ExerciseTaskEditor"
+import ExerciseTaskEditor, { ExerciseTaskAttributes } from "./ExerciseTaskEditor"
 import ExerciseTaskSave from "./ExerciseTaskSave"
-
-export interface ExerciseTaskAttributes {
-  id: string
-  exercise_type: string
-  public_spec: string
-  private_spec: string
-}
 
 const ExerciseTaskConfiguration: BlockConfiguration<ExerciseTaskAttributes> = {
   title: "ExerciseTask",
   description: "An exercise task",
   category: "embed",
-  parent: ["moocfi/exercise"],
+  parent: ["moocfi/exercise-slide"],
   attributes: {
     id: {
       type: "string",
@@ -27,13 +20,13 @@ const ExerciseTaskConfiguration: BlockConfiguration<ExerciseTaskAttributes> = {
       type: "string",
       default: undefined,
     },
-    public_spec: {
-      type: "string",
-      default: undefined,
-    },
     private_spec: {
       type: "string",
       default: undefined,
+    },
+    show_editor: {
+      type: "boolean",
+      default: false,
     },
   },
   edit: enforceExerciseTaskIdDefined(ExerciseTaskEditor),
@@ -50,11 +43,19 @@ function enforceExerciseTaskIdDefined(
   // Name to display in React Dev tools
   const displayName = WrappedComponent.displayName || WrappedComponent.name || "Component"
   const InnerComponent = (props: BlockEditProps<ExerciseTaskAttributes>) => {
+    const { attributes, setAttributes } = props
+
+    useEffect(() => {
+      if (!attributes.id) {
+        const id = v4()
+        setAttributes({ id, private_spec: null })
+      }
+    }, [attributes.id, setAttributes])
+
     if (!props.attributes.id) {
-      const id = v4()
-      props.setAttributes({ id: id })
       return null
     }
+
     return <WrappedComponent {...props} />
   }
 

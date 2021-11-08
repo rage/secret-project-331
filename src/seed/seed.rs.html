@@ -1743,6 +1743,79 @@
 <span id="1743">1743</span>
 <span id="1744">1744</span>
 <span id="1745">1745</span>
+<span id="1746">1746</span>
+<span id="1747">1747</span>
+<span id="1748">1748</span>
+<span id="1749">1749</span>
+<span id="1750">1750</span>
+<span id="1751">1751</span>
+<span id="1752">1752</span>
+<span id="1753">1753</span>
+<span id="1754">1754</span>
+<span id="1755">1755</span>
+<span id="1756">1756</span>
+<span id="1757">1757</span>
+<span id="1758">1758</span>
+<span id="1759">1759</span>
+<span id="1760">1760</span>
+<span id="1761">1761</span>
+<span id="1762">1762</span>
+<span id="1763">1763</span>
+<span id="1764">1764</span>
+<span id="1765">1765</span>
+<span id="1766">1766</span>
+<span id="1767">1767</span>
+<span id="1768">1768</span>
+<span id="1769">1769</span>
+<span id="1770">1770</span>
+<span id="1771">1771</span>
+<span id="1772">1772</span>
+<span id="1773">1773</span>
+<span id="1774">1774</span>
+<span id="1775">1775</span>
+<span id="1776">1776</span>
+<span id="1777">1777</span>
+<span id="1778">1778</span>
+<span id="1779">1779</span>
+<span id="1780">1780</span>
+<span id="1781">1781</span>
+<span id="1782">1782</span>
+<span id="1783">1783</span>
+<span id="1784">1784</span>
+<span id="1785">1785</span>
+<span id="1786">1786</span>
+<span id="1787">1787</span>
+<span id="1788">1788</span>
+<span id="1789">1789</span>
+<span id="1790">1790</span>
+<span id="1791">1791</span>
+<span id="1792">1792</span>
+<span id="1793">1793</span>
+<span id="1794">1794</span>
+<span id="1795">1795</span>
+<span id="1796">1796</span>
+<span id="1797">1797</span>
+<span id="1798">1798</span>
+<span id="1799">1799</span>
+<span id="1800">1800</span>
+<span id="1801">1801</span>
+<span id="1802">1802</span>
+<span id="1803">1803</span>
+<span id="1804">1804</span>
+<span id="1805">1805</span>
+<span id="1806">1806</span>
+<span id="1807">1807</span>
+<span id="1808">1808</span>
+<span id="1809">1809</span>
+<span id="1810">1810</span>
+<span id="1811">1811</span>
+<span id="1812">1812</span>
+<span id="1813">1813</span>
+<span id="1814">1814</span>
+<span id="1815">1815</span>
+<span id="1816">1816</span>
+<span id="1817">1817</span>
+<span id="1818">1818</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">TimeZone</span>, <span class="ident">Utc</span>};
 <span class="kw">use</span> <span class="ident">headless_lms_actix::attributes</span>;
@@ -1751,7 +1824,9 @@
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models::courses::NewCourse</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models::exercises::GradingProgress</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models::feedback</span>::{<span class="ident">FeedbackBlock</span>, <span class="ident">NewFeedback</span>};
-<span class="kw">use</span> <span class="ident">headless_lms_actix::models::pages</span>::{<span class="ident">NewPage</span>, <span class="ident">PageUpdate</span>};
+<span class="kw">use</span> <span class="ident">headless_lms_actix::models::pages</span>::{
+    <span class="ident">CmsPageExercise</span>, <span class="ident">CmsPageExerciseSlide</span>, <span class="ident">CmsPageExerciseTask</span>, <span class="ident">CmsPageUpdate</span>, <span class="ident">NewPage</span>,
+};
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models::playground_examples::PlaygroundExampleData</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models::proposed_block_edits::NewProposedBlockEdit</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models::proposed_page_edits::NewProposedPageEdits</span>;
@@ -2750,119 +2825,150 @@
     <span class="kw">let</span> <span class="ident">block_id_5</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;834648cc-72d9-42d1-bed7-cc6a2e186ae6&quot;</span>);
     <span class="kw">let</span> <span class="ident">block_id_6</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;223a4718-5287-49ff-853e-a67f4612c629&quot;</span>);
     <span class="kw">let</span> <span class="ident">exercise_c1p1_1</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;cfb950a7-db4e-49e4-8ec4-d7a32b691b08&quot;</span>);
+    <span class="kw">let</span> <span class="ident">exercise_slide_c1p1_1</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;182c4128-c4e4-40c9-bc5a-1265bfd3654c&quot;</span>);
     <span class="kw">let</span> <span class="ident">exercise_task_c1p1e1_1</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;f73dab3b-3549-422d-8377-ece1972e5576&quot;</span>);
     <span class="kw">let</span> <span class="ident">spec_c1p1e1t1_1</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;5f6b7850-5034-4cef-9dcf-e3fd4831067f&quot;</span>);
     <span class="kw">let</span> <span class="ident">spec_c1p1e1t1_2</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;c713bbfc-86bf-4877-bd39-53afaf4444b5&quot;</span>);
     <span class="kw">let</span> <span class="ident">spec_c1p1e1t1_3</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;4027d508-4fad-422e-bb7f-15c613a02cc6&quot;</span>);
+    <span class="kw">let</span> (<span class="ident">exercise_block_1</span>, <span class="ident">exercise_1</span>, <span class="ident">slide_1</span>, <span class="ident">task_1</span>) <span class="op">=</span> <span class="ident">example_exercise</span>(
+        <span class="ident">exercise_c1p1_1</span>,
+        <span class="ident">exercise_slide_c1p1_1</span>,
+        <span class="ident">exercise_task_c1p1e1_1</span>,
+        <span class="ident">block_id_2</span>,
+        <span class="ident">block_id_3</span>,
+        <span class="ident">spec_c1p1e1t1_1</span>,
+        <span class="ident">spec_c1p1e1t1_2</span>,
+        <span class="ident">spec_c1p1e1t1_3</span>,
+    );
     <span class="kw">let</span> <span class="ident">page_c1_1</span> <span class="op">=</span> <span class="ident">create_page</span>(
         <span class="ident">conn</span>,
         <span class="ident">course</span>.<span class="ident">id</span>,
-        <span class="string">&quot;/chapter-1/page-1&quot;</span>,
-        <span class="string">&quot;Page One&quot;</span>,
         <span class="ident">admin</span>,
         <span class="ident">chapter_1</span>.<span class="ident">id</span>,
-        <span class="kw-2">&amp;</span>[
-            <span class="ident">paragraph</span>(<span class="string">&quot;Everything is a big topic.&quot;</span>, <span class="ident">block_id_1</span>),
-            <span class="ident">example_exercise</span>(
-                <span class="ident">exercise_c1p1_1</span>,
-                <span class="ident">exercise_task_c1p1e1_1</span>,
-                <span class="ident">block_id_2</span>,
-                <span class="ident">block_id_3</span>,
-                <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;4e314af8-6857-4405-9ffe-4b8ce88e7376&quot;</span>),
-                <span class="ident">spec_c1p1e1t1_1</span>,
-                <span class="ident">spec_c1p1e1t1_2</span>,
-                <span class="ident">spec_c1p1e1t1_3</span>,
-            ),
-            <span class="ident">paragraph</span>(<span class="string">&quot;So big, that we need many paragraphs.&quot;</span>, <span class="ident">block_id_4</span>),
-            <span class="ident">paragraph</span>(<span class="string">&quot;Like this.&quot;</span>, <span class="ident">block_id_5</span>),
-            <span class="ident">paragraph</span>(<span class="kw-2">&amp;</span><span class="string">&quot;At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat. &quot;</span>.<span class="ident">repeat</span>(<span class="number">4</span>), <span class="ident">block_id_6</span>),
-        ],
+        <span class="ident">CmsPageUpdate</span> {
+            <span class="ident">url_path</span>: <span class="string">&quot;/chapter-1/page-1&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">title</span>: <span class="string">&quot;Page One&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">chapter_1</span>.<span class="ident">id</span>),
+            <span class="ident">exercises</span>: <span class="macro">vec!</span>[<span class="ident">exercise_1</span>],
+            <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[<span class="ident">slide_1</span>],
+            <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[<span class="ident">task_1</span>],
+            <span class="ident">content</span>: <span class="macro">serde_json::json!</span>([
+                <span class="ident">paragraph</span>(<span class="string">&quot;Everything is a big topic.&quot;</span>, <span class="ident">block_id_1</span>),
+                <span class="ident">exercise_block_1</span>,
+                <span class="ident">paragraph</span>(<span class="string">&quot;So big, that we need many paragraphs.&quot;</span>, <span class="ident">block_id_4</span>),
+                <span class="ident">paragraph</span>(<span class="string">&quot;Like this.&quot;</span>, <span class="ident">block_id_5</span>),
+                <span class="ident">paragraph</span>(<span class="kw-2">&amp;</span><span class="string">&quot;At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat. &quot;</span>.<span class="ident">repeat</span>(<span class="number">4</span>), <span class="ident">block_id_6</span>),
+            ]),
+        },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">exercise_c1p2_1</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;36e7f0c2-e663-4382-a503-081866cfe7d0&quot;</span>);
+    <span class="comment">// let exercise_slide_c1p2e1_1 = Uuid::new_v5(&amp;course_id, b&quot;0d85864d-a20d-4d65-9ace-9b4d377f38e8&quot;);</span>
     <span class="kw">let</span> <span class="ident">exercise_task_c1p2e1_1</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;e7fca192-2161-4ab8-8533-8c41dbaa2d69&quot;</span>);
     <span class="kw">let</span> <span class="ident">spec_c1p2e1t1_1</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;5898293f-2d41-43b1-9e44-92d487196ade&quot;</span>);
-    <span class="kw">let</span> <span class="ident">spec_c1p2e1t1_2</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;93d27d79-f9a1-44ab-839f-484accc67e32&quot;</span>);
-    <span class="kw">let</span> <span class="ident">spec_c1p2e1t1_3</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;81ec2df2-a5fd-4d7d-b85f-0c304e8d2030&quot;</span>);
+    <span class="comment">// let spec_c1p2e1t1_2 = Uuid::new_v5(&amp;course_id, b&quot;93d27d79-f9a1-44ab-839f-484accc67e32&quot;);</span>
+    <span class="comment">// let spec_c1p2e1t1_3 = Uuid::new_v5(&amp;course_id, b&quot;81ec2df2-a5fd-4d7d-b85f-0c304e8d2030&quot;);</span>
     <span class="kw">let</span> <span class="ident">exercise_c1p2_2</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;64d273eb-628f-4d43-a11a-e69ebe244942&quot;</span>);
+    <span class="comment">// let exercise_slide_c1p2e2_1 = Uuid::new_v5(&amp;course_id, b&quot;5441c7c0-60f1-4058-8223-7090c9cac7cb&quot;);</span>
     <span class="kw">let</span> <span class="ident">exercise_task_c1p2e2_1</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;114caac5-006a-4afb-9806-785154263c11&quot;</span>);
     <span class="kw">let</span> <span class="ident">spec_c1p2e2t1_1</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;28ea3062-bd6a-45f5-9844-03174e00a0a8&quot;</span>);
-    <span class="kw">let</span> <span class="ident">spec_c1p2e2t1_2</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;1982f566-2d6a-485d-acb0-65d8b8864c7e&quot;</span>);
-    <span class="kw">let</span> <span class="ident">spec_c1p2e2t1_3</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;01ec5329-2cf6-4d0f-92b2-d388360fb402&quot;</span>);
-    <span class="kw">let</span> <span class="ident">exercise_c1p2_3</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;029688ec-c7be-4cb3-8928-85cfd6551083&quot;</span>);
-    <span class="kw">let</span> <span class="ident">exercise_task_c1p2e3_1</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;382fffce-f177-47d0-a5c0-cc8906d34c49&quot;</span>);
+    <span class="comment">// let spec_c1p2e2t1_2 = Uuid::new_v5(&amp;course_id, b&quot;1982f566-2d6a-485d-acb0-65d8b8864c7e&quot;);</span>
+    <span class="comment">// let spec_c1p2e2t1_3 = Uuid::new_v5(&amp;course_id, b&quot;01ec5329-2cf6-4d0f-92b2-d388360fb402&quot;);</span>
+    <span class="comment">// let exercise_c1p2_3 = Uuid::new_v5(&amp;course_id, b&quot;029688ec-c7be-4cb3-8928-85cfd6551083&quot;);</span>
+    <span class="comment">// let exercise_slide_c1p2e3_1 = Uuid::new_v5(&amp;course_id, b&quot;ab8a314b-ac03-497b-8ade-3d8512ed00c9&quot;);</span>
+    <span class="comment">// let exercise_task_c1p2e3_1 = Uuid::new_v5(&amp;course_id, b&quot;382fffce-f177-47d0-a5c0-cc8906d34c49&quot;);</span>
     <span class="kw">let</span> <span class="ident">spec_c1p2e3t1_1</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;4bae54a3-d67c-428b-8996-290f70ae08fa&quot;</span>);
-    <span class="kw">let</span> <span class="ident">spec_c1p2e3t1_2</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;c3f257c0-bdc2-4d81-99ff-a71c76fe670a&quot;</span>);
-    <span class="kw">let</span> <span class="ident">spec_c1p2e3t1_3</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;fca5a8ba-50e0-4375-8d4b-9d02762d908c&quot;</span>);
+    <span class="comment">// let spec_c1p2e3t1_2 = Uuid::new_v5(&amp;course_id, b&quot;c3f257c0-bdc2-4d81-99ff-a71c76fe670a&quot;);</span>
+    <span class="comment">// let spec_c1p2e3t1_3 = Uuid::new_v5(&amp;course_id, b&quot;fca5a8ba-50e0-4375-8d4b-9d02762d908c&quot;);</span>
+    <span class="kw">let</span> (<span class="ident">exercise_block_2_1</span>, <span class="ident">exercise_2_1</span>, <span class="ident">exercise_slide_2_1</span>, <span class="ident">exercise_task_2_1</span>) <span class="op">=</span>
+        <span class="ident">example_exercise</span>(
+            <span class="ident">exercise_c1p2_1</span>,
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;0d85864d-a20d-4d65-9ace-9b4d377f38e8&quot;</span>),
+            <span class="ident">exercise_task_c1p2e1_1</span>,
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;2dbb4649-bcac-47ab-a817-ca17dcd70378&quot;</span>),
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;c0986981-c8ae-4c0b-b558-1163a16760ec&quot;</span>),
+            <span class="ident">spec_c1p2e1t1_1</span>,
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;93d27d79-f9a1-44ab-839f-484accc67e32&quot;</span>),
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;81ec2df2-a5fd-4d7d-b85f-0c304e8d2030&quot;</span>),
+        );
+    <span class="kw">let</span> (<span class="ident">exercise_block_2_2</span>, <span class="ident">exercise_2_2</span>, <span class="ident">exercise_slide_2_2</span>, <span class="ident">exercise_task_2_2</span>) <span class="op">=</span>
+        <span class="ident">example_exercise</span>(
+            <span class="ident">exercise_c1p2_2</span>,
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;5441c7c0-60f1-4058-8223-7090c9cac7cb&quot;</span>),
+            <span class="ident">exercise_task_c1p2e2_1</span>,
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;fb26489d-ca49-4f76-a1c2-f759ed3146c0&quot;</span>),
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;c0986981-c8ae-4c0b-b558-1163a16760ec&quot;</span>),
+            <span class="ident">spec_c1p2e2t1_1</span>,
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;93d27d79-f9a1-44ab-839f-484accc67e32&quot;</span>),
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;81ec2df2-a5fd-4d7d-b85f-0c304e8d2030&quot;</span>),
+        );
+    <span class="kw">let</span> (<span class="ident">exercise_block_2_3</span>, <span class="ident">exercise_2_3</span>, <span class="ident">exercise_slide_2_3</span>, <span class="ident">exercise_task_2_3</span>) <span class="op">=</span>
+        <span class="ident">example_exercise</span>(
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;029688ec-c7be-4cb3-8928-85cfd6551083&quot;</span>),
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;ab8a314b-ac03-497b-8ade-3d8512ed00c9&quot;</span>),
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;382fffce-f177-47d0-a5c0-cc8906d34c49&quot;</span>),
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;334593ad-8ba5-4589-b1f7-b159e754bdc5&quot;</span>),
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;389e80bd-5f91-40c7-94ff-7dda1eeb96fb&quot;</span>),
+            <span class="ident">spec_c1p2e3t1_1</span>,
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;c3f257c0-bdc2-4d81-99ff-a71c76fe670a&quot;</span>),
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;fca5a8ba-50e0-4375-8d4b-9d02762d908c&quot;</span>),
+        );
     <span class="ident">create_page</span>(
         <span class="ident">conn</span>,
         <span class="ident">course</span>.<span class="ident">id</span>,
-        <span class="string">&quot;/chapter-1/page-2&quot;</span>,
-        <span class="string">&quot;page 2&quot;</span>,
         <span class="ident">admin</span>,
         <span class="ident">chapter_1</span>.<span class="ident">id</span>,
-        <span class="kw-2">&amp;</span>[
-            <span class="ident">paragraph</span>(
-                <span class="string">&quot;First chapters second page.&quot;</span>,
-                <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;9faf5a2d-f60d-4a70-af3d-0e7e3d6fe273&quot;</span>),
-            ),
-            <span class="ident">example_exercise</span>(
-                <span class="ident">exercise_c1p2_1</span>,
-                <span class="ident">exercise_task_c1p2e1_1</span>,
-                <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;9fd9ac7d-7d41-4695-bedd-996c88606652&quot;</span>),
-                <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;2dbb4649-bcac-47ab-a817-ca17dcd70378&quot;</span>),
-                <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;c0986981-c8ae-4c0b-b558-1163a16760ec&quot;</span>),
-                <span class="ident">spec_c1p2e1t1_1</span>,
-                <span class="ident">spec_c1p2e1t1_2</span>,
-                <span class="ident">spec_c1p2e1t1_3</span>,
-            ),
-            <span class="ident">example_exercise</span>(
-                <span class="ident">exercise_c1p2_2</span>,
-                <span class="ident">exercise_task_c1p2e2_1</span>,
-                <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;c27c38ab-60aa-4a13-bb1a-a5d684802158&quot;</span>),
-                <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;fb26489d-ca49-4f76-a1c2-f759ed3146c0&quot;</span>),
-                <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;49b19886-0d1d-4a36-81ba-88a332d87b5b&quot;</span>),
-                <span class="ident">spec_c1p2e2t1_1</span>,
-                <span class="ident">spec_c1p2e2t1_2</span>,
-                <span class="ident">spec_c1p2e2t1_3</span>,
-            ),
-            <span class="ident">example_exercise</span>(
-                <span class="ident">exercise_c1p2_3</span>,
-                <span class="ident">exercise_task_c1p2e3_1</span>,
-                <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;5f800e49-7bd9-495f-9c78-19044be8c26d&quot;</span>),
-                <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;334593ad-8ba5-4589-b1f7-b159e754bdc5&quot;</span>),
-                <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;389e80bd-5f91-40c7-94ff-7dda1eeb96fb&quot;</span>),
-                <span class="ident">spec_c1p2e3t1_1</span>,
-                <span class="ident">spec_c1p2e3t1_2</span>,
-                <span class="ident">spec_c1p2e3t1_3</span>,
-            ),
-        ],
+        <span class="ident">CmsPageUpdate</span> {
+            <span class="ident">url_path</span>: <span class="string">&quot;/chapter-1/page-2&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">title</span>: <span class="string">&quot;page 2&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">chapter_1</span>.<span class="ident">id</span>),
+            <span class="ident">exercises</span>: <span class="macro">vec!</span>[<span class="ident">exercise_2_1</span>, <span class="ident">exercise_2_2</span>, <span class="ident">exercise_2_3</span>],
+            <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[<span class="ident">exercise_slide_2_1</span>, <span class="ident">exercise_slide_2_2</span>, <span class="ident">exercise_slide_2_3</span>],
+            <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[<span class="ident">exercise_task_2_1</span>, <span class="ident">exercise_task_2_2</span>, <span class="ident">exercise_task_2_3</span>],
+            <span class="ident">content</span>: <span class="macro">serde_json::json!</span>([
+                <span class="ident">paragraph</span>(
+                    <span class="string">&quot;First chapters second page.&quot;</span>,
+                    <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;9faf5a2d-f60d-4a70-af3d-0e7e3d6fe273&quot;</span>),
+                ),
+                <span class="ident">exercise_block_2_1</span>,
+                <span class="ident">exercise_block_2_2</span>,
+                <span class="ident">exercise_block_2_3</span>,
+            ]),
+        },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">exercise_c2p1_1</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;8bb4faf4-9a34-4df7-a166-89ade530d0f6&quot;</span>);
     <span class="kw">let</span> <span class="ident">exercise_task_c2p1e1_1</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;a6508b8a-f58e-43ac-9f02-785575e716f5&quot;</span>);
     <span class="kw">let</span> <span class="ident">spec_c2p1e1t1_1</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;fe464d17-2365-4e65-8b33-e0ebb5a67836&quot;</span>);
-    <span class="kw">let</span> <span class="ident">spec_c2p1e1t1_2</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;6633ffc7-c76e-4049-840e-90eefa6b49e8&quot;</span>);
-    <span class="kw">let</span> <span class="ident">spec_c2p1e1t1_3</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;d77fb97d-322c-4c5f-a405-8978a8cfb0a9&quot;</span>);
+    <span class="comment">// let spec_c2p1e1t1_2 = Uuid::new_v5(&amp;course_id, b&quot;6633ffc7-c76e-4049-840e-90eefa6b49e8&quot;);</span>
+    <span class="comment">// let spec_c2p1e1t1_3 = Uuid::new_v5(&amp;course_id, b&quot;d77fb97d-322c-4c5f-a405-8978a8cfb0a9&quot;);</span>
+    <span class="kw">let</span> (<span class="ident">exercise_block_3_1</span>, <span class="ident">exercise_3_1</span>, <span class="ident">exercise_slide_3_1</span>, <span class="ident">exercise_task_3_1</span>) <span class="op">=</span>
+        <span class="ident">example_exercise</span>(
+            <span class="ident">exercise_c2p1_1</span>,
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;b99d1041-7835-491e-a1c8-b47eee8e7ab4&quot;</span>),
+            <span class="ident">exercise_task_c2p1e1_1</span>,
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;e869c471-b1b7-42a0-af05-dffd1d86a7bb&quot;</span>),
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;fe464d17-2365-4e65-8b33-e0ebb5a67836&quot;</span>),
+            <span class="ident">spec_c2p1e1t1_1</span>,
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;6633ffc7-c76e-4049-840e-90eefa6b49e8&quot;</span>),
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;d77fb97d-322c-4c5f-a405-8978a8cfb0a9&quot;</span>),
+        );
     <span class="ident">create_page</span>(
         <span class="ident">conn</span>,
         <span class="ident">course</span>.<span class="ident">id</span>,
-        <span class="string">&quot;/chapter-2/intro&quot;</span>,
-        <span class="string">&quot;In the second chapter...&quot;</span>,
         <span class="ident">admin</span>,
         <span class="ident">chapter_2</span>.<span class="ident">id</span>,
-        <span class="kw-2">&amp;</span>[<span class="ident">example_exercise</span>(
-            <span class="ident">exercise_c2p1_1</span>,
-            <span class="ident">exercise_task_c2p1e1_1</span>,
-            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;6ba193d7-6af4-4e39-9334-8aec6e35ea07&quot;</span>),
-            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;3270cf8b-4fec-4d93-b794-1468508a8909&quot;</span>),
-            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;e869c471-b1b7-42a0-af05-dffd1d86a7bb&quot;</span>),
-            <span class="ident">spec_c2p1e1t1_1</span>,
-            <span class="ident">spec_c2p1e1t1_2</span>,
-            <span class="ident">spec_c2p1e1t1_3</span>,
-        )],
+        <span class="ident">CmsPageUpdate</span> {
+            <span class="ident">url_path</span>: <span class="string">&quot;/chapter-2/intro&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">title</span>: <span class="string">&quot;In the second chapter...&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">chapter_2</span>.<span class="ident">id</span>),
+            <span class="ident">exercises</span>: <span class="macro">vec!</span>[<span class="ident">exercise_3_1</span>],
+            <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[<span class="ident">exercise_slide_3_1</span>],
+            <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[<span class="ident">exercise_task_3_1</span>],
+            <span class="ident">content</span>: <span class="macro">serde_json::json!</span>([<span class="ident">exercise_block_3_1</span>]),
+        },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -3062,11 +3168,11 @@
                 <span class="ident">text</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;verything is a big topic.&quot;</span>.<span class="ident">to_string</span>()),
             },
             <span class="ident">FeedbackBlock</span> {
-                <span class="ident">id</span>: <span class="ident">block_id_2</span>,
+                <span class="ident">id</span>: <span class="ident">block_id_4</span>,
                 <span class="ident">text</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;So big, that we need many paragraphs.&quot;</span>.<span class="ident">to_string</span>()),
             },
             <span class="ident">FeedbackBlock</span> {
-                <span class="ident">id</span>: <span class="ident">block_id_3</span>,
+                <span class="ident">id</span>: <span class="ident">block_id_5</span>,
                 <span class="ident">text</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Like th&quot;</span>.<span class="ident">to_string</span>()),
             },
         ],
@@ -3177,7 +3283,7 @@
     <span class="ident">pages::update_page</span>(
         <span class="ident">conn</span>,
         <span class="ident">front_page</span>.<span class="ident">id</span>,
-        <span class="ident">PageUpdate</span> {
+        <span class="ident">CmsPageUpdate</span> {
             <span class="ident">title</span>: <span class="string">&quot;Introduction to Course Material&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">url_path</span>: <span class="string">&quot;/&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">chapter_id</span>: <span class="prelude-val">None</span>,
@@ -3192,6 +3298,9 @@
                 .<span class="ident">with_id</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;1d7c28ca-86ab-4318-8b10-3e5b7cd6e465&quot;</span>)<span class="question-mark">?</span>),
             ])
             .<span class="ident">unwrap</span>(),
+            <span class="ident">exercises</span>: <span class="macro">vec!</span>[],
+            <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[],
+            <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[],
         },
         <span class="ident">admin</span>,
         <span class="bool-val">true</span>,
@@ -3213,7 +3322,7 @@
     <span class="ident">pages::update_page</span>(
         <span class="ident">conn</span>,
         <span class="ident">front_page_ch_1</span>.<span class="ident">id</span>,
-        <span class="ident">PageUpdate</span> {
+        <span class="ident">CmsPageUpdate</span> {
             <span class="ident">title</span>: <span class="string">&quot;User Interface&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">url_path</span>: <span class="string">&quot;/chapter-1&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">chapter_1</span>.<span class="ident">id</span>),
@@ -3228,6 +3337,9 @@
                 .<span class="ident">with_id</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;457431b0-55db-46ac-90ae-03965f48b27e&quot;</span>)<span class="question-mark">?</span>),
             ])
             .<span class="ident">unwrap</span>(),
+            <span class="ident">exercises</span>: <span class="macro">vec!</span>[],
+            <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[],
+            <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[],
         },
         <span class="ident">admin</span>,
         <span class="bool-val">true</span>,
@@ -3235,8 +3347,14 @@
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// /chapter-1/design</span>
-    <span class="ident">create_page</span>(<span class="ident">conn</span>, <span class="ident">course</span>.<span class="ident">id</span>, <span class="string">&quot;/chapter-1/design&quot;</span>, <span class="string">&quot;Design&quot;</span>,  <span class="ident">admin</span>, <span class="ident">chapter_1</span>.<span class="ident">id</span>,
-        <span class="kw-2">&amp;</span>[
+    <span class="kw">let</span> <span class="ident">design_content</span> <span class="op">=</span> <span class="ident">CmsPageUpdate</span> {
+        <span class="ident">url_path</span>: <span class="string">&quot;/chapter-1/design&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">title</span>: <span class="string">&quot;Design&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">chapter_1</span>.<span class="ident">id</span>),
+        <span class="ident">exercises</span>: <span class="macro">vec!</span>[],
+        <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[],
+        <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[],
+        <span class="ident">content</span>: <span class="macro">serde_json::json!</span>([
             <span class="ident">GutenbergBlock::hero_section</span>(<span class="string">&quot;Design&quot;</span>, <span class="string">&quot;A design is a plan or specification for the construction of an object or system or for the implementation of an activity or process, or the result of that plan or specification in the form of a prototype, product or process.&quot;</span>)
                 .<span class="ident">with_id</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;98729704-9dd8-4309-aa08-402f9b2a6071&quot;</span>)<span class="question-mark">?</span>),
             <span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(
@@ -3263,17 +3381,19 @@
                 },
             )
             .<span class="ident">with_id</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;3693e92b-9cf0-485a-b026-2851de58e9cf&quot;</span>)<span class="question-mark">?</span>),
-        ]).<span class="kw">await</span><span class="question-mark">?</span>;
+        ]),
+    };
+    <span class="ident">create_page</span>(<span class="ident">conn</span>, <span class="ident">course</span>.<span class="ident">id</span>, <span class="ident">admin</span>, <span class="ident">chapter_1</span>.<span class="ident">id</span>, <span class="ident">design_content</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// /chapter-1/human-machine-interface</span>
-    <span class="ident">create_page</span>(
-        <span class="ident">conn</span>,
-        <span class="ident">course</span>.<span class="ident">id</span>,
-        <span class="string">&quot;/chapter-1/human-machine-interface&quot;</span>,
-        <span class="string">&quot;Human-machine interface&quot;</span>,
-        <span class="ident">admin</span>,
-        <span class="ident">chapter_1</span>.<span class="ident">id</span>,
-        <span class="kw-2">&amp;</span>[
+    <span class="kw">let</span> <span class="ident">content_b</span> <span class="op">=</span> <span class="ident">CmsPageUpdate</span> {
+        <span class="ident">chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">chapter_1</span>.<span class="ident">id</span>),
+        <span class="ident">url_path</span>: <span class="string">&quot;/chapter-1/human-machine-interface&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">title</span>: <span class="string">&quot;Human-machine interface&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">exercises</span>: <span class="macro">vec!</span>[],
+        <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[],
+        <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[],
+        <span class="ident">content</span>: <span class="macro">serde_json::json!</span>([
             <span class="ident">GutenbergBlock::hero_section</span>(<span class="string">&quot;Human-machine interface&quot;</span>, <span class="string">&quot;In the industrial design field of human–computer interaction, a user interface is the space where interactions between humans and machines occur.&quot;</span>)
                 .<span class="ident">with_id</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;ae22ae64-c0e5-42e1-895a-4a49411a72e8&quot;</span>)<span class="question-mark">?</span>),
             <span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(
@@ -3300,9 +3420,9 @@
                 },
             )
             .<span class="ident">with_id</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;c96f56d5-ea35-4aae-918a-72a36847a49c&quot;</span>)<span class="question-mark">?</span>),
-        ]
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
+        ]),
+    };
+    <span class="ident">create_page</span>(<span class="ident">conn</span>, <span class="ident">course</span>.<span class="ident">id</span>, <span class="ident">admin</span>, <span class="ident">chapter_1</span>.<span class="ident">id</span>, <span class="ident">content_b</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// Chapter-2</span>
     <span class="kw">let</span> <span class="ident">new_chapter_2</span> <span class="op">=</span> <span class="ident">NewChapter</span> {
@@ -3317,7 +3437,7 @@
     <span class="ident">pages::update_page</span>(
         <span class="ident">conn</span>,
         <span class="ident">front_page_ch_2</span>.<span class="ident">id</span>,
-        <span class="ident">PageUpdate</span> {
+        <span class="ident">CmsPageUpdate</span> {
             <span class="ident">url_path</span>: <span class="string">&quot;/chapter-2&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">title</span>: <span class="string">&quot;User Experience&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">chapter_2</span>.<span class="ident">id</span>),
@@ -3332,20 +3452,18 @@
                     .<span class="ident">with_id</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;1bf7e311-75e8-48ec-bd55-e8f1185d76d0&quot;</span>)<span class="question-mark">?</span>),
             ])
             .<span class="ident">unwrap</span>(),
+            <span class="ident">exercises</span>: <span class="macro">vec!</span>[],
+            <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[],
+            <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[],
         },
         <span class="ident">admin</span>,
         <span class="bool-val">true</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="comment">// /chapter-2/user-research</span>
-    <span class="ident">create_page</span>(
-        <span class="ident">conn</span>,
-        <span class="ident">course</span>.<span class="ident">id</span>,
-        <span class="string">&quot;/chapter-2/user-research&quot;</span>,
-        <span class="string">&quot;User research&quot;</span>,
-        <span class="ident">admin</span>,
-        <span class="ident">chapter_2</span>.<span class="ident">id</span>,
-        <span class="kw-2">&amp;</span>[
+    <span class="kw">let</span> <span class="ident">page_content</span> <span class="op">=</span> <span class="ident">CmsPageUpdate</span> {
+        <span class="ident">chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">chapter_2</span>.<span class="ident">id</span>),
+        <span class="ident">content</span>: <span class="macro">serde_json::json!</span>([
             <span class="ident">GutenbergBlock::hero_section</span>(<span class="string">&quot;User research&quot;</span>, <span class="string">&quot;User research focuses on understanding user behaviors, needs, and motivations through observation techniques, task analysis, and other feedback methodologies.&quot;</span>)
                 .<span class="ident">with_id</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;a43f5460-b588-44ac-84a3-5fdcabd5d3f7&quot;</span>)<span class="question-mark">?</span>),
             <span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(
@@ -3372,19 +3490,31 @@
                 },
             )
             .<span class="ident">with_id</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;cf11a0fb-f56e-4e0d-bc12-51d920dbc278&quot;</span>)<span class="question-mark">?</span>),
-        ]
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
+        ]),
+        <span class="ident">exercises</span>: <span class="macro">vec!</span>[],
+        <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[],
+        <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[],
+        <span class="ident">url_path</span>: <span class="string">&quot;/chapter-2/user-research&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">title</span>: <span class="string">&quot;User research&quot;</span>.<span class="ident">to_string</span>(),
+    };
+    <span class="ident">create_page</span>(<span class="ident">conn</span>, <span class="ident">course</span>.<span class="ident">id</span>, <span class="ident">admin</span>, <span class="ident">chapter_2</span>.<span class="ident">id</span>, <span class="ident">page_content</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
     <span class="kw">let</span> <span class="ident">page_content</span> <span class="op">=</span> <span class="macro">include_str!</span>(<span class="string">&quot;../assets/example-page.json&quot;</span>);
-    <span class="kw">let</span> <span class="ident">parse_page_content</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">GutenbergBlock</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">serde_json::from_str</span>(<span class="ident">page_content</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">parse_page_content</span> <span class="op">=</span> <span class="ident">serde_json::from_str</span>(<span class="ident">page_content</span>)<span class="question-mark">?</span>;
     <span class="ident">create_page</span>(
         <span class="ident">conn</span>,
         <span class="ident">course</span>.<span class="ident">id</span>,
-        <span class="string">&quot;/chapter-2/content-rendering&quot;</span>,
-        <span class="string">&quot;Content rendering&quot;</span>,
         <span class="ident">admin</span>,
         <span class="ident">chapter_2</span>.<span class="ident">id</span>,
-        <span class="kw-2">&amp;</span><span class="ident">parse_page_content</span>,
+        <span class="ident">CmsPageUpdate</span> {
+            <span class="ident">content</span>: <span class="ident">parse_page_content</span>,
+            <span class="ident">exercises</span>: <span class="macro">vec!</span>[],
+            <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[],
+            <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[],
+            <span class="ident">url_path</span>: <span class="string">&quot;/chapter-2/content-rendering&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">title</span>: <span class="string">&quot;Content rendering&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">chapter_2</span>.<span class="ident">id</span>),
+        },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">course</span>.<span class="ident">id</span>)
@@ -3394,29 +3524,33 @@
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create_page</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">url_path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">title</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
     <span class="ident">author</span>: <span class="ident">Uuid</span>,
     <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">content</span>: <span class="kw-2">&amp;</span>[<span class="ident">GutenbergBlock</span>],
+    <span class="ident">page_data</span>: <span class="ident">CmsPageUpdate</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">new_page</span> <span class="op">=</span> <span class="ident">NewPage</span> {
         <span class="ident">content</span>: <span class="ident">Value::Array</span>(<span class="macro">vec!</span>[]),
-        <span class="ident">url_path</span>: <span class="ident">url_path</span>.<span class="ident">to_string</span>(),
-        <span class="ident">title</span>: <span class="macro">format!</span>(<span class="string">&quot;{} WIP&quot;</span>, <span class="ident">title</span>),
+        <span class="ident">url_path</span>: <span class="ident">page_data</span>.<span class="ident">url_path</span>.<span class="ident">to_string</span>(),
+        <span class="ident">title</span>: <span class="macro">format!</span>(<span class="string">&quot;{} WIP&quot;</span>, <span class="ident">page_data</span>.<span class="ident">title</span>),
         <span class="ident">course_id</span>,
         <span class="ident">chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">chapter_id</span>),
         <span class="ident">front_page_of_chapter_id</span>: <span class="prelude-val">None</span>,
+        <span class="ident">exercises</span>: <span class="macro">vec!</span>[],
+        <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[],
+        <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[],
     };
     <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="ident">pages::insert_page</span>(<span class="ident">conn</span>, <span class="ident">new_page</span>, <span class="ident">author</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="ident">pages::update_page</span>(
+    <span class="ident">pages::update_page</span>(
         <span class="ident">conn</span>,
         <span class="ident">page</span>.<span class="ident">id</span>,
-        <span class="ident">PageUpdate</span> {
+        <span class="ident">CmsPageUpdate</span> {
+            <span class="ident">content</span>: <span class="ident">page_data</span>.<span class="ident">content</span>,
+            <span class="ident">exercises</span>: <span class="ident">page_data</span>.<span class="ident">exercises</span>,
+            <span class="ident">exercise_slides</span>: <span class="ident">page_data</span>.<span class="ident">exercise_slides</span>,
+            <span class="ident">exercise_tasks</span>: <span class="ident">page_data</span>.<span class="ident">exercise_tasks</span>,
+            <span class="ident">url_path</span>: <span class="ident">page_data</span>.<span class="ident">url_path</span>,
+            <span class="ident">title</span>: <span class="ident">page_data</span>.<span class="ident">title</span>,
             <span class="ident">chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">chapter_id</span>),
-            <span class="ident">url_path</span>: <span class="ident">url_path</span>.<span class="ident">to_string</span>(),
-            <span class="ident">title</span>: <span class="ident">title</span>.<span class="ident">to_string</span>(),
-            <span class="ident">content</span>: <span class="ident">serde_json::to_value</span>(<span class="ident">content</span>).<span class="ident">unwrap</span>(),
         },
         <span class="ident">author</span>,
         <span class="bool-val">true</span>,
@@ -3440,53 +3574,65 @@
 
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>)]</span>
 <span class="kw">fn</span> <span class="ident">example_exercise</span>(
-    <span class="ident">ex</span>: <span class="ident">Uuid</span>,
-    <span class="ident">task</span>: <span class="ident">Uuid</span>,
-    <span class="ident">block_1</span>: <span class="ident">Uuid</span>,
-    <span class="ident">block_2</span>: <span class="ident">Uuid</span>,
-    <span class="ident">block_3</span>: <span class="ident">Uuid</span>,
+    <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">exercise_slide_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">exercise_task_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">block_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">paragraph_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">spec_1</span>: <span class="ident">Uuid</span>,
     <span class="ident">spec_2</span>: <span class="ident">Uuid</span>,
     <span class="ident">spec_3</span>: <span class="ident">Uuid</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GutenbergBlock</span> {
-    <span class="ident">GutenbergBlock</span> {
+) <span class="op">-</span><span class="op">&gt;</span> (
+    <span class="ident">GutenbergBlock</span>,
+    <span class="ident">CmsPageExercise</span>,
+    <span class="ident">CmsPageExerciseSlide</span>,
+    <span class="ident">CmsPageExerciseTask</span>,
+) {
+    <span class="kw">let</span> <span class="ident">block</span> <span class="op">=</span> <span class="ident">GutenbergBlock</span> {
+        <span class="ident">client_id</span>: <span class="ident">block_id</span>,
         <span class="ident">name</span>: <span class="string">&quot;moocfi/exercise&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-        <span class="ident">client_id</span>: <span class="ident">block_1</span>,
         <span class="ident">attributes</span>: <span class="macro">attributes!</span> {
-            <span class="string">&quot;id&quot;</span>: <span class="ident">ex</span>,
-            <span class="string">&quot;name&quot;</span>: <span class="string">&quot;Best exercise&quot;</span>,
+            <span class="string">&quot;id&quot;</span>: <span class="ident">exercise_id</span>,
+            <span class="string">&quot;name&quot;</span>: <span class="string">&quot;Best exercise&quot;</span>.<span class="ident">to_string</span>(),
             <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>,
         },
-        <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[<span class="ident">GutenbergBlock</span> {
-            <span class="ident">name</span>: <span class="string">&quot;moocfi/exercise-task&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-            <span class="ident">client_id</span>: <span class="ident">block_2</span>,
-            <span class="ident">attributes</span>: <span class="macro">attributes!</span> {
-                <span class="string">&quot;id&quot;</span>: <span class="ident">task</span>,
-                <span class="string">&quot;name&quot;</span>: <span class="string">&quot;Best exercise task&quot;</span>,
-                <span class="string">&quot;exercise_type&quot;</span>: <span class="string">&quot;example-exercise&quot;</span>,
-                <span class="string">&quot;private_spec&quot;</span>: <span class="macro">serde_json::json!</span>([
-                    {
-                        <span class="string">&quot;name&quot;</span>: <span class="string">&quot;a&quot;</span>,
-                        <span class="string">&quot;correct&quot;</span>: <span class="bool-val">false</span>,
-                        <span class="string">&quot;id&quot;</span>: <span class="ident">spec_1</span>,
-                    },
-                    {
-                        <span class="string">&quot;name&quot;</span>: <span class="string">&quot;b&quot;</span>,
-                        <span class="string">&quot;correct&quot;</span>: <span class="bool-val">true</span>,
-                        <span class="string">&quot;id&quot;</span>: <span class="ident">spec_2</span>,
-                    },
-                    {
-                        <span class="string">&quot;name&quot;</span>: <span class="string">&quot;c&quot;</span>,
-                        <span class="string">&quot;correct&quot;</span>: <span class="bool-val">true</span>,
-                        <span class="string">&quot;id&quot;</span>: <span class="ident">spec_3</span>,
-                    },
-                ]).<span class="ident">to_string</span>(),
+        <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
+    };
+    <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">CmsPageExercise</span> {
+        <span class="ident">id</span>: <span class="ident">exercise_id</span>,
+        <span class="ident">name</span>: <span class="string">&quot;Best exercise&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">order_number</span>: <span class="number">1</span>,
+    };
+    <span class="kw">let</span> <span class="ident">exercise_slide</span> <span class="op">=</span> <span class="ident">CmsPageExerciseSlide</span> {
+        <span class="ident">id</span>: <span class="ident">exercise_slide_id</span>,
+        <span class="ident">exercise_id</span>,
+        <span class="ident">order_number</span>: <span class="number">1</span>,
+    };
+    <span class="kw">let</span> <span class="ident">exercise_task</span> <span class="op">=</span> <span class="ident">CmsPageExerciseTask</span> {
+        <span class="ident">id</span>: <span class="ident">exercise_task_id</span>,
+        <span class="ident">exercise_slide_id</span>,
+        <span class="ident">assignment</span>: <span class="macro">serde_json::json!</span>([<span class="ident">paragraph</span>(<span class="string">&quot;Answer this question.&quot;</span>, <span class="ident">paragraph_id</span>)]),
+        <span class="ident">exercise_type</span>: <span class="string">&quot;example-exercise&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">private_spec</span>: <span class="prelude-val">Some</span>(<span class="macro">serde_json::json!</span>([
+            {
+                <span class="string">&quot;name&quot;</span>: <span class="string">&quot;a&quot;</span>,
+                <span class="string">&quot;correct&quot;</span>: <span class="bool-val">false</span>,
+                <span class="string">&quot;id&quot;</span>: <span class="ident">spec_1</span>,
             },
-            <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[<span class="ident">paragraph</span>(<span class="string">&quot;Answer this question.&quot;</span>, <span class="ident">block_3</span>)],
-        }],
-    }
+            {
+                <span class="string">&quot;name&quot;</span>: <span class="string">&quot;b&quot;</span>,
+                <span class="string">&quot;correct&quot;</span>: <span class="bool-val">true</span>,
+                <span class="string">&quot;id&quot;</span>: <span class="ident">spec_2</span>,
+            },
+            {
+                <span class="string">&quot;name&quot;</span>: <span class="string">&quot;c&quot;</span>,
+                <span class="string">&quot;correct&quot;</span>: <span class="bool-val">true</span>,
+                <span class="string">&quot;id&quot;</span>: <span class="ident">spec_3</span>,
+            },
+        ])),
+    };
+    (<span class="ident">block</span>, <span class="ident">exercise</span>, <span class="ident">exercise_slide</span>, <span class="ident">exercise_task</span>)
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="seed" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>

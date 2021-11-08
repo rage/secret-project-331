@@ -957,14 +957,6 @@
 <span id="957">957</span>
 <span id="958">958</span>
 <span id="959">959</span>
-<span id="960">960</span>
-<span id="961">961</span>
-<span id="962">962</span>
-<span id="963">963</span>
-<span id="964">964</span>
-<span id="965">965</span>
-<span id="966">966</span>
-<span id="967">967</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">course_instances::CourseInstance</span>, <span class="ident">ModelResult</span>};
@@ -1536,6 +1528,9 @@ RETURNING id,
         <span class="ident">front_page_of_chapter_id</span>: <span class="prelude-val">None</span>,
         <span class="ident">title</span>: <span class="ident">course</span>.<span class="ident">name</span>.<span class="ident">clone</span>(),
         <span class="ident">url_path</span>: <span class="ident">String::from</span>(<span class="string">&quot;/&quot;</span>),
+        <span class="ident">exercises</span>: <span class="macro">vec!</span>[],
+        <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[],
+        <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[],
     };
     <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::models::pages::insert_page</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="ident">course_front_page</span>, <span class="ident">user</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -1663,9 +1658,7 @@ WHERE slug = $1
             <span class="ident">courses</span>, <span class="ident">exercise_slides</span>,
             <span class="ident">exercise_tasks</span>::{<span class="self">self</span>, <span class="ident">ExerciseTask</span>},
             <span class="ident">exercises</span>::{<span class="self">self</span>, <span class="ident">Exercise</span>},
-            <span class="ident">organizations</span>,
-            <span class="ident">pages</span>::{<span class="self">self</span>, <span class="ident">PageUpdate</span>},
-            <span class="ident">users</span>,
+            <span class="ident">organizations</span>, <span class="ident">pages</span>, <span class="ident">users</span>,
         },
         <span class="ident">test_helper::Conn</span>,
     };
@@ -1822,28 +1815,19 @@ WHERE slug = $1
         )
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();
-        <span class="ident">pages::update_page</span>(
+        <span class="ident">pages::update_page_content</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
             <span class="ident">chapter_front_page</span>.<span class="ident">id</span>,
-            <span class="ident">PageUpdate</span> {
-                <span class="ident">chapter_id</span>: <span class="ident">chapter_front_page</span>.<span class="ident">chapter_id</span>,
-                <span class="ident">content</span>: <span class="macro">serde_json::json!</span>([
-                    {
-                        <span class="string">&quot;name&quot;</span>: <span class="string">&quot;moocfi/exercise&quot;</span>,
-                        <span class="string">&quot;isValid&quot;</span>: <span class="bool-val">true</span>,
-                        <span class="string">&quot;clientId&quot;</span>: <span class="string">&quot;b2ecb473-38cc-4df1-84f7-06709cc63e95&quot;</span>,
-                        <span class="string">&quot;attributes&quot;</span>: {
-                            <span class="string">&quot;id&quot;</span>: <span class="ident">exercise_id</span>,
-                            <span class="string">&quot;name&quot;</span>: <span class="string">&quot;Exercise&quot;</span>
-                        },
-                        <span class="string">&quot;innerBlocks&quot;</span>: []
-                    }
-                ]),
-                <span class="ident">title</span>: <span class="ident">chapter_front_page</span>.<span class="ident">title</span>,
-                <span class="ident">url_path</span>: <span class="ident">chapter_front_page</span>.<span class="ident">url_path</span>,
-            },
-            <span class="ident">user_id</span>,
-            <span class="bool-val">true</span>,
+            <span class="kw-2">&amp;</span><span class="macro">serde_json::json!</span>([{
+                <span class="string">&quot;name&quot;</span>: <span class="string">&quot;moocfi/exercise&quot;</span>,
+                <span class="string">&quot;isValid&quot;</span>: <span class="bool-val">true</span>,
+                <span class="string">&quot;clientId&quot;</span>: <span class="string">&quot;b2ecb473-38cc-4df1-84f7-06709cc63e95&quot;</span>,
+                <span class="string">&quot;attributes&quot;</span>: {
+                    <span class="string">&quot;id&quot;</span>: <span class="ident">exercise_id</span>,
+                    <span class="string">&quot;name&quot;</span>: <span class="string">&quot;Exercise&quot;</span>
+                },
+                <span class="string">&quot;innerBlocks&quot;</span>: []
+            }]),
         )
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();

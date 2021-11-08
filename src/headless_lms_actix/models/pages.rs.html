@@ -1640,28 +1640,61 @@
 <span id="1640">1640</span>
 <span id="1641">1641</span>
 <span id="1642">1642</span>
+<span id="1643">1643</span>
+<span id="1644">1644</span>
+<span id="1645">1645</span>
+<span id="1646">1646</span>
+<span id="1647">1647</span>
+<span id="1648">1648</span>
+<span id="1649">1649</span>
+<span id="1650">1650</span>
+<span id="1651">1651</span>
+<span id="1652">1652</span>
+<span id="1653">1653</span>
+<span id="1654">1654</span>
+<span id="1655">1655</span>
+<span id="1656">1656</span>
+<span id="1657">1657</span>
+<span id="1658">1658</span>
+<span id="1659">1659</span>
+<span id="1660">1660</span>
+<span id="1661">1661</span>
+<span id="1662">1662</span>
+<span id="1663">1663</span>
+<span id="1664">1664</span>
+<span id="1665">1665</span>
+<span id="1666">1666</span>
+<span id="1667">1667</span>
+<span id="1668">1668</span>
+<span id="1669">1669</span>
+<span id="1670">1670</span>
+<span id="1671">1671</span>
+<span id="1672">1672</span>
+<span id="1673">1673</span>
+<span id="1674">1674</span>
+<span id="1675">1675</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::{
     <span class="ident">chapters</span>::{<span class="self">self</span>, <span class="ident">ChapterStatus</span>},
     <span class="ident">course_instances</span>::{<span class="self">self</span>, <span class="ident">CourseInstance</span>},
     <span class="ident">courses::Course</span>,
+    <span class="ident">exercise_slides::ExerciseSlide</span>,
     <span class="ident">user_course_settings</span>::{<span class="self">self</span>, <span class="ident">UserCourseSettings</span>},
     <span class="ident">ModelResult</span>,
 };
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">domain::authorization::AuthUser</span>,
     <span class="ident">models</span>::{
+        <span class="self">self</span>,
         <span class="ident">chapters::DatabaseChapter</span>,
         <span class="ident">exercise_service_info</span>,
         <span class="ident">exercise_services</span>::{<span class="ident">get_internal_public_spec_url</span>, <span class="ident">get_model_solution_url</span>},
-        <span class="ident">exercise_slides</span>,
         <span class="ident">exercise_tasks::ExerciseTask</span>,
         <span class="ident">exercises::Exercise</span>,
         <span class="ident">page_history::HistoryChangeReason</span>,
         <span class="ident">ModelError</span>,
     },
     <span class="ident">utils::document_schema_processor</span>::{
-        <span class="self">self</span>, <span class="ident">contains_blocks_not_allowed_in_top_level_pages</span>, <span class="ident">denormalize</span>, <span class="ident">normalize_from_json</span>,
-        <span class="ident">GutenbergBlock</span>, <span class="ident">NormalizedDocument</span>,
+        <span class="ident">contains_blocks_not_allowed_in_top_level_pages</span>, <span class="ident">GutenbergBlock</span>,
     },
 };
 
@@ -1722,6 +1755,9 @@
 <span class="comment">// Represents the subset of page fields that are required to create a new page.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">TS</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NewPage</span> {
+    <span class="kw">pub</span> <span class="ident">exercises</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPageExercise</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">exercise_slides</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPageExerciseSlide</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">exercise_tasks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPageExerciseTask</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">content</span>: <span class="ident">serde_json::Value</span>,
     <span class="kw">pub</span> <span class="ident">url_path</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">title</span>: <span class="ident">String</span>,
@@ -1731,40 +1767,12 @@
     <span class="kw">pub</span> <span class="ident">front_page_of_chapter_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
 }
 
-<span class="comment">// Represents the subset of page fields that the user is allowed to modify.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">TS</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PageUpdate</span> {
-    <span class="kw">pub</span> <span class="ident">content</span>: <span class="ident">serde_json::Value</span>,
-    <span class="kw">pub</span> <span class="ident">url_path</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">title</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">chapter_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-}
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">TS</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NormalizedCmsExercise</span> {
-    <span class="comment">// The id will be validated so that the client can&#39;t change it on us.</span>
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">order_number</span>: <span class="ident">i32</span>,
-    <span class="kw">pub</span> <span class="ident">exercise_tasks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">NormalizedCmsExerciseTask</span><span class="op">&gt;</span>,
-}
-
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">TS</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NormalizedCmsExerciseTask</span> {
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">exercise_type</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">assignment</span>: <span class="ident">serde_json::Value</span>,
     <span class="kw">pub</span> <span class="ident">private_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
-}
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NormalizedCmsExerciseTaskWithExerciseId</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">exercise_type</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">assignment</span>: <span class="ident">serde_json::Value</span>,
-    <span class="kw">pub</span> <span class="ident">public_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">private_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
@@ -1804,6 +1812,14 @@
     <span class="ident">rank</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
     <span class="ident">content_headline</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="ident">url_path</span>: <span class="ident">String</span>,
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">TS</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ContentManagementPage</span> {
+    <span class="kw">pub</span> <span class="ident">page</span>: <span class="ident">Page</span>,
+    <span class="kw">pub</span> <span class="ident">exercises</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPageExercise</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">exercise_slides</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPageExerciseSlide</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">exercise_tasks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPageExerciseTask</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">FromRow</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">TS</span>)]</span>
@@ -1889,10 +1905,18 @@ RETURNING id
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_id</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(<span class="string">&quot;SELECT course_id FROM pages WHERE id = $1&quot;</span>, <span class="ident">id</span>)
-        .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        .<span class="ident">course_id</span>;
+    <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+        <span class="string">&quot;
+SELECT course_id
+FROM pages
+WHERE id = $1
+  AND deleted_at IS NULL;
+        &quot;</span>,
+        <span class="ident">id</span>
+    )
+    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>
+    .<span class="ident">course_id</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">course_id</span>)
 }
 
@@ -2046,144 +2070,133 @@ WHERE courses.slug = $1
     }
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_page_with_exercises</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">page_id</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">page</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">Page</span>,
-        <span class="string">&quot;
-SELECT id,
-  created_at,
-  updated_at,
-  course_id,
-  chapter_id,
-  url_path,
-  title,
-  deleted_at,
-  content,
-  order_number,
-  copied_from
-FROM pages
-WHERE id = $1;
-    &quot;</span>,
-        <span class="ident">page_id</span>
-    )
-    .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="kw">let</span> <span class="ident">exercises</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Exercise</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">Exercise</span>,
-        <span class="string">&quot;
-SELECT *
-FROM exercises
-WHERE page_id = $1
-&quot;</span>,
-        <span class="ident">page_id</span>
-    )
-    .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="kw">let</span> <span class="ident">exercise_tasks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">NormalizedCmsExerciseTaskWithExerciseId</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">NormalizedCmsExerciseTaskWithExerciseId</span>,
-        <span class="string">&quot;
-SELECT t.id,
-  t.exercise_type,
-  t.assignment,
-  t.public_spec,
-  t.private_spec,
-  s.exercise_id
-FROM exercise_tasks t
-  JOIN exercise_slides s ON (t.exercise_slide_id = s.id)
-WHERE t.deleted_at IS NULL
-  AND s.deleted_at IS NULL
-  AND s.exercise_id IN (
-    SELECT id
-    FROM exercises
-    WHERE page_id = $1
-      AND deleted_at IS NULL
-  );
-&quot;</span>,
-        <span class="ident">page_id</span>
-    )
-    .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">exercise_tasks_by_exercise</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">NormalizedCmsExerciseTask</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span>
-        <span class="ident">exercise_tasks</span>
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_page_with_exercises</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">id</span>: <span class="ident">Uuid</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">ContentManagementPage</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="ident">get_page</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">exercises</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPageExercise</span><span class="op">&gt;</span> <span class="op">=</span>
+        <span class="ident"><span class="kw">crate</span>::models::exercises::get_exercises_by_page_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">page</span>.<span class="ident">id</span>)
+            .<span class="kw">await</span><span class="question-mark">?</span>
             .<span class="ident">into_iter</span>()
-            .<span class="ident">into_group_map_by</span>(<span class="op">|</span><span class="ident">et</span><span class="op">|</span> <span class="ident">et</span>.<span class="ident">exercise_id</span>)
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">key</span>, <span class="ident">value</span>)<span class="op">|</span> {
-                (
-                    <span class="ident">key</span>,
-                    <span class="ident">value</span>
-                        .<span class="ident">into_iter</span>()
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">NormalizedCmsExerciseTask</span> {
-                            <span class="ident">id</span>: <span class="ident">i</span>.<span class="ident">id</span>,
-                            <span class="ident">exercise_type</span>: <span class="ident">i</span>.<span class="ident">exercise_type</span>,
-                            <span class="ident">assignment</span>: <span class="ident">i</span>.<span class="ident">assignment</span>,
-                            <span class="ident">private_spec</span>: <span class="ident">i</span>.<span class="ident">private_spec</span>,
-                        })
-                        .<span class="ident">collect</span>(),
-                )
-            })
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">into</span>())
             .<span class="ident">collect</span>();
-
-    <span class="kw">let</span> <span class="ident">exercises_with_tasks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">NormalizedCmsExercise</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">exercises</span>
+    <span class="kw">let</span> <span class="ident">exercise_slides</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPageExerciseSlide</span><span class="op">&gt;</span> <span class="op">=</span>
+        <span class="ident"><span class="kw">crate</span>::models::exercise_slides::get_exercise_slides_by_exercise_ids</span>(
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>,
+            <span class="kw-2">&amp;</span><span class="ident">exercises</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">id</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>
         .<span class="ident">into_iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">exercise_tasks</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">exercise_tasks_by_exercise</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">e</span>.<span class="ident">id</span>) {
-                <span class="prelude-val">Some</span>(<span class="ident">et</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">et</span>,
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Vec::new</span>(),
-            };
-            <span class="ident">NormalizedCmsExercise</span> {
-                <span class="ident">id</span>: <span class="ident">e</span>.<span class="ident">id</span>,
-                <span class="ident">name</span>: <span class="ident">e</span>.<span class="ident">name</span>,
-                <span class="ident">order_number</span>: <span class="ident">e</span>.<span class="ident">order_number</span>,
-                <span class="ident">exercise_tasks</span>,
-            }
-        })
+        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">into</span>())
         .<span class="ident">collect</span>();
-    <span class="comment">// This is for cms so we need to put exercises back inside the content</span>
-    <span class="kw">let</span> <span class="ident">normalized_document</span> <span class="op">=</span> <span class="ident">NormalizedDocument</span> {
-        <span class="ident">content</span>: <span class="ident">serde_json::from_value</span>(<span class="ident">page</span>.<span class="ident">content</span>)<span class="question-mark">?</span>,
-        <span class="ident">exercises</span>: <span class="ident">exercises_with_tasks</span>,
-    };
-
-    <span class="kw">let</span> <span class="ident">denormalized_content</span> <span class="op">=</span> <span class="ident">denormalize</span>(<span class="ident">normalized_document</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">content_json</span> <span class="op">=</span> <span class="ident">serde_json::to_value</span>(<span class="kw-2">&amp;</span><span class="ident">denormalized_content</span>)<span class="question-mark">?</span>;
-    <span class="ident">page</span>.<span class="ident">content</span> <span class="op">=</span> <span class="ident">content_json</span>;
-
-    <span class="prelude-val">Ok</span>(<span class="ident">page</span>)
+    <span class="kw">let</span> <span class="ident">exercise_tasks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPageExerciseTask</span><span class="op">&gt;</span> <span class="op">=</span>
+        <span class="ident"><span class="kw">crate</span>::models::exercise_tasks::get_exercise_tasks_by_exercise_slide_ids</span>(
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>,
+            <span class="kw-2">&amp;</span><span class="ident">exercise_slides</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">id</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>
+        .<span class="ident">into_iter</span>()
+        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">into</span>())
+        .<span class="ident">collect</span>();
+    <span class="prelude-val">Ok</span>(<span class="ident">ContentManagementPage</span> {
+        <span class="ident">page</span>,
+        <span class="ident">exercises</span>,
+        <span class="ident">exercise_slides</span>,
+        <span class="ident">exercise_tasks</span>,
+    })
 }
 
-<span class="doccomment">/// This has 3 stages: updating page, updating exercises, updating exercise tasks.</span>
-<span class="doccomment">/// This is currently implemented with multiple sql queries, but it could be optimized</span>
-<span class="doccomment">/// with data-modifying common table expressions if necessary.</span>
-<span class="doccomment">/// Regenerates exercise ids unless retain_exercise_ids is set to true.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">FromRow</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">TS</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CmsPageExercise</span> {
+    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
+    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">order_number</span>: <span class="ident">i32</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Exercise</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CmsPageExercise</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">exercise</span>: <span class="ident">Exercise</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">id</span>: <span class="ident">exercise</span>.<span class="ident">id</span>,
+            <span class="ident">name</span>: <span class="ident">exercise</span>.<span class="ident">name</span>,
+            <span class="ident">order_number</span>: <span class="ident">exercise</span>.<span class="ident">order_number</span>,
+        }
+    }
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">FromRow</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">TS</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CmsPageExerciseSlide</span> {
+    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
+    <span class="kw">pub</span> <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
+    <span class="kw">pub</span> <span class="ident">order_number</span>: <span class="ident">i32</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ExerciseSlide</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CmsPageExerciseSlide</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">slide</span>: <span class="ident">ExerciseSlide</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">id</span>: <span class="ident">slide</span>.<span class="ident">id</span>,
+            <span class="ident">exercise_id</span>: <span class="ident">slide</span>.<span class="ident">exercise_id</span>,
+            <span class="ident">order_number</span>: <span class="ident">slide</span>.<span class="ident">order_number</span>,
+        }
+    }
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">FromRow</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">TS</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CmsPageExerciseTask</span> {
+    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
+    <span class="kw">pub</span> <span class="ident">exercise_slide_id</span>: <span class="ident">Uuid</span>,
+    <span class="kw">pub</span> <span class="ident">assignment</span>: <span class="ident">serde_json::Value</span>,
+    <span class="kw">pub</span> <span class="ident">exercise_type</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">private_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ExerciseTask</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CmsPageExerciseTask</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">task</span>: <span class="ident">ExerciseTask</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="ident">CmsPageExerciseTask</span> {
+            <span class="ident">id</span>: <span class="ident">task</span>.<span class="ident">id</span>,
+            <span class="ident">exercise_slide_id</span>: <span class="ident">task</span>.<span class="ident">exercise_slide_id</span>,
+            <span class="ident">assignment</span>: <span class="ident">task</span>.<span class="ident">assignment</span>,
+            <span class="ident">exercise_type</span>: <span class="ident">task</span>.<span class="ident">exercise_type</span>,
+            <span class="ident">private_spec</span>: <span class="ident">task</span>.<span class="ident">private_spec</span>,
+        }
+    }
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">FromRow</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">TS</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CmsPageUpdate</span> {
+    <span class="kw">pub</span> <span class="ident">content</span>: <span class="ident">serde_json::Value</span>,
+    <span class="kw">pub</span> <span class="ident">exercises</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPageExercise</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">exercise_slides</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPageExerciseSlide</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">exercise_tasks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPageExerciseTask</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">url_path</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">title</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">chapter_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+}
+
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_page</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">page_update</span>: <span class="ident">PageUpdate</span>,
+    <span class="ident">page_update</span>: <span class="ident">CmsPageUpdate</span>,
     <span class="ident">author</span>: <span class="ident">Uuid</span>,
     <span class="ident">retain_exercise_ids</span>: <span class="ident">bool</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">normalized_document</span> <span class="op">=</span> <span class="ident">normalize_from_json</span>(<span class="ident">page_update</span>.<span class="ident">content</span>)
-        .<span class="ident">context</span>(<span class="string">&quot;Failed to normalize page update content&quot;</span>)<span class="question-mark">?</span>;
-
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">ContentManagementPage</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">parsed_content</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">GutenbergBlock</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">serde_json::from_value</span>(<span class="ident">page_update</span>.<span class="ident">content</span>)<span class="question-mark">?</span>;
     <span class="kw">if</span> <span class="ident">page_update</span>.<span class="ident">chapter_id</span>.<span class="ident">is_none</span>()
-        <span class="op">&amp;&amp;</span> <span class="ident">contains_blocks_not_allowed_in_top_level_pages</span>(<span class="kw-2">&amp;</span><span class="ident">normalized_document</span>.<span class="ident">content</span>)
+        <span class="op">&amp;&amp;</span> <span class="ident">contains_blocks_not_allowed_in_top_level_pages</span>(<span class="kw-2">&amp;</span><span class="ident">parsed_content</span>)
     {
         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ModelError::Generic</span>(
                 <span class="string">&quot;Top level pages cannot contain exercises, exercise tasks or list of exercises in the chapter&quot;</span>.<span class="ident">to_string</span>(),
             ));
     }
 
-    <span class="kw">let</span> <span class="ident">NormalizedDocument</span> { <span class="ident">content</span>, <span class="ident">exercises</span> } <span class="op">=</span> <span class="ident">normalized_document</span>;
-    <span class="kw">let</span> <span class="ident">content_as_json</span> <span class="op">=</span> <span class="ident">serde_json::to_value</span>(<span class="ident">content</span>)<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="comment">// TODO: Make sure that the content maches provided exercises.</span>
+
     <span class="comment">// Updating page</span>
     <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">Page</span>,
-        <span class="string">r#&quot;
+        <span class="string">r&quot;
 UPDATE pages
 SET content = $2,
   url_path = $3,
@@ -2201,9 +2214,9 @@ RETURNING id,
   content,
   order_number,
   copied_from
-            &quot;#</span>,
+        &quot;</span>,
         <span class="ident">page_id</span>,
-        <span class="ident">content_as_json</span>,
+        <span class="ident">serde_json::to_value</span>(<span class="ident">parsed_content</span>)<span class="question-mark">?</span>,
         <span class="ident">page_update</span>.<span class="ident">url_path</span>.<span class="ident">trim</span>(),
         <span class="ident">page_update</span>.<span class="ident">title</span>.<span class="ident">trim</span>(),
         <span class="ident">page_update</span>.<span class="ident">chapter_id</span>
@@ -2211,17 +2224,95 @@ RETURNING id,
     .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> (<span class="ident">result_exercises</span>, <span class="ident">new_content</span>) <span class="op">=</span>
-        <span class="ident">upsert_exercises_and_exercise_tasks</span>(<span class="kw-2">&amp;</span><span class="ident">exercises</span>, <span class="kw-2">&amp;</span><span class="ident">page</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="ident">retain_exercise_ids</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">context</span>(<span class="string">&quot;Failed to upser exercises and tasks&quot;</span>)<span class="question-mark">?</span>;
+    <span class="comment">// Exercises</span>
+    <span class="kw">let</span> <span class="ident">existing_exercise_ids</span> <span class="op">=</span>
+        <span class="ident">models::exercises::delete_exercises_by_page_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="ident">page</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">remapped_exercises</span> <span class="op">=</span> <span class="ident">upsert_exercises</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>,
+        <span class="kw-2">&amp;</span><span class="ident">page</span>,
+        <span class="kw-2">&amp;</span><span class="ident">existing_exercise_ids</span>,
+        <span class="kw-2">&amp;</span><span class="ident">page_update</span>.<span class="ident">exercises</span>,
+        <span class="ident">retain_exercise_ids</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">denormalized_content</span> <span class="op">=</span> <span class="ident">denormalize</span>(<span class="ident">NormalizedDocument</span> {
-        <span class="ident">content</span>: <span class="ident">serde_json::from_value</span>(<span class="ident">new_content</span>)<span class="question-mark">?</span>,
-        <span class="ident">exercises</span>: <span class="ident">result_exercises</span>,
-    })
-    .<span class="ident">context</span>(<span class="string">&quot;Failed to denormalize content&quot;</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">history_content</span> <span class="op">=</span> <span class="ident">serde_json::to_value</span>(<span class="kw-2">&amp;</span><span class="ident">denormalized_content</span>)<span class="question-mark">?</span>;
+    <span class="comment">// Exercise slides</span>
+    <span class="kw">let</span> <span class="ident">existing_exercise_slide_ids</span> <span class="op">=</span>
+        <span class="ident">models::exercise_slides::delete_exercise_slides_by_exercise_ids</span>(
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>,
+            <span class="kw-2">&amp;</span><span class="ident">existing_exercise_ids</span>,
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">remapped_exercise_slides</span> <span class="op">=</span> <span class="ident">upsert_exercise_slides</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>,
+        <span class="kw-2">&amp;</span><span class="ident">remapped_exercises</span>,
+        <span class="kw-2">&amp;</span><span class="ident">existing_exercise_slide_ids</span>,
+        <span class="kw-2">&amp;</span><span class="ident">page_update</span>.<span class="ident">exercise_slides</span>,
+        <span class="ident">retain_exercise_ids</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="comment">// Set as deleted and get existing specs</span>
+    <span class="kw">let</span> <span class="ident">existing_exercise_task_specs</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
+        <span class="ident">ExerciseTaskIdAndSpec</span>,
+        <span class="string">&quot;
+UPDATE exercise_tasks
+SET deleted_at = now()
+WHERE exercise_slide_id = ANY($1)
+RETURNING id,
+  exercise_slide_id,
+  private_spec,
+  public_spec,
+  model_solution_spec;
+        &quot;</span>,
+        <span class="kw-2">&amp;</span><span class="ident">existing_exercise_ids</span>,
+    )
+    .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">remapped_exercise_tasks</span> <span class="op">=</span> <span class="ident">upsert_exercise_tasks</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>,
+        <span class="kw-2">&amp;</span><span class="ident">remapped_exercise_slides</span>,
+        <span class="kw-2">&amp;</span><span class="ident">existing_exercise_task_specs</span>,
+        <span class="kw-2">&amp;</span><span class="ident">page_update</span>.<span class="ident">exercise_tasks</span>,
+        <span class="ident">retain_exercise_ids</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="comment">// Now, we might have changed some of the exercise ids and need to do the same changes in the page content as well</span>
+    <span class="comment">// TODO: change signature of this function to avoid copying.</span>
+    <span class="kw">let</span> <span class="ident">new_content</span> <span class="op">=</span> <span class="ident">update_ids_in_content</span>(
+        <span class="kw-2">&amp;</span><span class="ident">page</span>.<span class="ident">content</span>,
+        <span class="ident">remapped_exercises</span>
+            .<span class="ident">iter</span>()
+            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">id</span>, <span class="ident">e</span>)<span class="op">|</span> (<span class="kw-2">*</span><span class="ident">id</span>, <span class="ident">e</span>.<span class="ident">id</span>))
+            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">Uuid</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
+    )<span class="question-mark">?</span>;
+
+    <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
+        <span class="ident">Page</span>,
+        <span class="string">&quot;
+UPDATE pages
+SET content = $1
+WHERE id = $2
+RETURNING id,
+  created_at,
+  updated_at,
+  course_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number,
+  copied_from;
+        &quot;</span>,
+        <span class="ident">new_content</span>,
+        <span class="ident">page</span>.<span class="ident">id</span>
+    )
+    .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let</span> <span class="ident">history_content</span> <span class="op">=</span> <span class="ident">serde_json::to_value</span>(<span class="kw-2">&amp;</span><span class="ident">new_content</span>)<span class="question-mark">?</span>;
     <span class="ident"><span class="kw">crate</span>::models::page_history::insert</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>,
         <span class="ident">page_id</span>,
@@ -2236,152 +2327,36 @@ RETURNING id,
 
     <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">Page</span> {
-        <span class="ident">content</span>: <span class="ident">serde_json::to_value</span>(<span class="ident">denormalized_content</span>)<span class="question-mark">?</span>,
-        <span class="ident">course_id</span>: <span class="ident">page</span>.<span class="ident">course_id</span>,
-        <span class="ident">created_at</span>: <span class="ident">page</span>.<span class="ident">created_at</span>,
-        <span class="ident">updated_at</span>: <span class="ident">page</span>.<span class="ident">updated_at</span>,
-        <span class="ident">deleted_at</span>: <span class="ident">page</span>.<span class="ident">deleted_at</span>,
-        <span class="ident">id</span>: <span class="ident">page</span>.<span class="ident">id</span>,
-        <span class="ident">title</span>: <span class="ident">page</span>.<span class="ident">title</span>,
-        <span class="ident">url_path</span>: <span class="ident">page</span>.<span class="ident">url_path</span>,
-        <span class="ident">order_number</span>: <span class="ident">page</span>.<span class="ident">order_number</span>,
-        <span class="ident">chapter_id</span>: <span class="ident">page</span>.<span class="ident">chapter_id</span>,
-        <span class="ident">copied_from</span>: <span class="ident">page</span>.<span class="ident">copied_from</span>,
+    <span class="prelude-val">Ok</span>(<span class="ident">ContentManagementPage</span> {
+        <span class="ident">page</span>,
+        <span class="ident">exercises</span>: <span class="ident">remapped_exercises</span>.<span class="ident">into_values</span>().<span class="ident">collect</span>(),
+        <span class="ident">exercise_slides</span>: <span class="ident">remapped_exercise_slides</span>.<span class="ident">into_values</span>().<span class="ident">collect</span>(),
+        <span class="ident">exercise_tasks</span>: <span class="ident">remapped_exercise_tasks</span>,
     })
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">struct</span> <span class="ident">ExerciseTaskIdAndSpec</span> {
-    <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exercise_slide_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">private_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
-    <span class="ident">public_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
-    <span class="ident">model_solution_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
-}
-
-<span class="doccomment">/// Used by page inserts and page updates. The logic can be shared since the allowed inputs are the same.</span>
-<span class="doccomment">/// Regenerates exercise ids unless retain_exercise_ids is set to true.</span>
-<span class="doccomment">/// Updates the page but does not create a new history entry.</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upsert_exercises_and_exercise_tasks</span>(
-    <span class="ident">exercises</span>: <span class="kw-2">&amp;</span>[<span class="ident">NormalizedCmsExercise</span>],
-    <span class="ident">page</span>: <span class="kw-2">&amp;</span><span class="ident">Page</span>,
+<span class="doccomment">/// Remaps ids from updates to exercises that may have their ids regenerated.</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upsert_exercises</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">page</span>: <span class="kw-2">&amp;</span><span class="ident">Page</span>,
+    <span class="ident">existing_exercise_ids</span>: <span class="kw-2">&amp;</span>[<span class="ident">Uuid</span>],
+    <span class="ident">exercise_updates</span>: <span class="kw-2">&amp;</span>[<span class="ident">CmsPageExercise</span>],
     <span class="ident">retain_exercise_ids</span>: <span class="ident">bool</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">NormalizedCmsExercise</span><span class="op">&gt;</span>, <span class="ident">serde_json::Value</span>)<span class="op">&gt;</span> {
-    <span class="comment">// All related exercises and items should be deleted if not included in the update</span>
-    <span class="comment">// We accomplish this by deleting everyting first in the transaction and then</span>
-    <span class="comment">// undeleting the necessary items when doing the actual updates</span>
-    <span class="comment">// We need existing exercise ids to check which ids are client generated and need to be replaced.</span>
-    <span class="macro">sqlx::query!</span>(
-        <span class="string">r#&quot;
-        UPDATE exercises SET deleted_at = now() WHERE page_id = $1
-            &quot;#</span>,
-        <span class="ident">page</span>.<span class="ident">id</span>
-    )
-    .<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
-UPDATE exercise_slides
-SET deleted_at = now()
-WHERE exercise_id IN (
-    SELECT id
-    FROM exercises
-    WHERE page_id = $1
-  );
-        &quot;</span>,
-        <span class="ident">page</span>.<span class="ident">id</span>
-    )
-    .<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="macro">sqlx::query!</span>(
-        <span class="string">r#&quot;
-UPDATE exercise_tasks
-SET deleted_at = now()
-WHERE exercise_slide_id IN (
-    SELECT s.id
-    FROM exercise_slides s
-      JOIN exercises e ON (s.exercise_id = e.id)
-    WHERE e.page_id = $1
-  );
-            &quot;#</span>,
-        <span class="ident">page</span>.<span class="ident">id</span>
-    )
-    .<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="comment">// We need existing exercise ids to check which ids are client generated and need to be replaced.</span>
-    <span class="kw">let</span> <span class="ident">existing_exercise_ids</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
-        <span class="string">r#&quot;
-    SELECT id from exercises WHERE page_id = $1
-        &quot;#</span>,
-        <span class="ident">page</span>.<span class="ident">id</span>
-    )
-    .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="comment">// let exercise_infos_by_type = get_all_exercise_services_by_type(conn).await?;</span>
-    <span class="kw">let</span> <span class="ident">existing_exercise_tasks</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">ExerciseTaskIdAndSpec</span>,
-        <span class="string">r#&quot;
-SELECT et.id,
-  et.exercise_slide_id,
-  et.private_spec,
-  et.public_spec,
-  et.model_solution_spec
-from exercise_tasks et
-  JOIN exercise_slides es ON (es.id = et.exercise_slide_id)
-  JOIN exercises e ON (es.exercise_id = e.id)
-WHERE page_id = $1
-        &quot;#</span>,
-        <span class="ident">page</span>.<span class="ident">id</span>
-    )
-    .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="comment">// For generating public specs for exercises.</span>
-    <span class="kw">let</span> <span class="ident">exercise_types</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">exercises</span>
-        .<span class="ident">iter</span>()
-        .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">exercise</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">exercise</span>.<span class="ident">exercise_tasks</span>)
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">task</span><span class="op">|</span> <span class="ident">task</span>.<span class="ident">exercise_type</span>.<span class="ident">clone</span>())
-        .<span class="ident">unique</span>()
-        .<span class="ident">collect</span>();
-    <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">reqwest::Client::new</span>();
-
-    <span class="kw">let</span> <span class="ident">exercise_service_hashmap</span> <span class="op">=</span>
-        <span class="ident">exercise_service_info::get_selected_exercise_services_by_type</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">exercise_types</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">public_spec_urls_by_exercise_type</span> <span class="op">=</span> <span class="ident">exercise_service_hashmap</span>
-        .<span class="ident">iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">key</span>, (<span class="ident">service</span>, <span class="ident">info</span>))<span class="op">|</span> <span class="prelude-val">Ok</span>((<span class="ident">key</span>, <span class="ident">get_internal_public_spec_url</span>(<span class="ident">service</span>, <span class="ident">info</span>)<span class="question-mark">?</span>)))
-        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">String</span>, <span class="ident">Url</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">model_solution_urls_by_exercise_type</span> <span class="op">=</span> <span class="ident">exercise_service_hashmap</span>
-        .<span class="ident">iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">key</span>, (<span class="ident">service</span>, <span class="ident">info</span>))<span class="op">|</span> <span class="prelude-val">Ok</span>((<span class="ident">key</span>, <span class="ident">get_model_solution_url</span>(<span class="ident">service</span>, <span class="ident">info</span>)<span class="question-mark">?</span>)))
-        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">String</span>, <span class="ident">Url</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
-    <span class="comment">// for returning the inserted values</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result_exercises</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">NormalizedCmsExercise</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">changed_ids</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">Uuid</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-    <span class="kw">for</span> <span class="ident">exercise_update</span> <span class="kw">in</span> <span class="ident">exercises</span>.<span class="ident">iter</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">exercise_exercise_tasks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">NormalizedCmsExerciseTask</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">CmsPageExercise</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">remapped_exercises</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
+    <span class="kw">for</span> <span class="ident">exercise_update</span> <span class="kw">in</span> <span class="ident">exercise_updates</span>.<span class="ident">iter</span>() {
         <span class="kw">let</span> <span class="ident">exercise_exists</span> <span class="op">=</span> <span class="ident">existing_exercise_ids</span>
             .<span class="ident">iter</span>()
-            .<span class="ident">any</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">o</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">exercise_update</span>.<span class="ident">id</span>);
+            .<span class="ident">any</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">exercise_update</span>.<span class="ident">id</span>);
         <span class="kw">let</span> <span class="ident">safe_for_db_exercise_id</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">retain_exercise_ids</span> <span class="op">|</span><span class="op">|</span> <span class="ident">exercise_exists</span> {
             <span class="ident">exercise_update</span>.<span class="ident">id</span>
         } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="ident">new_uuid</span> <span class="op">=</span> <span class="ident">Uuid::new_v4</span>();
-            <span class="ident">changed_ids</span>.<span class="ident">insert</span>(<span class="ident">exercise_update</span>.<span class="ident">id</span>, <span class="ident">new_uuid</span>);
-            <span class="ident">new_uuid</span>
+            <span class="ident">Uuid::new_v4</span>()
         };
-        <span class="comment">// Upsert</span>
-        <span class="kw">let</span> <span class="ident">exercise</span>: <span class="ident">Exercise</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-            <span class="ident">Exercise</span>,
-            <span class="string">r#&quot;
+
+        <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
+            <span class="ident">CmsPageExercise</span>,
+            <span class="string">&quot;
 INSERT INTO exercises(
     id,
     course_id,
@@ -2398,8 +2373,10 @@ SET course_id = $2,
   page_id = $5,
   chapter_id = $6,
   deleted_at = NULL
-RETURNING *;
-        &quot;#</span>,
+RETURNING id,
+  name,
+  order_number;
+            &quot;</span>,
             <span class="ident">safe_for_db_exercise_id</span>,
             <span class="ident">page</span>.<span class="ident">course_id</span>,
             <span class="ident">exercise_update</span>.<span class="ident">name</span>,
@@ -2409,92 +2386,209 @@ RETURNING *;
         )
         .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
         .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">for</span> <span class="ident">task_update</span> <span class="kw">in</span> <span class="ident">exercise_update</span>.<span class="ident">exercise_tasks</span>.<span class="ident">iter</span>() {
-            <span class="kw">let</span> <span class="ident">existing_exercise_task</span> <span class="op">=</span> <span class="ident">existing_exercise_tasks</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">find</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">o</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">task_update</span>.<span class="ident">id</span>);
-            <span class="kw">let</span> <span class="ident">safe_for_db_exercise_task_id</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">existing_exercise_task</span> {
-                <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">task_update</span>.<span class="ident">id</span>,
-                <span class="kw">_</span> <span class="kw">if</span> <span class="ident">retain_exercise_ids</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">task_update</span>.<span class="ident">id</span>,
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="comment">// No need to add this to changed ids because exercise task ids</span>
-                    <span class="comment">// are not supposed to appear in the content json.</span>
-                    <span class="ident">Uuid::new_v4</span>()
-                }
-            };
-            <span class="kw">let</span> <span class="ident">model_solution_spec</span> <span class="op">=</span> <span class="ident">fetch_derived_spec</span>(
-                <span class="ident">existing_exercise_task</span>,
-                <span class="ident">task_update</span>,
-                <span class="kw-2">&amp;</span><span class="ident">model_solution_urls_by_exercise_type</span>,
-                <span class="kw-2">&amp;</span><span class="ident">client</span>,
-                <span class="ident">existing_exercise_task</span>
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">value</span><span class="op">|</span> <span class="ident">value</span>.<span class="ident">model_solution_spec</span>.<span class="ident">clone</span>())
-                    .<span class="ident">flatten</span>(),
-            )
-            .<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">public_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">fetch_derived_spec</span>(
-                <span class="ident">existing_exercise_task</span>,
-                <span class="ident">task_update</span>,
-                <span class="kw-2">&amp;</span><span class="ident">public_spec_urls_by_exercise_type</span>,
-                <span class="kw-2">&amp;</span><span class="ident">client</span>,
-                <span class="ident">existing_exercise_task</span>
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">value</span><span class="op">|</span> <span class="ident">value</span>.<span class="ident">public_spec</span>.<span class="ident">clone</span>())
-                    .<span class="ident">flatten</span>(),
-            )
-            .<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="comment">// Use existing exercise slide or create new record.</span>
-            <span class="kw">let</span> <span class="ident">exercise_slide_id</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">existing_task</span>) <span class="op">=</span> <span class="ident">existing_exercise_task</span> {
-                <span class="ident">exercise_slides::upsert</span>(
-                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>,
-                    <span class="ident">existing_task</span>.<span class="ident">exercise_slide_id</span>,
-                    <span class="ident">safe_for_db_exercise_id</span>,
-                    <span class="number">0</span>,
-                )
-                .<span class="kw">await</span><span class="question-mark">?</span>
-            } <span class="kw">else</span> {
-                <span class="ident">exercise_slides::insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">safe_for_db_exercise_id</span>, <span class="number">0</span>).<span class="kw">await</span><span class="question-mark">?</span>
-            };
-            <span class="comment">// Upsert</span>
-            <span class="kw">let</span> <span class="ident">exercise_task</span>: <span class="ident">NormalizedCmsExerciseTask</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-                <span class="ident">NormalizedCmsExerciseTask</span>,
-                <span class="string">r#&quot;
-INSERT INTO exercise_tasks(id, exercise_slide_id, exercise_type, assignment, public_spec, private_spec, model_solution_spec)
-VALUES ($1, $2, $3, $4, $5, $6, $7)
-ON CONFLICT (id) DO UPDATE
-SET exercise_slide_id=$2, exercise_type=$3, assignment=$4, public_spec=$5, private_spec=$6, deleted_at=NULL
-RETURNING id, exercise_type, assignment, private_spec;
-        &quot;#</span>,
-                <span class="ident">safe_for_db_exercise_task_id</span>,
-                <span class="ident">exercise_slide_id</span>,
-                <span class="ident">task_update</span>.<span class="ident">exercise_type</span>,
-                <span class="ident">task_update</span>.<span class="ident">assignment</span>,
-                <span class="ident">public_spec</span>,
-                <span class="ident">task_update</span>.<span class="ident">private_spec</span>,
-                <span class="ident">model_solution_spec</span>,
-            )
-            .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="ident">exercise_exercise_tasks</span>.<span class="ident">push</span>(<span class="ident">exercise_task</span>);
-        }
-        <span class="ident">result_exercises</span>.<span class="ident">push</span>(<span class="ident">NormalizedCmsExercise</span> {
-            <span class="ident">id</span>: <span class="ident">exercise</span>.<span class="ident">id</span>,
-            <span class="ident">name</span>: <span class="ident">exercise</span>.<span class="ident">name</span>,
-            <span class="ident">order_number</span>: <span class="ident">exercise</span>.<span class="ident">order_number</span>,
-            <span class="ident">exercise_tasks</span>: <span class="ident">exercise_exercise_tasks</span>,
-        })
+        <span class="ident">remapped_exercises</span>.<span class="ident">insert</span>(<span class="ident">exercise_update</span>.<span class="ident">id</span>, <span class="ident">exercise</span>);
     }
+    <span class="prelude-val">Ok</span>(<span class="ident">remapped_exercises</span>)
+}
 
-    <span class="comment">// Now, we might have changed some of the exercise ids and need to do the same changes in the page content as well</span>
-    <span class="kw">let</span> <span class="ident">new_content</span> <span class="op">=</span> <span class="ident">update_ids_in_content</span>(<span class="kw-2">&amp;</span><span class="ident">page</span>.<span class="ident">content</span>, <span class="ident">changed_ids</span>)<span class="question-mark">?</span>;
+<span class="doccomment">/// Remaps ids from updates to exercise slides that may have their ids changed.</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upsert_exercise_slides</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">remapped_exercises</span>: <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">CmsPageExercise</span><span class="op">&gt;</span>,
+    <span class="ident">existing_slide_ids</span>: <span class="kw-2">&amp;</span>[<span class="ident">Uuid</span>],
+    <span class="ident">slide_updates</span>: <span class="kw-2">&amp;</span>[<span class="ident">CmsPageExerciseSlide</span>],
+    <span class="ident">retain_exercise_ids</span>: <span class="ident">bool</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">CmsPageExerciseSlide</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">remapped_exercise_slides</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
+    <span class="kw">for</span> <span class="ident">slide_update</span> <span class="kw">in</span> <span class="ident">slide_updates</span>.<span class="ident">iter</span>() {
+        <span class="kw">let</span> <span class="ident">slide_exists</span> <span class="op">=</span> <span class="ident">existing_slide_ids</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">slide_update</span>.<span class="ident">id</span>);
+        <span class="kw">let</span> <span class="ident">safe_for_db_slide_id</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">retain_exercise_ids</span> <span class="op">|</span><span class="op">|</span> <span class="ident">slide_exists</span> {
+            <span class="ident">slide_update</span>.<span class="ident">id</span>
+        } <span class="kw">else</span> {
+            <span class="ident">Uuid::new_v4</span>()
+        };
+        <span class="kw">let</span> <span class="ident">safe_for_db_exercise_id</span> <span class="op">=</span> <span class="ident">remapped_exercises</span>
+            .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">slide_update</span>.<span class="ident">exercise_id</span>)
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
+                <span class="ident">ModelError::PreconditionFailed</span>(
+                    <span class="string">&quot;Illegal exercise id for exercise slide.&quot;</span>.<span class="ident">to_string</span>(),
+                )
+            })<span class="question-mark">?</span>
+            .<span class="ident">id</span>;
+
+        <span class="kw">let</span> <span class="ident">exercise_slide</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
+            <span class="ident">CmsPageExerciseSlide</span>,
+            <span class="string">&quot;
+INSERT INTO exercise_slides (id, exercise_id, order_number)
+VALUES ($1, $2, $3) ON CONFLICT (id) DO
+UPDATE
+SET exercise_id = $2,
+  order_number = $3,
+  deleted_at = NULL
+RETURNING id,
+  exercise_id,
+  order_number;
+            &quot;</span>,
+            <span class="ident">safe_for_db_slide_id</span>,
+            <span class="ident">safe_for_db_exercise_id</span>,
+            <span class="ident">slide_update</span>.<span class="ident">order_number</span>,
+        )
+        .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+
+        <span class="ident">remapped_exercise_slides</span>.<span class="ident">insert</span>(<span class="ident">slide_update</span>.<span class="ident">id</span>, <span class="ident">exercise_slide</span>);
+    }
+    <span class="prelude-val">Ok</span>(<span class="ident">remapped_exercise_slides</span>)
+}
+
+<span class="doccomment">/// Remaps ids from updates to exercise tasks that may have their ids changed.</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upsert_exercise_tasks</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">remapped_slides</span>: <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">CmsPageExerciseSlide</span><span class="op">&gt;</span>,
+    <span class="ident">existing_task_specs</span>: <span class="kw-2">&amp;</span>[<span class="ident">ExerciseTaskIdAndSpec</span>],
+    <span class="ident">task_updates</span>: <span class="kw-2">&amp;</span>[<span class="ident">CmsPageExerciseTask</span>],
+    <span class="ident">retain_exercise_ids</span>: <span class="ident">bool</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPageExerciseTask</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="comment">// For generating public specs for exercises.</span>
+    <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">reqwest::Client::new</span>();
+    <span class="kw">let</span> <span class="ident">exercise_types</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">task_updates</span>
+        .<span class="ident">iter</span>()
+        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">task</span><span class="op">|</span> <span class="ident">task</span>.<span class="ident">exercise_type</span>.<span class="ident">clone</span>())
+        .<span class="ident">unique</span>()
+        .<span class="ident">collect</span>();
+    <span class="kw">let</span> <span class="ident">exercise_service_hashmap</span> <span class="op">=</span>
+        <span class="ident">exercise_service_info::get_selected_exercise_services_by_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">exercise_types</span>)
+            .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">public_spec_urls_by_exercise_type</span> <span class="op">=</span> <span class="ident">exercise_service_hashmap</span>
+        .<span class="ident">iter</span>()
+        .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">key</span>, (<span class="ident">service</span>, <span class="ident">info</span>))<span class="op">|</span> <span class="prelude-val">Ok</span>((<span class="ident">key</span>, <span class="ident">get_internal_public_spec_url</span>(<span class="ident">service</span>, <span class="ident">info</span>)<span class="question-mark">?</span>)))
+        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">String</span>, <span class="ident">Url</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">model_solution_urls_by_exercise_type</span> <span class="op">=</span> <span class="ident">exercise_service_hashmap</span>
+        .<span class="ident">iter</span>()
+        .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">key</span>, (<span class="ident">service</span>, <span class="ident">info</span>))<span class="op">|</span> <span class="prelude-val">Ok</span>((<span class="ident">key</span>, <span class="ident">get_model_solution_url</span>(<span class="ident">service</span>, <span class="ident">info</span>)<span class="question-mark">?</span>)))
+        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">String</span>, <span class="ident">Url</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">remapped_exercise_tasks</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="kw">for</span> <span class="ident">task_update</span> <span class="kw">in</span> <span class="ident">task_updates</span>.<span class="ident">iter</span>() {
+        <span class="kw">let</span> <span class="ident">existing_exercise_task</span> <span class="op">=</span> <span class="ident">existing_task_specs</span>.<span class="ident">iter</span>().<span class="ident">find</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">o</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">task_update</span>.<span class="ident">id</span>);
+        <span class="kw">let</span> <span class="ident">safe_for_db_exercise_task_id</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">existing_exercise_task</span> {
+            <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">task_update</span>.<span class="ident">id</span>,
+            <span class="kw">_</span> <span class="kw">if</span> <span class="ident">retain_exercise_ids</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">task_update</span>.<span class="ident">id</span>,
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Uuid::new_v4</span>(),
+        };
+
+        <span class="kw">let</span> <span class="ident">task_exists</span> <span class="op">=</span> <span class="ident">existing_task_specs</span>
+            .<span class="ident">iter</span>()
+            .<span class="ident">any</span>(<span class="op">|</span><span class="ident">task</span><span class="op">|</span> <span class="ident">task</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">task_update</span>.<span class="ident">id</span>);
+        <span class="kw">let</span> <span class="ident">safe_for_db_task_id</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">retain_exercise_ids</span> <span class="op">|</span><span class="op">|</span> <span class="ident">task_exists</span> {
+            <span class="ident">task_update</span>.<span class="ident">id</span>
+        } <span class="kw">else</span> {
+            <span class="ident">Uuid::new_v4</span>()
+        };
+        <span class="kw">let</span> <span class="ident">normalized_task</span> <span class="op">=</span> <span class="ident">NormalizedCmsExerciseTask</span> {
+            <span class="ident">id</span>: <span class="ident">safe_for_db_task_id</span>,
+            <span class="ident">assignment</span>: <span class="ident">task_update</span>.<span class="ident">assignment</span>.<span class="ident">clone</span>(),
+            <span class="ident">exercise_type</span>: <span class="ident">task_update</span>.<span class="ident">exercise_type</span>.<span class="ident">clone</span>(),
+            <span class="ident">private_spec</span>: <span class="ident">task_update</span>.<span class="ident">private_spec</span>.<span class="ident">clone</span>(),
+        };
+        <span class="kw">let</span> <span class="ident">model_solution_spec</span> <span class="op">=</span> <span class="ident">fetch_derived_spec</span>(
+            <span class="ident">existing_exercise_task</span>,
+            <span class="kw-2">&amp;</span><span class="ident">normalized_task</span>,
+            <span class="kw-2">&amp;</span><span class="ident">model_solution_urls_by_exercise_type</span>,
+            <span class="kw-2">&amp;</span><span class="ident">client</span>,
+            <span class="ident">existing_exercise_task</span>
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">value</span><span class="op">|</span> <span class="ident">value</span>.<span class="ident">model_solution_spec</span>.<span class="ident">clone</span>())
+                .<span class="ident">flatten</span>(),
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">public_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">fetch_derived_spec</span>(
+            <span class="ident">existing_exercise_task</span>,
+            <span class="kw-2">&amp;</span><span class="ident">normalized_task</span>,
+            <span class="kw-2">&amp;</span><span class="ident">public_spec_urls_by_exercise_type</span>,
+            <span class="kw-2">&amp;</span><span class="ident">client</span>,
+            <span class="ident">existing_exercise_task</span>
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">value</span><span class="op">|</span> <span class="ident">value</span>.<span class="ident">public_spec</span>.<span class="ident">clone</span>())
+                .<span class="ident">flatten</span>(),
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">safe_for_db_exercise_slide_id</span> <span class="op">=</span> <span class="ident">remapped_slides</span>
+            .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">task_update</span>.<span class="ident">exercise_slide_id</span>)
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
+                <span class="ident">ModelError::PreconditionFailed</span>(
+                    <span class="string">&quot;Illegal exercise slide id for exercise task.&quot;</span>.<span class="ident">to_string</span>(),
+                )
+            })<span class="question-mark">?</span>
+            .<span class="ident">id</span>;
+
+        <span class="comment">// Upsert</span>
+        <span class="kw">let</span> <span class="ident">exercise_task</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
+            <span class="ident">CmsPageExerciseTask</span>,
+            <span class="string">&quot;
+INSERT INTO exercise_tasks(
+    id,
+    exercise_slide_id,
+    exercise_type,
+    assignment,
+    public_spec,
+    private_spec,
+    model_solution_spec
+  )
+VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (id) DO
+UPDATE
+SET exercise_slide_id = $2,
+  exercise_type = $3,
+  assignment = $4,
+  public_spec = $5,
+  private_spec = $6,
+  deleted_at = NULL
+RETURNING id,
+  exercise_slide_id,
+  assignment,
+  exercise_type,
+  private_spec;
+                &quot;</span>,
+            <span class="ident">safe_for_db_exercise_task_id</span>,
+            <span class="ident">safe_for_db_exercise_slide_id</span>,
+            <span class="ident">task_update</span>.<span class="ident">exercise_type</span>,
+            <span class="ident">task_update</span>.<span class="ident">assignment</span>,
+            <span class="ident">public_spec</span>,
+            <span class="ident">task_update</span>.<span class="ident">private_spec</span>,
+            <span class="ident">model_solution_spec</span>,
+        )
+        .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">remapped_exercise_tasks</span>.<span class="ident">push</span>(<span class="ident">exercise_task</span>)
+    }
+    <span class="prelude-val">Ok</span>(<span class="ident">remapped_exercise_tasks</span>)
+}
+
+<span class="doccomment">/// Only used when testing.</span>
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_page_content</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">content</span>: <span class="kw-2">&amp;</span><span class="ident">serde_json::Value</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="macro">sqlx::query!</span>(
-        <span class="string">r#&quot;UPDATE pages SET content = $1 WHERE id = $2;&quot;#</span>,
-        <span class="ident">new_content</span>,
-        <span class="ident">page</span>.<span class="ident">id</span>
+        <span class="string">&quot;
+UPDATE pages
+SET content = $1
+WHERE id = $2;
+&quot;</span>,
+        <span class="ident">content</span>,
+        <span class="ident">page_id</span>
     )
-    .<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+    .<span class="ident">execute</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
+}
 
-    <span class="prelude-val">Ok</span>((<span class="ident">result_exercises</span>, <span class="ident">new_content</span>))
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+<span class="kw">struct</span> <span class="ident">ExerciseTaskIdAndSpec</span> {
+    <span class="ident">id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">exercise_slide_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">private_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
+    <span class="ident">public_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
+    <span class="ident">model_solution_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">fetch_derived_spec</span>(
@@ -2553,27 +2647,13 @@ RETURNING id, exercise_type, assignment, private_spec;
     <span class="ident">new_page</span>: <span class="ident">NewPage</span>,
     <span class="ident">author</span>: <span class="ident">Uuid</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">normalized_document</span> <span class="op">=</span> <span class="ident">normalize_from_json</span>(<span class="ident">new_page</span>.<span class="ident">content</span>)<span class="question-mark">?</span>;
-
-    <span class="kw">if</span> <span class="ident">new_page</span>.<span class="ident">chapter_id</span>.<span class="ident">is_none</span>()
-        <span class="op">&amp;&amp;</span> <span class="ident">contains_blocks_not_allowed_in_top_level_pages</span>(<span class="kw-2">&amp;</span><span class="ident">normalized_document</span>.<span class="ident">content</span>)
-    {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ModelError::Generic</span>(
-                <span class="string">&quot;Top level pages cannot contain exercises, exercise tasks or list of exercises in the chapter&quot;</span>.<span class="ident">to_string</span>(),
-            ));
-    }
-
-    <span class="kw">let</span> <span class="ident">NormalizedDocument</span> { <span class="ident">content</span>, <span class="ident">exercises</span> } <span class="op">=</span> <span class="ident">normalized_document</span>;
-    <span class="kw">let</span> <span class="ident">content_as_json</span> <span class="op">=</span> <span class="ident">serde_json::to_value</span>(<span class="ident">content</span>.<span class="ident">clone</span>())<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">next_order_number</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">new_page</span>.<span class="ident">chapter_id</span> {
         <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">get_next_page_order_number_in_chapter</span>(<span class="ident">conn</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>,
         <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">get_next_order_number_for_courses_top_level_pages</span>(<span class="ident">conn</span>, <span class="ident">new_page</span>.<span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>,
     };
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="comment">// For sharing the transaction between functions</span>
-    <span class="comment">// let transaction_holder = RefCell::new(transaction);</span>
+    <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::models::courses::get_course</span>(<span class="ident">conn</span>, <span class="ident">new_page</span>.<span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::models::courses::get_course</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="ident">new_page</span>.<span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">Page</span>,
@@ -2601,7 +2681,7 @@ RETURNING id,
   copied_from
           &quot;#</span>,
         <span class="ident">new_page</span>.<span class="ident">course_id</span>,
-        <span class="ident">content_as_json</span>,
+        <span class="ident">new_page</span>.<span class="ident">content</span>,
         <span class="ident">new_page</span>.<span class="ident">url_path</span>.<span class="ident">trim</span>(),
         <span class="ident">new_page</span>.<span class="ident">title</span>.<span class="ident">trim</span>(),
         <span class="ident">next_order_number</span>,
@@ -2611,22 +2691,20 @@ RETURNING id,
     .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> (<span class="ident">result_exercises</span>, <span class="ident">new_content</span>) <span class="op">=</span>
-        <span class="ident">upsert_exercises_and_exercise_tasks</span>(<span class="kw-2">&amp;</span><span class="ident">exercises</span>, <span class="kw-2">&amp;</span><span class="ident">page</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="bool-val">false</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="kw">let</span> <span class="ident">denormalized_content</span> <span class="op">=</span> <span class="ident">denormalize</span>(<span class="ident">NormalizedDocument</span> {
-        <span class="ident">content</span>: <span class="ident">serde_json::from_value</span>(<span class="ident">new_content</span>)<span class="question-mark">?</span>,
-        <span class="ident">exercises</span>: <span class="ident">result_exercises</span>,
-    })<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">history_content</span> <span class="op">=</span> <span class="ident">serde_json::to_value</span>(<span class="kw-2">&amp;</span><span class="ident">denormalized_content</span>)<span class="question-mark">?</span>;
-    <span class="ident"><span class="kw">crate</span>::models::page_history::insert</span>(
+    <span class="kw">let</span> <span class="ident">cms_page</span> <span class="op">=</span> <span class="ident">update_page</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>,
         <span class="ident">page</span>.<span class="ident">id</span>,
-        <span class="kw-2">&amp;</span><span class="ident">new_page</span>.<span class="ident">title</span>,
-        <span class="kw-2">&amp;</span><span class="ident">history_content</span>,
-        <span class="ident">HistoryChangeReason::PageSaved</span>,
+        <span class="ident">CmsPageUpdate</span> {
+            <span class="ident">content</span>: <span class="ident">page</span>.<span class="ident">content</span>,
+            <span class="ident">exercises</span>: <span class="ident">new_page</span>.<span class="ident">exercises</span>,
+            <span class="ident">exercise_slides</span>: <span class="ident">new_page</span>.<span class="ident">exercise_slides</span>,
+            <span class="ident">exercise_tasks</span>: <span class="ident">new_page</span>.<span class="ident">exercise_tasks</span>,
+            <span class="ident">url_path</span>: <span class="ident">page</span>.<span class="ident">url_path</span>,
+            <span class="ident">title</span>: <span class="ident">page</span>.<span class="ident">title</span>,
+            <span class="ident">chapter_id</span>: <span class="ident">page</span>.<span class="ident">chapter_id</span>,
+        },
         <span class="ident">author</span>,
-        <span class="prelude-val">None</span>,
+        <span class="bool-val">false</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -2649,14 +2727,14 @@ RETURNING *;
 
     <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">Page</span> {
-        <span class="ident">content</span>: <span class="ident">serde_json::to_value</span>(<span class="ident">denormalized_content</span>)<span class="question-mark">?</span>,
+        <span class="ident">content</span>: <span class="ident">cms_page</span>.<span class="ident">page</span>.<span class="ident">content</span>,
         <span class="ident">course_id</span>: <span class="ident">page</span>.<span class="ident">course_id</span>,
         <span class="ident">created_at</span>: <span class="ident">page</span>.<span class="ident">created_at</span>,
         <span class="ident">updated_at</span>: <span class="ident">page</span>.<span class="ident">updated_at</span>,
         <span class="ident">deleted_at</span>: <span class="ident">page</span>.<span class="ident">deleted_at</span>,
         <span class="ident">id</span>: <span class="ident">page</span>.<span class="ident">id</span>,
-        <span class="ident">title</span>: <span class="ident">page</span>.<span class="ident">title</span>,
-        <span class="ident">url_path</span>: <span class="ident">page</span>.<span class="ident">url_path</span>,
+        <span class="ident">title</span>: <span class="ident">cms_page</span>.<span class="ident">page</span>.<span class="ident">title</span>,
+        <span class="ident">url_path</span>: <span class="ident">cms_page</span>.<span class="ident">page</span>.<span class="ident">url_path</span>,
         <span class="ident">order_number</span>: <span class="ident">page</span>.<span class="ident">order_number</span>,
         <span class="ident">chapter_id</span>: <span class="ident">page</span>.<span class="ident">chapter_id</span>,
         <span class="ident">copied_from</span>: <span class="ident">page</span>.<span class="ident">copied_from</span>,
@@ -3241,39 +3319,27 @@ WHERE id = $1
     )
     .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">NormalizedDocument</span> { <span class="ident">content</span>, <span class="ident">exercises</span> } <span class="op">=</span>
-        <span class="ident">normalize_from_json</span>(<span class="ident">content_to_restore</span>.<span class="ident">content</span>)<span class="question-mark">?</span>;
 
     <span class="comment">// restore page content</span>
-    <span class="kw">let</span> <span class="ident">page_content</span> <span class="op">=</span> <span class="ident">serde_json::to_value</span>(<span class="kw-2">&amp;</span><span class="ident">content</span>)<span class="question-mark">?</span>;
     <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 UPDATE pages
 SET content = $1
 WHERE id = $2
 &quot;</span>,
-        <span class="ident">page_content</span>,
+        <span class="ident">content_to_restore</span>.<span class="ident">content</span>,
         <span class="ident">page_id</span>,
     )
     .<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="comment">// restore exercises</span>
-    <span class="kw">let</span> (<span class="ident">updated_exercises</span>, <span class="ident">updated_content</span>) <span class="op">=</span>
-        <span class="ident">upsert_exercises_and_exercise_tasks</span>(<span class="kw-2">&amp;</span><span class="ident">exercises</span>, <span class="kw-2">&amp;</span><span class="ident">page</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="bool-val">false</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="comment">// TODO(?): Update exercises according to content.</span>
 
-    <span class="comment">// create new history entry</span>
-    <span class="kw">let</span> <span class="ident">updated_content</span> <span class="op">=</span> <span class="ident">serde_json::from_value</span>(<span class="ident">updated_content</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">blocks</span> <span class="op">=</span> <span class="ident">document_schema_processor::denormalize</span>(<span class="ident">NormalizedDocument</span> {
-        <span class="ident">content</span>: <span class="ident">updated_content</span>,
-        <span class="ident">exercises</span>: <span class="ident">updated_exercises</span>,
-    })<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">history_content</span> <span class="op">=</span> <span class="ident">serde_json::to_value</span>(<span class="kw-2">&amp;</span><span class="ident">blocks</span>)<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">history_id</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::models::page_history::insert</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>,
         <span class="ident">page_id</span>,
         <span class="kw-2">&amp;</span><span class="ident">content_to_restore</span>.<span class="ident">title</span>,
-        <span class="kw-2">&amp;</span><span class="ident">history_content</span>,
+        <span class="kw-2">&amp;</span><span class="ident">page</span>.<span class="ident">content</span>,
         <span class="ident">HistoryChangeReason::HistoryRestored</span>,
         <span class="ident">author</span>,
         <span class="prelude-val">Some</span>(<span class="ident">history_id</span>),

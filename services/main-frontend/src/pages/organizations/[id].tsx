@@ -47,7 +47,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
     error: errorOrgActiveCourses,
     data: dataOrgActiveCourses,
     refetch: refetchOrgActiveCourses,
-  } = useQuery(`organization-active-courses`, () =>
+  } = useQuery([`organization-active-courses`, query.id, page], () =>
     fetchOrganizationActiveCourses(query.id, page, PAGE_LIMIT),
   )
 
@@ -56,7 +56,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
     error: errorActiveCourseCount,
     data: dataOrgActiveCoursesCount,
     refetch: refetchOrgActiveCoursesCount,
-  } = useQuery(`organization-active-courses-count`, () =>
+  } = useQuery([`organization-active-courses-count`, query.id], () =>
     fetchOrganizationActiveCoursesCount(query.id),
   )
 
@@ -159,7 +159,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
                 },
               },
               undefined,
-              { shallow: true },
+              {},
             )
             setPage(pageNumber)
           }}

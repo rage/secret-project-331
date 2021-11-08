@@ -613,16 +613,28 @@ RETURNING id,
             .collect::<HashMap<Uuid, Uuid>>(),
     )?;
 
-    sqlx::query!(
+    let page = sqlx::query_as!(
+        Page,
         "
 UPDATE pages
 SET content = $1
-WHERE id = $2;
+WHERE id = $2
+RETURNING id,
+  created_at,
+  updated_at,
+  course_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number,
+  copied_from;
         ",
         new_content,
         page.id
     )
-    .execute(&mut tx)
+    .fetch_one(&mut tx)
     .await?;
 
     let history_content = serde_json::to_value(&new_content)?;

@@ -1016,7 +1016,7 @@ async fn seed_sample_course(
         exercise_c1p1_1,
         exercise_slide_c1p1_1,
         exercise_task_c1p1e1_1,
-        block_id_1,
+        block_id_2,
         block_id_3,
         spec_c1p1e1t1_1,
         spec_c1p1e1t1_2,
@@ -1350,11 +1350,11 @@ async fn seed_sample_course(
                 text: Some("verything is a big topic.".to_string()),
             },
             FeedbackBlock {
-                id: block_id_2,
+                id: block_id_4,
                 text: Some("So big, that we need many paragraphs.".to_string()),
             },
             FeedbackBlock {
-                id: block_id_3,
+                id: block_id_5,
                 text: Some("Like th".to_string()),
             },
         ],

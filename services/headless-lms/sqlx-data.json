@@ -4568,6 +4568,72 @@
       "nullable": [false]
     }
   },
+  "904ccb7c4f4a867272ae16ba0fd8f18ec51e515fc8c114afd4be2bee095df3be": {
+    "query": "\nUPDATE pages\nSET content = $1\nWHERE id = $2\nRETURNING id,\n  created_at,\n  updated_at,\n  course_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "chapter_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "url_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 8,
+          "name": "content",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 10,
+          "name": "copied_from",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Jsonb", "Uuid"]
+      },
+      "nullable": [false, false, false, false, true, false, false, true, false, false, true]
+    }
+  },
   "90a05af8117ab207b26061df619b9940f81d2c59d3de6a0b445ac0d878ff542a": {
     "query": "\nINSERT INTO pages(\n    course_id,\n    content,\n    url_path,\n    title,\n    order_number,\n    chapter_id,\n    content_search_language\n  )\nVALUES($1, $2, $3, $4, $5, $6, $7::regconfig)\nRETURNING id,\n  created_at,\n  updated_at,\n  course_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from\n          ",
     "describe": {
@@ -5277,16 +5343,6 @@
       "columns": [],
       "parameters": {
         "Left": ["Uuid", "Uuid"]
-      },
-      "nullable": []
-    }
-  },
-  "9e22b75020321b2623224517ad3174a4d432ea844cd5ff07b6f0069e20bc7972": {
-    "query": "\nUPDATE pages\nSET content = $1\nWHERE id = $2;\n        ",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Jsonb", "Uuid"]
       },
       "nullable": []
     }

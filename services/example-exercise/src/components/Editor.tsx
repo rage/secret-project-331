@@ -35,6 +35,7 @@ const NewButton = styled.button`
 
 const Editor: React.FC<Props> = ({ state, setState, port }) => {
   const { t } = useTranslation()
+
   return (
     <HeightTrackingContainer port={port}>
       <ButtonWrapper>

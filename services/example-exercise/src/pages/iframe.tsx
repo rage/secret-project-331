@@ -1,9 +1,10 @@
 import { useRouter } from "next/router"
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import Editor from "../components/Editor"
 import Exercise from "../components/Exercise"
+import Submission from "../components/Submission"
 import useStateWithOnChange from "../hooks/useStateWithOnChange"
 import { isSetStateMessage } from "../shared-module/iframe-protocol-types.guard"
 import { Alternative, ModelSolutionApi, PublicAlternative } from "../util/stateInterfaces"
@@ -83,27 +84,14 @@ const Iframe: React.FC = () => {
   }
 
   if (exerciseState) {
-    return (
-      <Exercise maxWidth={maxWidth} port={port} state={exerciseState} setState={setExerciseState} />
-    )
+    return <Exercise maxWidth={maxWidth} port={port} state={exerciseState} />
   } else if (editorState) {
     return <Editor maxWidth={maxWidth} port={port} state={editorState} setState={setEditorState} />
   } else if (submissionState) {
-    return <Submission />
+    return <Submission port={port} maxWidth={maxWidth} state={submissionState} />
   } else {
     return <>{t("waiting-for-content")}</>
   }
-}
-
-function postCurrentExerciseState(port: MessagePort | null, data: string | null) {
-  if (!port) {
-    return
-  }
-  port.postMessage({
-    message: "current-state",
-    data: { selectedOptionId: data },
-    valid: true,
-  })
 }
 
 function postCurrentEditorState(port: MessagePort | null, data: Alternative[] | null) {

@@ -1,46 +1,40 @@
 /* eslint-disable i18next/no-literal-string */
 import { BlockConfiguration, BlockEditProps } from "@wordpress/blocks"
-import { ComponentType, useEffect } from "react"
+import React, { ComponentType, useEffect } from "react"
 import { v4 } from "uuid"
 
-import ExerciseEditor from "./ExerciseEditor"
-import ExerciseSave from "./ExerciseSave"
+import ExerciseSlideEditor, { ExerciseSlideAttributes } from "./ExerciseSlideEditor"
+import ExerciseSlideSave from "./ExerciseSlideSave"
 
-export interface ExerciseAttributes {
-  id: string
-  name: string
-}
-
-const ExerciseConfiguration: BlockConfiguration<ExerciseAttributes> = {
-  title: "Exercise",
-  description: "Exercise",
-  // Enforce exercise can't be InnerBlock - https://github.com/WordPress/gutenberg/issues/7845
-  parent: ["core/post-content"],
+const ExerciseSlideConfiguration: BlockConfiguration<ExerciseSlideAttributes> = {
+  title: "ExerciseSlide",
+  description: "An exercise slide",
   category: "embed",
+  parent: ["moocfi/exercise"],
   attributes: {
     id: {
       type: "string",
       default: undefined,
     },
-    name: {
-      type: "string",
-      default: "",
+    order_number: {
+      type: "number",
+      default: 0,
     },
   },
-  edit: enforceExerciseIdDefined(ExerciseEditor),
-  save: ExerciseSave,
+  edit: enforceExerciseSlideIdDefined(ExerciseSlideEditor),
+  save: ExerciseSlideSave,
 }
 
 /**
  * Wrapper to set attributes.exercise_id before rendering
  * @param WrappedComponent
  */
-function enforceExerciseIdDefined(
-  WrappedComponent: ComponentType<BlockEditProps<ExerciseAttributes>>,
-): ComponentType<BlockEditProps<ExerciseAttributes>> {
+function enforceExerciseSlideIdDefined(
+  WrappedComponent: ComponentType<BlockEditProps<ExerciseSlideAttributes>>,
+): ComponentType<BlockEditProps<ExerciseSlideAttributes>> {
   // Name to display in React Dev tools
   const displayName = WrappedComponent.displayName || WrappedComponent.name || "Component"
-  const InnerComponent = (props: BlockEditProps<ExerciseAttributes>) => {
+  const InnerComponent = (props: BlockEditProps<ExerciseSlideAttributes>) => {
     const { attributes, setAttributes } = props
 
     useEffect(() => {
@@ -61,4 +55,4 @@ function enforceExerciseIdDefined(
   return InnerComponent
 }
 
-export default ExerciseConfiguration
+export default ExerciseSlideConfiguration

@@ -29,10 +29,10 @@ use crate::{
         organizations::Organization,
         page_history::{HistoryChangeReason, PageHistory},
         pages::{
-            CoursePageWithUserData, ExerciseWithExerciseTasks, HistoryRestoreData, NewPage,
-            NormalizedCmsExercise, NormalizedCmsExerciseTask, Page,
-            PageRoutingDataWithChapterStatus, PageSearchRequest, PageSearchResult, PageUpdate,
-            PageWithExercises,
+            CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate,
+            ContentManagementPage, CoursePageWithUserData, ExerciseWithExerciseTasks,
+            HistoryRestoreData, NewPage, Page, PageRoutingDataWithChapterStatus, PageSearchRequest,
+            PageSearchResult, PageWithExercises,
         },
         playground_examples::{PlaygroundExample, PlaygroundExampleData},
         proposed_block_edits::{
@@ -57,6 +57,11 @@ use crate::{
 ts_rs::export! {
   Chapter,
   EmailTemplate,
+  CmsPageExercise,
+  CmsPageExerciseSlide,
+  CmsPageExerciseTask,
+  CmsPageUpdate,
+  ContentManagementPage,
   CourseStructure,
   Page,
   UploadResult,
@@ -86,7 +91,6 @@ ts_rs::export! {
   EmailTemplateNew,
   EmailTemplateUpdate,
   NewPage,
-  PageUpdate,
   NewSubmission,
   NewCourse,
   CourseUpdate,
@@ -130,8 +134,6 @@ ts_rs::export! {
   // returned from the API as serde_json::Value
   ExerciseTask,
   ExerciseWithExerciseTasks,
-  NormalizedCmsExercise,
-  NormalizedCmsExerciseTask,
   UserCourseSettings,
   PlaygroundExample,PlaygroundExampleData,
   CoursePageWithUserData

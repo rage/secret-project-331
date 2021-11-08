@@ -328,6 +328,27 @@ pub async fn get_course_material_exercise(
     })
 }
 
+pub async fn delete_exercises_by_page_id(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+) -> ModelResult<Vec<Uuid>> {
+    let deleted_ids = sqlx::query!(
+        "
+UPDATE exercises
+SET deleted_at = now()
+WHERE page_id = $1
+RETURNING id;
+        ",
+        page_id
+    )
+    .fetch_all(conn)
+    .await?
+    .into_iter()
+    .map(|x| x.id)
+    .collect();
+    Ok(deleted_ids)
+}
+
 #[cfg(test)]
 mod test {
     use serde_json::{Map, Value};

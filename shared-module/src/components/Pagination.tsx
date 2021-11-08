@@ -6,6 +6,8 @@ import {
 } from "@material-ui/icons"
 import React from "react"
 
+import { headingFont } from "../styles"
+
 interface PaginationProps {
   count: number
   page: number
@@ -22,7 +24,7 @@ const Circle = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  font-family: Josefin Sans, sans-serif;
+  font-family: ${headingFont}
   &:hover {
     cursor: pointer;
   }
@@ -32,7 +34,7 @@ const SelectedCircle = styled.div`
   width: 47px;
   height: 47px;
   border-radius: 50%;
-  font-family: Josefin Sans, sans-serif;
+  font-family: ${headingFont}
   font-size: 20px;
 
   display: flex;

@@ -102,12 +102,11 @@ async fn get_organization_active_courses_count(
     pool: web::Data<PgPool>,
 ) -> ControllerResult<Json<ActiveCourseCount>> {
     let mut conn = pool.acquire().await?;
-    let result =
-        crate::models::course_instances::get_active_course_instances_for_organization_count(
-            &mut conn,
-            *request_organization_id,
-        )
-        .await?;
+    let result = crate::models::course_instances::get_active_courses_for_organization_count(
+        &mut conn,
+        *request_organization_id,
+    )
+    .await?;
     Ok(Json(result))
 }
 

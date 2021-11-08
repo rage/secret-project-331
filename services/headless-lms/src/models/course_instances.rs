@@ -181,19 +181,20 @@ WHERE deleted_at IS NULL;
     Ok(course_instances)
 }
 
-pub async fn get_active_course_instances_for_organization_count(
+pub async fn get_active_courses_for_organization_count(
     conn: &mut PgConnection,
     organization_id: Uuid,
 ) -> ModelResult<ActiveCourseCount> {
     let result = sqlx::query!(
         r#"
 SELECT
-    COUNT(*) as count
+    COUNT(DISTINCT c.id) as count
 FROM courses as c
     LEFT JOIN course_instances as ci on c.id = ci.course_id
 WHERE
     c.organization_id = $1 AND
-    ci.starts_at < NOW() AND ci.ends_at > NOW();
+    ci.starts_at < NOW() AND ci.ends_at > NOW() AND
+    c.deleted_at IS NULL AND ci.deleted_at IS NULL;
         "#,
         organization_id
     )
@@ -227,7 +228,8 @@ FROM courses as c
     LEFT JOIN course_instances as ci on c.id = ci.course_id
 WHERE
     c.organization_id = $1 AND
-    ci.starts_at < NOW() AND ci.ends_at > NOW()
+    ci.starts_at < NOW() AND ci.ends_at > NOW() AND
+    c.deleted_at IS NULL AND ci.deleted_at IS NULL
     LIMIT $2 OFFSET $3;
         "#,
         organization_id,

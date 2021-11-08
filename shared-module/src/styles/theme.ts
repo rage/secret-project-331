@@ -94,11 +94,11 @@ export const theme = {
   buttonSizes: {
     medium: {
       fontSize: baseTheme.fontSizes[2],
-      padding: `9px 18px`,
+      padding: `0.5625rem 1.125rem`,
     },
     large: {
       fontSize: baseTheme.fontSizes[4],
-      padding: `16px 34px`,
+      padding: `1rem 2.125rem`,
     },
   },
 }

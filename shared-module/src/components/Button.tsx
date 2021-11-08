@@ -1,38 +1,33 @@
+/* eslint-disable i18next/no-literal-string */
 import styled from "@emotion/styled"
 import React from "react"
-import { border, color, space } from "styled-system"
 
 import { baseTheme, fontWeights, headingFont, theme, typography } from "../styles"
+import { respondToOrLarger } from "../styles/respond"
 
-export interface ButtonExtraProps {
-  variant: "primary" | "secondary" | "tertiary"
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant: "primary" | "secondary" | "tertiary" | "outlined"
   size: "medium" | "large"
   transform?: "normal" | "uppercase"
   children?: React.ReactNode
 }
 
-export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & ButtonExtraProps
-
-// eslint-disable-next-line i18next/no-literal-string
-const BaseButton = styled.button`
+const BaseButtonStyles = (props: ButtonProps) => `
   position: relative;
   display: inline-block;
-  padding: ${({ size }: ButtonProps) =>
-    size == "medium" ? theme.buttonSizes.medium : theme.buttonSizes.large};
+  padding: ${theme.buttonSizes[props.size].padding};
   font-family: ${headingFont};
   font-weight: ${fontWeights.bold};
   line-height: 18px;
-  white-space: nowrap;
   vertical-align: baseline;
   cursor: pointer;
   user-select: none;
   text-decoration: none;
   text-align: center;
   justify-content: center;
-  text-transform: ${({ transform }: ButtonProps) =>
-    // eslint-disable-next-line i18next/no-literal-string
-    transform == "normal" ? "capitalize" : "uppercase"};
-  font-size: ${({ transform }: ButtonProps) => (transform == "normal" ? "18px" : "14px")};
+  word-break: break-word;
+  text-transform: ${props.transform === "normal" ? "capitalize" : "uppercase"};
+  font-size: ${props.transform === "normal" ? "1.125rem" : "0.875rem"};
   letter-spacing: 0.02em;
   transition: all 150ms linear;
   border: 2.5px solid transparent;
@@ -51,13 +46,15 @@ const BaseButton = styled.button`
     background-color: ${baseTheme.colors.neutral[500]};
     border-color: ${baseTheme.colors.neutral[500]};
   }
-  ${border}
-  ${color}
-  ${space}
+  ${respondToOrLarger.xs} {
+    word-break: unset;
+  }
+  ${respondToOrLarger.sm} {
+    white-space: nowrap;
+  }
 `
 
-// eslint-disable-next-line i18next/no-literal-string
-const PrimaryButton = styled(BaseButton)`
+export const PrimaryButtonStyles = `
   color: ${baseTheme.colors.neutral[900]};
   background-color: ${theme.primary.bg};
   border-color: ${theme.primary.hoverBorder};
@@ -81,8 +78,7 @@ const PrimaryButton = styled(BaseButton)`
   }
 `
 
-// eslint-disable-next-line i18next/no-literal-string
-const SecondaryButton = styled(BaseButton)`
+export const SecondaryButtonStyles = `
   color: ${theme.secondary.text};
   border-color: ${theme.secondary.hoverBorder};
   border: 1.5px solid ${theme.secondary.text};
@@ -106,8 +102,7 @@ const SecondaryButton = styled(BaseButton)`
   }
 `
 
-// eslint-disable-next-line i18next/no-literal-string
-const TertiaryButton = styled(BaseButton)`
+const TertiaryButtonStyles = `
   font-size: ${typography.paragraph};
   color: ${theme.secondary.text};
   background-color: ${baseTheme.colors.grey[800]};
@@ -130,6 +125,21 @@ const TertiaryButton = styled(BaseButton)`
   }
 `
 
+const PrimaryButton = styled.button`
+  ${BaseButtonStyles}
+  ${PrimaryButtonStyles}
+`
+
+const SecondaryButton = styled.button`
+  ${BaseButtonStyles}
+  ${SecondaryButtonStyles}
+`
+
+const TertiaryButton = styled.button`
+  ${BaseButtonStyles}
+  ${TertiaryButtonStyles}
+`
+
 /* BUTTON VARIANT
 PrimaryButton
 SecondaryButton
@@ -138,18 +148,19 @@ TertiaryButton
 IconButton
 Link */
 
-const Button: React.FC<ButtonProps> = (props) => {
-  return (
-    <>
-      {props.variant === "primary" ? (
-        <PrimaryButton {...props}></PrimaryButton>
-      ) : props.variant === "secondary" ? (
-        <SecondaryButton {...props}></SecondaryButton>
-      ) : (
-        <TertiaryButton {...props} />
-      )}
-    </>
-  )
+const Button: React.FC<ButtonProps> = (props: ButtonProps) => {
+  switch (props.variant) {
+    case "primary":
+      return <PrimaryButton {...props} />
+    case "secondary":
+      return <SecondaryButton {...props} />
+    case "tertiary":
+      return <TertiaryButton {...props} />
+    case "outlined":
+      return <SecondaryButton {...props} />
+    default:
+      return <PrimaryButton {...props} />
+  }
 }
 
 export default Button

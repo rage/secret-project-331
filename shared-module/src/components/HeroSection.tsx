@@ -1,7 +1,6 @@
 import styled from "@emotion/styled"
 import React from "react"
 
-/* import { border, color, space } from "styled-system" */
 import { typography } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
 

@@ -30,7 +30,7 @@ interface OrganizationPageProps {
   query: SimplifiedUrlQuery<"id">
 }
 
-const PAGE_LIMIT = 10
+const PAGE_LIMIT = 5
 
 const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
   const {
@@ -109,6 +109,11 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
     setNewCourseFormOpen(false)
   }
 
+  console.group("Courses")
+  console.log("Content: ", dataOrgActiveCourses)
+  console.log("Count:", dataOrgActiveCoursesCount)
+  console.groupEnd()
+
   return (
     // Removing frontPageUrl for some unsolved reason returns to organization front page rather than root
     <Layout frontPageUrl="/">
@@ -118,7 +123,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
           organization={dataOrg}
           onOrganizationUpdated={() => refetchOrg()}
         />
-        <h2>Running courses ({dataOrgActiveCourses.length} courses)</h2>
+        <h2>Running courses ({dataOrgActiveCoursesCount.count} courses)</h2>
         {dataOrgActiveCourses.length === 0 ? (
           <p> No active courses </p>
         ) : (
@@ -126,25 +131,24 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
             <div key={course.id}>
               <a href={`/courses/${course.slug}`}>{course.name}</a>
               {loginStateContext.signedIn && (
-                <>
-                  <Link
-                    href={{
-                      pathname: "/manage/courses/[id]",
-                      query: {
-                        id: course.id,
-                      },
-                    }}
-                  >
-                    Manage
-                  </Link>
-                </>
+                <Link
+                  passHref
+                  href={{
+                    pathname: "/manage/courses/[id]",
+                    query: {
+                      id: course.id,
+                    },
+                  }}
+                >
+                  <a href="replace"> Manage</a>
+                </Link>
               )}
             </div>
           ))
         )}
 
         <Pagination
-          count={dataOrgActiveCoursesCount.count}
+          count={Math.ceil(dataOrgActiveCoursesCount.count / PAGE_LIMIT)}
           page={page}
           onChange={(_, pageNumber) => {
             router.replace(

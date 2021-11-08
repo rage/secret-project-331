@@ -157,6 +157,10 @@ export interface ExerciseService {
   max_reprocessing_submissions_at_once: number
 }
 
+export interface ActiveCourseCount {
+  count: number
+}
+
 export interface ExerciseServiceNewOrUpdate {
   name: string
   slug: string

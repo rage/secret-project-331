@@ -34,7 +34,7 @@ const SelectedCircle = styled.div`
   width: 47px;
   height: 47px;
   border-radius: 50%;
-  font-family: ${headingFont}
+  font-family: ${headingFont};
   font-size: 20px;
 
   display: flex;
@@ -125,6 +125,12 @@ const Pagination: React.FC<PaginationProps> = ({ count, page, onChange }) => {
           components.push(<Circle onClick={handleChangeEvent(idx)}> {idx} </Circle>)
         }
       }
+
+      components.push(
+        <RightButton onClick={handleChangeEvent(Math.min(page + 1, count))}>
+          <ChevronRightIcon />
+        </RightButton>,
+      )
       return components
     }
 

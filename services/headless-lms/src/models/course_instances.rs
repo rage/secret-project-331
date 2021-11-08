@@ -1,5 +1,3 @@
-use crate::utils::pagination::Pagination;
-
 use super::ModelResult;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -34,11 +32,6 @@ pub struct CourseInstance {
     pub name: Option<String>,
     pub description: Option<String>,
     pub variant_status: VariantStatus,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
-pub struct ActiveCourseCount {
-    pub count: i64,
 }
 
 pub async fn insert(
@@ -175,66 +168,6 @@ SELECT
 FROM course_instances
 WHERE deleted_at IS NULL;
 "#
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(course_instances)
-}
-
-pub async fn get_active_courses_for_organization_count(
-    conn: &mut PgConnection,
-    organization_id: Uuid,
-) -> ModelResult<ActiveCourseCount> {
-    let result = sqlx::query!(
-        r#"
-SELECT
-    COUNT(DISTINCT c.id) as count
-FROM courses as c
-    LEFT JOIN course_instances as ci on c.id = ci.course_id
-WHERE
-    c.organization_id = $1 AND
-    ci.starts_at < NOW() AND ci.ends_at > NOW() AND
-    c.deleted_at IS NULL AND ci.deleted_at IS NULL;
-        "#,
-        organization_id
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(ActiveCourseCount {
-        count: result.count.unwrap_or_default(),
-    })
-}
-
-pub async fn get_active_course_instances_for_organization(
-    conn: &mut PgConnection,
-    organization_id: Uuid,
-    pagination: &Pagination,
-) -> ModelResult<Vec<CourseInstance>> {
-    let course_instances = sqlx::query_as!(
-        CourseInstance,
-        r#"
-SELECT
-    ci.id,
-    ci.created_at,
-    ci.updated_at,
-    ci.deleted_at,
-    ci.course_id,
-    ci.starts_at,
-    ci.ends_at,
-    ci.name,
-    ci.description,
-    ci.variant_status as "variant_status: VariantStatus"
-FROM courses as c
-    LEFT JOIN course_instances as ci on c.id = ci.course_id
-WHERE
-    c.organization_id = $1 AND
-    ci.starts_at < NOW() AND ci.ends_at > NOW() AND
-    c.deleted_at IS NULL AND ci.deleted_at IS NULL
-    LIMIT $2 OFFSET $3;
-        "#,
-        organization_id,
-        pagination.limit(),
-        pagination.offset()
     )
     .fetch_all(conn)
     .await?;

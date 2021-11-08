@@ -7,8 +7,7 @@ use crate::{
     },
     domain::authorization::{authorize, Action, AuthUser, Resource},
     models::{
-        course_instances::{ActiveCourseCount, CourseInstance},
-        courses::Course,
+        courses::{ActiveCourseCount, Course},
         organizations::Organization,
     },
     utils::{file_store::FileStore, pagination::Pagination},
@@ -84,16 +83,15 @@ async fn get_organization_active_courses(
     request_organization_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     pagination: web::Query<Pagination>,
-) -> ControllerResult<Json<Vec<CourseInstance>>> {
+) -> ControllerResult<Json<Vec<Course>>> {
     let mut conn = pool.acquire().await?;
-    let course_instances =
-        crate::models::course_instances::get_active_course_instances_for_organization(
-            &mut conn,
-            *request_organization_id,
-            &pagination,
-        )
-        .await?;
-    Ok(Json(course_instances))
+    let courses = crate::models::courses::get_active_courses_for_organization(
+        &mut conn,
+        *request_organization_id,
+        &pagination,
+    )
+    .await?;
+    Ok(Json(courses))
 }
 
 #[instrument(skip(pool))]
@@ -102,7 +100,7 @@ async fn get_organization_active_courses_count(
     pool: web::Data<PgPool>,
 ) -> ControllerResult<Json<ActiveCourseCount>> {
     let mut conn = pool.acquire().await?;
-    let result = crate::models::course_instances::get_active_courses_for_organization_count(
+    let result = crate::models::courses::get_active_courses_for_organization_count(
         &mut conn,
         *request_organization_id,
     )

@@ -6,6 +6,7 @@
  * WARNING: Do not manually change this file.
  */
 import {
+  ActiveCourseCount,
   ActivityProgress,
   BlockProposal,
   BlockProposalAction,
@@ -302,6 +303,13 @@ export function isExerciseService(obj: any, _argumentName?: string): obj is Exer
     typeof obj.public_url === "string" &&
     (obj.internal_url === null || typeof obj.internal_url === "string") &&
     typeof obj.max_reprocessing_submissions_at_once === "number"
+  )
+}
+
+export function isActiveCourseCount(obj: any, _argumentName?: string): obj is ActiveCourseCount {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.count === "number"
   )
 }
 

@@ -2094,74 +2094,6 @@
       "nullable": [false]
     }
   },
-  "3713db41cccc7b36466b4bf8e3dc857cf0dde1cf04021c209378edd0914bdf81": {
-    "query": "\nSELECT\n    ci.id,\n    ci.created_at,\n    ci.updated_at,\n    ci.deleted_at,\n    ci.course_id,\n    ci.starts_at,\n    ci.ends_at,\n    ci.name,\n    ci.description,\n    ci.variant_status as \"variant_status: VariantStatus\"\nFROM courses as c\n    LEFT JOIN course_instances as ci on c.id = ci.course_id\nWHERE\n    c.organization_id = $1 AND\n    ci.starts_at < NOW() AND ci.ends_at > NOW()\n    LIMIT $2 OFFSET $3;\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "starts_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 6,
-          "name": "ends_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 7,
-          "name": "name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 8,
-          "name": "description",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 9,
-          "name": "variant_status: VariantStatus",
-          "type_info": {
-            "Custom": {
-              "name": "variant_status",
-              "kind": {
-                "Enum": ["draft", "upcoming", "active", "ended"]
-              }
-            }
-          }
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Int8", "Int8"]
-      },
-      "nullable": [false, false, false, true, false, true, true, true, true, false]
-    }
-  },
   "375b467ba026680d07ba6fa844de91afd942e86b2715431e41b6788df0d2b3c0": {
     "query": "SELECT * FROM users WHERE upstream_id = $1",
     "describe": {
@@ -3244,22 +3176,6 @@
         "Left": ["Int4", "Uuid", "Int4"]
       },
       "nullable": [false, false, false, false, true, true]
-    }
-  },
-  "62ba035ccc9f17309cb9e2acdd147532fff09bd22881ab163e1e5f5c06ec67c7": {
-    "query": "\nSELECT\n    COUNT(*) as count\nFROM courses as c\n    LEFT JOIN course_instances as ci on c.id = ci.course_id\nWHERE\n    c.organization_id = $1 AND\n    ci.starts_at < NOW() AND ci.ends_at > NOW();\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "count",
-          "type_info": "Int8"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [null]
     }
   },
   "62e9c0363c17960a9b5e5444706dbf0c8ebce53cebc5836a8f6bd62c43fc423b": {
@@ -4421,6 +4337,22 @@
       "nullable": [false, false, false, true, false, false]
     }
   },
+  "8aa2929ece3e236aa14649c45da2a6d7fe15787fda833ad97628c86b001fb790": {
+    "query": "\nSELECT\n    COUNT(DISTINCT c.id) as count\nFROM courses as c\n    LEFT JOIN course_instances as ci on c.id = ci.course_id\nWHERE\n    c.organization_id = $1 AND\n    ci.starts_at < NOW() AND ci.ends_at > NOW() AND\n    c.deleted_at IS NULL AND ci.deleted_at IS NULL;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "count",
+          "type_info": "Int8"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [null]
+    }
+  },
   "8c711ea858481edd56e9dc186e9c256e5109f373b8a8c602cecba26cf75740c7": {
     "query": "\nINSERT INTO users (id, email)\nVALUES ($1, $2)\nRETURNING id\n",
     "describe": {
@@ -5355,6 +5287,72 @@
           "Uuid",
           "Uuid"
         ]
+      },
+      "nullable": [false, false, false, false, false, true, false, null, false, true, false]
+    }
+  },
+  "a8dffcd4419136c10a6e950c0675e6a3196e57d3dd56d80551298a757678f90d": {
+    "query": "\nSELECT\n    DISTINCT(c.id),\n    c.name,\n    c.created_at,\n    c.updated_at,\n    c.organization_id,\n    c.deleted_at,\n    c.slug,\n    c.content_search_language::text,\n    c.language_code,\n    c.copied_from,\n    c.course_language_group_id\nFROM courses as c\n    LEFT JOIN course_instances as ci on c.id = ci.course_id\nWHERE\n    c.organization_id = $1 AND\n    ci.starts_at < NOW() AND ci.ends_at > NOW() AND\n    c.deleted_at IS NULL AND ci.deleted_at IS NULL\n    LIMIT $2 OFFSET $3;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "organization_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "slug",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "content_search_language",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 8,
+          "name": "language_code",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 9,
+          "name": "copied_from",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 10,
+          "name": "course_language_group_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Int8", "Int8"]
       },
       "nullable": [false, false, false, false, false, true, false, null, false, true, false]
     }

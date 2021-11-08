@@ -60,7 +60,6 @@
     "recoil-devtools-dock": "^0.4.0",
     "recoil-devtools-log-monitor": "^0.4.0",
     "recoil-devtools-logger": "^0.4.0",
-    "styled-system": "^5.1.5",
     "use-debounce": "^7.0.0",
     "uuid": "^8.3.2"
   },
@@ -69,7 +68,6 @@
     "@types/node": "^16.11.6",
     "@types/react": "^17.0.33",
     "@types/react-dom": "^17.0.10",
-    "@types/styled-system": "^5.1.13",
     "@types/uuid": "^8.3.1",
     "@types/wordpress__block-editor": "^6.0.4",
     "@types/wordpress__block-library": "^2.6.1",

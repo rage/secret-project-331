@@ -28,7 +28,10 @@ use chrono::{DateTime, Utc};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use sqlx::{Acquire, FromRow, PgConnection};
-use std::{collections::HashMap, time::Duration};
+use std::{
+    collections::{hash_map, HashMap},
+    time::Duration,
+};
 use ts_rs::TS;
 use url::Url;
 use uuid::Uuid;
@@ -498,6 +501,48 @@ pub struct CmsPageUpdate {
     pub chapter_id: Option<Uuid>,
 }
 
+impl CmsPageUpdate {
+    /// Checks that each exercise has at least one slide and each slide has at least one task.
+    pub fn validate_exercise_data(&self) -> ModelResult<()> {
+        let mut exercise_ids: HashMap<Uuid, bool> =
+            self.exercises.iter().map(|x| (x.id, false)).collect();
+        let mut slide_ids = self
+            .exercise_slides
+            .iter()
+            .map(|x| {
+                if let hash_map::Entry::Occupied(mut e) = exercise_ids.entry(x.exercise_id) {
+                    e.insert(true);
+                    Ok((x.id, false))
+                } else {
+                    Err(ModelError::PreconditionFailed(
+                        "Exercide ids in slides don't match.".to_string(),
+                    ))
+                }
+            })
+            .collect::<ModelResult<HashMap<Uuid, bool>>>()?;
+        if exercise_ids.values().any(|x| !x) {
+            return Err(ModelError::PreconditionFailed(
+                "All exercises must have at least one slide.".to_string(),
+            ));
+        }
+        for task in self.exercise_tasks.iter() {
+            if let hash_map::Entry::Occupied(mut e) = slide_ids.entry(task.exercise_slide_id) {
+                e.insert(true);
+            } else {
+                return Err(ModelError::PreconditionFailed(
+                    "Exercide slide ids in tasks don't match.".to_string(),
+                ));
+            }
+        }
+        if slide_ids.values().any(|x| !x) {
+            return Err(ModelError::PreconditionFailed(
+                "All exercise slides must have at least one task.".to_string(),
+            ));
+        }
+        Ok(())
+    }
+}
+
 pub async fn update_page(
     conn: &mut PgConnection,
     page_id: Uuid,
@@ -505,6 +550,8 @@ pub async fn update_page(
     author: Uuid,
     retain_exercise_ids: bool,
 ) -> ModelResult<ContentManagementPage> {
+    page_update.validate_exercise_data()?;
+
     let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(page_update.content)?;
     if page_update.chapter_id.is_none()
         && contains_blocks_not_allowed_in_top_level_pages(&parsed_content)
@@ -515,8 +562,6 @@ pub async fn update_page(
     }
 
     let mut tx = conn.begin().await?;
-
-    // TODO: Make sure that the content maches provided exercises.
 
     // Updating page
     let page = sqlx::query_as!(
@@ -1672,4 +1717,74 @@ WHERE id = $2
     .await?;
     tx.commit().await?;
     Ok(history_id)
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[tokio::test]
+    async fn page_update_validation_works() {
+        let e1 = CmsPageExercise {
+            id: Uuid::parse_str("0c9dca80-5904-4d35-a945-8c080446f667").unwrap(),
+            name: "".to_string(),
+            order_number: 1,
+        };
+        let e1_s1 = CmsPageExerciseSlide {
+            id: Uuid::parse_str("43380e81-6ff2-4f46-9f38-af0ac6a8421a").unwrap(),
+            exercise_id: e1.id,
+            order_number: 1,
+        };
+        let e1_s1_t1 = CmsPageExerciseTask {
+            id: Uuid::parse_str("6fb19c22-bca0-42cf-8be5-4141e21cc7a9").unwrap(),
+            exercise_slide_id: e1_s1.id,
+            assignment: serde_json::json!([]),
+            exercise_type: "exercise".to_string(),
+            private_spec: None,
+        };
+
+        // Works without exercises
+        assert!(create_update(vec![], vec![], vec![])
+            .validate_exercise_data()
+            .is_ok());
+
+        // Works with single valid exercise
+        assert!(create_update(
+            vec![e1.clone()],
+            vec![e1_s1.clone()],
+            vec![e1_s1_t1.clone()],
+        )
+        .validate_exercise_data()
+        .is_ok());
+
+        // Fails with missing slide
+        assert!(
+            create_update(vec![e1.clone()], vec![], vec![e1_s1_t1.clone()],)
+                .validate_exercise_data()
+                .is_err()
+        );
+
+        // Fails with missing task
+        assert!(
+            create_update(vec![e1.clone()], vec![e1_s1.clone()], vec![],)
+                .validate_exercise_data()
+                .is_err()
+        );
+    }
+
+    fn create_update(
+        exercises: Vec<CmsPageExercise>,
+        exercise_slides: Vec<CmsPageExerciseSlide>,
+        exercise_tasks: Vec<CmsPageExerciseTask>,
+    ) -> CmsPageUpdate {
+        CmsPageUpdate {
+            content: serde_json::json!([]),
+            exercises,
+            exercise_slides,
+            exercise_tasks,
+            url_path: "".to_string(),
+            title: "".to_string(),
+            chapter_id: None,
+        }
+    }
 }

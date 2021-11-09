@@ -12,6 +12,8 @@ spec:
       app: service-info-fetcher
   template:
     metadata:
+      annotations:
+        linkerd.io/inject: enabled
       labels:
         app: service-info-fetcher
     spec:

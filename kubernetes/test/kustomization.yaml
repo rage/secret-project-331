@@ -1,3 +1,7 @@
+# The test environment is supposed to match the production environment as much as possible.
+# The only difference is that it's supposed to run on local machines and on continous integration servers.
+# Thats why we add PostgreSQL and ease the resource limitations a bit.
+
 resources:
   - ../base
   # Test mode uses the same db server as dev so that the dev db is availabe for type checking while the test environment is running. The test environment uses a different databases ('headless_lms_test') in the same postgres.

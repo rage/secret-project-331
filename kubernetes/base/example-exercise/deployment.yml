@@ -26,6 +26,8 @@ spec:
       app: example-exercise
   template:
     metadata:
+      annotations:
+        linkerd.io/inject: enabled
       labels:
         app: example-exercise
     spec:

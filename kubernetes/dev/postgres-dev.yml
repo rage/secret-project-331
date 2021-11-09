@@ -8,8 +8,10 @@ spec:
   selector:
     matchLabels:
       app: postgres
-  template:
+    template:
     metadata:
+      annotations:
+        linkerd.io/inject: enabled
       labels:
         app: postgres
     spec:

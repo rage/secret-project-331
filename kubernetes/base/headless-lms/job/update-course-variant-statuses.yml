@@ -10,6 +10,9 @@ spec:
     spec:
       activeDeadlineSeconds: 1800
       template:
+        metadata:
+          annotations:
+            linkerd.io/inject: enabled
         spec:
           restartPolicy: OnFailure
           containers:

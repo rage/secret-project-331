@@ -12,6 +12,8 @@ spec:
       app: regrader
   template:
     metadata:
+      annotations:
+        linkerd.io/inject: enabled
       labels:
         app: regrader
     spec:

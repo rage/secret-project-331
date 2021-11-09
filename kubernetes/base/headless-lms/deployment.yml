@@ -26,6 +26,8 @@ spec:
       app: headless-lms
   template:
     metadata:
+      annotations:
+        linkerd.io/inject: enabled
       labels:
         app: headless-lms
     spec:
@@ -65,6 +67,8 @@ spec:
   backoffLimit: 10
   template:
     metadata:
+      annotations:
+        linkerd.io/inject: enabled
       labels:
         waitToBeReady: "false"
     spec:

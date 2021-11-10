@@ -1,3 +1,7 @@
+/* eslint-disable i18next/no-literal-string */
+
+// Gutenberg specific, don't use in other contexes
+
 const fontSizes: { [colorName: string]: string | undefined } = {
   small: "13px",
   normal: "16px",
@@ -8,7 +12,7 @@ const fontSizes: { [colorName: string]: string | undefined } = {
 
 const DEFAULT_FONT_SIZE = "16px"
 
-const FontSizeMapper = (fontName: string | undefined): string => {
+const fontSizeMapper = (fontName: string | undefined): string => {
   if (!fontName) {
     return DEFAULT_FONT_SIZE
   }
@@ -21,4 +25,4 @@ const FontSizeMapper = (fontName: string | undefined): string => {
   return fontSize
 }
 
-export default FontSizeMapper
+export default fontSizeMapper

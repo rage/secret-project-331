@@ -46,6 +46,7 @@ test("test", async ({ page, headless }) => {
   await page.waitForLoadState("networkidle")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "initial-page",
@@ -100,20 +101,19 @@ test("test", async ({ page, headless }) => {
   // Fill [placeholder="Exercise name"]
   await page.fill('[placeholder="Exercise name"]', "New exercise!")
 
-  // get current exercise editor before a save...
-  const currentEditor = await page.waitForSelector('iframe[src^="/example-exercise/editor"]')
-
   // Click text=Save
   await page.click("text=Save")
 
-  // ...and wait for it to get detached after a save, as the new editor loads in
-  await currentEditor.waitForElementState("hidden")
+  // Click [aria-label="Block: ExerciseTask"] div[role="button"]
+  await page.click('[aria-label="Block: ExerciseTask"] div[role="button"]')
 
   const frame = await waitForFunction(page, () =>
-    page
-      .frames()
-      .find((f) => f.url().startsWith("http://project-331.local/example-exercise/editor")),
+    page.frames().find((f) => {
+      return f.url().startsWith("http://project-331.local/example-exercise/editor")
+    }),
   )
+
+  await (await frame.frameElement()).scrollIntoViewIfNeeded()
 
   // Click [placeholder="Option text"]
   await frame.click('[placeholder="Option text"]')
@@ -131,7 +131,7 @@ test("test", async ({ page, headless }) => {
   // Click text=Home
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
-    page.click('[aria-label="Front page"]'),
+    page.click('[aria-label="Home page"]'),
   ])
 
   // Click text=University of Helsinki, Department of Computer Science
@@ -160,9 +160,21 @@ test("test", async ({ page, headless }) => {
     page.click("text=New title!(/chapter-1/page-1) history >> :nth-match(a, 2)"),
   ])
 
+  await page.waitForSelector("text=core/paragraph")
+
+  // Go back and navigate to the page again to workaround a race condition related to monaco editor fonts. This way the font used by monaco editor is already cached
+  await page.goBack()
+  await page.waitForSelector("text=Course overview for Introduction to history")
+
+  await Promise.all([
+    page.waitForNavigation(),
+    page.click("text=New title!(/chapter-1/page-1) history >> :nth-match(a, 2)"),
+  ])
+
   const stableElement = await page.waitForSelector("text=core/paragraph")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "history-view-p1",
@@ -180,6 +192,7 @@ test("test", async ({ page, headless }) => {
   const stableElement2 = await page.waitForSelector("text=core/paragraph")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "history-view-p4-before-compare",
@@ -212,6 +225,7 @@ test("test", async ({ page, headless }) => {
   await page.waitForSelector("text=Best exercise")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "history-view-p4-after-compare",
@@ -237,6 +251,7 @@ test("test", async ({ page, headless }) => {
   await page.waitForTimeout(100)
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "history-view-after-restore",
@@ -250,7 +265,7 @@ test("test", async ({ page, headless }) => {
   // Click text=Home
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
-    page.click('[aria-label="Front page"]'),
+    page.click('[aria-label="Home page"]'),
   ])
 
   // Click text=University of Helsinki, Department of Computer Science
@@ -279,6 +294,7 @@ test("test", async ({ page, headless }) => {
 
   await page.waitForLoadState("networkidle")
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "page-after-restore",

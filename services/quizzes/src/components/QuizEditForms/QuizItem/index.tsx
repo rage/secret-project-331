@@ -1,12 +1,14 @@
 import { faAngleDown, faAngleUp } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Button } from "@material-ui/core"
+import { TFunction } from "i18next"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
+import { NormalizedQuizItem } from "../../../../types/types"
 import { decreasedItemOrder, increasedItemOrder } from "../../../store/editor/items/itemAction"
-import { NormalizedQuizItem } from "../../../types/types"
 
 import CheckBoxContent from "./CheckBoxContent"
 import ClickableMultipleChoiceContent from "./ClickableMultipleChoiceContent"
@@ -31,6 +33,7 @@ interface QuizItemProps {
 }
 
 const QuizItem: React.FC<QuizItemProps> = ({ item }) => {
+  const { t } = useTranslation()
   const dispatch = useDispatch()
 
   return (
@@ -44,12 +47,12 @@ const QuizItem: React.FC<QuizItemProps> = ({ item }) => {
           <FontAwesomeIcon icon={faAngleDown} size="2x" />
         </Button>
       </TypeWrapper>
-      <QuizItemContainer>{contentBasedOnType(item.type, item)}</QuizItemContainer>
+      <QuizItemContainer>{contentBasedOnType(item.type, item, t)}</QuizItemContainer>
     </>
   )
 }
 
-const contentBasedOnType = (type: string, item: NormalizedQuizItem) => {
+const contentBasedOnType = (type: string, item: NormalizedQuizItem, t: TFunction) => {
   switch (type) {
     case "multiple-choice": {
       return <MultipleChoiceContent item={item} />
@@ -76,7 +79,7 @@ const contentBasedOnType = (type: string, item: NormalizedQuizItem) => {
       return <ClickableMultipleChoiceContent item={item} />
     }
     default: {
-      return <h1>Hi, I am new/unknown</h1>
+      return <div>{t("unsupported")}</div>
     }
   }
 }

@@ -2,6 +2,30 @@
   line-height: $editor-line-height;
   color: $gray-900;
 
+  // Image align right
+  .edit-post-visual-editor__post-title-wrapper > [data-align="right"],
+  .block-editor-block-list__layout.is-root-container > [data-align="right"] {
+    float: right;
+    margin-bottom: 0.5rem;
+  }
+
+  // Image align left
+  .edit-post-visual-editor__post-title-wrapper > [data-align="left"],
+  .block-editor-block-list__layout.is-root-container > [data-align="left"] {
+    float: left;
+    margin-bottom: 0.5rem;
+  }
+
+  :where(.wp-block)[data-align="left"] > * {
+    float: left;
+    margin-right: 1em;
+  }
+
+  :where(.wp-block)[data-align="right"] > * {
+    float: right;
+    margin-left: 1em;
+  }
+
   p {
     font-size: inherit;
     line-height: inherit;
@@ -10,26 +34,6 @@
   ul,
   ol {
     margin: 0;
-    padding: 0;
-  }
-
-  ul li,
-  ol li {
-    // This overrides a bottom margin globally applied to list items in wp-admin.
-    margin-bottom: initial;
-  }
-
-  ul {
-    list-style-type: disc;
-  }
-
-  ol {
-    list-style-type: decimal;
-  }
-
-  ul ul,
-  ol ul {
-    list-style-type: circle;
   }
 
   img {
@@ -71,7 +75,7 @@
     max-width: 48rem;
     margin-left: auto;
     margin-right: auto;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
   }
 
   .wp-block[data-align="wide"],

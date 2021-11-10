@@ -1,15 +1,17 @@
+import { css } from "@emotion/css"
 import { useRouter } from "next/router"
 import { useContext, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import Layout from "../components/Layout"
 import LoginStateContext from "../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../shared-module/hooks/useQueryParameter"
 import { login } from "../shared-module/services/backend/auth"
-import { wideWidthCenteredComponentStyles } from "../shared-module/styles/componentStyles"
-import basePath from "../shared-module/utils/base-path"
+import { frontendWideWidthCenteredComponentStyles } from "../shared-module/styles/componentStyles"
 import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 
 const Login: React.FC = () => {
+  const { t } = useTranslation()
   const loginStateContext = useContext(LoginStateContext)
 
   const router = useRouter()
@@ -20,7 +22,7 @@ const Login: React.FC = () => {
 
   return (
     <Layout>
-      <div className={wideWidthCenteredComponentStyles}>
+      <div className={frontendWideWidthCenteredComponentStyles}>
         <form
           onSubmit={async (event) => {
             event.preventDefault()
@@ -35,9 +37,9 @@ const Login: React.FC = () => {
               console.log("failed to login: ", e)
               // @ts-ignore: null checked
               if (e?.response?.status === 401) {
-                setNotification("Incorrect email or password")
+                setNotification(t("incorrect-email-or-password"))
               } else {
-                setNotification("Failed to authenticate")
+                setNotification(t("failed-to-authenticate"))
               }
               setTimeout(() => {
                 setNotification(null)
@@ -49,23 +51,33 @@ const Login: React.FC = () => {
             const returnTo = validateRouteOrDefault(uncheckedReturnTo, "/")
             router.push(returnTo)
           }}
+          className={css`
+            input {
+              display: block;
+              margin-bottom: 1rem;
+            }
+          `}
         >
-          <h1>Log in</h1>
-          <p>Email</p>
-          <input
-            type="text"
-            name="email"
-            value={email}
-            onChange={(ev) => setEmail(ev.target.value)}
-          />
-          <p>Password</p>
-          <input
-            type="password"
-            name="password"
-            value={password}
-            onChange={(ev) => setPassword(ev.target.value)}
-          />
-          <button name="login">Submit</button>
+          <h1>{t("login")}</h1>
+          <label>
+            {t("label-email")}
+            <input
+              type="text"
+              name="email"
+              value={email}
+              onChange={(ev) => setEmail(ev.target.value)}
+            />
+          </label>
+          <label>
+            {t("label-password")}
+            <input
+              type="password"
+              name="password"
+              value={password}
+              onChange={(ev) => setPassword(ev.target.value)}
+            />
+          </label>
+          <button name="login">{t("button-text-submit")}</button>
         </form>
         {notification && <p>{notification}</p>}
       </div>

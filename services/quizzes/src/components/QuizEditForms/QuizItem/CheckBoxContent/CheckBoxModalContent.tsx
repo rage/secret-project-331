@@ -1,5 +1,6 @@
 import { Checkbox, TextField } from "@material-ui/core"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
@@ -45,6 +46,7 @@ interface CheckBoxModalProps {
 }
 
 export const CheckBoxModalContent: React.FC<CheckBoxModalProps> = ({ itemId }) => {
+  const { t } = useTranslation()
   const dispatch = useDispatch()
   const storeItem = useTypedSelector((state) => state.editor.items[itemId])
   return (
@@ -52,7 +54,7 @@ export const CheckBoxModalContent: React.FC<CheckBoxModalProps> = ({ itemId }) =
       <Container>
         <TitleField>
           <TextField
-            label="title"
+            label={t("title")}
             fullWidth
             multiline
             value={storeItem.title ?? ""}

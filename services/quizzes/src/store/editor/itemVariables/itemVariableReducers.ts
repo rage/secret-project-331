@@ -2,7 +2,7 @@ import produce from "immer"
 import _ from "lodash"
 import { createReducer } from "typesafe-actions"
 
-import { action, QuizItemVariables } from "../../../types/types"
+import { action, QuizItemVariables } from "../../../../types/types"
 import {
   createdNewItem,
   createdNewOption,

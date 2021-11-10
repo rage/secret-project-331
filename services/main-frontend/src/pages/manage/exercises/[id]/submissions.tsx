@@ -1,12 +1,12 @@
 import Link from "next/link"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import Layout from "../../../../components/Layout"
 import { fetchExerciseSubmissions } from "../../../../services/backend/exercises"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
-import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
-import basePath from "../../../../shared-module/utils/base-path"
+import { frontendWideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import {
   dontRenderUntilQueryParametersReady,
   SimplifiedUrlQuery,
@@ -18,6 +18,7 @@ interface SubmissionPageProps {
 }
 
 const SubmissionsPage: React.FC<SubmissionPageProps> = ({ query }) => {
+  const { t } = useTranslation()
   const { data, error, isLoading } = useQuery(`exercise-${query.id}-submissions`, () =>
     fetchExerciseSubmissions(query.id),
   )
@@ -27,21 +28,21 @@ const SubmissionsPage: React.FC<SubmissionPageProps> = ({ query }) => {
   }
 
   if (isLoading || !data) {
-    return <div>Loading...</div>
+    return <div>{t("loading-text")}</div>
   }
 
   return (
     <Layout navVariant="complex">
-      <div className={wideWidthCenteredComponentStyles}>
-        <h4>Submissions</h4>
+      <div className={frontendWideWidthCenteredComponentStyles}>
+        <h4>{t("header-submissions")}</h4>
         <table>
           <thead>
             <tr>
-              <th>Link</th>
-              <th>Submission time</th>
-              <th>Student</th>
-              <th>Course instance</th>
-              <th>Exercise task</th>
+              <th>{t("label-link")}</th>
+              <th>{t("label-submission-time")}</th>
+              <th>{t("label-student")}</th>
+              <th>{t("label-course-instance")}</th>
+              <th>{t("label-exercise-task")}</th>
             </tr>
           </thead>
           <tbody>
@@ -54,7 +55,7 @@ const SubmissionsPage: React.FC<SubmissionPageProps> = ({ query }) => {
                       query: { id: x.id },
                     }}
                   >
-                    link
+                    {t("link")}
                   </Link>
                 </td>
                 <td>{x.created_at.toISOString()}</td>

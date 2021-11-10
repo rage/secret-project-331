@@ -1,17 +1,19 @@
 import { denormalize, normalize } from "normalizr"
 import React, { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import { v4 } from "uuid"
 
+import { Entities, Quiz } from "../../types/types"
 import StatelessEditor from "../components/StatelessEditor"
 import { normalizedQuiz } from "../schemas"
 import { CurrentStateMessage, HeightChangedMessage } from "../shared-module/iframe-protocol-types"
 import { isSetStateMessage } from "../shared-module/iframe-protocol-types.guard"
 import { initializedEditor } from "../store/editor/editorActions"
 import { StoreState, useTypedSelector } from "../store/store"
-import { Entities, Quiz } from "../types/types"
 
 const Editor: React.FC = () => {
+  const { t } = useTranslation()
   const [port, setPort] = useState<MessagePort | null>(null)
   const dispatch = useDispatch()
 
@@ -22,10 +24,12 @@ const Editor: React.FC = () => {
       return
     }
     const message: CurrentStateMessage = {
+      // eslint-disable-next-line i18next/no-literal-string
       message: "current-state",
       data: { private_spec: denormalizeData(state) },
       valid: true,
     }
+    // eslint-disable-next-line i18next/no-literal-string
     console.info("Sending current data", JSON.stringify(message))
     port.postMessage(message)
   }, [state, port])
@@ -37,22 +41,27 @@ const Editor: React.FC = () => {
       }
       const port = message.ports[0]
       if (port) {
-        console.log("Frame received a port:", port)
+        // eslint-disable-next-line i18next/no-literal-string
+        console.info("Frame received a port:", port)
         setPort(port)
         port.onmessage = (message: WindowEventMap["message"]) => {
-          console.log("Frame received a message from port", JSON.stringify(message.data))
+          // eslint-disable-next-line i18next/no-literal-string
+          console.info("Frame received a message from port", JSON.stringify(message.data))
           const data = message.data
           if (isSetStateMessage(data)) {
-            console.log("Frame: setting state from message")
+            // eslint-disable-next-line i18next/no-literal-string
+            console.info("Frame: setting state from message")
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             dispatch(initializedEditor(normalizeData(data.data as any), data as any))
           } else {
+            // eslint-disable-next-line i18next/no-literal-string
             console.error("Frame received an unknown message from message port")
           }
         }
       }
     }
-    console.log("frame adding event listener")
+    // eslint-disable-next-line i18next/no-literal-string
+    console.info("frame adding event listener")
     addEventListener("message", handler)
     // target origin is *, beacause this is a sandboxed iframe without the
     // allow-same-origin permission
@@ -60,23 +69,25 @@ const Editor: React.FC = () => {
 
     // cleanup function
     return () => {
-      console.log("removing event listener")
+      // eslint-disable-next-line i18next/no-literal-string
+      console.info("removing event listener")
       removeEventListener("message", handler)
     }
   })
 
   if (!state.editor.quizId) {
-    return <>Waiting for content...</>
+    return <>{t("waiting-for-content")}</>
   }
 
   if (!port) {
-    return <>Waiting for port...</>
+    return <>{t("waiting-for-port")}</>
   }
 
   return <StatelessEditor onHeightChange={onHeightChange} port={port} />
 }
 
 function onHeightChange(newHeight: number, port: MessagePort) {
+  // eslint-disable-next-line i18next/no-literal-string
   const message: HeightChangedMessage = { message: "height-changed", data: newHeight }
   port.postMessage(message)
 }
@@ -108,12 +119,13 @@ const emptyQuiz: Quiz = {
   id: v4(),
   autoConfirm: true,
   autoReject: false,
-  awardPointsEvenIfWrong: true,
+  awardPointsEvenIfWrong: false,
   body: "",
   courseId: v4(),
   createdAt: new Date(),
   deadline: new Date(),
   excludedFromScore: true,
+  // eslint-disable-next-line i18next/no-literal-string
   grantPointsPolicy: "grant_whenever_possible",
   items: [],
   part: 0,

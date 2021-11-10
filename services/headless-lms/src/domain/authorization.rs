@@ -37,7 +37,6 @@ impl AuthUser {
 impl FromRequest for AuthUser {
     type Error = ControllerError;
     type Future = Ready<Result<Self, Self::Error>>;
-    type Config = ();
 
     fn from_request(req: &HttpRequest, _payload: &mut Payload) -> Self::Future {
         let session = req.get_session();

@@ -3,6 +3,7 @@ import { Dialog } from "@material-ui/core"
 import Link from "next/link"
 import router from "next/router"
 import React, { useContext, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import Layout from "../../components/Layout"
@@ -20,7 +21,7 @@ import Button from "../../shared-module/components/Button"
 import DebugModal from "../../shared-module/components/DebugModal"
 import Pagination from "../../shared-module/components/Pagination"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
-import { wideWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
+import { frontendWideWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
@@ -60,6 +61,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
     fetchOrganizationActiveCoursesCount(query.id),
   )
 
+  const { t } = useTranslation()
   const {
     isLoading: isLoadingOrg,
     error: errorOrg,
@@ -88,7 +90,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
   }
 
   if (isLoadingOrgCourses || !dataOrgCourses || isLoadingOrg || !dataOrg) {
-    return <>Loading...</>
+    return <>{t("loading-text")}</>
   }
 
   if (
@@ -98,7 +100,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
     !dataOrgActiveCoursesCount ||
     isLoadingActiveCoursesCount
   ) {
-    return <>Loading active courses...</>
+    return <>{t("loading-text")}</>
   }
 
   const handleSubmitNewCourse = async (newCourse: NewCourse) => {
@@ -109,43 +111,37 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
     setNewCourseFormOpen(false)
   }
 
-  console.group("Courses")
-  console.log("Content: ", dataOrgActiveCourses)
-  console.log("Count:", dataOrgActiveCoursesCount)
-  console.groupEnd()
-
   return (
     // Removing frontPageUrl for some unsolved reason returns to organization front page rather than root
     <Layout frontPageUrl="/">
-      <div className={wideWidthCenteredComponentStyles}>
-        <h1>Organization courses</h1>
+      <div className={frontendWideWidthCenteredComponentStyles}>
+        <h1>{t("title-organization-courses")}</h1>
         <OrganizationImageWidget
           organization={dataOrg}
           onOrganizationUpdated={() => refetchOrg()}
         />
-        <h2>Running courses ({dataOrgActiveCoursesCount.count} courses)</h2>
-        {dataOrgActiveCourses.length === 0 ? (
-          <p> No active courses </p>
-        ) : (
-          dataOrgActiveCourses.map((course) => (
-            <div key={course.id}>
-              <a href={`/courses/${course.slug}`}>{course.name}</a>
-              {loginStateContext.signedIn && (
-                <Link
-                  passHref
-                  href={{
-                    pathname: "/manage/courses/[id]",
-                    query: {
-                      id: course.id,
-                    },
-                  }}
-                >
-                  <a href="replace"> Manage</a>
-                </Link>
-              )}
-            </div>
-          ))
-        )}
+        <h2>{t("active-courses", { courses: dataOrgActiveCoursesCount.count })}</h2>
+        {dataOrgActiveCourses.length === 0
+          ? t("no-active-courses")
+          : dataOrgActiveCourses.map((course) => (
+              <div key={course.id}>
+                <a href={`/courses/${course.slug}`}>{course.name}</a>
+                {loginStateContext.signedIn && (
+                  <>
+                    <Link
+                      href={{
+                        pathname: "/manage/courses/[id]",
+                        query: {
+                          id: course.id,
+                        },
+                      }}
+                    >
+                      {t("link-manage")}
+                    </Link>
+                  </>
+                )}
+              </div>
+            ))}
 
         <Pagination
           count={Math.ceil(dataOrgActiveCoursesCount.count / PAGE_LIMIT)}
@@ -169,6 +165,16 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
             margin-bottom: 1rem;
           `}
         >
+          {loginStateContext.signedIn && (
+            <Button
+              size="medium"
+              variant="primary"
+              onClick={() => setNewCourseFormOpen(!newCourseFormOpen)}
+            >
+              {t("button-text-create")}
+            </Button>
+          )}
+
           <Dialog open={newCourseFormOpen} onClose={() => setNewCourseFormOpen(!newCourseFormOpen)}>
             <div
               className={css`
@@ -180,7 +186,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
                 variant="secondary"
                 onClick={() => setNewCourseFormOpen(!newCourseFormOpen)}
               >
-                Close
+                {t("button-text-close")}
               </Button>
               <NewCourseForm organizationId={query.id} onSubmitForm={handleSubmitNewCourse} />
             </div>
@@ -195,7 +201,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
               variant="primary"
               onClick={() => setNewCourseFormOpen(!newCourseFormOpen)}
             >
-              Add course
+              {t("button-text-new")}
             </Button>
             <br />
             <br />

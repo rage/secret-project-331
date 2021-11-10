@@ -3,6 +3,7 @@ import styled from "@emotion/styled"
 import { faUser as profileIcon } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React, { useContext } from "react"
+import { useTranslation } from "react-i18next"
 
 import LoginStateContext from "../contexts/LoginStateContext"
 import { logout } from "../services/backend/auth"
@@ -20,6 +21,7 @@ export interface LoginControlsProps {
 }
 
 const LoginControls: React.FC<LoginControlsProps> = ({ styles, returnToPath }) => {
+  const { t } = useTranslation()
   const loginStateContext = useContext(LoginStateContext)
 
   if (loginStateContext.isLoading) {
@@ -36,12 +38,12 @@ const LoginControls: React.FC<LoginControlsProps> = ({ styles, returnToPath }) =
       <li className={cx(styles)}>
         <Button size="medium" variant="primary">
           <StyledIcon icon={profileIcon} />
-          E-mail
+          {t("email")}
         </Button>
       </li>
       <li className={cx(styles)}>
         <Button size="medium" variant="primary" onClick={submitLogout}>
-          Logout
+          {t("log-out")}
         </Button>
       </li>
     </>
@@ -49,13 +51,13 @@ const LoginControls: React.FC<LoginControlsProps> = ({ styles, returnToPath }) =
     <>
       <li className={cx(styles)}>
         <Button size="medium" variant="primary">
-          Create a new Account
+          {t("create-new-account")}
         </Button>
       </li>
       <li className={cx(styles)}>
         <a href={returnToPath}>
           <Button size="medium" variant="primary">
-            Log in
+            {t("log-in")}
           </Button>
         </a>
       </li>

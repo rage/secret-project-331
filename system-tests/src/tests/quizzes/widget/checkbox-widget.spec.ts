@@ -11,11 +11,8 @@ test("widget, checkbox", async ({ page, headless }) => {
   // Go to http://project-331.local/playground
   await page.goto("http://project-331.local/playground")
 
-  // Click div[role="button"]:has-text("")
-  await page.click('div[role="button"]:has-text("​")')
-
   // Click text=Quizzes, example, checkbox
-  await page.click("text=Quizzes, example, checkbox")
+  await page.selectOption("select", { label: "Quizzes, example, checkbox" })
 
   const frame = await waitForFunction(page, () =>
     page.frames().find((f) => {
@@ -24,6 +21,7 @@ test("widget, checkbox", async ({ page, headless }) => {
   )
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-checkbox-initial",
     waitForThisToBeVisibleAndStable: `text="The s in https stands for secure."`,
@@ -37,6 +35,7 @@ test("widget, checkbox", async ({ page, headless }) => {
   await frame.check(':nth-match(input[type="checkbox"], 2)')
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-checkbox-both-checked",
     waitForThisToBeVisibleAndStable: `text="The s in https stands for secure."`,
@@ -47,6 +46,7 @@ test("widget, checkbox", async ({ page, headless }) => {
   await frame.uncheck(':nth-match(input[type="checkbox"], 2)')
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-checkbox-other-unchecked",
     waitForThisToBeVisibleAndStable: `text="The s in https stands for secure."`,

@@ -2,10 +2,13 @@ use anyhow::Result;
 use chrono::{TimeZone, Utc};
 use headless_lms_actix::attributes;
 use headless_lms_actix::models::chapters::NewChapter;
+use headless_lms_actix::models::course_instances::NewCourseInstance;
 use headless_lms_actix::models::courses::NewCourse;
 use headless_lms_actix::models::exercises::GradingProgress;
 use headless_lms_actix::models::feedback::{FeedbackBlock, NewFeedback};
-use headless_lms_actix::models::pages::{NewPage, PageUpdate};
+use headless_lms_actix::models::pages::{
+    CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate, NewPage,
+};
 use headless_lms_actix::models::playground_examples::PlaygroundExampleData;
 use headless_lms_actix::models::proposed_block_edits::NewProposedBlockEdit;
 use headless_lms_actix::models::proposed_page_edits::NewProposedPageEdits;
@@ -177,6 +180,17 @@ async fn main() -> Result<()> {
         student,
     )
     .await?;
+    seed_sample_course(
+        &mut conn,
+        uh_cs,
+        Uuid::parse_str("1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4")?,
+        "Advanced course instance management",
+        "advanced-course-instance-management",
+        admin,
+        teacher,
+        student,
+    )
+    .await?;
     roles::insert(
         &mut conn,
         language_teacher,
@@ -192,19 +206,31 @@ async fn main() -> Result<()> {
         slug: "introduction-to-computer-science".to_string(),
         organization_id: uh_cs,
         language_code: "en-US".to_string(),
+        teacher_in_charge_name: "admin".to_string(),
+        teacher_in_charge_email: "admin@example.com".to_string(),
     };
     let (cs_course, _cs_front_page, _cs_default_course_instance) = courses::insert_course(
         &mut conn,
         Uuid::parse_str("06a7ccbd-8958-4834-918f-ad7b24e583fd")?,
+        Uuid::parse_str("48399008-6523-43c5-8fd6-59ecc731a426")?,
         new_course,
         admin,
     )
     .await?;
     let _cs_course_instance = course_instances::insert(
         &mut conn,
-        cs_course.id,
-        Some("non-default instance"),
-        Some(VariantStatus::Upcoming),
+        NewCourseInstance {
+            id: Uuid::parse_str("49c618d3-926d-4287-9159-b3af1f86082d")?,
+            course_id: cs_course.id,
+            name: Some("non-default instance"),
+            description: Some("this is another non-default instance"),
+            variant_status: Some(VariantStatus::Upcoming),
+            support_email: Some("contact@example.com"),
+            teacher_in_charge_name: "admin",
+            teacher_in_charge_email: "admin@example.com",
+            opening_time: None,
+            closing_time: None,
+        },
     )
     .await?;
 
@@ -222,20 +248,32 @@ async fn main() -> Result<()> {
         slug: "introduction-to-statistics".to_string(),
         organization_id: uh_mathstat,
         language_code: "en-US".to_string(),
+        teacher_in_charge_name: "admin".to_string(),
+        teacher_in_charge_email: "admin@example.com".to_string(),
     };
     let (statistics_course, _statistics_front_page, _statistics_default_course_instance) =
         courses::insert_course(
             &mut conn,
             Uuid::parse_str("f307d05f-be34-4148-bb0c-21d6f7a35cdb")?,
+            Uuid::parse_str("8e4aeba5-1958-49bc-9b40-c9f0f0680911")?,
             new_course,
             admin,
         )
         .await?;
     let _statistics_course_instance = course_instances::insert(
         &mut conn,
-        statistics_course.id,
-        Some("non-default instance"),
-        Some(VariantStatus::Active),
+        NewCourseInstance {
+            id: Uuid::parse_str("c4a99a18-fd43-491a-9500-4673cb900be0")?,
+            course_id: statistics_course.id,
+            name: Some("non-default instance"),
+            description: Some("this appears to be a non-default instance"),
+            variant_status: Some(VariantStatus::Active),
+            support_email: Some("contact@example.com"),
+            teacher_in_charge_name: "admin",
+            teacher_in_charge_email: "admin@example.com",
+            opening_time: None,
+            closing_time: None,
+        },
     )
     .await?;
 
@@ -360,6 +398,86 @@ async fn main() -> Result<()> {
                         "minValue": null,
                         "minWords": null,
                         "multi": false,
+                        "order": 1,
+                        "quizId": "3ee47b02-ba13-46a7-957e-fd4f21fc290b",
+                        "title": "Hexadecimal color codes",
+                        "type": "multiple-choice",
+                        "options": [
+                            {
+                                "id": "8d17a216-9655-4558-adfb-cf66fb3e08ba",
+                                "body": "#00ff00",
+                                "order": 1,
+                                "title": null,
+                                "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                            },
+                            {
+                                "id": "11e0f3ac-fe21-4524-93e6-27efd4a92595",
+                                "body": "#0000ff",
+                                "order": 2,
+                                "title": null,
+                                "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                            },
+                            {
+                                "id": "e0033168-9f92-4d71-9c23-7698de9ea3b0",
+                                "body": "#663300",
+                                "order": 3,
+                                "title": null,
+                                "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                            },
+                            {
+                                "id": "2931180f-827f-468c-a616-a8df6e94f717",
+                                "body": "#ff0000",
+                                "order": 4,
+                                "title": null,
+                                "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                            },
+                            {
+                                "id": "9f5a09d7-c03f-44dd-85db-38065600c2c3",
+                                "body": "#ffffff",
+                                "order": 5,
+                                "title": null,
+                                "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                            },
+                        ]
+                    }
+                ]
+              }
+            ),
+        },
+    )
+    .await?;
+
+    playground_examples::insert_playground_example(
+        &mut conn,
+        PlaygroundExampleData {
+            name: "Quizzes example, multiple-choice, multi".to_string(),
+            url: "http://project-331.local/quizzes/exercise".to_string(),
+            width: 500,
+            data: serde_json::json!(
+              {
+                "id": "3ee47b02-ba13-46a7-957e-fd4f21fc290b",
+                "courseId": "5209f752-9db9-4daf-a7bc-64e21987b719",
+                "body": "Something about CSS and color codes",
+                "deadline": Utc.ymd(2121, 9, 1).and_hms(23, 59, 59).to_string(),
+                "open": Utc.ymd(2021, 9, 1).and_hms(23, 59, 59).to_string(),
+                "part": 1,
+                "section": 1,
+                "title": "Something about CSS and color codes",
+                "tries": 1,
+                "triesLimited": false,
+                "items": [
+                    {
+                        "id": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                        "body": "Which of the color codes represent the color **red**?",
+                        "direction": "row",
+                        "formatRegex": null,
+                        "maxLabel": null,
+                        "maxValue": null,
+                        "maxWords": null,
+                        "minLabel": null,
+                        "minValue": null,
+                        "minWords": null,
+                        "multi": true,
                         "order": 1,
                         "quizId": "3ee47b02-ba13-46a7-957e-fd4f21fc290b",
                         "title": "Hexadecimal color codes",
@@ -794,11 +912,33 @@ async fn seed_sample_course(
         organization_id: org,
         slug: course_slug.to_string(),
         language_code: "en-US".to_string(),
+        teacher_in_charge_name: "admin".to_string(),
+        teacher_in_charge_email: "admin@example.com".to_string(),
     };
-    let (course, _front_page, _default_instance) =
-        courses::insert_course(conn, course_id, new_course, admin).await?;
-    let course_instance =
-        course_instances::insert(conn, course.id, Some("non-default instance"), None).await?;
+    let (course, _front_page, _default_instance) = courses::insert_course(
+        conn,
+        course_id,
+        Uuid::new_v5(&course_id, b"7344f1c8-b7ce-4c7d-ade2-5f39997bd454"),
+        new_course,
+        admin,
+    )
+    .await?;
+    let course_instance = course_instances::insert(
+        conn,
+        NewCourseInstance {
+            id: Uuid::new_v5(&course_id, b"67f077b4-0562-47ae-a2b9-db2f08f168a9"),
+            course_id: course.id,
+            name: Some("non-default instance"),
+            description: Some("this is a non-default instance"),
+            variant_status: None,
+            support_email: Some("contact@example.com"),
+            teacher_in_charge_name: "admin",
+            teacher_in_charge_email: "admin@example.com",
+            opening_time: None,
+            closing_time: None,
+        },
+    )
+    .await?;
 
     // chapters and pages
 
@@ -867,119 +1007,150 @@ async fn seed_sample_course(
     let block_id_5 = Uuid::new_v5(&course_id, b"834648cc-72d9-42d1-bed7-cc6a2e186ae6");
     let block_id_6 = Uuid::new_v5(&course_id, b"223a4718-5287-49ff-853e-a67f4612c629");
     let exercise_c1p1_1 = Uuid::new_v5(&course_id, b"cfb950a7-db4e-49e4-8ec4-d7a32b691b08");
+    let exercise_slide_c1p1_1 = Uuid::new_v5(&course_id, b"182c4128-c4e4-40c9-bc5a-1265bfd3654c");
     let exercise_task_c1p1e1_1 = Uuid::new_v5(&course_id, b"f73dab3b-3549-422d-8377-ece1972e5576");
     let spec_c1p1e1t1_1 = Uuid::new_v5(&course_id, b"5f6b7850-5034-4cef-9dcf-e3fd4831067f");
     let spec_c1p1e1t1_2 = Uuid::new_v5(&course_id, b"c713bbfc-86bf-4877-bd39-53afaf4444b5");
     let spec_c1p1e1t1_3 = Uuid::new_v5(&course_id, b"4027d508-4fad-422e-bb7f-15c613a02cc6");
+    let (exercise_block_1, exercise_1, slide_1, task_1) = example_exercise(
+        exercise_c1p1_1,
+        exercise_slide_c1p1_1,
+        exercise_task_c1p1e1_1,
+        block_id_2,
+        block_id_3,
+        spec_c1p1e1t1_1,
+        spec_c1p1e1t1_2,
+        spec_c1p1e1t1_3,
+    );
     let page_c1_1 = create_page(
         conn,
         course.id,
-        "/chapter-1/page-1",
-        "Page One",
         admin,
         chapter_1.id,
-        &[
-            paragraph("Everything is a big topic.", block_id_1),
-            example_exercise(
-                exercise_c1p1_1,
-                exercise_task_c1p1e1_1,
-                block_id_2,
-                block_id_3,
-                Uuid::new_v5(&course_id, b"4e314af8-6857-4405-9ffe-4b8ce88e7376"),
-                spec_c1p1e1t1_1,
-                spec_c1p1e1t1_2,
-                spec_c1p1e1t1_3,
-            ),
-            paragraph("So big, that we need many paragraphs.", block_id_4),
-            paragraph("Like this.", block_id_5),
-            paragraph(&"At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat. ".repeat(4), block_id_6),
-        ],
+        CmsPageUpdate {
+            url_path: "/chapter-1/page-1".to_string(),
+            title: "Page One".to_string(),
+            chapter_id: Some(chapter_1.id),
+            exercises: vec![exercise_1],
+            exercise_slides: vec![slide_1],
+            exercise_tasks: vec![task_1],
+            content: serde_json::json!([
+                paragraph("Everything is a big topic.", block_id_1),
+                exercise_block_1,
+                paragraph("So big, that we need many paragraphs.", block_id_4),
+                paragraph("Like this.", block_id_5),
+                paragraph(&"At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat. ".repeat(4), block_id_6),
+            ]),
+        },
     )
     .await?;
 
     let exercise_c1p2_1 = Uuid::new_v5(&course_id, b"36e7f0c2-e663-4382-a503-081866cfe7d0");
+    // let exercise_slide_c1p2e1_1 = Uuid::new_v5(&course_id, b"0d85864d-a20d-4d65-9ace-9b4d377f38e8");
     let exercise_task_c1p2e1_1 = Uuid::new_v5(&course_id, b"e7fca192-2161-4ab8-8533-8c41dbaa2d69");
     let spec_c1p2e1t1_1 = Uuid::new_v5(&course_id, b"5898293f-2d41-43b1-9e44-92d487196ade");
-    let spec_c1p2e1t1_2 = Uuid::new_v5(&course_id, b"93d27d79-f9a1-44ab-839f-484accc67e32");
-    let spec_c1p2e1t1_3 = Uuid::new_v5(&course_id, b"81ec2df2-a5fd-4d7d-b85f-0c304e8d2030");
+    // let spec_c1p2e1t1_2 = Uuid::new_v5(&course_id, b"93d27d79-f9a1-44ab-839f-484accc67e32");
+    // let spec_c1p2e1t1_3 = Uuid::new_v5(&course_id, b"81ec2df2-a5fd-4d7d-b85f-0c304e8d2030");
     let exercise_c1p2_2 = Uuid::new_v5(&course_id, b"64d273eb-628f-4d43-a11a-e69ebe244942");
+    // let exercise_slide_c1p2e2_1 = Uuid::new_v5(&course_id, b"5441c7c0-60f1-4058-8223-7090c9cac7cb");
     let exercise_task_c1p2e2_1 = Uuid::new_v5(&course_id, b"114caac5-006a-4afb-9806-785154263c11");
     let spec_c1p2e2t1_1 = Uuid::new_v5(&course_id, b"28ea3062-bd6a-45f5-9844-03174e00a0a8");
-    let spec_c1p2e2t1_2 = Uuid::new_v5(&course_id, b"1982f566-2d6a-485d-acb0-65d8b8864c7e");
-    let spec_c1p2e2t1_3 = Uuid::new_v5(&course_id, b"01ec5329-2cf6-4d0f-92b2-d388360fb402");
-    let exercise_c1p2_3 = Uuid::new_v5(&course_id, b"029688ec-c7be-4cb3-8928-85cfd6551083");
-    let exercise_task_c1p2e3_1 = Uuid::new_v5(&course_id, b"382fffce-f177-47d0-a5c0-cc8906d34c49");
+    // let spec_c1p2e2t1_2 = Uuid::new_v5(&course_id, b"1982f566-2d6a-485d-acb0-65d8b8864c7e");
+    // let spec_c1p2e2t1_3 = Uuid::new_v5(&course_id, b"01ec5329-2cf6-4d0f-92b2-d388360fb402");
+    // let exercise_c1p2_3 = Uuid::new_v5(&course_id, b"029688ec-c7be-4cb3-8928-85cfd6551083");
+    // let exercise_slide_c1p2e3_1 = Uuid::new_v5(&course_id, b"ab8a314b-ac03-497b-8ade-3d8512ed00c9");
+    // let exercise_task_c1p2e3_1 = Uuid::new_v5(&course_id, b"382fffce-f177-47d0-a5c0-cc8906d34c49");
     let spec_c1p2e3t1_1 = Uuid::new_v5(&course_id, b"4bae54a3-d67c-428b-8996-290f70ae08fa");
-    let spec_c1p2e3t1_2 = Uuid::new_v5(&course_id, b"c3f257c0-bdc2-4d81-99ff-a71c76fe670a");
-    let spec_c1p2e3t1_3 = Uuid::new_v5(&course_id, b"fca5a8ba-50e0-4375-8d4b-9d02762d908c");
+    // let spec_c1p2e3t1_2 = Uuid::new_v5(&course_id, b"c3f257c0-bdc2-4d81-99ff-a71c76fe670a");
+    // let spec_c1p2e3t1_3 = Uuid::new_v5(&course_id, b"fca5a8ba-50e0-4375-8d4b-9d02762d908c");
+    let (exercise_block_2_1, exercise_2_1, exercise_slide_2_1, exercise_task_2_1) =
+        example_exercise(
+            exercise_c1p2_1,
+            Uuid::new_v5(&course_id, b"0d85864d-a20d-4d65-9ace-9b4d377f38e8"),
+            exercise_task_c1p2e1_1,
+            Uuid::new_v5(&course_id, b"2dbb4649-bcac-47ab-a817-ca17dcd70378"),
+            Uuid::new_v5(&course_id, b"c0986981-c8ae-4c0b-b558-1163a16760ec"),
+            spec_c1p2e1t1_1,
+            Uuid::new_v5(&course_id, b"93d27d79-f9a1-44ab-839f-484accc67e32"),
+            Uuid::new_v5(&course_id, b"81ec2df2-a5fd-4d7d-b85f-0c304e8d2030"),
+        );
+    let (exercise_block_2_2, exercise_2_2, exercise_slide_2_2, exercise_task_2_2) =
+        example_exercise(
+            exercise_c1p2_2,
+            Uuid::new_v5(&course_id, b"5441c7c0-60f1-4058-8223-7090c9cac7cb"),
+            exercise_task_c1p2e2_1,
+            Uuid::new_v5(&course_id, b"fb26489d-ca49-4f76-a1c2-f759ed3146c0"),
+            Uuid::new_v5(&course_id, b"c0986981-c8ae-4c0b-b558-1163a16760ec"),
+            spec_c1p2e2t1_1,
+            Uuid::new_v5(&course_id, b"93d27d79-f9a1-44ab-839f-484accc67e32"),
+            Uuid::new_v5(&course_id, b"81ec2df2-a5fd-4d7d-b85f-0c304e8d2030"),
+        );
+    let (exercise_block_2_3, exercise_2_3, exercise_slide_2_3, exercise_task_2_3) =
+        example_exercise(
+            Uuid::new_v5(&course_id, b"029688ec-c7be-4cb3-8928-85cfd6551083"),
+            Uuid::new_v5(&course_id, b"ab8a314b-ac03-497b-8ade-3d8512ed00c9"),
+            Uuid::new_v5(&course_id, b"382fffce-f177-47d0-a5c0-cc8906d34c49"),
+            Uuid::new_v5(&course_id, b"334593ad-8ba5-4589-b1f7-b159e754bdc5"),
+            Uuid::new_v5(&course_id, b"389e80bd-5f91-40c7-94ff-7dda1eeb96fb"),
+            spec_c1p2e3t1_1,
+            Uuid::new_v5(&course_id, b"c3f257c0-bdc2-4d81-99ff-a71c76fe670a"),
+            Uuid::new_v5(&course_id, b"fca5a8ba-50e0-4375-8d4b-9d02762d908c"),
+        );
     create_page(
         conn,
         course.id,
-        "/chapter-1/page-2",
-        "page 2",
         admin,
         chapter_1.id,
-        &[
-            paragraph(
-                "First chapters second page.",
-                Uuid::new_v5(&course_id, b"9faf5a2d-f60d-4a70-af3d-0e7e3d6fe273"),
-            ),
-            example_exercise(
-                exercise_c1p2_1,
-                exercise_task_c1p2e1_1,
-                Uuid::new_v5(&course_id, b"9fd9ac7d-7d41-4695-bedd-996c88606652"),
-                Uuid::new_v5(&course_id, b"2dbb4649-bcac-47ab-a817-ca17dcd70378"),
-                Uuid::new_v5(&course_id, b"c0986981-c8ae-4c0b-b558-1163a16760ec"),
-                spec_c1p2e1t1_1,
-                spec_c1p2e1t1_2,
-                spec_c1p2e1t1_3,
-            ),
-            example_exercise(
-                exercise_c1p2_2,
-                exercise_task_c1p2e2_1,
-                Uuid::new_v5(&course_id, b"c27c38ab-60aa-4a13-bb1a-a5d684802158"),
-                Uuid::new_v5(&course_id, b"fb26489d-ca49-4f76-a1c2-f759ed3146c0"),
-                Uuid::new_v5(&course_id, b"49b19886-0d1d-4a36-81ba-88a332d87b5b"),
-                spec_c1p2e2t1_1,
-                spec_c1p2e2t1_2,
-                spec_c1p2e2t1_3,
-            ),
-            example_exercise(
-                exercise_c1p2_3,
-                exercise_task_c1p2e3_1,
-                Uuid::new_v5(&course_id, b"5f800e49-7bd9-495f-9c78-19044be8c26d"),
-                Uuid::new_v5(&course_id, b"334593ad-8ba5-4589-b1f7-b159e754bdc5"),
-                Uuid::new_v5(&course_id, b"389e80bd-5f91-40c7-94ff-7dda1eeb96fb"),
-                spec_c1p2e3t1_1,
-                spec_c1p2e3t1_2,
-                spec_c1p2e3t1_3,
-            ),
-        ],
+        CmsPageUpdate {
+            url_path: "/chapter-1/page-2".to_string(),
+            title: "page 2".to_string(),
+            chapter_id: Some(chapter_1.id),
+            exercises: vec![exercise_2_1, exercise_2_2, exercise_2_3],
+            exercise_slides: vec![exercise_slide_2_1, exercise_slide_2_2, exercise_slide_2_3],
+            exercise_tasks: vec![exercise_task_2_1, exercise_task_2_2, exercise_task_2_3],
+            content: serde_json::json!([
+                paragraph(
+                    "First chapters second page.",
+                    Uuid::new_v5(&course_id, b"9faf5a2d-f60d-4a70-af3d-0e7e3d6fe273"),
+                ),
+                exercise_block_2_1,
+                exercise_block_2_2,
+                exercise_block_2_3,
+            ]),
+        },
     )
     .await?;
 
     let exercise_c2p1_1 = Uuid::new_v5(&course_id, b"8bb4faf4-9a34-4df7-a166-89ade530d0f6");
     let exercise_task_c2p1e1_1 = Uuid::new_v5(&course_id, b"a6508b8a-f58e-43ac-9f02-785575e716f5");
     let spec_c2p1e1t1_1 = Uuid::new_v5(&course_id, b"fe464d17-2365-4e65-8b33-e0ebb5a67836");
-    let spec_c2p1e1t1_2 = Uuid::new_v5(&course_id, b"6633ffc7-c76e-4049-840e-90eefa6b49e8");
-    let spec_c2p1e1t1_3 = Uuid::new_v5(&course_id, b"d77fb97d-322c-4c5f-a405-8978a8cfb0a9");
+    // let spec_c2p1e1t1_2 = Uuid::new_v5(&course_id, b"6633ffc7-c76e-4049-840e-90eefa6b49e8");
+    // let spec_c2p1e1t1_3 = Uuid::new_v5(&course_id, b"d77fb97d-322c-4c5f-a405-8978a8cfb0a9");
+    let (exercise_block_3_1, exercise_3_1, exercise_slide_3_1, exercise_task_3_1) =
+        example_exercise(
+            exercise_c2p1_1,
+            Uuid::new_v5(&course_id, b"b99d1041-7835-491e-a1c8-b47eee8e7ab4"),
+            exercise_task_c2p1e1_1,
+            Uuid::new_v5(&course_id, b"e869c471-b1b7-42a0-af05-dffd1d86a7bb"),
+            Uuid::new_v5(&course_id, b"fe464d17-2365-4e65-8b33-e0ebb5a67836"),
+            spec_c2p1e1t1_1,
+            Uuid::new_v5(&course_id, b"6633ffc7-c76e-4049-840e-90eefa6b49e8"),
+            Uuid::new_v5(&course_id, b"d77fb97d-322c-4c5f-a405-8978a8cfb0a9"),
+        );
     create_page(
         conn,
         course.id,
-        "/chapter-2/intro",
-        "In the second chapter...",
         admin,
         chapter_2.id,
-        &[example_exercise(
-            exercise_c2p1_1,
-            exercise_task_c2p1e1_1,
-            Uuid::new_v5(&course_id, b"6ba193d7-6af4-4e39-9334-8aec6e35ea07"),
-            Uuid::new_v5(&course_id, b"3270cf8b-4fec-4d93-b794-1468508a8909"),
-            Uuid::new_v5(&course_id, b"e869c471-b1b7-42a0-af05-dffd1d86a7bb"),
-            spec_c2p1e1t1_1,
-            spec_c2p1e1t1_2,
-            spec_c2p1e1t1_3,
-        )],
+        CmsPageUpdate {
+            url_path: "/chapter-2/intro".to_string(),
+            title: "In the second chapter...".to_string(),
+            chapter_id: Some(chapter_2.id),
+            exercises: vec![exercise_3_1],
+            exercise_slides: vec![exercise_slide_3_1],
+            exercise_tasks: vec![exercise_task_3_1],
+            content: serde_json::json!([exercise_block_3_1]),
+        },
     )
     .await?;
 
@@ -1179,11 +1350,11 @@ async fn seed_sample_course(
                 text: Some("verything is a big topic.".to_string()),
             },
             FeedbackBlock {
-                id: block_id_2,
+                id: block_id_4,
                 text: Some("So big, that we need many paragraphs.".to_string()),
             },
             FeedbackBlock {
-                id: block_id_3,
+                id: block_id_5,
                 text: Some("Like th".to_string()),
             },
         ],
@@ -1279,10 +1450,13 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         organization_id: org,
         slug: "introduction-to-course-material".to_string(),
         language_code: "en-US".to_string(),
+        teacher_in_charge_name: "admin".to_string(),
+        teacher_in_charge_email: "admin@example.com".to_string(),
     };
     let (course, front_page, _default_instance) = courses::insert_course(
         conn,
         Uuid::parse_str("d6b52ddc-6c34-4a59-9a59-7e8594441007")?,
+        Uuid::parse_str("8e6c35cd-43f2-4982-943b-11e3ffb1b2f8")?,
         new_course,
         admin,
     )
@@ -1291,7 +1465,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
     pages::update_page(
         conn,
         front_page.id,
-        PageUpdate {
+        CmsPageUpdate {
             title: "Introduction to Course Material".to_string(),
             url_path: "/".to_string(),
             chapter_id: None,
@@ -1306,6 +1480,9 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                 .with_id(Uuid::parse_str("1d7c28ca-86ab-4318-8b10-3e5b7cd6e465")?),
             ])
             .unwrap(),
+            exercises: vec![],
+            exercise_slides: vec![],
+            exercise_tasks: vec![],
         },
         admin,
         true,
@@ -1327,7 +1504,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
     pages::update_page(
         conn,
         front_page_ch_1.id,
-        PageUpdate {
+        CmsPageUpdate {
             title: "User Interface".to_string(),
             url_path: "/chapter-1".to_string(),
             chapter_id: Some(chapter_1.id),
@@ -1342,6 +1519,9 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                 .with_id(Uuid::parse_str("457431b0-55db-46ac-90ae-03965f48b27e")?),
             ])
             .unwrap(),
+            exercises: vec![],
+            exercise_slides: vec![],
+            exercise_tasks: vec![],
         },
         admin,
         true,
@@ -1349,8 +1529,14 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
     .await?;
 
     // /chapter-1/design
-    create_page(conn, course.id, "/chapter-1/design", "Design",  admin, chapter_1.id,
-        &[
+    let design_content = CmsPageUpdate {
+        url_path: "/chapter-1/design".to_string(),
+        title: "Design".to_string(),
+        chapter_id: Some(chapter_1.id),
+        exercises: vec![],
+        exercise_slides: vec![],
+        exercise_tasks: vec![],
+        content: serde_json::json!([
             GutenbergBlock::hero_section("Design", "A design is a plan or specification for the construction of an object or system or for the implementation of an activity or process, or the result of that plan or specification in the form of a prototype, product or process.")
                 .with_id(Uuid::parse_str("98729704-9dd8-4309-aa08-402f9b2a6071")?),
             GutenbergBlock::block_with_name_and_attributes(
@@ -1377,17 +1563,19 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                 },
             )
             .with_id(Uuid::parse_str("3693e92b-9cf0-485a-b026-2851de58e9cf")?),
-        ]).await?;
+        ]),
+    };
+    create_page(conn, course.id, admin, chapter_1.id, design_content).await?;
 
     // /chapter-1/human-machine-interface
-    create_page(
-        conn,
-        course.id,
-        "/chapter-1/human-machine-interface",
-        "Human-machine interface",
-        admin,
-        chapter_1.id,
-        &[
+    let content_b = CmsPageUpdate {
+        chapter_id: Some(chapter_1.id),
+        url_path: "/chapter-1/human-machine-interface".to_string(),
+        title: "Human-machine interface".to_string(),
+        exercises: vec![],
+        exercise_slides: vec![],
+        exercise_tasks: vec![],
+        content: serde_json::json!([
             GutenbergBlock::hero_section("Human-machine interface", "In the industrial design field of human–computer interaction, a user interface is the space where interactions between humans and machines occur.")
                 .with_id(Uuid::parse_str("ae22ae64-c0e5-42e1-895a-4a49411a72e8")?),
             GutenbergBlock::block_with_name_and_attributes(
@@ -1414,9 +1602,9 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                 },
             )
             .with_id(Uuid::parse_str("c96f56d5-ea35-4aae-918a-72a36847a49c")?),
-        ]
-    )
-    .await?;
+        ]),
+    };
+    create_page(conn, course.id, admin, chapter_1.id, content_b).await?;
 
     // Chapter-2
     let new_chapter_2 = NewChapter {
@@ -1431,7 +1619,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
     pages::update_page(
         conn,
         front_page_ch_2.id,
-        PageUpdate {
+        CmsPageUpdate {
             url_path: "/chapter-2".to_string(),
             title: "User Experience".to_string(),
             chapter_id: Some(chapter_2.id),
@@ -1446,20 +1634,18 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                     .with_id(Uuid::parse_str("1bf7e311-75e8-48ec-bd55-e8f1185d76d0")?),
             ])
             .unwrap(),
+            exercises: vec![],
+            exercise_slides: vec![],
+            exercise_tasks: vec![],
         },
         admin,
         true,
     )
     .await?;
     // /chapter-2/user-research
-    create_page(
-        conn,
-        course.id,
-        "/chapter-2/user-research",
-        "User research",
-        admin,
-        chapter_2.id,
-        &[
+    let page_content = CmsPageUpdate {
+        chapter_id: Some(chapter_2.id),
+        content: serde_json::json!([
             GutenbergBlock::hero_section("User research", "User research focuses on understanding user behaviors, needs, and motivations through observation techniques, task analysis, and other feedback methodologies.")
                 .with_id(Uuid::parse_str("a43f5460-b588-44ac-84a3-5fdcabd5d3f7")?),
             GutenbergBlock::block_with_name_and_attributes(
@@ -1486,10 +1672,33 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                 },
             )
             .with_id(Uuid::parse_str("cf11a0fb-f56e-4e0d-bc12-51d920dbc278")?),
-        ]
+        ]),
+        exercises: vec![],
+        exercise_slides: vec![],
+        exercise_tasks: vec![],
+        url_path: "/chapter-2/user-research".to_string(),
+        title: "User research".to_string(),
+    };
+    create_page(conn, course.id, admin, chapter_2.id, page_content).await?;
+
+    let page_content = include_str!("../assets/example-page.json");
+    let parse_page_content = serde_json::from_str(page_content)?;
+    create_page(
+        conn,
+        course.id,
+        admin,
+        chapter_2.id,
+        CmsPageUpdate {
+            content: parse_page_content,
+            exercises: vec![],
+            exercise_slides: vec![],
+            exercise_tasks: vec![],
+            url_path: "/chapter-2/content-rendering".to_string(),
+            title: "Content rendering".to_string(),
+            chapter_id: Some(chapter_2.id),
+        },
     )
     .await?;
-
     Ok(course.id)
 }
 
@@ -1497,29 +1706,33 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
 async fn create_page(
     conn: &mut PgConnection,
     course_id: Uuid,
-    url_path: &str,
-    title: &str,
     author: Uuid,
     chapter_id: Uuid,
-    content: &[GutenbergBlock],
+    page_data: CmsPageUpdate,
 ) -> Result<Uuid> {
     let new_page = NewPage {
         content: Value::Array(vec![]),
-        url_path: url_path.to_string(),
-        title: format!("{} WIP", title),
+        url_path: page_data.url_path.to_string(),
+        title: format!("{} WIP", page_data.title),
         course_id,
         chapter_id: Some(chapter_id),
         front_page_of_chapter_id: None,
+        exercises: vec![],
+        exercise_slides: vec![],
+        exercise_tasks: vec![],
     };
     let page = pages::insert_page(conn, new_page, author).await?;
-    let page = pages::update_page(
+    pages::update_page(
         conn,
         page.id,
-        PageUpdate {
+        CmsPageUpdate {
+            content: page_data.content,
+            exercises: page_data.exercises,
+            exercise_slides: page_data.exercise_slides,
+            exercise_tasks: page_data.exercise_tasks,
+            url_path: page_data.url_path,
+            title: page_data.title,
             chapter_id: Some(chapter_id),
-            url_path: url_path.to_string(),
-            title: title.to_string(),
-            content: serde_json::to_value(content).unwrap(),
         },
         author,
         true,
@@ -1543,51 +1756,63 @@ fn paragraph(content: &str, block: Uuid) -> GutenbergBlock {
 
 #[allow(clippy::too_many_arguments)]
 fn example_exercise(
-    ex: Uuid,
-    task: Uuid,
-    block_1: Uuid,
-    block_2: Uuid,
-    block_3: Uuid,
+    exercise_id: Uuid,
+    exercise_slide_id: Uuid,
+    exercise_task_id: Uuid,
+    block_id: Uuid,
+    paragraph_id: Uuid,
     spec_1: Uuid,
     spec_2: Uuid,
     spec_3: Uuid,
-) -> GutenbergBlock {
-    GutenbergBlock {
+) -> (
+    GutenbergBlock,
+    CmsPageExercise,
+    CmsPageExerciseSlide,
+    CmsPageExerciseTask,
+) {
+    let block = GutenbergBlock {
+        client_id: block_id,
         name: "moocfi/exercise".to_string(),
         is_valid: true,
-        client_id: block_1,
         attributes: attributes! {
-            "id": ex,
-            "name": "Best exercise",
+            "id": exercise_id,
+            "name": "Best exercise".to_string(),
             "dropCap": false,
         },
-        inner_blocks: vec![GutenbergBlock {
-            name: "moocfi/exercise-task".to_string(),
-            is_valid: true,
-            client_id: block_2,
-            attributes: attributes! {
-                "id": task,
-                "name": "Best exercise task",
-                "exercise_type": "example-exercise",
-                "private_spec": serde_json::json!([
-                    {
-                        "name": "a",
-                        "correct": false,
-                        "id": spec_1,
-                    },
-                    {
-                        "name": "b",
-                        "correct": true,
-                        "id": spec_2,
-                    },
-                    {
-                        "name": "c",
-                        "correct": true,
-                        "id": spec_3,
-                    },
-                ]).to_string(),
+        inner_blocks: vec![],
+    };
+    let exercise = CmsPageExercise {
+        id: exercise_id,
+        name: "Best exercise".to_string(),
+        order_number: 1,
+    };
+    let exercise_slide = CmsPageExerciseSlide {
+        id: exercise_slide_id,
+        exercise_id,
+        order_number: 1,
+    };
+    let exercise_task = CmsPageExerciseTask {
+        id: exercise_task_id,
+        exercise_slide_id,
+        assignment: serde_json::json!([paragraph("Answer this question.", paragraph_id)]),
+        exercise_type: "example-exercise".to_string(),
+        private_spec: Some(serde_json::json!([
+            {
+                "name": "a",
+                "correct": false,
+                "id": spec_1,
             },
-            inner_blocks: vec![paragraph("Answer this question.", block_3)],
-        }],
-    }
+            {
+                "name": "b",
+                "correct": true,
+                "id": spec_2,
+            },
+            {
+                "name": "c",
+                "correct": true,
+                "id": spec_3,
+            },
+        ])),
+    };
+    (block, exercise, exercise_slide, exercise_task)
 }

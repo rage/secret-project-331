@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import { css, injectGlobal } from "@emotion/css"
 
 import cssReset from "./cssReset"
@@ -43,8 +44,17 @@ const globalCss = css`
     font-size: ${typography.h6};
   }
   pre,
+  code,
+  kbd,
   tt {
     font-family: ${monospaceFont};
+  }
+  .screen-reader-only {
+    position: absolute;
+    width: 1px;
+    clip: rect(0 0 0 0);
+    overflow: hidden;
+    white-space: nowrap;
   }
 `
 

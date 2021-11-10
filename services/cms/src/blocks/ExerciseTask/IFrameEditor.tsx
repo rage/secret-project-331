@@ -1,54 +1,62 @@
 import { Alert } from "@material-ui/lab"
-import { BlockEditProps } from "@wordpress/blocks"
-import React, { PropsWithChildren, useState } from "react"
+import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import MessageChannelIFrame from "../../shared-module/components/MessageChannelIFrame"
 import { SetStateMessage } from "../../shared-module/iframe-protocol-types"
 import { isCurrentStateMessage } from "../../shared-module/iframe-protocol-types.guard"
 
-import { ExerciseTaskAttributes } from "."
-
-interface IFrameEditorProps {
-  props: PropsWithChildren<BlockEditProps<ExerciseTaskAttributes>>
+interface ExerciseTaskIFrameEditorProps {
+  onPrivateSpecChange(newSpec: unknown): void
+  privateSpec: unknown
   url: string | null | undefined
-  exerciseTaskid: string
 }
 
-const IFrameEditor: React.FC<IFrameEditorProps> = ({ url, props }) => {
+const ExerciseTaskIFrameEditor: React.FC<ExerciseTaskIFrameEditorProps> = ({
+  onPrivateSpecChange,
+  privateSpec,
+  url,
+}) => {
   const [specParseable, setSpecParseable] = useState(true)
+  const { t } = useTranslation()
+
   if (!url || url.trim() === "") {
-    return <Alert severity="error">Cannot render exercise task, missing url.</Alert>
+    return <Alert severity="error">{t("error-cannot-render-exercise-task-missing-url")}</Alert>
   }
+
   if (!specParseable) {
     return (
       <>
-        <Alert severity="error">Spec not parseable.</Alert>
-        <pre>{props.attributes.private_spec}</pre>
+        <Alert severity="error">{t("error-spec-not-parseable")}</Alert>
+        <pre>{JSON.stringify(privateSpec)}</pre>
       </>
     )
   }
+
   return (
     <MessageChannelIFrame
       url={url}
       onCommunicationChannelEstabilished={(port) => {
-        console.log("communication channel established")
+        // eslint-disable-next-line i18next/no-literal-string
+        console.info("communication channel established")
         let parsedPrivateSpec = null
         try {
-          parsedPrivateSpec = JSON.parse(props.attributes.private_spec ?? null)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          parsedPrivateSpec = JSON.parse(privateSpec as any)
         } catch (e) {
           setSpecParseable(false)
           return
         }
+        // eslint-disable-next-line i18next/no-literal-string
         const message: SetStateMessage = { message: "set-state", data: parsedPrivateSpec }
         port.postMessage(message)
       }}
       onMessageFromIframe={(messageContainer, _responsePort) => {
         if (isCurrentStateMessage(messageContainer)) {
-          props.setAttributes({
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            private_spec: JSON.stringify((messageContainer.data as any).private_spec),
-          })
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          onPrivateSpecChange(JSON.stringify((messageContainer.data as any).private_spec))
         } else {
+          // eslint-disable-next-line i18next/no-literal-string
           console.error("Unexpected message or structure is not valid.")
         }
       }}
@@ -56,4 +64,4 @@ const IFrameEditor: React.FC<IFrameEditorProps> = ({ url, props }) => {
   )
 }
 
-export default IFrameEditor
+export default ExerciseTaskIFrameEditor

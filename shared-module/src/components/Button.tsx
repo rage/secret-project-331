@@ -7,10 +7,13 @@ import { baseTheme, fontWeights, headingFont, theme, typography } from "../style
 export interface ButtonExtraProps {
   variant: "primary" | "secondary" | "tertiary"
   size: "medium" | "large"
+  transform?: "normal" | "uppercase"
+  children?: React.ReactNode
 }
 
 export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & ButtonExtraProps
 
+// eslint-disable-next-line i18next/no-literal-string
 const BaseButton = styled.button`
   position: relative;
   display: inline-block;
@@ -26,11 +29,13 @@ const BaseButton = styled.button`
   text-decoration: none;
   text-align: center;
   justify-content: center;
-  text-transform: uppercase;
-  font-size: 14px !important;
+  text-transform: ${({ transform }: ButtonProps) =>
+    // eslint-disable-next-line i18next/no-literal-string
+    transform == "normal" ? "capitalize" : "uppercase"};
+  font-size: ${({ transform }: ButtonProps) => (transform == "normal" ? "18px" : "14px")};
   letter-spacing: 0.02em;
   transition: all 150ms linear;
-  border: 2px solid;
+  border: 2.5px solid transparent;
   z-index: 1;
 
   &:hover {
@@ -42,48 +47,50 @@ const BaseButton = styled.button`
   }
 
   &:disabled {
-    cursor: default;
+    color: ${baseTheme.colors.neutral[600]};
+    background-color: ${baseTheme.colors.neutral[500]};
+    border-color: ${baseTheme.colors.neutral[500]};
   }
   ${border}
   ${color}
   ${space}
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const PrimaryButton = styled(BaseButton)`
-  font-size: ${typography.paragraph};
-  color: ${theme.primary.text};
+  color: ${baseTheme.colors.neutral[900]};
   background-color: ${theme.primary.bg};
   border-color: ${theme.primary.hoverBorder};
 
   &:hover {
-    color: ${theme.primary.hoverText};
+    color: ${theme.primary.hoverBorder};
     background-color: ${theme.primary.hoverBg};
     border-color: ${theme.primary.hoverBorder};
   }
 
-  ,
   &:active {
     color: ${theme.primary.hoverText};
     background-color: ${theme.primary.hoverBg};
     border-color: ${theme.primary.hoverBorder};
   }
 
-  ,
   &:disabled {
-    color: ${theme.primary.disabledText};
-    background-color: ${theme.primary.disabledBg};
-    border-color: ${theme.primary.disabledBorder};
+    color: ${baseTheme.colors.neutral[600]};
+    background-color: ${baseTheme.colors.neutral[500]};
+    border-color: ${baseTheme.colors.neutral[500]};
   }
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const SecondaryButton = styled(BaseButton)`
-  font-size: ${typography.paragraph};
   color: ${theme.secondary.text};
-  background-color: ${theme.secondary.bg};
+  border-color: ${theme.secondary.hoverBorder};
+  border: 1.5px solid ${theme.secondary.text};
 
-  &:hover {
+  &:hover,
+  &:focus {
     color: ${theme.secondary.hoverText};
-    background-color: ${theme.secondary.hoverBg};
+    box-shadow: 0 0 0 1px ${theme.secondary.text};
   }
 
   ,
@@ -92,14 +99,14 @@ const SecondaryButton = styled(BaseButton)`
     background-color: ${theme.secondary.hoverBg};
   }
 
-  ,
   &:disabled {
-    color: ${theme.secondary.disabledText};
-    background-color: ${theme.secondary.disabledBg};
-    border-color: ${theme.secondary.disabledBorder};
+    color: ${baseTheme.colors.neutral[600]};
+    background-color: ${baseTheme.colors.neutral[500]};
+    border-color: ${baseTheme.colors.neutral[500]};
   }
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const TertiaryButton = styled(BaseButton)`
   font-size: ${typography.paragraph};
   color: ${theme.secondary.text};
@@ -116,11 +123,10 @@ const TertiaryButton = styled(BaseButton)`
     background-color: ${baseTheme.colors.neutral[100]};
   }
 
-  ,
   &:disabled {
-    color: ${theme.secondary.disabledText};
-    background-color: ${theme.secondary.disabledBg};
-    border-color: ${theme.secondary.disabledBorder};
+    color: ${baseTheme.colors.neutral[600]};
+    background-color: ${baseTheme.colors.neutral[500]};
+    border-color: ${baseTheme.colors.neutral[500]};
   }
 `
 
@@ -138,9 +144,9 @@ const Button: React.FC<ButtonProps> = (props) => {
       {props.variant === "primary" ? (
         <PrimaryButton {...props}></PrimaryButton>
       ) : props.variant === "secondary" ? (
-        <SecondaryButton title="button" {...props}></SecondaryButton>
+        <SecondaryButton {...props}></SecondaryButton>
       ) : (
-        <TertiaryButton title="button" {...props} />
+        <TertiaryButton {...props} />
       )}
     </>
   )

@@ -13,9 +13,8 @@ test("widget, multiple-choice-dropdown screenshot test", async ({ page, headless
 
   // Click text=University of Helsinki, Department of Computer Science
 
-  await page.click('div[role="button"]:has-text("​")')
   // Click text=Quizzes example, multiple-choice
-  await page.click("text=Quizzes example, multiple-choice dropdown")
+  await page.selectOption("select", { label: "Quizzes example, multiple-choice dropdown" })
 
   const frame = await waitForFunction(page, () =>
     page.frames().find((f) => {
@@ -24,6 +23,7 @@ test("widget, multiple-choice-dropdown screenshot test", async ({ page, headless
   )
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-multiple-choice-dropdown",
     waitForThisToBeVisibleAndStable: `text="How many different CSS hexadecimal color codes there are?"`,
@@ -41,6 +41,7 @@ test("widget, multiple-choice-dropdown screenshot test", async ({ page, headless
   )
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-multiple-choice-dropdown-answered",
     waitForThisToBeVisibleAndStable: [

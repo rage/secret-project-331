@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import { Meta, Story } from "@storybook/react"
 import React from "react"
@@ -13,6 +14,7 @@ const Component = SpeechBalloon
 
 type ComponentProps = React.ComponentProps<typeof Component>
 
+// @ts-ignore: seems to work
 const Template: Story<ComponentProps> = (args: ComponentProps) => <Component {...args} />
 
 export const Primary: Story<ComponentProps> = Template.bind({})

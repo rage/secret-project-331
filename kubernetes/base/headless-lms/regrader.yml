@@ -31,7 +31,7 @@ spec:
             - "-c"
             - |
               echo Waiting for postgres to be available
-              wait-for-it --timeout=120 postgres:5432
+              timeout 120 ./wait-for-db.sh
               ./wait-for-db-migrations.sh
           resources:
             requests:

@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { TextField } from "@material-ui/core"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { postNewPage } from "../../services/backend/pages"
 import Button from "../../shared-module/components/Button"
@@ -29,6 +30,7 @@ const NewPageForm: React.FC<NewPageFormProps> = ({
   chapterId,
   prefix = "/",
 }) => {
+  const { t } = useTranslation()
   const [path, setPath] = useState("")
   const [title, setTitle] = useState("")
 
@@ -40,6 +42,9 @@ const NewPageForm: React.FC<NewPageFormProps> = ({
       title,
       chapter_id: chapterId ?? null,
       front_page_of_chapter_id: null,
+      exercises: [],
+      exercise_slides: [],
+      exercise_tasks: [],
     })
     onSubmitForm()
   }
@@ -57,7 +62,7 @@ const NewPageForm: React.FC<NewPageFormProps> = ({
             required
             fullWidth
             id="outlined-required"
-            label="Title"
+            label={t("text-field-label-title")}
             variant="outlined"
             value={title}
             onChange={(e) => {
@@ -80,7 +85,7 @@ const NewPageForm: React.FC<NewPageFormProps> = ({
               required
               fullWidth
               id="outlined-required"
-              label="Path"
+              label={t("text-field-label-path")}
               variant="outlined"
               value={path}
               onChange={(e) => {
@@ -92,7 +97,7 @@ const NewPageForm: React.FC<NewPageFormProps> = ({
       </div>
       <div>
         <Button variant="primary" size="medium" onClick={createNewPage}>
-          Create page
+          {t("button-text-create")}
         </Button>
       </div>
     </div>

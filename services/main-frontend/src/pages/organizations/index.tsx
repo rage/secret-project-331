@@ -1,13 +1,15 @@
 import { css } from "@emotion/css"
-import { Container } from "@material-ui/core"
 import Link from "next/link"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 import Layout from "../../components/Layout"
 import OrganizationsList from "../../components/lists/OrganizationsList"
+import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
 const Home: React.FC = () => {
+  const { t } = useTranslation()
   return (
     <Layout>
       <OrganizationsList />
@@ -18,28 +20,30 @@ const Home: React.FC = () => {
           text-align: center;
           font-weight: 600;
           font-size: 3em;
-          color: #707070;
+          color: #656565;
         `}
       >
-        Services
+        {t("title-services")}
       </h1>
-      <Container maxWidth="lg">
+      <div className={normalWidthCenteredComponentStyles}>
         <Link
           href={{
             pathname: `/manage/exercise-services`,
           }}
+          passHref
         >
-          <p
+          <a
+            href="replace"
             className={css`
               cursor: pointer;
               color: blue;
               text-decoration: underline;
             `}
           >
-            Manage exercise services
-          </p>
+            {t("link-manage-exercise-services")}
+          </a>
         </Link>
-      </Container>
+      </div>
     </Layout>
   )
 }

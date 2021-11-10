@@ -55,8 +55,10 @@ export const setOrganizationImage = async (
   organizationId: string,
   file: File,
 ): Promise<Organization> => {
+  // eslint-disable-next-line i18next/no-literal-string
   validateFile(file, ["image"])
   const data = new FormData()
+  // eslint-disable-next-line i18next/no-literal-string
   data.append("file", file, file.name || "unknown")
   const res = await mainFrontendClient.put(`/organizations/${organizationId}/image`, data)
   return res.data

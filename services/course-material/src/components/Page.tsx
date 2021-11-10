@@ -6,9 +6,10 @@ import useSelectedBlockId from "../hooks/useSelectedBlockId"
 import { Block } from "../services/backend"
 import { NewProposedBlockEdit } from "../shared-module/bindings"
 import DebugModal from "../shared-module/components/DebugModal"
+import { inlineColorStyles } from "../styles/inlineColorStyles"
 
 import ContentRenderer from "./ContentRenderer"
-import NavigationContainer from "./ContentRenderer/NavigationContainer"
+import NavigationContainer from "./ContentRenderer/moocfi/NavigationContainer"
 import FeedbackHandler from "./FeedbackHandler"
 import SelectCourseInstanceModal from "./modals/SelectCourseInstanceModal"
 import UserOnWrongCourseNotification from "./notifications/UserOnWrongCourseNotification"
@@ -46,6 +47,7 @@ const Page: React.FC<Props> = ({ onRefresh }) => {
           data={pageContext}
           updateDataOnClose={(payload) => {
             // NB! This is unsafe because payload has any type
+            // eslint-disable-next-line i18next/no-literal-string
             pageDispatch({ type: "rawSetState", payload })
           }}
           readOnly={false}
@@ -69,7 +71,7 @@ const Page: React.FC<Props> = ({ onRefresh }) => {
         />
       )}
       {/* TODO: Better type for Page.content in bindings. */}
-      <div id="content">
+      <div id="content" className={inlineColorStyles}>
         <ContentRenderer
           data={(pageContext.pageData?.content as Array<Block<unknown>>) ?? []}
           editing={editingMaterial}

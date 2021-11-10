@@ -18,7 +18,7 @@ test("test", async ({ page }) => {
   expect(page.url().startsWith("http://project-331.local/organizations/")).toBe(true)
 
   // Click text=Add course
-  await page.click("text=Add course")
+  await page.click(`button:text("Create")`)
 
   // Click input[type="text"]
   await page.click('input[type="text"]')
@@ -26,8 +26,11 @@ test("test", async ({ page }) => {
   // Fill input[type="text"]
   await page.fill('input[type="text"]', "Introduction to System Level Testing")
 
+  await page.fill('input[id="teacher-in-charge-name"]', "teacher")
+  await page.fill('input[id="teacher-in-charge-email"]', "teacher@example.com")
+
   // Click text=Create course
-  await page.click("text=Create course")
+  await page.click(`button:text("Create"):below(:text("Course language"))`)
 
   // Click :nth-match(:text("Manage"), 3)
   await Promise.all([
@@ -43,7 +46,7 @@ test("test", async ({ page }) => {
   ])
 
   // Click button:has-text("Add new chapter")
-  await page.click('button:has-text("Add new chapter")')
+  await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
 
   // Click input[type="text"]
   await page.click('input[type="text"]')
@@ -61,10 +64,10 @@ test("test", async ({ page }) => {
   await page.fill('input[type="text"]', "The Levels of Testing")
 
   // Click button:has-text("Create chapter")
-  await page.click('button:has-text("Create chapter")')
+  await page.click('button:has-text("Create")')
 
   // Click :nth-match(button:has-text("New page"), 2)
-  await page.click(':nth-match(button:has-text("New page"), 2)')
+  await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
 
   // Click input[type="text"]
   await page.click('input[type="text"]')
@@ -75,11 +78,11 @@ test("test", async ({ page }) => {
   // Fill input[type="text"]
   await page.fill('input[type="text"]', "Unit testing")
 
-  // Click button:has-text("Create page")
-  await page.click('button:has-text("Create page")')
+  // Click button:has-text("Create")
+  await page.click('button:has-text("Create")')
 
   // Click :nth-match(button:has-text("New page"), 2)
-  await page.click(':nth-match(button:has-text("New page"), 2)')
+  await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
 
   // Click input[type="text"]
   await page.click('input[type="text"]')
@@ -87,11 +90,11 @@ test("test", async ({ page }) => {
   // Fill input[type="text"]
   await page.fill('input[type="text"]', "Integration Testing")
 
-  // Click button:has-text("Create page")
-  await page.click('button:has-text("Create page")')
+  // Click button:has-text("Create")
+  await page.click('button:has-text("Create")')
 
   // Click :nth-match(button:has-text("New page"), 2)
-  await page.click(':nth-match(button:has-text("New page"), 2)')
+  await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
 
   // Click input[type="text"]
   await page.click('input[type="text"]')
@@ -99,11 +102,11 @@ test("test", async ({ page }) => {
   // Fill input[type="text"]
   await page.fill('input[type="text"]', "System Testing")
 
-  // Click button:has-text("Create page")
-  await page.click('button:has-text("Create page")')
+  // Click button:has-text("Create")
+  await page.click('button:has-text("Create")')
 
   // Click :nth-match(button:has-text("New page"), 2)
-  await page.click(':nth-match(button:has-text("New page"), 2)')
+  await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
 
   // Click input[type="text"]
   await page.click('input[type="text"]')
@@ -111,8 +114,8 @@ test("test", async ({ page }) => {
   // Fill input[type="text"]
   await page.fill('input[type="text"]', "Acceptance Testing")
 
-  // Click button:has-text("Create page")
-  await page.click('button:has-text("Create page")')
+  // Click button:has-text("Create")
+  await page.click('button:has-text("Create")')
 
   // Click text=System Testing
   await Promise.all([page.waitForNavigation(), page.click("text=System Testing")])
@@ -126,15 +129,21 @@ test("test", async ({ page }) => {
   await page.keyboard.type("/exercise")
 
   // Click :nth-match(:text("Exercise"), 3
-  await page.click("text=Exercise")
+  await page.click(`button:text("Exercise")`)
 
   // Click [placeholder="Exercise name"]
   await page.click('[placeholder="Exercise name"]')
   // Fill [placeholder="Exercise name"]
   await page.fill('[placeholder="Exercise name"]', "What is system testing")
 
-  // Click [aria-label="Add ExerciseTask"]
-  await page.click('[aria-label="Add ExerciseTask"]')
+  // Click text=Add slide
+  await page.click("text=Add slide")
+
+  // Click text=Add task
+  await page.click("text=Add task")
+
+  // Click [aria-label="Block: ExerciseTask"] div[role="button"]
+  await page.click('[aria-label="Block: ExerciseTask"] div[role="button"]')
 
   // Click text=Type / to choose a block
   await page.click("text=Type / to choose a block")
@@ -194,7 +203,7 @@ test("test", async ({ page }) => {
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
-    page.click('[aria-label="Front page"]'),
+    page.click('[aria-label="Home page"]'),
   ])
 
   // Click text=University of Helsinki, Department of Computer Science

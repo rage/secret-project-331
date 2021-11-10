@@ -33,6 +33,43 @@ export interface EmailTemplate {
   course_instance_id: string
 }
 
+export interface CmsPageExercise {
+  id: string
+  name: string
+  order_number: number
+}
+
+export interface CmsPageExerciseSlide {
+  id: string
+  exercise_id: string
+  order_number: number
+}
+
+export interface CmsPageExerciseTask {
+  id: string
+  exercise_slide_id: string
+  assignment: unknown
+  exercise_type: string
+  private_spec: unknown | null
+}
+
+export interface CmsPageUpdate {
+  content: unknown
+  exercises: Array<CmsPageExercise>
+  exercise_slides: Array<CmsPageExerciseSlide>
+  exercise_tasks: Array<CmsPageExerciseTask>
+  url_path: string
+  title: string
+  chapter_id: string | null
+}
+
+export interface ContentManagementPage {
+  page: Page
+  exercises: Array<CmsPageExercise>
+  exercise_slides: Array<CmsPageExerciseSlide>
+  exercise_tasks: Array<CmsPageExerciseTask>
+}
+
 export interface CourseStructure {
   course: Course
   pages: Array<Page>
@@ -108,6 +145,9 @@ export interface CourseInstance {
   name: string | null
   description: string | null
   variant_status: VariantStatus
+  teacher_in_charge_name: string
+  teacher_in_charge_email: string
+  support_email: string | null
 }
 
 export interface ChapterWithStatus {
@@ -276,19 +316,15 @@ export interface EmailTemplateUpdate {
 }
 
 export interface NewPage {
+  exercises: Array<CmsPageExercise>
+  exercise_slides: Array<CmsPageExerciseSlide>
+  exercise_tasks: Array<CmsPageExerciseTask>
   content: unknown
   url_path: string
   title: string
   course_id: string
   chapter_id: string | null
   front_page_of_chapter_id: string | null
-}
-
-export interface PageUpdate {
-  content: unknown
-  url_path: string
-  title: string
-  chapter_id: string | null
 }
 
 export interface NewSubmission {
@@ -302,6 +338,8 @@ export interface NewCourse {
   slug: string
   organization_id: string
   language_code: string
+  teacher_in_charge_name: string
+  teacher_in_charge_email: string
 }
 
 export interface CourseUpdate {
@@ -384,6 +422,16 @@ export interface GetFeedbackQuery {
   read: boolean
   page?: number
   limit?: number
+}
+
+export interface CourseInstanceForm {
+  name: string | null
+  description: string | null
+  teacher_in_charge_name: string
+  teacher_in_charge_email: string
+  support_email: string | null
+  opening_time: Date | null
+  closing_time: Date | null
 }
 
 export interface PageProposal {
@@ -549,20 +597,6 @@ export interface ExerciseWithExerciseTasks {
   page_id: string
   exercise_tasks: Array<ExerciseTask>
   score_maximum: number
-}
-
-export interface NormalizedCmsExercise {
-  id: string
-  name: string
-  order_number: number
-  exercise_tasks: Array<NormalizedCmsExerciseTask>
-}
-
-export interface NormalizedCmsExerciseTask {
-  id: string
-  exercise_type: string
-  assignment: unknown
-  private_spec: unknown | null
 }
 
 export interface UserCourseSettings {

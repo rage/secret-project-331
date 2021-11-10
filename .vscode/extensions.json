@@ -10,6 +10,8 @@
     "mtxr.sqltools",
     "usernamehw.errorlens",
     "coenraads.bracket-pair-colorizer-2",
-    "jebbs.plantuml"
+    "jebbs.plantuml",
+    "wix.vscode-import-cost",
+    "serayuzgur.crates"
   ]
 }

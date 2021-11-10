@@ -11,11 +11,8 @@ test("widget, open", async ({ page, headless }) => {
   // Go to http://project-331.local/playground
   await page.goto("http://project-331.local/playground")
 
-  // Click div[role="button"]:has-text("")
-  await page.click('div[role="button"]:has-text("​")')
-
   // Click text=Quizzes example, scale
-  await page.click("text=Quizzes example, open")
+  await page.selectOption("select", { label: "Quizzes example, open" })
 
   // Click input[type="text"]
   const frame = await waitForFunction(page, () =>
@@ -25,10 +22,11 @@ test("widget, open", async ({ page, headless }) => {
   )
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-open-empty",
     waitForThisToBeVisibleAndStable: [
-      `text="Enter the date of the next leap day in ISO 8601 format(YYYY-MM-DD)."`,
+      `text="Enter the date of the next leap day in ISO 8601 format (YYYY-MM-DD)."`,
       `text="Date formats"`,
     ],
     frame,
@@ -41,11 +39,12 @@ test("widget, open", async ({ page, headless }) => {
   await frame.fill('input[type="text"]', "2024")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-open-invalid",
     waitForThisToBeVisibleAndStable: [
       `text="The answer does not match the answer format specified for this exercise."`,
-      `text="Enter the date of the next leap day in ISO 8601 format(YYYY-MM-DD)."`,
+      `text="Enter the date of the next leap day in ISO 8601 format (YYYY-MM-DD)."`,
       `text="Date formats"`,
     ],
     frame,
@@ -55,11 +54,11 @@ test("widget, open", async ({ page, headless }) => {
   await frame.fill('input[type="text"]', "2024-02-29")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-open-valid",
     waitForThisToBeVisibleAndStable: [
-      `text="2024-02-29"`,
-      `text="Enter the date of the next leap day in ISO 8601 format(YYYY-MM-DD)."`,
+      `text="Enter the date of the next leap day in ISO 8601 format (YYYY-MM-DD)."`,
       `text="Date formats"`,
     ],
     frame,

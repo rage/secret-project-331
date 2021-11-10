@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 module.exports = {
   rules: {
     "no-restricted-imports": [

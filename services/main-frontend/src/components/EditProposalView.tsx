@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import { FormControl, FormControlLabel, Radio, RadioGroup, TextField } from "@material-ui/core"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import {
   BlockProposal,
@@ -20,25 +21,30 @@ export interface Props {
 }
 
 const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
+  const { t } = useTranslation()
   const [blockActions, setBlockActions] = useState<Map<string, BlockProposalAction>>(new Map())
   const [editingBlocks, setEditingBlocks] = useState<Set<string>>(new Set())
 
   const pendingBlock = (block: BlockProposal) => {
     return (
       <>
-        <div>{`Block: ${block.block_id}`}</div>
+        <div>{t("block-id", { id: block.id })}</div>
         <div
           className={css`
             max-height: 100px;
             overflow: scroll;
           `}
-        >{`Current: "${block.current_text}"`}</div>
+        >
+          {t("current-text", { "current-text": block.current_text })}
+        </div>
         <div
           className={css`
             max-height: 100px;
             overflow: scroll;
           `}
-        >{`Proposal: "${block.changed_text}"`}</div>
+        >
+          {t("proposed-text", { "changed-text": block.changed_text })}
+        </div>
         {editingBlocks.has(block.id) && (
           <>
             <TextField
@@ -51,6 +57,7 @@ const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
               onChange={(ev) =>
                 setBlockActions((ba) => {
                   if (block.accept_preview !== null) {
+                    // eslint-disable-next-line i18next/no-literal-string
                     ba.set(block.id, { tag: "Accept", data: ev.target.value })
                   }
                   return new Map(ba)
@@ -66,15 +73,20 @@ const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
               max-height: 100px;
               overflow: scroll;
             `}
-          >{`Result: "${block.accept_preview}"`}</div>
+          >
+            {t("result", { result: block.accept_preview })}
+          </div>
         )}
+        {/* eslint-disable-next-line i18next/no-literal-string */}
         <FormControl component="fieldset">
-          <RadioGroup row aria-label="accept or reject proposal" name="radio-buttons-group">
+          {/* eslint-disable-next-line i18next/no-literal-string */}
+          <RadioGroup row aria-label={t("accept-or-reject-proposal")} name="radio-buttons-group">
             {block.accept_preview !== null && (
               <FormControlLabel
+                // eslint-disable-next-line i18next/no-literal-string
                 value="accept"
                 control={<Radio />}
-                label="Accept"
+                label={t("button-text-accept")}
                 onChange={() => {
                   setEditingBlocks((eb) => {
                     eb.delete(block.id)
@@ -82,6 +94,7 @@ const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
                   })
                   setBlockActions((ba) => {
                     if (block.accept_preview !== null) {
+                      // eslint-disable-next-line i18next/no-literal-string
                       ba.set(block.id, { tag: "Accept", data: block.accept_preview })
                     }
                     return new Map(ba)
@@ -90,9 +103,10 @@ const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
               />
             )}
             <FormControlLabel
+              // eslint-disable-next-line i18next/no-literal-string
               value="edit"
               control={<Radio />}
-              label="Edit and accept"
+              label={t("edit-and-accept")}
               onChange={() => {
                 setEditingBlocks((eb) => {
                   eb.add(block.id)
@@ -100,6 +114,7 @@ const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
                 })
                 setBlockActions((ba) => {
                   if (block.accept_preview !== null) {
+                    // eslint-disable-next-line i18next/no-literal-string
                     ba.set(block.id, { tag: "Accept", data: block.accept_preview })
                   }
                   return new Map(ba)
@@ -107,15 +122,17 @@ const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
               }}
             />
             <FormControlLabel
+              // eslint-disable-next-line i18next/no-literal-string
               value="reject"
               control={<Radio />}
-              label="Reject"
+              label={t("button-text-reject")}
               onChange={() => {
                 setEditingBlocks((eb) => {
                   eb.delete(block.id)
                   return new Set(eb)
                 })
                 setBlockActions((ba) => {
+                  // eslint-disable-next-line i18next/no-literal-string
                   ba.set(block.id, { tag: "Reject" })
                   return new Map(ba)
                 })
@@ -130,10 +147,10 @@ const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
   const acceptedBlock = (block: BlockProposal) => {
     return (
       <>
-        {block.status === "Accepted" ? <div>Accepted</div> : <div>Rejected</div>}
-        <div>{`Block: ${block.block_id}`}</div>
-        <div>{`Current: "${block.current_text}"`}</div>
-        <div>{`Proposal: "${block.changed_text}"`}</div>
+        {block.status === "Accepted" ? <div>{t("accepted")}</div> : <div>{t("rejected")}</div>}
+        <div>{t("block-id", { id: block.block_id })}</div>
+        <div>{t("current-text", { "current-text": block.current_text })}</div>
+        <div>{t("proposed-text", { "changed-text": block.changed_text })}</div>
       </>
     )
   }
@@ -147,17 +164,17 @@ const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
 
   return (
     <>
-      <div>{`Page: "${proposal.page_id}"`}</div>
+      <div>{t("title-page-id", { id: proposal.page_id })}</div>
       <ul>
         {proposal.block_proposals.map((b) => {
           return <li key={b.id}>{b.status === "Pending" ? pendingBlock(b) : acceptedBlock(b)}</li>
         })}
       </ul>
       <div>
-        Sent by {proposal.user_id} at {proposal.created_at.toISOString()}
+        {t("sent-by-at", { user: proposal.user_id, time: proposal.created_at.toISOString() })}
       </div>
       {blockActions.size < proposal.block_proposals.length && (
-        <div>You have not selected an action for every change yet.</div>
+        <div>{t("message-you-have-not-selected-an-action-for-every-change-yet")}</div>
       )}
       {proposal.pending && (
         <>
@@ -167,7 +184,7 @@ const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
             onClick={onSend}
             disabled={blockActions.size < proposal.block_proposals.length}
           >
-            Send
+            {t("button-text-send")}
           </Button>
         </>
       )}

@@ -1,16 +1,19 @@
-const colorMap: { [colorName: string]: string | undefined } = {
+/* eslint-disable i18next/no-literal-string */
+// Gutenberg specific, don't use in other contexes
+
+export const colorMap: { [colorName: string]: string | undefined } = {
   black: "#000000",
-  "vivid-red": "#fc2403",
-  "cyan-bluish-gray": "#E0FFFF",
+  "cyan-bluish-gray": "#ABB8C3",
   white: "#FFFFFF",
-  "pale-pink": "#FFC0CB",
-  "luminous-vivid-orange": "#FF7F50",
-  "luminous-vivid-amber": "#FFBF00",
-  "light-green-cyan": "#00FA9A",
-  "vivid-green-cyan": "#7FFF00",
-  "pale-cyan-blue": "#66CDAA",
-  "vivid-cyan-blue": "#00FFFF",
-  "vivid-purple": "#800080",
+  "pale-pink": "#F78DA7",
+  "vivid-red": "#CF2E2E",
+  "luminous-vivid-orange": "#F78DA7",
+  "luminous-vivid-amber": "#FCB900",
+  "light-green-cyan": "#7BDCB5",
+  "vivid-green-cyan": "#00D084",
+  "pale-cyan-blue": "#8ED1FC",
+  "vivid-cyan-blue": "#0693E3",
+  "vivid-purple": "#9B51E0",
 }
 
 const gradientColorMap: { [colorName: string]: string | undefined } = {

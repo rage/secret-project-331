@@ -24,7 +24,7 @@ const Circle = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  font-family: ${headingFont}
+  font-family: ${headingFont};
   &:hover {
     cursor: pointer;
   }

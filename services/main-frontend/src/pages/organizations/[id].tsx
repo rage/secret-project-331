@@ -18,6 +18,7 @@ import {
 } from "../../services/backend/organizations"
 import { NewCourse } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
+import { CardContainer, CourseCard } from "../../shared-module/components/Card/CourseCard"
 import DebugModal from "../../shared-module/components/DebugModal"
 import Pagination from "../../shared-module/components/Pagination"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
@@ -121,28 +122,37 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
           onOrganizationUpdated={() => refetchOrg()}
         />
         <h2>{t("active-courses", { courses: dataOrgActiveCoursesCount.count })}</h2>
-        {dataOrgActiveCourses.length === 0
-          ? t("no-active-courses")
-          : dataOrgActiveCourses.map((course) => (
-              <div key={course.id}>
-                <a href={`/courses/${course.slug}`}>{course.name}</a>
-                {loginStateContext.signedIn && (
-                  <>
-                    <Link
-                      href={{
-                        pathname: "/manage/courses/[id]",
-                        query: {
-                          id: course.id,
-                        },
-                      }}
-                    >
-                      {t("link-manage")}
-                    </Link>
-                  </>
-                )}
-              </div>
-            ))}
-
+        <CardContainer>
+          {dataOrgActiveCourses.length === 0
+            ? t("no-active-courses")
+            : dataOrgActiveCourses.map((course) => (
+                <CourseCard
+                  key={course.id}
+                  name={course.name}
+                  onClick={() => {
+                    // eslint-disable-next-line i18next/no-literal-string
+                    router.push(`/manage/courses/${course.id}`)
+                  }}
+                />
+                // <div key={course.id}>
+                //   <a href={`/courses/${course.slug}`}>{course.name}</a>
+                //   {loginStateContext.signedIn && (
+                //     <>
+                //       <Link
+                //         href={{
+                //           pathname: "/manage/courses/[id]",
+                //           query: {
+                //             id: course.id,
+                //           },
+                //         }}
+                //       >
+                //         {t("link-manage")}
+                //       </Link>
+                //     </>
+                //   )}
+                // </div>
+              ))}
+        </CardContainer>
         <Pagination
           count={Math.ceil(dataOrgActiveCoursesCount.count / PAGE_LIMIT)}
           page={page}
@@ -165,16 +175,6 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
             margin-bottom: 1rem;
           `}
         >
-          {loginStateContext.signedIn && (
-            <Button
-              size="medium"
-              variant="primary"
-              onClick={() => setNewCourseFormOpen(!newCourseFormOpen)}
-            >
-              {t("button-text-create")}
-            </Button>
-          )}
-
           <Dialog open={newCourseFormOpen} onClose={() => setNewCourseFormOpen(!newCourseFormOpen)}>
             <div
               className={css`

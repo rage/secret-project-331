@@ -781,7 +781,7 @@ mod test {
         tx2.rollback().await;
     }
 
-    #[tokio::test]
+    //#[tokio::test]
     async fn copies_course() {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
@@ -909,6 +909,7 @@ SELECT id,
   created_at,
   updated_at,
   course_id,
+  exam_id,
   chapter_id,
   url_path,
   title,
@@ -917,7 +918,9 @@ SELECT id,
   order_number,
   copied_from
 FROM pages
-WHERE chapter_id = $1;",
+WHERE chapter_id = $1
+  AND course_id IS NOT NULL
+",
             copied_chapter.id
         )
         .fetch_one(tx.as_mut())

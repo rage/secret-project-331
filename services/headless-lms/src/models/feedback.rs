@@ -92,7 +92,7 @@ pub async fn get_feedback_for_course(
         r#"
 SELECT feedback.id,
   feedback.user_id,
-  feedback.course_id,
+  feedback.course_id as "course_id!",
   feedback.feedback_given,
   feedback.selected_text,
   feedback.marked_as_read,

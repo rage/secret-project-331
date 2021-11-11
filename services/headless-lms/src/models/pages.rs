@@ -38,7 +38,8 @@ pub struct Page {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
-    pub course_id: Uuid,
+    pub course_id: Option<Uuid>,
+    pub exam_id: Option<Uuid>,
     pub chapter_id: Option<Uuid>,
     pub url_path: String,
     pub title: String,
@@ -67,7 +68,8 @@ pub struct PageWithExercises {
     id: Uuid,
     created_at: DateTime<Utc>,
     updated_at: DateTime<Utc>,
-    course_id: Uuid,
+    course_id: Option<Uuid>,
+    exam_id: Option<Uuid>,
     chapter_id: Option<Uuid>,
     content: serde_json::Value,
     url_path: String,
@@ -127,7 +129,8 @@ pub struct PageMetadata {
     order_number: i32,
     chapter_id: Option<Uuid>,
     chapter_number: Option<i32>,
-    course_id: Uuid,
+    course_id: Option<Uuid>,
+    exam_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
@@ -229,10 +232,13 @@ pub async fn set_chapter(
     Ok(())
 }
 
-pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
-    let course_id = sqlx::query!(
+pub async fn get_course_and_exam_id(
+    conn: &mut PgConnection,
+    id: Uuid,
+) -> ModelResult<(Option<Uuid>, Option<Uuid>)> {
+    let res = sqlx::query!(
         "
-SELECT course_id
+SELECT course_id, exam_id
 FROM pages
 WHERE id = $1
   AND deleted_at IS NULL;
@@ -240,9 +246,8 @@ WHERE id = $1
         id
     )
     .fetch_one(conn)
-    .await?
-    .course_id;
-    Ok(course_id)
+    .await?;
+    Ok((res.course_id, res.exam_id))
 }
 
 pub async fn course_pages(conn: &mut PgConnection, course_id: Uuid) -> ModelResult<Vec<Page>> {
@@ -253,6 +258,7 @@ SELECT id,
   created_at,
   updated_at,
   course_id,
+  exam_id,
   chapter_id,
   url_path,
   title,
@@ -279,6 +285,7 @@ SELECT id,
   created_at,
   updated_at,
   course_id,
+  exam_id,
   chapter_id,
   url_path,
   title,
@@ -305,6 +312,7 @@ SELECT id,
   created_at,
   updated_at,
   course_id,
+  exam_id,
   chapter_id,
   url_path,
   title,
@@ -334,6 +342,7 @@ SELECT pages.id,
   pages.created_at,
   pages.updated_at,
   pages.course_id,
+  pages.exam_id,
   pages.chapter_id,
   pages.url_path,
   pages.title,
@@ -371,28 +380,26 @@ pub async fn get_page_with_user_data_by_path(
         }
     }
 
-    if let Some(user) = user {
-        let instance =
-            course_instances::current_course_instance_of_user(conn, user.id, page.course_id)
-                .await?;
-        let settings = user_course_settings::get_user_course_settings_by_course_id(
-            conn,
-            user.id,
-            page.course_id,
-        )
-        .await?;
-        Ok(CoursePageWithUserData {
-            page,
-            instance,
-            settings,
-        })
-    } else {
-        Ok(CoursePageWithUserData {
-            page,
-            instance: None,
-            settings: None,
-        })
+    if let Some(course_id) = page.course_id {
+        if let Some(user) = user {
+            let instance =
+                course_instances::current_course_instance_of_user(conn, user.id, course_id).await?;
+            let settings = user_course_settings::get_user_course_settings_by_course_id(
+                conn, user.id, course_id,
+            )
+            .await?;
+            return Ok(CoursePageWithUserData {
+                page,
+                instance,
+                settings,
+            });
+        }
     }
+    Ok(CoursePageWithUserData {
+        page,
+        instance: None,
+        settings: None,
+    })
 }
 
 pub async fn get_page_with_exercises(
@@ -532,6 +539,7 @@ RETURNING id,
   created_at,
   updated_at,
   course_id,
+  exam_id,
   chapter_id,
   url_path,
   title,
@@ -623,6 +631,7 @@ RETURNING id,
   created_at,
   updated_at,
   course_id,
+  exam_id,
   chapter_id,
   url_path,
   title,
@@ -997,6 +1006,7 @@ RETURNING id,
   created_at,
   updated_at,
   course_id,
+  exam_id,
   chapter_id,
   url_path,
   title,
@@ -1054,6 +1064,7 @@ RETURNING *;
     Ok(Page {
         content: cms_page.page.content,
         course_id: page.course_id,
+        exam_id: page.exam_id,
         created_at: page.created_at,
         updated_at: page.updated_at,
         deleted_at: page.deleted_at,
@@ -1081,6 +1092,7 @@ RETURNING id,
   created_at,
   updated_at,
   course_id,
+  exam_id,
   chapter_id,
   url_path,
   title,
@@ -1151,6 +1163,7 @@ SELECT id,
   created_at,
   updated_at,
   course_id,
+  exam_id,
   chapter_id,
   url_path,
   title,
@@ -1200,6 +1213,7 @@ WHERE page_id IN (
                 created_at: page.created_at,
                 updated_at: page.updated_at,
                 course_id: page.course_id,
+                exam_id: page.exam_id,
                 chapter_id: page.chapter_id,
                 content: page.content,
                 url_path: page.url_path,
@@ -1270,6 +1284,7 @@ async fn get_current_page_metadata(
 SELECT p.id as page_id,
   p.order_number as order_number,
   p.course_id as course_id,
+  p.exam_id as exam_id,
   c.id as "chapter_id?",
   c.chapter_number as "chapter_number?"
 FROM pages p
@@ -1414,6 +1429,7 @@ SELECT id,
   created_at,
   updated_at,
   course_id,
+  exam_id,
   chapter_id,
   url_path,
   title,

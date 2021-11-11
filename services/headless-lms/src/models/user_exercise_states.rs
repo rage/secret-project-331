@@ -5,8 +5,7 @@ use super::{
     ModelResult,
 };
 use crate::{
-    models::{gradings::UserPointsUpdateStrategy, ModelError},
-    utils::numbers::option_f32_to_f32_two_decimals,
+    models::gradings::UserPointsUpdateStrategy, utils::numbers::option_f32_to_f32_two_decimals,
 };
 use chrono::{DateTime, Utc};
 use core::f32;
@@ -21,7 +20,8 @@ use uuid::Uuid;
 pub struct UserExerciseState {
     pub user_id: Uuid,
     pub exercise_id: Uuid,
-    pub course_instance_id: Uuid,
+    pub course_instance_id: Option<Uuid>,
+    pub exam_id: Option<Uuid>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
@@ -193,45 +193,65 @@ pub async fn get_or_create_user_exercise_state(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
-    course_instance_id: Uuid,
+    course_instance_id: Option<Uuid>,
+    exam_id: Option<Uuid>,
 ) -> ModelResult<UserExerciseState> {
-    let res = sqlx::query_as!(
+    let existing = sqlx::query_as!(
         UserExerciseState,
         r#"
-INSERT INTO user_exercise_states (user_id, exercise_id, course_instance_id)
-VALUES ($1, $2, $3)
-ON CONFLICT (user_id, exercise_id, course_instance_id) DO NOTHING
-RETURNING user_id,
+SELECT user_id,
   exercise_id,
   course_instance_id,
+  exam_id,
   created_at,
   updated_at,
   deleted_at,
   score_given,
   grading_progress as "grading_progress: _",
   activity_progress as "activity_progress: _",
-  selected_exercise_slide_id;
-  "#,
+  selected_exercise_slide_id
+FROM user_exercise_states
+WHERE user_id = $1
+  AND exercise_id = $2
+  AND course_instance_id = $3
+  AND exam_id = $4
+"#,
         user_id,
         exercise_id,
-        course_instance_id
+        course_instance_id,
+        exam_id
     )
     .fetch_optional(&mut *conn)
     .await?;
-    if let Some(o) = res {
-        Ok(o)
+
+    let res = if let Some(existing) = existing {
+        existing
     } else {
-        let existing =
-            get_user_exercise_state_if_exits(conn, user_id, exercise_id, course_instance_id)
-                .await?;
-        if let Some(o) = existing {
-            Ok(o)
-        } else {
-            Err(ModelError::Generic(
-                "Record that existed a moment ago disappeared".to_string(),
-            ))
-        }
-    }
+        sqlx::query_as!(
+            UserExerciseState,
+            r#"
+    INSERT INTO user_exercise_states (user_id, exercise_id, course_instance_id)
+    VALUES ($1, $2, $3)
+    RETURNING user_id,
+      exercise_id,
+      course_instance_id,
+      exam_id,
+      created_at,
+      updated_at,
+      deleted_at,
+      score_given,
+      grading_progress as "grading_progress: _",
+      activity_progress as "activity_progress: _",
+      selected_exercise_slide_id;
+      "#,
+            user_id,
+            exercise_id,
+            course_instance_id
+        )
+        .fetch_one(&mut *conn)
+        .await?
+    };
+    Ok(res)
 }
 
 pub async fn get_user_exercise_state_if_exits(
@@ -246,6 +266,7 @@ pub async fn get_user_exercise_state_if_exits(
 SELECT user_id,
   exercise_id,
   course_instance_id,
+  exam_id,
   created_at,
   updated_at,
   deleted_at,
@@ -397,11 +418,17 @@ pub async fn update_user_exercise_state(
         user_id,
         exercise_id,
         course_instance_id,
+        exam_id,
         ..
     } = submission;
-    let current_state =
-        get_or_create_user_exercise_state(conn, *user_id, *exercise_id, *course_instance_id)
-            .await?;
+    let current_state = get_or_create_user_exercise_state(
+        conn,
+        *user_id,
+        *exercise_id,
+        *course_instance_id,
+        *exam_id,
+    )
+    .await?;
 
     info!(
         "Using user points updating strategy {:?}",
@@ -427,6 +454,7 @@ AND course_instance_id = $3
 RETURNING user_id,
   exercise_id,
   course_instance_id,
+  exam_id,
   created_at,
   updated_at,
   deleted_at,
@@ -437,7 +465,7 @@ RETURNING user_id,
     "#,
         user_id,
         exercise_id,
-        course_instance_id,
+        *course_instance_id,
         new_score_given,
         new_grading_progress as GradingProgress,
         new_activity_progress as ActivityProgress,

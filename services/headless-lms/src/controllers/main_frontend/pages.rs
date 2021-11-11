@@ -116,14 +116,21 @@ async fn delete_page(
     user: AuthUser,
 ) -> ControllerResult<Json<Page>> {
     let mut conn = pool.acquire().await?;
-    let course_id = crate::models::pages::get_course_id(&mut conn, *request_page_id).await?;
-    authorize(
-        &mut conn,
-        Action::Edit,
-        user.id,
-        Resource::Course(course_id),
-    )
-    .await?;
+    let (course_id, exam_id) =
+        crate::models::pages::get_course_and_exam_id(&mut conn, *request_page_id).await?;
+    if let Some(course_id) = course_id {
+        authorize(
+            &mut conn,
+            Action::Edit,
+            user.id,
+            Resource::Course(course_id),
+        )
+        .await?;
+    } else if let Some(exam_id) = exam_id {
+        authorize(&mut conn, Action::Edit, user.id, Resource::Exam(exam_id)).await?;
+    } else {
+        return Err(anyhow::anyhow!("Page not associated with course or exam").into());
+    }
     let deleted_page =
         crate::models::pages::delete_page_and_exercises(&mut conn, *request_page_id).await?;
     Ok(Json(deleted_page))

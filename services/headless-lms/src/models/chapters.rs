@@ -359,6 +359,9 @@ RETURNING *;
         front_page_of_chapter_id: Some(chapter.id),
         title: chapter.name.clone(),
         url_path: format!("/chapter-{}", chapter.chapter_number),
+        exercises: vec![],
+        exercise_slides: vec![],
+        exercise_tasks: vec![],
     };
     let page = crate::models::pages::insert_page(&mut tx, chapter_frontpage, user).await?;
 

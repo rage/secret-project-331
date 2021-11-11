@@ -7,6 +7,7 @@ import CourseObjectiveSection from "./CourseObjectiveSection"
 import CourseProgress from "./CourseProgress"
 import Exercise from "./Exercise"
 import ExerciseInChapter from "./ExerciseInChapter"
+import ExerciseSlide from "./ExerciseSlide"
 import ExerciseTask from "./ExerciseTask"
 import HeroSection from "./HeroSection"
 import LandingPageHeroSection from "./LandingPageHeroSection"
@@ -20,6 +21,7 @@ import UnsupportedBlock from "./UnsupportedBlock"
 export const blockTypeMapForPages = [
   ["moocfi/exercise", Exercise],
   ["moocfi/exercise-task", ExerciseTask],
+  ["moocfi/exercise-slide", ExerciseSlide],
   ["moocfi/course-chapter-grid", CourseChapterGrid],
   ["moocfi/pages-in-chapter", PagesInChapter],
   ["moocfi/exercises-in-chapter", ExerciseInChapter],

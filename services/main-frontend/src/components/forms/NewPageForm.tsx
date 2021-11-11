@@ -42,6 +42,9 @@ const NewPageForm: React.FC<NewPageFormProps> = ({
       title,
       chapter_id: chapterId ?? null,
       front_page_of_chapter_id: null,
+      exercises: [],
+      exercise_slides: [],
+      exercise_tasks: [],
     })
     onSubmitForm()
   }

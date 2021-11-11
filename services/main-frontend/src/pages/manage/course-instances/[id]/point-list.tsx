@@ -8,7 +8,7 @@ import { getPoints } from "../../../../services/backend/course-instances"
 import { User } from "../../../../shared-module/bindings"
 import { isErrorResponse } from "../../../../shared-module/bindings.guard"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
-import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import { frontendWideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
@@ -81,7 +81,7 @@ const PointList: React.FC<PointListProps> = ({ query }) => {
     <Layout navVariant="complex">
       <div
         className={css`
-          ${wideWidthCenteredComponentStyles}
+          ${frontendWideWidthCenteredComponentStyles}
           display: flex;
           flex-direction: column;
           color: #707070;

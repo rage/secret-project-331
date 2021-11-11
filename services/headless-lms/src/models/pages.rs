@@ -649,8 +649,7 @@ RETURNING id,
     .await?;
 
     // Now, we might have changed some of the exercise ids and need to do the same changes in the page content as well
-    // TODO: change signature of this function to avoid copying.
-    let new_content = update_ids_in_content(
+    let new_content = crate::utils::document_schema_processor::remap_ids_in_content(
         &page.content,
         remapped_exercises
             .iter()
@@ -997,19 +996,6 @@ async fn fetch_derived_spec(
         }
     };
     Ok(result_spec)
-}
-
-fn update_ids_in_content(
-    content: &serde_json::Value,
-    chaged_ids: HashMap<Uuid, Uuid>,
-) -> ModelResult<serde_json::Value> {
-    // naive implementation for now because the structure of the content was not decided at the time of writing this.
-    // In the future we could only edit the necessary fields.
-    let mut content_str = serde_json::to_string(content)?;
-    for (k, v) in chaged_ids.into_iter() {
-        content_str = content_str.replace(&k.to_string(), &v.to_string());
-    }
-    Ok(serde_json::from_str(&content_str)?)
 }
 
 pub async fn insert_page(

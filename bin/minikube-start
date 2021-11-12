@@ -20,9 +20,9 @@ if [ "$AMOUNT_OF_MEMORY_TO_USE_GB" -lt "9" ]; then
   # However, if we got less memory than 9GB, use 3/4 of the total memory. (We divide by 1 to convert to whole number)
   AMOUNT_OF_MEMORY_TO_USE_GB=$(echo "$TOTAL_MEM_GB * 0.75 / 1" | bc)
 fi
+# This if statement depends on the modification that the previous if statement makes to AMOUNT_OF_MEMORY_TO_USE_GB
 if [ "$AMOUNT_OF_MEMORY_TO_USE_GB" -lt "5" ]; then
   # If running on a machine that is a literal potato, tell minikube to use max ram
-  # The if statement depends on the modification that the previous if statement makes to AMOUNT_OF_MEMORY_TO_USE_GB
   echo -e "${RED}Warning: Your computer has so little available RAM that you might encounter problems running the project.$RESET_EVERYTHING"
   AMOUNT_OF_MEMORY_TO_USE_GB="max"
 fi

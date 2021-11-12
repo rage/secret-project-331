@@ -42,7 +42,7 @@ jobs:
         with:
           minikube version: "v1.23.2"
           kubernetes version: "v1.22.2"
-          start args: "--addons ingress"
+          start args: "--addons ingress --memory max"
           driver: "docker"
 
       - name: Debug kube-system

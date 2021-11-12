@@ -17,16 +17,20 @@ TOTAL_MEM_GB=$(free --giga | grep Mem | sed 's/  */ /g' | cut -d ' ' -f 2)
 # By default, use 1/2 of the hosts memory for minikube
 AMOUNT_OF_MEMORY_TO_USE_GB=$((TOTAL_MEM_GB/2))
 if [ "$AMOUNT_OF_MEMORY_TO_USE_GB" -lt "9" ]; then
-  # However, if we got less memory than 9GB, use 3/4 of the total memory
-  AMOUNT_OF_MEMORY_TO_USE_GB=$(echo "$TOTAL_MEM_GB / 1.3333333333" | bc)
+  # However, if we got less memory than 9GB, use 3/4 of the total memory. (We divide by 1 to convert to whole number)
+  AMOUNT_OF_MEMORY_TO_USE_GB=$(echo "$TOTAL_MEM_GB * 0.75 / 1" | bc)
 fi
-
-MEMORY_TO_USE="${AMOUNT_OF_MEMORY_TO_USE_GB}g"
-
 if [ "$AMOUNT_OF_MEMORY_TO_USE_GB" -lt "5" ]; then
   # If running on a machine that is a literal potato, tell minikube to use max ram
+  # The if statement depends on the modification that the previous if statement makes to AMOUNT_OF_MEMORY_TO_USE_GB
   echo -e "${RED}Warning: Your computer has so little available RAM that you might encounter problems running the project.$RESET_EVERYTHING"
+  AMOUNT_OF_MEMORY_TO_USE_GB="max"
+fi
+
+if [ "$AMOUNT_OF_MEMORY_TO_USE_GB" = "max" ]; then
   MEMORY_TO_USE="max"
+else
+  MEMORY_TO_USE="${AMOUNT_OF_MEMORY_TO_USE_GB}g"
 fi
 
 echo -e "${BLUE}Hint: you can append options to the command by giving this script extra arguments."

@@ -1,7 +1,12 @@
-use super::ModelResult;
+use super::{chapters::DatabaseChapter, users::User, ModelResult};
+use crate::{
+    models::{chapters, exercises},
+    utils::pagination::Pagination,
+};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{PgConnection, Type};
+use std::collections::HashMap;
 use ts_rs::TS;
 use uuid::Uuid;
 
@@ -285,6 +290,112 @@ WHERE id = $2;
     .execute(conn)
     .await?;
     Ok(())
+}
+
+#[derive(Debug, Serialize, TS)]
+pub struct ChapterScore {
+    #[serde(flatten)]
+    chapter: DatabaseChapter,
+    score_given: f32,
+    score_total: i32,
+}
+
+#[derive(Debug, Default, Serialize, TS)]
+pub struct PointMap(pub HashMap<Uuid, f32>);
+
+#[derive(Debug, Serialize, TS)]
+pub struct Points {
+    chapter_points: Vec<ChapterScore>,
+    users: Vec<User>,
+    // PointMap is a workaround for https://github.com/rhys-vdw/ts-auto-guard/issues/158
+    user_chapter_points: HashMap<Uuid, PointMap>,
+}
+
+pub async fn get_points(
+    conn: &mut PgConnection,
+    instance_id: Uuid,
+    _pagination: &Pagination, // TODO
+) -> ModelResult<Points> {
+    let mut chapter_point_totals = HashMap::<Uuid, i32>::new();
+    let mut exercise_to_chapter_id = HashMap::new();
+    let exercises = exercises::get_exercises_by_course_instance_id(&mut *conn, instance_id).await?;
+    for exercise in exercises {
+        let total = chapter_point_totals.entry(exercise.chapter_id).or_default();
+        *total += exercise.score_maximum;
+        exercise_to_chapter_id.insert(exercise.id, exercise.chapter_id);
+    }
+
+    let users: HashMap<Uuid, User> = sqlx::query_as!(
+        User,
+        "
+SELECT *
+FROM users
+WHERE id IN (
+    SELECT user_id
+    FROM course_instance_enrollments
+    WHERE course_instance_id = $1
+      AND deleted_at IS NULL
+  )
+",
+        instance_id
+    )
+    .fetch_all(&mut *conn)
+    .await?
+    .into_iter()
+    .map(|u| (u.id, u))
+    .collect();
+    let mut chapter_points_given = HashMap::<Uuid, f32>::new();
+    let states = sqlx::query!(
+        "
+SELECT user_id,
+  exercise_id,
+  score_given
+FROM user_exercise_states
+WHERE course_instance_id = $1
+ORDER BY user_id ASC
+",
+        instance_id,
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+    let mut user_chapter_points = HashMap::<Uuid, PointMap>::new();
+    for state in states {
+        let user = match users.get(&state.user_id) {
+            Some(user) => user,
+            None => {
+                tracing::warn!(
+                    "user {} has an exercise state but no enrollment",
+                    state.user_id
+                );
+                continue;
+            }
+        };
+        if let Some(chapter_id) = exercise_to_chapter_id.get(&state.exercise_id).copied() {
+            let chapter_points = user_chapter_points.entry(user.id).or_default();
+            let user_given = chapter_points.0.entry(chapter_id).or_default();
+            let chapter_given = chapter_points_given.entry(chapter_id).or_default();
+            let score_given = state.score_given.unwrap_or_default();
+            *user_given += score_given;
+            *chapter_given += score_given;
+        }
+    }
+
+    let chapters = chapters::course_instance_chapters(&mut *conn, instance_id).await?;
+    let mut chapter_points: Vec<ChapterScore> = chapters
+        .into_iter()
+        .map(|c| ChapterScore {
+            score_given: chapter_points_given.get(&c.id).copied().unwrap_or_default(),
+            score_total: chapter_point_totals.get(&c.id).copied().unwrap_or_default(),
+            chapter: c,
+        })
+        .collect();
+    chapter_points.sort_by_key(|c| c.chapter.chapter_number);
+
+    Ok(Points {
+        chapter_points,
+        users: users.into_values().collect(),
+        user_chapter_points,
+    })
 }
 
 pub async fn edit(

@@ -11,18 +11,18 @@ use ts_rs::TS;
 pub struct Pagination {
     // the deserialize implementation contains a default value for page
     #[ts(rename = "page?")]
-    page: i64,
+    page: u32,
     // the deserialize implementation contains a default value for limit
     #[ts(rename = "limit?")]
-    limit: i64,
+    limit: u32,
 }
 
 impl Pagination {
-    pub fn new(page: i64, limit: i64) -> Result<Self> {
-        if page <= 0 {
+    pub fn new(page: u32, limit: u32) -> Result<Self> {
+        if page == 0 {
             return Err(anyhow::anyhow!("Page must be a positive value."));
         }
-        if limit <= 0 {
+        if limit == 0 {
             return Err(anyhow::anyhow!("Limit must be a positive value."));
         }
         Ok(Pagination { page, limit })
@@ -30,21 +30,21 @@ impl Pagination {
 
     /// Guaranteed to be positive.
     pub fn page(&self) -> i64 {
-        self.page
+        self.page.into()
     }
 
     /// Guaranteed to be positive.
     pub fn limit(&self) -> i64 {
-        self.limit
+        self.limit.into()
     }
 
     /// Guaranteed to be nonnegative.
     pub fn offset(&self) -> i64 {
-        self.limit * (self.page - 1)
+        (self.limit * (self.page - 1)).into()
     }
 
     /// Guaranteed to be positive.
-    pub fn total_pages(&self, total_count: i64) -> i64 {
+    pub fn total_pages(&self, total_count: u32) -> u32 {
         let remainder = total_count % self.limit;
         if remainder == 0 {
             total_count / self.limit
@@ -158,11 +158,11 @@ impl<'de> Deserialize<'de> for Pagination {
 #[serde(untagged)]
 enum StrOrInt<'a> {
     Str(&'a str),
-    Int(i64),
+    Int(u32),
 }
 
 impl StrOrInt<'_> {
-    fn into_int(self) -> Result<i64, ParseIntError> {
+    fn into_int(self) -> Result<u32, ParseIntError> {
         match self {
             Self::Str(s) => s.parse(),
             Self::Int(i) => Ok(i),

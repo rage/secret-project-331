@@ -1,0 +1,99 @@
+import { expect, test } from "@playwright/test"
+
+import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
+import waitForFunction from "../../utils/waitForFunction"
+
+test.use({
+  storageState: "src/states/teacher@example.com.json",
+})
+
+test("test", async ({ page, headless }) => {
+  // Go to http://project-331.local/
+  await page.goto("http://project-331.local/")
+
+  // Click text=University of Helsinki, Department of Computer Science
+  await Promise.all([
+    page.waitForNavigation(),
+    page.click("text=University of Helsinki, Department of Computer Science"),
+  ])
+  await expect(page).toHaveURL(
+    "http://project-331.local/organizations/8bb12295-53ac-4099-9644-ac0ff5e34d92",
+  )
+
+  // Click text=Point view for teachers
+  await Promise.all([
+    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/point-view-for-teachers' }*/),
+    page.click("text=Point view for teachers"),
+  ])
+
+  // Click text=Default
+  await page.click("text=Default")
+
+  // Click button:has-text("Continue")
+  await page.click('button:has-text("Continue")')
+
+  // Click text=Start course
+  await page.click("text=Start course")
+
+  // Click text=The Basics
+  await Promise.all([
+    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/point-view-for-teachers/chapter-1' }*/),
+    page.click("text=The Basics"),
+  ])
+
+  // Click text=Page One
+  await Promise.all([
+    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/point-view-for-teachers/chapter-1/page-1' }*/),
+    page.click("text=Page One"),
+  ])
+
+  // Click text=b
+  const frame = await waitForFunction(page, () =>
+    page.frames().find((f) => {
+      return f.url().startsWith("http://project-331.local/example-exercise/exercise")
+    }),
+  )
+  await frame.click("text=b")
+
+  // Click text=Submit
+  await page.click("text=Submit")
+  await page.waitForSelector("text=Good job")
+
+  await page.goto("http://project-331.local/")
+
+  // Click text=University of Helsinki, Department of Computer Science
+  await page.click("text=University of Helsinki, Department of Computer Science")
+  await expect(page).toHaveURL(
+    "http://project-331.local/organizations/8bb12295-53ac-4099-9644-ac0ff5e34d92",
+  )
+
+  // Click text=Point view for teachers Manage >> :nth-match(a, 2)
+  await page.click("text=Point view for teachers Manage >> :nth-match(a, 2)")
+  await expect(page).toHaveURL(
+    "http://project-331.local/manage/courses/b4cb334c-11d6-4e93-8f3d-849c4abfcd67",
+  )
+
+  // Click text=View points
+  await Promise.all([
+    page.waitForNavigation(/*{ url: 'http://project-331.local/manage/course-instances/1544bf21-240a-56c4-a391-9b0621051fa6/point-list' }*/),
+    page.click("text=View points"),
+  ])
+
+  await expectScreenshotsToMatchSnapshots({
+    headless,
+    snapshotName: "point-view-top",
+    waitForThisToBeVisibleAndStable: "text=TOTAL POINT DASHBOARD",
+    page,
+    axeSkip: false,
+  })
+
+  await page.click("text=user_4@example.com")
+
+  await expectScreenshotsToMatchSnapshots({
+    headless,
+    snapshotName: "point-view-bottom",
+    waitForThisToBeVisibleAndStable: "text=user_4@example.com",
+    page,
+    axeSkip: false,
+  })
+})

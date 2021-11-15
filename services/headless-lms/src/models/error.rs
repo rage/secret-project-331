@@ -1,3 +1,4 @@
+use std::num::TryFromIntError;
 use thiserror::Error;
 
 pub type ModelResult<T> = Result<T, ModelError>;
@@ -15,6 +16,8 @@ pub enum ModelError {
     PreconditionFailed(String),
     #[error("{0}")]
     InvalidRequest(String),
+    #[error("{0}")]
+    Conversion(#[from] TryFromIntError),
     #[error(transparent)]
     Database(sqlx::Error),
     #[error(transparent)]

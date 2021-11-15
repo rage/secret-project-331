@@ -3,6 +3,7 @@ import {
   CourseInstanceForm,
   EmailTemplate,
   EmailTemplateNew,
+  Points,
 } from "../../../shared-module/bindings"
 import { mainFrontendClient } from "../../mainFrontendClient"
 
@@ -36,6 +37,13 @@ export const fetchCourseInstanceEmailTemplates = async (
       responseType: "json",
     },
   )
+  return response.data
+}
+
+export const getPoints = async (courseInstanceId: string): Promise<Points> => {
+  const response = await mainFrontendClient.get(`/course-instances/${courseInstanceId}/points`, {
+    responseType: "json",
+  })
   return response.data
 }
 

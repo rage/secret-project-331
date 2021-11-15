@@ -15,7 +15,7 @@ use uuid::Uuid;
 #[derive(Debug, Serialize, TS)]
 pub struct ExerciseSubmissions {
     data: Vec<Submission>,
-    total_pages: i64,
+    total_pages: u32,
 }
 
 /**

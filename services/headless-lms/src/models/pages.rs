@@ -15,7 +15,7 @@ use crate::{
         exercise_services::{get_internal_public_spec_url, get_model_solution_url},
         exercise_tasks::ExerciseTask,
         exercises::Exercise,
-        page_history::HistoryChangeReason,
+        page_history::{self, HistoryChangeReason, PageHistoryContent},
         ModelError,
     },
     utils::document_schema_processor::{
@@ -207,7 +207,12 @@ RETURNING id
         &mut tx,
         page_res.id,
         title,
-        &serde_json::Value::Array(vec![]),
+        &PageHistoryContent {
+            content: serde_json::Value::Array(vec![]),
+            exercises: vec![],
+            exercise_slides: vec![],
+            exercise_tasks: vec![],
+        },
         HistoryChangeReason::PageSaved,
         author,
         None,
@@ -549,6 +554,7 @@ pub async fn update_page(
     page_update: CmsPageUpdate,
     author: Uuid,
     retain_exercise_ids: bool,
+    history_change_reason: HistoryChangeReason,
 ) -> ModelResult<ContentManagementPage> {
     page_update.validate_exercise_data()?;
 
@@ -639,7 +645,7 @@ RETURNING id,
     )
     .fetch_all(&mut tx)
     .await?;
-    let remapped_exercise_tasks = upsert_exercise_tasks(
+    let final_tasks = upsert_exercise_tasks(
         &mut tx,
         &remapped_exercise_slides,
         &existing_exercise_task_specs,
@@ -681,13 +687,20 @@ RETURNING id,
     .fetch_one(&mut tx)
     .await?;
 
-    let history_content = serde_json::to_value(&new_content)?;
+    let final_exercises: Vec<CmsPageExercise> = remapped_exercises.into_values().collect();
+    let final_slides: Vec<CmsPageExerciseSlide> = remapped_exercise_slides.into_values().collect();
+    let history_content = PageHistoryContent {
+        content: page.content.clone(),
+        exercises: final_exercises,
+        exercise_slides: final_slides,
+        exercise_tasks: final_tasks,
+    };
     crate::models::page_history::insert(
         &mut tx,
         page_id,
         &page_update.title,
         &history_content,
-        HistoryChangeReason::PageSaved,
+        history_change_reason,
         author,
         None,
     )
@@ -698,9 +711,9 @@ RETURNING id,
 
     Ok(ContentManagementPage {
         page,
-        exercises: remapped_exercises.into_values().collect(),
-        exercise_slides: remapped_exercise_slides.into_values().collect(),
-        exercise_tasks: remapped_exercise_tasks,
+        exercises: history_content.exercises,
+        exercise_slides: history_content.exercise_slides,
+        exercise_tasks: history_content.exercise_tasks,
     })
 }
 
@@ -1061,6 +1074,7 @@ RETURNING id,
         },
         author,
         false,
+        HistoryChangeReason::PageSaved,
     )
     .await?;
 
@@ -1661,47 +1675,29 @@ pub async fn restore(
     history_id: Uuid,
     author: Uuid,
 ) -> ModelResult<Uuid> {
-    let mut tx = conn.begin().await?;
-
     // fetch old content
-    let page = get_page(&mut tx, page_id).await?;
-    let content_to_restore = sqlx::query!(
-        "
-SELECT title, content
-FROM page_history
-WHERE id = $1
-",
-        history_id
-    )
-    .fetch_one(&mut tx)
-    .await?;
+    let page = get_page(conn, page_id).await?;
+    let (content_to_restore, title_to_restore) =
+        page_history::get_history_content_and_title(conn, history_id).await?;
 
-    // restore page content
-    sqlx::query!(
-        "
-UPDATE pages
-SET content = $1
-WHERE id = $2
-",
-        content_to_restore.content,
-        page_id,
-    )
-    .execute(&mut tx)
-    .await?;
-
-    // TODO(?): Update exercises according to content.
-
-    let history_id = crate::models::page_history::insert(
-        &mut tx,
-        page_id,
-        &content_to_restore.title,
-        &page.content,
-        HistoryChangeReason::HistoryRestored,
+    update_page(
+        conn,
+        page.id,
+        CmsPageUpdate {
+            content: content_to_restore.content,
+            exercises: content_to_restore.exercises,
+            exercise_slides: content_to_restore.exercise_slides,
+            exercise_tasks: content_to_restore.exercise_tasks,
+            url_path: page.url_path,
+            title: title_to_restore,
+            chapter_id: page.chapter_id,
+        },
         author,
-        Some(history_id),
+        true,
+        HistoryChangeReason::HistoryRestored,
     )
     .await?;
-    tx.commit().await?;
+
     Ok(history_id)
 }
 

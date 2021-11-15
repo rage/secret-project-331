@@ -6,6 +6,7 @@ use headless_lms_actix::models::course_instances::NewCourseInstance;
 use headless_lms_actix::models::courses::NewCourse;
 use headless_lms_actix::models::exercises::GradingProgress;
 use headless_lms_actix::models::feedback::{FeedbackBlock, NewFeedback};
+use headless_lms_actix::models::page_history::HistoryChangeReason;
 use headless_lms_actix::models::pages::{
     CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate, NewPage,
 };
@@ -1486,6 +1487,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         },
         admin,
         true,
+        HistoryChangeReason::PageSaved,
     )
     .await?;
     // FAQ, we should add card/accordion block to visualize here.
@@ -1525,6 +1527,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         },
         admin,
         true,
+        HistoryChangeReason::PageSaved,
     )
     .await?;
 
@@ -1640,6 +1643,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         },
         admin,
         true,
+        HistoryChangeReason::PageSaved
     )
     .await?;
     // /chapter-2/user-research
@@ -1736,6 +1740,7 @@ async fn create_page(
         },
         author,
         true,
+        HistoryChangeReason::PageSaved,
     )
     .await?;
     Ok(page.id)

@@ -2,7 +2,10 @@
 use crate::{
     controllers::ControllerResult,
     domain::authorization::{authorize, Action, AuthUser, Resource},
-    models::pages::{CmsPageUpdate, ContentManagementPage},
+    models::{
+        page_history::HistoryChangeReason,
+        pages::{CmsPageUpdate, ContentManagementPage},
+    },
 };
 use actix_web::web::ServiceConfig;
 use actix_web::web::{self, Json};
@@ -116,9 +119,15 @@ async fn update_page(
         Resource::Course(course_id),
     )
     .await?;
-    let saved =
-        crate::models::pages::update_page(&mut conn, *request_page_id, page_update, user.id, false)
-            .await?;
+    let saved = crate::models::pages::update_page(
+        &mut conn,
+        *request_page_id,
+        page_update,
+        user.id,
+        false,
+        HistoryChangeReason::PageSaved,
+    )
+    .await?;
     Ok(Json(saved))
 }
 

@@ -2822,16 +2822,6 @@
       "nullable": [false, false, false, false, true, false, false, true, false, false, true]
     }
   },
-  "502d624be97efadd5fea8635bd71d85dd770df10088f3d1fe5ff749dd0e9bd7f": {
-    "query": "\nUPDATE pages\nSET content = $1\nWHERE id = $2\n",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Jsonb", "Uuid"]
-      },
-      "nullable": []
-    }
-  },
   "508269ab48e0355bb4c262ae7a5c01ad0d5641474893c97c9c81a249173a8012": {
     "query": "\nUPDATE courses\nSET deleted_at = now()\nWHERE id = $1\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id\n    ",
     "describe": {
@@ -5608,27 +5598,6 @@
       "nullable": []
     }
   },
-  "a89142eebe3548b14c3a9f146864601f9ce78fa1d24dd5cf4958302343605b60": {
-    "query": "\nSELECT title, content\nFROM page_history\nWHERE id = $1\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "title",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 1,
-          "name": "content",
-          "type_info": "Jsonb"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false]
-    }
-  },
   "a89229206eb10f259c87f02d3ce26c615da3eaa56bcd1a5f5784e9c2eac57507": {
     "query": "\nINSERT INTO courses (\n    name,\n    organization_id,\n    slug,\n    content_search_language,\n    language_code,\n    copied_from,\n    course_language_group_id\n  )\nVALUES ($1, $2, $3, $4::regconfig, $5, $6, $7)\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id;\n    ",
     "describe": {
@@ -6566,6 +6535,27 @@
         "Left": ["Uuid"]
       },
       "nullable": [null, null, null]
+    }
+  },
+  "c9a920e190f53f7841a88005cabfe9ee58e51dfbb18990c08bbd769a4dd857f8": {
+    "query": "\nSELECT content, title\nFROM page_history\nWHERE id = $1\n  AND deleted_at IS NULL;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "content",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 1,
+          "name": "title",
+          "type_info": "Varchar"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false]
     }
   },
   "ccdcf7ce3537744686b4a00dc74692d8c5b333e058fcf54fed5891ec2c527d60": {

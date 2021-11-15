@@ -3,7 +3,7 @@ import Image from "next/image"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-//  import Finland from "../../imgs/flags/Finland.png"
+import Finland from "../../imgs/flags/Finland.png"
 import SettingIcon from "../../imgs/setting.svg"
 
 import LanguageSelector from "./LanguageSelector"

@@ -157,6 +157,8 @@ export interface NormalizedQuizItem {
   allAnswersCorrect: boolean
   direction: "row" | "column"
   feedbackDisplayPolicy: "DisplayFeedbackOnQuizItem" | "DisplayFeedbackOnAllOptions"
+  rows: number | null
+  columns: number | null
 }
 
 export interface QuizItemVariables {
@@ -175,6 +177,11 @@ export interface QuizItemVariables {
   validRegex: boolean
   validFormatRegex: boolean
   newOptions: string[]
+  rows: number
+  columns: number
+  matrixValidSize: number[]
+  validColumn: boolean
+  validRow: boolean
 }
 
 export interface PublicQuizItem {

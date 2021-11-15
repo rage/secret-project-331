@@ -132,6 +132,22 @@ export const editedItemDirection = createAction(
   (itemId: string, newDirection) => ({ itemId, newDirection }),
 )<{ itemId: string; newDirection: "row" | "column" }>()
 
+export const editedMatrixColumnSize = createAction(
+  "EDITED_MATRIX_COLUMN_SIZE",
+  (itemId: string, newSize) => ({
+    itemId,
+    newSize,
+  }),
+)<{ itemId: string; newSize: number }>()
+
+export const editedMatrixRowSize = createAction(
+  "EDITED_MATRIX_ROW_SIZE",
+  (itemId: string, newSize) => ({
+    itemId,
+    newSize,
+  }),
+)<{ itemId: string; newSize: number }>()
+
 export const editedQuizItemFeedbackDisplayPolicy = createAction(
   "EDITED_QUIZ_ITEM_FEEDBACK_POLICY",
   (itemId: string, newPolicy) => ({ itemId, newPolicy }),
@@ -161,6 +177,8 @@ export const itemActions = [
   toggledAllAnswersCorrect,
   editedItemDirection,
   editedQuizItemFeedbackDisplayPolicy,
+  editedMatrixColumnSize,
+  editedMatrixRowSize,
 ]
 
 export default itemActions

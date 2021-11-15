@@ -9,47 +9,12 @@ use crate::{
         ErrorResponse, UploadResult,
     },
     models::{
-        chapters::{
-            Chapter, ChapterStatus, ChapterUpdate, ChapterWithStatus, NewChapter,
-            UserCourseInstanceChapterProgress,
-        },
-        course_instance_enrollments::CourseInstanceEnrollment,
-        course_instances::{CourseInstance, CourseInstanceForm, VariantStatus},
-        courses::{Course, CourseStructure, CourseUpdate, NewCourse},
-        email_templates::{EmailTemplate, EmailTemplateNew, EmailTemplateUpdate},
-        exercise_service_info::{CourseMaterialExerciseServiceInfo, ExerciseServiceInfoApi},
-        exercise_services::{ExerciseService, ExerciseServiceNewOrUpdate},
-        exercise_slides::ExerciseSlide,
-        exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
-        exercises::{
-            ActivityProgress, CourseMaterialExercise, Exercise, ExerciseStatus, GradingProgress,
-        },
-        feedback::{Feedback, FeedbackBlock, FeedbackCount, NewFeedback},
-        gradings::{Grading, UserPointsUpdateStrategy},
-        organizations::Organization,
-        page_history::{HistoryChangeReason, PageHistory},
-        pages::{
-            CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate,
-            ContentManagementPage, CoursePageWithUserData, ExerciseWithExerciseTasks,
-            HistoryRestoreData, NewPage, Page, PageRoutingDataWithChapterStatus, PageSearchRequest,
-            PageSearchResult, PageWithExercises,
-        },
-        playground_examples::{PlaygroundExample, PlaygroundExampleData},
-        proposed_block_edits::{
-            BlockProposal, BlockProposalAction, BlockProposalInfo, NewProposedBlockEdit,
-            ProposalStatus,
-        },
-        proposed_page_edits::{
-            EditProposalInfo, NewProposedPageEdits, PageProposal, ProposalCount,
-        },
-        submissions::{
-            NewSubmission, Submission, SubmissionCount, SubmissionCountByExercise,
-            SubmissionCountByWeekAndHour, SubmissionInfo, SubmissionResult,
-        },
-        user_course_settings::UserCourseSettings,
-        user_exercise_states::{
-            UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress,
-        },
+        chapters::*, course_instance_enrollments::*, course_instances::*, courses::*,
+        email_templates::*, exams::*, exercise_service_info::*, exercise_services::*,
+        exercise_slides::*, exercise_tasks::*, exercises::*, feedback::*, gradings::*,
+        organizations::*, page_history::*, pages::*, playground_examples::*,
+        proposed_block_edits::*, proposed_page_edits::*, submissions::*, user_course_settings::*,
+        user_exercise_states::*,
     },
     utils::pagination::Pagination,
 };
@@ -115,6 +80,7 @@ ts_rs::export! {
   GetEditProposalsQuery,
   NewProposedPageEdits,
   ErrorResponse,
+  Exam,
   // dependencies
   VariantStatus,
   ChapterStatus,

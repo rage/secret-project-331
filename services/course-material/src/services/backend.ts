@@ -48,6 +48,15 @@ export interface Block<T> {
   innerBlocks: Block<unknown>[]
 }
 
+export const fetchPageByExamId = async (id: string): Promise<Page> => {
+  const data = (
+    await courseMaterialClient.get(`/pages/exam/${id}`, {
+      responseType: "json",
+    })
+  ).data
+  return data
+}
+
 export const fetchCoursePageByPath = async (
   courseSlug: string,
   path: string,

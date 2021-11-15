@@ -3,7 +3,10 @@ CREATE TABLE exams (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-  deleted_at TIMESTAMP WITH TIME ZONE
+  deleted_at TIMESTAMP WITH TIME ZONE,
+  name VARCHAR(255) NOT NULL,
+  opens_at TIMESTAMPTZ,
+  duration_minutes INTEGER
 );
 CREATE TABLE course_exams (
   course_id UUID NOT NULL REFERENCES courses,

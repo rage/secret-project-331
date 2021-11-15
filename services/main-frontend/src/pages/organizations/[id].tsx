@@ -9,6 +9,7 @@ import Layout from "../../components/Layout"
 import OrganizationImageWidget from "../../components/OrganizationImageWidget"
 import NewCourseForm from "../../components/forms/NewCourseForm"
 import { postNewCourse } from "../../services/backend/courses"
+import { fetchOrganizationExams } from "../../services/backend/exams"
 import { fetchOrganization, fetchOrganizationCourses } from "../../services/backend/organizations"
 import { NewCourse } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
@@ -38,6 +39,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
     data: dataOrg,
     refetch: refetchOrg,
   } = useQuery(`organization-${query.id}`, () => fetchOrganization(query.id))
+  const exams = useQuery(`organization-${query.id}-exams`, () => fetchOrganizationExams(query.id))
   const loginStateContext = useContext(LoginStateContext)
 
   const [newCourseFormOpen, setNewCourseFormOpen] = useState(false)
@@ -50,7 +52,18 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
     return <pre>{JSON.stringify(errorOrg, undefined, 2)}</pre>
   }
 
-  if (isLoadingOrgCourses || !dataOrgCourses || isLoadingOrg || !dataOrg) {
+  if (exams.isError) {
+    return <pre>{JSON.stringify(exams.error, undefined, 2)}</pre>
+  }
+
+  if (
+    isLoadingOrgCourses ||
+    !dataOrgCourses ||
+    isLoadingOrg ||
+    !dataOrg ||
+    exams.isLoading ||
+    !exams.data
+  ) {
     return <>{t("loading-text")}</>
   }
 
@@ -127,6 +140,12 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
             </div>
           </Dialog>
         </div>
+        <h1>Organization exams</h1>
+        {exams.data.map((e) => (
+          <div key={e.id}>
+            <a href={`/courses/exams/${e.id}`}>{e.name}</a> for {e.course_name}
+          </div>
+        ))}
         <DebugModal data={dataOrgCourses} />
       </div>
     </Layout>

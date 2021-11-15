@@ -80,7 +80,8 @@ export interface Page {
   id: string
   created_at: Date
   updated_at: Date
-  course_id: string
+  course_id: string | null
+  exam_id: string | null
   chapter_id: string | null
   url_path: string
   title: string
@@ -98,7 +99,8 @@ export interface PageWithExercises {
   id: string
   created_at: Date
   updated_at: Date
-  course_id: string
+  course_id: string | null
+  exam_id: string | null
   chapter_id: string | null
   content: unknown
   url_path: string
@@ -224,7 +226,8 @@ export interface Exercise {
   created_at: Date
   updated_at: Date
   name: string
-  course_id: string
+  course_id: string | null
+  exam_id: string | null
   page_id: string
   chapter_id: string
   deadline: Date | null
@@ -318,9 +321,11 @@ export interface NewPage {
   content: unknown
   url_path: string
   title: string
-  course_id: string
+  course_id: string | null
+  exam_id: string | null
   chapter_id: string | null
   front_page_of_chapter_id: string | null
+  content_search_language: string | null
 }
 
 export interface NewSubmission {
@@ -476,6 +481,13 @@ export interface ErrorResponse {
   source: string | null
 }
 
+export interface Exam {
+  id: string
+  course_id: string
+  course_name: string
+  name: string
+}
+
 export type VariantStatus = "Draft" | "Upcoming" | "Active" | "Ended"
 
 export type ChapterStatus = "open" | "closed"
@@ -504,8 +516,9 @@ export interface Submission {
   updated_at: Date
   deleted_at: Date | null
   exercise_id: string
-  course_id: string
-  course_instance_id: string
+  course_id: string | null
+  course_instance_id: string | null
+  exam_id: string | null
   exercise_task_id: string
   data_json: unknown | null
   grading_id: string | null
@@ -518,7 +531,8 @@ export interface Grading {
   created_at: Date
   updated_at: Date
   submission_id: string
-  course_id: string
+  course_id: string | null
+  exam_id: string | null
   exercise_id: string
   exercise_task_id: string
   grading_priority: number

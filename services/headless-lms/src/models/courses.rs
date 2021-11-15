@@ -565,13 +565,15 @@ RETURNING id,
     let course_front_page = NewPage {
         chapter_id: None,
         content: course_front_page_content,
-        course_id: course.id,
+        course_id: Some(course.id),
+        exam_id: None,
         front_page_of_chapter_id: None,
         title: course.name.clone(),
         url_path: String::from("/"),
         exercises: vec![],
         exercise_slides: vec![],
         exercise_tasks: vec![],
+        content_search_language: None,
     };
     let page = crate::models::pages::insert_page(&mut tx, course_front_page, user).await?;
 

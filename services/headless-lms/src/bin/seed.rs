@@ -1,5 +1,5 @@
 use anyhow::Result;
-use chrono::{TimeZone, Utc};
+use chrono::{Duration, TimeZone, Utc};
 use headless_lms_actix::attributes;
 use headless_lms_actix::models::chapters::NewChapter;
 use headless_lms_actix::models::course_instances::NewCourseInstance;
@@ -18,7 +18,7 @@ use headless_lms_actix::models::{
     exercises, organizations, pages, roles, roles::UserRole, submissions, user_exercise_states,
     users,
 };
-use headless_lms_actix::models::{feedback, playground_examples};
+use headless_lms_actix::models::{exams, feedback, playground_examples};
 use headless_lms_actix::models::{gradings, proposed_page_edits};
 use headless_lms_actix::setup_tracing;
 use headless_lms_actix::utils::document_schema_processor::GutenbergBlock;
@@ -1416,6 +1416,65 @@ async fn seed_sample_course(
     };
     proposed_page_edits::insert(conn, course.id, Some(student), &edits).await?;
 
+    // exams
+    let exam_id = Uuid::new_v5(&course_id, b"7d6ed843-2a94-445b-8ced-ab3c67290ad0");
+    exams::insert(
+        conn,
+        exam_id,
+        "Course exam",
+        Some(Utc::now() + Duration::days(30)),
+        Some(120),
+    )
+    .await?;
+    pages::insert_page(
+        conn,
+        NewPage {
+            exercises: vec![],
+            exercise_slides: vec![],
+            exercise_tasks: vec![],
+            content: Value::Array(vec![]),
+            url_path: "".to_string(),
+            title: "".to_string(),
+            course_id: None,
+            exam_id: Some(exam_id),
+            chapter_id: None,
+            front_page_of_chapter_id: None,
+            content_search_language: None,
+        },
+        teacher,
+    )
+    .await?;
+    exams::set_course(conn, exam_id, course.id).await?;
+
+    let exam_id = Uuid::new_v5(&course_id, b"94393cf5-1814-4d57-80d5-e5af93790967");
+    exams::insert(
+        conn,
+        exam_id,
+        "Repeat exam",
+        Some(Utc::now() + Duration::days(30)),
+        Some(120),
+    )
+    .await?;
+    pages::insert_page(
+        conn,
+        NewPage {
+            exercises: vec![],
+            exercise_slides: vec![],
+            exercise_tasks: vec![],
+            content: Value::Array(vec![]),
+            url_path: "".to_string(),
+            title: "".to_string(),
+            course_id: None,
+            exam_id: Some(exam_id),
+            chapter_id: None,
+            front_page_of_chapter_id: None,
+            content_search_language: None,
+        },
+        teacher,
+    )
+    .await?;
+    exams::set_course(conn, exam_id, course.id).await?;
+
     Ok(course.id)
 }
 
@@ -1714,12 +1773,14 @@ async fn create_page(
         content: Value::Array(vec![]),
         url_path: page_data.url_path.to_string(),
         title: format!("{} WIP", page_data.title),
-        course_id,
+        course_id: Some(course_id),
+        exam_id: None,
         chapter_id: Some(chapter_id),
         front_page_of_chapter_id: None,
         exercises: vec![],
         exercise_slides: vec![],
         exercise_tasks: vec![],
+        content_search_language: None,
     };
     let page = pages::insert_page(conn, new_page, author).await?;
     pages::update_page(

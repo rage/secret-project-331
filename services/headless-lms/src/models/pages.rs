@@ -25,6 +25,7 @@ use crate::{
 
 use anyhow::Context;
 use chrono::{DateTime, Utc};
+use futures::future::OptionFuture;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use sqlx::{Acquire, FromRow, PgConnection};
@@ -85,13 +86,17 @@ pub struct NewPage {
     pub exercises: Vec<CmsPageExercise>,
     pub exercise_slides: Vec<CmsPageExerciseSlide>,
     pub exercise_tasks: Vec<CmsPageExerciseTask>,
+    // should always be a Vec<GutenbergBlock>, but is more convenient to keep as Value
     pub content: serde_json::Value,
     pub url_path: String,
     pub title: String,
-    pub course_id: Uuid,
+    pub course_id: Option<Uuid>,
+    pub exam_id: Option<Uuid>,
     pub chapter_id: Option<Uuid>,
     /// If set, set this page to be the front page of this course part.
     pub front_page_of_chapter_id: Option<Uuid>,
+    /// Read from the course's settings if None. If course_id is None as well, defaults to "simple"
+    pub content_search_language: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -437,6 +442,32 @@ pub async fn get_page_with_exercises(
         exercise_slides,
         exercise_tasks,
     })
+}
+
+pub async fn get_by_exam_id(conn: &mut PgConnection, exam_id: Uuid) -> ModelResult<Page> {
+    let res = sqlx::query_as!(
+        Page,
+        "
+SELECT pages.id,
+  pages.created_at,
+  pages.updated_at,
+  pages.course_id,
+  pages.exam_id,
+  pages.chapter_id,
+  pages.url_path,
+  pages.title,
+  pages.deleted_at,
+  pages.content,
+  pages.order_number,
+  pages.copied_from
+FROM pages
+WHERE exam_id = $1
+",
+        exam_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
@@ -981,19 +1012,31 @@ pub async fn insert_page(
     new_page: NewPage,
     author: Uuid,
 ) -> ModelResult<Page> {
-    let next_order_number = match new_page.chapter_id {
-        Some(id) => get_next_page_order_number_in_chapter(conn, id).await?,
-        None => get_next_order_number_for_courses_top_level_pages(conn, new_page.course_id).await?,
+    let next_order_number = match (new_page.chapter_id, new_page.course_id) {
+        (Some(id), _) => get_next_page_order_number_in_chapter(conn, id).await?,
+        (None, Some(course_id)) => {
+            get_next_order_number_for_courses_top_level_pages(conn, course_id).await?
+        }
+        (None, None) => 1,
     };
-    let course = crate::models::courses::get_course(conn, new_page.course_id).await?;
+    let course: OptionFuture<_> = new_page
+        .course_id
+        .map(|id| crate::models::courses::get_course(conn, id))
+        .into();
+    let course = course.await.transpose()?;
 
     let mut tx = conn.begin().await?;
 
+    let content_search_language = course
+        .and_then(|c| c.content_search_language)
+        .or(new_page.content_search_language)
+        .unwrap_or_else(|| "simple".to_string());
     let page = sqlx::query_as!(
         Page,
         r#"
 INSERT INTO pages(
     course_id,
+    exam_id,
     content,
     url_path,
     title,
@@ -1001,7 +1044,7 @@ INSERT INTO pages(
     chapter_id,
     content_search_language
   )
-VALUES($1, $2, $3, $4, $5, $6, $7::regconfig)
+VALUES($1, $2, $3, $4, $5, $6, $7, $8::regconfig)
 RETURNING id,
   created_at,
   updated_at,
@@ -1016,12 +1059,13 @@ RETURNING id,
   copied_from
           "#,
         new_page.course_id,
+        new_page.exam_id,
         new_page.content,
         new_page.url_path.trim(),
         new_page.title.trim(),
         next_order_number,
         new_page.chapter_id,
-        course.content_search_language as _
+        content_search_language as _
     )
     .fetch_one(&mut tx)
     .await?;

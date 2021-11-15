@@ -79,12 +79,31 @@
           "ordinal": 11,
           "name": "course_instance_id",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 12,
+          "name": "exam_id",
+          "type_info": "Uuid"
         }
       ],
       "parameters": {
         "Left": ["Uuid", "Uuid", "Int8", "Int8"]
       },
-      "nullable": [false, false, false, true, false, false, false, true, true, true, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true
+      ]
     }
   },
   "02ff83f40b183e7295450f84a7327cf545fa5f357451097c7afb35db5a4b6f2a": {
@@ -127,72 +146,6 @@
         "Left": ["Uuid", "Uuid", "Uuid"]
       },
       "nullable": [false]
-    }
-  },
-  "03b1b9cd46057ed073b25d372ed817f1c3314d421c102367b83904ecbba93712": {
-    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  course_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from\nFROM pages\nWHERE chapter_id = $1\n  AND deleted_at IS NULL\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 4,
-          "name": "chapter_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "url_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 6,
-          "name": "title",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 7,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 8,
-          "name": "content",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 9,
-          "name": "order_number",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 10,
-          "name": "copied_from",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, false, false, true, false, false, true, false, false, true]
     }
   },
   "054314b5158a6e88f7dd504aad96ca35c0efd3f4bca8d874071bd40415927b8e": {
@@ -338,86 +291,84 @@
       "nullable": [false, false, false, true, false, false, false, true, false]
     }
   },
-  "07d49066191483f05a9060a126bc5f318193c3faa4a3a09be33182f729ddb8b5": {
-    "query": "\nSELECT course_id\nFROM exercises\nWHERE id = (\n    SELECT s.exercise_id\n    FROM exercise_slides s\n      JOIN exercise_tasks t ON (s.id = t.exercise_slide_id)\n    WHERE s.deleted_at IS NULL\n      AND t.id = $1\n      AND t.deleted_at IS NULL\n  );\n        ",
+  "0abb5b4eb5524497c8727f23e3b43527d4c158a09d9b4bb3f463d0fece259743": {
+    "query": "\nSELECT user_id,\n  exercise_id,\n  course_instance_id,\n  exam_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  grading_progress as \"grading_progress: _\",\n  activity_progress as \"activity_progress: _\",\n  selected_exercise_slide_id\nFROM user_exercise_states\nWHERE user_id = $1\n  AND exercise_id = $2\n  AND course_instance_id = $3\n      ",
     "describe": {
       "columns": [
         {
           "ordinal": 0,
-          "name": "course_id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false]
-    }
-  },
-  "0aa90bad79fc4d263e02e15994f2d8048714db6ef0e1a0c603b0a8426db95c8e": {
-    "query": "\nSELECT pages.id,\n  pages.created_at,\n  pages.updated_at,\n  pages.course_id,\n  pages.chapter_id,\n  pages.url_path,\n  pages.title,\n  pages.deleted_at,\n  pages.content,\n  pages.order_number,\n  pages.copied_from\nFROM pages\n  JOIN courses ON (pages.course_id = courses.id)\nWHERE courses.slug = $1\n  AND url_path = $2\n  AND courses.deleted_at IS NULL\n  AND pages.deleted_at IS NULL;\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
+          "name": "user_id",
           "type_info": "Uuid"
         },
         {
           "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
+          "name": "exercise_id",
+          "type_info": "Uuid"
         },
         {
           "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
+          "name": "course_instance_id",
+          "type_info": "Uuid"
         },
         {
           "ordinal": 3,
-          "name": "course_id",
+          "name": "exam_id",
           "type_info": "Uuid"
         },
         {
           "ordinal": 4,
-          "name": "chapter_id",
-          "type_info": "Uuid"
+          "name": "created_at",
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 5,
-          "name": "url_path",
-          "type_info": "Varchar"
+          "name": "updated_at",
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 6,
-          "name": "title",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 7,
           "name": "deleted_at",
           "type_info": "Timestamptz"
         },
         {
+          "ordinal": 7,
+          "name": "score_given",
+          "type_info": "Float4"
+        },
+        {
           "ordinal": 8,
-          "name": "content",
-          "type_info": "Jsonb"
+          "name": "grading_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "grading_progress",
+              "kind": {
+                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+              }
+            }
+          }
         },
         {
           "ordinal": 9,
-          "name": "order_number",
-          "type_info": "Int4"
+          "name": "activity_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "activity_progress",
+              "kind": {
+                "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
+              }
+            }
+          }
         },
         {
           "ordinal": 10,
-          "name": "copied_from",
+          "name": "selected_exercise_slide_id",
           "type_info": "Uuid"
         }
       ],
       "parameters": {
-        "Left": ["Text", "Text"]
+        "Left": ["Uuid", "Uuid", "Uuid"]
       },
-      "nullable": [false, false, false, false, true, false, false, true, false, false, true]
+      "nullable": [false, false, true, true, false, false, true, true, false, false, true]
     }
   },
   "0b8c4705a77d9ac8cca192ce62f98cddf054bcb9b067715f25ded813bddaf3c9": {
@@ -546,72 +497,6 @@
         "Left": ["Uuid", "Uuid", "Uuid", "Uuid"]
       },
       "nullable": [false]
-    }
-  },
-  "10ceea827957a96a236ffa206a9f5086021c1bfb17656db822f66a193eb3157f": {
-    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  course_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from\nFROM pages\nWHERE id = $1;\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 4,
-          "name": "chapter_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "url_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 6,
-          "name": "title",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 7,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 8,
-          "name": "content",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 9,
-          "name": "order_number",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 10,
-          "name": "copied_from",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, false, false, true, false, false, true, false, false, true]
     }
   },
   "11bdd7c111ff7fca68cbf6fffe1079e69283545b8146c3fc6ec9acc1997ccb1e": {
@@ -807,6 +692,77 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, false, false, true, true, true, true, true, true, false]
+    }
+  },
+  "14dc35fa341ba8f03c4c5ba7bf6b92f5e5135ad81b73466e061ef4307ab08340": {
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  course_id,\n  exam_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from\nFROM pages\nWHERE chapter_id = $1\n  AND deleted_at IS NULL\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "exam_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "chapter_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "url_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 8,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 9,
+          "name": "content",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 10,
+          "name": "order_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 11,
+          "name": "copied_from",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
     }
   },
   "15a11ba6125a09bf31705b19618ab342b0a435f51736be52d3c67a25040f6298": {
@@ -1086,12 +1042,31 @@
           "ordinal": 11,
           "name": "copied_from",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 12,
+          "name": "exam_id",
+          "type_info": "Uuid"
         }
       ],
       "parameters": {
         "Left": ["Uuid"]
       },
-      "nullable": [false, false, false, false, true, false, true, false, false, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true
+      ]
     }
   },
   "19a6e3aaaddd659eb5cee0d7361c6ce7b72a8f77a14561cb51427fb4490fa36b": {
@@ -1108,6 +1083,77 @@
         "Left": ["Varchar", "Uuid", "Int4"]
       },
       "nullable": [false]
+    }
+  },
+  "1a466519782c720ea49eb0fc4fb4986acd32e545f81103d39dd9d1e3e682af02": {
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  course_id,\n  exam_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from\nFROM pages\nWHERE chapter_id = $1\n  AND deleted_at IS NULL;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "exam_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "chapter_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "url_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 8,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 9,
+          "name": "content",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 10,
+          "name": "order_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 11,
+          "name": "copied_from",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
     }
   },
   "1aafb5cc9aca5edc7cbe9d5018abd31d4bc7c3ff89448f1231a07de3072c3011": {
@@ -1133,159 +1179,6 @@
       "nullable": [false]
     }
   },
-  "1cabcb883f5fbf43f12a8ce0e79f7137d51f29388fdc3f4993575f7bf8298070": {
-    "query": "\nUPDATE gradings\n  SET\n    grading_progress = $2,\n    unscaled_score_given = $3,\n    unscaled_score_maximum = $4,\n    feedback_text = $5,\n    feedback_json = $6,\n    grading_completed_at = $7,\n    score_given = $8\nWHERE id = $1\nRETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_task_id, grading_priority, score_given, grading_progress as \"grading_progress: _\", user_points_update_strategy as \"user_points_update_strategy: _\", unscaled_score_given, unscaled_score_maximum, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted_at\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "submission_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 4,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "exercise_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 6,
-          "name": "exercise_task_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 7,
-          "name": "grading_priority",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 8,
-          "name": "score_given",
-          "type_info": "Float4"
-        },
-        {
-          "ordinal": 9,
-          "name": "grading_progress: _",
-          "type_info": {
-            "Custom": {
-              "name": "grading_progress",
-              "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 10,
-          "name": "user_points_update_strategy: _",
-          "type_info": {
-            "Custom": {
-              "name": "user_points_update_strategy",
-              "kind": {
-                "Enum": [
-                  "can-add-points-but-cannot-remove-points",
-                  "can-add-points-and-can-remove-points"
-                ]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 11,
-          "name": "unscaled_score_given",
-          "type_info": "Float4"
-        },
-        {
-          "ordinal": 12,
-          "name": "unscaled_score_maximum",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 13,
-          "name": "grading_started_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 14,
-          "name": "grading_completed_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 15,
-          "name": "feedback_json",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 16,
-          "name": "feedback_text",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 17,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Uuid",
-          {
-            "Custom": {
-              "name": "grading_progress",
-              "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
-              }
-            }
-          },
-          "Float4",
-          "Int4",
-          "Text",
-          "Jsonb",
-          "Timestamptz",
-          "Float4"
-        ]
-      },
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        true,
-        false,
-        false,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true
-      ]
-    }
-  },
   "1d480cfbf4a9dc142a798a9bacd391dd6c8c98df5c694697eee44162cbb2c95b": {
     "query": "SELECT COUNT(*) as count FROM submissions WHERE exercise_id = $1",
     "describe": {
@@ -1300,22 +1193,6 @@
         "Left": ["Uuid"]
       },
       "nullable": [null]
-    }
-  },
-  "1daa6a64b96d07871fcd53657c9b31c9901c13391c1a83ad214e8365d8fcd00c": {
-    "query": "SELECT course_id FROM exercises WHERE id = $1;",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "course_id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false]
     }
   },
   "209e86c27b0de935b1b9038358577b8624d596bdc715f341b360d1cf31eb9470": {
@@ -1437,12 +1314,31 @@
           "ordinal": 11,
           "name": "course_instance_id",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 12,
+          "name": "exam_id",
+          "type_info": "Uuid"
         }
       ],
       "parameters": {
         "Left": ["Uuid", "Jsonb", "Uuid", "Uuid", "Uuid", "Uuid"]
       },
-      "nullable": [false, false, false, true, false, false, false, true, true, true, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true
+      ]
     }
   },
   "241d3dc5cad1e9b9f73fc6731066a9c2779626a3bcb7a40bc7c4694a136ef008": {
@@ -1511,8 +1407,8 @@
       "nullable": [false, false, false, false, false, true, true, false, true, true, true]
     }
   },
-  "2641e1e17a3e402f0b0a92af0a97c6d01ce383fcee40120a64867aebdc0d64f2": {
-    "query": "\nINSERT INTO\n  gradings(submission_id, course_id, exercise_id, exercise_task_id, grading_started_at)\nVALUES($1, $2, $3, $4, now())\nRETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_task_id, grading_priority, score_given, grading_progress as \"grading_progress: _\", user_points_update_strategy as \"user_points_update_strategy: _\", unscaled_score_given, unscaled_score_maximum, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted_at\n        ",
+  "2593cfb3820c00b89eef7987b9f14e510916882e68abbd691e970b001e7d5329": {
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  course_id,\n  exam_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from\nFROM pages p\nWHERE p.chapter_id = $1\n  AND p.deleted_at IS NULL\n  AND p.id NOT IN (\n    SELECT front_page_id\n    FROM chapters c\n    WHERE c.front_page_id = p.id\n  );\n    ",
     "describe": {
       "columns": [
         {
@@ -1532,120 +1428,54 @@
         },
         {
           "ordinal": 3,
-          "name": "submission_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 4,
           "name": "course_id",
           "type_info": "Uuid"
         },
         {
+          "ordinal": 4,
+          "name": "exam_id",
+          "type_info": "Uuid"
+        },
+        {
           "ordinal": 5,
-          "name": "exercise_id",
+          "name": "chapter_id",
           "type_info": "Uuid"
         },
         {
           "ordinal": 6,
-          "name": "exercise_task_id",
-          "type_info": "Uuid"
+          "name": "url_path",
+          "type_info": "Varchar"
         },
         {
           "ordinal": 7,
-          "name": "grading_priority",
-          "type_info": "Int4"
+          "name": "title",
+          "type_info": "Varchar"
         },
         {
           "ordinal": 8,
-          "name": "score_given",
-          "type_info": "Float4"
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 9,
-          "name": "grading_progress: _",
-          "type_info": {
-            "Custom": {
-              "name": "grading_progress",
-              "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 10,
-          "name": "user_points_update_strategy: _",
-          "type_info": {
-            "Custom": {
-              "name": "user_points_update_strategy",
-              "kind": {
-                "Enum": [
-                  "can-add-points-but-cannot-remove-points",
-                  "can-add-points-and-can-remove-points"
-                ]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 11,
-          "name": "unscaled_score_given",
-          "type_info": "Float4"
-        },
-        {
-          "ordinal": 12,
-          "name": "unscaled_score_maximum",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 13,
-          "name": "grading_started_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 14,
-          "name": "grading_completed_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 15,
-          "name": "feedback_json",
+          "name": "content",
           "type_info": "Jsonb"
         },
         {
-          "ordinal": 16,
-          "name": "feedback_text",
-          "type_info": "Text"
+          "ordinal": 10,
+          "name": "order_number",
+          "type_info": "Int4"
         },
         {
-          "ordinal": 17,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
+          "ordinal": 11,
+          "name": "copied_from",
+          "type_info": "Uuid"
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid", "Uuid"]
+        "Left": ["Uuid"]
       },
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        true,
-        false,
-        false,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true
-      ]
+      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
     }
   },
   "267c9d76696bc99642ad6a55744d7effbef43cdc34d12e1ad786385bad6f6a62": {
@@ -1808,6 +1638,22 @@
         ]
       },
       "nullable": [false]
+    }
+  },
+  "2be222dd2d0d8fe97d036d6b5343d6db627290585973d62c44c3d97f41bd3ead": {
+    "query": "\nSELECT course_id as \"course_id!\"\nFROM exercises\nWHERE id = (\n    SELECT s.exercise_id\n    FROM exercise_slides s\n      JOIN exercise_tasks t ON (s.id = t.exercise_slide_id)\n    WHERE s.deleted_at IS NULL\n      AND t.id = $1\n      AND t.deleted_at IS NULL\n  )\n  AND course_id IS NOT NULL\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "course_id!",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [true]
     }
   },
   "2be6fd20afaeeb95299a5020a8455a6fc6e7ce347a0003cca2d87441f324d422": {
@@ -2021,12 +1867,31 @@
           "ordinal": 11,
           "name": "copied_from",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 12,
+          "name": "exam_id",
+          "type_info": "Uuid"
         }
       ],
       "parameters": {
         "Left": ["Uuid"]
       },
-      "nullable": [false, false, false, false, true, false, true, false, false, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true
+      ]
     }
   },
   "350d3d019cdabf32d9a3a8dbe862beff94d30edfbb31e5831072bb5d01997520": {
@@ -2096,81 +1961,6 @@
       "nullable": [false, false, false, false, true, false, true, true]
     }
   },
-  "35e7767b2383e695b40d80f775ccde3a5732244bb76ccd41a21fd181e5ab71df": {
-    "query": "\nSELECT user_id,\n  exercise_id,\n  course_instance_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  grading_progress as \"grading_progress: _\",\n  activity_progress as \"activity_progress: _\",\n  selected_exercise_slide_id\nFROM user_exercise_states\nWHERE user_id = $1\n  AND exercise_id = $2\n  AND course_instance_id = $3\n      ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "user_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "exercise_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 2,
-          "name": "course_instance_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 3,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 5,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 6,
-          "name": "score_given",
-          "type_info": "Float4"
-        },
-        {
-          "ordinal": 7,
-          "name": "grading_progress: _",
-          "type_info": {
-            "Custom": {
-              "name": "grading_progress",
-              "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 8,
-          "name": "activity_progress: _",
-          "type_info": {
-            "Custom": {
-              "name": "activity_progress",
-              "kind": {
-                "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 9,
-          "name": "selected_exercise_slide_id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid"]
-      },
-      "nullable": [false, false, false, false, false, true, true, false, false, true]
-    }
-  },
   "375b467ba026680d07ba6fa844de91afd942e86b2715431e41b6788df0d2b3c0": {
     "query": "SELECT * FROM users WHERE upstream_id = $1",
     "describe": {
@@ -2210,22 +2000,6 @@
         "Left": ["Int4"]
       },
       "nullable": [false, false, false, true, true, false]
-    }
-  },
-  "37820b6bb449d020b4707cb289db50094871e564a1978e9502aa53cee09f4fb4": {
-    "query": "\nSELECT course_id\nFROM pages\nWHERE id = $1\n  AND deleted_at IS NULL;\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "course_id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false]
     }
   },
   "37dfaa87dd74a4c1f409cd120e6997847616214878ae8a66b326699fa8633ad3": {
@@ -2378,12 +2152,31 @@
           "ordinal": 11,
           "name": "course_instance_id",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 12,
+          "name": "exam_id",
+          "type_info": "Uuid"
         }
       ],
       "parameters": {
         "Left": ["Uuid"]
       },
-      "nullable": [false, false, false, true, false, false, false, true, true, true, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true
+      ]
     }
   },
   "3e428bdd951fadaeac24cab7e991c4928f8c58df8dd45c61fbb8779b5ddcbe85": {
@@ -2394,6 +2187,86 @@
         "Left": ["Uuid", "Uuid", "Uuid"]
       },
       "nullable": []
+    }
+  },
+  "3e65b672bb665f88bc397dafe83a70247f1a7d8ba71996b89a552707de915bc6": {
+    "query": "\nSELECT user_id,\n  exercise_id,\n  course_instance_id,\n  exam_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  grading_progress as \"grading_progress: _\",\n  activity_progress as \"activity_progress: _\",\n  selected_exercise_slide_id\nFROM user_exercise_states\nWHERE user_id = $1\n  AND exercise_id = $2\n  AND course_instance_id = $3\n  AND exam_id = $4\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "course_instance_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 3,
+          "name": "exam_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 5,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 7,
+          "name": "score_given",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 8,
+          "name": "grading_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "grading_progress",
+              "kind": {
+                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 9,
+          "name": "activity_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "activity_progress",
+              "kind": {
+                "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 10,
+          "name": "selected_exercise_slide_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid", "Uuid"]
+      },
+      "nullable": [false, false, true, true, false, false, true, true, false, false, true]
     }
   },
   "3e795dbc8106fd963857bc243db90f2f9cc36ee9f5928407d731602d4806d233": {
@@ -2614,6 +2487,178 @@
       "nullable": []
     }
   },
+  "4c1c90488e758f959a27a91a32decb1057674d9f57732a9cceef61effae80419": {
+    "query": "\nUPDATE pages\nSET content = $2,\n  url_path = $3,\n  title = $4,\n  chapter_id = $5\nWHERE id = $1\nRETURNING id,\n  created_at,\n  updated_at,\n  course_id,\n  exam_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "exam_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "chapter_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "url_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 8,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 9,
+          "name": "content",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 10,
+          "name": "order_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 11,
+          "name": "copied_from",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Jsonb", "Varchar", "Varchar", "Uuid"]
+      },
+      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
+    }
+  },
+  "4f0724b8eb32a69801554adeadbfdbaecdfd86e8c551ca08f7402ae6b72859b1": {
+    "query": "\nUPDATE user_exercise_states\nSET score_given = $4, grading_progress = $5, activity_progress = $6\nWHERE user_id = $1\nAND exercise_id = $2\nAND course_instance_id = $3\nRETURNING user_id,\n  exercise_id,\n  course_instance_id,\n  exam_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  grading_progress as \"grading_progress: _\",\n  activity_progress as \"activity_progress: _\",\n  selected_exercise_slide_id;\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "course_instance_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 3,
+          "name": "exam_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 5,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 7,
+          "name": "score_given",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 8,
+          "name": "grading_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "grading_progress",
+              "kind": {
+                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 9,
+          "name": "activity_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "activity_progress",
+              "kind": {
+                "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 10,
+          "name": "selected_exercise_slide_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Float4",
+          {
+            "Custom": {
+              "name": "grading_progress",
+              "kind": {
+                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+              }
+            }
+          },
+          {
+            "Custom": {
+              "name": "activity_progress",
+              "kind": {
+                "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
+              }
+            }
+          }
+        ]
+      },
+      "nullable": [false, false, true, true, false, false, true, true, false, false, true]
+    }
+  },
   "4f7e2b9650e10a87e8df9091b99fb43d3eb68974730a3c08dc6a63ae3ec4f92e": {
     "query": "\nSELECT ucs.*\nFROM courses c\n  JOIN user_course_settings ucs ON (\n    ucs.course_language_group_id = c.course_language_group_id\n  )\nWHERE c.id = $1\n  AND ucs.user_id = $2\n  AND c.deleted_at IS NULL\n  AND ucs.deleted_at IS NULL;\n        ",
     "describe": {
@@ -2658,168 +2703,6 @@
         "Left": ["Uuid", "Uuid"]
       },
       "nullable": [false, false, false, false, true, false, false]
-    }
-  },
-  "4fbb1784e88d5479dae7a69fefdd53b9b3542eb04571762174dec3840b8ff39d": {
-    "query": "\nUPDATE user_exercise_states\nSET score_given = $4, grading_progress = $5, activity_progress = $6\nWHERE user_id = $1\nAND exercise_id = $2\nAND course_instance_id = $3\nRETURNING user_id,\n  exercise_id,\n  course_instance_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  grading_progress as \"grading_progress: _\",\n  activity_progress as \"activity_progress: _\",\n  selected_exercise_slide_id;\n    ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "user_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "exercise_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 2,
-          "name": "course_instance_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 3,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 5,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 6,
-          "name": "score_given",
-          "type_info": "Float4"
-        },
-        {
-          "ordinal": 7,
-          "name": "grading_progress: _",
-          "type_info": {
-            "Custom": {
-              "name": "grading_progress",
-              "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 8,
-          "name": "activity_progress: _",
-          "type_info": {
-            "Custom": {
-              "name": "activity_progress",
-              "kind": {
-                "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 9,
-          "name": "selected_exercise_slide_id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Uuid",
-          "Uuid",
-          "Uuid",
-          "Float4",
-          {
-            "Custom": {
-              "name": "grading_progress",
-              "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
-              }
-            }
-          },
-          {
-            "Custom": {
-              "name": "activity_progress",
-              "kind": {
-                "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
-              }
-            }
-          }
-        ]
-      },
-      "nullable": [false, false, false, false, false, true, true, false, false, true]
-    }
-  },
-  "5004c63f75c37cb4ab27b5faca223fbb7564b80057ed58626676a4c02697ae5c": {
-    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  course_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from\nFROM pages\nWHERE chapter_id = $1\n  AND deleted_at IS NULL;\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 4,
-          "name": "chapter_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "url_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 6,
-          "name": "title",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 7,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 8,
-          "name": "content",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 9,
-          "name": "order_number",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 10,
-          "name": "copied_from",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, false, false, true, false, false, true, false, false, true]
     }
   },
   "502d624be97efadd5fea8635bd71d85dd770df10088f3d1fe5ff749dd0e9bd7f": {
@@ -2896,72 +2779,6 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, false, false, true, false, null, false, true, false]
-    }
-  },
-  "509aa2c9864f643594afb610420835e5929900508780f2dac38e653bfb1ac4f7": {
-    "query": "\nUPDATE pages\nSET content = $2,\n  url_path = $3,\n  title = $4,\n  chapter_id = $5\nWHERE id = $1\nRETURNING id,\n  created_at,\n  updated_at,\n  course_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 4,
-          "name": "chapter_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "url_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 6,
-          "name": "title",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 7,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 8,
-          "name": "content",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 9,
-          "name": "order_number",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 10,
-          "name": "copied_from",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Jsonb", "Varchar", "Varchar", "Uuid"]
-      },
-      "nullable": [false, false, false, false, true, false, false, true, false, false, true]
     }
   },
   "517a7cd293f8258fe76c8d108e36fac8b56da5dd53f527e2ad2c9d4b76c33cf0": {
@@ -3051,72 +2868,6 @@
       "nullable": [false, true]
     }
   },
-  "54df10270ae0d5c5424365f550574f36a6b2e9e732a5746120bd419a45ecb4a9": {
-    "query": "\nUPDATE pages\nSET deleted_at = now()\nWHERE id = $1\nRETURNING id,\n  created_at,\n  updated_at,\n  course_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from\n          ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 4,
-          "name": "chapter_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "url_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 6,
-          "name": "title",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 7,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 8,
-          "name": "content",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 9,
-          "name": "order_number",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 10,
-          "name": "copied_from",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, false, false, true, false, false, true, false, false, true]
-    }
-  },
   "576035aeb9e877869815eabed2f331073438c344f65a06022c74c23592c51dd6": {
     "query": "\nSELECT opens_at\nFROM chapters\nWHERE id = $1\n",
     "describe": {
@@ -3196,12 +2947,31 @@
           "ordinal": 11,
           "name": "copied_from",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 12,
+          "name": "exam_id",
+          "type_info": "Uuid"
         }
       ],
       "parameters": {
         "Left": ["Uuid"]
       },
-      "nullable": [false, false, false, false, true, false, true, false, false, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true
+      ]
     }
   },
   "5aa5b0629666c849e87f50b545a2f83f7bfadc42d475b3b2979f1c2507fdc551": {
@@ -3253,6 +3023,114 @@
         "Left": ["Bool", "Uuid"]
       },
       "nullable": []
+    }
+  },
+  "5bff2d6b08b954b12c31a399396e4f855f055ac3994940b626d05fbd4b415c54": {
+    "query": "\nSELECT course_id, exam_id\nFROM pages\nWHERE id = $1\n  AND deleted_at IS NULL;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "exam_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [true, true]
+    }
+  },
+  "5cf04047f64dad53b0b701fcb9e2c49da51b2d4c22944103a24f57f4bc37045f": {
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  course_id,\n  exam_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from\nFROM pages\nWHERE id = $1;\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "exam_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "chapter_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "url_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 8,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 9,
+          "name": "content",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 10,
+          "name": "order_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 11,
+          "name": "copied_from",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
+    }
+  },
+  "5d906a7355c57bc0f6bc40148ced49d7dbe50951f67fc0628abcf9ef6e29fce8": {
+    "query": "SELECT course_id AS \"course_id!\" FROM exercises WHERE id = $1 AND course_id IS NOT NULL",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "course_id!",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [true]
     }
   },
   "5e92276cd35f5b56591706b2e6b9e5229aba70df37b21a2654298bf9a0caf783": {
@@ -3548,12 +3426,41 @@
           "ordinal": 11,
           "name": "copied_from",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 12,
+          "name": "exam_id",
+          "type_info": "Uuid"
         }
       ],
       "parameters": {
         "Left": ["Uuid"]
       },
-      "nullable": [false, false, false, false, true, false, true, false, false, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true
+      ]
+    }
+  },
+  "6817a09bcb20e970fb4743b585ed9a61e22d79fd3622f3057cb6799564302a25": {
+    "query": "\nUPDATE exams\nSET name = COALESCE($2, name),\n  opens_at = $3,\n  duration_minutes = $4\nWHERE id = $1\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Varchar", "Timestamptz", "Int4"]
+      },
+      "nullable": []
     }
   },
   "6b8536e8f4621ec17b4b6a7aea1b2df02d5f86d70df29eaa89dd00c028aa4e67": {
@@ -3843,39 +3750,6 @@
       "nullable": [false, false, false, true, true, false]
     }
   },
-  "77589f5977cb1abcf08674c88fcc060ccb0be732fde86e1fd3b4b21c6de86565": {
-    "query": "SELECT organization_id, course_id, role AS \"role: UserRole\" FROM roles WHERE user_id = $1",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "organization_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 2,
-          "name": "role: UserRole",
-          "type_info": {
-            "Custom": {
-              "name": "user_role",
-              "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
-              }
-            }
-          }
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [true, true, false]
-    }
-  },
   "785c6a12aad375df96e3ce5dee4b20fde25e67ec826c645019a03222a07c2aa9": {
     "query": "\nSELECT DATE(created_at) date, count(*)::integer\nFROM submissions\nWHERE course_id = $1\nGROUP BY date\nORDER BY date;\n          ",
     "describe": {
@@ -3895,6 +3769,37 @@
         "Left": ["Uuid"]
       },
       "nullable": [null, null]
+    }
+  },
+  "7999eebd7ba4891e958c329b1bcb37ed14a9824d7e0cbad5c15e9782af754808": {
+    "query": "\nSELECT exams.id,\n    courses.id as course_id,\n    courses.name as course_name,\n    exams.name\nFROM exams\nJOIN course_exams ON course_id = $1\nJOIN courses ON courses.id = $1\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "course_name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "name",
+          "type_info": "Varchar"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false]
     }
   },
   "79d611ab409e1fbe46dbccf7e84f714de76138f0c71d2f43b59da2a6a98f2d88": {
@@ -4003,6 +3908,149 @@
         "Left": ["Timestamptz", "Uuid"]
       },
       "nullable": []
+    }
+  },
+  "7f60cb95d005229697685588b6c62a2a5c9c46c224b5df59cfa6c111dd0e1b15": {
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  submission_id,\n  course_id,\n  exam_id,\n  exercise_id,\n  exercise_task_id,\n  grading_priority,\n  score_given,\n  grading_progress as \"grading_progress: _\",\n  user_points_update_strategy as \"user_points_update_strategy: _\",\n  unscaled_score_maximum,\n  unscaled_score_given,\n  grading_started_at,\n  grading_completed_at,\n  feedback_json,\n  feedback_text,\n  deleted_at\nFROM gradings\nWHERE id = $1\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "submission_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "exam_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 7,
+          "name": "exercise_task_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 8,
+          "name": "grading_priority",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 9,
+          "name": "score_given",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 10,
+          "name": "grading_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "grading_progress",
+              "kind": {
+                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 11,
+          "name": "user_points_update_strategy: _",
+          "type_info": {
+            "Custom": {
+              "name": "user_points_update_strategy",
+              "kind": {
+                "Enum": [
+                  "can-add-points-but-cannot-remove-points",
+                  "can-add-points-and-can-remove-points"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 12,
+          "name": "unscaled_score_maximum",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 13,
+          "name": "unscaled_score_given",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 14,
+          "name": "grading_started_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 15,
+          "name": "grading_completed_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 16,
+          "name": "feedback_json",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 17,
+          "name": "feedback_text",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 18,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
     }
   },
   "80f7868413d8874e45915bf980f553f4e9e09b8a17f9043bbdbe7d81f85c817c": {
@@ -4248,72 +4296,6 @@
       "nullable": [null]
     }
   },
-  "85627304819016a8f3adf783ef95c81a1e7ed1b362e12b9429f20598432ba7e4": {
-    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  course_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from\nFROM pages\nWHERE course_id = $1\n  AND deleted_at IS NULL;\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 4,
-          "name": "chapter_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "url_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 6,
-          "name": "title",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 7,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 8,
-          "name": "content",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 9,
-          "name": "order_number",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 10,
-          "name": "copied_from",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, false, false, true, false, false, true, false, false, true]
-    }
-  },
   "85d460d9a14e12b66d387b3cdf0caf930e42725cd706c38a85d02613ae14130e": {
     "query": "\nSELECT *\nFROM exercise_slides\nWHERE deleted_at IS NULL;\n    ",
     "describe": {
@@ -4415,6 +4397,16 @@
         ]
       },
       "nullable": [false, null, null, null, false]
+    }
+  },
+  "882525a929728d222af1a0946c0c6d0291a891d67d8fc81e2c8400cf400baeef": {
+    "query": "\nINSERT INTO course_exams (course_id, exam_id)\nVALUES ($1, $2)\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": []
     }
   },
   "88890869dabe25130451185ec231260f8cdc6121649923e7209346dded7d0014": {
@@ -4568,151 +4560,6 @@
       "nullable": [false]
     }
   },
-  "904ccb7c4f4a867272ae16ba0fd8f18ec51e515fc8c114afd4be2bee095df3be": {
-    "query": "\nUPDATE pages\nSET content = $1\nWHERE id = $2\nRETURNING id,\n  created_at,\n  updated_at,\n  course_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from;\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 4,
-          "name": "chapter_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "url_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 6,
-          "name": "title",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 7,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 8,
-          "name": "content",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 9,
-          "name": "order_number",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 10,
-          "name": "copied_from",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Jsonb", "Uuid"]
-      },
-      "nullable": [false, false, false, false, true, false, false, true, false, false, true]
-    }
-  },
-  "90a05af8117ab207b26061df619b9940f81d2c59d3de6a0b445ac0d878ff542a": {
-    "query": "\nINSERT INTO pages(\n    course_id,\n    content,\n    url_path,\n    title,\n    order_number,\n    chapter_id,\n    content_search_language\n  )\nVALUES($1, $2, $3, $4, $5, $6, $7::regconfig)\nRETURNING id,\n  created_at,\n  updated_at,\n  course_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from\n          ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 4,
-          "name": "chapter_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "url_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 6,
-          "name": "title",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 7,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 8,
-          "name": "content",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 9,
-          "name": "order_number",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 10,
-          "name": "copied_from",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Uuid",
-          "Jsonb",
-          "Varchar",
-          "Varchar",
-          "Int4",
-          "Uuid",
-          {
-            "Custom": {
-              "name": "regconfig",
-              "kind": "Simple"
-            }
-          }
-        ]
-      },
-      "nullable": [false, false, false, false, true, false, false, true, false, false, true]
-    }
-  },
   "90fa9968b7d756f053c018a87714ffe53999efba45477c01a5daf23404b64c06": {
     "query": "\nINSERT INTO submissions (\n    exercise_id,\n    course_id,\n    exercise_task_id,\n    user_id,\n    course_instance_id,\n    data_json\n  )\n  VALUES ($1, $2, $3, $4, $5, $6)\n  RETURNING id\n",
     "describe": {
@@ -4842,8 +4689,8 @@
       "nullable": [false]
     }
   },
-  "94118043fe7516f89950ef623f3328c75cf4880893fd3fe7088f8da4d6a3b76e": {
-    "query": "\nSELECT feedback.id,\n  feedback.user_id,\n  feedback.course_id,\n  feedback.feedback_given,\n  feedback.selected_text,\n  feedback.marked_as_read,\n  feedback.created_at,\n  array_agg(block_feedback.block_id) filter (\n    where block_feedback.block_id IS NOT NULL\n  ) AS \"block_ids: Vec<Uuid>\",\n  array_agg(block_feedback.block_text) filter (\n    where block_feedback.block_id IS NOT NULL\n  ) AS \"block_texts: Vec<Option<String>>\"\nFROM feedback\n  LEFT JOIN block_feedback ON block_feedback.feedback_id = feedback.id\nWHERE course_id = $1\n  AND feedback.marked_as_read = $2\n  AND feedback.deleted_at IS NULL\n  AND block_feedback.deleted_at IS NULL\nGROUP BY feedback.id,\n  feedback.user_id,\n  feedback.course_id,\n  feedback.feedback_given,\n  feedback.marked_as_read,\n  feedback.created_at\nORDER BY feedback.created_at DESC,\n  feedback.id\nLIMIT $3 OFFSET $4\n",
+  "93a182f7fc32e82990af03dbda3d31cd678d99869b3bd5d4b75831d5cc96e0f7": {
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  course_id,\n  exam_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from\nFROM pages\nWHERE course_id = $1\n  AND deleted_at IS NULL;\n        ",
     "describe": {
       "columns": [
         {
@@ -4853,49 +4700,64 @@
         },
         {
           "ordinal": 1,
-          "name": "user_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 2,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 3,
-          "name": "feedback_given",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 4,
-          "name": "selected_text",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 5,
-          "name": "marked_as_read",
-          "type_info": "Bool"
-        },
-        {
-          "ordinal": 6,
           "name": "created_at",
           "type_info": "Timestamptz"
         },
         {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "exam_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "chapter_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "url_path",
+          "type_info": "Varchar"
+        },
+        {
           "ordinal": 7,
-          "name": "block_ids: Vec<Uuid>",
-          "type_info": "UuidArray"
+          "name": "title",
+          "type_info": "Varchar"
         },
         {
           "ordinal": 8,
-          "name": "block_texts: Vec<Option<String>>",
-          "type_info": "VarcharArray"
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 9,
+          "name": "content",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 10,
+          "name": "order_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 11,
+          "name": "copied_from",
+          "type_info": "Uuid"
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Bool", "Int8", "Int8"]
+        "Left": ["Uuid"]
       },
-      "nullable": [false, true, false, false, true, false, false, null, null]
+      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
     }
   },
   "94ded885c93e670d138c1774ec664d7d08779da4e61afa196858e3fb71864f47": {
@@ -5113,72 +4975,6 @@
       "nullable": [false, false, false, true, false, false, false, true, false]
     }
   },
-  "9b34d20c5dad89a18e57c263932092c250746dac2a45e1985853d16ed8344d13": {
-    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  course_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from\nFROM pages p\nWHERE p.chapter_id = $1\n  AND p.deleted_at IS NULL\n  AND p.id NOT IN (\n    SELECT front_page_id\n    FROM chapters c\n    WHERE c.front_page_id = p.id\n  );\n    ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 4,
-          "name": "chapter_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "url_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 6,
-          "name": "title",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 7,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 8,
-          "name": "content",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 9,
-          "name": "order_number",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 10,
-          "name": "copied_from",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, false, false, true, false, false, true, false, false, true]
-    }
-  },
   "9bd2d846e48026343f943674185a77f014043fa8bca6960f49ddde168e69b04e": {
     "query": "\nINSERT INTO exercise_slides (id, exercise_id, order_number)\nVALUES ($1, $2, $3)\nRETURNING id;\n",
     "describe": {
@@ -5329,12 +5125,31 @@
           "ordinal": 11,
           "name": "copied_from",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 12,
+          "name": "exam_id",
+          "type_info": "Uuid"
         }
       ],
       "parameters": {
         "Left": ["UuidArray"]
       },
-      "nullable": [false, false, false, false, true, false, true, false, false, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true
+      ]
     }
   },
   "9c8fb5ab7c565479f38ffde751dee85049da24ee2de7f71f2690c4fe454e68e4": {
@@ -5401,6 +5216,16 @@
         "Left": ["Text"]
       },
       "nullable": [false, false, false, true, false, false, false, true, false]
+    }
+  },
+  "a31f19aeb82cb164528744c6ca787c1c69bcab7575494559728a80de5ad5231a": {
+    "query": "\nDELETE FROM course_exams\nWHERE exam_id = $1\n  AND course_id = $2\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": []
     }
   },
   "a3752e5a87b4ce3da83996bee95c34a6addfed46a69b54112655e4e8d4734314": {
@@ -5909,12 +5734,31 @@
           "ordinal": 11,
           "name": "course_instance_id",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 12,
+          "name": "exam_id",
+          "type_info": "Uuid"
         }
       ],
       "parameters": {
         "Left": ["Uuid", "Int8", "Int8"]
       },
-      "nullable": [false, false, false, true, false, false, false, true, true, true, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true
+      ]
     }
   },
   "aabbcdc5984f0c7fc03acf0c2f53ebb8f0ff5f2b8993a81bd988be4bbf240a70": {
@@ -5931,6 +5775,165 @@
         "Left": ["Uuid", "Uuid", "Int4"]
       },
       "nullable": [false]
+    }
+  },
+  "aae734b9a4dfc0f4b00dda2835635deb309c244aa260f77f724dcad6711874e0": {
+    "query": "\nUPDATE gradings\nSET grading_progress = $2,\n  unscaled_score_given = $3,\n  unscaled_score_maximum = $4,\n  feedback_text = $5,\n  feedback_json = $6,\n  grading_completed_at = $7,\n  score_given = $8\nWHERE id = $1\nRETURNING id,\n  created_at,\n  updated_at,\n  submission_id,\n  course_id,\n  exam_id,\n  exercise_id,\n  exercise_task_id,\n  grading_priority,\n  score_given,\n  grading_progress as \"grading_progress: _\",\n  user_points_update_strategy as \"user_points_update_strategy: _\",\n  unscaled_score_given,\n  unscaled_score_maximum,\n  grading_started_at,\n  grading_completed_at,\n  feedback_json,\n  feedback_text,\n  deleted_at\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "submission_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "exam_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 7,
+          "name": "exercise_task_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 8,
+          "name": "grading_priority",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 9,
+          "name": "score_given",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 10,
+          "name": "grading_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "grading_progress",
+              "kind": {
+                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 11,
+          "name": "user_points_update_strategy: _",
+          "type_info": {
+            "Custom": {
+              "name": "user_points_update_strategy",
+              "kind": {
+                "Enum": [
+                  "can-add-points-but-cannot-remove-points",
+                  "can-add-points-and-can-remove-points"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 12,
+          "name": "unscaled_score_given",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 13,
+          "name": "unscaled_score_maximum",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 14,
+          "name": "grading_started_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 15,
+          "name": "grading_completed_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 16,
+          "name": "feedback_json",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 17,
+          "name": "feedback_text",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 18,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          {
+            "Custom": {
+              "name": "grading_progress",
+              "kind": {
+                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+              }
+            }
+          },
+          "Float4",
+          "Int4",
+          "Text",
+          "Jsonb",
+          "Timestamptz",
+          "Float4"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
     }
   },
   "af3cc7251e94a36c15dd0d43cdf914d6aab499480d6992ac001be602d4b06d73": {
@@ -5972,22 +5975,6 @@
         "Left": ["Uuid", "Uuid", "Uuid"]
       },
       "nullable": [false, false, false, false, false, true]
-    }
-  },
-  "b0302cd73ce7a9f3d86d798a9a6c8ae768a0722bfeef08cd89c8716b36bce665": {
-    "query": "SELECT course_id FROM submissions WHERE id = $1",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "course_id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false]
     }
   },
   "b28ca6a2fc385642149d527deb0919464711ab57e4120078d6153ccbc08114d4": {
@@ -6227,12 +6214,87 @@
           "ordinal": 11,
           "name": "copied_from",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 12,
+          "name": "exam_id",
+          "type_info": "Uuid"
         }
       ],
       "parameters": {
         "Left": ["Uuid"]
       },
-      "nullable": [false, false, false, false, true, false, true, false, false, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true
+      ]
+    }
+  },
+  "b898aa740121c6fff215502ed3fba148eea2528987a6b7e31f4d67251894dc15": {
+    "query": "\nSELECT feedback.id,\n  feedback.user_id,\n  feedback.course_id as \"course_id!\",\n  feedback.feedback_given,\n  feedback.selected_text,\n  feedback.marked_as_read,\n  feedback.created_at,\n  array_agg(block_feedback.block_id) filter (\n    where block_feedback.block_id IS NOT NULL\n  ) AS \"block_ids: Vec<Uuid>\",\n  array_agg(block_feedback.block_text) filter (\n    where block_feedback.block_id IS NOT NULL\n  ) AS \"block_texts: Vec<Option<String>>\"\nFROM feedback\n  LEFT JOIN block_feedback ON block_feedback.feedback_id = feedback.id\nWHERE course_id = $1\n  AND feedback.marked_as_read = $2\n  AND feedback.deleted_at IS NULL\n  AND block_feedback.deleted_at IS NULL\nGROUP BY feedback.id,\n  feedback.user_id,\n  feedback.course_id,\n  feedback.feedback_given,\n  feedback.marked_as_read,\n  feedback.created_at\nORDER BY feedback.created_at DESC,\n  feedback.id\nLIMIT $3 OFFSET $4\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "course_id!",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 3,
+          "name": "feedback_given",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 4,
+          "name": "selected_text",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 5,
+          "name": "marked_as_read",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 6,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 7,
+          "name": "block_ids: Vec<Uuid>",
+          "type_info": "UuidArray"
+        },
+        {
+          "ordinal": 8,
+          "name": "block_texts: Vec<Option<String>>",
+          "type_info": "VarcharArray"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Bool", "Int8", "Int8"]
+      },
+      "nullable": [false, true, true, false, true, false, false, null, null]
     }
   },
   "b9159ddd17dc391f0bd7b726633dff02d1530aa2b0b270b4947d749442850451": {
@@ -6259,6 +6321,27 @@
         "Left": ["Varchar"]
       },
       "nullable": [false]
+    }
+  },
+  "baa46f4f27573da28222fb2089dba70a58eeec0dfa339fff4d0105768acfd1e8": {
+    "query": "SELECT course_id, exam_id FROM submissions WHERE id = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "exam_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [true, true]
     }
   },
   "bb42fcccdd54977c0bfd6109c6ddf2218d274e79d925468036e219e6a10f3a57": {
@@ -6356,6 +6439,162 @@
         false,
         true
       ]
+    }
+  },
+  "bbbcc64b65c0d85fb03ea621ddf0f38e043229bc9dddb560047aaeeb72301d4d": {
+    "query": "\nUPDATE pages\nSET content = $1\nWHERE id = $2\nRETURNING id,\n  created_at,\n  updated_at,\n  course_id,\n  exam_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "exam_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "chapter_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "url_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 8,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 9,
+          "name": "content",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 10,
+          "name": "order_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 11,
+          "name": "copied_from",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Jsonb", "Uuid"]
+      },
+      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
+    }
+  },
+  "bc4390dec143c0bbc96fdebad02b5673dc9037d1115322b71620583fd9f1b82b": {
+    "query": "\nINSERT INTO pages(\n    course_id,\n    exam_id,\n    content,\n    url_path,\n    title,\n    order_number,\n    chapter_id,\n    content_search_language\n  )\nVALUES($1, $2, $3, $4, $5, $6, $7, $8::regconfig)\nRETURNING id,\n  created_at,\n  updated_at,\n  course_id,\n  exam_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from\n          ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "exam_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "chapter_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "url_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 8,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 9,
+          "name": "content",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 10,
+          "name": "order_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 11,
+          "name": "copied_from",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Jsonb",
+          "Varchar",
+          "Varchar",
+          "Int4",
+          "Uuid",
+          {
+            "Custom": {
+              "name": "regconfig",
+              "kind": "Simple"
+            }
+          }
+        ]
+      },
+      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
     }
   },
   "c00028f92949b3e8d712a87d620c60b033e48b43583ed796d2e73d219df2931b": {
@@ -6568,6 +6807,149 @@
       "nullable": [null, null, null]
     }
   },
+  "cb054f6c81cb711fa6aad948132bc0294b3a9f8092c9435b0c250a48513b1032": {
+    "query": "\nINSERT INTO gradings(\n    submission_id,\n    course_id,\n    exam_id,\n    exercise_id,\n    exercise_task_id,\n    grading_started_at\n  )\nVALUES($1, $2, $3, $4, $5, now())\nRETURNING id,\n  created_at,\n  updated_at,\n  submission_id,\n  course_id,\n  exam_id,\n  exercise_id,\n  exercise_task_id,\n  grading_priority,\n  score_given,\n  grading_progress as \"grading_progress: _\",\n  user_points_update_strategy as \"user_points_update_strategy: _\",\n  unscaled_score_given,\n  unscaled_score_maximum,\n  grading_started_at,\n  grading_completed_at,\n  feedback_json,\n  feedback_text,\n  deleted_at\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "submission_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "exam_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 7,
+          "name": "exercise_task_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 8,
+          "name": "grading_priority",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 9,
+          "name": "score_given",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 10,
+          "name": "grading_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "grading_progress",
+              "kind": {
+                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 11,
+          "name": "user_points_update_strategy: _",
+          "type_info": {
+            "Custom": {
+              "name": "user_points_update_strategy",
+              "kind": {
+                "Enum": [
+                  "can-add-points-but-cannot-remove-points",
+                  "can-add-points-and-can-remove-points"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 12,
+          "name": "unscaled_score_given",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 13,
+          "name": "unscaled_score_maximum",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 14,
+          "name": "grading_started_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 15,
+          "name": "grading_completed_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 16,
+          "name": "feedback_json",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 17,
+          "name": "feedback_text",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 18,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid", "Uuid", "Uuid"]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    }
+  },
   "ccdcf7ce3537744686b4a00dc74692d8c5b333e058fcf54fed5891ec2c527d60": {
     "query": "\nUPDATE exercise_services\n    SET name=$1, slug=$2, public_url=$3, internal_url=$4, max_reprocessing_submissions_at_once=$5\nWHERE id=$6\n    RETURNING *\n        ",
     "describe": {
@@ -6638,42 +7020,6 @@
         "Left": ["Uuid", "Uuid", "Varchar", "Text"]
       },
       "nullable": [false]
-    }
-  },
-  "cf1c81b073e3d9f2a1772e3ce72336ca4500ac2b059673ce1f062189e0bd4dee": {
-    "query": "\nSELECT p.id as page_id,\n  p.order_number as order_number,\n  p.course_id as course_id,\n  c.id as \"chapter_id?\",\n  c.chapter_number as \"chapter_number?\"\nFROM pages p\n  LEFT JOIN chapters c ON p.chapter_id = c.id\nWHERE p.id = $1;\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "page_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "order_number",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 2,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 3,
-          "name": "chapter_id?",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 4,
-          "name": "chapter_number?",
-          "type_info": "Int4"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, false, false, false]
     }
   },
   "cf7a54102657110f8d384fb491163e9e2690c365bab861c2c68064ddc1ba0873": {
@@ -6748,81 +7094,6 @@
       "nullable": [null, null]
     }
   },
-  "d1c39a54345a14fff414df6f7c0a133948a9fa57d59003811a775b0c4e6239e0": {
-    "query": "\nINSERT INTO user_exercise_states (user_id, exercise_id, course_instance_id)\nVALUES ($1, $2, $3)\nON CONFLICT (user_id, exercise_id, course_instance_id) DO NOTHING\nRETURNING user_id,\n  exercise_id,\n  course_instance_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  grading_progress as \"grading_progress: _\",\n  activity_progress as \"activity_progress: _\",\n  selected_exercise_slide_id;\n  ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "user_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "exercise_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 2,
-          "name": "course_instance_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 3,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 5,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 6,
-          "name": "score_given",
-          "type_info": "Float4"
-        },
-        {
-          "ordinal": 7,
-          "name": "grading_progress: _",
-          "type_info": {
-            "Custom": {
-              "name": "grading_progress",
-              "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 8,
-          "name": "activity_progress: _",
-          "type_info": {
-            "Custom": {
-              "name": "activity_progress",
-              "kind": {
-                "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 9,
-          "name": "selected_exercise_slide_id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid"]
-      },
-      "nullable": [false, false, false, false, false, true, true, false, false, true]
-    }
-  },
   "d2945d7876bf8cf7ab482b20d07cdb72308a89d9d8316653a60af1fbd9a2c1fd": {
     "query": "\nINSERT INTO exercise_tasks(\n    id,\n    exercise_slide_id,\n    exercise_type,\n    assignment,\n    public_spec,\n    private_spec,\n    model_solution_spec\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (id) DO\nUPDATE\nSET exercise_slide_id = $2,\n  exercise_type = $3,\n  assignment = $4,\n  public_spec = $5,\n  private_spec = $6,\n  deleted_at = NULL\nRETURNING id,\n  exercise_slide_id,\n  assignment,\n  exercise_type,\n  private_spec;\n                ",
     "describe": {
@@ -6867,6 +7138,86 @@
         "Left": ["Uuid"]
       },
       "nullable": []
+    }
+  },
+  "d49f11bde470571ca7b9e83c219b3dc42a0cc99350e0a78f44dfc2b46f87b392": {
+    "query": "\n    INSERT INTO user_exercise_states (user_id, exercise_id, course_instance_id)\n    VALUES ($1, $2, $3)\n    RETURNING user_id,\n      exercise_id,\n      course_instance_id,\n      exam_id,\n      created_at,\n      updated_at,\n      deleted_at,\n      score_given,\n      grading_progress as \"grading_progress: _\",\n      activity_progress as \"activity_progress: _\",\n      selected_exercise_slide_id;\n      ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "course_instance_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 3,
+          "name": "exam_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 5,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 7,
+          "name": "score_given",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 8,
+          "name": "grading_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "grading_progress",
+              "kind": {
+                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 9,
+          "name": "activity_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "activity_progress",
+              "kind": {
+                "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 10,
+          "name": "selected_exercise_slide_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid"]
+      },
+      "nullable": [false, false, true, true, false, false, true, true, false, false, true]
     }
   },
   "d575fe0c1c24abc4c6920f05c08ed2172819439de166e5e455e7e6a8c2bc37d7": {
@@ -6942,12 +7293,31 @@
           "ordinal": 11,
           "name": "course_instance_id",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 12,
+          "name": "exam_id",
+          "type_info": "Uuid"
         }
       ],
       "parameters": {
         "Left": ["Uuid", "Uuid"]
       },
-      "nullable": [false, false, false, true, false, false, false, true, true, true, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true
+      ]
     }
   },
   "d67631e6ddcdf17214fc75f0c9f760507d1fdce3c948f1524b5668403e197de3": {
@@ -7014,7 +7384,7 @@
       "parameters": {
         "Left": ["Uuid"]
       },
-      "nullable": [false]
+      "nullable": [true]
     }
   },
   "d9d04909a35ed8edd343a0be75ee10041e50a42d8ca3547d001672a9557b6d9d": {
@@ -7035,6 +7405,85 @@
         "Left": ["Varchar", "Uuid"]
       },
       "nullable": []
+    }
+  },
+  "db003c2eaa5b59bdb99fb5f5700b1dae0a641673f9af23041a20e1cb86f93901": {
+    "query": "SELECT organization_id, course_id, exam_id, role AS \"role: UserRole\" FROM roles WHERE user_id = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "organization_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "exam_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 3,
+          "name": "role: UserRole",
+          "type_info": {
+            "Custom": {
+              "name": "user_role",
+              "kind": {
+                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+              }
+            }
+          }
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [true, true, true, false]
+    }
+  },
+  "db5cd5b4719b69e217948320994bd8f3f6ae513f1378eb76d2fe6391acf179fc": {
+    "query": "\nSELECT p.id as page_id,\n  p.order_number as order_number,\n  p.course_id as course_id,\n  p.exam_id as exam_id,\n  c.id as \"chapter_id?\",\n  c.chapter_number as \"chapter_number?\"\nFROM pages p\n  LEFT JOIN chapters c ON p.chapter_id = c.id\nWHERE p.id = $1;\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "page_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "order_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 2,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 3,
+          "name": "exam_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "chapter_id?",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "chapter_number?",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, true, true, false, false]
     }
   },
   "db64bea6f7dc10dd47f4c41c5efa78c95cf5b6d97fcfcefda66847c20861ac56": {
@@ -7279,6 +7728,77 @@
       "nullable": [false, false, false, true, false, false, false, true, false]
     }
   },
+  "e5c772ea8a19d9267516be62558cf068304bc718ee118ac7167ab3c32a9fd25b": {
+    "query": "\nSELECT pages.id,\n  pages.created_at,\n  pages.updated_at,\n  pages.course_id,\n  pages.exam_id,\n  pages.chapter_id,\n  pages.url_path,\n  pages.title,\n  pages.deleted_at,\n  pages.content,\n  pages.order_number,\n  pages.copied_from\nFROM pages\nWHERE exam_id = $1\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "exam_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "chapter_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "url_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 8,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 9,
+          "name": "content",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 10,
+          "name": "order_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 11,
+          "name": "copied_from",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
+    }
+  },
   "e5db6a3bd6793923334f9a040d99b022099caf632357702ffb1be47602ec4820": {
     "query": "\nINSERT INTO exercise_slides (id, exercise_id, order_number)\nVALUES ($1, $2, $3) ON CONFLICT (id) DO\nUPDATE\nSET exercise_id = $2,\n  order_number = $3,\n  deleted_at = NULL\nRETURNING id,\n  exercise_id,\n  order_number;\n            ",
     "describe": {
@@ -7319,6 +7839,37 @@
         "Left": []
       },
       "nullable": [false]
+    }
+  },
+  "e6f8b812f11274aa02fdd91eecc9bfadb5e85c46e99ca51a48d37e6d3034c628": {
+    "query": "\nSELECT exams.id,\n    courses.id as course_id,\n    courses.name as course_name,\n    exams.name\nFROM exams\nJOIN courses ON organization_id = $1\nJOIN course_exams ON exam_id = exams.id AND course_id = courses.id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "course_name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "name",
+          "type_info": "Varchar"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false]
     }
   },
   "e966783963c11d6fa57df792d1bfff0dccf163f9cf5f474c1f3c724972229d4e": {
@@ -7385,6 +7936,77 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, false, false, false, true, true, true, true, true]
+    }
+  },
+  "ec176cf7362f8bba31ed3c173853556bada7876cc2474bc4d94d7bcdf56b4b9c": {
+    "query": "\nSELECT pages.id,\n  pages.created_at,\n  pages.updated_at,\n  pages.course_id,\n  pages.exam_id,\n  pages.chapter_id,\n  pages.url_path,\n  pages.title,\n  pages.deleted_at,\n  pages.content,\n  pages.order_number,\n  pages.copied_from\nFROM pages\n  JOIN courses ON (pages.course_id = courses.id)\nWHERE courses.slug = $1\n  AND url_path = $2\n  AND courses.deleted_at IS NULL\n  AND pages.deleted_at IS NULL;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "exam_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "chapter_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "url_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 8,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 9,
+          "name": "content",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 10,
+          "name": "order_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 11,
+          "name": "copied_from",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Text", "Text"]
+      },
+      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
     }
   },
   "f0e5dafa6f335d3927f7e9170cb14ec0ea2ba3fedd34eaac3aaa39758473ceda": {
@@ -7486,6 +8108,77 @@
       "nullable": [false]
     }
   },
+  "f4c732597c3cdf6484a20f41348183e56353ecdafbd4da0b6544f356e50e2424": {
+    "query": "\nUPDATE pages\nSET deleted_at = now()\nWHERE id = $1\nRETURNING id,\n  created_at,\n  updated_at,\n  course_id,\n  exam_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from\n          ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "exam_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "chapter_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "url_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 8,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 9,
+          "name": "content",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 10,
+          "name": "order_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 11,
+          "name": "copied_from",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
+    }
+  },
   "f4dfbd49766b87036e450b1ec67c42af7b0ddfd27420630d6d60a0284ffd5d82": {
     "query": "\nINSERT INTO exercise_slides (exercise_id, order_number)\nVALUES ($1, $2)\nRETURNING id;\n    ",
     "describe": {
@@ -7516,143 +8209,6 @@
         "Left": ["UuidArray"]
       },
       "nullable": [false]
-    }
-  },
-  "f782efea0a82ee30ae7f4f3df2af17005177e1ba08ebf88d8443e88afb97627a": {
-    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  submission_id,\n  course_id,\n  exercise_id,\n  exercise_task_id,\n  grading_priority,\n  score_given,\n  grading_progress as \"grading_progress: _\",\n  user_points_update_strategy as \"user_points_update_strategy: _\",\n  unscaled_score_maximum,\n  unscaled_score_given,\n  grading_started_at,\n  grading_completed_at,\n  feedback_json,\n  feedback_text,\n  deleted_at\nFROM gradings\nWHERE id = $1\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "submission_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 4,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "exercise_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 6,
-          "name": "exercise_task_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 7,
-          "name": "grading_priority",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 8,
-          "name": "score_given",
-          "type_info": "Float4"
-        },
-        {
-          "ordinal": 9,
-          "name": "grading_progress: _",
-          "type_info": {
-            "Custom": {
-              "name": "grading_progress",
-              "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 10,
-          "name": "user_points_update_strategy: _",
-          "type_info": {
-            "Custom": {
-              "name": "user_points_update_strategy",
-              "kind": {
-                "Enum": [
-                  "can-add-points-but-cannot-remove-points",
-                  "can-add-points-and-can-remove-points"
-                ]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 11,
-          "name": "unscaled_score_maximum",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 12,
-          "name": "unscaled_score_given",
-          "type_info": "Float4"
-        },
-        {
-          "ordinal": 13,
-          "name": "grading_started_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 14,
-          "name": "grading_completed_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 15,
-          "name": "feedback_json",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 16,
-          "name": "feedback_text",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 17,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        true,
-        false,
-        false,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true
-      ]
     }
   },
   "f7841567b90206f7d7aba83b520e1cb7933c33d203d9a1df88e3db961ab83681": {
@@ -7802,6 +8358,16 @@
         "Left": ["Uuid"]
       },
       "nullable": [null]
+    }
+  },
+  "ffc87930199c6e28eacfff0ac3296ce3f6eb0ccddb4190d0714f9f6842edeb55": {
+    "query": "\nINSERT INTO exams (id, name, opens_at, duration_minutes)\nVALUES ($1, $2, $3, $4)\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Varchar", "Timestamptz", "Int4"]
+      },
+      "nullable": []
     }
   },
   "ffceb3f0780f56e249bcc6983105d897534b65d8fc362fc56ea275d45661e617": {

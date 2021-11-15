@@ -6,7 +6,7 @@ use crate::{
         helpers::media::upload_image_for_organization, ControllerError, ControllerResult,
     },
     domain::authorization::{authorize, Action, AuthUser, Resource},
-    models::{courses::Course, organizations::Organization},
+    models::{courses::Course, exams::Exam, organizations::Organization},
     utils::file_store::FileStore,
     ApplicationConfiguration,
 };
@@ -234,6 +234,17 @@ async fn get_organization<T: FileStore>(
     Ok(Json(organization))
 }
 
+async fn get_exams(
+    pool: web::Data<PgPool>,
+    organization: web::Path<Uuid>,
+) -> ControllerResult<Json<Vec<Exam>>> {
+    let mut conn = pool.acquire().await?;
+    let exams =
+        crate::models::exams::get_exams_for_organization(&mut conn, organization.into_inner())
+            .await?;
+    Ok(Json(exams))
+}
+
 /**
 Add a route for each controller in this module.
 
@@ -255,5 +266,6 @@ pub fn _add_organizations_routes<T: 'static + FileStore>(cfg: &mut ServiceConfig
         .route(
             "/{organization_id}/image",
             web::delete().to(remove_organization_image::<T>),
-        );
+        )
+        .route("/{organization_id}/exams", web::get().to(get_exams));
 }

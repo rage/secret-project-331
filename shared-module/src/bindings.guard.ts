@@ -34,6 +34,7 @@ import {
   EmailTemplateNew,
   EmailTemplateUpdate,
   ErrorResponse,
+  Exam,
   Exercise,
   ExerciseService,
   ExerciseServiceInfoApi,
@@ -203,7 +204,8 @@ export function isPage(obj: any, _argumentName?: string): obj is Page {
     typeof obj.id === "string" &&
     obj.created_at instanceof Date &&
     obj.updated_at instanceof Date &&
-    typeof obj.course_id === "string" &&
+    (obj.course_id === null || typeof obj.course_id === "string") &&
+    (obj.exam_id === null || typeof obj.exam_id === "string") &&
     (obj.chapter_id === null || typeof obj.chapter_id === "string") &&
     typeof obj.url_path === "string" &&
     typeof obj.title === "string" &&
@@ -226,7 +228,8 @@ export function isPageWithExercises(obj: any, _argumentName?: string): obj is Pa
     typeof obj.id === "string" &&
     obj.created_at instanceof Date &&
     obj.updated_at instanceof Date &&
-    typeof obj.course_id === "string" &&
+    (obj.course_id === null || typeof obj.course_id === "string") &&
+    (obj.exam_id === null || typeof obj.exam_id === "string") &&
     (obj.chapter_id === null || typeof obj.chapter_id === "string") &&
     typeof obj.url_path === "string" &&
     typeof obj.title === "string" &&
@@ -413,7 +416,8 @@ export function isExercise(obj: any, _argumentName?: string): obj is Exercise {
     obj.created_at instanceof Date &&
     obj.updated_at instanceof Date &&
     typeof obj.name === "string" &&
-    typeof obj.course_id === "string" &&
+    (obj.course_id === null || typeof obj.course_id === "string") &&
+    (obj.exam_id === null || typeof obj.exam_id === "string") &&
     typeof obj.page_id === "string" &&
     typeof obj.chapter_id === "string" &&
     (obj.deadline === null || obj.deadline instanceof Date) &&
@@ -561,9 +565,11 @@ export function isNewPage(obj: any, _argumentName?: string): obj is NewPage {
     obj.exercise_tasks.every((e: any) => isCmsPageExerciseTask(e) as boolean) &&
     typeof obj.url_path === "string" &&
     typeof obj.title === "string" &&
-    typeof obj.course_id === "string" &&
+    (obj.course_id === null || typeof obj.course_id === "string") &&
+    (obj.exam_id === null || typeof obj.exam_id === "string") &&
     (obj.chapter_id === null || typeof obj.chapter_id === "string") &&
-    (obj.front_page_of_chapter_id === null || typeof obj.front_page_of_chapter_id === "string")
+    (obj.front_page_of_chapter_id === null || typeof obj.front_page_of_chapter_id === "string") &&
+    (obj.content_search_language === null || typeof obj.content_search_language === "string")
   )
 }
 
@@ -803,6 +809,16 @@ export function isErrorResponse(obj: any, _argumentName?: string): obj is ErrorR
   )
 }
 
+export function isExam(obj: any, _argumentName?: string): obj is Exam {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.course_id === "string" &&
+    typeof obj.course_name === "string" &&
+    typeof obj.name === "string"
+  )
+}
+
 export function isVariantStatus(obj: any, _argumentName?: string): obj is VariantStatus {
   return obj === "Draft" || obj === "Upcoming" || obj === "Active" || obj === "Ended"
 }
@@ -850,8 +866,9 @@ export function isSubmission(obj: any, _argumentName?: string): obj is Submissio
     obj.updated_at instanceof Date &&
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
     typeof obj.exercise_id === "string" &&
-    typeof obj.course_id === "string" &&
-    typeof obj.course_instance_id === "string" &&
+    (obj.course_id === null || typeof obj.course_id === "string") &&
+    (obj.course_instance_id === null || typeof obj.course_instance_id === "string") &&
+    (obj.exam_id === null || typeof obj.exam_id === "string") &&
     typeof obj.exercise_task_id === "string" &&
     (obj.grading_id === null || typeof obj.grading_id === "string") &&
     typeof obj.user_id === "string"
@@ -865,7 +882,8 @@ export function isGrading(obj: any, _argumentName?: string): obj is Grading {
     obj.created_at instanceof Date &&
     obj.updated_at instanceof Date &&
     typeof obj.submission_id === "string" &&
-    typeof obj.course_id === "string" &&
+    (obj.course_id === null || typeof obj.course_id === "string") &&
+    (obj.exam_id === null || typeof obj.exam_id === "string") &&
     typeof obj.exercise_id === "string" &&
     typeof obj.exercise_task_id === "string" &&
     typeof obj.grading_priority === "number" &&

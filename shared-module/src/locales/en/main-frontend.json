@@ -165,5 +165,6 @@
   "active-courses": "Active courses ({{ courses }}):",
   "choose-a-language": "Choose a language",
   "american-english": "English",
-  "available-in-languages": "Available in {{num}} languages"
+  "available-in-languages": "Available in {{num}} languages",
+  "language-language": "Language: {{language}}"
 }

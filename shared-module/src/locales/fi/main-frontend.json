@@ -127,5 +127,6 @@
   "active-courses": "Aktiiviset kurssit ({{ courses }}):",
   "choose-a-language": "Valitse kieli",
   "american-english": "Englanti",
-  "available-in-languages": "Saatavilla {{num}} kielellä"
+  "available-in-languages": "Saatavilla {{num}} kielellä",
+  "language-language": "Kieli: {{language}}"
 }

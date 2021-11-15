@@ -162,5 +162,8 @@
   "instance-opens-at-time": "Instance opens at {{time}}",
   "instance-has-no-set-opening-time": "Instance has no set opening time",
   "no-active-courses": "No active courses",
-  "active-courses": "Active courses ({{ courses }}):"
+  "active-courses": "Active courses ({{ courses }}):",
+  "choose-a-language": "Choose a language",
+  "american-english": "English",
+  "available-in-languages": "Available in {{num}} languages"
 }

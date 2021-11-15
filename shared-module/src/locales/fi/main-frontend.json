@@ -124,5 +124,8 @@
   "label-example-name": "Esimerkin nimi",
   "link-manage-change-requests": "Hallinnoi muutosehdotuksia",
   "no-active-courses": "Ei aktiivisia kursseja",
-  "active-courses": "Aktiiviset kurssit ({{ courses }}):"
+  "active-courses": "Aktiiviset kurssit ({{ courses }}):",
+  "choose-a-language": "Valitse kieli",
+  "american-english": "Englanti",
+  "available-in-languages": "Saatavilla {{num}} kielellä"
 }

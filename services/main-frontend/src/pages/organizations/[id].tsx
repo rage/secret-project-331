@@ -8,6 +8,7 @@ import { useQuery } from "react-query"
 
 import Layout from "../../components/Layout"
 import OrganizationImageWidget from "../../components/OrganizationImageWidget"
+import { CourseCard, CourseGridWrapper } from "../../components/cards/CourseCard"
 import NewCourseForm from "../../components/forms/NewCourseForm"
 import { postNewCourse } from "../../services/backend/courses"
 import {
@@ -18,7 +19,6 @@ import {
 } from "../../services/backend/organizations"
 import { NewCourse } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
-import { CardContainer, CourseCard } from "../../shared-module/components/Card/CourseCard"
 import DebugModal from "../../shared-module/components/DebugModal"
 import Pagination from "../../shared-module/components/Pagination"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
@@ -122,13 +122,14 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
           onOrganizationUpdated={() => refetchOrg()}
         />
         <h2>{t("active-courses", { courses: dataOrgActiveCoursesCount.count })}</h2>
-        <CardContainer>
+        <CourseGridWrapper>
           {dataOrgActiveCourses.length === 0
             ? t("no-active-courses")
             : dataOrgActiveCourses.map((course) => (
                 <CourseCard
                   key={course.id}
-                  name={course.name}
+                  title={course.name}
+                  description={course.name}
                   onClick={() => {
                     // eslint-disable-next-line i18next/no-literal-string
                     router.push(`/manage/courses/${course.id}`)
@@ -152,7 +153,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
                 //   )}
                 // </div>
               ))}
-        </CardContainer>
+        </CourseGridWrapper>
         <Pagination
           count={Math.ceil(dataOrgActiveCoursesCount.count / PAGE_LIMIT)}
           page={page}

@@ -3,10 +3,9 @@ import Image from "next/image"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Finland from "../../img/flags/Finland.png"
-import SettingIcon from "../../img/setting.svg"
+//  import Finland from "../../imgs/flags/Finland.png"
+import SettingIcon from "../../imgs/setting.svg"
 
-import Confetti from "./Confetti"
 import LanguageSelector from "./LanguageSelector"
 
 interface CardExtraProps {
@@ -92,7 +91,6 @@ const CourseCard: React.FC<CardProps> = ({ title, description }) => {
 
   return (
     <CourseGridWrapper>
-      <Confetti />
       <StyledSettingIcon />
       <Content>
         <h2>{title}</h2>
@@ -111,4 +109,4 @@ const CourseCard: React.FC<CardProps> = ({ title, description }) => {
   )
 }
 
-export default CourseCard
+export { CourseGridWrapper, CourseCard }

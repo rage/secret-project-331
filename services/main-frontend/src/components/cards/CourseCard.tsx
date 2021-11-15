@@ -109,4 +109,4 @@ const CourseCard: React.FC<CardProps> = ({ title, description }) => {
   )
 }
 
-export { CourseGridWrapper, CourseCard }
+export default CourseCard

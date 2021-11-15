@@ -2,13 +2,11 @@ import { useRouter } from "next/router"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Editor from "../components/Editor"
-import Exercise from "../components/Exercise"
-import Submission from "../components/Submission"
+import { Renderer } from "../components/Renderer"
 import { isSetStateMessage } from "../shared-module/iframe-protocol-types.guard"
 import { Alternative, ModelSolutionApi, PublicAlternative } from "../util/stateInterfaces"
 
-interface SubmissionState {
+export interface SubmissionState {
   public_spec: PublicAlternative[]
   submission_data: string
   model_solution_spec: ModelSolutionApi
@@ -86,20 +84,18 @@ const Iframe: React.FC = () => {
     return <>{t("waiting-for-port")}</>
   }
 
-  if (!state) {
+  if (!state || !viewType) {
     return <>{t("waiting-for-content")}</>
   }
-  if (viewType === "exercise") {
-    return <Exercise maxWidth={maxWidth} port={port} state={state as PublicAlternative[]} />
-  } else if (viewType === "exercise-editor") {
-    return (
-      <Editor maxWidth={maxWidth} port={port} state={state as Alternative[]} setState={setState} />
-    )
-  } else if (viewType === "view-submission") {
-    return <Submission port={port} maxWidth={maxWidth} state={state} />
-  } else {
-    return <>{t("waiting-for-content")}</>
-  }
+  return (
+    <Renderer
+      maxWidth={maxWidth}
+      port={port}
+      setState={setState}
+      state={state}
+      viewType={viewType}
+    />
+  )
 }
 
 export default Iframe

@@ -1,10 +1,11 @@
 import styled from "@emotion/styled"
 import Image from "next/image"
-import React, { useState } from "react"
+import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import Finland from "../../imgs/flags/Finland.png"
 import SettingIcon from "../../imgs/setting.svg"
+import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
 
 import LanguageSelector from "./LanguageSelector"
 
@@ -83,6 +84,7 @@ const CourseCard: React.FC<CardProps> = ({ title, description }) => {
   const { t } = useTranslation()
   const [clicked, setClicked] = useState<boolean>(false)
   // If URL defined, the chapter is open
+  const loginStateContext = useContext(LoginStateContext)
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault()
@@ -91,7 +93,7 @@ const CourseCard: React.FC<CardProps> = ({ title, description }) => {
 
   return (
     <CourseGridWrapper>
-      <StyledSettingIcon />
+      {loginStateContext.signedIn && <StyledSettingIcon />}
       <Content>
         <h2>{title}</h2>
         <span>{description}</span>

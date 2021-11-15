@@ -182,18 +182,18 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Pagination</span> {
     <span class="comment">// the deserialize implementation contains a default value for page</span>
     <span class="attribute">#[<span class="ident">ts</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;page?&quot;</span>)]</span>
-    <span class="ident">page</span>: <span class="ident">i64</span>,
+    <span class="ident">page</span>: <span class="ident">u32</span>,
     <span class="comment">// the deserialize implementation contains a default value for limit</span>
     <span class="attribute">#[<span class="ident">ts</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;limit?&quot;</span>)]</span>
-    <span class="ident">limit</span>: <span class="ident">i64</span>,
+    <span class="ident">limit</span>: <span class="ident">u32</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Pagination</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">page</span>: <span class="ident">i64</span>, <span class="ident">limit</span>: <span class="ident">i64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">page</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">0</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">page</span>: <span class="ident">u32</span>, <span class="ident">limit</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="ident">page</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;Page must be a positive value.&quot;</span>));
         }
-        <span class="kw">if</span> <span class="ident">limit</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">0</span> {
+        <span class="kw">if</span> <span class="ident">limit</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;Limit must be a positive value.&quot;</span>));
         }
         <span class="prelude-val">Ok</span>(<span class="ident">Pagination</span> { <span class="ident">page</span>, <span class="ident">limit</span> })
@@ -201,21 +201,21 @@
 
     <span class="doccomment">/// Guaranteed to be positive.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">page</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i64</span> {
-        <span class="self">self</span>.<span class="ident">page</span>
+        <span class="self">self</span>.<span class="ident">page</span>.<span class="ident">into</span>()
     }
 
     <span class="doccomment">/// Guaranteed to be positive.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">limit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i64</span> {
-        <span class="self">self</span>.<span class="ident">limit</span>
+        <span class="self">self</span>.<span class="ident">limit</span>.<span class="ident">into</span>()
     }
 
     <span class="doccomment">/// Guaranteed to be nonnegative.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">offset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i64</span> {
-        <span class="self">self</span>.<span class="ident">limit</span> <span class="op">*</span> (<span class="self">self</span>.<span class="ident">page</span> <span class="op">-</span> <span class="number">1</span>)
+        (<span class="self">self</span>.<span class="ident">limit</span> <span class="op">*</span> (<span class="self">self</span>.<span class="ident">page</span> <span class="op">-</span> <span class="number">1</span>)).<span class="ident">into</span>()
     }
 
     <span class="doccomment">/// Guaranteed to be positive.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">total_pages</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">total_count</span>: <span class="ident">i64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i64</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">total_pages</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">total_count</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
         <span class="kw">let</span> <span class="ident">remainder</span> <span class="op">=</span> <span class="ident">total_count</span> <span class="op">%</span> <span class="self">self</span>.<span class="ident">limit</span>;
         <span class="kw">if</span> <span class="ident">remainder</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
             <span class="ident">total_count</span> <span class="op">/</span> <span class="self">self</span>.<span class="ident">limit</span>
@@ -329,11 +329,11 @@
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">untagged</span>)]</span>
 <span class="kw">enum</span> <span class="ident">StrOrInt</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="ident">Str</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>),
-    <span class="ident">Int</span>(<span class="ident">i64</span>),
+    <span class="ident">Int</span>(<span class="ident">u32</span>),
 }
 
 <span class="kw">impl</span> <span class="ident">StrOrInt</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">into_int</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">i64</span>, <span class="ident">ParseIntError</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">into_int</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u32</span>, <span class="ident">ParseIntError</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident"><span class="self">Self</span>::Str</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">s</span>.<span class="ident">parse</span>(),
             <span class="ident"><span class="self">Self</span>::Int</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">i</span>),

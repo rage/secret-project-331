@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["create_page",""],["example_exercise",""],["grade",""],["main",""],["paragraph",""],["seed_cs_course_material",""],["seed_sample_course",""]]});
+initSidebarItems({"fn":[["create_page",""],["example_exercise",""],["main",""],["paragraph",""],["seed_cs_course_material",""],["seed_sample_course",""],["submit_and_grade",""]]});

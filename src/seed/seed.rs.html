@@ -1811,15 +1811,11 @@
 <span id="1811">1811</span>
 <span id="1812">1812</span>
 <span id="1813">1813</span>
-<span id="1814">1814</span>
-<span id="1815">1815</span>
-<span id="1816">1816</span>
-<span id="1817">1817</span>
-<span id="1818">1818</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">TimeZone</span>, <span class="ident">Utc</span>};
 <span class="kw">use</span> <span class="ident">headless_lms_actix::attributes</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models::chapters::NewChapter</span>;
+<span class="kw">use</span> <span class="ident">headless_lms_actix::models::course_instance_enrollments::NewCourseInstanceEnrollment</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models::course_instances::NewCourseInstance</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models::courses::NewCourse</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models::exercises::GradingProgress</span>;
@@ -1836,7 +1832,7 @@
     <span class="ident">exercises</span>, <span class="ident">organizations</span>, <span class="ident">pages</span>, <span class="ident">roles</span>, <span class="ident">roles::UserRole</span>, <span class="ident">submissions</span>, <span class="ident">user_exercise_states</span>,
     <span class="ident">users</span>,
 };
-<span class="kw">use</span> <span class="ident">headless_lms_actix::models</span>::{<span class="ident">feedback</span>, <span class="ident">playground_examples</span>};
+<span class="kw">use</span> <span class="ident">headless_lms_actix::models</span>::{<span class="ident">course_instance_enrollments</span>, <span class="ident">feedback</span>, <span class="ident">playground_examples</span>};
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models</span>::{<span class="ident">gradings</span>, <span class="ident">proposed_page_edits</span>};
 <span class="kw">use</span> <span class="ident">headless_lms_actix::setup_tracing</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_actix::utils::document_schema_processor::GutenbergBlock</span>;
@@ -1844,10 +1840,13 @@
 <span class="kw">use</span> <span class="ident">sqlx::migrate::MigrateDatabase</span>;
 <span class="kw">use</span> <span class="ident">sqlx</span>::{<span class="ident">Connection</span>, <span class="ident">PgConnection</span>, <span class="ident">Postgres</span>};
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">env</span>, <span class="ident">process::Command</span>};
+<span class="kw">use</span> <span class="ident">tracing::info</span>;
 <span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
 
 <span class="attribute">#[<span class="ident">tokio::main</span>]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">main</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="ident">env::set_var</span>(<span class="string">&quot;RUST_LOG&quot;</span>, <span class="string">&quot;info,sqlx=warn&quot;</span>);
+
     <span class="ident">dotenv::dotenv</span>().<span class="ident">ok</span>();
     <span class="ident">setup_tracing</span>()<span class="question-mark">?</span>;
 
@@ -1855,6 +1854,7 @@
     <span class="kw">let</span> <span class="ident">db_url</span> <span class="op">=</span> <span class="ident">env::var</span>(<span class="string">&quot;DATABASE_URL&quot;</span>)<span class="question-mark">?</span>;
 
     <span class="kw">if</span> <span class="ident">clean</span> {
+        <span class="macro">info!</span>(<span class="string">&quot;cleaning&quot;</span>);
         <span class="comment">// hardcoded for now</span>
         <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="ident">Command::new</span>(<span class="string">&quot;dropdb&quot;</span>)
             .<span class="ident">args</span>([<span class="string">&quot;-U&quot;</span>, <span class="string">&quot;headless-lms&quot;</span>])
@@ -1869,10 +1869,12 @@
     }
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">PgConnection::connect</span>(<span class="kw-2">&amp;</span><span class="ident">db_url</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">if</span> <span class="ident">clean</span> {
+        <span class="macro">info!</span>(<span class="string">&quot;running migrations&quot;</span>);
         <span class="macro">sqlx::migrate!</span>(<span class="string">&quot;./migrations&quot;</span>).<span class="ident">run</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     }
 
     <span class="comment">// exercise services</span>
+    <span class="macro">info!</span>(<span class="string">&quot;inserting exercise services&quot;</span>);
     <span class="kw">let</span> <span class="ident">_example_exercise_exercise_service</span> <span class="op">=</span> <span class="ident">exercise_services::insert_exercise_service</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
         <span class="kw-2">&amp;</span><span class="ident">exercise_services::ExerciseServiceNewOrUpdate</span> {
@@ -1901,6 +1903,7 @@
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// users</span>
+    <span class="macro">info!</span>(<span class="string">&quot;inserting users&quot;</span>);
     <span class="kw">let</span> <span class="ident">admin</span> <span class="op">=</span> <span class="ident">users::insert_with_id</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
         <span class="string">&quot;admin@example.com&quot;</span>,
@@ -1933,7 +1936,35 @@
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
+    <span class="kw">let</span> <span class="ident">users</span> <span class="op">=</span> <span class="macro">vec!</span>[
+        <span class="ident">users::insert_with_id</span>(
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+            <span class="string">&quot;user_1@example.com&quot;</span>,
+            <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;00e249d8-345f-4eff-aedb-7bdc4c44c1d5&quot;</span>)<span class="question-mark">?</span>,
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>,
+        <span class="ident">users::insert_with_id</span>(
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+            <span class="string">&quot;user_2@example.com&quot;</span>,
+            <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;8d7d6c8c-4c31-48ae-8e20-c68fa95c25cc&quot;</span>)<span class="question-mark">?</span>,
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>,
+        <span class="ident">users::insert_with_id</span>(
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+            <span class="string">&quot;user_3@example.com&quot;</span>,
+            <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;fbeb9286-3dd8-4896-a6b8-3faffa3fabd6&quot;</span>)<span class="question-mark">?</span>,
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>,
+        <span class="ident">users::insert_with_id</span>(
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+            <span class="string">&quot;user_4@example.com&quot;</span>,
+            <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;3524d694-7fa8-4e73-aa1a-de9a20fd514b&quot;</span>)<span class="question-mark">?</span>,
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>,
+    ];
+
     <span class="comment">// uh-cs</span>
+    <span class="macro">info!</span>(<span class="string">&quot;uh-cs&quot;</span>);
     <span class="kw">let</span> <span class="ident">uh_cs</span> <span class="op">=</span> <span class="ident">organizations::insert</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
         <span class="string">&quot;University of Helsinki, Department of Computer Science&quot;</span>,
@@ -1943,6 +1974,7 @@
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
+    <span class="macro">info!</span>(<span class="string">&quot;inserting uh-cs courses&quot;</span>);
     <span class="kw">let</span> <span class="ident">cs_intro</span> <span class="op">=</span> <span class="ident">seed_sample_course</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
         <span class="ident">uh_cs</span>,
@@ -1950,8 +1982,8 @@
         <span class="string">&quot;Introduction to everything&quot;</span>,
         <span class="string">&quot;introduction-to-everything&quot;</span>,
         <span class="ident">admin</span>,
-        <span class="ident">teacher</span>,
         <span class="ident">student</span>,
+        <span class="kw-2">&amp;</span><span class="ident">users</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">seed_sample_course</span>(
@@ -1961,8 +1993,8 @@
         <span class="string">&quot;Introduction to feedback&quot;</span>,
         <span class="string">&quot;introduction-to-feedback&quot;</span>,
         <span class="ident">admin</span>,
-        <span class="ident">teacher</span>,
         <span class="ident">student</span>,
+        <span class="kw-2">&amp;</span><span class="ident">users</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">seed_sample_course</span>(
@@ -1972,8 +2004,8 @@
         <span class="string">&quot;Introduction to history&quot;</span>,
         <span class="string">&quot;introduction-to-history&quot;</span>,
         <span class="ident">admin</span>,
-        <span class="ident">teacher</span>,
         <span class="ident">student</span>,
+        <span class="kw-2">&amp;</span><span class="ident">users</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">seed_sample_course</span>(
@@ -1983,8 +2015,8 @@
         <span class="string">&quot;Introduction to edit proposals&quot;</span>,
         <span class="string">&quot;introduction-to-edit-proposals&quot;</span>,
         <span class="ident">admin</span>,
-        <span class="ident">teacher</span>,
         <span class="ident">student</span>,
+        <span class="kw-2">&amp;</span><span class="ident">users</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">introduction_to_localizing</span> <span class="op">=</span> <span class="ident">seed_sample_course</span>(
@@ -1994,8 +2026,19 @@
         <span class="string">&quot;Introduction to localizing&quot;</span>,
         <span class="string">&quot;introduction-to-localizing&quot;</span>,
         <span class="ident">admin</span>,
-        <span class="ident">teacher</span>,
         <span class="ident">student</span>,
+        <span class="kw-2">&amp;</span><span class="ident">users</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">seed_sample_course</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+        <span class="ident">uh_cs</span>,
+        <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;b4cb334c-11d6-4e93-8f3d-849c4abfcd67&quot;</span>)<span class="question-mark">?</span>,
+        <span class="string">&quot;Point view for teachers&quot;</span>,
+        <span class="string">&quot;point-view-for-teachers&quot;</span>,
+        <span class="ident">admin</span>,
+        <span class="ident">student</span>,
+        <span class="kw-2">&amp;</span><span class="ident">users</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">seed_sample_course</span>(
@@ -2005,8 +2048,8 @@
         <span class="string">&quot;Advanced course instance management&quot;</span>,
         <span class="string">&quot;advanced-course-instance-management&quot;</span>,
         <span class="ident">admin</span>,
-        <span class="ident">teacher</span>,
         <span class="ident">student</span>,
+        <span class="kw-2">&amp;</span><span class="ident">users</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">roles::insert</span>(
@@ -2722,9 +2765,10 @@
     <span class="ident">course_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
     <span class="ident">course_slug</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
     <span class="ident">admin</span>: <span class="ident">Uuid</span>,
-    <span class="ident">teacher</span>: <span class="ident">Uuid</span>,
     <span class="ident">student</span>: <span class="ident">Uuid</span>,
+    <span class="ident">users</span>: <span class="kw-2">&amp;</span>[<span class="ident">Uuid</span>],
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
+    <span class="macro">info!</span>(<span class="string">&quot;inserting sample course {}&quot;</span>, <span class="ident">course_name</span>);
     <span class="kw">let</span> <span class="ident">new_course</span> <span class="op">=</span> <span class="ident">NewCourse</span> {
         <span class="ident">name</span>: <span class="ident">course_name</span>.<span class="ident">to_string</span>(),
         <span class="ident">organization_id</span>: <span class="ident">org</span>,
@@ -2733,7 +2777,7 @@
         <span class="ident">teacher_in_charge_name</span>: <span class="string">&quot;admin&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;admin@example.com&quot;</span>.<span class="ident">to_string</span>(),
     };
-    <span class="kw">let</span> (<span class="ident">course</span>, <span class="ident">_front_page</span>, <span class="ident">_default_instance</span>) <span class="op">=</span> <span class="ident">courses::insert_course</span>(
+    <span class="kw">let</span> (<span class="ident">course</span>, <span class="ident">_front_page</span>, <span class="ident">default_instance</span>) <span class="op">=</span> <span class="ident">courses::insert_course</span>(
         <span class="ident">conn</span>,
         <span class="ident">course_id</span>,
         <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;7344f1c8-b7ce-4c7d-ade2-5f39997bd454&quot;</span>),
@@ -2741,7 +2785,7 @@
         <span class="ident">admin</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">course_instance</span> <span class="op">=</span> <span class="ident">course_instances::insert</span>(
+    <span class="ident">course_instances::insert</span>(
         <span class="ident">conn</span>,
         <span class="ident">NewCourseInstance</span> {
             <span class="ident">id</span>: <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;67f077b4-0562-47ae-a2b9-db2f08f168a9&quot;</span>),
@@ -2972,178 +3016,104 @@
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="comment">// submissions</span>
-    <span class="kw">let</span> <span class="ident">submission_admin_c1p1e1t1_1</span> <span class="op">=</span> <span class="ident">submissions::insert_with_id</span>(
-        <span class="ident">conn</span>,
-        <span class="kw-2">&amp;</span><span class="ident">submissions::SubmissionData</span> {
-            <span class="ident">id</span>: <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;8c447aeb-1791-4236-8471-204d8bc27507&quot;</span>),
-            <span class="ident">exercise_id</span>: <span class="ident">exercise_c1p1_1</span>,
-            <span class="ident">course_id</span>: <span class="ident">course</span>.<span class="ident">id</span>,
-            <span class="ident">exercise_task_id</span>: <span class="ident">exercise_task_c1p1e1_1</span>,
-            <span class="ident">user_id</span>: <span class="ident">admin</span>,
-            <span class="ident">course_instance_id</span>: <span class="ident">course_instance</span>.<span class="ident">id</span>,
-            <span class="ident">data_json</span>: <span class="ident">Value::String</span>(<span class="ident">spec_c1p1e1t1_1</span>.<span class="ident">to_string</span>()),
-        },
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">submission_admin_c1p1e1t1_2</span> <span class="op">=</span> <span class="ident">submissions::insert_with_id</span>(
-        <span class="ident">conn</span>,
-        <span class="kw-2">&amp;</span><span class="ident">submissions::SubmissionData</span> {
-            <span class="ident">id</span>: <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;a719fe25-5721-412d-adea-4696ccb3d883&quot;</span>),
-            <span class="ident">exercise_id</span>: <span class="ident">exercise_c1p1_1</span>,
-            <span class="ident">course_id</span>: <span class="ident">course</span>.<span class="ident">id</span>,
-            <span class="ident">exercise_task_id</span>: <span class="ident">exercise_task_c1p1e1_1</span>,
-            <span class="ident">user_id</span>: <span class="ident">admin</span>,
-            <span class="ident">course_instance_id</span>: <span class="ident">course_instance</span>.<span class="ident">id</span>,
-            <span class="ident">data_json</span>: <span class="ident">Value::String</span>(<span class="ident">spec_c1p1e1t1_2</span>.<span class="ident">to_string</span>()),
-        },
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">submission_admin_c1p1e1t1_3</span> <span class="op">=</span> <span class="ident">submissions::insert_with_id</span>(
-        <span class="ident">conn</span>,
-        <span class="kw-2">&amp;</span><span class="ident">submissions::SubmissionData</span> {
-            <span class="ident">id</span>: <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;bbc16d4b-1f91-4bd0-a47f-047665a32196&quot;</span>),
-            <span class="ident">exercise_id</span>: <span class="ident">exercise_c1p1_1</span>,
-            <span class="ident">course_id</span>: <span class="ident">course</span>.<span class="ident">id</span>,
-            <span class="ident">exercise_task_id</span>: <span class="ident">exercise_task_c1p1e1_1</span>,
-            <span class="ident">user_id</span>: <span class="ident">admin</span>,
-            <span class="ident">course_instance_id</span>: <span class="ident">course_instance</span>.<span class="ident">id</span>,
-            <span class="ident">data_json</span>: <span class="ident">Value::String</span>(<span class="ident">spec_c1p1e1t1_3</span>.<span class="ident">to_string</span>()),
-        },
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">_submission_admin_c1p1e1t1_4</span> <span class="op">=</span> <span class="ident">submissions::insert_with_id</span>(
-        <span class="ident">conn</span>,
-        <span class="kw-2">&amp;</span><span class="ident">submissions::SubmissionData</span> {
-            <span class="ident">id</span>: <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;c60bf5e5-9b67-4f62-9df7-16d268c1b5f5&quot;</span>),
-            <span class="ident">exercise_id</span>: <span class="ident">exercise_c1p1_1</span>,
-            <span class="ident">course_id</span>: <span class="ident">course</span>.<span class="ident">id</span>,
-            <span class="ident">exercise_task_id</span>: <span class="ident">exercise_task_c1p1e1_1</span>,
-            <span class="ident">user_id</span>: <span class="ident">admin</span>,
-            <span class="ident">course_instance_id</span>: <span class="ident">course_instance</span>.<span class="ident">id</span>,
-            <span class="ident">data_json</span>: <span class="ident">Value::String</span>(<span class="ident">spec_c1p1e1t1_1</span>.<span class="ident">to_string</span>()),
-        },
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">submission_admin_c1p2e1t1</span> <span class="op">=</span> <span class="ident">submissions::insert_with_id</span>(
-        <span class="ident">conn</span>,
-        <span class="kw-2">&amp;</span><span class="ident">submissions::SubmissionData</span> {
-            <span class="ident">id</span>: <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;e0ec1386-72aa-4eed-8b91-72bba420c23b&quot;</span>),
-            <span class="ident">exercise_id</span>: <span class="ident">exercise_c1p2_1</span>,
-            <span class="ident">course_id</span>: <span class="ident">course</span>.<span class="ident">id</span>,
-            <span class="ident">exercise_task_id</span>: <span class="ident">exercise_task_c1p2e1_1</span>,
-            <span class="ident">user_id</span>: <span class="ident">admin</span>,
-            <span class="ident">course_instance_id</span>: <span class="ident">course_instance</span>.<span class="ident">id</span>,
-            <span class="ident">data_json</span>: <span class="ident">Value::String</span>(<span class="ident">spec_c1p2e1t1_1</span>.<span class="ident">to_string</span>()),
-        },
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">submission_admin_c1p2e2t1</span> <span class="op">=</span> <span class="ident">submissions::insert_with_id</span>(
-        <span class="ident">conn</span>,
-        <span class="kw-2">&amp;</span><span class="ident">submissions::SubmissionData</span> {
-            <span class="ident">id</span>: <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;4c6b8f4f-40c9-4970-947d-077e25c67e24&quot;</span>),
-            <span class="ident">exercise_id</span>: <span class="ident">exercise_c1p2_2</span>,
-            <span class="ident">course_id</span>: <span class="ident">course</span>.<span class="ident">id</span>,
-            <span class="ident">exercise_task_id</span>: <span class="ident">exercise_task_c1p2e2_1</span>,
-            <span class="ident">user_id</span>: <span class="ident">admin</span>,
-            <span class="ident">course_instance_id</span>: <span class="ident">course_instance</span>.<span class="ident">id</span>,
-            <span class="ident">data_json</span>: <span class="ident">Value::String</span>(<span class="ident">spec_c1p2e2t1_1</span>.<span class="ident">to_string</span>()),
-        },
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">submission_admin_c2p1e1t1</span> <span class="op">=</span> <span class="ident">submissions::insert_with_id</span>(
-        <span class="ident">conn</span>,
-        <span class="kw-2">&amp;</span><span class="ident">submissions::SubmissionData</span> {
-            <span class="ident">id</span>: <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;02c9e1ad-6e4c-4473-a3e9-dbfab018a055&quot;</span>),
-            <span class="ident">exercise_id</span>: <span class="ident">exercise_c2p1_1</span>,
-            <span class="ident">course_id</span>: <span class="ident">course</span>.<span class="ident">id</span>,
-            <span class="ident">exercise_task_id</span>: <span class="ident">exercise_task_c2p1e1_1</span>,
-            <span class="ident">user_id</span>: <span class="ident">admin</span>,
-            <span class="ident">course_instance_id</span>: <span class="ident">course_instance</span>.<span class="ident">id</span>,
-            <span class="ident">data_json</span>: <span class="ident">Value::String</span>(<span class="ident">spec_c2p1e1t1_1</span>.<span class="ident">to_string</span>()),
-        },
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">submission_teacher_c1p1e1t1</span> <span class="op">=</span> <span class="ident">submissions::insert_with_id</span>(
-        <span class="ident">conn</span>,
-        <span class="kw-2">&amp;</span><span class="ident">submissions::SubmissionData</span> {
-            <span class="ident">id</span>: <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;75df4600-d337-4083-99d1-e8e3b6bf6192&quot;</span>),
-            <span class="ident">exercise_id</span>: <span class="ident">exercise_c1p1_1</span>,
-            <span class="ident">course_id</span>: <span class="ident">course</span>.<span class="ident">id</span>,
-            <span class="ident">exercise_task_id</span>: <span class="ident">exercise_task_c1p1e1_1</span>,
-            <span class="ident">user_id</span>: <span class="ident">teacher</span>,
-            <span class="ident">course_instance_id</span>: <span class="ident">course_instance</span>.<span class="ident">id</span>,
-            <span class="ident">data_json</span>: <span class="ident">Value::String</span>(<span class="ident">spec_c1p1e1t1_1</span>.<span class="ident">to_string</span>()),
-        },
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="comment">// enrollments, user exercise states, submissions, grades</span>
+    <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">user_id</span> <span class="kw">in</span> <span class="ident">users</span> {
+        <span class="ident">course_instance_enrollments::insert_enrollment_and_set_as_current</span>(
+            <span class="ident">conn</span>,
+            <span class="ident">NewCourseInstanceEnrollment</span> {
+                <span class="ident">course_id</span>,
+                <span class="ident">course_instance_id</span>: <span class="ident">default_instance</span>.<span class="ident">id</span>,
+                <span class="ident">user_id</span>,
+            },
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="comment">// intro gradings</span>
-    <span class="ident">grade</span>(
-        <span class="ident">conn</span>,
-        <span class="ident">submission_admin_c1p1e1t1_1</span>,
-        <span class="ident">exercise_c1p1_1</span>,
-        <span class="ident">GradingProgress::FullyGraded</span>,
-        <span class="number">100.0</span>,
-        <span class="number">100</span>,
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="comment">// this grading is for the same exercise, but no points are removed due to the update strategy</span>
-    <span class="ident">grade</span>(
-        <span class="ident">conn</span>,
-        <span class="ident">submission_admin_c1p1e1t1_2</span>,
-        <span class="ident">exercise_c1p1_1</span>,
-        <span class="ident">GradingProgress::Failed</span>,
-        <span class="number">1.0</span>,
-        <span class="number">100</span>,
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="comment">// this grading is for the same exercise, but no points are removed due to the update strategy</span>
-    <span class="ident">grade</span>(
-        <span class="ident">conn</span>,
-        <span class="ident">submission_admin_c1p1e1t1_3</span>,
-        <span class="ident">exercise_c1p1_1</span>,
-        <span class="ident">GradingProgress::Pending</span>,
-        <span class="number">0.0</span>,
-        <span class="number">100</span>,
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">grade</span>(
-        <span class="ident">conn</span>,
-        <span class="ident">submission_admin_c1p2e1t1</span>,
-        <span class="ident">exercise_c1p2_1</span>,
-        <span class="ident">GradingProgress::FullyGraded</span>,
-        <span class="number">60.0</span>,
-        <span class="number">100</span>,
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">grade</span>(
-        <span class="ident">conn</span>,
-        <span class="ident">submission_admin_c1p2e2t1</span>,
-        <span class="ident">exercise_c1p2_2</span>,
-        <span class="ident">GradingProgress::FullyGraded</span>,
-        <span class="number">70.0</span>,
-        <span class="number">100</span>,
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">grade</span>(
-        <span class="ident">conn</span>,
-        <span class="ident">submission_admin_c2p1e1t1</span>,
-        <span class="ident">exercise_c2p1_1</span>,
-        <span class="ident">GradingProgress::FullyGraded</span>,
-        <span class="number">80.0</span>,
-        <span class="number">100</span>,
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">grade</span>(
-        <span class="ident">conn</span>,
-        <span class="ident">submission_teacher_c1p1e1t1</span>,
-        <span class="ident">exercise_c1p1_1</span>,
-        <span class="ident">GradingProgress::FullyGraded</span>,
-        <span class="number">90.0</span>,
-        <span class="number">100</span>,
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">submit_and_grade</span>(
+            <span class="ident">conn</span>,
+            <span class="string">b&quot;8c447aeb-1791-4236-8471-204d8bc27507&quot;</span>,
+            <span class="ident">exercise_c1p1_1</span>,
+            <span class="ident">course</span>.<span class="ident">id</span>,
+            <span class="ident">exercise_task_c1p1e1_1</span>,
+            <span class="ident">user_id</span>,
+            <span class="ident">default_instance</span>.<span class="ident">id</span>,
+            <span class="ident">spec_c1p1e1t1_1</span>.<span class="ident">to_string</span>(),
+            <span class="number">100.0</span>,
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="comment">// this submission is for the same exercise, but no points are removed due to the update strategy</span>
+        <span class="ident">submit_and_grade</span>(
+            <span class="ident">conn</span>,
+            <span class="string">b&quot;a719fe25-5721-412d-adea-4696ccb3d883&quot;</span>,
+            <span class="ident">exercise_c1p1_1</span>,
+            <span class="ident">course</span>.<span class="ident">id</span>,
+            <span class="ident">exercise_task_c1p1e1_1</span>,
+            <span class="ident">user_id</span>,
+            <span class="ident">default_instance</span>.<span class="ident">id</span>,
+            <span class="ident">spec_c1p1e1t1_2</span>.<span class="ident">to_string</span>(),
+            <span class="number">1.0</span>,
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">submit_and_grade</span>(
+            <span class="ident">conn</span>,
+            <span class="string">b&quot;bbc16d4b-1f91-4bd0-a47f-047665a32196&quot;</span>,
+            <span class="ident">exercise_c1p1_1</span>,
+            <span class="ident">course</span>.<span class="ident">id</span>,
+            <span class="ident">exercise_task_c1p1e1_1</span>,
+            <span class="ident">user_id</span>,
+            <span class="ident">default_instance</span>.<span class="ident">id</span>,
+            <span class="ident">spec_c1p1e1t1_3</span>.<span class="ident">to_string</span>(),
+            <span class="number">0.0</span>,
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">submit_and_grade</span>(
+            <span class="ident">conn</span>,
+            <span class="string">b&quot;c60bf5e5-9b67-4f62-9df7-16d268c1b5f5&quot;</span>,
+            <span class="ident">exercise_c1p1_1</span>,
+            <span class="ident">course</span>.<span class="ident">id</span>,
+            <span class="ident">exercise_task_c1p1e1_1</span>,
+            <span class="ident">user_id</span>,
+            <span class="ident">default_instance</span>.<span class="ident">id</span>,
+            <span class="ident">spec_c1p1e1t1_1</span>.<span class="ident">to_string</span>(),
+            <span class="number">60.0</span>,
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">submit_and_grade</span>(
+            <span class="ident">conn</span>,
+            <span class="string">b&quot;e0ec1386-72aa-4eed-8b91-72bba420c23b&quot;</span>,
+            <span class="ident">exercise_c1p2_1</span>,
+            <span class="ident">course</span>.<span class="ident">id</span>,
+            <span class="ident">exercise_task_c1p2e1_1</span>,
+            <span class="ident">user_id</span>,
+            <span class="ident">default_instance</span>.<span class="ident">id</span>,
+            <span class="ident">spec_c1p2e1t1_1</span>.<span class="ident">to_string</span>(),
+            <span class="number">70.0</span>,
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">submit_and_grade</span>(
+            <span class="ident">conn</span>,
+            <span class="string">b&quot;02c9e1ad-6e4c-4473-a3e9-dbfab018a055&quot;</span>,
+            <span class="ident">exercise_c2p1_1</span>,
+            <span class="ident">course</span>.<span class="ident">id</span>,
+            <span class="ident">exercise_task_c2p1e1_1</span>,
+            <span class="ident">user_id</span>,
+            <span class="ident">default_instance</span>.<span class="ident">id</span>,
+            <span class="ident">spec_c2p1e1t1_1</span>.<span class="ident">to_string</span>(),
+            <span class="number">80.0</span>,
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">submit_and_grade</span>(
+            <span class="ident">conn</span>,
+            <span class="string">b&quot;75df4600-d337-4083-99d1-e8e3b6bf6192&quot;</span>,
+            <span class="ident">exercise_c1p1_1</span>,
+            <span class="ident">course</span>.<span class="ident">id</span>,
+            <span class="ident">exercise_task_c1p1e1_1</span>,
+            <span class="ident">user_id</span>,
+            <span class="ident">default_instance</span>.<span class="ident">id</span>,
+            <span class="ident">spec_c1p1e1t1_1</span>.<span class="ident">to_string</span>(),
+            <span class="number">90.0</span>,
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+    }
 
     <span class="comment">// feedback</span>
     <span class="kw">let</span> <span class="ident">new_feedback</span> <span class="op">=</span> <span class="ident">NewFeedback</span> {
@@ -3235,30 +3205,6 @@
     <span class="ident">proposed_page_edits::insert</span>(<span class="ident">conn</span>, <span class="ident">course</span>.<span class="ident">id</span>, <span class="prelude-val">Some</span>(<span class="ident">student</span>), <span class="kw-2">&amp;</span><span class="ident">edits</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="prelude-val">Ok</span>(<span class="ident">course</span>.<span class="ident">id</span>)
-}
-
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">grade</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">sub_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">ex_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">grading_progress</span>: <span class="ident">GradingProgress</span>,
-    <span class="ident">score_given</span>: <span class="ident">f32</span>,
-    <span class="ident">score_maximum</span>: <span class="ident">i32</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">submission</span> <span class="op">=</span> <span class="ident">submissions::get_by_id</span>(<span class="ident">conn</span>, <span class="ident">sub_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="ident">gradings::new_grading</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">submission</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">grading_result</span> <span class="op">=</span> <span class="ident">GradingResult</span> {
-        <span class="ident">feedback_json</span>: <span class="prelude-val">None</span>,
-        <span class="ident">feedback_text</span>: <span class="prelude-val">None</span>,
-        <span class="ident">grading_progress</span>,
-        <span class="ident">score_given</span>,
-        <span class="ident">score_maximum</span>,
-    };
-    <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">exercises::get_by_id</span>(<span class="ident">conn</span>, <span class="ident">ex_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="ident">gradings::update_grading</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">grading</span>, <span class="kw-2">&amp;</span><span class="ident">grading_result</span>, <span class="kw-2">&amp;</span><span class="ident">exercise</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">submissions::set_grading_id</span>(<span class="ident">conn</span>, <span class="ident">grading</span>.<span class="ident">id</span>, <span class="ident">submission</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">user_exercise_states::update_user_exercise_state</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">grading</span>, <span class="kw-2">&amp;</span><span class="ident">submission</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(())
 }
 
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">seed_cs_course_material</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">org</span>: <span class="ident">Uuid</span>, <span class="ident">admin</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
@@ -3633,6 +3579,50 @@
         ])),
     };
     (<span class="ident">block</span>, <span class="ident">exercise</span>, <span class="ident">exercise_slide</span>, <span class="ident">exercise_task</span>)
+}
+
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>)]</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">submit_and_grade</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">id</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
+    <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">exercise_task_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">spec</span>: <span class="ident">String</span>,
+    <span class="ident">out_of_100</span>: <span class="ident">f32</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="comment">// combine the id with the user id to ensure it&#39;s unique</span>
+    <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> [<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">user_id</span>.<span class="ident">as_bytes</span>()[..]].<span class="ident">concat</span>();
+    <span class="kw">let</span> <span class="ident">sub</span> <span class="op">=</span> <span class="ident">submissions::insert_with_id</span>(
+        <span class="ident">conn</span>,
+        <span class="kw-2">&amp;</span><span class="ident">submissions::SubmissionData</span> {
+            <span class="ident">id</span>: <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="kw-2">&amp;</span><span class="ident">id</span>),
+            <span class="ident">exercise_id</span>,
+            <span class="ident">course_id</span>,
+            <span class="ident">exercise_task_id</span>,
+            <span class="ident">user_id</span>,
+            <span class="ident">course_instance_id</span>,
+            <span class="ident">data_json</span>: <span class="ident">Value::String</span>(<span class="ident">spec</span>),
+        },
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let</span> <span class="ident">submission</span> <span class="op">=</span> <span class="ident">submissions::get_by_id</span>(<span class="ident">conn</span>, <span class="ident">sub</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="ident">gradings::new_grading</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">submission</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">grading_result</span> <span class="op">=</span> <span class="ident">GradingResult</span> {
+        <span class="ident">feedback_json</span>: <span class="prelude-val">None</span>,
+        <span class="ident">feedback_text</span>: <span class="prelude-val">None</span>,
+        <span class="ident">grading_progress</span>: <span class="ident">GradingProgress::FullyGraded</span>,
+        <span class="ident">score_given</span>: <span class="ident">out_of_100</span>,
+        <span class="ident">score_maximum</span>: <span class="number">100</span>,
+    };
+    <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">exercises::get_by_id</span>(<span class="ident">conn</span>, <span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="ident">gradings::update_grading</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">grading</span>, <span class="kw-2">&amp;</span><span class="ident">grading_result</span>, <span class="kw-2">&amp;</span><span class="ident">exercise</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">submissions::set_grading_id</span>(<span class="ident">conn</span>, <span class="ident">grading</span>.<span class="ident">id</span>, <span class="ident">submission</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">user_exercise_states::update_user_exercise_state</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">grading</span>, <span class="kw-2">&amp;</span><span class="ident">submission</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="seed" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>

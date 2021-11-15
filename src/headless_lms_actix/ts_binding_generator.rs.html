@@ -139,6 +139,13 @@
 <span id="139">139</span>
 <span id="140">140</span>
 <span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
 </pre><pre class="rust"><code><span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">controllers</span>::{
@@ -155,7 +162,9 @@
             <span class="ident">UserCourseInstanceChapterProgress</span>,
         },
         <span class="ident">course_instance_enrollments::CourseInstanceEnrollment</span>,
-        <span class="ident">course_instances</span>::{<span class="ident">CourseInstance</span>, <span class="ident">CourseInstanceForm</span>, <span class="ident">VariantStatus</span>},
+        <span class="ident">course_instances</span>::{
+            <span class="ident">ChapterScore</span>, <span class="ident">CourseInstance</span>, <span class="ident">CourseInstanceForm</span>, <span class="ident">PointMap</span>, <span class="ident">Points</span>, <span class="ident">VariantStatus</span>,
+        },
         <span class="ident">courses</span>::{<span class="ident">Course</span>, <span class="ident">CourseStructure</span>, <span class="ident">CourseUpdate</span>, <span class="ident">NewCourse</span>},
         <span class="ident">email_templates</span>::{<span class="ident">EmailTemplate</span>, <span class="ident">EmailTemplateNew</span>, <span class="ident">EmailTemplateUpdate</span>},
         <span class="ident">exercise_service_info</span>::{<span class="ident">CourseMaterialExerciseServiceInfo</span>, <span class="ident">ExerciseServiceInfoApi</span>},
@@ -191,6 +200,7 @@
         <span class="ident">user_exercise_states</span>::{
             <span class="ident">UserCourseInstanceChapterExerciseProgress</span>, <span class="ident">UserCourseInstanceProgress</span>,
         },
+        <span class="ident">users::User</span>,
     },
     <span class="ident">utils::pagination::Pagination</span>,
 };
@@ -256,6 +266,10 @@
   <span class="ident">GetEditProposalsQuery</span>,
   <span class="ident">NewProposedPageEdits</span>,
   <span class="ident">ErrorResponse</span>,
+  <span class="ident">ChapterScore</span>,
+  <span class="ident">User</span>,
+  <span class="ident">PointMap</span>,
+  <span class="ident">Points</span>,
   <span class="comment">// dependencies</span>
   <span class="ident">VariantStatus</span>,
   <span class="ident">ChapterStatus</span>,

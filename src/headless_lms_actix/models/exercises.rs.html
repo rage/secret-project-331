@@ -500,6 +500,30 @@
 <span id="500">500</span>
 <span id="501">501</span>
 <span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::{
     <span class="ident">course_instances</span>,
     <span class="ident">exercise_tasks</span>::{<span class="self">self</span>, <span class="ident">get_existing_user_exercise_task_for_course_instance</span>},
@@ -667,6 +691,30 @@ WHERE course_id = $1
         <span class="ident">course_id</span>
     )
     .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">exercises</span>)
+}
+
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_exercises_by_course_instance_id</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Exercise</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">exercises</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
+        <span class="ident">Exercise</span>,
+        <span class="string">r#&quot;
+SELECT *
+FROM exercises
+WHERE course_id = (
+    SELECT course_id
+    FROM course_instances
+    WHERE id = $1
+  )
+  AND deleted_at IS NULL
+ORDER BY order_number ASC
+&quot;#</span>,
+        <span class="ident">course_id</span>
+    )
+    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">exercises</span>)
 }

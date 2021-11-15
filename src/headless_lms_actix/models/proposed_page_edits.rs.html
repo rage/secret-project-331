@@ -547,8 +547,8 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>, <span class="ident">TS</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ProposalCount</span> {
-    <span class="ident">pending</span>: <span class="ident">i64</span>,
-    <span class="ident">handled</span>: <span class="ident">i64</span>,
+    <span class="ident">pending</span>: <span class="ident">u32</span>,
+    <span class="ident">handled</span>: <span class="ident">u32</span>,
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
@@ -733,8 +733,8 @@ AND proposed_page_edits.deleted_at IS NULL
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">ProposalCount</span> {
-        <span class="ident">pending</span>: <span class="ident">res</span>.<span class="ident">pending</span>.<span class="ident">unwrap_or_default</span>(),
-        <span class="ident">handled</span>: <span class="ident">res</span>.<span class="ident">handled</span>.<span class="ident">unwrap_or_default</span>(),
+        <span class="ident">pending</span>: <span class="ident">res</span>.<span class="ident">pending</span>.<span class="ident">unwrap_or_default</span>().<span class="ident">try_into</span>()<span class="question-mark">?</span>,
+        <span class="ident">handled</span>: <span class="ident">res</span>.<span class="ident">handled</span>.<span class="ident">unwrap_or_default</span>().<span class="ident">try_into</span>()<span class="question-mark">?</span>,
     };
     <span class="prelude-val">Ok</span>(<span class="ident">count</span>)
 }

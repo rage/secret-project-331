@@ -291,7 +291,7 @@ async fn main() -> Result<()> {
         &mut conn,
         PlaygroundExampleData {
             name: "Example exercise".to_string(),
-            url: "http://project-331.local/example-exercise/exercise".to_string(),
+            url: "http://project-331.local/example-exercise/iframe".to_string(),
             width: 500,
             data: serde_json::json!([
               {

@@ -1,11 +1,12 @@
 import { css } from "@emotion/css"
 import HelpIcon from "@material-ui/icons/Help"
-import { useContext, useState } from "react"
+import { useContext, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery, useQueryClient } from "react-query"
 
 import ContentRenderer, { BlockRendererProps } from "../.."
 import CoursePageContext from "../../../../contexts/CoursePageContext"
+import exerciseBlockPostThisStateToIFrameReducer from "../../../../reducers/exerciseBlockPostThisStateToIFrameReducer"
 import { Block, fetchExerciseById, postSubmission } from "../../../../services/backend"
 import { SubmissionResult } from "../../../../shared-module/bindings"
 import Button from "../../../../shared-module/components/Button"
@@ -28,12 +29,20 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const loginState = useContext(LoginStateContext)
   const coursePageContext = useContext(CoursePageContext)
   const showExercise = loginState.signedIn ? !!coursePageContext.settings : true
+  const [postThisStateToIFrame, dispatch] = useReducer(exerciseBlockPostThisStateToIFrameReducer, {
+    // eslint-disable-next-line i18next/no-literal-string
+    view_type: "exercise",
+    data: null,
+  })
 
   const id = props.data.attributes.id
   // eslint-disable-next-line i18next/no-literal-string
   const queryUniqueKey = `exercise-${id}`
   const { isLoading, error, data } = useQuery(queryUniqueKey, () => fetchExerciseById(id), {
     enabled: showExercise,
+    onSuccess: (data) => {
+      dispatch({ type: "exerciseDownloaded", payload: { view_type: "exercise", data: data } })
+    },
   })
   const [answer, setAnswer] = useState<unknown>(null)
   const [answerValid, setAnswerValid] = useState(false)
@@ -122,7 +131,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
       )}
       {url ? (
         <ExerciseTaskIframe
-          data={data}
+          postThisStateToIFrame={postThisStateToIFrame}
           url={`${url}?width=${defaultContainerWidth}`}
           setAnswer={setAnswer}
           setAnswerValid={setAnswerValid}
@@ -159,6 +168,11 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
               })
               setSubmitting(false)
               setSubmissionResponse(res)
+              // eslint-disable-next-line i18next/no-literal-string
+              dispatch({
+                type: "submissionGraded",
+                payload: { view_type: "view-submission", data: res },
+              })
               const scoreGiven = res.grading.score_given ?? 0
               const newData = { ...data }
               if (newData.exercise_status) {

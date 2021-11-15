@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next"
 import Editor from "../components/Editor"
 import Exercise from "../components/Exercise"
 import Submission from "../components/Submission"
-import useStateWithOnChange from "../hooks/useStateWithOnChange"
 import { isSetStateMessage } from "../shared-module/iframe-protocol-types.guard"
 import { Alternative, ModelSolutionApi, PublicAlternative } from "../util/stateInterfaces"
 
@@ -19,12 +18,12 @@ const Iframe: React.FC = () => {
   const { t } = useTranslation()
 
   const [port, setPort] = useState<MessagePort | null>(null)
-  const [submissionState, setSubmissionState] = useState<SubmissionState | null>(null)
-  const [editorState, setEditorState] = useStateWithOnChange<Alternative[] | null>(
+  const [state, setState] = useState<SubmissionState | Alternative[] | PublicAlternative[] | null>(
     null,
-    (newValue) => postCurrentEditorState(port, newValue),
   )
-  const [exerciseState, setExerciseState] = useState<PublicAlternative[] | null>(null)
+  const [viewType, setViewType] = useState<
+    "exercise" | "view-submission" | "exercise-editor" | null
+  >(null)
   const router = useRouter()
   const rawMaxWidth = router?.query?.width
   let maxWidth: number | null = 500
@@ -49,12 +48,16 @@ const Iframe: React.FC = () => {
           console.log(data)
           if (isSetStateMessage(data)) {
             if (data.view_type === "exercise") {
-              setExerciseState(data.data.current_exercise_task.public_spec as PublicAlternative[])
+              setState(data.data.current_exercise_task.public_spec as PublicAlternative[])
+              setViewType(data.view_type)
             } else if (data.view_type === "exercise-editor") {
-              setEditorState(data.data as Alternative[])
+              setState(data.data as Alternative[])
+              setViewType(data.view_type)
             } else if (data.view_type === "view-submission") {
-              setSubmissionState(data.data as SubmissionState)
+              setState(data.data as SubmissionState)
+              setViewType(data.view_type)
             } else {
+              // eslint-disable-next-line i18next/no-literal-string
               console.error("Iframe received an unknown view type")
             }
           } else {
@@ -77,32 +80,26 @@ const Iframe: React.FC = () => {
       console.info("removing event listener")
       removeEventListener("message", handler)
     }
-  }, [setEditorState, setExerciseState])
+  }, [])
 
   if (!port) {
     return <>{t("waiting-for-port")}</>
   }
 
-  if (exerciseState) {
-    return <Exercise maxWidth={maxWidth} port={port} state={exerciseState} />
-  } else if (editorState) {
-    return <Editor maxWidth={maxWidth} port={port} state={editorState} setState={setEditorState} />
-  } else if (submissionState) {
-    return <Submission port={port} maxWidth={maxWidth} state={submissionState} />
+  if (!state) {
+    return <>{t("waiting-for-content")}</>
+  }
+  if (viewType === "exercise") {
+    return <Exercise maxWidth={maxWidth} port={port} state={state as PublicAlternative[]} />
+  } else if (viewType === "exercise-editor") {
+    return (
+      <Editor maxWidth={maxWidth} port={port} state={state as Alternative[]} setState={setState} />
+    )
+  } else if (viewType === "view-submission") {
+    return <Submission port={port} maxWidth={maxWidth} state={state} />
   } else {
     return <>{t("waiting-for-content")}</>
   }
-}
-
-function postCurrentEditorState(port: MessagePort | null, data: Alternative[] | null) {
-  if (!port) {
-    return
-  }
-  port.postMessage({
-    message: "current-state",
-    data: { private_spec: data },
-    valid: true,
-  })
 }
 
 export default Iframe

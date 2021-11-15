@@ -4,7 +4,6 @@ import React, { PropsWithChildren, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import MessageChannelIFrame from "../../shared-module/components/MessageChannelIFrame"
-import { SetStateMessage } from "../../shared-module/iframe-protocol-types"
 import { isCurrentStateMessage } from "../../shared-module/iframe-protocol-types.guard"
 
 import { ExerciseTaskAttributes } from "."
@@ -29,28 +28,20 @@ const IFrameEditor: React.FC<IFrameEditorProps> = ({ url, props }) => {
       </>
     )
   }
+  let parsedPrivateSpec = null
+  try {
+    parsedPrivateSpec = JSON.parse(props.attributes.private_spec ?? null)
+  } catch (e) {
+    setSpecParseable(false)
+    return
+  }
+
+  console.log(url)
   return (
     <MessageChannelIFrame
       url={url}
-      onCommunicationChannelEstabilished={(port) => {
-        // eslint-disable-next-line i18next/no-literal-string
-        console.info("communication channel established")
-        let parsedPrivateSpec = null
-        try {
-          parsedPrivateSpec = JSON.parse(props.attributes.private_spec ?? null)
-        } catch (e) {
-          setSpecParseable(false)
-          return
-        }
-        const message: SetStateMessage = {
-          // eslint-disable-next-line i18next/no-literal-string
-          message: "set-state",
-          // eslint-disable-next-line i18next/no-literal-string
-          view_type: "exercise-editor",
-          data: parsedPrivateSpec,
-        }
-        port.postMessage(message)
-      }}
+      // eslint-disable-next-line i18next/no-literal-string
+      postThisStateToIFrame={{ view_type: "exercise-editor", data: parsedPrivateSpec }}
       onMessageFromIframe={(messageContainer, _responsePort) => {
         if (isCurrentStateMessage(messageContainer)) {
           props.setAttributes({

@@ -101,20 +101,19 @@ test("test", async ({ page, headless }) => {
   // Fill [placeholder="Exercise name"]
   await page.fill('[placeholder="Exercise name"]', "New exercise!")
 
-  // get current exercise editor before a save...
-  const currentEditor = await page.waitForSelector('iframe[src^="/example-exercise/editor"]')
-
   // Click text=Save
   await page.click("text=Save")
 
-  // ...and wait for it to get detached after a save, as the new editor loads in
-  await currentEditor.waitForElementState("hidden")
+  // Click [aria-label="Block: ExerciseTask"] div[role="button"]
+  await page.click('[aria-label="Block: ExerciseTask"] div[role="button"]')
 
   const frame = await waitForFunction(page, () =>
-    page
-      .frames()
-      .find((f) => f.url().startsWith("http://project-331.local/example-exercise/editor")),
+    page.frames().find((f) => {
+      return f.url().startsWith("http://project-331.local/example-exercise/editor")
+    }),
   )
+
+  await (await frame.frameElement()).scrollIntoViewIfNeeded()
 
   // Click [placeholder="Option text"]
   await frame.click('[placeholder="Option text"]')

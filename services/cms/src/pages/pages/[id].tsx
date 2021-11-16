@@ -6,13 +6,14 @@ import { useQuery } from "react-query"
 import Layout from "../../components/Layout"
 import CourseContext from "../../contexts/CourseContext"
 import { fetchPageWithId, updateExistingPage } from "../../services/backend/pages"
-import { Page, PageUpdate } from "../../shared-module/bindings"
+import { CmsPageUpdate, ContentManagementPage, Page } from "../../shared-module/bindings"
 import Spinner from "../../shared-module/components/Spinner"
 import { withSignedIn } from "../../shared-module/contexts/LoginStateContext"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
+import { denormalizeDocument } from "../../utils/documentSchemaProcessor"
 
 interface PagesProps {
   query: SimplifiedUrlQuery<"id">
@@ -28,7 +29,11 @@ const PageEditor = dynamic(() => import("../../components/editors/PageEditor"), 
 const Pages = ({ query }: PagesProps) => {
   const { t } = useTranslation()
   const { id } = query
-  const { isLoading, error, data, refetch } = useQuery(`page-${id}`, () => fetchPageWithId(id))
+  const { isLoading, error, data, refetch } = useQuery(`page-${id}`, async () => {
+    const data = await fetchPageWithId(id)
+    const page: Page = { ...data.page, content: denormalizeDocument(data) }
+    return page
+  })
 
   if (error) {
     return (
@@ -43,9 +48,10 @@ const Pages = ({ query }: PagesProps) => {
     return <div>{t("loading")}</div>
   }
 
-  const handleSave = async (page: PageUpdate): Promise<Page> => {
+  const handleSave = async (page: CmsPageUpdate): Promise<ContentManagementPage> => {
     const res = await updateExistingPage(id, page)
     console.log(res)
+    // NB! Refetched page content isn't used atm, only url, ids etc. Updated content is returned instead.
     await refetch()
     return res
   }

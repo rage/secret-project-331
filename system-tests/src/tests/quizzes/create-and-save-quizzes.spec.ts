@@ -97,8 +97,14 @@ test.describe("quizzes tests", () => {
     // Fill [placeholder="Exercise name"]
     await page.fill('[placeholder="Exercise name"]', "quizzes test")
 
-    // Click [aria-label="Add ExerciseTask"]
-    await page.click('[aria-label="Add ExerciseTask"]')
+    // Click text=Add slide
+    await page.click("text=Add slide")
+
+    // Click text=Add task
+    await page.click("text=Add task")
+
+    // Click [aria-label="Block: ExerciseTask"] div[role="button"]
+    await page.click('[aria-label="Block: ExerciseTask"] div[role="button"]')
 
     // Click text=Quizzes
     await page.click("text=Quizzes")
@@ -355,8 +361,14 @@ test.describe("quizzes tests", () => {
     // Fill [placeholder="Exercise name"]
     await page.fill('[placeholder="Exercise name"]', "quizzes test")
 
-    // Click [aria-label="Add ExerciseTask"]
-    await page.click('[aria-label="Add ExerciseTask"]')
+    // Click text=Add slide
+    await page.click("text=Add slide")
+
+    // Click text=Add task
+    await page.click("text=Add task")
+
+    // Click [aria-label="Block: ExerciseTask"] div[role="button"]
+    await page.click('[aria-label="Block: ExerciseTask"] div[role="button"]')
 
     // Click text=Quizzes
     await page.click("text=Quizzes")

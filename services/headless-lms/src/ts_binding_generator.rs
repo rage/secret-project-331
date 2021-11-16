@@ -14,7 +14,9 @@ use crate::{
             UserCourseInstanceChapterProgress,
         },
         course_instance_enrollments::CourseInstanceEnrollment,
-        course_instances::{CourseInstance, CourseInstanceForm, VariantStatus},
+        course_instances::{
+            ChapterScore, CourseInstance, CourseInstanceForm, PointMap, Points, VariantStatus,
+        },
         courses::{Course, CourseStructure, CourseUpdate, NewCourse},
         email_templates::{EmailTemplate, EmailTemplateNew, EmailTemplateUpdate},
         exercise_service_info::{CourseMaterialExerciseServiceInfo, ExerciseServiceInfoApi},
@@ -29,10 +31,10 @@ use crate::{
         organizations::Organization,
         page_history::{HistoryChangeReason, PageHistory},
         pages::{
-            CoursePageWithUserData, ExerciseWithExerciseTasks, HistoryRestoreData, NewPage,
-            NormalizedCmsExercise, NormalizedCmsExerciseTask, Page,
-            PageRoutingDataWithChapterStatus, PageSearchRequest, PageSearchResult, PageUpdate,
-            PageWithExercises,
+            CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate,
+            ContentManagementPage, CoursePageWithUserData, ExerciseWithExerciseTasks,
+            HistoryRestoreData, NewPage, Page, PageRoutingDataWithChapterStatus, PageSearchRequest,
+            PageSearchResult, PageWithExercises,
         },
         playground_examples::{PlaygroundExample, PlaygroundExampleData},
         proposed_block_edits::{
@@ -50,6 +52,7 @@ use crate::{
         user_exercise_states::{
             UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress,
         },
+        users::User,
     },
     utils::pagination::Pagination,
 };
@@ -57,6 +60,11 @@ use crate::{
 ts_rs::export! {
   Chapter,
   EmailTemplate,
+  CmsPageExercise,
+  CmsPageExerciseSlide,
+  CmsPageExerciseTask,
+  CmsPageUpdate,
+  ContentManagementPage,
   CourseStructure,
   Page,
   UploadResult,
@@ -86,7 +94,6 @@ ts_rs::export! {
   EmailTemplateNew,
   EmailTemplateUpdate,
   NewPage,
-  PageUpdate,
   NewSubmission,
   NewCourse,
   CourseUpdate,
@@ -111,6 +118,10 @@ ts_rs::export! {
   GetEditProposalsQuery,
   NewProposedPageEdits,
   ErrorResponse,
+  ChapterScore,
+  User,
+  PointMap,
+  Points,
   // dependencies
   VariantStatus,
   ChapterStatus,
@@ -130,8 +141,6 @@ ts_rs::export! {
   // returned from the API as serde_json::Value
   ExerciseTask,
   ExerciseWithExerciseTasks,
-  NormalizedCmsExercise,
-  NormalizedCmsExerciseTask,
   UserCourseSettings,
   PlaygroundExample,PlaygroundExampleData,
   CoursePageWithUserData

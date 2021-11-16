@@ -11,9 +11,15 @@ import {
   BlockProposalAction,
   BlockProposalInfo,
   Chapter,
+  ChapterScore,
   ChapterStatus,
   ChapterUpdate,
   ChapterWithStatus,
+  CmsPageExercise,
+  CmsPageExerciseSlide,
+  CmsPageExerciseTask,
+  CmsPageUpdate,
+  ContentManagementPage,
   Course,
   CourseInstance,
   CourseInstanceEnrollment,
@@ -56,8 +62,6 @@ import {
   NewProposedBlockEdit,
   NewProposedPageEdits,
   NewSubmission,
-  NormalizedCmsExercise,
-  NormalizedCmsExerciseTask,
   Organization,
   Page,
   PageHistory,
@@ -65,11 +69,12 @@ import {
   PageRoutingDataWithChapterStatus,
   PageSearchRequest,
   PageSearchResult,
-  PageUpdate,
   PageWithExercises,
   Pagination,
   PlaygroundExample,
   PlaygroundExampleData,
+  PointMap,
+  Points,
   ProposalCount,
   ProposalStatus,
   Submission,
@@ -79,6 +84,7 @@ import {
   SubmissionInfo,
   SubmissionResult,
   UploadResult,
+  User,
   UserCourseInstanceChapterExerciseProgress,
   UserCourseInstanceChapterProgress,
   UserCourseInstanceProgress,
@@ -117,6 +123,70 @@ export function isEmailTemplate(obj: any, _argumentName?: string): obj is EmailT
       typeof obj.exercise_completions_threshold === "number") &&
     (obj.points_threshold === null || typeof obj.points_threshold === "number") &&
     typeof obj.course_instance_id === "string"
+  )
+}
+
+export function isCmsPageExercise(obj: any, _argumentName?: string): obj is CmsPageExercise {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.name === "string" &&
+    typeof obj.order_number === "number"
+  )
+}
+
+export function isCmsPageExerciseSlide(
+  obj: any,
+  _argumentName?: string,
+): obj is CmsPageExerciseSlide {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.exercise_id === "string" &&
+    typeof obj.order_number === "number"
+  )
+}
+
+export function isCmsPageExerciseTask(
+  obj: any,
+  _argumentName?: string,
+): obj is CmsPageExerciseTask {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.exercise_slide_id === "string" &&
+    typeof obj.exercise_type === "string"
+  )
+}
+
+export function isCmsPageUpdate(obj: any, _argumentName?: string): obj is CmsPageUpdate {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    Array.isArray(obj.exercises) &&
+    obj.exercises.every((e: any) => isCmsPageExercise(e) as boolean) &&
+    Array.isArray(obj.exercise_slides) &&
+    obj.exercise_slides.every((e: any) => isCmsPageExerciseSlide(e) as boolean) &&
+    Array.isArray(obj.exercise_tasks) &&
+    obj.exercise_tasks.every((e: any) => isCmsPageExerciseTask(e) as boolean) &&
+    typeof obj.url_path === "string" &&
+    typeof obj.title === "string" &&
+    (obj.chapter_id === null || typeof obj.chapter_id === "string")
+  )
+}
+
+export function isContentManagementPage(
+  obj: any,
+  _argumentName?: string,
+): obj is ContentManagementPage {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (isPage(obj.page) as boolean) &&
+    Array.isArray(obj.exercises) &&
+    obj.exercises.every((e: any) => isCmsPageExercise(e) as boolean) &&
+    Array.isArray(obj.exercise_slides) &&
+    obj.exercise_slides.every((e: any) => isCmsPageExerciseSlide(e) as boolean) &&
+    Array.isArray(obj.exercise_tasks) &&
+    obj.exercise_tasks.every((e: any) => isCmsPageExerciseTask(e) as boolean)
   )
 }
 
@@ -487,20 +557,17 @@ export function isEmailTemplateUpdate(
 export function isNewPage(obj: any, _argumentName?: string): obj is NewPage {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    Array.isArray(obj.exercises) &&
+    obj.exercises.every((e: any) => isCmsPageExercise(e) as boolean) &&
+    Array.isArray(obj.exercise_slides) &&
+    obj.exercise_slides.every((e: any) => isCmsPageExerciseSlide(e) as boolean) &&
+    Array.isArray(obj.exercise_tasks) &&
+    obj.exercise_tasks.every((e: any) => isCmsPageExerciseTask(e) as boolean) &&
     typeof obj.url_path === "string" &&
     typeof obj.title === "string" &&
     typeof obj.course_id === "string" &&
     (obj.chapter_id === null || typeof obj.chapter_id === "string") &&
     (obj.front_page_of_chapter_id === null || typeof obj.front_page_of_chapter_id === "string")
-  )
-}
-
-export function isPageUpdate(obj: any, _argumentName?: string): obj is PageUpdate {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.url_path === "string" &&
-    typeof obj.title === "string" &&
-    (obj.chapter_id === null || typeof obj.chapter_id === "string")
   )
 }
 
@@ -740,6 +807,61 @@ export function isErrorResponse(obj: any, _argumentName?: string): obj is ErrorR
   )
 }
 
+export function isChapterScore(obj: any, _argumentName?: string): obj is ChapterScore {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    typeof obj.name === "string" &&
+    typeof obj.course_id === "string" &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    (obj.chapter_image_path === null || typeof obj.chapter_image_path === "string") &&
+    typeof obj.chapter_number === "number" &&
+    (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
+    (obj.opens_at === null || obj.opens_at instanceof Date) &&
+    (obj.copied_from === null || typeof obj.copied_from === "string") &&
+    typeof obj.score_given === "number" &&
+    typeof obj.score_total === "number"
+  )
+}
+
+export function isUser(obj: any, _argumentName?: string): obj is User {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    (obj.upstream_id === null || typeof obj.upstream_id === "number") &&
+    typeof obj.email === "string"
+  )
+}
+
+export function isPointMap(obj: any, _argumentName?: string): obj is PointMap {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    Object.entries(obj).every(
+      ([key, value]) => typeof value === "number" && typeof key === "string",
+    )
+  )
+}
+
+export function isPoints(obj: any, _argumentName?: string): obj is Points {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    Array.isArray(obj.chapter_points) &&
+    obj.chapter_points.every((e: any) => isChapterScore(e) as boolean) &&
+    Array.isArray(obj.users) &&
+    obj.users.every((e: any) => isUser(e) as boolean) &&
+    ((obj.user_chapter_points !== null && typeof obj.user_chapter_points === "object") ||
+      typeof obj.user_chapter_points === "function") &&
+    Object.entries(obj.user_chapter_points).every(
+      ([key, value]) => (isPointMap(value) as boolean) && typeof key === "string",
+    )
+  )
+}
+
 export function isVariantStatus(obj: any, _argumentName?: string): obj is VariantStatus {
   return obj === "Draft" || obj === "Upcoming" || obj === "Active" || obj === "Ended"
 }
@@ -922,31 +1044,6 @@ export function isExerciseWithExerciseTasks(
     Array.isArray(obj.exercise_tasks) &&
     obj.exercise_tasks.every((e: any) => isExerciseTask(e) as boolean) &&
     typeof obj.score_maximum === "number"
-  )
-}
-
-export function isNormalizedCmsExercise(
-  obj: any,
-  _argumentName?: string,
-): obj is NormalizedCmsExercise {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    typeof obj.name === "string" &&
-    typeof obj.order_number === "number" &&
-    Array.isArray(obj.exercise_tasks) &&
-    obj.exercise_tasks.every((e: any) => isNormalizedCmsExerciseTask(e) as boolean)
-  )
-}
-
-export function isNormalizedCmsExerciseTask(
-  obj: any,
-  _argumentName?: string,
-): obj is NormalizedCmsExerciseTask {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    typeof obj.exercise_type === "string"
   )
 }
 

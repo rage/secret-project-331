@@ -18,10 +18,10 @@ import Button from "../../shared-module/components/Button"
 import DebugModal from "../../shared-module/components/DebugModal"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
 import { frontendWideWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
+import { courseMaterialPageHref } from "../../shared-module/utils/cross-routing"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import { courseMaterialPageHref } from "../../shared-module/utils/routing"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
 interface OrganizationPageProps {

@@ -8,7 +8,7 @@ import DebugModal from "../../shared-module/components/DebugModal"
 import UHNoBG from "../../shared-module/img/uh_without_background.svg"
 import { frontendWideWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
-import { organizationCoursesPageHref } from "../../shared-module/utils/routing"
+import { organizationCoursesPageHref } from "../../shared-module/utils/cross-routing"
 
 const OrganizationsList: React.FC = () => {
   const { t } = useTranslation()

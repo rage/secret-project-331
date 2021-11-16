@@ -4,29 +4,29 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import Close from "../../imgs/close.svg"
-import Austria from "../../imgs/flags/Austria.png"
-import Belgium from "../../imgs/flags/Belgium.png"
-import Croatia from "../../imgs/flags/Croatia.png"
-import Czech from "../../imgs/flags/Czech.png"
-import Denmark from "../../imgs/flags/Denmark.png"
-import Estonia from "../../imgs/flags/Estonia.png"
-import Finland from "../../imgs/flags/Finland.png"
-import France from "../../imgs/flags/France.png"
-import Germany from "../../imgs/flags/Germany.png"
-import Greece from "../../imgs/flags/Greece.png"
-import Ireland from "../../imgs/flags/Ireland.png"
-import Italy from "../../imgs/flags/Italy.png"
-import Latvia from "../../imgs/flags/Latvia.png"
-import Lithuania from "../../imgs/flags/Lithuania.png"
-import Netherland from "../../imgs/flags/Netherland.png"
-import Norway from "../../imgs/flags/Norway.png"
-import Poland from "../../imgs/flags/Poland.png"
-import Portugal from "../../imgs/flags/Portugal.png"
-import Romania from "../../imgs/flags/Romania.png"
-import Slovenia from "../../imgs/flags/Slovenia.png"
-import Spain from "../../imgs/flags/Spain.png"
-import Sweden from "../../imgs/flags/Sweden.png"
-import USA from "../../imgs/flags/USA.png"
+import Austria from "../../imgs/flags/Austria.svg"
+import Belgium from "../../imgs/flags/Belgium.svg"
+import Croatia from "../../imgs/flags/Croatia.svg"
+import Czech from "../../imgs/flags/Czech.svg"
+import Denmark from "../../imgs/flags/Denmark.svg"
+import Estonia from "../../imgs/flags/Estonia.svg"
+import Finland from "../../imgs/flags/Finland.svg"
+import France from "../../imgs/flags/France.svg"
+import Germany from "../../imgs/flags/Germany.svg"
+import Greece from "../../imgs/flags/Greece.svg"
+import Ireland from "../../imgs/flags/Ireland.svg"
+import Italy from "../../imgs/flags/Italy.svg"
+import Latvia from "../../imgs/flags/Latvia.svg"
+import Lithuania from "../../imgs/flags/Lithuania.svg"
+import Netherlands from "../../imgs/flags/Netherlands.svg"
+import Norway from "../../imgs/flags/Norway.svg"
+import Poland from "../../imgs/flags/Poland.svg"
+import Portugal from "../../imgs/flags/Portugal.svg"
+import Romania from "../../imgs/flags/Romania.svg"
+import Slovenia from "../../imgs/flags/Slovenia.svg"
+import Spain from "../../imgs/flags/Spain.svg"
+import Sweden from "../../imgs/flags/Sweden.svg"
+import USA from "../../imgs/flags/USA.svg"
 import Tick from "../../imgs/tick-03.svg"
 import { headingFont } from "../../shared-module/styles"
 
@@ -51,9 +51,9 @@ const arr = {
   // eslint-disable-next-line i18next/no-literal-string
   "en-US": { humanReadableName: "english", image: USA },
   // eslint-disable-next-line i18next/no-literal-string
-  "nl-NL": { humanReadableName: "dutch", image: Netherland },
+  "nl-NL": { humanReadableName: "dutch", image: Netherlands },
   // eslint-disable-next-line i18next/no-literal-string
-  "nl-BE": { humanReadableName: "dutch-belgium", image: Netherland },
+  "nl-BE": { humanReadableName: "dutch-belgium", image: Netherlands },
   // eslint-disable-next-line i18next/no-literal-string
   "cs-CZ": { humanReadableName: "czech", image: Czech },
   // eslint-disable-next-line i18next/no-literal-string

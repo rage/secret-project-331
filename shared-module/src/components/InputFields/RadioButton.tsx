@@ -27,7 +27,7 @@ const label = css`
     color: currentColor;
     width: 1.15em;
     height: 1.15em;
-    border: 2px solid #787878;
+    border: 1.5px solid #787878;
     border-radius: 50%;
     transform: translateY(-0.075em);
     display: grid;

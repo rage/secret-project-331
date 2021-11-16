@@ -50,7 +50,7 @@ const OrganizationsList: React.FC = () => {
         {data.map((organization) => (
           <a
             key={organization.id}
-            href={organizationCoursesPageHref(organization.id)}
+            href={organizationCoursesPageHref(organization.slug)}
             className={css`
               padding: 0em 1em;
               text-decoration: none;

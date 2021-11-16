@@ -106,6 +106,24 @@ where id = $1;",
     Ok(org)
 }
 
+pub async fn get_organization_by_slug(
+    conn: &mut PgConnection,
+    organization_slug: &str,
+) -> ModelResult<DatabaseOrganization> {
+    let organization = sqlx::query_as!(
+        DatabaseOrganization,
+        "
+SELECT *
+FROM organizations
+WHERE slug = $1;
+        ",
+        organization_slug
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(organization)
+}
+
 pub async fn update_organization_image_path(
     conn: &mut PgConnection,
     organization_id: Uuid,

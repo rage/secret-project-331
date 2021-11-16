@@ -9,7 +9,10 @@ import Layout from "../../components/Layout"
 import OrganizationImageWidget from "../../components/OrganizationImageWidget"
 import NewCourseForm from "../../components/forms/NewCourseForm"
 import { postNewCourse } from "../../services/backend/courses"
-import { fetchOrganization, fetchOrganizationCourses } from "../../services/backend/organizations"
+import {
+  fetchOrganizationBySlug,
+  fetchOrganizationCoursesBySlug,
+} from "../../services/backend/organizations"
 import { NewCourse } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
 import DebugModal from "../../shared-module/components/DebugModal"
@@ -22,7 +25,6 @@ import { courseMaterialPageHref } from "../../shared-module/utils/routing"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
 interface OrganizationPageProps {
-  // Actually id for now, reminder for self to fix
   query: SimplifiedUrlQuery<"organizationSlug">
 }
 
@@ -33,7 +35,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
     data: dataOrgCourses,
     refetch: refetchOrgCourses,
   } = useQuery(`organization-${query.organizationSlug}-courses`, () =>
-    fetchOrganizationCourses(query.organizationSlug),
+    fetchOrganizationCoursesBySlug(query.organizationSlug),
   )
   const { t } = useTranslation()
   const {
@@ -42,7 +44,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
     data: dataOrg,
     refetch: refetchOrg,
   } = useQuery(`organization-${query.organizationSlug}`, () =>
-    fetchOrganization(query.organizationSlug),
+    fetchOrganizationBySlug(query.organizationSlug),
   )
   const loginStateContext = useContext(LoginStateContext)
 

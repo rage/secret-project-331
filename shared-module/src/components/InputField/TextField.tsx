@@ -1,4 +1,4 @@
-import { css, cx, keyframes } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
@@ -8,7 +8,7 @@ interface TextFieldExtraProps {
   type?: "email" | "password" | "text"
   label: string
   hint?: string
-  error?: string
+  error?: boolean
   placeholder?: string
   required?: boolean
   value?: string
@@ -45,9 +45,9 @@ const label = css`
 
 const error = css`
   color: #f76d82;
-  font-size: 12px;
+  font-size: 14px;
   display: inline-block;
-  margin-top: -10px;
+  margin-top: -15px;
 `
 
 const Wrapper = styled.div``
@@ -65,7 +65,7 @@ const TextField = ({ onChange, ...rest }: TextFieldExtraProps) => {
           {...rest}
         />
       </label>
-      {rest.error && <span className={cx(error)}>{rest.error}</span>}
+      {rest.error && <span className={cx(error)}>Please input a valid string</span>}
     </Wrapper>
   )
 }

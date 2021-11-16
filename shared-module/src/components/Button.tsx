@@ -2,7 +2,7 @@
 import styled from "@emotion/styled"
 import React from "react"
 
-import { baseTheme, fontWeights, headingFont, theme, typography } from "../styles"
+import { baseTheme, fontWeights, headingFont, theme } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -12,13 +12,14 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   children?: React.ReactNode
 }
 
-const BaseButtonStyles = (props: ButtonProps) => `
+// BaseButtonStyles is the primary button
+export const BaseButtonStyles = `
   position: relative;
   display: inline-block;
-  padding: ${theme.buttonSizes[props.size].padding};
+  padding: ${theme.buttonSizes["large"].padding};
   font-family: ${headingFont};
-  font-weight: ${fontWeights.bold};
-  line-height: 18px;
+  font-weight: ${fontWeights.normal};
+  line-height: normal;
   vertical-align: baseline;
   cursor: pointer;
   user-select: none;
@@ -26,35 +27,12 @@ const BaseButtonStyles = (props: ButtonProps) => `
   text-align: center;
   justify-content: center;
   word-break: break-word;
-  text-transform: ${props.transform === "normal" ? "capitalize" : "uppercase"};
-  font-size: ${props.transform === "normal" ? "1.125rem" : "0.875rem"};
+  text-transform: uppercase;
   letter-spacing: 0.02em;
   transition: all 150ms linear;
   border: 2.5px solid transparent;
   z-index: 1;
 
-  &:hover {
-    text-decoration: none;
-  }
-
-  &:focus {
-    text-decoration: none;
-  }
-
-  &:disabled {
-    color: ${baseTheme.colors.neutral[600]};
-    background-color: ${baseTheme.colors.neutral[500]};
-    border-color: ${baseTheme.colors.neutral[500]};
-  }
-  ${respondToOrLarger.xs} {
-    word-break: unset;
-  }
-  ${respondToOrLarger.sm} {
-    white-space: nowrap;
-  }
-`
-
-export const PrimaryButtonStyles = `
   color: ${baseTheme.colors.neutral[900]};
   background-color: ${theme.primary.bg};
   border-color: ${theme.primary.hoverBorder};
@@ -63,6 +41,7 @@ export const PrimaryButtonStyles = `
     color: ${theme.primary.hoverBorder};
     background-color: ${theme.primary.hoverBg};
     border-color: ${theme.primary.hoverBorder};
+    text-decoration: none;
   }
 
   &:active {
@@ -76,10 +55,30 @@ export const PrimaryButtonStyles = `
     background-color: ${baseTheme.colors.neutral[500]};
     border-color: ${baseTheme.colors.neutral[500]};
   }
+
+  &:focus {
+    text-decoration: none;
+  }
+
+  ${respondToOrLarger.xs} {
+    word-break: unset;
+  }
+  ${respondToOrLarger.sm} {
+    white-space: nowrap;
+  }
 `
 
-export const SecondaryButtonStyles = `
+export const PrimaryButtonStyles = (props: ButtonProps) => `
+  text-transform: ${props.transform === "normal" ? "capitalize" : "uppercase"};
+  padding: ${theme.buttonSizes[props.size].padding};
+`
+
+export const SecondaryButtonStyles = (props: ButtonProps) => `
+  text-transform: ${props.transform === "normal" ? "capitalize" : "uppercase"};
+  padding: ${theme.buttonSizes[props.size].padding};
+
   color: ${theme.secondary.text};
+  background: ${theme.secondary.bg};
   border-color: ${theme.secondary.hoverBorder};
   border: 1.5px solid ${theme.secondary.text};
 
@@ -87,9 +86,9 @@ export const SecondaryButtonStyles = `
   &:focus {
     color: ${theme.secondary.hoverText};
     box-shadow: 0 0 0 1px ${theme.secondary.text};
+    border: 1.5px solid ${theme.secondary.text};
   }
 
-  ,
   &:active {
     color: ${theme.secondary.hoverText};
     background-color: ${theme.secondary.hoverBg};
@@ -102,17 +101,19 @@ export const SecondaryButtonStyles = `
   }
 `
 
-const TertiaryButtonStyles = `
-  font-size: ${typography.paragraph};
-  color: ${theme.secondary.text};
+export const TertiaryButtonStyles = (props: ButtonProps) => `
+  text-transform: ${props.transform === "normal" ? "capitalize" : "uppercase"};
+  padding: ${theme.buttonSizes[props.size].padding};
+
+  color: ${theme.tertiary.text};
   background-color: ${baseTheme.colors.grey[800]};
+  border: unset;
 
   &:hover {
     color: ${baseTheme.colors.grey[800]};
     background-color: ${baseTheme.colors.neutral[100]};
   }
 
-  ,
   &:active {
     color: ${baseTheme.colors.grey[800]};
     background-color: ${baseTheme.colors.neutral[100]};

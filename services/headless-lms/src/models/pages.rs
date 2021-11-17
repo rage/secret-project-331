@@ -641,7 +641,7 @@ RETURNING id,
   public_spec,
   model_solution_spec;
         ",
-        &existing_exercise_ids,
+        &existing_exercise_slide_ids,
     )
     .fetch_all(&mut tx)
     .await?;

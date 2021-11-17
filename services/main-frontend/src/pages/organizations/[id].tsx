@@ -1,6 +1,5 @@
 import { css } from "@emotion/css"
 import { Dialog } from "@material-ui/core"
-import Link from "next/link"
 import router from "next/router"
 import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -143,23 +142,6 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
                     router.push(`/manage/courses/${course.id}`)
                   }}
                 />
-                // <div key={course.id}>
-                //   <a href={`/courses/${course.slug}`}>{course.name}</a>
-                //   {loginStateContext.signedIn && (
-                //     <>
-                //       <Link
-                //         href={{
-                //           pathname: "/manage/courses/[id]",
-                //           query: {
-                //             id: course.id,
-                //           },
-                //         }}
-                //       >
-                //         {t("link-manage")}
-                //       </Link>
-                //     </>
-                //   )}
-                // </div>
               ))}
         </div>
         <Pagination

@@ -4,6 +4,7 @@ import React, { useContext } from "react"
 
 import SettingIcon from "../../imgs/setting.svg"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
+import { headingFont } from "../../shared-module/styles"
 
 import Language from "./Language"
 
@@ -28,6 +29,7 @@ const CourseHeader = styled.h2`
   color: #333333;
   line-height: 1.25;
   margin-bottom: 10px;
+  font-family: ${headingFont};
 `
 
 const CourseDescription = styled.p`
@@ -40,6 +42,7 @@ const StyledSettingIcon = styled(SettingIcon)`
   position: absolute;
   top: 30px;
   right: 40px;
+  color: #ededed;
 
   :hover {
     cursor: pointer;

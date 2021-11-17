@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import expectPath from "../utils/expect"
 import waitForFunction from "../utils/waitForFunction"
 
 test.use({
@@ -15,7 +16,7 @@ test("test", async ({ page }) => {
     page.waitForNavigation(),
     page.click("text=University of Helsinki, Department of Computer Science"),
   ])
-  expect(page.url().startsWith("http://project-331.local/organizations/")).toBe(true)
+  expectPath(page, "/org/uh-cs")
 
   // Click text=Add course
   await page.click(`button:text("Create")`)
@@ -211,11 +212,11 @@ test("test", async ({ page }) => {
     page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
     page.click("text=University of Helsinki, Department of Computer Science"),
   ])
-  expect(page.url().startsWith("http://project-331.local/organizations/")).toBe(true)
+  expectPath(page, "/org/uh-cs/")
 
   // Click text=Introduction to System Level Testing
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-system-level-testing' }*/),
+    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-system-level-testing' }*/),
     page.click("text=Introduction to System Level Testing"),
   ])
 
@@ -224,20 +225,19 @@ test("test", async ({ page }) => {
 
   // Click text=Chapter 1: The Levels of Testing
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-system-level-testing/chapter-1' }*/),
+    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-system-level-testing/chapter-1' }*/),
     page.click("text=The Levels of Testing"),
   ])
-  expect(page.url()).toBe(
-    "http://project-331.local/courses/introduction-to-system-level-testing/chapter-1",
-  )
+  expectPath(page, "/org/uh-cs/courses/introduction-to-system-level-testing/chapter-1")
 
   // Click text=System Testing
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-system-level-testing/chapter-1/system-testing' }*/),
+    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-system-level-testing/chapter-1/system-testing' }*/),
     await page.click("text=System Testing"),
   ])
-  expect(page.url()).toBe(
-    "http://project-331.local/courses/introduction-to-system-level-testing/chapter-1/system-testing",
+  expectPath(
+    page,
+    "/org/uh-cs/courses/introduction-to-system-level-testing/chapter-1/system-testing",
   )
 
   const frame2 = await waitForFunction(page, () =>

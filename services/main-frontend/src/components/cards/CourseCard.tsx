@@ -1,9 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { useContext } from "react"
-import { useTranslation } from "react-i18next"
 
-import Finland from "../../imgs/flags/Finland.svg"
 import SettingIcon from "../../imgs/setting.svg"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
 
@@ -13,6 +11,7 @@ interface CardExtraProps {
   title: string
   description: string
   languageCode: string
+  onClick: (event: unknown) => unknown
 }
 
 const CourseGridWrapper = styled.div`
@@ -41,6 +40,10 @@ const StyledSettingIcon = styled(SettingIcon)`
   position: absolute;
   top: 30px;
   right: 40px;
+
+  :hover {
+    cursor: pointer;
+  }
 `
 
 const FlagStyle = css`
@@ -53,7 +56,7 @@ const FlagStyle = css`
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & CardExtraProps
 
-const CourseCard: React.FC<CardProps> = ({ title, description, languageCode }) => {
+const CourseCard: React.FC<CardProps> = ({ title, description, languageCode, onClick }) => {
   // If URL defined, the chapter is open
   const loginStateContext = useContext(LoginStateContext)
 
@@ -65,7 +68,7 @@ const CourseCard: React.FC<CardProps> = ({ title, description, languageCode }) =
 
   return (
     <CourseGridWrapper>
-      {loginStateContext.signedIn && <StyledSettingIcon />}
+      {loginStateContext.signedIn && <StyledSettingIcon onClick={onClick} />}
       <div>
         <CourseHeader>{title}</CourseHeader>
         <CourseDescription>{description}</CourseDescription>

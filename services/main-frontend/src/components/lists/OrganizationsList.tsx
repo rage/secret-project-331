@@ -51,6 +51,7 @@ const OrganizationsList: React.FC = () => {
           <a
             key={organization.id}
             href={organizationCoursesPageHref(organization.slug)}
+            aria-label={organization.name}
             className={css`
               padding: 0em 1em;
               text-decoration: none;

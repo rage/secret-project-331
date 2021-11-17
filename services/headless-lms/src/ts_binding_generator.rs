@@ -14,7 +14,9 @@ use crate::{
             UserCourseInstanceChapterProgress,
         },
         course_instance_enrollments::CourseInstanceEnrollment,
-        course_instances::{CourseInstance, CourseInstanceForm, VariantStatus},
+        course_instances::{
+            ChapterScore, CourseInstance, CourseInstanceForm, PointMap, Points, VariantStatus,
+        },
         courses::{Course, CourseStructure, CourseUpdate, NewCourse},
         email_templates::{EmailTemplate, EmailTemplateNew, EmailTemplateUpdate},
         exercise_service_info::{CourseMaterialExerciseServiceInfo, ExerciseServiceInfoApi},
@@ -50,6 +52,7 @@ use crate::{
         user_exercise_states::{
             UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress,
         },
+        users::User,
     },
     utils::pagination::Pagination,
 };
@@ -115,6 +118,10 @@ ts_rs::export! {
   GetEditProposalsQuery,
   NewProposedPageEdits,
   ErrorResponse,
+  ChapterScore,
+  User,
+  PointMap,
+  Points,
   // dependencies
   VariantStatus,
   ChapterStatus,

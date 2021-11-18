@@ -16,6 +16,10 @@ interface TextFieldExtraProps {
   onChange: (value: string, name?: string) => void
 }
 
+interface InputProps {
+  error: boolean
+}
+
 const Input = styled.input`
   background: #fcfcfc;
   border-width: 1.6px;

@@ -212,7 +212,7 @@ test("test", async ({ page }) => {
     page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
     page.click("text=University of Helsinki, Department of Computer Science"),
   ])
-  expectPath(page, "/org/uh-cs/")
+  await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   // Click text=Introduction to System Level Testing
   await Promise.all([

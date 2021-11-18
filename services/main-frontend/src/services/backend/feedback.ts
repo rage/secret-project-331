@@ -1,5 +1,5 @@
-import { Feedback, FeedbackCount, GetFeedbackQuery } from "../../../shared-module/bindings"
-import { mainFrontendClient } from "../../mainFrontendClient"
+import { Feedback, FeedbackCount, GetFeedbackQuery } from "../../shared-module/bindings"
+import { mainFrontendClient } from "../mainFrontendClient"
 
 export const fetchFeedback = async (
   courseId: string,

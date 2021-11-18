@@ -1,6 +1,6 @@
-import { Course, Organization } from "../../../shared-module/bindings"
-import { validateFile } from "../../../shared-module/utils/files"
-import { mainFrontendClient } from "../../mainFrontendClient"
+import { Course, Organization } from "../../shared-module/bindings"
+import { validateFile } from "../../shared-module/utils/files"
+import { mainFrontendClient } from "../mainFrontendClient"
 
 export const fetchOrganizations = async (): Promise<Array<Organization>> => {
   const data = (await mainFrontendClient.get("/organizations", { responseType: "json" })).data

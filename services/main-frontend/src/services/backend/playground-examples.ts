@@ -1,5 +1,5 @@
-import { PlaygroundExample, PlaygroundExampleData } from "../../../shared-module/bindings"
-import { mainFrontendClient } from "../../mainFrontendClient"
+import { PlaygroundExample, PlaygroundExampleData } from "../../shared-module/bindings"
+import { mainFrontendClient } from "../mainFrontendClient"
 
 export const fetchPlaygroundExamples = async (): Promise<PlaygroundExample[]> => {
   return (await mainFrontendClient.get(`/playground_examples`, { responseType: "json" })).data

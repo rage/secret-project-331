@@ -8,8 +8,8 @@ import {
   NewCourse,
   SubmissionCountByExercise,
   SubmissionCountByWeekAndHour,
-} from "../../../shared-module/bindings"
-import { mainFrontendClient } from "../../mainFrontendClient"
+} from "../../shared-module/bindings"
+import { mainFrontendClient } from "../mainFrontendClient"
 
 export const getCourse = async (courseId: string): Promise<Course> => {
   const data = (await mainFrontendClient.get(`/courses/${courseId}`, { responseType: "json" })).data

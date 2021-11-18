@@ -4,10 +4,11 @@ use crate::{
     controllers::ControllerResult,
     domain::{authorization::AuthUser, csv_export},
     models::{
-        course_instances::{self, CourseInstance, CourseInstanceForm},
+        course_instances::{self, CourseInstance, CourseInstanceForm, Points},
         courses,
         email_templates::{EmailTemplate, EmailTemplateNew},
     },
+    utils::pagination::Pagination,
 };
 use actix_web::{
     web::{self, Json, ServiceConfig},
@@ -130,6 +131,19 @@ pub async fn point_export(
         .streaming(UnboundedReceiverStream::new(receiver)))
 }
 
+#[instrument(skip(pool))]
+async fn points(
+    course_instance_id: web::Path<Uuid>,
+    pagination: web::Query<Pagination>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<Json<Points>> {
+    let mut conn = pool.acquire().await?;
+    let points =
+        course_instances::get_points(&mut conn, course_instance_id.into_inner(), &pagination)
+            .await?;
+    Ok(Json(points))
+}
+
 /**
 POST /course-instances/:id/edit
 */
@@ -181,5 +195,6 @@ pub fn _add_course_instances_routes(cfg: &mut ServiceConfig) {
             web::get().to(point_export),
         )
         .route("/{course_instance_id}/edit", web::post().to(edit))
-        .route("/{course_instance_id}/delete", web::post().to(delete));
+        .route("/{course_instance_id}/delete", web::post().to(delete))
+        .route("/{course_instance_id}/points", web::get().to(points));
 }

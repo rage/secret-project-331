@@ -33,6 +33,43 @@ export interface EmailTemplate {
   course_instance_id: string
 }
 
+export interface CmsPageExercise {
+  id: string
+  name: string
+  order_number: number
+}
+
+export interface CmsPageExerciseSlide {
+  id: string
+  exercise_id: string
+  order_number: number
+}
+
+export interface CmsPageExerciseTask {
+  id: string
+  exercise_slide_id: string
+  assignment: unknown
+  exercise_type: string
+  private_spec: unknown | null
+}
+
+export interface CmsPageUpdate {
+  content: unknown
+  exercises: Array<CmsPageExercise>
+  exercise_slides: Array<CmsPageExerciseSlide>
+  exercise_tasks: Array<CmsPageExerciseTask>
+  url_path: string
+  title: string
+  chapter_id: string | null
+}
+
+export interface ContentManagementPage {
+  page: Page
+  exercises: Array<CmsPageExercise>
+  exercise_slides: Array<CmsPageExerciseSlide>
+  exercise_tasks: Array<CmsPageExerciseTask>
+}
+
 export interface CourseStructure {
   course: Course
   pages: Array<Page>
@@ -273,19 +310,15 @@ export interface EmailTemplateUpdate {
 }
 
 export interface NewPage {
+  exercises: Array<CmsPageExercise>
+  exercise_slides: Array<CmsPageExerciseSlide>
+  exercise_tasks: Array<CmsPageExerciseTask>
   content: unknown
   url_path: string
   title: string
   course_id: string
   chapter_id: string | null
   front_page_of_chapter_id: string | null
-}
-
-export interface PageUpdate {
-  content: unknown
-  url_path: string
-  title: string
-  chapter_id: string | null
 }
 
 export interface NewSubmission {
@@ -441,6 +474,39 @@ export interface ErrorResponse {
   source: string | null
 }
 
+export interface ChapterScore {
+  id: string
+  created_at: Date
+  updated_at: Date
+  name: string
+  course_id: string
+  deleted_at: Date | null
+  chapter_image_path: string | null
+  chapter_number: number
+  front_page_id: string | null
+  opens_at: Date | null
+  copied_from: string | null
+  score_given: number
+  score_total: number
+}
+
+export interface User {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  upstream_id: number | null
+  email: string
+}
+
+export type PointMap = Record<string, number>
+
+export interface Points {
+  chapter_points: Array<ChapterScore>
+  users: Array<User>
+  user_chapter_points: Record<string, PointMap>
+}
+
 export type VariantStatus = "Draft" | "Upcoming" | "Active" | "Ended"
 
 export type ChapterStatus = "open" | "closed"
@@ -558,20 +624,6 @@ export interface ExerciseWithExerciseTasks {
   page_id: string
   exercise_tasks: Array<ExerciseTask>
   score_maximum: number
-}
-
-export interface NormalizedCmsExercise {
-  id: string
-  name: string
-  order_number: number
-  exercise_tasks: Array<NormalizedCmsExerciseTask>
-}
-
-export interface NormalizedCmsExerciseTask {
-  id: string
-  exercise_type: string
-  assignment: unknown
-  private_spec: unknown | null
 }
 
 export interface UserCourseSettings {

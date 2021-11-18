@@ -73,10 +73,10 @@ test("test", async ({ page, headless }) => {
     page,
   })
 
-  // Click text=Default Manage Manage emails Export points >> a
+  // Click text=Default Manage Manage emails View Points Export points >> a
   await Promise.all([
     page.waitForNavigation(),
-    page.click("text=Default Manage Manage emails Export points >> a"),
+    page.click("text=Default Manage Manage emails View Points Export points >> a"),
   ])
   await expect(page).toHaveURL(
     "http://project-331.local/manage/course-instances/211556f5-7793-5705-ac63-b84465916da5",

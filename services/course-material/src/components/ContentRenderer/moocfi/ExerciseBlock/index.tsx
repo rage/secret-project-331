@@ -54,6 +54,9 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   if (error) {
     return <pre>{JSON.stringify(error, undefined, 2)}</pre>
   }
+  if (postSubmissionMutation.isError) {
+    return <pre>{JSON.stringify(postSubmissionMutation.error, undefined, 2)}</pre>
+  }
 
   if (!showExercise) {
     return <div>{t("please-select-course-instance-before-answering-exercise")}</div>
@@ -176,6 +179,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
             {t("try-again")}
           </Button>
         )}
+        {postSubmissionMutation.isError && <></>}
         <br />
         <DebugModal data={data} />
       </div>

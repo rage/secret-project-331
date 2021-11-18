@@ -24,13 +24,13 @@ interface ExerciseBlockAttributes {
 // Special care taken here to ensure exercise content can have full width of
 // the page.
 const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (props) => {
+  const INITIAL_VIEW_TYPE = "exercise"
   const { t } = useTranslation()
   const loginState = useContext(LoginStateContext)
   const coursePageContext = useContext(CoursePageContext)
   const showExercise = loginState.signedIn ? !!coursePageContext.settings : true
   const [postThisStateToIFrame, dispatch] = useReducer(exerciseBlockPostThisStateToIFrameReducer, {
-    // eslint-disable-next-line i18next/no-literal-string
-    view_type: "exercise",
+    view_type: INITIAL_VIEW_TYPE,
     data: null,
   })
 

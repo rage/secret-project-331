@@ -12,7 +12,15 @@ export interface SubmissionGradedAction {
   payload: Omit<SetStateMessage, "message">
 }
 
-export type PostThisStateToIFrameAction = ExerciseDownloadedAction | SubmissionGradedAction
+export interface ShowExercise {
+  type: "showExercise"
+  payload: Omit<SetStateMessage, "message">
+}
+
+export type PostThisStateToIFrameAction =
+  | ExerciseDownloadedAction
+  | SubmissionGradedAction
+  | ShowExercise
 
 export default function exerciseBlockPostThisStateToIFrameReducer(
   prev: PostThisStateToIFrameState,
@@ -25,6 +33,9 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
       }
       return action.payload
     case "submissionGraded": {
+      return action.payload
+    }
+    case "showExercise": {
       return action.payload
     }
   }

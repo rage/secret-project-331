@@ -117,35 +117,6 @@
 <span id="117">117</span>
 <span id="118">118</span>
 <span id="119">119</span>
-<span id="120">120</span>
-<span id="121">121</span>
-<span id="122">122</span>
-<span id="123">123</span>
-<span id="124">124</span>
-<span id="125">125</span>
-<span id="126">126</span>
-<span id="127">127</span>
-<span id="128">128</span>
-<span id="129">129</span>
-<span id="130">130</span>
-<span id="131">131</span>
-<span id="132">132</span>
-<span id="133">133</span>
-<span id="134">134</span>
-<span id="135">135</span>
-<span id="136">136</span>
-<span id="137">137</span>
-<span id="138">138</span>
-<span id="139">139</span>
-<span id="140">140</span>
-<span id="141">141</span>
-<span id="142">142</span>
-<span id="143">143</span>
-<span id="144">144</span>
-<span id="145">145</span>
-<span id="146">146</span>
-<span id="147">147</span>
-<span id="148">148</span>
 </pre><pre class="rust"><code><span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">controllers</span>::{
@@ -156,142 +127,113 @@
         },
         <span class="ident">ErrorResponse</span>, <span class="ident">UploadResult</span>,
     },
-    <span class="ident">models</span>::{
-        <span class="ident">chapters</span>::{
-            <span class="ident">Chapter</span>, <span class="ident">ChapterStatus</span>, <span class="ident">ChapterUpdate</span>, <span class="ident">ChapterWithStatus</span>, <span class="ident">NewChapter</span>,
-            <span class="ident">UserCourseInstanceChapterProgress</span>,
-        },
-        <span class="ident">course_instance_enrollments::CourseInstanceEnrollment</span>,
-        <span class="ident">course_instances</span>::{
-            <span class="ident">ChapterScore</span>, <span class="ident">CourseInstance</span>, <span class="ident">CourseInstanceForm</span>, <span class="ident">PointMap</span>, <span class="ident">Points</span>, <span class="ident">VariantStatus</span>,
-        },
-        <span class="ident">courses</span>::{<span class="ident">Course</span>, <span class="ident">CourseStructure</span>, <span class="ident">CourseUpdate</span>, <span class="ident">NewCourse</span>},
-        <span class="ident">email_templates</span>::{<span class="ident">EmailTemplate</span>, <span class="ident">EmailTemplateNew</span>, <span class="ident">EmailTemplateUpdate</span>},
-        <span class="ident">exercise_service_info</span>::{<span class="ident">CourseMaterialExerciseServiceInfo</span>, <span class="ident">ExerciseServiceInfoApi</span>},
-        <span class="ident">exercise_services</span>::{<span class="ident">ExerciseService</span>, <span class="ident">ExerciseServiceNewOrUpdate</span>},
-        <span class="ident">exercise_slides::ExerciseSlide</span>,
-        <span class="ident">exercise_tasks</span>::{<span class="ident">CourseMaterialExerciseTask</span>, <span class="ident">ExerciseTask</span>},
-        <span class="ident">exercises</span>::{
-            <span class="ident">ActivityProgress</span>, <span class="ident">CourseMaterialExercise</span>, <span class="ident">Exercise</span>, <span class="ident">ExerciseStatus</span>, <span class="ident">GradingProgress</span>,
-        },
-        <span class="ident">feedback</span>::{<span class="ident">Feedback</span>, <span class="ident">FeedbackBlock</span>, <span class="ident">FeedbackCount</span>, <span class="ident">NewFeedback</span>},
-        <span class="ident">gradings</span>::{<span class="ident">Grading</span>, <span class="ident">UserPointsUpdateStrategy</span>},
-        <span class="ident">organizations::Organization</span>,
-        <span class="ident">page_history</span>::{<span class="ident">HistoryChangeReason</span>, <span class="ident">PageHistory</span>},
-        <span class="ident">pages</span>::{
-            <span class="ident">CmsPageExercise</span>, <span class="ident">CmsPageExerciseSlide</span>, <span class="ident">CmsPageExerciseTask</span>, <span class="ident">CmsPageUpdate</span>,
-            <span class="ident">ContentManagementPage</span>, <span class="ident">CoursePageWithUserData</span>, <span class="ident">ExerciseWithExerciseTasks</span>,
-            <span class="ident">HistoryRestoreData</span>, <span class="ident">NewPage</span>, <span class="ident">Page</span>, <span class="ident">PageRoutingDataWithChapterStatus</span>, <span class="ident">PageSearchRequest</span>,
-            <span class="ident">PageSearchResult</span>, <span class="ident">PageWithExercises</span>,
-        },
-        <span class="ident">playground_examples</span>::{<span class="ident">PlaygroundExample</span>, <span class="ident">PlaygroundExampleData</span>},
-        <span class="ident">proposed_block_edits</span>::{
-            <span class="ident">BlockProposal</span>, <span class="ident">BlockProposalAction</span>, <span class="ident">BlockProposalInfo</span>, <span class="ident">NewProposedBlockEdit</span>,
-            <span class="ident">ProposalStatus</span>,
-        },
-        <span class="ident">proposed_page_edits</span>::{
-            <span class="ident">EditProposalInfo</span>, <span class="ident">NewProposedPageEdits</span>, <span class="ident">PageProposal</span>, <span class="ident">ProposalCount</span>,
-        },
-        <span class="ident">submissions</span>::{
-            <span class="ident">NewSubmission</span>, <span class="ident">Submission</span>, <span class="ident">SubmissionCount</span>, <span class="ident">SubmissionCountByExercise</span>,
-            <span class="ident">SubmissionCountByWeekAndHour</span>, <span class="ident">SubmissionInfo</span>, <span class="ident">SubmissionResult</span>,
-        },
-        <span class="ident">user_course_settings::UserCourseSettings</span>,
-        <span class="ident">user_exercise_states</span>::{
-            <span class="ident">UserCourseInstanceChapterExerciseProgress</span>, <span class="ident">UserCourseInstanceProgress</span>,
-        },
-        <span class="ident">users::User</span>,
-    },
+    <span class="ident">models</span>::<span class="kw-2">*</span>,
     <span class="ident">utils::pagination::Pagination</span>,
 };
 
 <span class="macro">ts_rs::export!</span> {
-  <span class="ident">Chapter</span>,
-  <span class="ident">EmailTemplate</span>,
-  <span class="ident">CmsPageExercise</span>,
-  <span class="ident">CmsPageExerciseSlide</span>,
-  <span class="ident">CmsPageExerciseTask</span>,
-  <span class="ident">CmsPageUpdate</span>,
-  <span class="ident">ContentManagementPage</span>,
-  <span class="ident">CourseStructure</span>,
-  <span class="ident">Page</span>,
-  <span class="ident">UploadResult</span>,
-  <span class="ident">PageWithExercises</span>,
-  <span class="ident">UserCourseInstanceProgress</span>,
-  <span class="ident">UserCourseInstanceChapterProgress</span>,
-  <span class="ident">UserCourseInstanceChapterExerciseProgress</span>,
-  <span class="ident">CourseInstanceEnrollment</span>,
-  <span class="ident">CourseInstance</span>,
-  <span class="ident">ChapterWithStatus</span>,
-  <span class="ident">CourseMaterialExercise</span>,
-  <span class="ident">PageRoutingDataWithChapterStatus</span>,
-  <span class="ident">SubmissionResult</span>,
-  <span class="ident">ExerciseService</span>,
-  <span class="ident">ExerciseServiceNewOrUpdate</span>,
-  <span class="ident">Course</span>,
-  <span class="ident">Exercise</span>,
-  <span class="ident">ExerciseSlide</span>,
-  <span class="ident">ExerciseServiceInfoApi</span>,
-  <span class="ident">SubmissionCount</span>,
-  <span class="ident">SubmissionCountByWeekAndHour</span>,
-  <span class="ident">SubmissionCountByExercise</span>,
-  <span class="ident">ExerciseSubmissions</span>,
-  <span class="ident">Organization</span>,
-  <span class="ident">NewChapter</span>,
-  <span class="ident">ChapterUpdate</span>,
-  <span class="ident">EmailTemplateNew</span>,
-  <span class="ident">EmailTemplateUpdate</span>,
-  <span class="ident">NewPage</span>,
-  <span class="ident">NewSubmission</span>,
-  <span class="ident">NewCourse</span>,
-  <span class="ident">CourseUpdate</span>,
+  <span class="ident">chapters::Chapter</span>,
+  <span class="ident">chapters::ChapterStatus</span>,
+  <span class="ident">chapters::ChapterUpdate</span>,
+  <span class="ident">chapters::ChapterWithStatus</span>,
+  <span class="ident">chapters::NewChapter</span>,
+  <span class="ident">chapters::UserCourseInstanceChapterProgress</span>,
+
+  <span class="ident">course_instance_enrollments::CourseInstanceEnrollment</span>,
+
+  <span class="ident">course_instances::CourseInstance</span>,
+  <span class="ident">course_instances::CourseInstanceForm</span>,
+  <span class="ident">course_instances::VariantStatus</span>,
+
+  <span class="ident">courses::Course</span>,
+  <span class="ident">courses::CourseStructure</span>,
+  <span class="ident">courses::CourseUpdate</span>,
+  <span class="ident">courses::NewCourse</span>,
+
+  <span class="ident">email_templates::EmailTemplate</span>,
+  <span class="ident">email_templates::EmailTemplateNew</span>,
+  <span class="ident">email_templates::EmailTemplateUpdate</span>,
+
+  <span class="ident">exercise_service_info::CourseMaterialExerciseServiceInfo</span>,
+  <span class="ident">exercise_service_info::ExerciseServiceInfoApi</span>,
+
+  <span class="ident">exercise_services::ExerciseService</span>,
+  <span class="ident">exercise_services::ExerciseServiceNewOrUpdate</span>,
+
+  <span class="ident">exercise_slides::ExerciseSlide</span>,
+
+  <span class="ident">exercise_tasks::CourseMaterialExerciseTask</span>,
+  <span class="ident">exercise_tasks::ExerciseTask</span>,
+
+  <span class="ident">exercises::ActivityProgress</span>,
+  <span class="ident">exercises::CourseMaterialExercise</span>,
+  <span class="ident">exercises::Exercise</span>,
+  <span class="ident">exercises::ExerciseStatus</span>,
+  <span class="ident">exercises::GradingProgress</span>,
+
+  <span class="ident">feedback::Feedback</span>,
+  <span class="ident">feedback::FeedbackBlock</span>,
+  <span class="ident">feedback::FeedbackCount</span>,
+  <span class="ident">feedback::NewFeedback</span>,
+
+  <span class="ident">gradings::Grading</span>,
+  <span class="ident">gradings::UserPointsUpdateStrategy</span>,
+
+  <span class="ident">organizations::Organization</span>,
+
+  <span class="ident">page_history::PageHistory</span>,
+  <span class="ident">page_history::HistoryChangeReason</span>,
+
+  <span class="ident">pages::CmsPageExercise</span>,
+  <span class="ident">pages::CmsPageExerciseSlide</span>,
+  <span class="ident">pages::CmsPageExerciseTask</span>,
+  <span class="ident">pages::CmsPageUpdate</span>,
+  <span class="ident">pages::ContentManagementPage</span>,
+  <span class="ident">pages::CoursePageWithUserData</span>,
+  <span class="ident">pages::ExerciseWithExerciseTasks</span>,
+  <span class="ident">pages::HistoryRestoreData</span>,
+  <span class="ident">pages::Page</span>,
+  <span class="ident">pages::PageRoutingDataWithChapterStatus</span>,
+  <span class="ident">pages::PageSearchRequest</span>,
+  <span class="ident">pages::PageSearchResult</span>,
+  <span class="ident">pages::PageWithExercises</span>,
+  <span class="ident">pages::NewPage</span>,
+
+  <span class="ident">playground_examples::PlaygroundExample</span>,
+  <span class="ident">playground_examples::PlaygroundExampleData</span>,
+
+  <span class="ident">proposed_block_edits::BlockProposal</span>,
+  <span class="ident">proposed_block_edits::BlockProposalAction</span>,
+  <span class="ident">proposed_block_edits::BlockProposalInfo</span>,
+  <span class="ident">proposed_block_edits::NewProposedBlockEdit</span>,
+  <span class="ident">proposed_block_edits::ProposalStatus</span>,
+
+  <span class="ident">proposed_page_edits::EditProposalInfo</span>,
+  <span class="ident">proposed_page_edits::NewProposedPageEdits</span>,
+  <span class="ident">proposed_page_edits::PageProposal</span>,
+  <span class="ident">proposed_page_edits::ProposalCount</span>,
+
+  <span class="ident">submissions::Submission</span>,
+  <span class="ident">submissions::SubmissionCount</span>,
+  <span class="ident">submissions::SubmissionCountByWeekAndHour</span>,
+  <span class="ident">submissions::SubmissionCountByExercise</span>,
+  <span class="ident">submissions::SubmissionInfo</span>,
+  <span class="ident">submissions::SubmissionResult</span>,
+  <span class="ident">submissions::NewSubmission</span>,
+
+  <span class="ident">user_course_settings::UserCourseSettings</span>,
+
+  <span class="ident">user_exercise_states::UserCourseInstanceChapterExerciseProgress</span>,
+  <span class="ident">user_exercise_states::UserCourseInstanceProgress</span>,
+
   <span class="ident">Login</span>,
-  <span class="ident">SubmissionInfo</span>,
-  <span class="ident">PageSearchResult</span>,
-  <span class="ident">PageSearchRequest</span>,
-  <span class="ident">PageHistory</span>,
-  <span class="ident">HistoryChangeReason</span>,
-  <span class="ident">HistoryRestoreData</span>,
-  <span class="ident">Feedback</span>,
+  <span class="ident">UploadResult</span>,
+  <span class="ident">ExerciseSubmissions</span>,
   <span class="ident">MarkAsRead</span>,
-  <span class="ident">NewFeedback</span>,
-  <span class="ident">FeedbackBlock</span>,
-  <span class="ident">FeedbackCount</span>,
   <span class="ident">GetFeedbackQuery</span>,
-  <span class="ident">CourseInstanceForm</span>,
-  <span class="ident">PageProposal</span>,
-  <span class="ident">BlockProposal</span>,
-  <span class="ident">ProposalCount</span>,
-  <span class="ident">EditProposalInfo</span>,
   <span class="ident">GetEditProposalsQuery</span>,
-  <span class="ident">NewProposedPageEdits</span>,
   <span class="ident">ErrorResponse</span>,
-  <span class="ident">ChapterScore</span>,
-  <span class="ident">User</span>,
-  <span class="ident">PointMap</span>,
-  <span class="ident">Points</span>,
-  <span class="comment">// dependencies</span>
-  <span class="ident">VariantStatus</span>,
-  <span class="ident">ChapterStatus</span>,
-  <span class="ident">CourseMaterialExerciseTask</span>,
-  <span class="ident">CourseMaterialExerciseServiceInfo</span>,
-  <span class="ident">ExerciseStatus</span>,
-  <span class="ident">Submission</span>,
-  <span class="ident">Grading</span>,
-  <span class="ident">ActivityProgress</span>,
-  <span class="ident">GradingProgress</span>,
-  <span class="ident">UserPointsUpdateStrategy</span>,
-  <span class="ident">Pagination</span>,
-  <span class="ident">ProposalStatus</span>,
-  <span class="ident">NewProposedBlockEdit</span>,
-  <span class="ident">BlockProposalInfo</span>,
-  <span class="ident">BlockProposalAction</span>,
-  <span class="comment">// returned from the API as serde_json::Value</span>
-  <span class="ident">ExerciseTask</span>,
-  <span class="ident">ExerciseWithExerciseTasks</span>,
-  <span class="ident">UserCourseSettings</span>,
-  <span class="ident">PlaygroundExample</span>,<span class="ident">PlaygroundExampleData</span>,
-  <span class="ident">CoursePageWithUserData</span>
+  <span class="ident">Pagination</span>
     <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;../../shared-module/src/bindings.ts&quot;</span>
 }
 </code></pre></div>

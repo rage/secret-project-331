@@ -178,6 +178,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                 payload: { view_type: "exercise", data: exerciseTask.data },
               })
               postSubmissionMutation.reset()
+              setAnswerValid(false)
             }}
           >
             {t("try-again")}

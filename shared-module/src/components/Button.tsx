@@ -110,11 +110,11 @@ const SecondaryButton = styled(BaseButton)`
 const TertiaryButton = styled(BaseButton)`
   font-size: ${typography.paragraph};
   color: ${theme.secondary.text};
-  background-color: ${baseTheme.colors.grey[800]};
+  background-color: ${baseTheme.colors.green[200]};
 
   &:hover {
     color: ${baseTheme.colors.grey[800]};
-    background-color: ${baseTheme.colors.neutral[100]};
+    background-color: ${baseTheme.colors.green[300]};
   }
 
   ,

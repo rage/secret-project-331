@@ -19,7 +19,8 @@ const Wrapper = styled.div`
     input {
       max-width: 18.5ch;
       padding: 4px 10px;
-      border: 2px solid #dedede;
+      background: #fcfcfc;
+      border: 1.6px solid #dedede;
       border-radius: 3px;
       outline: none;
 

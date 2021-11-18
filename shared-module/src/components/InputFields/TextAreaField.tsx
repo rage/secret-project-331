@@ -18,6 +18,11 @@ const Wrapper = styled.div`
   label {
     display: grid;
 
+    textarea {
+      background: #fcfcfc;
+      border: 1.6px solid #dedede;
+    }
+
     span {
       color: #333;
       font-size: 14px;

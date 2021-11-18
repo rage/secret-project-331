@@ -3,72 +3,11 @@
 # Thats why we add PostgreSQL and ease the resource limitations a bit.
 
 resources:
-  - ../base
+  - ../production
   # Test mode uses the same db server as dev so that the dev db is availabe for type checking while the test environment is running. The test environment uses a different databases ('headless_lms_test') in the same postgres.
   - ./postgres-dev.yml
   - headless-lms/env.yml
 patches:
-  # Services that require postgres env, patch image names
-  - path: headless-lms/patch-deployment.yml
-    target:
-      version: v1
-      kind: Deployment
-      name: headless-lms
-  - path: headless-lms/patch-deployment.yml
-    target:
-      version: v1
-      kind: Job
-      name: headless-lms-run-migrations
-  - path: headless-lms/patch-deployment.yml
-    target:
-      version: v1
-      kind: Deployment
-      name: service-info-fetcher
-  - path: headless-lms/patch-deployment.yml
-    target:
-      version: v1
-      kind: Deployment
-      name: regrader
-
-  # Patch Image names for deployments
-  - path: cms/patch-deployment.yml
-    target:
-      version: v1
-      kind: Deployment
-      name: cms
-  - path: course-material/patch-deployment.yml
-    target:
-      version: v1
-      kind: Deployment
-      name: course-material
-  - path: example-exercise/patch-deployment.yml
-    target:
-      version: v1
-      kind: Deployment
-      name: example-exercise
-  - path: main-frontend/patch-deployment.yml
-    target:
-      version: v1
-      kind: Deployment
-      name: main-frontend
-  - path: quizzes/patch-deployment.yml
-    target:
-      version: v1
-      kind: Deployment
-      name: quizzes
-
-  # Patch to use --release param in cargo command
-  - path: headless-lms/patch-service-info-fetcher.yml
-    target:
-      version: v1
-      kind: Deployment
-      name: service-info-fetcher
-  - path: headless-lms/patch-regrader.yml
-    target:
-      version: v1
-      kind: Deployment
-      name: regrader
-
   # Remove cpu and memory resource without initContainer defined
   - path: patch-without-init-container.yml
     target:
@@ -79,11 +18,3 @@ patches:
     target:
       version: v1
       labelSelector: "deploymentType=with-init-container"
-
-  # Patch image for jobs
-  - path: headless-lms/job/patch-job.yml
-    target:
-      name: update-course-variant-statuses
-  - path: headless-lms/patch-headless-lms-migration.yml
-    target:
-      name: headless-lms-run-migrations

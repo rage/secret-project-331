@@ -6,13 +6,14 @@
   path: "/spec/template/spec/containers/0/resources/requests/cpu"
 - op: remove
   path: "/spec/template/spec/containers/0/resources/requests/memory"
-
-- op: "replace"
-  path: "/spec/template/spec/containers/0/image"
-  value: "eu.gcr.io/moocfi-public/secret-project-headless-lms-production:latest"
-- op: "replace"
-  path: "/spec/template/spec/initContainers/0/image"
-  value: "eu.gcr.io/moocfi-public/secret-project-headless-lms-production:latest"
+- op: remove
+  path: "/spec/template/spec/initContainers/0/resources/limits/cpu"
+- op: remove
+  path: "/spec/template/spec/initContainers/0/resources/limits/memory"
+- op: remove
+  path: "/spec/template/spec/containers/0/resources/limits/cpu"
+- op: remove
+  path: "/spec/template/spec/containers/0/resources/limits/memory"
 
 - op: add
   path: "/spec/template/spec/initContainers/0/envFrom"

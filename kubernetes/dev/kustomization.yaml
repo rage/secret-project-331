@@ -4,21 +4,6 @@ resources:
   - headless-lms/env.yml
   - headless-lms/persistent-file-storage.yml
 patches:
-  - path: headless-lms/patch-deployment.yml
-    target:
-      version: v1
-      kind: Deployment
-      name: headless-lms
-  - path: headless-lms/patch-deployment.yml
-    target:
-      version: v1
-      kind: Job
-      name: headless-lms-run-migrations
-  - path: headless-lms/patch-deployment.yml
-    target:
-      version: v1
-      kind: Deployment
-      name: service-info-fetcher
   - path: headless-lms/patch-with-init-container.yml
     target:
       version: v1
@@ -28,8 +13,3 @@ patches:
       version: v1
       kind: Deployment
       name: "headless-lms"
-  - path: headless-lms/patch-deployment.yml
-    target:
-      version: v1
-      kind: Deployment
-      name: regrader

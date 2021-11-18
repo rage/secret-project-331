@@ -36,7 +36,7 @@ const Submission: React.FC<SubmissionPageProps> = ({ query }) => {
         <div>
           {t("points-out-of", {
             points: data.grading.score_given,
-            maxPoints: data.exercise.score_maximum,
+            scoreMaximum: data.exercise.score_maximum,
           })}
         </div>
         <div>

@@ -71,9 +71,9 @@ async fn post_new_page(
 ) -> ControllerResult<Json<Page>> {
     let mut conn = pool.acquire().await?;
     let new_page = payload.0;
-    let course_id = new_page.course_id.ok_or_else(ControllerError::BadRequest(
-        "Cannot create a new page without a course id".to_string(),
-    ))?;
+    let course_id = new_page.course_id.ok_or_else(|| {
+        ControllerError::BadRequest("Cannot create a new page without a course id".to_string())
+    })?;
     authorize(
         &mut conn,
         Action::Edit,

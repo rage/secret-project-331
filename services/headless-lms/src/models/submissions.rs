@@ -216,14 +216,14 @@ pub async fn get_course_and_exam_id(
 pub async fn exercise_submission_count(
     conn: &mut PgConnection,
     exercise_id: &Uuid,
-) -> ModelResult<i64> {
+) -> ModelResult<u32> {
     let count = sqlx::query!(
         "SELECT COUNT(*) as count FROM submissions WHERE exercise_id = $1",
         exercise_id,
     )
     .fetch_one(conn)
     .await?;
-    Ok(count.count.unwrap_or(0))
+    Ok(count.count.unwrap_or(0).try_into()?)
 }
 
 pub async fn exercise_submissions(

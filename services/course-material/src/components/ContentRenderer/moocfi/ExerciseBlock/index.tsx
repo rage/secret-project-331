@@ -37,7 +37,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const id = props.data.attributes.id
   // eslint-disable-next-line i18next/no-literal-string
   const queryUniqueKey = `exercise-${id}`
-  const { isLoading, error, data } = useQuery(queryUniqueKey, () => fetchExerciseById(id), {
+  const exerciseTask = useQuery(queryUniqueKey, () => fetchExerciseById(id), {
     enabled: showExercise,
     onSuccess: (data) => {
       dispatch({ type: "exerciseDownloaded", payload: { view_type: "exercise", data: data } })
@@ -51,8 +51,8 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const [answer, setAnswer] = useState<unknown>(null)
   const [answerValid, setAnswerValid] = useState(false)
 
-  if (error) {
-    return <pre>{JSON.stringify(error, undefined, 2)}</pre>
+  if (exerciseTask.error) {
+    return <pre>{JSON.stringify(exerciseTask.error, undefined, 2)}</pre>
   }
   if (postSubmissionMutation.isError) {
     return <pre>{JSON.stringify(postSubmissionMutation.error, undefined, 2)}</pre>
@@ -62,13 +62,13 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
     return <div>{t("please-select-course-instance-before-answering-exercise")}</div>
   }
 
-  if (isLoading || !data) {
+  if (exerciseTask.isLoading || !exerciseTask.data) {
     return <GenericLoading />
   }
 
-  const url = data.current_exercise_task_service_info?.exercise_iframe_url
+  const url = exerciseTask.data.current_exercise_task_service_info?.exercise_iframe_url
 
-  const currentExerciseTaskAssignment = data.current_exercise_task
+  const currentExerciseTaskAssignment = exerciseTask.data.current_exercise_task
     .assignment as unknown as Block<unknown>[]
 
   const courseInstanceId = coursePageContext?.instance?.id
@@ -104,7 +104,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
             font-weight: 400;
           `}
         >
-          {data.exercise.name}
+          {exerciseTask.data.exercise.name}
         </h2>
         <div
           className={css`
@@ -119,7 +119,8 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
         >
           {t("points-label")}
           <br />
-          {data.exercise_status?.score_given ?? 0}/{data.exercise.score_maximum}
+          {exerciseTask.data.exercise_status?.score_given ?? 0}/
+          {exerciseTask.data.exercise.score_maximum}
         </div>
       </div>
       {currentExerciseTaskAssignment && (
@@ -159,7 +160,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
               }
               postSubmissionMutation.mutate({
                 course_instance_id: courseInstanceId,
-                exercise_task_id: data.current_exercise_task.id,
+                exercise_task_id: exerciseTask.data.current_exercise_task.id,
                 data_json: answer,
               })
             }}
@@ -172,7 +173,10 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
             variant="primary"
             size="medium"
             onClick={() => {
-              dispatch({ type: "showExercise", payload: { view_type: "exercise", data: data } })
+              dispatch({
+                type: "showExercise",
+                payload: { view_type: "exercise", data: exerciseTask.data },
+              })
               postSubmissionMutation.reset()
             }}
           >
@@ -181,7 +185,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
         )}
         {postSubmissionMutation.isError && <></>}
         <br />
-        <DebugModal data={data} />
+        <DebugModal data={exerciseTask.data} />
       </div>
     </div>
   )

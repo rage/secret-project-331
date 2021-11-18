@@ -1,5 +1,5 @@
-import { ExerciseSubmissions } from "../../../shared-module/bindings"
-import { mainFrontendClient } from "../../mainFrontendClient"
+import { ExerciseSubmissions } from "../../shared-module/bindings"
+import { mainFrontendClient } from "../mainFrontendClient"
 
 export const fetchExerciseSubmissions = async (
   exerciseId: string,

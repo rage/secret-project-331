@@ -752,9 +752,6 @@
 <span id="752">752</span>
 <span id="753">753</span>
 <span id="754">754</span>
-<span id="755">755</span>
-<span id="756">756</span>
-<span id="757">757</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/courses`.</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">controllers</span>::{
@@ -1016,11 +1013,11 @@ GET `/api/v0/main-frontend/courses/:course_id/structure` - Returns the structure
 ```
 */</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>, <span class="ident">file_store</span>, <span class="ident">app_conf</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_structure</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FileStore</span><span class="op">&gt;</span>(
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_structure</span>(
     <span class="ident">request_course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-    <span class="ident">file_store</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+    <span class="ident">file_store</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FileStore</span><span class="op">&gt;</span>,
     <span class="ident">app_conf</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">ApplicationConfiguration</span><span class="op">&gt;</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">CourseStructure</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1034,7 +1031,7 @@ GET `/api/v0/main-frontend/courses/:course_id/structure` - Returns the structure
     <span class="kw">let</span> <span class="ident">course_structure</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::models::courses::get_course_structure</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
         <span class="kw-2">*</span><span class="ident">request_course_id</span>,
-        <span class="ident">file_store</span>.<span class="ident">as_ref</span>(),
+        <span class="kw-2">&amp;</span><span class="ident">file_store</span>,
         <span class="ident">app_conf</span>.<span class="ident">as_ref</span>(),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1064,13 +1061,13 @@ Response:
 ```
 */</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">payload</span>, <span class="ident">request</span>, <span class="ident">pool</span>, <span class="ident">file_store</span>, <span class="ident">app_conf</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">add_media_for_course</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FileStore</span><span class="op">&gt;</span>(
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">add_media_for_course</span>(
     <span class="ident">request_course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">payload</span>: <span class="ident">mp::Multipart</span>,
     <span class="ident">request</span>: <span class="ident">HttpRequest</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-    <span class="ident">file_store</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+    <span class="ident">file_store</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FileStore</span><span class="op">&gt;</span>,
     <span class="ident">app_conf</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">ApplicationConfiguration</span><span class="op">&gt;</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">UploadResult</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1083,7 +1080,7 @@ Response:
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">media_path</span> <span class="op">=</span>
-        <span class="ident">upload_media_for_course</span>(<span class="ident">request</span>.<span class="ident">headers</span>(), <span class="ident">payload</span>, <span class="kw-2">&amp;</span><span class="ident">course</span>, <span class="ident">file_store</span>.<span class="ident">as_ref</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">upload_media_for_course</span>(<span class="ident">request</span>.<span class="ident">headers</span>(), <span class="ident">payload</span>, <span class="kw-2">&amp;</span><span class="ident">course</span>, <span class="kw-2">&amp;</span><span class="ident">file_store</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">download_url</span> <span class="op">=</span> <span class="ident">file_store</span>.<span class="ident">get_download_url</span>(<span class="ident">media_path</span>.<span class="ident">as_path</span>(), <span class="ident">app_conf</span>.<span class="ident">as_ref</span>());
 
     <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">UploadResult</span> { <span class="ident">url</span>: <span class="ident">download_url</span> }))
@@ -1464,7 +1461,7 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_courses_routes</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">FileStore</span><span class="op">&gt;</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_courses_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) {
     <span class="ident">cfg</span>.<span class="ident">route</span>(<span class="string">&quot;/{course_id}&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_course</span>))
         .<span class="ident">route</span>(<span class="string">&quot;&quot;</span>, <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">post_new_course</span>))
         .<span class="ident">route</span>(<span class="string">&quot;/{course_id}&quot;</span>, <span class="ident">web::put</span>().<span class="ident">to</span>(<span class="ident">update_course</span>))
@@ -1476,7 +1473,7 @@ We add the routes by calling the route method instead of using the route annotat
         .<span class="ident">route</span>(<span class="string">&quot;/{course_id}/exercises&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_all_exercises</span>))
         .<span class="ident">route</span>(
             <span class="string">&quot;/{course_id}/structure&quot;</span>,
-            <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_course_structure</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>),
+            <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_course_structure</span>),
         )
         .<span class="ident">route</span>(
             <span class="string">&quot;/{course_id}/language-versions&quot;</span>,
@@ -1486,10 +1483,7 @@ We add the routes by calling the route method instead of using the route annotat
             <span class="string">&quot;/{course_id}/language-versions&quot;</span>,
             <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">post_new_course_language_version</span>),
         )
-        .<span class="ident">route</span>(
-            <span class="string">&quot;/{course_id}/upload&quot;</span>,
-            <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">add_media_for_course</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>),
-        )
+        .<span class="ident">route</span>(<span class="string">&quot;/{course_id}/upload&quot;</span>, <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">add_media_for_course</span>))
         .<span class="ident">route</span>(
             <span class="string">&quot;/{course_id}/weekday-hour-submission-counts&quot;</span>,
             <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_weekday_hour_submission_counts</span>),

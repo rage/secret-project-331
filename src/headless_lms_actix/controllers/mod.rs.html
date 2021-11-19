@@ -215,7 +215,7 @@ This documents all endpoints. Select a module below for a namespace.
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">ts_rs::TS</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">models::ModelError</span>, <span class="ident">utils::file_store::FileStore</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::models::ModelError</span>;
 
 <span class="kw">use</span> <span class="self">self</span>::{
     <span class="ident">auth::add_auth_routes</span>, <span class="ident">cms::add_cms_routes</span>, <span class="ident">course_material::add_course_material_routes</span>,
@@ -363,11 +363,11 @@ Only put information here that you want to be visible to users.
 }
 
 <span class="doccomment">/// Add controllers from all the submodules.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">configure_controllers</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">FileStore</span><span class="op">&gt;</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">configure_controllers</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) {
     <span class="ident">cfg</span>.<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/course-material&quot;</span>).<span class="ident">configure</span>(<span class="ident">add_course_material_routes</span>))
-        .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/cms&quot;</span>).<span class="ident">configure</span>(<span class="ident">add_cms_routes</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>))
+        .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/cms&quot;</span>).<span class="ident">configure</span>(<span class="ident">add_cms_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/files&quot;</span>).<span class="ident">configure</span>(<span class="ident">_add_files_routes</span>))
-        .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/main-frontend&quot;</span>).<span class="ident">configure</span>(<span class="ident">add_main_frontend_routes</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>))
+        .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/main-frontend&quot;</span>).<span class="ident">configure</span>(<span class="ident">add_main_frontend_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/auth&quot;</span>).<span class="ident">configure</span>(<span class="ident">add_auth_routes</span>));
 }
 </code></pre></div>

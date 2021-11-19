@@ -167,5 +167,6 @@
   "number-of-students": "Number of students",
   "student-name": "Student name",
   "serial-number": "Serial number",
-  "score": "Score"
+  "score": "Score",
+  "data-to-post-to-iframe": "Data to post to the IFrame"
 }

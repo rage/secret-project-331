@@ -35,6 +35,7 @@
   "link-export-points": "Vie pisteet tiedostoon",
   "link-history": "Historia",
   "link-manage-emails": "Hallitse sähköposteja",
+  "link-view-points": "Näytä pisteet",
   "link-view-submissions": "Näytä palautukset",
   "loading-text": "Ladataan...",
   "logout": "Kirjaudu ulos",
@@ -122,5 +123,11 @@
   "label-url": "Osoite",
   "label-width": "Leveys",
   "label-example-name": "Esimerkin nimi",
-  "link-manage-change-requests": "Hallinnoi muutosehdotuksia"
+  "link-manage-change-requests": "Hallinnoi muutosehdotuksia",
+  "point-summary": "Pisteet",
+  "total-point-dashboard": "Kokonaispistemäärät",
+  "number-of-students": "Opiskelijoiden määrä",
+  "student-name": "Opiskelijan nimi",
+  "serial-number": "Sarjanumero",
+  "score": "Pisteet"
 }

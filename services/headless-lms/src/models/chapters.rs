@@ -16,7 +16,7 @@ use uuid::Uuid;
 
 use super::pages::PageWithExercises;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct DatabaseChapter {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -290,6 +290,35 @@ WHERE course_id = $1
   AND deleted_at IS NULL;
 "#,
         course_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(chapters)
+}
+
+pub async fn course_instance_chapters(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+) -> ModelResult<Vec<DatabaseChapter>> {
+    let chapters = sqlx::query_as!(
+        DatabaseChapter,
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  name,
+  course_id,
+  deleted_at,
+  chapter_image_path,
+  chapter_number,
+  front_page_id,
+  opens_at,
+  copied_from
+FROM chapters
+WHERE course_id = (SELECT course_id FROM course_instances WHERE id = $1)
+  AND deleted_at IS NULL;
+"#,
+        course_instance_id
     )
     .fetch_all(conn)
     .await?;

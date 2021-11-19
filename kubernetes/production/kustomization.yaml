@@ -1,2 +1,31 @@
+# The production environment is also used as a base for the test environment.
 resources:
-- ../base
+  - ../base
+
+patches:
+  # Patch to use --release param in cargo command
+  - path: headless-lms/patch-service-info-fetcher.yml
+    target:
+      version: v1
+      kind: Deployment
+      name: service-info-fetcher
+  - path: headless-lms/patch-regrader.yml
+    target:
+      version: v1
+      kind: Deployment
+      name: regrader
+
+# Patch image names
+images:
+  - name: course-material
+    newName: eu.gcr.io/moocfi-public/secret-project-course-material-production:latest
+  - name: quizzes
+    newName: eu.gcr.io/moocfi-public/secret-project-quizzes-production:latest
+  - name: example-exercise
+    newName: eu.gcr.io/moocfi-public/secret-project-example-exercise-production:latest
+  - name: main-frontend
+    newName: eu.gcr.io/moocfi-public/secret-project-main-frontend-production:latest
+  - name: cms
+    newName: eu.gcr.io/moocfi-public/secret-project-cms-production:latest
+  - name: headless-lms
+    newName: eu.gcr.io/moocfi-public/secret-project-headless-lms-production:latest

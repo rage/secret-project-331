@@ -35,20 +35,20 @@ Response:
 ```
 */
 #[instrument(skip(payload, request, pool, file_store, app_conf))]
-async fn add_media_for_course<T: FileStore>(
+async fn add_media_for_course(
     request_course_id: web::Path<Uuid>,
     payload: mp::Multipart,
     request: HttpRequest,
     pool: web::Data<PgPool>,
     user: AuthUser,
-    file_store: web::Data<T>,
+    file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<Json<UploadResult>> {
     let mut conn = pool.acquire().await?;
     let course = crate::models::courses::get_course(&mut conn, *request_course_id).await?;
 
     let media_path =
-        upload_media_for_course(request.headers(), payload, &course, file_store.as_ref()).await?;
+        upload_media_for_course(request.headers(), payload, &course, &file_store).await?;
     let download_url = file_store.get_download_url(media_path.as_path(), app_conf.as_ref());
 
     Ok(Json(UploadResult { url: download_url }))
@@ -61,9 +61,6 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
-pub fn _add_courses_routes<T: 'static + FileStore>(cfg: &mut ServiceConfig) {
-    cfg.route(
-        "/{course_id}/upload",
-        web::post().to(add_media_for_course::<T>),
-    );
+pub fn _add_courses_routes(cfg: &mut ServiceConfig) {
+    cfg.route("/{course_id}/upload", web::post().to(add_media_for_course));
 }

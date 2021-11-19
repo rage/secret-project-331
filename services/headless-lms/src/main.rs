@@ -7,8 +7,11 @@ use anyhow::Result;
 use chrono::Duration;
 use dotenv::dotenv;
 use headless_lms_actix::{
-    setup_tracing, utils::file_store::local_file_store::LocalFileStore, ApplicationConfiguration,
-    OAuthClient,
+    setup_tracing,
+    utils::file_store::{
+        google_cloud_file_store::GoogleCloudFileStore, local_file_store::LocalFileStore, FileStore,
+    },
+    ApplicationConfiguration, OAuthClient,
 };
 use listenfd::ListenFd;
 use oauth2::{basic::BasicClient, AuthUrl, ClientId, ClientSecret, TokenUrl};
@@ -64,14 +67,8 @@ async fn main() -> Result<()> {
             test_mode,
             development_uuid_login,
         };
-        let file_store = futures::executor::block_on(async {
-            LocalFileStore::new(
-                "uploads".into(),
-                "http://project-331.local/api/v0/files/uploads/".into(),
-            )
-            .await
-            .expect("Failed to initialize file store")
-        });
+        let file_store = setup_file_store();
+
         App::new()
             .configure(move |config| headless_lms_actix::configure(config, file_store, app_conf))
             .wrap(
@@ -103,4 +100,30 @@ async fn main() -> Result<()> {
     server.run().await?;
 
     Ok(())
+}
+
+/**
+Setups file store so that it can be passed to actix web as data.
+Using Arc here so that this can be accessed from all the different worker threads.
+*/
+fn setup_file_store() -> Arc<dyn FileStore> {
+    if env::var("FILE_STORE_USE_GOOGLE_CLOUD_STORAGE").is_ok() {
+        info!("Using Google Cloud Storage as the file store");
+        let bucket_name = env::var("GOOGLE_CLOUD_STORAGE_BUCKET_NAME").expect("env FILE_STORE_USE_GOOGLE_CLOUD_STORAGE was defined but GOOGLE_CLOUD_STORAGE_BUCKET_NAME was not.");
+        Arc::new(futures::executor::block_on(async {
+            GoogleCloudFileStore::new(bucket_name)
+                .await
+                .expect("Failed to initialize file store")
+        }))
+    } else {
+        Arc::new(futures::executor::block_on(async {
+            info!("Using local file storage as the file store");
+            LocalFileStore::new(
+                "uploads".into(),
+                "http://project-331.local/api/v0/files/uploads/".into(),
+            )
+            .await
+            .expect("Failed to initialize file store")
+        }))
+    }
 }

@@ -29,7 +29,7 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
-use crate::{models::ModelError, utils::file_store::FileStore};
+use crate::models::ModelError;
 
 use self::{
     auth::add_auth_routes, cms::add_cms_routes, course_material::add_course_material_routes,
@@ -177,10 +177,10 @@ pub struct UploadResult {
 }
 
 /// Add controllers from all the submodules.
-pub fn configure_controllers<T: 'static + FileStore>(cfg: &mut ServiceConfig) {
+pub fn configure_controllers(cfg: &mut ServiceConfig) {
     cfg.service(web::scope("/course-material").configure(add_course_material_routes))
-        .service(web::scope("/cms").configure(add_cms_routes::<T>))
+        .service(web::scope("/cms").configure(add_cms_routes))
         .service(web::scope("/files").configure(_add_files_routes))
-        .service(web::scope("/main-frontend").configure(add_main_frontend_routes::<T>))
+        .service(web::scope("/main-frontend").configure(add_main_frontend_routes))
         .service(web::scope("/auth").configure(add_auth_routes));
 }

@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{path::PathBuf, sync::Arc};
 
 use crate::{utils::file_store::FileStore, ApplicationConfiguration};
 
@@ -36,7 +36,7 @@ pub struct Organization {
 impl Organization {
     pub fn from_database_organization(
         organization: &DatabaseOrganization,
-        file_store: &impl FileStore,
+        file_store: &Arc<dyn FileStore>,
         app_conf: &ApplicationConfiguration,
     ) -> Self {
         let organization_image_url = organization.organization_image_path.as_ref().map(|image| {

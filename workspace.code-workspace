@@ -42,6 +42,8 @@
     "files.eol": "\n",
     "editor.formatOnSave": true,
     "editor.formatOnSaveMode": "file",
+    "editor.bracketPairColorization.enabled": true,
+    "editor.guides.bracketPairs": "active",
     "sqltools.highlightQuery": false,
     "[javascript]": {
       "editor.defaultFormatter": "dbaeumer.vscode-eslint"
@@ -81,7 +83,6 @@
     "humao.rest-client",
     "mtxr.sqltools",
     "usernamehw.errorlens",
-    "coenraads.bracket-pair-colorizer-2",
     "jebbs.plantuml",
     "wix.vscode-import-cost",
     "serayuzgur.crates"

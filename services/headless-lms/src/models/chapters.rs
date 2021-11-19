@@ -5,7 +5,7 @@ use crate::{
     models::pages::NewPage,
     utils::{document_schema_processor::GutenbergBlock, numbers::option_f32_to_f32_two_decimals},
 };
-use std::path::PathBuf;
+use std::{path::PathBuf, sync::Arc};
 
 use crate::{utils::file_store::FileStore, ApplicationConfiguration};
 use chrono::{DateTime, Utc};
@@ -49,7 +49,7 @@ pub struct Chapter {
 impl Chapter {
     pub fn from_database_chapter(
         chapter: &DatabaseChapter,
-        file_store: &impl FileStore,
+        file_store: &Arc<dyn FileStore>,
         app_conf: &ApplicationConfiguration,
     ) -> Self {
         let chapter_image_url = chapter.chapter_image_path.as_ref().map(|image| {

@@ -12,6 +12,8 @@ spec:
       app: regrader
   template:
     metadata:
+      annotations:
+        linkerd.io/inject: enabled
       labels:
         app: regrader
     spec:
@@ -23,6 +25,12 @@ spec:
             requests:
               memory: 200Mi
               cpu: 200m
+            limits:
+              memory: 500Mi
+              cpu: 500m
+          envFrom:
+            - secretRef:
+                name: headless-lms-secrets
       initContainers:
         - name: headless-lms-wait-for-db
           image: headless-lms
@@ -37,3 +45,9 @@ spec:
             requests:
               memory: 200Mi
               cpu: 200m
+            limits:
+              memory: 500Mi
+              cpu: 500m
+          envFrom:
+            - secretRef:
+                name: headless-lms-secrets

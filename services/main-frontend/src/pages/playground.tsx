@@ -1,7 +1,6 @@
 import { css } from "@emotion/css"
 import { Alert, Grow } from "@material-ui/core"
 import TextField from "@material-ui/core/TextField"
-import dynamic from "next/dynamic"
 import React, { ChangeEvent, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useMutation, useQuery } from "react-query"
@@ -16,15 +15,9 @@ import {
 import { PlaygroundExample } from "../shared-module/bindings"
 import Button from "../shared-module/components/Button"
 import MessageChannelIFrame from "../shared-module/components/MessageChannelIFrame"
-import Spinner from "../shared-module/components/Spinner"
+import { monospaceFont } from "../shared-module/styles"
 import { normalWidthCenteredComponentStyles } from "../shared-module/styles/componentStyles"
 import { defaultContainerWidth } from "../shared-module/styles/constants"
-
-const Editor = dynamic(() => import("@monaco-editor/react"), {
-  ssr: false,
-  // eslint-disable-next-line react/display-name
-  loading: () => <Spinner variant="medium" />,
-})
 
 const Home: React.FC = () => {
   const { t } = useTranslation()
@@ -255,27 +248,21 @@ const Home: React.FC = () => {
           `}
         />
         <br />
-        <Editor
-          defaultLanguage="json"
-          options={{
-            // eslint-disable-next-line i18next/no-literal-string
-            wordWrap: "on",
-            readOnly: false,
-            scrollBeyondLastLine: false,
-            roundedSelection: false,
-            formatOnType: true,
-            formatOnPaste: true,
-            tabSize: 2,
-          }}
-          value={exampleData}
-          onChange={(value) => value && handleDataChange(value)}
-          height="50vh"
-          className={css`
-            border: 1px solid black;
-            margin-bottom: 1rem;
-            width: 100%;
-          `}
-        />
+        <label>
+          {t("data-to-post-to-iframe")}
+          <textarea
+            rows={20}
+            spellCheck={false}
+            value={exampleData}
+            onChange={(e) => handleDataChange(e.target.value)}
+            className={css`
+              border: 1px solid black;
+              margin-bottom: 1rem;
+              width: 100%;
+              font-family: ${monospaceFont} !important;
+            `}
+          />
+        </label>
         {exampleUrl && exampleWidth && exampleData && exampleName && (
           <Button
             variant="primary"

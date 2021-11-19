@@ -10,6 +10,9 @@ spec:
     spec:
       activeDeadlineSeconds: 1800
       template:
+        metadata:
+          annotations:
+            linkerd.io/inject: enabled
         spec:
           restartPolicy: OnFailure
           containers:
@@ -24,3 +27,10 @@ spec:
               envFrom:
                 - secretRef:
                     name: headless-lms-secrets
+              resources:
+                requests:
+                  memory: 200Mi
+                  cpu: 200m
+                limits:
+                  memory: 500Mi
+                  cpu: 500m

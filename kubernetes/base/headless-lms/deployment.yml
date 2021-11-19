@@ -26,6 +26,8 @@ spec:
       app: headless-lms
   template:
     metadata:
+      annotations:
+        linkerd.io/inject: enabled
       labels:
         app: headless-lms
     spec:
@@ -39,6 +41,12 @@ spec:
             requests:
               memory: 200Mi
               cpu: 200m
+            limits:
+              memory: 500Mi
+              cpu: 500m
+          envFrom:
+            - secretRef:
+                name: headless-lms-secrets
       initContainers:
         - name: headless-lms-wait-for-db
           image: headless-lms
@@ -53,6 +61,12 @@ spec:
             requests:
               memory: 200Mi
               cpu: 200m
+            limits:
+              memory: 500Mi
+              cpu: 500m
+          envFrom:
+            - secretRef:
+                name: headless-lms-secrets
 ---
 # Migrations
 apiVersion: batch/v1
@@ -65,6 +79,8 @@ spec:
   backoffLimit: 10
   template:
     metadata:
+      annotations:
+        linkerd.io/inject: enabled
       labels:
         waitToBeReady: "false"
     spec:
@@ -82,8 +98,14 @@ spec:
               echo Running migrations
               cargo sqlx database setup
               echo Migrations complete
+          envFrom:
+            - secretRef:
+                name: headless-lms-secrets
           resources:
             requests:
               memory: 200Mi
               cpu: 200m
+            limits:
+              memory: 500Mi
+              cpu: 500m
       restartPolicy: Never

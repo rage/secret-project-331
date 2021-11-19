@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 
 use super::{course_instances::CourseInstance, ModelResult};
 use crate::{
@@ -461,7 +461,7 @@ pub async fn get_organization_id(conn: &mut PgConnection, id: Uuid) -> ModelResu
 pub async fn get_course_structure(
     conn: &mut PgConnection,
     course_id: Uuid,
-    file_store: &impl FileStore,
+    file_store: &Arc<dyn FileStore>,
     app_conf: &ApplicationConfiguration,
 ) -> ModelResult<CourseStructure> {
     let course = get_course(conn, course_id).await?;

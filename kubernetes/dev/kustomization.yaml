@@ -4,7 +4,13 @@ resources:
   - headless-lms/env.yml
   - headless-lms/persistent-file-storage.yml
 patches:
-  - path: headless-lms/patch-with-init-container.yml
+  # Remove cpu and memory resource without initContainer defined
+  - path: patch-without-init-container.yml
+    target:
+      version: v1
+      labelSelector: "deploymentType=without-init-container"
+  # Remove cpu and memory resource with initContainer defined
+  - path: patch-with-init-container.yml
     target:
       version: v1
       labelSelector: "deploymentType=with-init-container"

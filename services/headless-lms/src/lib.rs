@@ -63,7 +63,7 @@ pub fn configure(
                 .configure(controllers::configure_controllers),
         )
         // Not using Data::new for file_store to avoid double wrapping it in a arc
-        .app_data(file_store)
+        .app_data(Data::from(file_store))
         .app_data(Data::new(app_conf));
 }
 

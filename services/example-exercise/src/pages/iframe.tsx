@@ -3,20 +3,15 @@ import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Renderer } from "../components/Renderer"
+import { SubmissionResult } from "../shared-module/bindings"
 import { isSetStateMessage } from "../shared-module/iframe-protocol-types.guard"
-import { Alternative, ModelSolutionApi, PublicAlternative } from "../util/stateInterfaces"
-
-export interface SubmissionState {
-  public_spec: PublicAlternative[]
-  submission_data: string
-  model_solution_spec: ModelSolutionApi
-}
+import { Alternative, PublicAlternative } from "../util/stateInterfaces"
 
 const Iframe: React.FC = () => {
   const { t } = useTranslation()
 
   const [port, setPort] = useState<MessagePort | null>(null)
-  const [state, setState] = useState<SubmissionState | Alternative[] | PublicAlternative[] | null>(
+  const [state, setState] = useState<SubmissionResult | Alternative[] | PublicAlternative[] | null>(
     null,
   )
   const [viewType, setViewType] = useState<
@@ -46,13 +41,14 @@ const Iframe: React.FC = () => {
           console.log(data)
           if (isSetStateMessage(data)) {
             if (data.view_type === "exercise") {
-              setState(data.data.current_exercise_task.public_spec as PublicAlternative[])
+              setState((data.data as any).current_exercise_task.public_spec as PublicAlternative[])
               setViewType(data.view_type)
             } else if (data.view_type === "exercise-editor") {
               setState(data.data as Alternative[])
               setViewType(data.view_type)
             } else if (data.view_type === "view-submission") {
-              setState(data.data as SubmissionState)
+              console.log(data.data)
+              setState(data.data as SubmissionResult)
               setViewType(data.view_type)
             } else {
               // eslint-disable-next-line i18next/no-literal-string

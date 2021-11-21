@@ -8,9 +8,12 @@ interface CheckboxFieldExtraProps {
   error?: boolean
   checked: boolean
   name?: string
-  onBlur?: (name?: string) => void
+  /* onBlur?: (name?: string) => void */
   onChange: (checked: boolean, name?: string) => void
 }
+
+const ERRORCOLOR = "#F76D82"
+const DEFAULTCOLOR = "#787878"
 
 const Label = styled.label`
   font-family: system-ui, sans-serif;
@@ -28,7 +31,7 @@ const Label = styled.label`
     color: currentColor;
     width: 1.15em;
     height: 1.1em;
-    border: 2px solid ${({ error }: any) => (error ? "#F76D82" : "#787878")};
+    border: 2px solid ${({ error }: any) => (error ? ERRORCOLOR : DEFAULTCOLOR)};
     transform: translateY(-0.075em);
     display: grid;
     place-content: center;

@@ -20,12 +20,15 @@ interface InputProps {
   error: boolean
 }
 
+const ERRORCOLOR = "#F76D82"
+const DEFAULTCOLOR = "#dedede"
+
 const Input = styled.input`
   background: #fcfcfc;
   border-width: 1.6px;
   border-style: solid;
   border-radius: 3px;
-  border-color: ${({ error }) => (error ? "#F76D82" : "#dedede")};
+  border-color: ${({ error }) => (error ? ERRORCOLOR : DEFAULTCOLOR)};
   padding: 4px 12px;
   transition: ease-in-out, width 0.35s ease-in-out;
   outline: none;

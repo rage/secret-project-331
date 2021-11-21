@@ -7,7 +7,7 @@ interface RadioFieldExtraProps {
   label: string
   checked: true
   value?: string
-  /*   onBlur?: (name?:string) => void */
+  onBlur?: (name?: string) => void
   onChange: (value: string, name?: string) => void
 }
 
@@ -41,8 +41,7 @@ const label = css`
     border-radius: 50%;
     transform: scale(0);
     transition: 120ms transform ease-in-out;
-    /* box-shadow: inset 1em 1em var(--form-control-color); */
-    background-color: CanvasText;
+    background-color: #37bc9b;
   }
 
   input[type="radio"]:checked::before {

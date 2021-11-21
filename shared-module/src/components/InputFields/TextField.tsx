@@ -55,6 +55,10 @@ const error = css`
 
 const Wrapper = styled.div``
 
+// Error string might change in the future
+
+const ERROR = "Please check the secret box"
+
 export type TextFieldProps = React.HTMLAttributes<HTMLInputElement> & TextFieldExtraProps
 
 const TextField = ({ onChange, ...rest }: TextFieldExtraProps) => {
@@ -63,12 +67,16 @@ const TextField = ({ onChange, ...rest }: TextFieldExtraProps) => {
       <label>
         <span className={cx(label)}>{rest.label}</span>
         <Input
-          /* className={cx(input)} */
+          aria-describedby={`${rest.label}_error`}
           onChange={({ target: { value } }) => onChange(value)}
           {...rest}
         />
       </label>
-      {rest.error && <span className={cx(error)}>Please input a valid string</span>}
+      {rest.error && (
+        <span className={cx(error)} id={`${rest.label}_error`}>
+          {ERROR}
+        </span>
+      )}
     </Wrapper>
   )
 }

@@ -10,7 +10,6 @@ interface TextAreaExtraProps {
   value?: string
   disabled: boolean
   maxlength: string
-  /*   onBlur?: (name?:string) => void */
   onChange: (value: string, name?: string) => void
 }
 

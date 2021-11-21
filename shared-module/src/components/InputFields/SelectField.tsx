@@ -21,15 +21,13 @@ interface SelectMenuExtraProps {
   label: string
   error?: string
   value?: string
-  /*   onBlur?: (name?:string) => void */
+  /* onBlur?: (name?: string) => void */
   onChange: (value: string, name?: string) => void
 }
 
 const Wrapper = styled.div`
   select {
-    // A reset of styles, including removing the default dropdown arrow
     appearance: none;
-    // Additional resets for further consistency
     background-color: transparent;
     border: none;
     padding: 8px 10px;
@@ -39,8 +37,6 @@ const Wrapper = styled.div`
     font-size: inherit;
     cursor: inherit;
     line-height: inherit;
-
-    // Stack above custom arrow
     z-index: 1;
     outline: none;
   }
@@ -89,16 +85,18 @@ export type SelectMenuProps = React.HTMLAttributes<HTMLInputElement> & SelectMen
 const SelectMenu = ({ onChange, ...rest }: SelectMenuExtraProps) => {
   return (
     <Wrapper>
-      <label htmlFor={rest.name}>{rest.label}</label>
-      <div className="select">
-        <select onChange={({ target: { value } }) => onChange(value)} {...rest}>
-          {options.map((o) => (
-            <option value={o.value} key={o.label}>
-              {o.label}
-            </option>
-          ))}
-        </select>
-      </div>
+      <label htmlFor={rest.name}>
+        {rest.label}
+        <div className="select">
+          <select onChange={({ target: { value } }) => onChange(value)} {...rest}>
+            {options.map((o) => (
+              <option value={o.value} key={o.label}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      </label>
     </Wrapper>
   )
 }

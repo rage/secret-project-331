@@ -8,7 +8,7 @@ interface CheckboxFieldExtraProps {
   error?: boolean
   checked: boolean
   name?: string
-  /*   onBlur?: (name?:string) => void */
+  onBlur?: (name?: string) => void
   onChange: (checked: boolean, name?: string) => void
 }
 
@@ -37,9 +37,6 @@ const Label = styled.label`
   input[type="checkbox"]:hover {
     background: #f9f9f9;
   }
-  /*   input[type="checkbox"]:focus {
-    background: red;
-  } */
 
   input[type="checkbox"]:before {
     content: "";
@@ -48,7 +45,6 @@ const Label = styled.label`
     transform: scale(0);
     transition: 120ms transform ease-in-out;
     box-shadow: inset 1em 1em #fff;
-    /*  transform-origin: bottom left; */
     clip-path: polygon(28% 38%, 41% 53%, 75% 24%, 86% 38%, 40% 78%, 15% 50%);
   }
 
@@ -77,6 +73,10 @@ const error = css`
   margin-top: -15px;
 `
 
+// Error string might change in the future
+
+const ERROR = "Please check the secret box"
+
 export type CheckboxProps = React.HTMLAttributes<HTMLInputElement> & CheckboxFieldExtraProps
 
 const CheckBox = ({ onChange, ...rest }: CheckboxFieldExtraProps) => {
@@ -85,12 +85,17 @@ const CheckBox = ({ onChange, ...rest }: CheckboxFieldExtraProps) => {
       <Label {...rest}>
         <input
           type="checkbox"
+          aria-describedby={`${rest.label}_error`}
           onChange={({ target: { checked } }) => onChange(checked)}
           {...rest}
         />
         <span>{rest.label}</span>
       </Label>
-      {rest.error && <span className={cx(error)}>Please check the secret box</span>}
+      {rest.error && (
+        <span className={cx(error)} id={`${rest.label}_error`}>
+          {ERROR}
+        </span>
+      )}
     </>
   )
 }

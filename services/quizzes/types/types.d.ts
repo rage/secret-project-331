@@ -157,8 +157,6 @@ export interface NormalizedQuizItem {
   allAnswersCorrect: boolean
   direction: "row" | "column"
   feedbackDisplayPolicy: "DisplayFeedbackOnQuizItem" | "DisplayFeedbackOnAllOptions"
-  rows: number | null
-  columns: number | null
 }
 
 export interface QuizItemVariables {
@@ -177,11 +175,7 @@ export interface QuizItemVariables {
   validRegex: boolean
   validFormatRegex: boolean
   newOptions: string[]
-  rows: number
-  columns: number
-  matrixValidSize: number[]
-  validColumn: boolean
-  validRow: boolean
+  textValue: string
 }
 
 export interface PublicQuizItem {
@@ -210,6 +204,8 @@ export interface QuizItemOption {
   quizItemId?: string
   order: number
   correct: boolean
+  row?: number
+  column?: number
   createdAt: Date
   updatedAt: Date
   title: string
@@ -229,6 +225,8 @@ export interface NormalizedQuizItemOption {
   body: string | null
   successMessage: null | string
   failureMessage: null | string
+  row: number
+  column: number
 }
 
 export interface QuizItemOptionVariables {

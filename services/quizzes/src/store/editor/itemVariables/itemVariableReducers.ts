@@ -5,6 +5,7 @@ import { createReducer } from "typesafe-actions"
 import { action, QuizItemVariables } from "../../../../types/types"
 import {
   createdNewItem,
+  createdNewMatrixOption,
   createdNewOption,
   createdNewQuiz,
   deletedItem,
@@ -51,11 +52,7 @@ export const itemVariableReducers = createReducer<{ [itemId: string]: QuizItemVa
           validRegex: true,
           validFormatRegex: true,
           newOptions: [],
-          rows: item.rows ?? 0,
-          columns: item.minValue ?? 0,
-          matrixValidSize: [1, 10],
-          validColumn: true,
-          validRow: true,
+          textValue: "",
         }
       }
     })
@@ -159,11 +156,7 @@ export const itemVariableReducers = createReducer<{ [itemId: string]: QuizItemVa
         validFormatRegex: true,
         array: [],
         newOptions: [],
-        validColumn: true,
-        validRow: true,
-        rows: 0,
-        columns: 0,
-        matrixValidSize: [1, 10],
+        textValue: "",
       }
     })
   })
@@ -176,6 +169,12 @@ export const itemVariableReducers = createReducer<{ [itemId: string]: QuizItemVa
   })
 
   .handleAction(createdNewOption, (state, action) => {
+    return produce(state, (draftState) => {
+      draftState[action.payload.itemId].newOptions.push(action.payload.optionId)
+    })
+  })
+
+  .handleAction(createdNewMatrixOption, (state, action) => {
     return produce(state, (draftState) => {
       draftState[action.payload.itemId].newOptions.push(action.payload.optionId)
     })

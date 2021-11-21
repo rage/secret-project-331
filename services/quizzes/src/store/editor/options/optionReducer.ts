@@ -62,6 +62,8 @@ export const optionReducer = createReducer<
         order: 0,
         successMessage: "",
         failureMessage: "",
+        row: action.payload.row,
+        column: action.payload.column,
       }
     })
   })

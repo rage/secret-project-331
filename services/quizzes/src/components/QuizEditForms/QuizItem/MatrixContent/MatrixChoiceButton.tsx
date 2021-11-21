@@ -36,16 +36,18 @@ const DeleteOptionButton = styled(Button)`
   float: right;
 `
 
-const CorrectButton = styled(Button)`
+const SelectedCell = styled(Button)`
+  /*
   display: flex;
   border-width: 5px 5px 5px 5px !important;
   border-color: green !important;
   @media only screen and (max-width: 600px) {
     width: 100% !important;
   }
+  */
 `
 
-const IncorrectButton = styled(Button)`
+const UnSelectedCell = styled(Button)`
   display: flex;
   border-width: 5px 5px 5px 5px !important;
   border-color: red !important;
@@ -93,35 +95,35 @@ const MatrixButton: React.FC<MatrixButtonProps> = ({ option, index }) => {
       </StyledModal>
       {storeItem.allAnswersCorrect ? (
         <>
-          <CorrectButton
+          <SelectedCell
             aria-label={ariaLablel}
             onClick={() => dispatch(setOptionEditing(storeOption.id, true))}
             variant="outlined"
           >
             {storeOption.title}
-          </CorrectButton>
+          </SelectedCell>
         </>
       ) : (
         <>
-          {storeOption.correct ? (
+          {storeOption.title.length > 0 ? (
             <>
-              <CorrectButton
+              <SelectedCell
                 aria-label={ariaLablel}
                 onClick={() => dispatch(setOptionEditing(storeOption.id, true))}
                 variant="outlined"
               >
                 {storeOption.title}
-              </CorrectButton>
+              </SelectedCell>
             </>
           ) : (
             <>
-              <IncorrectButton
+              <UnSelectedCell
                 aria-label={ariaLablel}
                 onClick={() => dispatch(setOptionEditing(storeOption.id, true))}
                 variant="outlined"
               >
                 {storeOption.title}
-              </IncorrectButton>
+              </UnSelectedCell>
             </>
           )}
         </>

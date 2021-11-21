@@ -15,6 +15,7 @@ import MarkdownEditor from "../../../MarkdownEditor"
 
 import MatrixButton from "./MatrixChoiceButton"
 import MatrixModalContent from "./MatrixModalContent"
+import TableContent from "./TableContent"
 
 const QuizContent = styled.div`
   padding: 1rem;
@@ -117,6 +118,7 @@ const MatrixContent: React.FC<MatrixContentProps> = ({ item }) => {
         text={storeItem.title ?? ""}
       />
       <QuizContentLineContainer>
+        <TableContent item={item}> </TableContent>
         {storeItem.options.map((option, i) => (
           <QuizContent key={option}>
             <MatrixButton index={i + 1} option={storeOptions[option]} />

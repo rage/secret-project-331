@@ -1,4 +1,7 @@
+import { faPlus } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
+  Button,
   Checkbox,
   FormControl,
   FormControlLabel,
@@ -10,7 +13,6 @@ import {
   RadioGroup,
   Select,
   Switch,
-  TextField,
 } from "@material-ui/core"
 import React from "react"
 import { useTranslation } from "react-i18next"
@@ -18,16 +20,12 @@ import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
 import { NormalizedQuizItem } from "../../../../../types/types"
-import {
-  setMatrixColumnSize,
-  setMatrixRowSize,
-} from "../../../../store/editor/itemVariables/itemVariableActions"
+//import { createdNewOption } from "../../../../store/editor/editorActions"
+import { createdNewOption } from "../../../../store/editor/editorActions"
 import {
   editedItemDirection,
   editedItemFailureMessage,
   editedItemSuccessMessage,
-  editedMatrixColumnSize,
-  editedMatrixRowSize,
   editedQuizItemFeedbackDisplayPolicy,
   editedQuizItemTitle,
   editedSharedOptionsFeedbackMessage,
@@ -40,6 +38,7 @@ import MarkdownEditor from "../../../MarkdownEditor"
 import { ModalWrapper } from "../../../Shared/Modal"
 
 import MatrixButton from "./MatrixChoiceButton"
+import TableContent from "./TableContent"
 
 const ModalContent = styled.div`
   display: flex;
@@ -77,10 +76,6 @@ const Spacer = styled.div`
   margin: 5% 0;
 `
 
-const ValueFieldContainer = styled(TextField)`
-  margin-left: 0.5rem !important;
-`
-
 interface EditorModalProps {
   item: NormalizedQuizItem
 }
@@ -89,26 +84,7 @@ export const MatrixModalContent: React.FC<EditorModalProps> = ({ item }) => {
   const { t } = useTranslation()
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])
   const storeOptions = useTypedSelector((state) => state.editor.options)
-  const variables = useTypedSelector((state) => state.editor.itemVariables[item.id])
   const dispatch = useDispatch()
-
-  const handleColumnValueChange = (value: number) => {
-    if (value >= 0 && value < 11) {
-      dispatch(setMatrixColumnSize(storeItem.id, value, true))
-      dispatch(editedMatrixColumnSize(storeItem.id, value))
-    } else {
-      dispatch(setMatrixColumnSize(storeItem.id, value, false))
-    }
-  }
-
-  const handleRowValueChange = (value: number) => {
-    if (value >= 0 && value < 11) {
-      dispatch(setMatrixRowSize(storeItem.id, value, true))
-      dispatch(editedMatrixRowSize(storeItem.id, value))
-    } else {
-      dispatch(setMatrixRowSize(storeItem.id, value, false))
-    }
-  }
 
   return (
     <ModalWrapper>
@@ -185,39 +161,18 @@ export const MatrixModalContent: React.FC<EditorModalProps> = ({ item }) => {
           </FormGroup>
         </AllAnswersCorrectField>
       </ModalContent>
-      <ModalContentTitleWrapper>
-        <h4>{t("matrix-size")}</h4>
-      </ModalContentTitleWrapper>
-      <ModalContent>
-        <ValueFieldContainer
-          error={!variables.validMin}
-          helperText={!variables.validMin ? t("invalid-minimum-value") : ""}
-          type="number"
-          label={t("matrix-size-column")}
-          value={variables.columns ?? ""}
-          fullWidth
-          variant="outlined"
-          onChange={(event) => handleColumnValueChange(Number(event.target.value))}
-        />
-      </ModalContent>
-      <ModalContent>
-        <ValueFieldContainer
-          error={!variables.validMin}
-          helperText={!variables.validMin ? t("invalid-minimum-value") : ""}
-          type="number"
-          label={t("matrix-size-row")}
-          value={variables.rows ?? ""}
-          fullWidth
-          variant="outlined"
-          onChange={(event) => handleRowValueChange(Number(event.target.value))}
-        />
-      </ModalContent>
+      <TableContent item={item}> </TableContent>
       <ModalContentOptionWrapper>
         {storeItem.options.map((option, i) => (
           <ModalContent key={option}>
             <MatrixButton index={i + 1} option={storeOptions[option]} />
           </ModalContent>
         ))}
+        <ModalContent>
+          <Button title={t("add-option")} onClick={() => dispatch(createdNewOption(storeItem.id))}>
+            <FontAwesomeIcon icon={faPlus} size="2x" color="blue" />
+          </Button>
+        </ModalContent>
       </ModalContentOptionWrapper>
       <Spacer />
       {/* eslint-disable-next-line i18next/no-literal-string */}

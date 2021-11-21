@@ -20,7 +20,6 @@ const Matrix: React.FunctionComponent<QuizItemComponentProps> = ({
   quizItem,
   setQuizItemAnswerState,
 }) => {
-  // eslint-disable-next-line i18next/no-literal-string
   const direction = quizItem.direction || "row"
 
   const handleOptionSelect = (event: React.MouseEvent<HTMLButtonElement>) => {

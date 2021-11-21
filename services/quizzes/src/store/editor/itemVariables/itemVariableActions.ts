@@ -23,8 +23,18 @@ export const setScaleMin = createAction(
   }),
 )<{ itemId: string; newValue: number; valid: boolean }>()
 
-export const setMatrixColumnSize = createAction(
+export const setMatrixCellValue = createAction(
   "SET_SCALE_MIN",
+  (itemId: string, newValue: string, column: number, row: number) => ({
+    itemId: itemId,
+    newValue: newValue,
+    column: column,
+    row: row,
+  }),
+)<{ itemId: string; newValue: string; column: number; row: number }>()
+
+export const setMatrixColumnSize = createAction(
+  "SET_COLUMN_SIZE",
   (itemId: string, newValue: number, valid: boolean) => ({
     itemId: itemId,
     newValue: newValue,
@@ -33,13 +43,18 @@ export const setMatrixColumnSize = createAction(
 )<{ itemId: string; newValue: number; valid: boolean }>()
 
 export const setMatrixRowSize = createAction(
-  "SET_SCALE_MIN",
+  "SET_ROW_SIZE",
   (itemId: string, newValue: number, valid: boolean) => ({
     itemId: itemId,
     newValue: newValue,
     valid: valid,
   }),
 )<{ itemId: string; newValue: number; valid: boolean }>()
+
+export const setMatrix = createAction("SET_MATRIX", (itemId: string, newValue: string[][]) => ({
+  itemId: itemId,
+  newValue: newValue,
+}))<{ itemId: string; newValue: string[][] }>()
 
 // regex testing state
 export const toggleValidRegexTestingState = createAction(

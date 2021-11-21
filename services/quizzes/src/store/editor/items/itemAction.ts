@@ -148,6 +148,11 @@ export const editedMatrixRowSize = createAction(
   }),
 )<{ itemId: string; newSize: number }>()
 
+export const editedMatrix = createAction("EDITED_MATRIX", (itemId: string, matrix: string[][]) => ({
+  itemId,
+  matrix,
+}))<{ itemId: string; matrix: string[][] }>()
+
 export const editedQuizItemFeedbackDisplayPolicy = createAction(
   "EDITED_QUIZ_ITEM_FEEDBACK_POLICY",
   (itemId: string, newPolicy) => ({ itemId, newPolicy }),

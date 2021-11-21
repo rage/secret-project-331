@@ -6,6 +6,7 @@ import { action, NormalizedQuizItem, Quiz } from "../../../../types/types"
 import { normalizedQuiz } from "../../../schemas"
 import {
   createdNewItem,
+  createdNewMatrixOption,
   createdNewOption,
   createdNewQuiz,
   deletedItem,
@@ -21,8 +22,6 @@ import {
   editedItemMaxWords,
   editedItemMinWords,
   editedItemSuccessMessage,
-  editedMatrixColumnSize,
-  editedMatrixRowSize,
   editedQuizItemBody,
   editedQuizItemFeedbackDisplayPolicy,
   editedQuizItemTitle,
@@ -60,18 +59,6 @@ export const itemReducer = createReducer<{ [itemId: string]: NormalizedQuizItem 
   .handleAction(editedScaleMinValue, (state, action) => {
     return produce(state, (draftState) => {
       draftState[action.payload.itemId].minValue = action.payload.newValue
-    })
-  })
-
-  .handleAction(editedMatrixColumnSize, (state, action) => {
-    return produce(state, (draftState) => {
-      draftState[action.payload.itemId].minValue = action.payload.newSize
-    })
-  })
-
-  .handleAction(editedMatrixRowSize, (state, action) => {
-    return produce(state, (draftState) => {
-      draftState[action.payload.itemId].minValue = action.payload.newSize
     })
   })
 
@@ -162,8 +149,6 @@ export const itemReducer = createReducer<{ [itemId: string]: NormalizedQuizItem 
         allAnswersCorrect: false,
         direction: "row",
         feedbackDisplayPolicy: "DisplayFeedbackOnQuizItem",
-        columns: null,
-        rows: null,
       }
       draftState[action.payload.itemId] = newItem
     })
@@ -182,6 +167,12 @@ export const itemReducer = createReducer<{ [itemId: string]: NormalizedQuizItem 
   })
 
   .handleAction(createdNewOption, (state, action) => {
+    return produce(state, (draftState) => {
+      draftState[action.payload.itemId].options.push(action.payload.optionId)
+    })
+  })
+
+  .handleAction(createdNewMatrixOption, (state, action) => {
     return produce(state, (draftState) => {
       draftState[action.payload.itemId].options.push(action.payload.optionId)
     })

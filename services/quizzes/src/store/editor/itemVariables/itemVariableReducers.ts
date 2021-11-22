@@ -5,7 +5,6 @@ import { createReducer } from "typesafe-actions"
 import { action, QuizItemVariables } from "../../../../types/types"
 import {
   createdNewItem,
-  createdNewMatrixOption,
   createdNewOption,
   createdNewQuiz,
   deletedItem,
@@ -169,12 +168,6 @@ export const itemVariableReducers = createReducer<{ [itemId: string]: QuizItemVa
   })
 
   .handleAction(createdNewOption, (state, action) => {
-    return produce(state, (draftState) => {
-      draftState[action.payload.itemId].newOptions.push(action.payload.optionId)
-    })
-  })
-
-  .handleAction(createdNewMatrixOption, (state, action) => {
     return produce(state, (draftState) => {
       draftState[action.payload.itemId].newOptions.push(action.payload.optionId)
     })

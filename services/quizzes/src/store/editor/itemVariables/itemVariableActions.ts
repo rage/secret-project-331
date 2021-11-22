@@ -33,29 +33,6 @@ export const setMatrixCellValue = createAction(
   }),
 )<{ itemId: string; newValue: string; column: number; row: number }>()
 
-export const setMatrixColumnSize = createAction(
-  "SET_COLUMN_SIZE",
-  (itemId: string, newValue: number, valid: boolean) => ({
-    itemId: itemId,
-    newValue: newValue,
-    valid: valid,
-  }),
-)<{ itemId: string; newValue: number; valid: boolean }>()
-
-export const setMatrixRowSize = createAction(
-  "SET_ROW_SIZE",
-  (itemId: string, newValue: number, valid: boolean) => ({
-    itemId: itemId,
-    newValue: newValue,
-    valid: valid,
-  }),
-)<{ itemId: string; newValue: number; valid: boolean }>()
-
-export const setMatrix = createAction("SET_MATRIX", (itemId: string, newValue: string[][]) => ({
-  itemId: itemId,
-  newValue: newValue,
-}))<{ itemId: string; newValue: string[][] }>()
-
 // regex testing state
 export const toggleValidRegexTestingState = createAction(
   "SET_TESTING_REGEX",

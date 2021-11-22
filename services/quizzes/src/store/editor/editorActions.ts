@@ -33,16 +33,6 @@ export const createdNewOption = createAction(
   }),
 )<{ itemId: string; optionId: string; body: string; column: number; row: number }>()
 
-export const createdNewMatrixOption = createAction(
-  "CREATED_MATRIX_NEW_OPTION",
-  (itemId: string, column: number, row: number) => ({
-    itemId: itemId,
-    optionId: v4(),
-    row: row,
-    column: column,
-  }),
-)<{ itemId: string; optionId: string; column: number; row: number }>()
-
 export const deletedOption = createAction("DELETED_OPTION", (optionId: string, itemId: string) => ({
   optionId: optionId,
   itemId: itemId,

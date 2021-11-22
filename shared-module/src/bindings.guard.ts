@@ -405,6 +405,7 @@ export function isCourse(obj: any, _argumentName?: string): obj is Course {
     obj.created_at instanceof Date &&
     obj.updated_at instanceof Date &&
     typeof obj.name === "string" &&
+    (obj.description === null || typeof obj.description === "string") &&
     typeof obj.organization_id === "string" &&
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
     typeof obj.language_code === "string" &&

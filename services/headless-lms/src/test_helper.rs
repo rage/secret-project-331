@@ -115,7 +115,7 @@ pub async fn insert_data(conn: &mut PgConnection, exercise_type: &str) -> Result
     )
     .await?;
     let course =
-        models::courses::insert(&mut *conn, "", org, clg_id, &random_string, "en-US").await?;
+        models::courses::insert(&mut *conn, "", org, clg_id, &random_string, "en-US", "").await?;
     let instance = models::course_instances::insert(
         &mut *conn,
         NewCourseInstance {

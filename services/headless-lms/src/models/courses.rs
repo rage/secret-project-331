@@ -36,6 +36,7 @@ pub struct Course {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub name: String,
+    pub description: Option<String>,
     pub organization_id: Uuid,
     pub deleted_at: Option<DateTime<Utc>>,
     pub language_code: String,
@@ -58,11 +59,12 @@ pub async fn insert(
     course_language_group_id: Uuid,
     slug: &str,
     language_code: &str,
+    description: &str,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO courses (name, organization_id, slug, language_code, course_language_group_id)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO courses (name, organization_id, slug, language_code, course_language_group_id, description)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id
 ",
         name,
@@ -70,6 +72,7 @@ RETURNING id
         slug,
         language_code,
         course_language_group_id,
+        description
     )
     .fetch_one(conn)
     .await?;
@@ -90,7 +93,8 @@ SELECT id,
   content_search_language::text,
   language_code,
   copied_from,
-  course_language_group_id
+  course_language_group_id,
+  description
 FROM courses
 WHERE deleted_at IS NULL;
 "#
@@ -117,7 +121,8 @@ SELECT id,
   content_search_language::text,
   language_code,
   copied_from,
-  course_language_group_id
+  course_language_group_id,
+  description
 FROM courses
 WHERE course_language_group_id = $1;
         ",
@@ -147,7 +152,8 @@ SELECT
     c.content_search_language::text,
     c.language_code,
     c.copied_from,
-    c.course_language_group_id
+    c.course_language_group_id,
+    c.description
 FROM courses as c
     LEFT JOIN course_instances as ci on c.id = ci.course_id
 WHERE
@@ -245,7 +251,8 @@ RETURNING id,
   content_search_language::text,
   language_code,
   copied_from,
-  course_language_group_id;
+  course_language_group_id,
+  description;
     ",
         new_course.name,
         new_course.organization_id,
@@ -506,7 +513,8 @@ SELECT id,
   content_search_language::text,
   language_code,
   copied_from,
-  course_language_group_id
+  course_language_group_id,
+  description
 FROM courses
 WHERE id = $1;
     "#,
@@ -562,7 +570,8 @@ SELECT id,
   content_search_language::text,
   language_code,
   copied_from,
-  course_language_group_id
+  course_language_group_id,
+  description
 FROM courses
 WHERE organization_id = $1
   AND deleted_at IS NULL;
@@ -610,7 +619,8 @@ RETURNING id,
   content_search_language::text,
   language_code,
   copied_from,
-  course_language_group_id;
+  course_language_group_id,
+  description;
             "#,
         id,
         new_course.name,
@@ -691,7 +701,8 @@ RETURNING id,
   content_search_language::text,
   language_code,
   copied_from,
-  course_language_group_id
+  course_language_group_id,
+  description
     "#,
         course_update.name,
         course_id
@@ -718,7 +729,8 @@ RETURNING id,
   content_search_language::text,
   language_code,
   copied_from,
-  course_language_group_id
+  course_language_group_id,
+  description
     "#,
         course_id
     )
@@ -741,7 +753,8 @@ SELECT id,
   content_search_language::text,
   language_code,
   copied_from,
-  course_language_group_id
+  course_language_group_id,
+  description
 FROM courses
 WHERE slug = $1
   AND deleted_at IS NULL
@@ -800,6 +813,7 @@ mod test {
             course_language_group_id,
             "course",
             "en-US",
+            "",
         )
         .await;
         assert!(course_id.is_ok());
@@ -813,6 +827,7 @@ mod test {
             organization_id,
             course_language_group_id,
             "course",
+            "",
             "",
         )
         .await;
@@ -828,6 +843,7 @@ mod test {
             course_language_group_id,
             "course",
             "en-us",
+            "",
         )
         .await;
         assert!(course_id.is_err());
@@ -842,6 +858,7 @@ mod test {
             course_language_group_id,
             "course",
             "en_US",
+            "",
         )
         .await;
         assert!(course_id.is_err());

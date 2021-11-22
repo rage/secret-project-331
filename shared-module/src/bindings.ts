@@ -215,6 +215,7 @@ export interface Course {
   created_at: Date
   updated_at: Date
   name: string
+  description: string | null
   organization_id: string
   deleted_at: Date | null
   language_code: string

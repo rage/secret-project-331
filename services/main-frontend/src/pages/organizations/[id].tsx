@@ -32,6 +32,7 @@ interface OrganizationPageProps {
 }
 
 const PAGE_LIMIT = 5
+const NO_DESCRIPTION = "No description available"
 
 const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
   const {
@@ -135,7 +136,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
                 <CourseCard
                   key={course.id}
                   title={course.name}
-                  description={course.name}
+                  description={course.description ?? NO_DESCRIPTION}
                   languageCode={course.language_code}
                   onClick={() => {
                     // eslint-disable-next-line i18next/no-literal-string

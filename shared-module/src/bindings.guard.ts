@@ -360,7 +360,8 @@ export function isSubmissionResult(obj: any, _argumentName?: string): obj is Sub
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     (isSubmission(obj.submission) as boolean) &&
-    (isGrading(obj.grading) as boolean)
+    (isGrading(obj.grading) as boolean) &&
+    (isExerciseTask(obj.exercise_task) as boolean)
   )
 }
 

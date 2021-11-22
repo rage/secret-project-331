@@ -46,7 +46,13 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const postSubmissionMutation = useMutation(postSubmission, {
     retry: 3,
     onSuccess: (data) =>
-      dispatch({ type: "submissionGraded", payload: { view_type: "view-submission", data: data } }),
+      dispatch({
+        type: "submissionGraded",
+        payload: {
+          view_type: "view-submission",
+          data: data,
+        },
+      }),
   })
   const [answer, setAnswer] = useState<unknown>(null)
   const [answerValid, setAnswerValid] = useState(false)

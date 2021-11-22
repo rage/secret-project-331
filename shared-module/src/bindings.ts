@@ -183,6 +183,7 @@ export interface PageRoutingDataWithChapterStatus {
 export interface SubmissionResult {
   submission: Submission
   grading: Grading
+  exercise_task: ExerciseTask
 }
 
 export interface ExerciseService {

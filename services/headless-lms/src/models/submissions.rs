@@ -79,6 +79,7 @@ pub struct GradingResult {
 pub struct SubmissionResult {
     submission: Submission,
     grading: Grading,
+    exercise_task: ExerciseTask,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
@@ -306,10 +307,12 @@ pub async fn insert_submission(
     .await?;
     let updated_grading =
         grade_submission(conn, submission.clone(), exercise_task, exercise, grading).await?;
+    let exercise_task = get_exercise_task_by_id(conn, submission.exercise_task_id.clone()).await?;
 
     Ok(SubmissionResult {
         submission: updated_submission,
         grading: updated_grading,
+        exercise_task,
     })
 }
 

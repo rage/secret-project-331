@@ -44,6 +44,9 @@ export function isReadyMessage(obj: any, _argumentName?: string): obj is ReadyMe
 export function isSetStateMessage(obj: any, _argumentName?: string): obj is SetStateMessage {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    obj.message === "set-state"
+    obj.message === "set-state" &&
+    (obj.view_type === "exercise" ||
+      obj.view_type === "view-submission" ||
+      obj.view_type === "exercise-editor")
   )
 }

@@ -4,6 +4,7 @@ import {
   CourseInstance,
   CourseMaterialExercise,
   CoursePageWithUserData,
+  ExamEnrollment,
   NewFeedback,
   NewProposedPageEdits,
   NewSubmission,
@@ -214,4 +215,17 @@ export const postProposedEdits = async (
   newProposedEdits: NewProposedPageEdits,
 ): Promise<void> => {
   return (await courseMaterialClient.post(`/proposed-edits/${courseId}`, newProposedEdits)).data
+}
+
+export const fetchExamEnrollment = async (examId: string): Promise<ExamEnrollment | null> => {
+  const response = await courseMaterialClient.get(`/exams/${examId}/enrollment`)
+  return response.data
+}
+
+export const enrollInExam = async (examId: string): Promise<void> => {
+  await courseMaterialClient.post(`/exams/${examId}/enroll`, { responseType: "json" })
+}
+
+export const startExam = async (examId: string): Promise<void> => {
+  await courseMaterialClient.post(`/exams/${examId}/start`, { responseType: "json" })
 }

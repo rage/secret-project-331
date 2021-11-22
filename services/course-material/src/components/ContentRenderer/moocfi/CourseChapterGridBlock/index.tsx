@@ -14,6 +14,10 @@ const CourseChapterGridBlock: React.FC = () => {
     return <GenericLoading />
   }
 
+  if (pageContext.pageData.course_id === null) {
+    return <div>Error: Page is not associated with any course</div>
+  }
+
   return (
     <div
       className={css`

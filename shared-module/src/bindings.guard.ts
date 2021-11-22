@@ -20,6 +20,7 @@ import {
   CmsPageUpdate,
   ContentManagementPage,
   Course,
+  CourseExam,
   CourseInstance,
   CourseInstanceEnrollment,
   CourseInstanceForm,
@@ -34,6 +35,9 @@ import {
   EmailTemplateNew,
   EmailTemplateUpdate,
   ErrorResponse,
+  Exam,
+  ExamCourseInfo,
+  ExamEnrollment,
   Exercise,
   ExerciseService,
   ExerciseServiceInfoApi,
@@ -288,6 +292,36 @@ export function isEmailTemplateUpdate(
     (obj.exercise_completions_threshold === null ||
       typeof obj.exercise_completions_threshold === "number") &&
     (obj.points_threshold === null || typeof obj.points_threshold === "number")
+  )
+}
+
+export function isCourseExam(obj: any, _argumentName?: string): obj is CourseExam {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.course_id === "string" &&
+    typeof obj.course_name === "string" &&
+    typeof obj.name === "string"
+  )
+}
+
+export function isExam(obj: any, _argumentName?: string): obj is Exam {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.name === "string" &&
+    typeof obj.page_id === "string" &&
+    Array.isArray(obj.courses) &&
+    obj.courses.every((e: any) => isCourse(e) as boolean)
+  )
+}
+
+export function isExamEnrollment(obj: any, _argumentName?: string): obj is ExamEnrollment {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.user_id === "string" &&
+    typeof obj.exam_id === "string" &&
+    (obj.started_at === null || obj.started_at instanceof Date)
   )
 }
 
@@ -970,6 +1004,13 @@ export function isUserCourseInstanceProgress(
     (obj.score_maximum === null || typeof obj.score_maximum === "number") &&
     (obj.total_exercises === null || typeof obj.total_exercises === "number") &&
     (obj.completed_exercises === null || typeof obj.completed_exercises === "number")
+  )
+}
+
+export function isExamCourseInfo(obj: any, _argumentName?: string): obj is ExamCourseInfo {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.course_id === "string"
   )
 }
 

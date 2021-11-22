@@ -148,6 +148,26 @@ export interface EmailTemplateUpdate {
   points_threshold: number | null
 }
 
+export interface CourseExam {
+  id: string
+  course_id: string
+  course_name: string
+  name: string
+}
+
+export interface Exam {
+  id: string
+  name: string
+  page_id: string
+  courses: Array<Course>
+}
+
+export interface ExamEnrollment {
+  user_id: string
+  exam_id: string
+  started_at: Date | null
+}
+
 export interface CourseMaterialExerciseServiceInfo {
   exercise_iframe_url: string
 }
@@ -593,6 +613,10 @@ export interface UserCourseInstanceProgress {
   score_maximum: number | null
   total_exercises: number | null
   completed_exercises: number | null
+}
+
+export interface ExamCourseInfo {
+  course_id: string
 }
 
 export interface Login {

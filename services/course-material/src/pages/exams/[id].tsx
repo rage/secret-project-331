@@ -9,7 +9,12 @@ import CoursePageContext, {
 } from "../../contexts/CoursePageContext"
 import useQueryParameter from "../../hooks/useQueryParameter"
 import coursePageStateReducer from "../../reducers/coursePageStateReducer"
-import { fetchPageByExamId } from "../../services/backend"
+import {
+  enrollInExam,
+  fetchExamEnrollment,
+  fetchPageByExamId,
+  startExam,
+} from "../../services/backend"
 import dontRenderUntilQueryParametersReady from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
@@ -17,6 +22,8 @@ const Exam: React.FC = () => {
   const id = useQueryParameter("id")
 
   const [pageState, pageStateDispatch] = useReducer(coursePageStateReducer, defaultCoursePageState)
+
+  const examEnrollment = useQuery(`exam-enrollment-${id}`, () => fetchExamEnrollment(id))
 
   const { error, data, isLoading, refetch } = useQuery(`exam-page-${id}`, () =>
     fetchPageByExamId(id),
@@ -33,6 +40,26 @@ const Exam: React.FC = () => {
   if (isLoading || !data) {
     return <div>Loading...</div>
   }
+
+  if (examEnrollment.isError) {
+    return <div>Error!</div>
+  }
+
+  if (examEnrollment.data === undefined) {
+    return <div>Loading...</div>
+  }
+
+  const enrollment = examEnrollment.data
+
+  if (enrollment === null) {
+    return <button onClick={() => enrollInExam(id)}>Enroll</button>
+  }
+
+  if (enrollment.started_at === null) {
+    return <button onClick={() => startExam(id)}>Start</button>
+  }
+
+  return <div>{enrollment.started_at.toISOString()}</div>
 
   return (
     <CoursePageDispatch.Provider value={pageStateDispatch}>

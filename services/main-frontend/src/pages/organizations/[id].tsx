@@ -12,6 +12,7 @@ import { postNewCourse } from "../../services/backend/courses"
 import { fetchOrganizationExams } from "../../services/backend/exams"
 import { fetchOrganization, fetchOrganizationCourses } from "../../services/backend/organizations"
 import { NewCourse } from "../../shared-module/bindings"
+import { isErrorResponse } from "../../shared-module/bindings.guard"
 import Button from "../../shared-module/components/Button"
 import DebugModal from "../../shared-module/components/DebugModal"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
@@ -54,6 +55,10 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
 
   if (exams.isError) {
     return <pre>{JSON.stringify(exams.error, undefined, 2)}</pre>
+  }
+
+  if (isErrorResponse(exams.data)) {
+    return <div>error</div>
   }
 
   if (
@@ -143,7 +148,8 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
         <h1>Organization exams</h1>
         {exams.data.map((e) => (
           <div key={e.id}>
-            <a href={`/courses/exams/${e.id}`}>{e.name}</a> for {e.course_name}
+            <a href={`/courses/exams/${e.id}`}>{e.name}</a> for {e.course_name}{" "}
+            <a href={`/manage/exams/${e.id}`}>Manage</a>
           </div>
         ))}
         <DebugModal data={dataOrgCourses} />

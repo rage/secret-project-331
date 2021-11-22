@@ -10,15 +10,20 @@ import UHNoBG from "../../shared-module/img/uh_without_background.svg"
 import { frontendWideWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 import basePath from "../../shared-module/utils/base-path"
+import ErrorThing from "../ErrorThing"
 
 const OrganizationsList: React.FC = () => {
   const { t } = useTranslation()
-  const { isLoading, error, data } = useQuery(`organizations`, () => fetchOrganizations(), {
-    cacheTime: 60000,
-  })
+  const { isLoading, isError, error, data } = useQuery(
+    `organizations`,
+    () => fetchOrganizations(),
+    {
+      cacheTime: 60000,
+    },
+  )
 
-  if (error) {
-    return <div>{t("error-loading-organizations")}</div>
+  if (isError) {
+    return <ErrorThing error={error} />
   }
 
   if (isLoading || !data) {

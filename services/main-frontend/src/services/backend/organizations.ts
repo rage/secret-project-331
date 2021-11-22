@@ -1,9 +1,12 @@
 import { Course, Organization } from "../../shared-module/bindings"
+import { isOrganization } from "../../shared-module/bindings.guard"
 import { validateFile } from "../../shared-module/utils/files"
+import { isArray, validateResponse } from "../../utils/fetching"
 import { mainFrontendClient } from "../mainFrontendClient"
 
 export const fetchOrganizations = async (): Promise<Array<Organization>> => {
-  const data = (await mainFrontendClient.get("/organizations", { responseType: "json" })).data
+  const response = await mainFrontendClient.get("/organizations", { responseType: "json" })
+  const data = validateResponse(response, isArray(isOrganization))
   return data
 }
 

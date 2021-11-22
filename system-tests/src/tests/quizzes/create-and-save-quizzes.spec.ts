@@ -17,7 +17,7 @@ test.describe("quizzes tests", () => {
       page.waitForNavigation(),
       await page.click("text=University of Helsinki, Department of Computer Science"),
     ])
-    expectPath(page, "/organizations/[id]")
+    expectPath(page, "/org/uh-cs")
 
     // Click text=Add course
     await page.click(`button:text("Create")`)
@@ -279,7 +279,7 @@ test.describe("quizzes tests", () => {
       await page.click("text=University of Helsinki, Department of Computer Science"),
     ])
 
-    expectPath(page, "/organizations/[id]")
+    expectPath(page, "/org/uh-cs")
 
     // Click text=Add course
     await page.click(`button:text("Create")`)

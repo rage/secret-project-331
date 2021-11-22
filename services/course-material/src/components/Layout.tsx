@@ -11,7 +11,7 @@ import basePath from "../shared-module/utils/base-path"
 import ScrollIndicator from "./ScrollIndicator"
 import SearchDialog from "./SearchDialog"
 
-type LayoutProps = {
+interface LayoutProps {
   children: ReactNode
   frontPageUrl?: string
   navVariant?: "simple" | "complex"
@@ -19,6 +19,8 @@ type LayoutProps = {
   title?: string
   licenseUrl?: string
   returnToPath?: string
+  courseSlug: string
+  organizationSlug: string
 }
 
 const Layout: React.FC<LayoutProps> = ({
@@ -29,6 +31,8 @@ const Layout: React.FC<LayoutProps> = ({
   faqUrl,
   licenseUrl,
   returnToPath,
+  courseSlug,
+  organizationSlug,
 }) => {
   const router = useRouter()
   // eslint-disable-next-line i18next/no-literal-string
@@ -63,7 +67,13 @@ const Layout: React.FC<LayoutProps> = ({
             // Return to path can be override per page
             returnToPath={returnToPath ?? returnPath}
           >
-            {courseId && <SearchDialog courseId={courseId} />}
+            {courseId && (
+              <SearchDialog
+                courseId={courseId}
+                courseSlug={courseSlug}
+                organizationSlug={organizationSlug}
+              />
+            )}
           </Navbar>
         </div>
         {/* Do not touch flex */}

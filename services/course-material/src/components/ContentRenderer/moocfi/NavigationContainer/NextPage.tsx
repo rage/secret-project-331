@@ -1,5 +1,4 @@
 import { differenceInSeconds, formatDuration } from "date-fns"
-import { useRouter } from "next/router"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
@@ -7,22 +6,27 @@ import { useQuery } from "react-query"
 import useTime from "../../../../hooks/useTime"
 import { getNextPageRoutingData } from "../../../../services/backend"
 import NextSectionLink from "../../../../shared-module/components/NextSectionLink"
+import { courseFrontPageRoute, coursePageRoute } from "../../../../utils/routing"
 import GenericLoading from "../../../GenericLoading"
 
 export interface NextPageProps {
   chapterId: string | null
   currentPageId: string
+  courseSlug: string
+  organizationSlug: string
 }
 
-const NextPage: React.FC<NextPageProps> = ({ chapterId, currentPageId }) => {
+const NextPage: React.FC<NextPageProps> = ({
+  chapterId,
+  currentPageId,
+  organizationSlug,
+  courseSlug,
+}) => {
   const { t, i18n } = useTranslation()
   const now = useTime()
   const { isLoading, error, data } = useQuery(`pages-${currentPageId}-next-page`, () =>
     getNextPageRoutingData(currentPageId),
   )
-  const router = useRouter()
-
-  const courseSlug = router.query.courseSlug
 
   if (error) {
     return <pre>{JSON.stringify(error, undefined, 2)}</pre>
@@ -39,10 +43,11 @@ const NextPage: React.FC<NextPageProps> = ({ chapterId, currentPageId }) => {
         title={t("title-congratulations")}
         subtitle={t("reached-end-of-course-material")}
         nextTitle={t("action-back-to-front-page")}
-        url={"/courses/" + courseSlug}
+        url={courseFrontPageRoute(organizationSlug, courseSlug)}
       />
     )
   }
+  const nextPageUrl = coursePageRoute(organizationSlug, courseSlug, data.url_path)
   // Chapter front page NextSectionLink
   if (data.chapter_front_page_id === currentPageId) {
     return (
@@ -50,7 +55,7 @@ const NextPage: React.FC<NextPageProps> = ({ chapterId, currentPageId }) => {
         title={t("start-studying")}
         subtitle={t("proceed-to-the-first-topic")}
         nextTitle={data.title}
-        url={"/courses/" + courseSlug + data.url_path}
+        url={nextPageUrl}
       />
     )
   }
@@ -62,7 +67,7 @@ const NextPage: React.FC<NextPageProps> = ({ chapterId, currentPageId }) => {
           title={t("impressive-reached-end-of-chapter")}
           subtitle={t("proceed-to-the-next-chapter")}
           nextTitle={data.title}
-          url={"/courses/" + courseSlug + data.url_path}
+          url={nextPageUrl}
         />
       )
     } else {
@@ -72,7 +77,7 @@ const NextPage: React.FC<NextPageProps> = ({ chapterId, currentPageId }) => {
           title={t("reached-end-of-topic")}
           subtitle={t("proceed-to-next-topic")}
           nextTitle={data.title}
-          url={"/courses/" + courseSlug + data.url_path}
+          url={nextPageUrl}
         />
       )
     }

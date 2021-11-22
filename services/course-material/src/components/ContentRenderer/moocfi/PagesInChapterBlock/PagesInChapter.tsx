@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import { useRouter } from "next/router"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
@@ -7,11 +6,21 @@ import { useQuery } from "react-query"
 import { fetchChaptersPagesExcludeFrontpage } from "../../../../services/backend"
 import PagesInChapterBox from "../../../../shared-module/components/PagesInChapterBox"
 import { courseMaterialCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import { coursePageRoute } from "../../../../utils/routing"
 import GenericLoading from "../../../GenericLoading"
 
-const PagesInChapter: React.FC<{ chapterId: string }> = ({ chapterId }) => {
+export interface PagesInChapterProps {
+  chapterId: string
+  organizationSlug: string
+  courseSlug: string
+}
+
+const PagesInChapter: React.FC<PagesInChapterProps> = ({
+  chapterId,
+  courseSlug,
+  organizationSlug,
+}) => {
   const { t } = useTranslation()
-  const courseSlug = useRouter().query.courseSlug
   const { isLoading, error, data } = useQuery(
     `chapter-${chapterId}-pages-excluding-frontpage`,
     () => fetchChaptersPagesExcludeFrontpage(chapterId),
@@ -51,7 +60,7 @@ const PagesInChapter: React.FC<{ chapterId: string }> = ({ chapterId }) => {
                 selected={false}
                 key={page.id}
                 id={page.id}
-                url={"/courses/" + courseSlug + page.url_path}
+                url={coursePageRoute(organizationSlug, courseSlug, page.url_path)}
               />
             ))}
           </div>

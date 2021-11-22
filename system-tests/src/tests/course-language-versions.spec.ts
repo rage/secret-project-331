@@ -15,9 +15,7 @@ test("test", async ({ page, headless }) => {
     page.waitForNavigation(),
     page.click("text=University of Helsinki, Department of Computer Science"),
   ])
-  expect(page.url()).toBe(
-    "http://project-331.local/organizations/8bb12295-53ac-4099-9644-ac0ff5e34d92",
-  )
+  expect(page.url()).toBe("http://project-331.local/org/uh-cs")
 
   // Click text=Introduction to localizing Manage >> :nth-match(a, 2)
   await Promise.all([
@@ -57,13 +55,11 @@ test("test", async ({ page, headless }) => {
     page.waitForNavigation(),
     page.click("text=University of Helsinki, Department of Computer Science"),
   ])
-  expect(page.url()).toBe(
-    "http://project-331.local/organizations/8bb12295-53ac-4099-9644-ac0ff5e34d92",
-  )
+  expect(page.url()).toBe("http://project-331.local/org/uh-cs")
 
   // Click text=Johdatus lokalisointiin
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/johdatus-lokalisointiin' }*/),
+    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/johdatus-lokalisointiin' }*/),
     page.click("text=Johdatus lokalisointiin"),
   ])
 
@@ -72,18 +68,18 @@ test("test", async ({ page, headless }) => {
 
   // Click #content a >> :nth-match(div:has-text("CHAPTER 1The Basics"), 3)
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/johdatus-lokalisointiin/chapter-1' }*/),
+    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/johdatus-lokalisointiin/chapter-1' }*/),
     page.click('#content a >> :nth-match(div:has-text("CHAPTER 1The Basics"), 3)'),
   ])
 
   // Click text=1Page One
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/johdatus-lokalisointiin/chapter-1/page-1' }*/),
+    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/johdatus-lokalisointiin/chapter-1/page-1' }*/),
     page.click("text=1Page One"),
   ])
 
-  // Go to http://project-331.local/courses/introduction-to-localizing/chapter-1/page-1
-  await page.goto("http://project-331.local/courses/introduction-to-localizing/chapter-1")
+  // Go to http://project-331.local/org/uh-cs/courses/introduction-to-localizing/chapter-1/page-1
+  await page.goto("http://project-331.local/org/uh-cs/courses/introduction-to-localizing/chapter-1")
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: true, // not for new screenshots
@@ -97,5 +93,5 @@ test("test", async ({ page, headless }) => {
 
   // Click text=Johdatus lokalisointiin
   await page.click("text=Johdatus lokalisointiin")
-  expect(page.url()).toBe("http://project-331.local/courses/johdatus-lokalisointiin")
+  expect(page.url()).toBe("http://project-331.local/org/uh-cs/courses/johdatus-lokalisointiin")
 })

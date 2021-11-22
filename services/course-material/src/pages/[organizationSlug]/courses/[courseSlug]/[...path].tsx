@@ -1,22 +1,30 @@
 import React, { useCallback, useEffect, useReducer } from "react"
 import { useQuery } from "react-query"
 
-import Layout from "../../components/Layout"
-import Page from "../../components/Page"
-import PageNotFound from "../../components/PageNotFound"
+import Layout from "../../../../components/Layout"
+import Page from "../../../../components/Page"
+import PageNotFound from "../../../../components/PageNotFound"
 import CoursePageContext, {
   CoursePageDispatch,
   defaultCoursePageState,
-} from "../../contexts/CoursePageContext"
-import useQueryParameter from "../../hooks/useQueryParameter"
-import coursePageStateReducer from "../../reducers/coursePageStateReducer"
-import { fetchCoursePageByPath } from "../../services/backend"
-import dontRenderUntilQueryParametersReady from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
-import { tryToScrollToSelector } from "../../utils/dom"
+} from "../../../../contexts/CoursePageContext"
+import useQueryParameter from "../../../../hooks/useQueryParameter"
+import coursePageStateReducer from "../../../../reducers/coursePageStateReducer"
+import { fetchCoursePageByPath } from "../../../../services/backend"
+import dontRenderUntilQueryParametersReady, {
+  SimplifiedUrlQuery,
+} from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+import { tryToScrollToSelector } from "../../../../utils/dom"
+import { courseFaqPageRoute, courseFrontPageRoute } from "../../../../utils/routing"
 
-const PagePage: React.FC = () => {
-  const courseSlug = useQueryParameter("courseSlug")
+interface PagePageProps {
+  // "organizationSlug" | "courseSlug" | "path"
+  query: SimplifiedUrlQuery<string>
+}
+
+const PagePage: React.FC<PagePageProps> = ({ query }) => {
+  const courseSlug = query.courseSlug
   const path = `/${useQueryParameter("path")}`
 
   const [pageState, pageStateDispatch] = useReducer(coursePageStateReducer, defaultCoursePageState)
@@ -69,7 +77,9 @@ const PagePage: React.FC = () => {
   if (error) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((error as any)?.response?.status === 404) {
-      return <PageNotFound path={path} courseId={courseSlug} />
+      return (
+        <PageNotFound path={path} courseId={courseSlug} organizationSlug={query.organizationSlug} />
+      )
     }
     return <pre>{JSON.stringify(error, undefined, 2)}</pre>
   }
@@ -79,13 +89,13 @@ const PagePage: React.FC = () => {
       <CoursePageContext.Provider value={pageState}>
         <Layout
           //  Not a good idea, but works for now.
-          // eslint-disable-next-line i18next/no-literal-string
-          faqUrl={"/courses/" + courseSlug + "/faq"}
-          // eslint-disable-next-line i18next/no-literal-string
-          frontPageUrl={"/courses/" + courseSlug}
+          faqUrl={courseFaqPageRoute(query.organizationSlug, courseSlug)}
+          frontPageUrl={courseFrontPageRoute(query.organizationSlug, courseSlug)}
           title={data?.page.title}
+          organizationSlug={query.organizationSlug}
+          courseSlug={courseSlug}
         >
-          <Page onRefresh={handleRefresh} />
+          <Page onRefresh={handleRefresh} organizationSlug={query.organizationSlug} />
         </Layout>
       </CoursePageContext.Provider>
     </CoursePageDispatch.Provider>

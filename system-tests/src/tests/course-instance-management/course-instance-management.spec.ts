@@ -15,9 +15,7 @@ test("test", async ({ page, headless }) => {
     page.waitForNavigation(),
     page.click("text=University of Helsinki, Department of Computer Science"),
   ])
-  await expect(page).toHaveURL(
-    "http://project-331.local/organizations/8bb12295-53ac-4099-9644-ac0ff5e34d92",
-  )
+  await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   // Click text=Advanced course instance management Manage >> :nth-match(a, 2)
 

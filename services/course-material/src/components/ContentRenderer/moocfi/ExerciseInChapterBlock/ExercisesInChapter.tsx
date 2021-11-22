@@ -3,8 +3,8 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
-import useQueryParameter from "../../../../hooks/useQueryParameter"
 import { fetchChaptersPagesWithExercises } from "../../../../services/backend"
+import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
 import dontRenderUntilQueryParametersReady from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import GenericLoading from "../../../GenericLoading"
 
@@ -19,12 +19,17 @@ const ExercisesInChapter: React.FC<{ chapterId: string; courseInstanceId: string
     fetchChaptersPagesWithExercises(chapterId),
   )
   const courseSlug = useQueryParameter("courseSlug")
+  const organizationSlug = useQueryParameter("organizationSlug")
 
   if (error) {
     return <pre>{JSON.stringify(error, undefined, 2)}</pre>
   }
 
   if (isLoading || !data) {
+    return <GenericLoading />
+  }
+
+  if (!courseSlug || !organizationSlug) {
     return <GenericLoading />
   }
 
@@ -51,6 +56,7 @@ const ExercisesInChapter: React.FC<{ chapterId: string; courseInstanceId: string
             courseSlug={courseSlug}
             courseInstanceId={courseInstanceId}
             chapterId={chapterId}
+            organizationSlug={organizationSlug}
           />
         </div>
       ))}

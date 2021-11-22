@@ -5,6 +5,7 @@ import { useQuery } from "react-query"
 import { fetchPageUrl } from "../../../../services/backend"
 import { ChapterWithStatus } from "../../../../shared-module/bindings"
 import Card from "../../../../shared-module/components/Card"
+import { coursePageRoute } from "../../../../utils/routing"
 import GenericLoading from "../../../GenericLoading"
 
 interface ChapterProps {
@@ -12,15 +13,22 @@ interface ChapterProps {
   chapter: ChapterWithStatus
   courseSlug: string
   bg: string
+  organizationSlug: string
 }
 
-const ChapterGridCard: React.FC<ChapterProps> = ({ now, chapter, courseSlug, bg }) => {
+const ChapterGridCard: React.FC<ChapterProps> = ({
+  now,
+  chapter,
+  courseSlug,
+  bg,
+  organizationSlug,
+}) => {
   const { i18n } = useTranslation()
   const { data, error, isLoading } = useQuery(`chapter-grid-chapter-${chapter.id}`, () => {
     if (chapter.front_page_id) {
       return fetchPageUrl(chapter.front_page_id)
     } else {
-      return `chapter-${chapter.chapter_number}`
+      return `/chapter-${chapter.chapter_number}`
     }
   })
 
@@ -39,7 +47,7 @@ const ChapterGridCard: React.FC<ChapterProps> = ({ now, chapter, courseSlug, bg 
         title={chapter.name}
         chapterNumber={chapter.chapter_number}
         key={chapter.id}
-        url={`/courses/${courseSlug}${data}`}
+        url={coursePageRoute(organizationSlug, courseSlug, data)}
         bg={bg}
       />
     )

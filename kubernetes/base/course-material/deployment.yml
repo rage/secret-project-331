@@ -39,7 +39,7 @@ spec:
               name: http
           env:
             - name: NEXT_PUBLIC_BASE_PATH
-              value: "/courses"
+              value: "/org"
           resources:
             requests:
               memory: 200Mi

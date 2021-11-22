@@ -74,7 +74,7 @@ test.describe("Login return_to", async () => {
       page.waitForNavigation(),
       page.click("text=University of Helsinki, Department of Computer Science"),
     ])
-    expect(page.url().startsWith("http://project-331.local/organizations/")).toBe(true)
+    expect(page.url().startsWith("http://project-331.local/org/")).toBe(true)
     // Click text=Login
     await page.click("id=main-navigation-menu")
     await Promise.all([page.waitForNavigation(), page.click("text=Log in")])
@@ -93,6 +93,6 @@ test.describe("Login return_to", async () => {
       page.waitForNavigation(/*{ url: 'http://project-331.local/organizations/f242f19e-6d6f-43d5-9186-d0424864146e' }*/),
       page.click("text=Submit"),
     ])
-    expect(page.url().startsWith("http://project-331.local/organizations/")).toBe(true)
+    expect(page.url().startsWith("http://project-331.local/org/")).toBe(true)
   })
 })

@@ -5,19 +5,22 @@ import { fetchUserCourseInstanceChapterExercisesProgress } from "../../../../ser
 import { PageWithExercises } from "../../../../shared-module/bindings"
 import ExerciseBox from "../../../../shared-module/components/ExerciseList/ExerciseBox"
 import PageBox from "../../../../shared-module/components/ExerciseList/PageBox"
+import { coursePageSectionRoute } from "../../../../utils/routing"
 
 export interface ChapterExerciseListGroupedByPageProps {
-  page: PageWithExercises
-  courseSlug: string
-  courseInstanceId: string
   chapterId: string
+  courseInstanceId: string
+  courseSlug: string
+  organizationSlug: string
+  page: PageWithExercises
 }
 
 const ChapterExerciseListGroupedByPage: React.FC<ChapterExerciseListGroupedByPageProps> = ({
-  page,
-  courseSlug,
-  courseInstanceId,
   chapterId,
+  courseInstanceId,
+  courseSlug,
+  organizationSlug,
+  page,
 }) => {
   const { t } = useTranslation()
   const { isLoading, error, data } = useQuery(
@@ -53,7 +56,7 @@ const ChapterExerciseListGroupedByPage: React.FC<ChapterExerciseListGroupedByPag
             {page.exercises.map((e) => (
               <div key={e.id}>
                 <ExerciseBox
-                  url={`/${courseSlug}${page.url_path}#${e.id}`}
+                  url={coursePageSectionRoute(organizationSlug, courseSlug, page.url_path, e.id)}
                   exerciseIndex={e.order_number}
                   exerciseTitle={e.name}
                   scoreMaximum={e.score_maximum}

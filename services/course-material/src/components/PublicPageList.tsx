@@ -4,14 +4,16 @@ import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import { fetchAllCoursePages } from "../services/backend"
+import { coursePageRoute } from "../utils/routing"
 
 import GenericLoading from "./GenericLoading"
 
 interface PublicPageListProps {
   courseId: string
+  organizationSlug: string
 }
 
-const PublicPageList: React.FC<PublicPageListProps> = ({ courseId }) => {
+const PublicPageList: React.FC<PublicPageListProps> = ({ courseId, organizationSlug }) => {
   const { t } = useTranslation()
   const { isLoading, error, data } = useQuery(`course-${courseId}-all-pages`, () =>
     fetchAllCoursePages(courseId),
@@ -33,16 +35,9 @@ const PublicPageList: React.FC<PublicPageListProps> = ({ courseId }) => {
     <>
       <p>{t("heres-a-list-of-all-public-pages-for-this-course")}</p>
       {data.map((page) => {
-        let urlWithoutSlash = page.url_path
-        if (urlWithoutSlash.indexOf("/") === 0) {
-          urlWithoutSlash = urlWithoutSlash.substring(1, urlWithoutSlash.length)
-        }
         return (
           <Link
-            href={{
-              pathname: "/courses/[courseId]/[...path]",
-              query: { courseId, path: urlWithoutSlash },
-            }}
+            href={coursePageRoute(organizationSlug, courseId, page.url_path)}
             key={page.id}
             passHref
           >

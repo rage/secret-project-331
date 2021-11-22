@@ -3,6 +3,8 @@
   "files.eol": "\n",
   "editor.formatOnSave": true,
   "editor.formatOnSaveMode": "file",
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": "active",
   "sqltools.highlightQuery": false,
   "[javascript]": {
     "editor.defaultFormatter": "dbaeumer.vscode-eslint"

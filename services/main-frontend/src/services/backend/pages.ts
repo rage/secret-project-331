@@ -1,5 +1,5 @@
-import { HistoryRestoreData, NewPage, Page, PageHistory } from "../../../shared-module/bindings"
-import { mainFrontendClient } from "../../mainFrontendClient"
+import { HistoryRestoreData, NewPage, Page, PageHistory } from "../../shared-module/bindings"
+import { mainFrontendClient } from "../mainFrontendClient"
 
 export const postNewPage = async (data: NewPage): Promise<Page> => {
   const response = await mainFrontendClient.post("/pages", data, {

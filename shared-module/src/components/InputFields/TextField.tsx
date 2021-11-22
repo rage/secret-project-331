@@ -16,10 +16,6 @@ interface TextFieldExtraProps {
   onChange: (value: string, name?: string) => void
 }
 
-interface InputProps {
-  error: boolean
-}
-
 const ERRORCOLOR = "#F76D82"
 const DEFAULTCOLOR = "#dedede"
 
@@ -76,7 +72,7 @@ const TextField = ({ onChange, ...rest }: TextFieldExtraProps) => {
         />
       </label>
       {rest.error && (
-        <span className={cx(error)} id={`${rest.label}_error`}>
+        <span className={cx(error)} id={`${rest.label}_error`} role="alert">
           {ERROR}
         </span>
       )}

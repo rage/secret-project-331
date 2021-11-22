@@ -2,7 +2,6 @@ import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
-import { headingFont, primaryFont } from "../../styles"
 interface CheckboxFieldExtraProps {
   label: string
   error?: boolean
@@ -95,7 +94,7 @@ const CheckBox = ({ onChange, ...rest }: CheckboxFieldExtraProps) => {
         <span>{rest.label}</span>
       </Label>
       {rest.error && (
-        <span className={cx(error)} id={`${rest.label}_error`}>
+        <span className={cx(error)} id={`${rest.label}_error`} role="alert">
           {ERROR}
         </span>
       )}

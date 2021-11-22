@@ -1,8 +1,6 @@
 import { css, cx } from "@emotion/css"
-import styled from "@emotion/styled"
 import React from "react"
 
-import { headingFont, primaryFont } from "../../styles"
 interface RadioFieldExtraProps {
   label: string
   checked: true

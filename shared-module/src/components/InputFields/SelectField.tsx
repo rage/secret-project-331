@@ -21,7 +21,7 @@ interface SelectMenuExtraProps {
   label: string
   error?: string
   value?: string
-  /* onBlur?: (name?: string) => void */
+  onBlur: (name?: any) => void
   onChange: (value: string, name?: string) => void
 }
 
@@ -82,13 +82,17 @@ const Wrapper = styled.div`
 
 export type SelectMenuProps = React.HTMLAttributes<HTMLInputElement> & SelectMenuExtraProps
 
-const SelectMenu = ({ onChange, ...rest }: SelectMenuExtraProps) => {
+const SelectMenu = ({ onChange, onBlur, ...rest }: SelectMenuExtraProps) => {
   return (
     <Wrapper>
       <label htmlFor={rest.name}>
         {rest.label}
         <div className="select">
-          <select onChange={({ target: { value } }) => onChange(value)} {...rest}>
+          <select
+            onChange={({ target: { value } }) => onChange(value)}
+            onBlur={(event) => onBlur(event)}
+            {...rest}
+          >
             {options.map((o) => (
               <option value={o.value} key={o.label}>
                 {o.label}

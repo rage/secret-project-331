@@ -204,8 +204,8 @@ export interface QuizItemOption {
   quizItemId?: string
   order: number
   correct: boolean
-  row?: number
-  column?: number
+  row: number | null
+  column: number | null
   createdAt: Date
   updatedAt: Date
   title: string
@@ -225,8 +225,8 @@ export interface NormalizedQuizItemOption {
   body: string | null
   successMessage: null | string
   failureMessage: null | string
-  row: number
-  column: number
+  row: number | null
+  column: number | null
 }
 
 export interface QuizItemOptionVariables {

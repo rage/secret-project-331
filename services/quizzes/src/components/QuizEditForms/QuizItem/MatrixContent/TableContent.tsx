@@ -38,6 +38,9 @@ const TableContent: React.FC<TableContentProps> = ({ item }) => {
   }
 
   function compareRow(a: NormalizedQuizItemOption, b: NormalizedQuizItemOption) {
+    if (a.row === null || b.row === null) {
+      return 0
+    }
     if (a.row < b.row) {
       return -1
     }
@@ -48,6 +51,12 @@ const TableContent: React.FC<TableContentProps> = ({ item }) => {
   }
 
   function compareColumn(a: NormalizedQuizItemOption, b: NormalizedQuizItemOption) {
+    if (a.column === null || b.column === null) {
+      return 0
+    }
+    if (a.row === null || b.row === null) {
+      return 0
+    }
     if (a.column < b.column && a.row < b.row) {
       return -1
     }

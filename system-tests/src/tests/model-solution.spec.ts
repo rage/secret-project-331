@@ -46,6 +46,16 @@ test.describe("Model solutions", () => {
       snapshotName: "model-solutions-in-submissions",
       waitForThisToBeVisibleAndStable: stableElement,
       toMatchSnapshotOptions: { threshold: 0.4 },
+      beforeScreenshot: async () => {
+        await page.evaluate(() => {
+          const divs = document.querySelectorAll("div")
+          for (const div of divs) {
+            if (div.children.length === 0 && div.textContent.includes("Submitted at")) {
+              div.innerHTML = "Submitted at yyyy-mm-dd by xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+            }
+          }
+        })
+      },
     })
   })
 

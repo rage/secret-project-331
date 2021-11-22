@@ -10,10 +10,10 @@ use actix_web::web::ServiceConfig;
 use actix_web::web::{self, Json};
 use sqlx::PgPool;
 
-async fn get_organization_by_slug<T: FileStore>(
+async fn get_organization_by_slug(
     pool: web::Data<PgPool>,
     request_organization_slug: web::Path<String>,
-    file_store: web::Data<T>,
+    file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<Json<Organization>> {
     let mut conn = pool.acquire().await?;
@@ -23,7 +23,7 @@ async fn get_organization_by_slug<T: FileStore>(
     )
     .await?;
     let organization =
-        Organization::from_database_organization(&db_organization, file_store.as_ref(), &app_conf);
+        Organization::from_database_organization(&db_organization, &file_store, &app_conf);
     Ok(Json(organization))
 }
 
@@ -48,10 +48,10 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
-pub fn _add_org_routes<T: 'static + FileStore>(cfg: &mut ServiceConfig) {
+pub fn _add_org_routes(cfg: &mut ServiceConfig) {
     cfg.route(
         "/{organization_slug}",
-        web::get().to(get_organization_by_slug::<T>),
+        web::get().to(get_organization_by_slug),
     )
     .route(
         "/{organization_slug}/courses",

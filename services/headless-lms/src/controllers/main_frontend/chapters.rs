@@ -48,11 +48,11 @@ Response:
 ```
 */
 #[instrument(skip(pool, file_store, app_conf))]
-async fn post_new_chapter<T: FileStore>(
+async fn post_new_chapter(
     pool: web::Data<PgPool>,
     payload: web::Json<NewChapter>,
     user: AuthUser,
-    file_store: web::Data<T>,
+    file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<Json<Chapter>> {
     let mut conn = pool.acquire().await?;
@@ -68,7 +68,7 @@ async fn post_new_chapter<T: FileStore>(
         crate::models::chapters::insert_chapter(&mut conn, new_chapter, user.id).await?;
     Ok(Json(Chapter::from_database_chapter(
         &database_chapter,
-        file_store.as_ref(),
+        &file_store,
         app_conf.as_ref(),
     )))
 }
@@ -92,11 +92,11 @@ DELETE `/api/v0/main-frontend/chapters/:chapter_id` - Delete a course part.
 ```
 */
 #[instrument(skip(pool, file_store, app_conf))]
-async fn delete_chapter<T: FileStore>(
+async fn delete_chapter(
     request_chapter_id: web::Path<String>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-    file_store: web::Data<T>,
+    file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<Json<Chapter>> {
     let mut conn = pool.acquire().await?;
@@ -111,7 +111,7 @@ async fn delete_chapter<T: FileStore>(
     let deleted_chapter = crate::models::chapters::delete_chapter(&mut conn, course_id).await?;
     Ok(Json(Chapter::from_database_chapter(
         &deleted_chapter,
-        file_store.as_ref(),
+        &file_store,
         app_conf.as_ref(),
     )))
 }
@@ -150,12 +150,12 @@ Response:
 ```
 */
 #[instrument(skip(payload, pool, file_store, app_conf))]
-async fn update_chapter<T: FileStore>(
+async fn update_chapter(
     payload: web::Json<ChapterUpdate>,
     request_chapter_id: web::Path<String>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-    file_store: web::Data<T>,
+    file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<Json<Chapter>> {
     let mut conn = pool.acquire().await?;
@@ -172,7 +172,7 @@ async fn update_chapter<T: FileStore>(
     let chapter =
         crate::models::chapters::update_chapter(&mut conn, chapter_id, course_update).await?;
 
-    let response = Chapter::from_database_chapter(&chapter, file_store.as_ref(), app_conf.as_ref());
+    let response = Chapter::from_database_chapter(&chapter, &file_store, app_conf.as_ref());
 
     Ok(Json(response))
 }
@@ -206,13 +206,13 @@ Response:
 ```
 */
 #[instrument(skip(request, payload, pool, file_store, app_conf))]
-async fn set_chapter_image<T: FileStore>(
+async fn set_chapter_image(
     request: HttpRequest,
     payload: mp::Multipart,
     request_chapter_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-    file_store: web::Data<T>,
+    file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<Json<Chapter>> {
     let mut conn = pool.acquire().await?;
@@ -224,12 +224,12 @@ async fn set_chapter_image<T: FileStore>(
         Resource::Course(chapter.course_id),
     )
     .await?;
+
     let course = crate::models::courses::get_course(&mut conn, chapter.course_id).await?;
-    let chapter_image =
-        upload_media_for_course(request.headers(), payload, &course, file_store.as_ref())
-            .await?
-            .to_string_lossy()
-            .to_string();
+    let chapter_image = upload_media_for_course(request.headers(), payload, &course, &file_store)
+        .await?
+        .to_string_lossy()
+        .to_string();
     let updated_chapter = crate::models::chapters::update_chapter_image_path(
         &mut conn,
         chapter.id,
@@ -247,8 +247,7 @@ async fn set_chapter_image<T: FileStore>(
         })?;
     }
 
-    let response =
-        Chapter::from_database_chapter(&updated_chapter, file_store.as_ref(), app_conf.as_ref());
+    let response = Chapter::from_database_chapter(&updated_chapter, &file_store, app_conf.as_ref());
 
     Ok(Json(response))
 }
@@ -264,11 +263,11 @@ DELETE /api/v0/main-frontend/chapters/d332f3d9-39a5-4a18-80f4-251727693c37/image
 ```
 */
 #[instrument(skip(pool, file_store))]
-async fn remove_chapter_image<T: FileStore>(
+async fn remove_chapter_image(
     request_chapter_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-    file_store: web::Data<T>,
+    file_store: web::Data<dyn FileStore>,
 ) -> ControllerResult<Json<()>> {
     let mut conn = pool.acquire().await?;
     let chapter = crate::models::chapters::get_chapter(&mut conn, *request_chapter_id).await?;
@@ -299,13 +298,13 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
-pub fn _add_chapters_routes<T: 'static + FileStore>(cfg: &mut ServiceConfig) {
-    cfg.route("", web::post().to(post_new_chapter::<T>))
-        .route("/{chapter_id}", web::delete().to(delete_chapter::<T>))
-        .route("/{chapter_id}", web::put().to(update_chapter::<T>))
-        .route("/{chapter_id}/image", web::put().to(set_chapter_image::<T>))
+pub fn _add_chapters_routes(cfg: &mut ServiceConfig) {
+    cfg.route("", web::post().to(post_new_chapter))
+        .route("/{chapter_id}", web::delete().to(delete_chapter))
+        .route("/{chapter_id}", web::put().to(update_chapter))
+        .route("/{chapter_id}/image", web::put().to(set_chapter_image))
         .route(
             "/{chapter_id}/image",
-            web::delete().to(remove_chapter_image::<T>),
+            web::delete().to(remove_chapter_image),
         );
 }

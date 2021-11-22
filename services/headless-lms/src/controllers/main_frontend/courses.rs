@@ -259,11 +259,11 @@ GET `/api/v0/main-frontend/courses/:course_id/structure` - Returns the structure
 ```
 */
 #[instrument(skip(pool, file_store, app_conf))]
-async fn get_course_structure<T: FileStore>(
+async fn get_course_structure(
     request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-    file_store: web::Data<T>,
+    file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<Json<CourseStructure>> {
     let mut conn = pool.acquire().await?;
@@ -277,7 +277,7 @@ async fn get_course_structure<T: FileStore>(
     let course_structure = crate::models::courses::get_course_structure(
         &mut conn,
         *request_course_id,
-        file_store.as_ref(),
+        &file_store,
         app_conf.as_ref(),
     )
     .await?;
@@ -307,13 +307,13 @@ Response:
 ```
 */
 #[instrument(skip(payload, request, pool, file_store, app_conf))]
-async fn add_media_for_course<T: FileStore>(
+async fn add_media_for_course(
     request_course_id: web::Path<Uuid>,
     payload: mp::Multipart,
     request: HttpRequest,
     pool: web::Data<PgPool>,
     user: AuthUser,
-    file_store: web::Data<T>,
+    file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<Json<UploadResult>> {
     let mut conn = pool.acquire().await?;
@@ -326,7 +326,7 @@ async fn add_media_for_course<T: FileStore>(
     )
     .await?;
     let media_path =
-        upload_media_for_course(request.headers(), payload, &course, file_store.as_ref()).await?;
+        upload_media_for_course(request.headers(), payload, &course, &file_store).await?;
     let download_url = file_store.get_download_url(media_path.as_path(), app_conf.as_ref());
 
     Ok(Json(UploadResult { url: download_url }))
@@ -707,7 +707,7 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
-pub fn _add_courses_routes<T: 'static + FileStore>(cfg: &mut ServiceConfig) {
+pub fn _add_courses_routes(cfg: &mut ServiceConfig) {
     cfg.route("/{course_id}", web::get().to(get_course))
         .route("", web::post().to(post_new_course))
         .route("/{course_id}", web::put().to(update_course))
@@ -719,7 +719,7 @@ pub fn _add_courses_routes<T: 'static + FileStore>(cfg: &mut ServiceConfig) {
         .route("/{course_id}/exercises", web::get().to(get_all_exercises))
         .route(
             "/{course_id}/structure",
-            web::get().to(get_course_structure::<T>),
+            web::get().to(get_course_structure),
         )
         .route(
             "/{course_id}/language-versions",
@@ -729,10 +729,7 @@ pub fn _add_courses_routes<T: 'static + FileStore>(cfg: &mut ServiceConfig) {
             "/{course_id}/language-versions",
             web::post().to(post_new_course_language_version),
         )
-        .route(
-            "/{course_id}/upload",
-            web::post().to(add_media_for_course::<T>),
-        )
+        .route("/{course_id}/upload", web::post().to(add_media_for_course))
         .route(
             "/{course_id}/weekday-hour-submission-counts",
             web::get().to(get_weekday_hour_submission_counts),

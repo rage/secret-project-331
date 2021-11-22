@@ -88,6 +88,9 @@ test("test", async ({ page, headless }) => {
 
   // Click text=Save
   await page.click("text=Save")
+  // TODO: wait for page saved notification
+  await page.waitForSelector(`button:enabled:text("Save")`)
+  await page.waitForTimeout(100)
 
   // Triple click [placeholder="Exercise name"]
   await page.click('[placeholder="Exercise name"]', {
@@ -99,6 +102,9 @@ test("test", async ({ page, headless }) => {
 
   // Click text=Save
   await page.click("text=Save")
+  // TODO: wait for page saved notification
+  await page.waitForSelector(`button:enabled:text("Save")`)
+  await page.waitForTimeout(100)
 
   // Click [aria-label="Block: ExerciseTask"] div[role="button"]
   await page.click('[aria-label="Block: ExerciseTask"] div[role="button"]')
@@ -122,6 +128,7 @@ test("test", async ({ page, headless }) => {
 
   // Click text=Save
   await page.click("text=Save")
+  await page.waitForSelector(`button:enabled:text("Save")`)
   await page.waitForTimeout(100)
 
   // Click text=Home

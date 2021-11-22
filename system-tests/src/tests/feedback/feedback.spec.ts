@@ -21,9 +21,7 @@ test("test", async ({ headless, page }) => {
     page.waitForNavigation(),
     await page.click("text=University of Helsinki, Department of Computer Science"),
   ])
-  expect(page.url()).toBe(
-    "http://project-331.local/organizations/8bb12295-53ac-4099-9644-ac0ff5e34d92",
-  )
+  expect(page.url()).toBe("http://project-331.local/org/uh-cs")
 
   await Promise.all([page.waitForNavigation(), page.click("text=Introduction to feedback")])
 
@@ -33,11 +31,13 @@ test("test", async ({ headless, page }) => {
   await page.click('button:has-text("Continue")')
 
   await Promise.all([page.waitForNavigation(), await page.click("text=The Basics")])
-  expect(page.url()).toBe("http://project-331.local/courses/introduction-to-feedback/chapter-1")
+  expect(page.url()).toBe(
+    "http://project-331.local/org/uh-cs/courses/introduction-to-feedback/chapter-1",
+  )
 
   await Promise.all([page.waitForNavigation(), await page.click("text=Page One")])
   expect(page.url()).toBe(
-    "http://project-331.local/courses/introduction-to-feedback/chapter-1/page-1",
+    "http://project-331.local/org/uh-cs/courses/introduction-to-feedback/chapter-1/page-1",
   )
 
   // page has a frame that pushes all the content down after loafing, so let's wait for it to load first
@@ -96,7 +96,7 @@ test("test", async ({ headless, page }) => {
     page.waitForNavigation(),
     await page.click("text=University of Helsinki, Department of Computer Science"),
   ])
-  expectPath(page, "/organizations/[id]")
+  expectPath(page, "/org/uh-cs")
 
   // Click text=Introduction to feedback Manage >> :nth-match(a, 2)
   await Promise.all([

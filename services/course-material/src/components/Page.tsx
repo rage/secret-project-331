@@ -16,9 +16,10 @@ import UserOnWrongCourseNotification from "./notifications/UserOnWrongCourseNoti
 
 interface Props {
   onRefresh: () => void
+  organizationSlug: string
 }
 
-const Page: React.FC<Props> = ({ onRefresh }) => {
+const Page: React.FC<Props> = ({ onRefresh, organizationSlug }) => {
   // block id -> new block contents
   const [edits, setEdits] = useState<Map<string, NewProposedBlockEdit>>(new Map())
   const pageContext = useContext(CoursePageContext)
@@ -36,6 +37,7 @@ const Page: React.FC<Props> = ({ onRefresh }) => {
         pageContext.settings.current_course_instance_id !== pageContext.instance?.id && (
           <UserOnWrongCourseNotification
             correctCourseId={pageContext.settings?.current_course_id}
+            organizationSlug={organizationSlug}
           />
         )}
       <div

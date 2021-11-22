@@ -2,7 +2,7 @@
 import { css, injectGlobal } from "@emotion/css"
 
 import {
-  BaseButtonStyles,
+  BASE_BUTTON_STYLES,
   PrimaryButtonStyles,
   SecondaryButtonStyles,
   TertiaryButtonStyles,
@@ -12,7 +12,7 @@ import {
 const localCss = css`
   .wp-block-button__link {
     border-radius: 0;
-    ${BaseButtonStyles}
+    ${BASE_BUTTON_STYLES}
   }
   .is-style-material-primary-button .wp-block-button__link {
     ${PrimaryButtonStyles({ variant: "primary", size: "large" })}

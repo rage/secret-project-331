@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import styled from "@emotion/styled"
 import React from "react"
 
@@ -13,7 +12,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 // BaseButtonStyles is the primary button
-export const BaseButtonStyles = `
+export const BASE_BUTTON_STYLES = `
   position: relative;
   display: inline-block;
   padding: ${theme.buttonSizes["large"].padding};
@@ -68,76 +67,85 @@ export const BaseButtonStyles = `
   }
 `
 
-export const PrimaryButtonStyles = (props: ButtonProps) => `
-  text-transform: ${props.transform === "normal" ? "capitalize" : "uppercase"};
-  padding: ${theme.buttonSizes[props.size].padding};
-`
+export const PrimaryButtonStyles = (props: ButtonProps) => {
+  const PRIMARY_BUTTON_STYLES = `
+    text-transform: ${props.transform === "normal" ? "capitalize" : "uppercase"};
+    padding: ${theme.buttonSizes[props.size].padding};
+  `
+  return PRIMARY_BUTTON_STYLES
+}
 
-export const SecondaryButtonStyles = (props: ButtonProps) => `
-  text-transform: ${props.transform === "normal" ? "capitalize" : "uppercase"};
-  padding: ${theme.buttonSizes[props.size].padding};
+export const SecondaryButtonStyles = (props: ButtonProps) => {
+  const SECONDARY_BUTTON_STYLES = `
+    text-transform: ${props.transform === "normal" ? "capitalize" : "uppercase"};
+    padding: ${theme.buttonSizes[props.size].padding};
 
-  color: ${theme.secondary.text};
-  background: ${theme.secondary.bg};
-  border-color: ${theme.secondary.hoverBorder};
-  border: 1.5px solid ${theme.secondary.text};
-
-  &:hover,
-  &:focus {
-    color: ${theme.secondary.hoverText};
-    box-shadow: 0 0 0 1px ${theme.secondary.text};
+    color: ${theme.secondary.text};
+    background: ${theme.secondary.bg};
+    border-color: ${theme.secondary.hoverBorder};
     border: 1.5px solid ${theme.secondary.text};
-  }
 
-  &:active {
-    color: ${theme.secondary.hoverText};
-    background-color: ${theme.secondary.hoverBg};
-  }
+    &:hover,
+    &:focus {
+      color: ${theme.secondary.hoverText};
+      box-shadow: 0 0 0 1px ${theme.secondary.text};
+      border: 1.5px solid ${theme.secondary.text};
+    }
 
-  &:disabled {
-    color: ${baseTheme.colors.neutral[600]};
-    background-color: ${baseTheme.colors.neutral[500]};
-    border-color: ${baseTheme.colors.neutral[500]};
-  }
-`
+    &:active {
+      color: ${theme.secondary.hoverText};
+      background-color: ${theme.secondary.hoverBg};
+    }
 
-export const TertiaryButtonStyles = (props: ButtonProps) => `
-  text-transform: ${props.transform === "normal" ? "capitalize" : "uppercase"};
-  padding: ${theme.buttonSizes[props.size].padding};
+    &:disabled {
+      color: ${baseTheme.colors.neutral[600]};
+      background-color: ${baseTheme.colors.neutral[500]};
+      border-color: ${baseTheme.colors.neutral[500]};
+    }
+  `
+  return SECONDARY_BUTTON_STYLES
+}
 
-  color: ${theme.tertiary.text};
-  background-color: ${baseTheme.colors.grey[800]};
-  border: unset;
+export const TertiaryButtonStyles = (props: ButtonProps) => {
+  const TERTIARY_BUTTON_STYLES = `
+    text-transform: ${props.transform === "normal" ? "capitalize" : "uppercase"};
+    padding: ${theme.buttonSizes[props.size].padding};
 
-  &:hover {
-    color: ${baseTheme.colors.grey[800]};
-    background-color: ${baseTheme.colors.neutral[100]};
-  }
+    color: ${theme.tertiary.text};
+    background-color: ${theme.tertiary.bg};
+    border: unset;
 
-  &:active {
-    color: ${baseTheme.colors.grey[800]};
-    background-color: ${baseTheme.colors.neutral[100]};
-  }
+    &:hover {
+      color: ${theme.tertiary.hoverText};
+      background-color: ${theme.tertiary.hoverBg};
+    }
 
-  &:disabled {
-    color: ${baseTheme.colors.neutral[600]};
-    background-color: ${baseTheme.colors.neutral[500]};
-    border-color: ${baseTheme.colors.neutral[500]};
-  }
-`
+    &:active {
+      color: ${theme.tertiary.hoverText};
+      background-color: ${theme.tertiary.activeBg};
+    }
+
+    &:disabled {
+      color: ${baseTheme.colors.neutral[600]};
+      background-color: ${baseTheme.colors.neutral[500]};
+      border-color: ${baseTheme.colors.neutral[500]};
+    }
+  `
+  return TERTIARY_BUTTON_STYLES
+}
 
 const PrimaryButton = styled.button`
-  ${BaseButtonStyles}
+  ${BASE_BUTTON_STYLES}
   ${PrimaryButtonStyles}
 `
 
 const SecondaryButton = styled.button`
-  ${BaseButtonStyles}
+  ${BASE_BUTTON_STYLES}
   ${SecondaryButtonStyles}
 `
 
 const TertiaryButton = styled.button`
-  ${BaseButtonStyles}
+  ${BASE_BUTTON_STYLES}
   ${TertiaryButtonStyles}
 `
 

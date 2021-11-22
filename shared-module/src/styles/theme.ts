@@ -68,7 +68,7 @@ export const theme = {
   secondary: {
     text: baseTheme.colors.neutral[800],
     border: baseTheme.colors.neutral[100],
-    bg: baseTheme.colors.neutral[400],
+    bg: baseTheme.colors.neutral[200],
     hoverText: baseTheme.colors.neutral[800],
     hoverBg: baseTheme.colors.neutral[300],
     hoverBorder: baseTheme.colors.neutral[600],
@@ -81,9 +81,9 @@ export const theme = {
   tertiary: {
     text: baseTheme.colors.neutral[100],
     border: baseTheme.colors.neutral[100],
-    bg: baseTheme.colors.yellow[100],
-    hoverText: baseTheme.colors.neutral[100],
-    hoverBg: baseTheme.colors.yellow[200],
+    bg: baseTheme.colors.grey[800],
+    hoverText: baseTheme.colors.grey[800],
+    hoverBg: baseTheme.colors.neutral[100],
     hoverBorder: baseTheme.colors.neutral[100],
     focusBorder: baseTheme.colors.neutral[100],
     activeBg: baseTheme.colors.neutral[100],

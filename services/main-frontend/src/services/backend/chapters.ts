@@ -1,6 +1,6 @@
-import { Chapter, ChapterUpdate, NewChapter } from "../../../shared-module/bindings"
-import { validateFile } from "../../../shared-module/utils/files"
-import { mainFrontendClient } from "../../mainFrontendClient"
+import { Chapter, ChapterUpdate, NewChapter } from "../../shared-module/bindings"
+import { validateFile } from "../../shared-module/utils/files"
+import { mainFrontendClient } from "../mainFrontendClient"
 
 export const postNewChapter = async (data: NewChapter): Promise<Chapter> => {
   const response = await mainFrontendClient.post("/chapters", data, {

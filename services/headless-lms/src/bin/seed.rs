@@ -2,6 +2,7 @@ use anyhow::Result;
 use chrono::{TimeZone, Utc};
 use headless_lms_actix::attributes;
 use headless_lms_actix::models::chapters::NewChapter;
+use headless_lms_actix::models::course_instance_enrollments::NewCourseInstanceEnrollment;
 use headless_lms_actix::models::course_instances::NewCourseInstance;
 use headless_lms_actix::models::courses::NewCourse;
 use headless_lms_actix::models::exercises::GradingProgress;
@@ -19,7 +20,7 @@ use headless_lms_actix::models::{
     exercises, organizations, pages, roles, roles::UserRole, submissions, user_exercise_states,
     users,
 };
-use headless_lms_actix::models::{feedback, playground_examples};
+use headless_lms_actix::models::{course_instance_enrollments, feedback, playground_examples};
 use headless_lms_actix::models::{gradings, proposed_page_edits};
 use headless_lms_actix::setup_tracing;
 use headless_lms_actix::utils::document_schema_processor::GutenbergBlock;
@@ -27,10 +28,13 @@ use serde_json::Value;
 use sqlx::migrate::MigrateDatabase;
 use sqlx::{Connection, PgConnection, Postgres};
 use std::{env, process::Command};
+use tracing::info;
 use uuid::Uuid;
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    env::set_var("RUST_LOG", "info,sqlx=warn");
+
     dotenv::dotenv().ok();
     setup_tracing()?;
 
@@ -38,6 +42,7 @@ async fn main() -> Result<()> {
     let db_url = env::var("DATABASE_URL")?;
 
     if clean {
+        info!("cleaning");
         // hardcoded for now
         let status = Command::new("dropdb")
             .args(["-U", "headless-lms"])
@@ -52,10 +57,12 @@ async fn main() -> Result<()> {
     }
     let mut conn = PgConnection::connect(&db_url).await?;
     if clean {
+        info!("running migrations");
         sqlx::migrate!("./migrations").run(&mut conn).await?;
     }
 
     // exercise services
+    info!("inserting exercise services");
     let _example_exercise_exercise_service = exercise_services::insert_exercise_service(
         &mut conn,
         &exercise_services::ExerciseServiceNewOrUpdate {
@@ -84,6 +91,7 @@ async fn main() -> Result<()> {
     .await?;
 
     // users
+    info!("inserting users");
     let admin = users::insert_with_id(
         &mut conn,
         "admin@example.com",
@@ -116,7 +124,35 @@ async fn main() -> Result<()> {
     )
     .await?;
 
+    let users = vec![
+        users::insert_with_id(
+            &mut conn,
+            "user_1@example.com",
+            Uuid::parse_str("00e249d8-345f-4eff-aedb-7bdc4c44c1d5")?,
+        )
+        .await?,
+        users::insert_with_id(
+            &mut conn,
+            "user_2@example.com",
+            Uuid::parse_str("8d7d6c8c-4c31-48ae-8e20-c68fa95c25cc")?,
+        )
+        .await?,
+        users::insert_with_id(
+            &mut conn,
+            "user_3@example.com",
+            Uuid::parse_str("fbeb9286-3dd8-4896-a6b8-3faffa3fabd6")?,
+        )
+        .await?,
+        users::insert_with_id(
+            &mut conn,
+            "user_4@example.com",
+            Uuid::parse_str("3524d694-7fa8-4e73-aa1a-de9a20fd514b")?,
+        )
+        .await?,
+    ];
+
     // uh-cs
+    info!("uh-cs");
     let uh_cs = organizations::insert(
         &mut conn,
         "University of Helsinki, Department of Computer Science",
@@ -126,6 +162,7 @@ async fn main() -> Result<()> {
     )
     .await?;
 
+    info!("inserting uh-cs courses");
     let cs_intro = seed_sample_course(
         &mut conn,
         uh_cs,
@@ -133,8 +170,8 @@ async fn main() -> Result<()> {
         "Introduction to everything",
         "introduction-to-everything",
         admin,
-        teacher,
         student,
+        &users,
     )
     .await?;
     seed_sample_course(
@@ -144,8 +181,8 @@ async fn main() -> Result<()> {
         "Introduction to feedback",
         "introduction-to-feedback",
         admin,
-        teacher,
         student,
+        &users,
     )
     .await?;
     seed_sample_course(
@@ -155,8 +192,8 @@ async fn main() -> Result<()> {
         "Introduction to history",
         "introduction-to-history",
         admin,
-        teacher,
         student,
+        &users,
     )
     .await?;
     seed_sample_course(
@@ -166,8 +203,8 @@ async fn main() -> Result<()> {
         "Introduction to edit proposals",
         "introduction-to-edit-proposals",
         admin,
-        teacher,
         student,
+        &users,
     )
     .await?;
     let introduction_to_localizing = seed_sample_course(
@@ -177,8 +214,19 @@ async fn main() -> Result<()> {
         "Introduction to localizing",
         "introduction-to-localizing",
         admin,
-        teacher,
         student,
+        &users,
+    )
+    .await?;
+    seed_sample_course(
+        &mut conn,
+        uh_cs,
+        Uuid::parse_str("b4cb334c-11d6-4e93-8f3d-849c4abfcd67")?,
+        "Point view for teachers",
+        "point-view-for-teachers",
+        admin,
+        student,
+        &users,
     )
     .await?;
     seed_sample_course(
@@ -188,8 +236,8 @@ async fn main() -> Result<()> {
         "Advanced course instance management",
         "advanced-course-instance-management",
         admin,
-        teacher,
         student,
+        &users,
     )
     .await?;
     roles::insert(
@@ -905,9 +953,10 @@ async fn seed_sample_course(
     course_name: &str,
     course_slug: &str,
     admin: Uuid,
-    teacher: Uuid,
     student: Uuid,
+    users: &[Uuid],
 ) -> Result<Uuid> {
+    info!("inserting sample course {}", course_name);
     let new_course = NewCourse {
         name: course_name.to_string(),
         organization_id: org,
@@ -916,7 +965,7 @@ async fn seed_sample_course(
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
     };
-    let (course, _front_page, _default_instance) = courses::insert_course(
+    let (course, _front_page, default_instance) = courses::insert_course(
         conn,
         course_id,
         Uuid::new_v5(&course_id, b"7344f1c8-b7ce-4c7d-ade2-5f39997bd454"),
@@ -924,7 +973,7 @@ async fn seed_sample_course(
         admin,
     )
     .await?;
-    let course_instance = course_instances::insert(
+    course_instances::insert(
         conn,
         NewCourseInstance {
             id: Uuid::new_v5(&course_id, b"67f077b4-0562-47ae-a2b9-db2f08f168a9"),
@@ -1155,178 +1204,104 @@ async fn seed_sample_course(
     )
     .await?;
 
-    // submissions
-    let submission_admin_c1p1e1t1_1 = submissions::insert_with_id(
-        conn,
-        &submissions::SubmissionData {
-            id: Uuid::new_v5(&course_id, b"8c447aeb-1791-4236-8471-204d8bc27507"),
-            exercise_id: exercise_c1p1_1,
-            course_id: course.id,
-            exercise_task_id: exercise_task_c1p1e1_1,
-            user_id: admin,
-            course_instance_id: course_instance.id,
-            data_json: Value::String(spec_c1p1e1t1_1.to_string()),
-        },
-    )
-    .await?;
-    let submission_admin_c1p1e1t1_2 = submissions::insert_with_id(
-        conn,
-        &submissions::SubmissionData {
-            id: Uuid::new_v5(&course_id, b"a719fe25-5721-412d-adea-4696ccb3d883"),
-            exercise_id: exercise_c1p1_1,
-            course_id: course.id,
-            exercise_task_id: exercise_task_c1p1e1_1,
-            user_id: admin,
-            course_instance_id: course_instance.id,
-            data_json: Value::String(spec_c1p1e1t1_2.to_string()),
-        },
-    )
-    .await?;
-    let submission_admin_c1p1e1t1_3 = submissions::insert_with_id(
-        conn,
-        &submissions::SubmissionData {
-            id: Uuid::new_v5(&course_id, b"bbc16d4b-1f91-4bd0-a47f-047665a32196"),
-            exercise_id: exercise_c1p1_1,
-            course_id: course.id,
-            exercise_task_id: exercise_task_c1p1e1_1,
-            user_id: admin,
-            course_instance_id: course_instance.id,
-            data_json: Value::String(spec_c1p1e1t1_3.to_string()),
-        },
-    )
-    .await?;
-    let _submission_admin_c1p1e1t1_4 = submissions::insert_with_id(
-        conn,
-        &submissions::SubmissionData {
-            id: Uuid::new_v5(&course_id, b"c60bf5e5-9b67-4f62-9df7-16d268c1b5f5"),
-            exercise_id: exercise_c1p1_1,
-            course_id: course.id,
-            exercise_task_id: exercise_task_c1p1e1_1,
-            user_id: admin,
-            course_instance_id: course_instance.id,
-            data_json: Value::String(spec_c1p1e1t1_1.to_string()),
-        },
-    )
-    .await?;
-    let submission_admin_c1p2e1t1 = submissions::insert_with_id(
-        conn,
-        &submissions::SubmissionData {
-            id: Uuid::new_v5(&course_id, b"e0ec1386-72aa-4eed-8b91-72bba420c23b"),
-            exercise_id: exercise_c1p2_1,
-            course_id: course.id,
-            exercise_task_id: exercise_task_c1p2e1_1,
-            user_id: admin,
-            course_instance_id: course_instance.id,
-            data_json: Value::String(spec_c1p2e1t1_1.to_string()),
-        },
-    )
-    .await?;
-    let submission_admin_c1p2e2t1 = submissions::insert_with_id(
-        conn,
-        &submissions::SubmissionData {
-            id: Uuid::new_v5(&course_id, b"4c6b8f4f-40c9-4970-947d-077e25c67e24"),
-            exercise_id: exercise_c1p2_2,
-            course_id: course.id,
-            exercise_task_id: exercise_task_c1p2e2_1,
-            user_id: admin,
-            course_instance_id: course_instance.id,
-            data_json: Value::String(spec_c1p2e2t1_1.to_string()),
-        },
-    )
-    .await?;
-    let submission_admin_c2p1e1t1 = submissions::insert_with_id(
-        conn,
-        &submissions::SubmissionData {
-            id: Uuid::new_v5(&course_id, b"02c9e1ad-6e4c-4473-a3e9-dbfab018a055"),
-            exercise_id: exercise_c2p1_1,
-            course_id: course.id,
-            exercise_task_id: exercise_task_c2p1e1_1,
-            user_id: admin,
-            course_instance_id: course_instance.id,
-            data_json: Value::String(spec_c2p1e1t1_1.to_string()),
-        },
-    )
-    .await?;
-    let submission_teacher_c1p1e1t1 = submissions::insert_with_id(
-        conn,
-        &submissions::SubmissionData {
-            id: Uuid::new_v5(&course_id, b"75df4600-d337-4083-99d1-e8e3b6bf6192"),
-            exercise_id: exercise_c1p1_1,
-            course_id: course.id,
-            exercise_task_id: exercise_task_c1p1e1_1,
-            user_id: teacher,
-            course_instance_id: course_instance.id,
-            data_json: Value::String(spec_c1p1e1t1_1.to_string()),
-        },
-    )
-    .await?;
+    // enrollments, user exercise states, submissions, grades
+    for &user_id in users {
+        course_instance_enrollments::insert_enrollment_and_set_as_current(
+            conn,
+            NewCourseInstanceEnrollment {
+                course_id,
+                course_instance_id: default_instance.id,
+                user_id,
+            },
+        )
+        .await?;
 
-    // intro gradings
-    grade(
-        conn,
-        submission_admin_c1p1e1t1_1,
-        exercise_c1p1_1,
-        GradingProgress::FullyGraded,
-        100.0,
-        100,
-    )
-    .await?;
-    // this grading is for the same exercise, but no points are removed due to the update strategy
-    grade(
-        conn,
-        submission_admin_c1p1e1t1_2,
-        exercise_c1p1_1,
-        GradingProgress::Failed,
-        1.0,
-        100,
-    )
-    .await?;
-    // this grading is for the same exercise, but no points are removed due to the update strategy
-    grade(
-        conn,
-        submission_admin_c1p1e1t1_3,
-        exercise_c1p1_1,
-        GradingProgress::Pending,
-        0.0,
-        100,
-    )
-    .await?;
-    grade(
-        conn,
-        submission_admin_c1p2e1t1,
-        exercise_c1p2_1,
-        GradingProgress::FullyGraded,
-        60.0,
-        100,
-    )
-    .await?;
-    grade(
-        conn,
-        submission_admin_c1p2e2t1,
-        exercise_c1p2_2,
-        GradingProgress::FullyGraded,
-        70.0,
-        100,
-    )
-    .await?;
-    grade(
-        conn,
-        submission_admin_c2p1e1t1,
-        exercise_c2p1_1,
-        GradingProgress::FullyGraded,
-        80.0,
-        100,
-    )
-    .await?;
-    grade(
-        conn,
-        submission_teacher_c1p1e1t1,
-        exercise_c1p1_1,
-        GradingProgress::FullyGraded,
-        90.0,
-        100,
-    )
-    .await?;
+        submit_and_grade(
+            conn,
+            b"8c447aeb-1791-4236-8471-204d8bc27507",
+            exercise_c1p1_1,
+            course.id,
+            exercise_task_c1p1e1_1,
+            user_id,
+            default_instance.id,
+            spec_c1p1e1t1_1.to_string(),
+            100.0,
+        )
+        .await?;
+        // this submission is for the same exercise, but no points are removed due to the update strategy
+        submit_and_grade(
+            conn,
+            b"a719fe25-5721-412d-adea-4696ccb3d883",
+            exercise_c1p1_1,
+            course.id,
+            exercise_task_c1p1e1_1,
+            user_id,
+            default_instance.id,
+            spec_c1p1e1t1_2.to_string(),
+            1.0,
+        )
+        .await?;
+        submit_and_grade(
+            conn,
+            b"bbc16d4b-1f91-4bd0-a47f-047665a32196",
+            exercise_c1p1_1,
+            course.id,
+            exercise_task_c1p1e1_1,
+            user_id,
+            default_instance.id,
+            spec_c1p1e1t1_3.to_string(),
+            0.0,
+        )
+        .await?;
+        submit_and_grade(
+            conn,
+            b"c60bf5e5-9b67-4f62-9df7-16d268c1b5f5",
+            exercise_c1p1_1,
+            course.id,
+            exercise_task_c1p1e1_1,
+            user_id,
+            default_instance.id,
+            spec_c1p1e1t1_1.to_string(),
+            60.0,
+        )
+        .await?;
+        submit_and_grade(
+            conn,
+            b"e0ec1386-72aa-4eed-8b91-72bba420c23b",
+            exercise_c1p2_1,
+            course.id,
+            exercise_task_c1p2e1_1,
+            user_id,
+            default_instance.id,
+            spec_c1p2e1t1_1.to_string(),
+            70.0,
+        )
+        .await?;
+        submit_and_grade(
+            conn,
+            b"02c9e1ad-6e4c-4473-a3e9-dbfab018a055",
+            exercise_c2p1_1,
+            course.id,
+            exercise_task_c2p1e1_1,
+            user_id,
+            default_instance.id,
+            spec_c2p1e1t1_1.to_string(),
+            80.0,
+        )
+        .await?;
+        submit_and_grade(
+            conn,
+            b"75df4600-d337-4083-99d1-e8e3b6bf6192",
+            exercise_c1p1_1,
+            course.id,
+            exercise_task_c1p1e1_1,
+            user_id,
+            default_instance.id,
+            spec_c1p1e1t1_1.to_string(),
+            90.0,
+        )
+        .await?;
+    }
 
     // feedback
     let new_feedback = NewFeedback {
@@ -1418,30 +1393,6 @@ async fn seed_sample_course(
     proposed_page_edits::insert(conn, course.id, Some(student), &edits).await?;
 
     Ok(course.id)
-}
-
-async fn grade(
-    conn: &mut PgConnection,
-    sub_id: Uuid,
-    ex_id: Uuid,
-    grading_progress: GradingProgress,
-    score_given: f32,
-    score_maximum: i32,
-) -> Result<()> {
-    let submission = submissions::get_by_id(conn, sub_id).await?;
-    let grading = gradings::new_grading(conn, &submission).await?;
-    let grading_result = GradingResult {
-        feedback_json: None,
-        feedback_text: None,
-        grading_progress,
-        score_given,
-        score_maximum,
-    };
-    let exercise = exercises::get_by_id(conn, ex_id).await?;
-    let grading = gradings::update_grading(conn, &grading, &grading_result, &exercise).await?;
-    submissions::set_grading_id(conn, grading.id, submission.id).await?;
-    user_exercise_states::update_user_exercise_state(conn, &grading, &submission).await?;
-    Ok(())
 }
 
 async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Result<Uuid> {
@@ -1820,4 +1771,48 @@ fn example_exercise(
         ])),
     };
     (block, exercise, exercise_slide, exercise_task)
+}
+
+#[allow(clippy::too_many_arguments)]
+async fn submit_and_grade(
+    conn: &mut PgConnection,
+    id: &[u8],
+    exercise_id: Uuid,
+    course_id: Uuid,
+    exercise_task_id: Uuid,
+    user_id: Uuid,
+    course_instance_id: Uuid,
+    spec: String,
+    out_of_100: f32,
+) -> Result<()> {
+    // combine the id with the user id to ensure it's unique
+    let id = [id, &user_id.as_bytes()[..]].concat();
+    let sub = submissions::insert_with_id(
+        conn,
+        &submissions::SubmissionData {
+            id: Uuid::new_v5(&course_id, &id),
+            exercise_id,
+            course_id,
+            exercise_task_id,
+            user_id,
+            course_instance_id,
+            data_json: Value::String(spec),
+        },
+    )
+    .await?;
+
+    let submission = submissions::get_by_id(conn, sub).await?;
+    let grading = gradings::new_grading(conn, &submission).await?;
+    let grading_result = GradingResult {
+        feedback_json: None,
+        feedback_text: None,
+        grading_progress: GradingProgress::FullyGraded,
+        score_given: out_of_100,
+        score_maximum: 100,
+    };
+    let exercise = exercises::get_by_id(conn, exercise_id).await?;
+    let grading = gradings::update_grading(conn, &grading, &grading_result, &exercise).await?;
+    submissions::set_grading_id(conn, grading.id, submission.id).await?;
+    user_exercise_states::update_user_exercise_state(conn, &grading, &submission).await?;
+    Ok(())
 }

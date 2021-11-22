@@ -476,6 +476,39 @@ export interface ErrorResponse {
   source: string | null
 }
 
+export interface ChapterScore {
+  id: string
+  created_at: Date
+  updated_at: Date
+  name: string
+  course_id: string
+  deleted_at: Date | null
+  chapter_image_path: string | null
+  chapter_number: number
+  front_page_id: string | null
+  opens_at: Date | null
+  copied_from: string | null
+  score_given: number
+  score_total: number
+}
+
+export interface User {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  upstream_id: number | null
+  email: string
+}
+
+export type PointMap = Record<string, number>
+
+export interface Points {
+  chapter_points: Array<ChapterScore>
+  users: Array<User>
+  user_chapter_points: Record<string, PointMap>
+}
+
 export type VariantStatus = "Draft" | "Upcoming" | "Active" | "Ended"
 
 export type ChapterStatus = "open" | "closed"

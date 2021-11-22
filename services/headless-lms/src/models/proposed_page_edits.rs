@@ -45,8 +45,8 @@ pub struct EditProposalInfo {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
 pub struct ProposalCount {
-    pending: i64,
-    handled: i64,
+    pending: u32,
+    handled: u32,
 }
 
 pub async fn insert(
@@ -231,8 +231,8 @@ AND proposed_page_edits.deleted_at IS NULL
     .fetch_one(conn)
     .await?;
     let count = ProposalCount {
-        pending: res.pending.unwrap_or_default(),
-        handled: res.handled.unwrap_or_default(),
+        pending: res.pending.unwrap_or_default().try_into()?,
+        handled: res.handled.unwrap_or_default().try_into()?,
     };
     Ok(count)
 }

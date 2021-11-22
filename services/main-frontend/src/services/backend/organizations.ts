@@ -14,6 +14,11 @@ export const fetchOrganization = async (organizationId: string): Promise<Organiz
   return data
 }
 
+export const fetchOrganizationBySlug = async (organizationSlug: string): Promise<Organization> => {
+  const res = await mainFrontendClient.get(`/org/${organizationSlug}`, { responseType: "json" })
+  return res.data
+}
+
 export const fetchOrganizationCourses = async (organizationId: string): Promise<Array<Course>> => {
   const data = (
     await mainFrontendClient.get(`/organizations/${organizationId}/courses`, {
@@ -21,6 +26,15 @@ export const fetchOrganizationCourses = async (organizationId: string): Promise<
     })
   ).data
   return data
+}
+
+export const fetchOrganizationCoursesBySlug = async (
+  organizationSlug: string,
+): Promise<Array<Course>> => {
+  const res = await mainFrontendClient.get(`/org/${organizationSlug}/courses`, {
+    responseType: "json",
+  })
+  return res.data
 }
 
 export const setOrganizationImage = async (

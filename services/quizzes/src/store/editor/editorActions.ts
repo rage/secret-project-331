@@ -28,8 +28,8 @@ export const createdNewOption = createAction(
     itemId: itemId,
     optionId: v4(),
     body: text,
-    column: column,
-    row: row,
+    column: column ?? null,
+    row: row ?? null,
   }),
 )<{ itemId: string; optionId: string; body: string; column: number; row: number }>()
 

@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["all_organizations",""],["get_organization",""],["insert",""],["update_organization_image_path",""]],"struct":[["DatabaseOrganization",""],["Organization",""]]});
+initSidebarItems({"fn":[["all_organizations",""],["get_organization",""],["get_organization_by_slug",""],["insert",""],["update_organization_image_path",""]],"struct":[["DatabaseOrganization",""],["Organization",""]]});

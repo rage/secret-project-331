@@ -47,6 +47,8 @@
 <span id="47">47</span>
 <span id="48">48</span>
 <span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0/main_frontend`.
 
@@ -61,6 +63,7 @@ This documents all endpoints. Select a module below for a category.
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">exercise_services</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">exercises</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">feedback</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">org</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">organizations</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pages</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">playground_examples</span>;
@@ -74,7 +77,7 @@ This documents all endpoints. Select a module below for a category.
     <span class="ident">chapters::_add_chapters_routes</span>, <span class="ident">course_instances::_add_course_instances_routes</span>,
     <span class="ident">courses::_add_courses_routes</span>, <span class="ident">email_templates::_add_email_templates_routes</span>,
     <span class="ident">exercise_services::_add_exercise_service_routes</span>, <span class="ident">exercises::_add_exercises_routes</span>,
-    <span class="ident">feedback::_add_feedback_routes</span>, <span class="ident">organizations::_add_organizations_routes</span>,
+    <span class="ident">feedback::_add_feedback_routes</span>, <span class="ident">org::_add_org_routes</span>, <span class="ident">organizations::_add_organizations_routes</span>,
     <span class="ident">pages::_add_pages_routes</span>, <span class="ident">playground_examples::_add_playground_examples_routes</span>,
     <span class="ident">proposed_edits::_add_proposed_edits_routes</span>, <span class="ident">submissions::_add_submissions_routes</span>,
     <span class="ident">users::_add_users_routes</span>,
@@ -88,6 +91,7 @@ This documents all endpoints. Select a module below for a category.
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/email-templates&quot;</span>).<span class="ident">configure</span>(<span class="ident">_add_email_templates_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/exercises&quot;</span>).<span class="ident">configure</span>(<span class="ident">_add_exercises_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/feedback&quot;</span>).<span class="ident">configure</span>(<span class="ident">_add_feedback_routes</span>))
+        .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/org&quot;</span>).<span class="ident">configure</span>(<span class="ident">_add_org_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/organizations&quot;</span>).<span class="ident">configure</span>(<span class="ident">_add_organizations_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/pages&quot;</span>).<span class="ident">configure</span>(<span class="ident">_add_pages_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/submissions&quot;</span>).<span class="ident">configure</span>(<span class="ident">_add_submissions_routes</span>))

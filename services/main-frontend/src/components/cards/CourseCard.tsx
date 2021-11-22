@@ -20,7 +20,7 @@ const CourseGridWrapper = styled.div`
   height: 400px;
   border-radius: 1px;
   background: #ededed;
-  padding: 40px 60px 40px 40px;
+  padding: 0px 60px 40px 40px;
   position: relative;
   display: grid;
   align-items: center;
@@ -49,6 +49,16 @@ const StyledSettingIcon = styled(SettingIcon)`
   }
 `
 
+const LanguageSection = styled.div`
+  bottom: 30px;
+  position: absolute;
+  width: 80%;
+`
+
+const LanguageName = styled.span`
+  float: left;
+`
+
 const FlagStyle = css`
   width: 25px;
   height: 25px;
@@ -75,8 +85,10 @@ const CourseCard: React.FC<CardProps> = ({ title, description, languageCode, onC
       <div>
         <CourseHeader>{title}</CourseHeader>
         <CourseDescription>{description}</CourseDescription>
-        <div>{capitalize(LanguageComponent.humanReadableName)}</div>
-        <LanguageComponent.image className={FlagStyle} />
+        <LanguageSection>
+          <LanguageName>{capitalize(LanguageComponent.humanReadableName)}</LanguageName>
+          <LanguageComponent.image className={FlagStyle} />
+        </LanguageSection>
       </div>
     </CourseGridWrapper>
   )

@@ -10,8 +10,8 @@ import { queryClient } from "../shared-module/services/appQueryClient"
 import GlobalStyles from "../shared-module/styles/GlobalStyles"
 import muiTheme from "../shared-module/styles/muiTheme"
 import initI18n from "../shared-module/utils/initI18n"
-
 import "../styles/Gutenberg/style.scss"
+import LocalStyles from "../styles/LocalStyles"
 
 // eslint-disable-next-line i18next/no-literal-string
 const i18n = initI18n("cms")
@@ -47,6 +47,7 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
       <QueryClientProvider client={queryClient}>
         <ThemeProvider theme={muiTheme}>
           <GlobalStyles />
+          <LocalStyles />
           <LoginStateContextProvider>
             <Component {...pageProps} />
           </LoginStateContextProvider>

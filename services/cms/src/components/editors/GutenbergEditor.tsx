@@ -42,6 +42,7 @@ import React, { useContext, useEffect, useState } from "react"
 import CourseContext from "../../contexts/CourseContext"
 import mediaUploadBuilder, { MediaUploadProps } from "../../services/backend/media/mediaUpload"
 import { modifyBlockAttributes } from "../../utils/Gutenberg/modifyBlockAttributes"
+import { modifyBlockButton } from "../../utils/Gutenberg/modifyBlockButton"
 
 interface GutenbergEditorProps {
   content: BlockInstance[]
@@ -119,6 +120,9 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
         registerBlockType(blockName, block)
       })
     }
+
+    // Remove Gutenberg Default Button styles and add own
+    modifyBlockButton()
   }, [allowedBlockVariations, allowedBlocks, customBlocks])
 
   return (

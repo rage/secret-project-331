@@ -3,8 +3,6 @@ import React from "react"
 
 import { baseTheme } from "../styles"
 
-/* import { border, color, space } from "styled-system" */
-
 const HeroWrapper = styled.div`
   background: #f1f1f1;
   width: 100%;

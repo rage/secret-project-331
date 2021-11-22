@@ -7,7 +7,7 @@ import { useQuery } from "react-query"
 
 import Layout from "../../components/Layout"
 import OrganizationImageWidget from "../../components/OrganizationImageWidget"
-import CourseCard from "../../components/cards/CourseCard"
+import { CourseComponent, CourseGrid } from "../../components/cards/CourseCard"
 import NewCourseForm from "../../components/forms/NewCourseForm"
 import { postNewCourse } from "../../services/backend/courses"
 import {
@@ -122,18 +122,11 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
           onOrganizationUpdated={() => refetchOrg()}
         />
         <h2>{t("active-courses", { courses: dataOrgActiveCoursesCount.count })}</h2>
-        <div
-          className={css`
-            display: grid;
-            grid-gap: 50px;
-            grid: 390px / auto auto auto;
-            margin-bottom: 20px;
-          `}
-        >
+        <CourseGrid>
           {dataOrgActiveCourses.length === 0
             ? t("no-active-courses")
             : dataOrgActiveCourses.map((course) => (
-                <CourseCard
+                <CourseComponent
                   key={course.id}
                   title={course.name}
                   description={course.description ?? NO_DESCRIPTION}
@@ -144,7 +137,8 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
                   }}
                 />
               ))}
-        </div>
+        </CourseGrid>
+        <br />
         <Pagination
           count={Math.ceil(dataOrgActiveCoursesCount.count / PAGE_LIMIT)}
           page={page}

@@ -10,10 +10,12 @@ import GenericLoading from "../GenericLoading"
 
 export interface UserOnWrongCourseNotificationProps {
   correctCourseId: string
+  organizationSlug: string
 }
 
 const UserOnWrongCourseNotification: React.FC<UserOnWrongCourseNotificationProps> = ({
   correctCourseId,
+  organizationSlug,
 }) => {
   const { t } = useTranslation()
   const { isLoading, error, data } = useQuery(`correct-course-${correctCourseId}`, () =>
@@ -30,7 +32,7 @@ const UserOnWrongCourseNotification: React.FC<UserOnWrongCourseNotificationProps
 
   return (
     <Banner variant="readOnly">
-      <Link passHref href={`/${data.slug}`}>
+      <Link passHref href={`/${organizationSlug}/courses/${data.slug}`}>
         <a
           className={css`
             color: #000;

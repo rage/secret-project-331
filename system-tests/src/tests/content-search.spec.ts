@@ -1,5 +1,6 @@
-import { expect, test } from "@playwright/test"
+import { test } from "@playwright/test"
 
+import expectPath from "../utils/expect"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 test.use({
@@ -15,13 +16,11 @@ test("test", async ({ page, headless }) => {
     page.waitForNavigation(),
     page.click("text=University of Helsinki, Department of Computer Science"),
   ])
-  expect(page.url()).toBe(
-    "http://project-331.local/organizations/8bb12295-53ac-4099-9644-ac0ff5e34d92",
-  )
+  expectPath(page, "/org/uh-cs")
 
   // Click text=Introduction to Course Material
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-course-material' }*/),
+    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-course-material' }*/),
     page.click("text=Introduction to Course Material"),
   ])
 
@@ -30,13 +29,13 @@ test("test", async ({ page, headless }) => {
 
   // Click a:has-text("CHAPTER 2User Experience")
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-course-material/chapter-2' }*/),
+    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2' }*/),
     page.click('a:has-text("CHAPTER 2User Experience")'),
   ])
 
   // Click text=User research
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-course-material/chapter-2/user-research' }*/),
+    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2/user-research' }*/),
     page.click("text=User research"),
   ])
 
@@ -61,8 +60,9 @@ test("test", async ({ page, headless }) => {
   // Click text=Human-machine interface
   await Promise.all([page.waitForNavigation(), await page.click("text=Human-machine interface")])
 
-  expect(page.url()).toBe(
-    "http://project-331.local/courses/introduction-to-course-material/chapter-1/human-machine-interface",
+  expectPath(
+    page,
+    "/org/uh-cs/courses/introduction-to-course-material/chapter-1/human-machine-interface",
   )
 
   // Click text=Search

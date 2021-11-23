@@ -117,6 +117,11 @@
 <span id="117">117</span>
 <span id="118">118</span>
 <span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
 </pre><pre class="rust"><code><span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">controllers</span>::{
@@ -141,8 +146,11 @@
 
   <span class="ident">course_instance_enrollments::CourseInstanceEnrollment</span>,
 
+  <span class="ident">course_instances::ChapterScore</span>,
   <span class="ident">course_instances::CourseInstance</span>,
   <span class="ident">course_instances::CourseInstanceForm</span>,
+  <span class="ident">course_instances::PointMap</span>,
+  <span class="ident">course_instances::Points</span>,
   <span class="ident">course_instances::VariantStatus</span>,
 
   <span class="ident">courses::Course</span>,
@@ -225,6 +233,8 @@
 
   <span class="ident">user_exercise_states::UserCourseInstanceChapterExerciseProgress</span>,
   <span class="ident">user_exercise_states::UserCourseInstanceProgress</span>,
+
+  <span class="ident">users::User</span>,
 
   <span class="ident">Login</span>,
   <span class="ident">UploadResult</span>,

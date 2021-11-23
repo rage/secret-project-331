@@ -149,9 +149,9 @@ export const fetchChaptersPagesWithExercises = async (
 
 export const getNextPageRoutingData = async (
   currentPageId: string,
-): Promise<PageRoutingDataWithChapterStatus> => {
+): Promise<PageRoutingDataWithChapterStatus | null> => {
   const response = await courseMaterialClient.get(`/pages/${currentPageId}/next-page`)
-  return validateResponse(response, isPageRoutingDataWithChapterStatus)
+  return validateResponse(response, isPageRoutingDataWithChapterStatus, isNull)
 }
 
 export const fetchChaptersPagesExcludeFrontpage = async (
@@ -212,9 +212,9 @@ export const searchPagesWithWords = async (
 export const postFeedback = async (
   courseId: string,
   newFeedback: NewFeedback[],
-): Promise<string> => {
+): Promise<Array<string>> => {
   const response = await courseMaterialClient.post(`/courses/${courseId}/feedback`, newFeedback)
-  return validateResponse(response, isString)
+  return validateResponse(response, isArray(isString))
 }
 
 export const postProposedEdits = async (

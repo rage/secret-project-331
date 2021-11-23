@@ -33,13 +33,13 @@ import ContentArea from "./ContentArea"
 
 interface ExerciseServiceEditorProps {
   exercise_services: ExerciseService[]
-  refetch(): Promise<QueryObserverResult<[ExerciseService], unknown>>
+  refetch(): Promise<QueryObserverResult<ExerciseService[], unknown>>
 }
 
 interface ExerciseServiceCardProps {
   key: string
   exercise_service: ExerciseService
-  refetch(): Promise<QueryObserverResult<[ExerciseService], unknown>>
+  refetch(): Promise<QueryObserverResult<ExerciseService[], unknown>>
 }
 
 interface ExerciseServiceCreationModelProps {

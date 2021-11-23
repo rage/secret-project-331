@@ -27,7 +27,6 @@
     "@testing-library/react": "^12.1.0",
     "@testing-library/react-hooks": "^7.0.2",
     "@types/jest": "^27.0.2",
-    "@types/styled-system": "^5.1.13",
     "babel-jest": "^27.3.1",
     "babel-loader": "^8.2.3",
     "babel-plugin-inline-react-svg": "^2.0.1",
@@ -59,7 +58,6 @@
     "@material-ui/lab": "^5.0.0-alpha.41",
     "@material-ui/styles": "^5.0.0-beta.2",
     "@monaco-editor/react": "^4.3.1",
-    "@styled-system/css": "^5.1.5",
     "axios": "^0.24.0",
     "date-fns": "^2.24.0",
     "i18next": "^21.4.0",
@@ -68,7 +66,6 @@
     "react-query": "^3.31.0",
     "react-spring": "^9.3.0",
     "react-tsparticles": "^1.37.2",
-    "styled-system": "^5.1.5",
     "use-debounce": "^7.0.0"
   }
 }

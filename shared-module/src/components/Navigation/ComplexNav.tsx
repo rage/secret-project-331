@@ -191,10 +191,8 @@ const menuIcon = css`
   height: auto;
 
   display: block;
-  transform: translate(-100%, 25%);
-  position: absolute;
-  top: 2px;
-  right: -20px;
+  position: relative;
+  top: -2px;
   ${respondToOrLarger.lg} {
     display: none;
     height: 15px;

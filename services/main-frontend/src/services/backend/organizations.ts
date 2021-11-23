@@ -16,11 +16,25 @@ export const fetchOrganization = async (organizationId: string): Promise<Organiz
   return validateResponse(response, isOrganization)
 }
 
+export const fetchOrganizationBySlug = async (organizationSlug: string): Promise<Organization> => {
+  const res = await mainFrontendClient.get(`/org/${organizationSlug}`, { responseType: "json" })
+  return res.data
+}
+
 export const fetchOrganizationCourses = async (organizationId: string): Promise<Array<Course>> => {
   const response = await mainFrontendClient.get(`/organizations/${organizationId}/courses`, {
     responseType: "json",
   })
   return validateResponse(response, isArray(isCourse))
+}
+
+export const fetchOrganizationCoursesBySlug = async (
+  organizationSlug: string,
+): Promise<Array<Course>> => {
+  const res = await mainFrontendClient.get(`/org/${organizationSlug}/courses`, {
+    responseType: "json",
+  })
+  return res.data
 }
 
 export const setOrganizationImage = async (

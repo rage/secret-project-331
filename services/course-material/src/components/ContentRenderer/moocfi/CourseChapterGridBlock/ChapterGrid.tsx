@@ -13,6 +13,8 @@ import GenericLoading from "../../../GenericLoading"
 
 import ChapterGridCard from "./ChapterGridCard"
 
+const YELLOW = "yellow"
+
 const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
   const { t } = useTranslation()
   const now = useTime()
@@ -20,6 +22,7 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
     fetchChaptersInTheCourse(courseId),
   )
   const courseSlug = useQueryParameter("courseSlug")
+  const organizationSlug = useQueryParameter("organizationSlug")
 
   if (error) {
     return <pre>{JSON.stringify(error, undefined, 2)}</pre>
@@ -86,8 +89,13 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
                 `}
                 key={chapter.id}
               >
-                {/* eslint-disable-next-line i18next/no-literal-string */}
-                <ChapterGridCard bg="yellow" now={now} chapter={chapter} courseSlug={courseSlug} />
+                <ChapterGridCard
+                  bg={YELLOW}
+                  now={now}
+                  chapter={chapter}
+                  courseSlug={courseSlug}
+                  organizationSlug={organizationSlug}
+                />
               </div>
             )
           })}

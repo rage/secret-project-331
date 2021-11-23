@@ -7,9 +7,10 @@ import PublicPageList from "./PublicPageList"
 interface PageNotFoundProps {
   path: string
   courseId: string
+  organizationSlug: string
 }
 
-const PageNotFound: React.FC<PageNotFoundProps> = ({ path, courseId }) => {
+const PageNotFound: React.FC<PageNotFoundProps> = ({ path, courseId, organizationSlug }) => {
   const { t } = useTranslation()
   return (
     <>
@@ -22,7 +23,7 @@ const PageNotFound: React.FC<PageNotFoundProps> = ({ path, courseId }) => {
       {path === "/" && (
         <>
           <p>{t("if-author-of-course-please-create-front-page")}</p>
-          {<PublicPageList courseId={courseId} />}
+          {<PublicPageList courseId={courseId} organizationSlug={organizationSlug} />}
         </>
       )}
     </>

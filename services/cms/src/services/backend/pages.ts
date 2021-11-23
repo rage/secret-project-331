@@ -1,7 +1,8 @@
-import { CmsPageUpdate, ContentManagementPage } from "../../../shared-module/bindings"
-import { isContentManagementPage } from "../../../shared-module/bindings.guard"
-import { validateResponse } from "../../../shared-module/utils/fetching"
-import { cmsClient } from "../cmsClient"
+import { CmsPageUpdate, ContentManagementPage } from "../../shared-module/bindings"
+import { isContentManagementPage } from "../../shared-module/bindings.guard"
+import { validateResponse } from "../../shared-module/utils/fetching"
+
+import { cmsClient } from "./cmsClient"
 
 export const fetchPageWithId = async (pageId: string): Promise<ContentManagementPage> => {
   const response = await cmsClient.get(`/pages/${pageId}`, { responseType: "json" })

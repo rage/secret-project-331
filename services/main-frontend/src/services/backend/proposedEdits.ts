@@ -5,6 +5,8 @@ import {
   PageProposal,
   ProposalCount,
 } from "../../shared-module/bindings"
+import { isPageProposal, isProposalCount } from "../../shared-module/bindings.guard"
+import { isArray, validateResponse } from "../../shared-module/utils/fetching"
 import { mainFrontendClient } from "../mainFrontendClient"
 
 export const fetchEditProposals = async (
@@ -12,18 +14,18 @@ export const fetchEditProposals = async (
   pending: boolean,
   page?: number,
   limit?: number,
-): Promise<PageProposal[]> => {
+): Promise<Array<PageProposal>> => {
   const params: GetEditProposalsQuery = { page, limit, pending }
   const response = await mainFrontendClient.get(`/proposed-edits/course/${courseId}`, {
     params,
     responseType: "json",
   })
-  return response.data
+  return validateResponse(response, isArray(isPageProposal))
 }
 
 export const fetchEditProposalCount = async (courseId: string): Promise<ProposalCount> => {
   const response = await mainFrontendClient.get(`/proposed-edits/course/${courseId}/count`)
-  return response.data
+  return validateResponse(response, isProposalCount)
 }
 
 export const processProposal = async (

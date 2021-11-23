@@ -1,4 +1,6 @@
-import { Feedback, FeedbackCount, GetFeedbackQuery } from "../../shared-module/bindings"
+import { Feedback, FeedbackCount, GetFeedbackQuery, MarkAsRead } from "../../shared-module/bindings"
+import { isFeedback, isFeedbackCount } from "../../shared-module/bindings.guard"
+import { isArray, validateResponse } from "../../shared-module/utils/fetching"
 import { mainFrontendClient } from "../mainFrontendClient"
 
 export const fetchFeedback = async (
@@ -6,7 +8,7 @@ export const fetchFeedback = async (
   read: boolean,
   page?: number,
   limit?: number,
-): Promise<Feedback[]> => {
+): Promise<Array<Feedback>> => {
   const params: GetFeedbackQuery = { read }
   params.page = page
   params.limit = limit
@@ -15,16 +17,16 @@ export const fetchFeedback = async (
     params,
     responseType: "json",
   })
-  return response.data
+  return validateResponse(response, isArray(isFeedback))
 }
 
 export const fetchFeedbackCount = async (courseId: string): Promise<FeedbackCount> => {
   const response = await mainFrontendClient.get(`/courses/${courseId}/feedback-count`)
-  return response.data
+  return validateResponse(response, isFeedbackCount)
 }
 
 export const markAsRead = async (feedbackId: string, read: boolean): Promise<void> => {
-  const data = {
+  const data: MarkAsRead = {
     read: read,
   }
   await mainFrontendClient.post(`/feedback/${feedbackId}`, data, {

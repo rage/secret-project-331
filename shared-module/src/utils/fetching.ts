@@ -2,7 +2,7 @@
 
 import { AxiosResponse } from "axios"
 
-import { ErrorResponse } from "../shared-module/bindings"
+import { ErrorResponse } from "../bindings"
 
 // usage: validateResponse(response, isOrganization)
 // throws the response with an ErrorResponse if the data is invalid for useQuery to catch
@@ -29,4 +29,12 @@ export function validateResponse<T>(
 export function isArray<T>(isT: (x: unknown) => x is T): (x: unknown) => x is Array<T> {
   // ts doesn't understand this so we need the explicit cast
   return ((x) => Array.isArray(x) && x.every((i) => isT(i))) as (x: unknown) => x is Array<T>
+}
+
+export function isString(x: unknown): x is string {
+  return typeof x === "string"
+}
+
+export function isNumber(x: unknown): x is number {
+  return typeof x === "number"
 }

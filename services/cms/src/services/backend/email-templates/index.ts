@@ -1,8 +1,13 @@
 import { EmailTemplate, EmailTemplateUpdate } from "../../../shared-module/bindings"
+import { isEmailTemplate } from "../../../shared-module/bindings.guard"
+import { validateResponse } from "../../../shared-module/utils/fetching"
 import { cmsClient } from "../cmsClient"
 
 export const fetchEmailTemplateWithId = async (emailTemplateId: string): Promise<EmailTemplate> => {
-  return (await cmsClient.get(`/email-templates/${emailTemplateId}`, { responseType: "json" })).data
+  const response = await cmsClient.get(`/email-templates/${emailTemplateId}`, {
+    responseType: "json",
+  })
+  return validateResponse(response, isEmailTemplate)
 }
 
 export const updateExistingEmailTemplate = async (
@@ -16,10 +21,10 @@ export const updateExistingEmailTemplate = async (
       headers: { "Content-Type": "application/json" },
     },
   )
-  return response.data
+  return validateResponse(response, isEmailTemplate)
 }
 
 export const deleteEmailTemplate = async (id: string): Promise<EmailTemplate> => {
   const response = await cmsClient.delete(`/email-templates/${id}`)
-  return response.data
+  return validateResponse(response, isEmailTemplate)
 }

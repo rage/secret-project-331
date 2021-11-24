@@ -1,4 +1,3 @@
-import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
@@ -8,12 +7,16 @@ type OptionType = {
   id: string
 }
 
+const SELECT = "Select a name"
+const HENRIK = "Henrik"
+const SEBASTIEN = "Sebastien"
+const JORI = "Jori"
+
 const options: OptionType[] = [
-  { value: "", label: "Select a name", id: "" },
-  { value: "Henrik", label: "Henrik", id: "henrik" },
-  { value: "Sebastien", label: "Sebastien", id: "sebastien" },
-  { value: "Pekka", label: "Pekka", id: "pekka" },
-  { value: "Teemu", label: "Teemu", id: "teemu" },
+  { value: "", label: SELECT, id: "" },
+  { value: HENRIK, label: HENRIK, id: HENRIK },
+  { value: SEBASTIEN, label: SEBASTIEN, id: SEBASTIEN },
+  { value: JORI, label: JORI, id: JORI },
 ]
 
 interface SelectMenuExtraProps {

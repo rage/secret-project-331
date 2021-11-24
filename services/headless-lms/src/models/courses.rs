@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 
 use super::{course_instances::CourseInstance, ModelResult};
 use crate::{
@@ -461,7 +461,7 @@ pub async fn get_organization_id(conn: &mut PgConnection, id: Uuid) -> ModelResu
 pub async fn get_course_structure(
     conn: &mut PgConnection,
     course_id: Uuid,
-    file_store: &impl FileStore,
+    file_store: &Arc<dyn FileStore>,
     app_conf: &ApplicationConfiguration,
 ) -> ModelResult<CourseStructure> {
     let course = get_course(conn, course_id).await?;
@@ -569,6 +569,9 @@ RETURNING id,
         front_page_of_chapter_id: None,
         title: course.name.clone(),
         url_path: String::from("/"),
+        exercises: vec![],
+        exercise_slides: vec![],
+        exercise_tasks: vec![],
     };
     let page = crate::models::pages::insert_page(&mut tx, course_front_page, user).await?;
 
@@ -696,9 +699,7 @@ mod test {
             courses, exercise_slides,
             exercise_tasks::{self, ExerciseTask},
             exercises::{self, Exercise},
-            organizations,
-            pages::{self, PageUpdate},
-            users,
+            organizations, pages, users,
         },
         test_helper::Conn,
     };
@@ -855,28 +856,19 @@ mod test {
         )
         .await
         .unwrap();
-        pages::update_page(
+        pages::update_page_content(
             tx.as_mut(),
             chapter_front_page.id,
-            PageUpdate {
-                chapter_id: chapter_front_page.chapter_id,
-                content: serde_json::json!([
-                    {
-                        "name": "moocfi/exercise",
-                        "isValid": true,
-                        "clientId": "b2ecb473-38cc-4df1-84f7-06709cc63e95",
-                        "attributes": {
-                            "id": exercise_id,
-                            "name": "Exercise"
-                        },
-                        "innerBlocks": []
-                    }
-                ]),
-                title: chapter_front_page.title,
-                url_path: chapter_front_page.url_path,
-            },
-            user_id,
-            true,
+            &serde_json::json!([{
+                "name": "moocfi/exercise",
+                "isValid": true,
+                "clientId": "b2ecb473-38cc-4df1-84f7-06709cc63e95",
+                "attributes": {
+                    "id": exercise_id,
+                    "name": "Exercise"
+                },
+                "innerBlocks": []
+            }]),
         )
         .await
         .unwrap();

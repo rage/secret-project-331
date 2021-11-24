@@ -1,0 +1,2472 @@
+[
+  {
+    "clientId": "4639c1db-cdb3-47ce-ab20-811ff18911a0",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "align": "center",
+      "content": "<strong>START CORE / COMMON BLOCKS</strong>",
+      "dropCap": false
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "089533a4-79d2-48a7-9576-167a6e8e5d6f",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "content": "Paragraph Font size Small",
+      "dropCap": false,
+      "fontSize": "small"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "fb0c9bdd-6188-4363-bd37-84aab4abd4b8",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "content": "Paragraph Font size Default",
+      "dropCap": false
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "ad4c6bcd-4227-4de2-9d7c-38f769594855",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "content": "Paragraph Font size Normal",
+      "dropCap": false,
+      "fontSize": "normal"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "f51f7f4c-e537-49c9-8918-4fb8a05c8bb4",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "content": "Paragraph Font size Medium",
+      "dropCap": false,
+      "fontSize": "medium"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "39e86c23-bbbb-4c19-95db-96581af8049a",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "content": "Paragraph Font size Large",
+      "dropCap": false,
+      "fontSize": "large"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "28ad17f7-368e-4794-8500-0f1f1420ec5d",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "content": "Paragraph Font Size Huge",
+      "dropCap": false,
+      "fontSize": "huge"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "2ce41cbb-cb1a-4e71-ad20-17dbcab04c9f",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "backgroundColor": "black",
+      "content": "Paragraph Text Color &amp; Background Color",
+      "dropCap": false,
+      "textColor": "white"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "0e3db017-92f9-47c2-94f8-6a7b1b7d5c93",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "align": "left",
+      "backgroundColor": "vivid-red",
+      "content": "Paragraph Text Color &amp; Background Color &amp; Drop Cap <br>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vel nibh elementum, luctus quam in, eleifend nibh. Fusce efficitur convallis porttitor. Nulla semper, ligula quis efficitur viverra, tortor dolor molestie mi, tristique pharetra sem nisi id orci. Sed massa dolor, egestas at arcu vel, tincidunt ultricies erat. Nulla porta sit amet odio a sagittis. Pellentesque eu molestie risus, eu rutrum felis. Cras quis justo vitae sem semper scelerisque. Mauris sollicitudin finibus interdum. Aenean vel leo tempor, accumsan ligula vitae, ultrices lacus.",
+      "dropCap": true,
+      "textColor": "white"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "46d37b0a-310d-4c58-ab13-99d29d126cd3",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "content": "Paragraph Drop Cap",
+      "dropCap": true
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "941cbb71-8dde-492d-931b-f674346a7f1d",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "align": "right",
+      "content": "Paragraph align Right",
+      "dropCap": false
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "cc809290-30b1-47ac-b006-8165f460f301",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "align": "left",
+      "content": "Paragraph align Left",
+      "dropCap": false
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "482f4822-56a5-45c0-8676-9ee857b73197",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "align": "center",
+      "content": "Paragraph align Center",
+      "dropCap": false
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "5cf9ec87-1ef8-4f47-9c7f-47a37f02f043",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "content": "Paragraph <strong>bold</strong> <em>italic</em> <a href=\"http://project-311.local\">link</a> <a rel=\"noreferrer noopener\" href=\"http://project-331.local\" target=\"_blank\">link_new_tab</a>",
+      "dropCap": false
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "6885caaa-c4bd-45b4-852f-a210bc4d7126",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "content": "Paragraph inline: <code>code</code> <kbd>keyboard_input</kbd> <s>strikethrough</s> <sub>subscript</sub> <sup>superscript</sup> <span class=\"has-inline-color has-luminous-vivid-orange-color\">text-color</span>",
+      "dropCap": false
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "97910582-0322-4a6a-9dd6-02d431b0e046",
+    "isValid": true,
+    "name": "core/heading",
+    "attributes": {
+      "content": "<div>Heading 1</div>",
+      "level": 1,
+      "anchor": "heading-1"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "b7894e46-29de-4c9e-b5b4-e7c3675f76b2",
+    "isValid": true,
+    "name": "core/heading",
+    "attributes": {
+      "content": "<div>Heading 2</div>",
+      "level": 2,
+      "anchor": "heading-2"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "d464f1a2-0573-415c-af18-a25a0e57a211",
+    "isValid": true,
+    "name": "core/heading",
+    "attributes": {
+      "content": "<div>Heading 3</div>",
+      "level": 3,
+      "anchor": "heading-3"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "17e655f7-37bf-4449-a9e6-580f669f59e2",
+    "isValid": true,
+    "name": "core/heading",
+    "attributes": {
+      "content": "<div>Heading 4</div>",
+      "level": 4,
+      "anchor": "heading-4"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "260ea15d-ab07-4ff5-8442-a4b425286e04",
+    "isValid": true,
+    "name": "core/heading",
+    "attributes": {
+      "content": "<div>Heading 5</div>",
+      "level": 5,
+      "anchor": "heading-5"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "5c17aec3-ae05-4613-a95f-403b41967081",
+    "isValid": true,
+    "name": "core/heading",
+    "attributes": {
+      "content": "<div>Heading 6</div>",
+      "level": 6,
+      "anchor": "heading-6"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "c507e22c-55fe-42c9-b48a-a4d63f962a1e",
+    "isValid": true,
+    "name": "core/heading",
+    "attributes": {
+      "content": "<div>Heading 2 Align Center</div>",
+      "level": 2,
+      "textAlign": "center",
+      "anchor": "heading-2-align-center"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "a2aa9566-d6fd-4f72-b1c4-ac86a4c9dd8a",
+    "isValid": true,
+    "name": "core/heading",
+    "attributes": {
+      "content": "<div>Heading 2 Align Right</div>",
+      "level": 2,
+      "textAlign": "right",
+      "anchor": "heading-2-align-right"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "cbfadae8-d0b5-4232-b2df-d6d95c223f93",
+    "isValid": true,
+    "name": "core/heading",
+    "attributes": {
+      "content": "<div>Heading 2 Align Left</div>",
+      "level": 2,
+      "textAlign": "left",
+      "anchor": "heading-2-align-left"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "bbe9c05f-f955-4944-ae53-53e1943d6976",
+    "isValid": true,
+    "name": "core/heading",
+    "attributes": {
+      "content": "<div>Heading 2 <strong>Bold </strong><em>Italic<strong> ItalicBold</strong></em> <a href=\"http://project.local\">Link</a> <a rel=\"noreferrer noopener\" href=\"http://project-331.local\" target=\"_blank\">Link_new_tab</a> <br>Inline: <code>code</code> <kbd>keyboard</kbd> <br><s>strikethrough</s> <sub>subscript </sub><sup>superscript</sup> <span class=\"has-inline-color has-vivid-green-cyan-color\">text-color</span></div>",
+      "level": 2,
+      "anchor": "heading-2-bold-italic-italicbold-link-link-new-tab-inline-code-keyboard-strikethrough-subscript-superscript-text-color"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "b4ef937f-f2b7-40e1-b70e-a2cfe445f469",
+    "isValid": true,
+    "name": "core/heading",
+    "attributes": {
+      "content": "<div>Heading 2 Default</div>",
+      "level": 2,
+      "anchor": "heading-2-default"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "67aacdb8-323e-46d1-911b-efc0c1f265e3",
+    "isValid": true,
+    "name": "core/heading",
+    "attributes": {
+      "content": "<div>Heading 2 Small</div>",
+      "fontSize": "small",
+      "level": 2,
+      "anchor": "heading-2-small"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "c29e784e-5a79-462b-bc5a-34698268d7fa",
+    "isValid": true,
+    "name": "core/heading",
+    "attributes": {
+      "content": "<div>Heading 2 Normal</div>",
+      "fontSize": "normal",
+      "level": 2,
+      "anchor": "heading-2-normal"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "955e6b8e-7191-4edf-b740-4ad00a5ecc3b",
+    "isValid": true,
+    "name": "core/heading",
+    "attributes": {
+      "content": "<div>Heading 2 Medium</div>",
+      "fontSize": "medium",
+      "level": 2,
+      "anchor": "heading-2-medium"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "533ad7a4-94bc-4aec-af36-967f2c059e0a",
+    "isValid": true,
+    "name": "core/heading",
+    "attributes": {
+      "content": "<div>Heading 2 Large</div>",
+      "fontSize": "large",
+      "level": 2,
+      "anchor": "heading-2-large"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "9096e5a3-6660-4ee2-b369-d50ce521c3d2",
+    "isValid": true,
+    "name": "core/heading",
+    "attributes": {
+      "content": "<div>Heading 2 Huge</div>",
+      "fontSize": "huge",
+      "level": 2,
+      "anchor": "heading-2-huge"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "e90fcb0e-b219-4715-af9e-a420c63f4cc3",
+    "isValid": true,
+    "name": "core/heading",
+    "attributes": {
+      "backgroundColor": "vivid-red",
+      "content": "<div>Heading 2 Background &amp; Text Color</div>",
+      "level": 2,
+      "textAlign": "left",
+      "textColor": "white",
+      "anchor": "heading-2-background-text-color"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "f5eb4aa3-5ad0-47ed-8843-13ea1db92f83",
+    "isValid": true,
+    "name": "core/heading",
+    "attributes": {
+      "backgroundColor": "black",
+      "content": "<div>Heading 2 BG &amp; Text Align Center</div>",
+      "level": 2,
+      "textAlign": "center",
+      "textColor": "white",
+      "anchor": "heading-2-bg-text-align-center"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "6a017e86-1ad5-4b7b-ae9b-e1177bfd23fd",
+    "isValid": true,
+    "name": "core/heading",
+    "attributes": {
+      "backgroundColor": "cyan-bluish-gray",
+      "content": "<div>Heading 2 BG &amp; Text Align Right</div>",
+      "level": 2,
+      "textAlign": "right",
+      "textColor": "vivid-cyan-blue",
+      "anchor": "heading-2-bg-text-align-right"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "f1fc319d-bf26-46e7-8faf-b9efbdf15243",
+    "isValid": true,
+    "name": "core/list",
+    "attributes": {
+      "ordered": false,
+      "values": "<li>Unordered List<ul><li>Item<ul><li>Inline <code>code </code><kbd>keyboard </kbd><s>strikethrough</s> <sub>subscript </sub><sup>superscript </sup><span class=\"has-inline-color has-vivid-green-cyan-color\">text-inline-color</span></li><li>One<ul><li>Two<ul><li>Three<ul><li>Four<ol><li>Five</li><li>Six</li></ol></li></ul></li></ul></li></ul></li></ul></li></ul></li>"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "29dc31e9-b0df-4f8d-befc-590bd7b6b1d8",
+    "isValid": true,
+    "name": "core/list",
+    "attributes": {
+      "ordered": true,
+      "values": "<li>Ordered<ol><li>Item</li><li>Two&nbsp;<a href=\"http://project-331.local/\">link</a>&nbsp;<a rel=\"noreferrer noopener\" href=\"http://project-331.local/\" target=\"_blank\">link_new_tab</a>&nbsp;<strong>bold</strong>&nbsp;<em>italic</em>&nbsp;<strong><em>bolditalic</em></strong><ol><li>Three</li></ol></li></ol></li>"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "29ae88a2-34fc-4566-8f9d-193d91355936",
+    "isValid": true,
+    "name": "core/list",
+    "attributes": {
+      "backgroundColor": "black",
+      "ordered": false,
+      "textColor": "white",
+      "values": "<li>List with background<ul><li>and text color</li></ul></li>"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "0e2a4be6-ae6e-4f9f-baf8-4d41d23b950d",
+    "isValid": true,
+    "name": "core/list",
+    "attributes": {
+      "fontSize": "small",
+      "ordered": false,
+      "values": "<li>List Font Size Small</li>"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "bb2714fe-e7f5-421f-ab22-07897fe37b81",
+    "isValid": true,
+    "name": "core/list",
+    "attributes": {
+      "fontSize": "large",
+      "ordered": true,
+      "values": "<li>List Font Size Large</li>"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "307ff4b0-4eac-426d-9c29-838cb57d0585",
+    "isValid": true,
+    "name": "core/list",
+    "attributes": {
+      "ordered": true,
+      "reversed": true,
+      "start": 5,
+      "values": "<li>Ordered</li><li>Reversed</li><li>Start Value 5</li><li>Two</li>"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "e36001f8-f226-4f4a-a7c7-5a7fc7715ee2",
+    "isValid": true,
+    "name": "core/list",
+    "attributes": {
+      "ordered": true,
+      "reversed": true,
+      "values": "<li>Ordered</li><li>Reversed</li><li>No start value</li>"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "c7095701-7edc-4736-9048-7a626e408abb",
+    "isValid": true,
+    "name": "core/quote",
+    "attributes": {
+      "citation": "Citation",
+      "value": "<p>Default Quote</p>"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "3829fdc0-78f8-4625-abe5-03b4b75bcbf7",
+    "isValid": true,
+    "name": "core/quote",
+    "attributes": {
+      "citation": "Citation",
+      "className": "is-style-large",
+      "value": "<p>Large Quote</p>"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "b2df0917-192f-4523-b1e4-2e11e4813af1",
+    "isValid": true,
+    "name": "core/quote",
+    "attributes": {
+      "align": "center",
+      "citation": "Citation",
+      "value": "<p>Default Quote Middle</p>"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "ed6c8849-73bb-4d14-ab3e-9580a4e0b933",
+    "isValid": true,
+    "name": "core/quote",
+    "attributes": {
+      "align": "right",
+      "citation": "Citation",
+      "value": "<p>Default Quote Right</p>"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "dbe0fe99-b498-440e-b339-6eb7984d98fd",
+    "isValid": true,
+    "name": "core/quote",
+    "attributes": {
+      "align": "center",
+      "citation": "Add citation",
+      "className": "is-style-large",
+      "value": "<p>Large Quote Center</p>"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "7567f79d-ac55-4f1f-94d2-1c04b0c85440",
+    "isValid": true,
+    "name": "core/quote",
+    "attributes": {
+      "align": "right",
+      "citation": "Add citation",
+      "className": "is-style-large",
+      "value": "<p>Large Quote Right</p>"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "2b0fbb1b-476f-46e0-afba-a4bba5baf05d",
+    "isValid": true,
+    "name": "core/quote",
+    "attributes": {
+      "citation": "Add citation",
+      "value": "<p><strong>Bold <em>BoldItalic </em></strong><em>Italic </em><s>strikethrough</s><em><s> </s></em> <span class=\"has-inline-color has-vivid-purple-color\">text-color</span></p>"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "6e3672d3-e9bf-4c98-8d3a-db4a8986f2d7",
+    "isValid": true,
+    "name": "core/image",
+    "attributes": {
+      "alt": "",
+      "blurDataUrl": "",
+      "caption": "Default",
+      "linkDestination": "media",
+      "sizeSlug": "large",
+      "url": "https://storage.googleapis.com/download-moocfi/rage_logo.png"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "dc0f4f74-a189-4e16-9469-f5e05b074cb5",
+    "isValid": true,
+    "name": "core/image",
+    "attributes": {
+      "align": "center",
+      "alt": "",
+      "blurDataUrl": "",
+      "caption": "Align center",
+      "linkDestination": "media",
+      "sizeSlug": "large",
+      "url": "https://storage.googleapis.com/download-moocfi/rage_logo.png"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "34713225-9299-4285-ba7d-a7a66ad38b9f",
+    "isValid": true,
+    "name": "core/image",
+    "attributes": {
+      "align": "left",
+      "alt": "",
+      "blurDataUrl": "",
+      "caption": "Align left",
+      "linkDestination": "media",
+      "sizeSlug": "large",
+      "url": "https://storage.googleapis.com/download-moocfi/rage_logo.png"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "07037d3f-1471-4f58-a29f-77933b48f212",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus eleifend at. Cras sed malesuada orci. Integer placerat, tortor a cursus malesuada, mi diam lacinia ex, commodo elementum orci nunc quis lectus. Etiam at enim nec dui sagittis euismod sit amet quis turpis. Cras vestibulum, sem sed viverra tempus, erat nibh vestibulum mauris, quis ultricies nulla odio id elit. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Cras blandit bibendum nulla, fringilla blandit neque lobortis sed. Suspendisse dictum enim iaculis sodales lacinia. Aliquam consectetur tincidunt elit. Donec aliquam magna mauris, a tincidunt tellus sollicitudin ut.",
+      "dropCap": false
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "f9b69a8b-3849-42fa-980d-ec518d908232",
+    "isValid": true,
+    "name": "core/image",
+    "attributes": {
+      "align": "right",
+      "alt": "",
+      "blurDataUrl": "",
+      "caption": "Align right",
+      "linkDestination": "media",
+      "sizeSlug": "large",
+      "url": "https://storage.googleapis.com/download-moocfi/rage_logo.png"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "64681a13-4b58-447f-b8ec-6690620f819b",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus eleifend at. Cras sed malesuada orci. Integer placerat, tortor a cursus malesuada, mi diam lacinia ex, commodo elementum orci nunc quis lectus. Etiam at enim nec dui sagittis euismod sit amet quis turpis. Cras vestibulum, sem sed viverra tempus, erat nibh vestibulum mauris, quis ultricies nulla odio id elit. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Cras blandit bibendum nulla, fringilla blandit neque lobortis sed. Suspendisse dictum enim iaculis sodales lacinia. Aliquam consectetur tincidunt elit. Donec aliquam magna mauris, a tincidunt tellus sollicitudin ut.",
+      "dropCap": false
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "c62e5ddd-03a3-4a1d-a3ce-d2f41e48e4e9",
+    "isValid": true,
+    "name": "core/image",
+    "attributes": {
+      "alt": "",
+      "blurDataUrl": "",
+      "caption": "<strong>Bold external link on image</strong> new tab",
+      "href": "http://project-331.local",
+      "linkDestination": "custom",
+      "linkTarget": "_blank",
+      "sizeSlug": "large",
+      "url": "https://storage.googleapis.com/download-moocfi/rage_logo.png"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "a052a355-9baf-452e-b176-58de22c4c99f",
+    "isValid": true,
+    "name": "core/image",
+    "attributes": {
+      "align": "center",
+      "alt": "Rounded RAGE logo",
+      "blurDataUrl": "",
+      "caption": "Rounded RAGE logo center",
+      "className": "is-style-rounded",
+      "linkDestination": "media",
+      "sizeSlug": "large",
+      "url": "https://storage.googleapis.com/download-moocfi/rage_logo.png"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "6f22405e-d355-48c0-9217-7d7800606c9f",
+    "isValid": true,
+    "name": "core/image",
+    "attributes": {
+      "alt": "",
+      "blurDataUrl": "",
+      "caption": "50%",
+      "height": 100,
+      "linkDestination": "media",
+      "sizeSlug": "large",
+      "url": "https://storage.googleapis.com/download-moocfi/rage_logo.png",
+      "width": 100
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "f01d55a8-6e8b-44a8-950a-c41ae177ee54",
+    "isValid": true,
+    "name": "core/image",
+    "attributes": {
+      "align": "center",
+      "alt": "",
+      "blurDataUrl": "",
+      "caption": "450x450 center",
+      "height": 450,
+      "linkDestination": "media",
+      "sizeSlug": "large",
+      "url": "https://storage.googleapis.com/download-moocfi/rage_logo.png",
+      "width": 450
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "0cf407dd-ec6e-4629-9324-b50c8faf579b",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "align": "center",
+      "content": "<strong>END CORE / COMMON BLOCKS</strong>",
+      "dropCap": false
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "c38cbd08-2d3b-45a0-a4b3-00bad9697881",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "align": "center",
+      "content": "<strong>START CORE / FORMATTING BLOCKS</strong>",
+      "dropCap": false
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "e25e69ca-1ee7-49f7-bb9d-55196d360873",
+    "isValid": true,
+    "name": "core/code",
+    "attributes": {
+      "content": "def print():\n  System.out.println(\"Hello World!\");\neol <strong>bold</strong> <em>italic</em> <s>strikethrough </s> <span class=\"has-inline-color has-luminous-vivid-amber-color\">color</span>"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "5f2dc6d7-d57e-45b8-83db-edd7f5de4e88",
+    "isValid": true,
+    "name": "core/preformatted",
+    "attributes": {
+      "backgroundColor": "vivid-red",
+      "content": "Write Preformatted Text <strong>Bold </strong><em>Italic </em>Background and Text color",
+      "textColor": "white"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "f833e60d-7bae-4e21-a8a6-e77407ec3602",
+    "isValid": true,
+    "name": "core/pullquote",
+    "attributes": {
+      "citation": "This is a nice quote",
+      "value": "<p>Pull Quote</p>"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "b2580331-bee1-48db-8072-848b8f90261e",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "content": "Morbi gravida sollicitudin condimentum. Vivamus quis dictum ipsum. In metus sapien, iaculis sit amet nunc gravida, ultrices posuere velit. Morbi cursus justo nec augue rutrum rhoncus. Nam varius ullamcorper augue, ac venenatis libero sagittis sed. Morbi pulvinar urna vel odio rutrum fermentum. Curabitur risus erat, pellentesque in tortor a, tempus volutpat urna. Vivamus ac diam mauris..",
+      "dropCap": false
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "872d3854-c3c8-4173-997b-846e13d6dc63",
+    "isValid": true,
+    "name": "core/pullquote",
+    "attributes": {
+      "align": "left",
+      "citation": "Git",
+      "value": "<p>Git Pull Left</p>"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "3a5d3408-97b0-454b-9596-dcf37dc0ba59",
+    "isValid": true,
+    "name": "core/pullquote",
+    "attributes": {
+      "align": "right",
+      "citation": "GIT",
+      "value": "<p>Git Pull Right</p>"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "81854a99-d1c7-4a35-a4e1-2e86bcc52103",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "content": "Donec interdum egestas diam, at ultricies est ultrices ut. Aliquam ac metus quis erat maximus tincidunt et sed nibh. Nullam convallis dapibus mollis. Nam molestie ut nisi sed sodales. Mauris dictum vehicula vulputate. Suspendisse potenti. Proin tempor dui justo, vel vulputate neque rutrum ut. Aenean consequat est sed aliquet faucibus. Donec interdum egestas diam, at ultricies est ultrices ut. Aliquam ac metus quis erat maximus tincidunt et sed nibh. Nullam convallis dapibus mollis. Nam molestie ut nisi sed sodales. Mauris dictum vehicula vulputate. Suspendisse potenti. Proin tempor dui justo, vel vulputate neque rutrum ut. Aenean consequat est sed aliquet faucibus.",
+      "dropCap": false
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "73ad99fc-b4a4-4616-8638-754b17c58ec0",
+    "isValid": true,
+    "name": "core/pullquote",
+    "attributes": {
+      "citation": "Works",
+      "gradient": "very-light-gray-to-cyan-bluish-gray",
+      "textColor": "vivid-purple",
+      "value": "<p>Background and color</p>"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "ab1b986c-0db6-4bae-9088-5bd25eb145db",
+    "isValid": true,
+    "name": "core/pullquote",
+    "attributes": {
+      "align": "left",
+      "citation": "FLOAT LEFT",
+      "textAlign": "left",
+      "value": "<p>Text align left</p>"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "0b7d1043-7a5d-46d2-bbba-daf9750d5101",
+    "isValid": true,
+    "name": "core/pullquote",
+    "attributes": {
+      "citation": "No",
+      "textAlign": "right",
+      "value": "<p>Text align right</p>"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "f7ec6029-17d9-4f20-b261-6c122c38cfbb",
+    "isValid": true,
+    "name": "core/pullquote",
+    "attributes": {
+      "citation": "No change",
+      "textAlign": "center",
+      "value": "<p>Text align center</p>"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "7f0a9b6e-c1bd-4e8b-9bd8-bf6a3cab7603",
+    "isValid": true,
+    "name": "core/pullquote",
+    "attributes": {
+      "citation": "No float",
+      "textAlign": "left",
+      "value": "<p>Text align left</p>"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "44b434c7-be41-4eb4-850f-cd8922246062",
+    "isValid": true,
+    "name": "core/table",
+    "attributes": {
+      "body": [
+        {
+          "cells": [
+            {
+              "content": "Table not fixed",
+              "tag": "td"
+            },
+            {
+              "content": "what ",
+              "tag": "td"
+            },
+            {
+              "content": "is",
+              "tag": "td"
+            },
+            {
+              "content": "this",
+              "tag": "td"
+            },
+            {
+              "content": "x",
+              "tag": "td"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            }
+          ]
+        }
+      ],
+      "caption": "",
+      "foot": [],
+      "hasFixedLayout": false,
+      "head": []
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "20095120-4882-4cf5-b064-c39a568d99b4",
+    "isValid": true,
+    "name": "core/table",
+    "attributes": {
+      "body": [
+        {
+          "cells": [
+            {
+              "content": "table fixed stripes",
+              "tag": "td"
+            },
+            {
+              "content": "what",
+              "tag": "td"
+            },
+            {
+              "content": "is",
+              "tag": "td"
+            },
+            {
+              "content": "this",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "content": "hello",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            }
+          ]
+        }
+      ],
+      "caption": "Caption",
+      "className": "is-style-stripes",
+      "foot": [
+        {
+          "cells": [
+            {
+              "content": "Foot",
+              "tag": "td"
+            },
+            {
+              "content": "er",
+              "tag": "td"
+            },
+            {
+              "content": "1",
+              "tag": "td"
+            },
+            {
+              "content": "2",
+              "tag": "td"
+            },
+            {
+              "content": "3",
+              "tag": "td"
+            }
+          ]
+        }
+      ],
+      "hasFixedLayout": true,
+      "head": [
+        {
+          "cells": [
+            {
+              "content": "Head",
+              "tag": "th"
+            },
+            {
+              "content": "er",
+              "tag": "th"
+            },
+            {
+              "content": "1",
+              "tag": "th"
+            },
+            {
+              "content": "2",
+              "tag": "th"
+            },
+            {
+              "content": "3",
+              "tag": "th"
+            }
+          ]
+        }
+      ]
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "7cf072f2-9ec9-49b5-8abb-7b5d79d87f5f",
+    "isValid": true,
+    "name": "core/table",
+    "attributes": {
+      "backgroundColor": "black",
+      "body": [
+        {
+          "cells": [
+            {
+              "content": "Color",
+              "tag": "td"
+            },
+            {
+              "content": "Background",
+              "tag": "td"
+            },
+            {
+              "align": "center",
+              "content": "Center",
+              "tag": "td"
+            },
+            {
+              "align": "right",
+              "content": "Right",
+              "tag": "td"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "content": "Red",
+              "tag": "td"
+            },
+            {
+              "content": "Black",
+              "tag": "td"
+            },
+            {
+              "align": "center",
+              "content": "<em>Center</em>",
+              "tag": "td"
+            },
+            {
+              "align": "right",
+              "content": "<strong>Right</strong>",
+              "tag": "td"
+            }
+          ]
+        }
+      ],
+      "caption": "Wow",
+      "foot": [],
+      "hasFixedLayout": true,
+      "head": [],
+      "textColor": "vivid-red"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "bf8c42bd-2c8d-49b3-8fae-eb14da4913d4",
+    "isValid": true,
+    "name": "core/table",
+    "attributes": {
+      "align": "left",
+      "body": [
+        {
+          "cells": [
+            {
+              "content": "left",
+              "tag": "td"
+            },
+            {
+              "content": "1",
+              "tag": "td"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "content": "align",
+              "tag": "td"
+            },
+            {
+              "content": "2",
+              "tag": "td"
+            }
+          ]
+        }
+      ],
+      "caption": "",
+      "foot": [],
+      "hasFixedLayout": false,
+      "head": []
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "cd111f82-a267-4c2c-9097-d0436d783c91",
+    "isValid": true,
+    "name": "core/table",
+    "attributes": {
+      "align": "right",
+      "body": [
+        {
+          "cells": [
+            {
+              "content": "right",
+              "tag": "td"
+            },
+            {
+              "content": "1",
+              "tag": "td"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "content": "align",
+              "tag": "td"
+            },
+            {
+              "content": "2",
+              "tag": "td"
+            }
+          ]
+        }
+      ],
+      "caption": "",
+      "foot": [],
+      "hasFixedLayout": false,
+      "head": []
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "7f846e97-70d9-4eec-b1c1-8a3d09c4dc14",
+    "isValid": true,
+    "name": "core/table",
+    "attributes": {
+      "align": "center",
+      "body": [
+        {
+          "cells": [
+            {
+              "content": "Center",
+              "tag": "td"
+            },
+            {
+              "content": "Align",
+              "tag": "td"
+            },
+            {
+              "content": "Table",
+              "tag": "td"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            }
+          ]
+        }
+      ],
+      "caption": "",
+      "foot": [],
+      "hasFixedLayout": false,
+      "head": []
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "6eeff73a-5237-48e5-bb52-7293b64ad69b",
+    "isValid": true,
+    "name": "core/table",
+    "attributes": {
+      "body": [
+        {
+          "cells": [
+            {
+              "align": "left",
+              "content": "Left",
+              "tag": "td"
+            },
+            {
+              "align": "center",
+              "content": "Center",
+              "tag": "td"
+            },
+            {
+              "align": "right",
+              "content": "Right",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "align": "left",
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "align": "center",
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "align": "right",
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            }
+          ]
+        }
+      ],
+      "caption": "",
+      "foot": [
+        {
+          "cells": [
+            {
+              "align": "left",
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "align": "center",
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "align": "right",
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            }
+          ]
+        }
+      ],
+      "hasFixedLayout": true,
+      "head": [
+        {
+          "cells": [
+            {
+              "align": "left",
+              "content": "Left",
+              "tag": "th"
+            },
+            {
+              "align": "center",
+              "content": "Center",
+              "tag": "th"
+            },
+            {
+              "align": "right",
+              "content": "Right",
+              "tag": "th"
+            },
+            {
+              "content": "",
+              "tag": "th"
+            },
+            {
+              "content": "",
+              "tag": "th"
+            },
+            {
+              "content": "",
+              "tag": "th"
+            },
+            {
+              "content": "",
+              "tag": "th"
+            }
+          ]
+        }
+      ]
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "35566ee4-06f8-4b3b-8979-5677d6b89311",
+    "isValid": true,
+    "name": "core/table",
+    "attributes": {
+      "body": [
+        {
+          "cells": [
+            {
+              "content": "Hello",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "content": "stripe",
+              "tag": "td"
+            },
+            {
+              "content": "Background",
+              "tag": "td"
+            },
+            {
+              "content": "Hello",
+              "tag": "td"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "Looks awful",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            }
+          ]
+        }
+      ],
+      "caption": "",
+      "className": "is-style-stripes",
+      "foot": [],
+      "gradient": "cool-to-warm-spectrum",
+      "hasFixedLayout": false,
+      "head": []
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "bf84634b-cd98-40ed-955c-74e1553c7a27",
+    "isValid": true,
+    "name": "core/verse",
+    "attributes": {
+      "backgroundColor": "vivid-red",
+      "content": "Insert poetry. Use special spacing formats. Or quote song lyrics. Background and text <strong>color </strong><em>italy</em>",
+      "textAlign": "center",
+      "textColor": "luminous-vivid-amber"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "85d921c6-de2a-470d-8740-46e734fe065a",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "align": "center",
+      "content": "<strong>END CORE / FORMATTING BLOCKS</strong>",
+      "dropCap": false
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "c7fe3df7-24f1-4b7d-836b-7d746a146fe9",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "align": "center",
+      "content": "<strong>START CORE / LAYOUT BLOCKS</strong>",
+      "dropCap": false
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "f897d95f-aa81-4be2-902c-302f37205567",
+    "isValid": true,
+    "name": "core/spacer",
+    "attributes": {
+      "height": 209
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "ee35d802-75c7-446d-911c-e4fc50d79d9a",
+    "isValid": true,
+    "name": "core/buttons",
+    "attributes": {
+      "orientation": "horizontal"
+    },
+    "innerBlocks": [
+      {
+        "clientId": "1308848a-9c0c-40e9-8b85-8005fc12fc31",
+        "isValid": true,
+        "name": "core/button",
+        "attributes": {
+          "text": "Button Primary",
+          "className": "is-style-material-primary-button"
+        },
+        "innerBlocks": []
+      },
+      {
+        "clientId": "504c078e-3fa7-445b-a442-f9b287590865",
+        "isValid": true,
+        "name": "core/button",
+        "attributes": {
+          "text": "Button SECONDARY",
+          "className": "is-style-material-secondary-button"
+        },
+        "innerBlocks": []
+      },
+      {
+        "clientId": "ba3fa765-5e46-4f67-b27a-002ba399cf10",
+        "name": "core/button",
+        "isValid": true,
+        "attributes": {
+          "text": "BUTTON TERTIARY",
+          "className": "is-style-material-tertiary-button"
+        },
+        "innerBlocks": []
+      }
+    ]
+  },
+  {
+    "clientId": "8f4d9be0-aba7-4c39-8ab4-8ae7b70b7ab5",
+    "isValid": true,
+    "name": "core/buttons",
+    "attributes": {
+      "orientation": "horizontal"
+    },
+    "innerBlocks": [
+      {
+        "clientId": "8e410195-8cc0-4dfc-a080-0a9549f089a0",
+        "name": "core/button",
+        "isValid": true,
+        "attributes": {
+          "text": "BUTTON"
+        },
+        "innerBlocks": []
+      },
+      {
+        "clientId": "2ea8d719-af78-4174-b356-e220c5e69fc4",
+        "isValid": true,
+        "name": "core/button",
+        "attributes": {
+          "backgroundColor": "vivid-cyan-blue",
+          "className": "is-style-fill",
+          "text": "50% text &amp; bg",
+          "textColor": "vivid-red",
+          "width": 50
+        },
+        "innerBlocks": []
+      }
+    ]
+  },
+  {
+    "clientId": "ffbbb83d-9804-422e-b170-d15d035371c7",
+    "isValid": true,
+    "name": "core/buttons",
+    "attributes": {
+      "orientation": "horizontal"
+    },
+    "innerBlocks": [
+      {
+        "clientId": "988cc043-7131-4857-ac8d-4c903644e928",
+        "isValid": true,
+        "name": "core/button",
+        "attributes": {
+          "text": "Width 25",
+          "width": 25
+        },
+        "innerBlocks": []
+      },
+      {
+        "clientId": "5b9284de-08d4-4c89-b0b1-d90d976f8899",
+        "isValid": true,
+        "name": "core/button",
+        "attributes": {
+          "text": "Width 50 &amp; link",
+          "url": "http://project-331.local",
+          "width": 50
+        },
+        "innerBlocks": []
+      },
+      {
+        "clientId": "f1e5d1de-b65e-47a3-a445-5ae311dbb055",
+        "isValid": true,
+        "name": "core/button",
+        "attributes": {
+          "text": "Width 25",
+          "width": 25
+        },
+        "innerBlocks": []
+      },
+      {
+        "clientId": "007e1662-2a51-41f4-9941-07078e111772",
+        "isValid": true,
+        "name": "core/button",
+        "attributes": {
+          "text": "Width 75",
+          "width": 75
+        },
+        "innerBlocks": []
+      },
+      {
+        "clientId": "4f0c3e59-088d-44d8-ab77-a38db5faa676",
+        "isValid": true,
+        "name": "core/button",
+        "attributes": {
+          "text": "<mark style=\"background-color:rgba(0, 0, 0, 0)\" class=\"has-inline-color has-vivid-green-cyan-color\">Width</mark> 100",
+          "width": 100
+        },
+        "innerBlocks": []
+      }
+    ]
+  },
+  {
+    "clientId": "dded8699-75ff-40f7-b093-f2b6f12c1ac9",
+    "isValid": true,
+    "name": "core/buttons",
+    "attributes": {
+      "contentJustification": "center",
+      "orientation": "vertical"
+    },
+    "innerBlocks": [
+      {
+        "clientId": "fcac1502-0de4-4e75-a734-ae29d1828b40",
+        "isValid": true,
+        "name": "core/button",
+        "attributes": {
+          "text": "Justify items center"
+        },
+        "innerBlocks": []
+      },
+      {
+        "clientId": "3dbea8e7-df60-4e9f-ab41-9d56f69c2280",
+        "isValid": true,
+        "name": "core/button",
+        "attributes": {
+          "text": "Vertical"
+        },
+        "innerBlocks": []
+      }
+    ]
+  },
+  {
+    "clientId": "c6473f68-8a50-4c4e-aec6-2bd859dbf4c5",
+    "isValid": true,
+    "name": "core/buttons",
+    "attributes": {
+      "contentJustification": "left",
+      "orientation": "vertical"
+    },
+    "innerBlocks": [
+      {
+        "clientId": "69c1ffef-3170-420c-8ace-b817ff876692",
+        "isValid": true,
+        "name": "core/button",
+        "attributes": {
+          "text": "Justify items left"
+        },
+        "innerBlocks": []
+      },
+      {
+        "clientId": "0144ffdc-c073-455a-a2b1-5bf387932e26",
+        "isValid": true,
+        "name": "core/button",
+        "attributes": {
+          "text": "Vertical"
+        },
+        "innerBlocks": []
+      }
+    ]
+  },
+  {
+    "clientId": "65307e47-6f95-4a3d-a429-87447bc9cbcd",
+    "isValid": true,
+    "name": "core/buttons",
+    "attributes": {
+      "contentJustification": "right",
+      "orientation": "vertical"
+    },
+    "innerBlocks": [
+      {
+        "clientId": "87dd0675-b363-4bad-be49-490c71958198",
+        "isValid": true,
+        "name": "core/button",
+        "attributes": {
+          "text": "Justify items right"
+        },
+        "innerBlocks": []
+      },
+      {
+        "clientId": "0542a6ec-4728-4fbe-b4a7-902b45d1e2a1",
+        "isValid": true,
+        "name": "core/button",
+        "attributes": {
+          "text": "vertical"
+        },
+        "innerBlocks": []
+      }
+    ]
+  },
+  {
+    "clientId": "1f7c39a9-b24b-4d15-b63d-2b401909272f",
+    "isValid": true,
+    "name": "core/buttons",
+    "attributes": {
+      "contentJustification": "center",
+      "orientation": "horizontal"
+    },
+    "innerBlocks": [
+      {
+        "clientId": "8160cd3c-c8a5-4b41-8b45-3f24fc978166",
+        "isValid": true,
+        "name": "core/button",
+        "attributes": {
+          "text": "Justify items center"
+        },
+        "innerBlocks": []
+      },
+      {
+        "clientId": "2f91cd91-f956-4fce-b2c6-39b54edd50b6",
+        "isValid": true,
+        "name": "core/button",
+        "attributes": {
+          "text": "Horizontal"
+        },
+        "innerBlocks": []
+      }
+    ]
+  },
+  {
+    "clientId": "25b0ea67-6a7a-4a73-871a-47dcbb04e284",
+    "isValid": true,
+    "name": "core/buttons",
+    "attributes": {
+      "contentJustification": "left",
+      "orientation": "horizontal"
+    },
+    "innerBlocks": [
+      {
+        "clientId": "c5e668bf-1a9c-4f86-a6c6-564f9f707981",
+        "isValid": true,
+        "name": "core/button",
+        "attributes": {
+          "text": "Justify items left"
+        },
+        "innerBlocks": []
+      },
+      {
+        "clientId": "ba51d2b2-fd97-41d0-9648-7fe510e7c7c5",
+        "isValid": true,
+        "name": "core/button",
+        "attributes": {
+          "text": "Horizontal"
+        },
+        "innerBlocks": []
+      }
+    ]
+  },
+  {
+    "clientId": "53d86a73-a9e5-418a-b08e-fc530b3b5cae",
+    "isValid": true,
+    "name": "core/buttons",
+    "attributes": {
+      "contentJustification": "right",
+      "orientation": "horizontal"
+    },
+    "innerBlocks": [
+      {
+        "clientId": "8204cae4-5680-4874-bc1c-c41cd3efbfea",
+        "isValid": true,
+        "name": "core/button",
+        "attributes": {
+          "text": "Justify items right"
+        },
+        "innerBlocks": []
+      },
+      {
+        "clientId": "37adfb26-30b6-40ae-9a28-b6a6ef539c5c",
+        "isValid": true,
+        "name": "core/button",
+        "attributes": {
+          "text": "Horizontal"
+        },
+        "innerBlocks": []
+      }
+    ]
+  },
+  {
+    "clientId": "992202ce-847e-484a-83d8-5919782f35c5",
+    "isValid": true,
+    "name": "core/buttons",
+    "attributes": {
+      "contentJustification": "space-between",
+      "orientation": "horizontal"
+    },
+    "innerBlocks": [
+      {
+        "clientId": "0cd17f9c-f7ff-4267-b297-ce60623ef61d",
+        "isValid": true,
+        "name": "core/button",
+        "attributes": {
+          "text": "Justify items space between"
+        },
+        "innerBlocks": []
+      },
+      {
+        "clientId": "2feabc00-9edd-46e2-ae29-ba6b4bb9e3ca",
+        "isValid": true,
+        "name": "core/button",
+        "attributes": {
+          "text": "Space between"
+        },
+        "innerBlocks": []
+      }
+    ]
+  },
+  {
+    "clientId": "bfeb7868-8949-4922-89a1-2f9d70bc9403",
+    "isValid": true,
+    "name": "core/buttons",
+    "attributes": {
+      "orientation": "horizontal"
+    },
+    "innerBlocks": [
+      {
+        "clientId": "171e8594-d5ca-4a77-8138-40e19b81d90b",
+        "isValid": true,
+        "name": "core/button",
+        "attributes": {
+          "fontSize": "huge",
+          "text": "Button Huge"
+        },
+        "innerBlocks": []
+      },
+      {
+        "clientId": "99b5b230-9aa2-4af4-9360-dc1f313e950c",
+        "isValid": true,
+        "name": "core/button",
+        "attributes": {
+          "fontSize": "small",
+          "text": "Button Small"
+        },
+        "innerBlocks": []
+      }
+    ]
+  },
+  {
+    "clientId": "a35f297f-eec4-4885-a0f8-098b8310271d",
+    "isValid": true,
+    "name": "core/buttons",
+    "attributes": {
+      "orientation": "horizontal"
+    },
+    "innerBlocks": [
+      {
+        "clientId": "0b19508d-bac8-43d6-9fbc-976151f8a377",
+        "isValid": true,
+        "name": "core/button",
+        "attributes": {},
+        "innerBlocks": []
+      }
+    ]
+  },
+  {
+    "clientId": "1985a17c-da1f-4f22-b6b5-8d8828ce098f",
+    "isValid": true,
+    "name": "core/separator",
+    "attributes": {
+      "className": "is-style-default"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "ebc518ad-94a3-40ee-b335-1b8c333c0e02",
+    "isValid": true,
+    "name": "core/separator",
+    "attributes": {
+      "className": "is-style-wide"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "d4f16df1-349b-4e0e-8766-bffcff556521",
+    "isValid": true,
+    "name": "core/separator",
+    "attributes": {
+      "className": "is-style-dots"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "f9e8d1fe-596a-44db-9900-36527aa005e0",
+    "isValid": true,
+    "name": "core/separator",
+    "attributes": {
+      "className": "is-style-dots",
+      "color": "vivid-red"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "5f7b87e1-0811-47ff-b37a-046aa0fac988",
+    "isValid": true,
+    "name": "core/separator",
+    "attributes": {
+      "className": "is-style-wide",
+      "color": "vivid-cyan-blue"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "24620bc5-927a-4614-b12b-7bea88d2c1c6",
+    "isValid": true,
+    "name": "core/separator",
+    "attributes": {},
+    "innerBlocks": []
+  },
+  {
+    "clientId": "9a41fd9b-a4b9-4655-b7e5-d05ff88fc9a0",
+    "isValid": true,
+    "name": "core/separator",
+    "attributes": {
+      "color": "vivid-purple"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "20c3028d-c746-4ad5-8c4c-5265178d0488",
+    "isValid": true,
+    "name": "core/columns",
+    "attributes": {
+      "isStackedOnMobile": true,
+      "verticalAlignment": null
+    },
+    "innerBlocks": [
+      {
+        "clientId": "cb974aac-c197-42e4-afcb-90c5278b3f61",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {
+          "verticalAlignment": "center"
+        },
+        "innerBlocks": [
+          {
+            "clientId": "a6432216-34f1-4e47-8fe5-f73e46c03d90",
+            "isValid": true,
+            "name": "core/paragraph",
+            "attributes": {
+              "align": "center",
+              "content": "Columns 100 inside paragraph middle",
+              "dropCap": false
+            },
+            "innerBlocks": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "clientId": "863eec9d-708c-41b9-8a6a-fee30e5ad0da",
+    "isValid": true,
+    "name": "core/columns",
+    "attributes": {
+      "isStackedOnMobile": true
+    },
+    "innerBlocks": [
+      {
+        "clientId": "bca57244-ee56-45f2-97b7-1458eaa9f4e5",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {},
+        "innerBlocks": [
+          {
+            "clientId": "d917f5e8-fe91-4dd2-819f-021a6610d34a",
+            "isValid": true,
+            "name": "core/paragraph",
+            "attributes": {
+              "content": "Columns fiddy",
+              "dropCap": false
+            },
+            "innerBlocks": []
+          }
+        ]
+      },
+      {
+        "clientId": "867aabaf-b2bd-4dab-ac81-657d10138b5a",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {},
+        "innerBlocks": [
+          {
+            "clientId": "852d4421-8b6b-4f9e-a54b-08ec68c896ae",
+            "isValid": true,
+            "name": "core/columns",
+            "attributes": {
+              "isStackedOnMobile": true
+            },
+            "innerBlocks": [
+              {
+                "clientId": "e72423ea-833d-417c-9dc5-acf27d27fe97",
+                "isValid": true,
+                "name": "core/column",
+                "attributes": {},
+                "innerBlocks": [
+                  {
+                    "clientId": "c2b11a11-3b49-46f0-b2e5-ee979fc4727f",
+                    "isValid": true,
+                    "name": "core/paragraph",
+                    "attributes": {
+                      "content": "Columns fiddy",
+                      "dropCap": false
+                    },
+                    "innerBlocks": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "clientId": "8be45ceb-511d-49d7-9026-f7d4917159b3",
+    "isValid": true,
+    "name": "core/columns",
+    "attributes": {
+      "isStackedOnMobile": true
+    },
+    "innerBlocks": [
+      {
+        "clientId": "0882b752-4699-452a-a528-c79413a5510c",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {
+          "width": "33.33%"
+        },
+        "innerBlocks": [
+          {
+            "clientId": "9d9e7766-b57c-4cc8-90fe-2d4dce5c560c",
+            "isValid": true,
+            "name": "core/paragraph",
+            "attributes": {
+              "content": "30",
+              "dropCap": false
+            },
+            "innerBlocks": []
+          }
+        ]
+      },
+      {
+        "clientId": "30844b09-736e-45ca-847c-4c0d04c96798",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {
+          "width": "66.66%"
+        },
+        "innerBlocks": [
+          {
+            "clientId": "1a2818d7-725a-471a-b163-7189d381f1e2",
+            "isValid": true,
+            "name": "core/paragraph",
+            "attributes": {
+              "content": "70",
+              "dropCap": false
+            },
+            "innerBlocks": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "clientId": "7dbac6dc-4965-47bb-801a-95b6a5e3e4b0",
+    "isValid": true,
+    "name": "core/columns",
+    "attributes": {
+      "isStackedOnMobile": true
+    },
+    "innerBlocks": [
+      {
+        "clientId": "2f1d9205-cc45-4c4f-a3e5-44fe4e5e51e8",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {
+          "width": "25%"
+        },
+        "innerBlocks": [
+          {
+            "clientId": "97c7dae8-a284-4c2f-a110-a98ef99e4ad4",
+            "isValid": true,
+            "name": "core/paragraph",
+            "attributes": {
+              "content": "25",
+              "dropCap": false
+            },
+            "innerBlocks": []
+          }
+        ]
+      },
+      {
+        "clientId": "9ada706f-279d-4976-b2ee-f22d24364506",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {
+          "width": "50%"
+        },
+        "innerBlocks": [
+          {
+            "clientId": "861becf2-ba38-464f-a724-83d9cd1528b9",
+            "isValid": true,
+            "name": "core/paragraph",
+            "attributes": {
+              "content": "50",
+              "dropCap": false
+            },
+            "innerBlocks": []
+          }
+        ]
+      },
+      {
+        "clientId": "9cde0d9c-f547-4c4f-a7f2-27081c40235d",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {
+          "width": "25%"
+        },
+        "innerBlocks": [
+          {
+            "clientId": "0eba574d-6db1-43c8-a027-521b52e64cdb",
+            "isValid": true,
+            "name": "core/paragraph",
+            "attributes": {
+              "content": "25",
+              "dropCap": false
+            },
+            "innerBlocks": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "clientId": "abc97b5b-7a32-4fad-9f23-4a06ae3a200f",
+    "isValid": true,
+    "name": "core/columns",
+    "attributes": {
+      "isStackedOnMobile": true,
+      "verticalAlignment": null
+    },
+    "innerBlocks": [
+      {
+        "clientId": "aa508beb-ebd5-4afc-b665-2fd6558ecd9f",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {
+          "verticalAlignment": "center"
+        },
+        "innerBlocks": [
+          {
+            "clientId": "8f25d578-b16a-47d9-b480-7b3d85fd782e",
+            "isValid": true,
+            "name": "core/paragraph",
+            "attributes": {
+              "content": "Columns align middle",
+              "dropCap": false
+            },
+            "innerBlocks": []
+          }
+        ]
+      },
+      {
+        "clientId": "f2bd407d-908d-41d8-aee7-43c8ac96de79",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {},
+        "innerBlocks": [
+          {
+            "clientId": "bce7b471-eb3f-4df8-aed2-183871afc529",
+            "isValid": true,
+            "name": "core/paragraph",
+            "attributes": {
+              "align": "center",
+              "content": "This is centered also<br>Column<br>Takes<br>Five<br>ROWS",
+              "dropCap": false
+            },
+            "innerBlocks": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "clientId": "b6de74d7-d909-47ab-9f7a-40af684347c0",
+    "isValid": true,
+    "name": "core/columns",
+    "attributes": {
+      "isStackedOnMobile": true,
+      "verticalAlignment": null
+    },
+    "innerBlocks": [
+      {
+        "clientId": "259e6d4d-8bb4-4496-9ad1-588ac58d63c7",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {
+          "verticalAlignment": "bottom"
+        },
+        "innerBlocks": [
+          {
+            "clientId": "5cf5827d-7431-4ea0-ad57-073289286880",
+            "isValid": true,
+            "name": "core/paragraph",
+            "attributes": {
+              "content": "Align bottom all",
+              "dropCap": false
+            },
+            "innerBlocks": []
+          }
+        ]
+      },
+      {
+        "clientId": "3222971f-bd13-4188-b902-d3e499361346",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {},
+        "innerBlocks": [
+          {
+            "clientId": "446998fd-09d4-4316-a786-b641aeb836b2",
+            "isValid": true,
+            "name": "core/paragraph",
+            "attributes": {
+              "content": "Left side should<br>be<br>&lt;-- on this level",
+              "dropCap": false
+            },
+            "innerBlocks": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "clientId": "cd37fd2b-5b34-4ec6-ab07-3b83cd0491df",
+    "isValid": true,
+    "name": "core/columns",
+    "attributes": {
+      "isStackedOnMobile": true,
+      "verticalAlignment": null
+    },
+    "innerBlocks": [
+      {
+        "clientId": "5983861b-7e35-4a36-b40b-7a4fd8dc10cb",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {
+          "verticalAlignment": "top"
+        },
+        "innerBlocks": [
+          {
+            "clientId": "78fb0403-bbc7-4c29-8365-939f11d9bf60",
+            "isValid": true,
+            "name": "core/paragraph",
+            "attributes": {
+              "content": "Align top all",
+              "dropCap": false
+            },
+            "innerBlocks": []
+          }
+        ]
+      },
+      {
+        "clientId": "b0d8afc5-26a8-4a34-9613-f899fe4b9469",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {},
+        "innerBlocks": [
+          {
+            "clientId": "caf835cc-f448-40c2-9eeb-78dccfb85a18",
+            "isValid": true,
+            "name": "core/paragraph",
+            "attributes": {
+              "content": "This<br>Should not<br>Change anything",
+              "dropCap": false
+            },
+            "innerBlocks": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "clientId": "82a058d1-da17-476e-86f1-3d5673f4697e",
+    "isValid": true,
+    "name": "core/columns",
+    "attributes": {
+      "backgroundColor": "pale-pink",
+      "isStackedOnMobile": true,
+      "textColor": "vivid-cyan-blue",
+      "verticalAlignment": "bottom"
+    },
+    "innerBlocks": [
+      {
+        "clientId": "e6299c36-6360-450d-aba0-6d6904772218",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {
+          "backgroundColor": "vivid-red",
+          "textColor": "vivid-cyan-blue",
+          "verticalAlignment": "bottom",
+          "width": "33.33%"
+        },
+        "innerBlocks": [
+          {
+            "clientId": "012a02d4-1ee2-4b4c-97e1-00299d6565cd",
+            "isValid": true,
+            "name": "core/paragraph",
+            "attributes": {
+              "content": "Background &amp; text color in column should overwrite the parent COLUMNS green color align bottom",
+              "dropCap": false
+            },
+            "innerBlocks": []
+          }
+        ]
+      },
+      {
+        "clientId": "eb161a24-e42e-4a73-a9d4-9d6e4ca352a7",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {
+          "verticalAlignment": "bottom",
+          "width": "66.66%"
+        },
+        "innerBlocks": [
+          {
+            "clientId": "2d3cca11-6051-43f5-bff5-e34c0033bbaa",
+            "isValid": true,
+            "name": "core/table",
+            "attributes": {
+              "body": [
+                {
+                  "cells": [
+                    {
+                      "content": "Table COLUMNS",
+                      "tag": "td"
+                    },
+                    {
+                      "content": "fixed",
+                      "tag": "td"
+                    }
+                  ]
+                },
+                {
+                  "cells": [
+                    {
+                      "content": "width COLOR",
+                      "tag": "td"
+                    },
+                    {
+                      "content": "ok",
+                      "tag": "td"
+                    }
+                  ]
+                },
+                {
+                  "cells": [
+                    {
+                      "content": "ok",
+                      "tag": "td"
+                    },
+                    {
+                      "content": "align",
+                      "tag": "td"
+                    }
+                  ]
+                },
+                {
+                  "cells": [
+                    {
+                      "content": "left ",
+                      "tag": "td"
+                    },
+                    {
+                      "content": "align bottom",
+                      "tag": "td"
+                    }
+                  ]
+                }
+              ],
+              "caption": "Testing",
+              "className": "is-style-regular",
+              "foot": [],
+              "hasFixedLayout": true,
+              "head": []
+            },
+            "innerBlocks": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "clientId": "237f7e6d-bcd7-491c-8302-6b1886606f27",
+    "isValid": true,
+    "name": "core/columns",
+    "attributes": {
+      "isStackedOnMobile": true
+    },
+    "innerBlocks": [
+      {
+        "clientId": "1c6b4e79-2828-415f-973d-5fac9ea8f378",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {
+          "width": "100px"
+        },
+        "innerBlocks": [
+          {
+            "clientId": "71c71438-5495-48a2-9a2c-5f9e8d191f47",
+            "isValid": true,
+            "name": "core/paragraph",
+            "attributes": {
+              "content": "100px wide",
+              "dropCap": false
+            },
+            "innerBlocks": []
+          }
+        ]
+      },
+      {
+        "clientId": "809bcf2c-7e30-40e5-b484-3a74c87a5c1b",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {},
+        "innerBlocks": [
+          {
+            "clientId": "29cf7ce1-a42d-40de-b6a3-b066e283b567",
+            "isValid": true,
+            "name": "core/paragraph",
+            "attributes": {
+              "content": "the rest?",
+              "dropCap": false
+            },
+            "innerBlocks": []
+          }
+        ]
+      }
+    ]
+  }
+]

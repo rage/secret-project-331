@@ -1,5 +1,5 @@
 use super::{
-    pages::PageUpdate,
+    pages::CmsPageUpdate,
     proposed_block_edits::{BlockProposal, BlockProposalInfo, NewProposedBlockEdit},
 };
 use crate::{
@@ -44,8 +44,8 @@ pub struct EditProposalInfo {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
 pub struct ProposalCount {
-    pending: i64,
-    handled: i64,
+    pending: u32,
+    handled: u32,
 }
 
 pub async fn insert(
@@ -230,8 +230,8 @@ AND proposed_page_edits.deleted_at IS NULL
     .fetch_one(conn)
     .await?;
     let count = ProposalCount {
-        pending: res.pending.unwrap_or_default(),
-        handled: res.handled.unwrap_or_default(),
+        pending: res.pending.unwrap_or_default().try_into()?,
+        handled: res.handled.unwrap_or_default().try_into()?,
     };
     Ok(count)
 }
@@ -250,8 +250,9 @@ pub async fn process_proposal(
     }
 
     let mut tx = conn.begin().await?;
-    let page = crate::models::pages::get_page_with_exercises(&mut tx, page_id).await?;
-    let mut blocks = page.blocks_cloned()?;
+    let page_with_exercises =
+        crate::models::pages::get_page_with_exercises(&mut tx, page_id).await?;
+    let mut blocks = page_with_exercises.page.blocks_cloned()?;
     for BlockProposalInfo { id, action } in block_proposals {
         match action {
             BlockProposalAction::Accept(contents) => {
@@ -309,13 +310,23 @@ WHERE id = $1
     }
 
     let updated_content = serde_json::to_value(&blocks)?;
-    let page_update = PageUpdate {
+    let page_update = CmsPageUpdate {
         content: updated_content,
-        url_path: page.url_path,
-        title: page.title,
-        chapter_id: page.chapter_id,
+        exercises: page_with_exercises.exercises,
+        exercise_slides: page_with_exercises.exercise_slides,
+        exercise_tasks: page_with_exercises.exercise_tasks,
+        url_path: page_with_exercises.page.url_path,
+        title: page_with_exercises.page.title,
+        chapter_id: page_with_exercises.page.chapter_id,
     };
-    crate::models::pages::update_page(&mut tx, page.id, page_update, author, true).await?;
+    crate::models::pages::update_page(
+        &mut tx,
+        page_with_exercises.page.id,
+        page_update,
+        author,
+        true,
+    )
+    .await?;
 
     update_page_edit_status(&mut tx, page_proposal_id).await?;
 
@@ -357,7 +368,7 @@ mod test {
     use super::*;
     use crate::{
         attributes,
-        models::{pages::PageUpdate, proposed_block_edits::*},
+        models::proposed_block_edits::*,
         test_helper::{insert_data, Conn, Data},
         utils::document_schema_processor::GutenbergBlock,
     };
@@ -374,11 +385,14 @@ mod test {
             },
             inner_blocks: vec![],
         }];
-        let page_update = PageUpdate {
+        let page_update = CmsPageUpdate {
             content: serde_json::to_value(&new_content).unwrap(),
             url_path: "".to_string(),
             title: "".to_string(),
             chapter_id: Some(data.chapter),
+            exercises: vec![],
+            exercise_slides: vec![],
+            exercise_tasks: vec![],
         };
         crate::models::pages::update_page(conn, data.page, page_update, data.user, true)
             .await

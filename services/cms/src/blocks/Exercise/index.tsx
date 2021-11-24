@@ -1,6 +1,6 @@
 /* eslint-disable i18next/no-literal-string */
 import { BlockConfiguration, BlockEditProps } from "@wordpress/blocks"
-import { ComponentType } from "react"
+import { ComponentType, useEffect } from "react"
 import { v4 } from "uuid"
 
 import ExerciseEditor from "./ExerciseEditor"
@@ -41,11 +41,19 @@ function enforceExerciseIdDefined(
   // Name to display in React Dev tools
   const displayName = WrappedComponent.displayName || WrappedComponent.name || "Component"
   const InnerComponent = (props: BlockEditProps<ExerciseAttributes>) => {
+    const { attributes, setAttributes } = props
+
+    useEffect(() => {
+      if (!attributes.id) {
+        const id = v4()
+        setAttributes({ id })
+      }
+    }, [attributes.id, setAttributes])
+
     if (!props.attributes.id) {
-      const id = v4()
-      props.setAttributes({ id: id })
       return null
     }
+
     return <WrappedComponent {...props} />
   }
 

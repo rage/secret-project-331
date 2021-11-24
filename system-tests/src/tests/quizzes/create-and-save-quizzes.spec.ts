@@ -17,7 +17,7 @@ test.describe("quizzes tests", () => {
       page.waitForNavigation(),
       await page.click("text=University of Helsinki, Department of Computer Science"),
     ])
-    expectPath(page, "/organizations/[id]")
+    expectPath(page, "/org/uh-cs")
 
     // Click text=Add course
     await page.click(`button:text("Create")`)
@@ -97,8 +97,14 @@ test.describe("quizzes tests", () => {
     // Fill [placeholder="Exercise name"]
     await page.fill('[placeholder="Exercise name"]', "quizzes test")
 
-    // Click [aria-label="Add ExerciseTask"]
-    await page.click('[aria-label="Add ExerciseTask"]')
+    // Click text=Add slide
+    await page.click("text=Add slide")
+
+    // Click text=Add task
+    await page.click("text=Add task")
+
+    // Click [aria-label="Block: ExerciseTask"] div[role="button"]
+    await page.click('[aria-label="Block: ExerciseTask"] div[role="button"]')
 
     // Click text=Quizzes
     await page.click("text=Quizzes")
@@ -273,7 +279,7 @@ test.describe("quizzes tests", () => {
       await page.click("text=University of Helsinki, Department of Computer Science"),
     ])
 
-    expectPath(page, "/organizations/[id]")
+    expectPath(page, "/org/uh-cs")
 
     // Click text=Add course
     await page.click(`button:text("Create")`)
@@ -355,8 +361,14 @@ test.describe("quizzes tests", () => {
     // Fill [placeholder="Exercise name"]
     await page.fill('[placeholder="Exercise name"]', "quizzes test")
 
-    // Click [aria-label="Add ExerciseTask"]
-    await page.click('[aria-label="Add ExerciseTask"]')
+    // Click text=Add slide
+    await page.click("text=Add slide")
+
+    // Click text=Add task
+    await page.click("text=Add task")
+
+    // Click [aria-label="Block: ExerciseTask"] div[role="button"]
+    await page.click('[aria-label="Block: ExerciseTask"] div[role="button"]')
 
     // Click text=Quizzes
     await page.click("text=Quizzes")

@@ -6,18 +6,20 @@ import useSelectedBlockId from "../hooks/useSelectedBlockId"
 import { Block } from "../services/backend"
 import { NewProposedBlockEdit } from "../shared-module/bindings"
 import DebugModal from "../shared-module/components/DebugModal"
+import { inlineColorStyles } from "../styles/inlineColorStyles"
 
 import ContentRenderer from "./ContentRenderer"
-import NavigationContainer from "./ContentRenderer/NavigationContainer"
+import NavigationContainer from "./ContentRenderer/moocfi/NavigationContainer"
 import FeedbackHandler from "./FeedbackHandler"
 import SelectCourseInstanceModal from "./modals/SelectCourseInstanceModal"
 import UserOnWrongCourseNotification from "./notifications/UserOnWrongCourseNotification"
 
 interface Props {
   onRefresh: () => void
+  organizationSlug: string
 }
 
-const Page: React.FC<Props> = ({ onRefresh }) => {
+const Page: React.FC<Props> = ({ onRefresh, organizationSlug }) => {
   // block id -> new block contents
   const [edits, setEdits] = useState<Map<string, NewProposedBlockEdit>>(new Map())
   const pageContext = useContext(CoursePageContext)
@@ -35,6 +37,7 @@ const Page: React.FC<Props> = ({ onRefresh }) => {
         pageContext.settings.current_course_instance_id !== pageContext.instance?.id && (
           <UserOnWrongCourseNotification
             correctCourseId={pageContext.settings?.current_course_id}
+            organizationSlug={organizationSlug}
           />
         )}
       <div
@@ -70,7 +73,7 @@ const Page: React.FC<Props> = ({ onRefresh }) => {
         />
       )}
       {/* TODO: Better type for Page.content in bindings. */}
-      <div id="content">
+      <div id="content" className={inlineColorStyles}>
         <ContentRenderer
           data={(pageContext.pageData?.content as Array<Block<unknown>>) ?? []}
           editing={editingMaterial}

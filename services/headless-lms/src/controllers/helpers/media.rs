@@ -11,13 +11,13 @@ use crate::utils::strings::generate_random_string;
 use actix_multipart as mp;
 use actix_web::http::{header, HeaderMap};
 use futures::StreamExt;
-use std::path::PathBuf;
+use std::{path::PathBuf, sync::Arc};
 
-pub async fn upload_media_for_course(
+pub async fn upload_media_for_course<'a>(
     headers: &HeaderMap,
     mut payload: mp::Multipart,
     course: &Course,
-    file_store: &impl FileStore,
+    file_store: &Arc<dyn FileStore>,
 ) -> ControllerResult<PathBuf> {
     validate_media_headers(headers)?;
 
@@ -43,7 +43,7 @@ pub async fn upload_image_for_organization(
     headers: &HeaderMap,
     mut payload: mp::Multipart,
     organization: &DatabaseOrganization,
-    file_store: &impl FileStore,
+    file_store: &Arc<dyn FileStore>,
 ) -> ControllerResult<PathBuf> {
     validate_media_headers(headers)?;
 

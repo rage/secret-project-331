@@ -6,16 +6,18 @@ import { Dialog, Paper, TextField } from "@material-ui/core"
 import Link from "next/link"
 import React, { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-import sanitizeHtml from "sanitize-html"
 import { useDebounce } from "use-debounce"
 
 import { searchPagesWithPhrase, searchPagesWithWords } from "../services/backend"
 import { PageSearchResult } from "../shared-module/bindings"
 import Button from "../shared-module/components/Button"
 import DebugModal from "../shared-module/components/DebugModal"
+import { sanitizeCourseMaterialHtml } from "../utils/sanitizeCourseMaterialHtml"
 
 export interface SearchDialogProps {
   courseId: string
+  courseSlug: string
+  organizationSlug: string
 }
 
 const HeaderBar = styled.div`
@@ -34,7 +36,7 @@ const StyledIcon = css`
   }
 `
 
-const SearchDialog: React.FC<SearchDialogProps> = ({ courseId }) => {
+const SearchDialog: React.FC<SearchDialogProps> = ({ courseId, organizationSlug }) => {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState<string | null>(null)
@@ -151,7 +153,11 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId }) => {
                   return null
                 }
                 return (
-                  <Link href={result.url_path} key={result.id} passHref>
+                  <Link
+                    href={`/${organizationSlug}/courses/${result.url_path}`}
+                    key={result.id}
+                    passHref
+                  >
                     <a
                       href="replace"
                       className={css`
@@ -175,7 +181,9 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId }) => {
                             text-decoration: underline;
                           }
                         `}
-                        dangerouslySetInnerHTML={{ __html: sanitizeHtml(result.title_headline) }}
+                        dangerouslySetInnerHTML={{
+                          __html: sanitizeCourseMaterialHtml(result.title_headline),
+                        }}
                       />
 
                       {result.content_headline && (
@@ -184,7 +192,7 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId }) => {
                             color: #5a5757;
                           `}
                           dangerouslySetInnerHTML={{
-                            __html: sanitizeHtml(result.content_headline),
+                            __html: sanitizeCourseMaterialHtml(result.content_headline),
                           }}
                         />
                       )}

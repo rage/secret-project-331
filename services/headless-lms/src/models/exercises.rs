@@ -169,6 +169,30 @@ WHERE course_id = $1
     Ok(exercises)
 }
 
+pub async fn get_exercises_by_course_instance_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<Exercise>> {
+    let exercises = sqlx::query_as!(
+        Exercise,
+        r#"
+SELECT *
+FROM exercises
+WHERE course_id = (
+    SELECT course_id
+    FROM course_instances
+    WHERE id = $1
+  )
+  AND deleted_at IS NULL
+ORDER BY order_number ASC
+"#,
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(exercises)
+}
+
 pub async fn get_exercises_by_chapter_id(
     conn: &mut PgConnection,
     chapter_id: &Uuid,
@@ -326,6 +350,27 @@ pub async fn get_course_material_exercise(
         }),
         current_exercise_task_service_info,
     })
+}
+
+pub async fn delete_exercises_by_page_id(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+) -> ModelResult<Vec<Uuid>> {
+    let deleted_ids = sqlx::query!(
+        "
+UPDATE exercises
+SET deleted_at = now()
+WHERE page_id = $1
+RETURNING id;
+        ",
+        page_id
+    )
+    .fetch_all(conn)
+    .await?
+    .into_iter()
+    .map(|x| x.id)
+    .collect();
+    Ok(deleted_ids)
 }
 
 #[cfg(test)]

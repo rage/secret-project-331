@@ -1,63 +1,37 @@
 import styled from "@emotion/styled"
 import React from "react"
-import { border, color, space } from "styled-system"
 
-import { baseTheme, fontWeights, headingFont, theme, typography } from "../styles"
+import { baseTheme, fontWeights, headingFont, theme } from "../styles"
+import { respondToOrLarger } from "../styles/respond"
 
-export interface ButtonExtraProps {
-  variant: "primary" | "secondary" | "tertiary"
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant: "primary" | "secondary" | "tertiary" | "outlined"
   size: "medium" | "large"
   transform?: "normal" | "uppercase"
-  children: React.ReactNode
+  children?: React.ReactNode
 }
 
-export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & ButtonExtraProps
-
-// eslint-disable-next-line i18next/no-literal-string
-const BaseButton = styled.button`
+// BaseButtonStyles is the primary button
+export const BASE_BUTTON_STYLES = `
   position: relative;
   display: inline-block;
-  padding: ${({ size }: ButtonProps) =>
-    size == "medium" ? theme.buttonSizes.medium : theme.buttonSizes.large};
+  padding: ${theme.buttonSizes["large"].padding};
   font-family: ${headingFont};
-  font-weight: ${fontWeights.bold};
-  line-height: 18px;
-  white-space: nowrap;
+  font-weight: ${fontWeights.normal};
+  line-height: normal;
   vertical-align: baseline;
   cursor: pointer;
   user-select: none;
   text-decoration: none;
   text-align: center;
   justify-content: center;
-  text-transform: ${({ transform }: ButtonProps) =>
-    // eslint-disable-next-line i18next/no-literal-string
-    transform == "normal" ? "capitalize" : "uppercase"};
-  font-size: ${({ transform }: ButtonProps) => (transform == "normal" ? "18px" : "14px")};
+  word-break: break-word;
+  text-transform: uppercase;
   letter-spacing: 0.02em;
   transition: all 150ms linear;
   border: 2.5px solid transparent;
   z-index: 1;
 
-  &:hover {
-    text-decoration: none;
-  }
-
-  &:focus {
-    text-decoration: none;
-  }
-
-  &:disabled {
-    color: ${baseTheme.colors.neutral[600]};
-    background-color: ${baseTheme.colors.neutral[500]};
-    border-color: ${baseTheme.colors.neutral[500]};
-  }
-  ${border}
-  ${color}
-  ${space}
-`
-
-// eslint-disable-next-line i18next/no-literal-string
-const PrimaryButton = styled(BaseButton)`
   color: ${baseTheme.colors.neutral[900]};
   background-color: ${theme.primary.bg};
   border-color: ${theme.primary.hoverBorder};
@@ -66,6 +40,7 @@ const PrimaryButton = styled(BaseButton)`
     color: ${theme.primary.hoverBorder};
     background-color: ${theme.primary.hoverBg};
     border-color: ${theme.primary.hoverBorder};
+    text-decoration: none;
   }
 
   &:active {
@@ -79,55 +54,99 @@ const PrimaryButton = styled(BaseButton)`
     background-color: ${baseTheme.colors.neutral[500]};
     border-color: ${baseTheme.colors.neutral[500]};
   }
-`
 
-// eslint-disable-next-line i18next/no-literal-string
-const SecondaryButton = styled(BaseButton)`
-  color: ${theme.secondary.text};
-  border-color: ${theme.secondary.hoverBorder};
-  border: 1.5px solid ${theme.secondary.text};
-
-  &:hover,
   &:focus {
-    color: ${theme.secondary.hoverText};
-    box-shadow: 0 0 0 1px ${theme.secondary.text};
+    text-decoration: none;
   }
 
-  ,
-  &:active {
-    color: ${theme.secondary.hoverText};
-    background-color: ${theme.secondary.hoverBg};
+  ${respondToOrLarger.xs} {
+    word-break: unset;
   }
-
-  &:disabled {
-    color: ${baseTheme.colors.neutral[600]};
-    background-color: ${baseTheme.colors.neutral[500]};
-    border-color: ${baseTheme.colors.neutral[500]};
+  ${respondToOrLarger.sm} {
+    white-space: nowrap;
   }
 `
 
-// eslint-disable-next-line i18next/no-literal-string
-const TertiaryButton = styled(BaseButton)`
-  font-size: ${typography.paragraph};
-  color: ${theme.secondary.text};
-  background-color: ${baseTheme.colors.green[200]};
+export const PrimaryButtonStyles = (props: ButtonProps) => {
+  const PRIMARY_BUTTON_STYLES = `
+    text-transform: ${props.transform === "normal" ? "capitalize" : "uppercase"};
+    padding: ${theme.buttonSizes[props.size].padding};
+  `
+  return PRIMARY_BUTTON_STYLES
+}
 
-  &:hover {
-    color: ${baseTheme.colors.grey[800]};
-    background-color: ${baseTheme.colors.green[300]};
-  }
+export const SecondaryButtonStyles = (props: ButtonProps) => {
+  const SECONDARY_BUTTON_STYLES = `
+    text-transform: ${props.transform === "normal" ? "capitalize" : "uppercase"};
+    padding: ${theme.buttonSizes[props.size].padding};
 
-  ,
-  &:active {
-    color: ${baseTheme.colors.grey[800]};
-    background-color: ${baseTheme.colors.neutral[100]};
-  }
+    color: ${theme.secondary.text};
+    background: ${theme.secondary.bg};
+    border-color: ${theme.secondary.hoverBorder};
+    border: 1.5px solid ${theme.secondary.text};
 
-  &:disabled {
-    color: ${baseTheme.colors.neutral[600]};
-    background-color: ${baseTheme.colors.neutral[500]};
-    border-color: ${baseTheme.colors.neutral[500]};
-  }
+    &:hover,
+    &:focus {
+      color: ${theme.secondary.hoverText};
+      box-shadow: 0 0 0 1px ${theme.secondary.text};
+      border: 1.5px solid ${theme.secondary.text};
+    }
+
+    &:active {
+      color: ${theme.secondary.hoverText};
+      background-color: ${theme.secondary.hoverBg};
+    }
+
+    &:disabled {
+      color: ${baseTheme.colors.neutral[600]};
+      background-color: ${baseTheme.colors.neutral[500]};
+      border-color: ${baseTheme.colors.neutral[500]};
+    }
+  `
+  return SECONDARY_BUTTON_STYLES
+}
+
+export const TertiaryButtonStyles = (props: ButtonProps) => {
+  const TERTIARY_BUTTON_STYLES = `
+    text-transform: ${props.transform === "normal" ? "capitalize" : "uppercase"};
+    padding: ${theme.buttonSizes[props.size].padding};
+
+    color: ${theme.tertiary.text};
+    background-color: ${theme.tertiary.bg};
+    border: unset;
+
+    &:hover {
+      color: ${theme.tertiary.hoverText};
+      background-color: ${theme.tertiary.hoverBg};
+    }
+
+    &:active {
+      color: ${theme.tertiary.hoverText};
+      background-color: ${theme.tertiary.activeBg};
+    }
+
+    &:disabled {
+      color: ${baseTheme.colors.neutral[600]};
+      background-color: ${baseTheme.colors.neutral[500]};
+      border-color: ${baseTheme.colors.neutral[500]};
+    }
+  `
+  return TERTIARY_BUTTON_STYLES
+}
+
+const PrimaryButton = styled.button`
+  ${BASE_BUTTON_STYLES}
+  ${PrimaryButtonStyles}
+`
+
+const SecondaryButton = styled.button`
+  ${BASE_BUTTON_STYLES}
+  ${SecondaryButtonStyles}
+`
+
+const TertiaryButton = styled.button`
+  ${BASE_BUTTON_STYLES}
+  ${TertiaryButtonStyles}
 `
 
 /* BUTTON VARIANT
@@ -138,18 +157,19 @@ TertiaryButton
 IconButton
 Link */
 
-const Button: React.FC<ButtonProps> = (props) => {
-  return (
-    <>
-      {props.variant === "primary" ? (
-        <PrimaryButton {...props}></PrimaryButton>
-      ) : props.variant === "secondary" ? (
-        <SecondaryButton {...props}></SecondaryButton>
-      ) : (
-        <TertiaryButton {...props} />
-      )}
-    </>
-  )
+const Button: React.FC<ButtonProps> = (props: ButtonProps) => {
+  switch (props.variant) {
+    case "primary":
+      return <PrimaryButton {...props} />
+    case "secondary":
+      return <SecondaryButton {...props} />
+    case "tertiary":
+      return <TertiaryButton {...props} />
+    case "outlined":
+      return <SecondaryButton {...props} />
+    default:
+      return <PrimaryButton {...props} />
+  }
 }
 
 export default Button

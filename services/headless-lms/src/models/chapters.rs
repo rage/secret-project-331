@@ -5,7 +5,7 @@ use crate::{
     models::pages::NewPage,
     utils::{document_schema_processor::GutenbergBlock, numbers::option_f32_to_f32_two_decimals},
 };
-use std::path::PathBuf;
+use std::{path::PathBuf, sync::Arc};
 
 use crate::{utils::file_store::FileStore, ApplicationConfiguration};
 use chrono::{DateTime, Utc};
@@ -16,7 +16,7 @@ use uuid::Uuid;
 
 use super::pages::PageWithExercises;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct DatabaseChapter {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -49,7 +49,7 @@ pub struct Chapter {
 impl Chapter {
     pub fn from_database_chapter(
         chapter: &DatabaseChapter,
-        file_store: &impl FileStore,
+        file_store: &Arc<dyn FileStore>,
         app_conf: &ApplicationConfiguration,
     ) -> Self {
         let chapter_image_url = chapter.chapter_image_path.as_ref().map(|image| {
@@ -296,6 +296,35 @@ WHERE course_id = $1
     Ok(chapters)
 }
 
+pub async fn course_instance_chapters(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+) -> ModelResult<Vec<DatabaseChapter>> {
+    let chapters = sqlx::query_as!(
+        DatabaseChapter,
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  name,
+  course_id,
+  deleted_at,
+  chapter_image_path,
+  chapter_number,
+  front_page_id,
+  opens_at,
+  copied_from
+FROM chapters
+WHERE course_id = (SELECT course_id FROM course_instances WHERE id = $1)
+  AND deleted_at IS NULL;
+"#,
+        course_instance_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(chapters)
+}
+
 pub async fn insert_chapter(
     conn: &mut PgConnection,
     chapter: NewChapter,
@@ -330,6 +359,9 @@ RETURNING *;
         front_page_of_chapter_id: Some(chapter.id),
         title: chapter.name.clone(),
         url_path: format!("/chapter-{}", chapter.chapter_number),
+        exercises: vec![],
+        exercise_slides: vec![],
+        exercise_tasks: vec![],
     };
     let page = crate::models::pages::insert_page(&mut tx, chapter_frontpage, user).await?;
 

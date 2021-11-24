@@ -20,6 +20,7 @@ import {
 } from "../../../../services/backend/courses"
 import { NewCourse } from "../../../../shared-module/bindings"
 import Button from "../../../../shared-module/components/Button"
+import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import { frontendWideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import {
@@ -45,7 +46,7 @@ const ManageCoursePage: React.FC<ManageCoursePageProps> = ({ query }) => {
   const [showNewLanguageVersionForm, setShowNewLanguageVersionForm] = useState(false)
 
   if (error) {
-    return <div>{t("error-title")}</div>
+    return <ErrorBanner error={error} variant={"readOnly"} />
   }
 
   if (isLoading || !course) {

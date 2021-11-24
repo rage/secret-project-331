@@ -22,8 +22,11 @@ ts_rs::export! {
 
   course_instance_enrollments::CourseInstanceEnrollment,
 
+  course_instances::ChapterScore,
   course_instances::CourseInstance,
   course_instances::CourseInstanceForm,
+  course_instances::PointMap,
+  course_instances::Points,
   course_instances::VariantStatus,
 
   courses::Course,
@@ -110,6 +113,8 @@ ts_rs::export! {
 
   user_exercise_states::UserCourseInstanceChapterExerciseProgress,
   user_exercise_states::UserCourseInstanceProgress,
+
+  users::User,
 
   ExamCourseInfo,
   Login,

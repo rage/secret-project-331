@@ -62,6 +62,22 @@ export interface CourseInstanceEnrollment {
   deleted_at: Date | null
 }
 
+export interface ChapterScore {
+  id: string
+  created_at: Date
+  updated_at: Date
+  name: string
+  course_id: string
+  deleted_at: Date | null
+  chapter_image_path: string | null
+  chapter_number: number
+  front_page_id: string | null
+  opens_at: Date | null
+  copied_from: string | null
+  score_given: number
+  score_total: number
+}
+
 export interface CourseInstance {
   id: string
   created_at: Date
@@ -86,6 +102,14 @@ export interface CourseInstanceForm {
   support_email: string | null
   opening_time: Date | null
   closing_time: Date | null
+}
+
+export type PointMap = Record<string, number>
+
+export interface Points {
+  chapter_points: Array<ChapterScore>
+  users: Array<User>
+  user_chapter_points: Record<string, PointMap>
 }
 
 export type VariantStatus = "Draft" | "Upcoming" | "Active" | "Ended"
@@ -613,6 +637,15 @@ export interface UserCourseInstanceProgress {
   score_maximum: number | null
   total_exercises: number | null
   completed_exercises: number | null
+}
+
+export interface User {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  upstream_id: number | null
+  email: string
 }
 
 export interface ExamCourseInfo {

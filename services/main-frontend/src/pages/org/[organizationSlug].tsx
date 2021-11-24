@@ -10,20 +10,24 @@ import OrganizationImageWidget from "../../components/OrganizationImageWidget"
 import NewCourseForm from "../../components/forms/NewCourseForm"
 import { postNewCourse } from "../../services/backend/courses"
 import { fetchOrganizationExams } from "../../services/backend/exams"
-import { fetchOrganization, fetchOrganizationCourses } from "../../services/backend/organizations"
+import {
+  fetchOrganizationBySlug,
+  fetchOrganizationCoursesBySlug,
+} from "../../services/backend/organizations"
 import { NewCourse } from "../../shared-module/bindings"
 import { isErrorResponse } from "../../shared-module/bindings.guard"
 import Button from "../../shared-module/components/Button"
 import DebugModal from "../../shared-module/components/DebugModal"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
 import { frontendWideWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
+import { courseMaterialPageHref } from "../../shared-module/utils/cross-routing"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
 interface OrganizationPageProps {
-  query: SimplifiedUrlQuery<"id">
+  query: SimplifiedUrlQuery<"organizationSlug">
 }
 
 const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
@@ -32,19 +36,24 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
     error: errorOrgCourses,
     data: dataOrgCourses,
     refetch: refetchOrgCourses,
-  } = useQuery(`organization-courses`, () => fetchOrganizationCourses(query.id))
+  } = useQuery(`organization-${query.organizationSlug}-courses`, () =>
+    fetchOrganizationCoursesBySlug(query.organizationSlug),
+  )
   const { t } = useTranslation()
   const {
     isLoading: isLoadingOrg,
     error: errorOrg,
     data: dataOrg,
     refetch: refetchOrg,
-  } = useQuery(`organization-${query.id}`, () => fetchOrganization(query.id))
-  const exams = useQuery(`organization-${query.id}-exams`, () => fetchOrganizationExams(query.id))
+  } = useQuery(`organization-${query.organizationSlug}`, () =>
+    fetchOrganizationBySlug(query.organizationSlug),
+  )
+  const exams = useQuery(`organization-${query.organizationSlug}-exams`, () =>
+    fetchOrganizationExams(query.organizationSlug),
+  )
   const loginStateContext = useContext(LoginStateContext)
 
   const [newCourseFormOpen, setNewCourseFormOpen] = useState(false)
-  console.log(dataOrg)
   if (errorOrgCourses) {
     return <pre>{JSON.stringify(errorOrgCourses, undefined, 2)}</pre>
   }
@@ -94,7 +103,9 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
         >
           {dataOrgCourses.map((course) => (
             <div key={course.id}>
-              <a href={`/courses/${course.slug}`}>{course.name}</a>{" "}
+              <a href={courseMaterialPageHref(query.organizationSlug, course.slug)}>
+                {course.name}
+              </a>{" "}
               {loginStateContext.signedIn && (
                 <>
                   <Link
@@ -141,7 +152,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
               >
                 {t("button-text-close")}
               </Button>
-              <NewCourseForm organizationId={query.id} onSubmitForm={handleSubmitNewCourse} />
+              <NewCourseForm organizationId={dataOrg.id} onSubmitForm={handleSubmitNewCourse} />
             </div>
           </Dialog>
         </div>

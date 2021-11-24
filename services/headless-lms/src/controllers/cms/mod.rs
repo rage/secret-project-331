@@ -13,8 +13,6 @@ pub mod pages;
 
 use actix_web::web::{self, ServiceConfig};
 
-use crate::utils::file_store::FileStore;
-
 use self::{
     course_instances::_add_course_instances_routes, courses::_add_courses_routes,
     email_templates::_add_email_templates_routes, oembed::_add_oembed_routes,
@@ -22,8 +20,8 @@ use self::{
 };
 
 /// Add controllers from all the submodules.
-pub fn add_cms_routes<T: 'static + FileStore>(cfg: &mut ServiceConfig) {
-    cfg.service(web::scope("/courses").configure(_add_courses_routes::<T>))
+pub fn add_cms_routes(cfg: &mut ServiceConfig) {
+    cfg.service(web::scope("/courses").configure(_add_courses_routes))
         .service(web::scope("/pages").configure(_add_pages_routes))
         .service(web::scope("/course-instances").configure(_add_course_instances_routes))
         .service(web::scope("/email-templates").configure(_add_email_templates_routes))

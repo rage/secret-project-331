@@ -5,6 +5,10 @@ import { useQuery } from "react-query"
 
 import { fetchCourseInstances } from "../../services/backend/courses"
 import Button from "../../shared-module/components/Button"
+import {
+  manageCourseInstanceEmailsPageRoute,
+  manageCourseInstancePageRoute,
+} from "../../utils/routing"
 
 export interface CourseInstancesListProps {
   courseId: string
@@ -34,24 +38,12 @@ const CourseInstancesList: React.FC<CourseInstancesListProps> = ({ courseId }) =
           return (
             <li key={instance.id}>
               {name}{" "}
-              <Link
-                href={{
-                  pathname: "/manage/course-instances/[id]",
-                  query: { id: instance.id },
-                }}
-                passHref
-              >
+              <Link href={manageCourseInstancePageRoute(instance.id)} passHref>
                 <a href="replace" aria-label={`${t("link-manage")} (${name})`}>
                   {t("link-manage")}
                 </a>
               </Link>{" "}
-              <Link
-                href={{
-                  pathname: "/manage/course-instances/[id]/emails",
-                  query: { id: instance.id },
-                }}
-                passHref
-              >
+              <Link href={manageCourseInstanceEmailsPageRoute(instance.id)} passHref>
                 <a href="replace" aria-label={`${t("link-manage-emails")} (${name})`}>
                   {t("link-manage-emails")}
                 </a>

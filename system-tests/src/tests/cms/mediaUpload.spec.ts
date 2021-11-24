@@ -32,7 +32,7 @@ test.describe("Uploading media as admin", async () => {
       page.waitForNavigation(),
       await page.click("text=University of Helsinki, Department of Computer Science"),
     ])
-    expect(page.url().startsWith("http://project-331.local/organizations/")).toBe(true)
+    expect(page.url().startsWith("http://project-331.local/org/")).toBe(true)
 
     await Promise.all([page.waitForNavigation(), page.click("text=Manage")])
     expect(page.url().startsWith("http://project-331.local/manage/courses/")).toBe(true)

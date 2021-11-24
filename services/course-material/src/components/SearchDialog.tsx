@@ -16,6 +16,8 @@ import { sanitizeCourseMaterialHtml } from "../utils/sanitizeCourseMaterialHtml"
 
 export interface SearchDialogProps {
   courseId: string
+  courseSlug: string
+  organizationSlug: string
 }
 
 const HeaderBar = styled.div`
@@ -34,7 +36,7 @@ const StyledIcon = css`
   }
 `
 
-const SearchDialog: React.FC<SearchDialogProps> = ({ courseId }) => {
+const SearchDialog: React.FC<SearchDialogProps> = ({ courseId, organizationSlug }) => {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState<string | null>(null)
@@ -151,7 +153,11 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId }) => {
                   return null
                 }
                 return (
-                  <Link href={result.url_path} key={result.id} passHref>
+                  <Link
+                    href={`/${organizationSlug}/courses/${result.url_path}`}
+                    key={result.id}
+                    passHref
+                  >
                     <a
                       href="replace"
                       className={css`

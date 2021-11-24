@@ -64,10 +64,6 @@ const Label = styled.label`
   }
 `
 
-const disabled = css`
-  color: #959495;
-  cursor: not-allowed;
-`
 const error = css`
   color: #f76d82;
   font-size: 14px;

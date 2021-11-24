@@ -2,6 +2,8 @@ import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
+import { primaryFont } from "../../styles/typography"
+
 interface TextFieldExtraProps {
   type?: "email" | "password" | "text"
   label: string
@@ -22,7 +24,7 @@ const Input = styled.input`
   border-width: 1.6px;
   border-style: solid;
   border-radius: 3px;
-  border-color: ${({ error }) => (error ? ERRORCOLOR : DEFAULTCOLOR)};
+  border-color: ${({ error }: any) => (error ? ERRORCOLOR : DEFAULTCOLOR)};
   padding: 4px 12px;
   transition: ease-in-out, width 0.35s ease-in-out;
   outline: none;

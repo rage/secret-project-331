@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["HistoryChangeReason",""]],"fn":[["history",""],["history_count",""],["insert",""]],"struct":[["PageHistory",""]]});
+initSidebarItems({"enum":[["HistoryChangeReason",""]],"fn":[["get_history_content_and_title",""],["history",""],["history_count",""],["insert",""]],"struct":[["PageHistory",""],["PageHistoryContent",""]]});

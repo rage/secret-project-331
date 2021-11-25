@@ -1673,6 +1673,103 @@
 <span id="1673">1673</span>
 <span id="1674">1674</span>
 <span id="1675">1675</span>
+<span id="1676">1676</span>
+<span id="1677">1677</span>
+<span id="1678">1678</span>
+<span id="1679">1679</span>
+<span id="1680">1680</span>
+<span id="1681">1681</span>
+<span id="1682">1682</span>
+<span id="1683">1683</span>
+<span id="1684">1684</span>
+<span id="1685">1685</span>
+<span id="1686">1686</span>
+<span id="1687">1687</span>
+<span id="1688">1688</span>
+<span id="1689">1689</span>
+<span id="1690">1690</span>
+<span id="1691">1691</span>
+<span id="1692">1692</span>
+<span id="1693">1693</span>
+<span id="1694">1694</span>
+<span id="1695">1695</span>
+<span id="1696">1696</span>
+<span id="1697">1697</span>
+<span id="1698">1698</span>
+<span id="1699">1699</span>
+<span id="1700">1700</span>
+<span id="1701">1701</span>
+<span id="1702">1702</span>
+<span id="1703">1703</span>
+<span id="1704">1704</span>
+<span id="1705">1705</span>
+<span id="1706">1706</span>
+<span id="1707">1707</span>
+<span id="1708">1708</span>
+<span id="1709">1709</span>
+<span id="1710">1710</span>
+<span id="1711">1711</span>
+<span id="1712">1712</span>
+<span id="1713">1713</span>
+<span id="1714">1714</span>
+<span id="1715">1715</span>
+<span id="1716">1716</span>
+<span id="1717">1717</span>
+<span id="1718">1718</span>
+<span id="1719">1719</span>
+<span id="1720">1720</span>
+<span id="1721">1721</span>
+<span id="1722">1722</span>
+<span id="1723">1723</span>
+<span id="1724">1724</span>
+<span id="1725">1725</span>
+<span id="1726">1726</span>
+<span id="1727">1727</span>
+<span id="1728">1728</span>
+<span id="1729">1729</span>
+<span id="1730">1730</span>
+<span id="1731">1731</span>
+<span id="1732">1732</span>
+<span id="1733">1733</span>
+<span id="1734">1734</span>
+<span id="1735">1735</span>
+<span id="1736">1736</span>
+<span id="1737">1737</span>
+<span id="1738">1738</span>
+<span id="1739">1739</span>
+<span id="1740">1740</span>
+<span id="1741">1741</span>
+<span id="1742">1742</span>
+<span id="1743">1743</span>
+<span id="1744">1744</span>
+<span id="1745">1745</span>
+<span id="1746">1746</span>
+<span id="1747">1747</span>
+<span id="1748">1748</span>
+<span id="1749">1749</span>
+<span id="1750">1750</span>
+<span id="1751">1751</span>
+<span id="1752">1752</span>
+<span id="1753">1753</span>
+<span id="1754">1754</span>
+<span id="1755">1755</span>
+<span id="1756">1756</span>
+<span id="1757">1757</span>
+<span id="1758">1758</span>
+<span id="1759">1759</span>
+<span id="1760">1760</span>
+<span id="1761">1761</span>
+<span id="1762">1762</span>
+<span id="1763">1763</span>
+<span id="1764">1764</span>
+<span id="1765">1765</span>
+<span id="1766">1766</span>
+<span id="1767">1767</span>
+<span id="1768">1768</span>
+<span id="1769">1769</span>
+<span id="1770">1770</span>
+<span id="1771">1771</span>
+<span id="1772">1772</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::{
     <span class="ident">chapters</span>::{<span class="self">self</span>, <span class="ident">ChapterStatus</span>},
     <span class="ident">course_instances</span>::{<span class="self">self</span>, <span class="ident">CourseInstance</span>},
@@ -1690,7 +1787,7 @@
         <span class="ident">exercise_services</span>::{<span class="ident">get_internal_public_spec_url</span>, <span class="ident">get_model_solution_url</span>},
         <span class="ident">exercise_tasks::ExerciseTask</span>,
         <span class="ident">exercises::Exercise</span>,
-        <span class="ident">page_history::HistoryChangeReason</span>,
+        <span class="ident">page_history</span>::{<span class="self">self</span>, <span class="ident">HistoryChangeReason</span>, <span class="ident">PageHistoryContent</span>},
         <span class="ident">ModelError</span>,
     },
     <span class="ident">utils::document_schema_processor</span>::{
@@ -1703,7 +1800,10 @@
 <span class="kw">use</span> <span class="ident">itertools::Itertools</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">sqlx</span>::{<span class="ident">Acquire</span>, <span class="ident">FromRow</span>, <span class="ident">PgConnection</span>};
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">time::Duration</span>};
+<span class="kw">use</span> <span class="ident">std</span>::{
+    <span class="ident">collections</span>::{<span class="ident">hash_map</span>, <span class="ident">HashMap</span>},
+    <span class="ident">time::Duration</span>,
+};
 <span class="kw">use</span> <span class="ident">ts_rs::TS</span>;
 <span class="kw">use</span> <span class="ident">url::Url</span>;
 <span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
@@ -1879,7 +1979,12 @@ RETURNING id
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>,
         <span class="ident">page_res</span>.<span class="ident">id</span>,
         <span class="ident">title</span>,
-        <span class="kw-2">&amp;</span><span class="ident">serde_json::Value::Array</span>(<span class="macro">vec!</span>[]),
+        <span class="kw-2">&amp;</span><span class="ident">PageHistoryContent</span> {
+            <span class="ident">content</span>: <span class="ident">serde_json::Value::Array</span>(<span class="macro">vec!</span>[]),
+            <span class="ident">exercises</span>: <span class="macro">vec!</span>[],
+            <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[],
+            <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[],
+        },
         <span class="ident">HistoryChangeReason::PageSaved</span>,
         <span class="ident">author</span>,
         <span class="prelude-val">None</span>,
@@ -2173,13 +2278,58 @@ WHERE courses.slug = $1
     <span class="kw">pub</span> <span class="ident">chapter_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
 }
 
+<span class="kw">impl</span> <span class="ident">CmsPageUpdate</span> {
+    <span class="doccomment">/// Checks that each exercise has at least one slide and each slide has at least one task.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">validate_exercise_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">exercise_ids</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">bool</span><span class="op">&gt;</span> <span class="op">=</span>
+            <span class="self">self</span>.<span class="ident">exercises</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> (<span class="ident">x</span>.<span class="ident">id</span>, <span class="bool-val">false</span>)).<span class="ident">collect</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">slide_ids</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">exercise_slides</span>
+            .<span class="ident">iter</span>()
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">hash_map::Entry::Occupied</span>(<span class="kw-2">mut</span> <span class="ident">e</span>) <span class="op">=</span> <span class="ident">exercise_ids</span>.<span class="ident">entry</span>(<span class="ident">x</span>.<span class="ident">exercise_id</span>) {
+                    <span class="ident">e</span>.<span class="ident">insert</span>(<span class="bool-val">true</span>);
+                    <span class="prelude-val">Ok</span>((<span class="ident">x</span>.<span class="ident">id</span>, <span class="bool-val">false</span>))
+                } <span class="kw">else</span> {
+                    <span class="prelude-val">Err</span>(<span class="ident">ModelError::PreconditionFailed</span>(
+                        <span class="string">&quot;Exercide ids in slides don&#39;t match.&quot;</span>.<span class="ident">to_string</span>(),
+                    ))
+                }
+            })
+            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">bool</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
+        <span class="kw">if</span> <span class="ident">exercise_ids</span>.<span class="ident">values</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="op">!</span><span class="ident">x</span>) {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ModelError::PreconditionFailed</span>(
+                <span class="string">&quot;All exercises must have at least one slide.&quot;</span>.<span class="ident">to_string</span>(),
+            ));
+        }
+        <span class="kw">for</span> <span class="ident">task</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">exercise_tasks</span>.<span class="ident">iter</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">hash_map::Entry::Occupied</span>(<span class="kw-2">mut</span> <span class="ident">e</span>) <span class="op">=</span> <span class="ident">slide_ids</span>.<span class="ident">entry</span>(<span class="ident">task</span>.<span class="ident">exercise_slide_id</span>) {
+                <span class="ident">e</span>.<span class="ident">insert</span>(<span class="bool-val">true</span>);
+            } <span class="kw">else</span> {
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ModelError::PreconditionFailed</span>(
+                    <span class="string">&quot;Exercide slide ids in tasks don&#39;t match.&quot;</span>.<span class="ident">to_string</span>(),
+                ));
+            }
+        }
+        <span class="kw">if</span> <span class="ident">slide_ids</span>.<span class="ident">values</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="op">!</span><span class="ident">x</span>) {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ModelError::PreconditionFailed</span>(
+                <span class="string">&quot;All exercise slides must have at least one task.&quot;</span>.<span class="ident">to_string</span>(),
+            ));
+        }
+        <span class="prelude-val">Ok</span>(())
+    }
+}
+
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_page</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">page_update</span>: <span class="ident">CmsPageUpdate</span>,
     <span class="ident">author</span>: <span class="ident">Uuid</span>,
     <span class="ident">retain_exercise_ids</span>: <span class="ident">bool</span>,
+    <span class="ident">history_change_reason</span>: <span class="ident">HistoryChangeReason</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">ContentManagementPage</span><span class="op">&gt;</span> {
+    <span class="ident">page_update</span>.<span class="ident">validate_exercise_data</span>()<span class="question-mark">?</span>;
+
     <span class="kw">let</span> <span class="ident">parsed_content</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">GutenbergBlock</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">serde_json::from_value</span>(<span class="ident">page_update</span>.<span class="ident">content</span>)<span class="question-mark">?</span>;
     <span class="kw">if</span> <span class="ident">page_update</span>.<span class="ident">chapter_id</span>.<span class="ident">is_none</span>()
         <span class="op">&amp;&amp;</span> <span class="ident">contains_blocks_not_allowed_in_top_level_pages</span>(<span class="kw-2">&amp;</span><span class="ident">parsed_content</span>)
@@ -2190,8 +2340,6 @@ WHERE courses.slug = $1
     }
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="comment">// TODO: Make sure that the content maches provided exercises.</span>
 
     <span class="comment">// Updating page</span>
     <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
@@ -2265,11 +2413,11 @@ RETURNING id,
   public_spec,
   model_solution_spec;
         &quot;</span>,
-        <span class="kw-2">&amp;</span><span class="ident">existing_exercise_ids</span>,
+        <span class="kw-2">&amp;</span><span class="ident">existing_exercise_slide_ids</span>,
     )
     .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">remapped_exercise_tasks</span> <span class="op">=</span> <span class="ident">upsert_exercise_tasks</span>(
+    <span class="kw">let</span> <span class="ident">final_tasks</span> <span class="op">=</span> <span class="ident">upsert_exercise_tasks</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>,
         <span class="kw-2">&amp;</span><span class="ident">remapped_exercise_slides</span>,
         <span class="kw-2">&amp;</span><span class="ident">existing_exercise_task_specs</span>,
@@ -2279,8 +2427,7 @@ RETURNING id,
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// Now, we might have changed some of the exercise ids and need to do the same changes in the page content as well</span>
-    <span class="comment">// TODO: change signature of this function to avoid copying.</span>
-    <span class="kw">let</span> <span class="ident">new_content</span> <span class="op">=</span> <span class="ident">update_ids_in_content</span>(
+    <span class="kw">let</span> <span class="ident">new_content</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::utils::document_schema_processor::remap_ids_in_content</span>(
         <span class="kw-2">&amp;</span><span class="ident">page</span>.<span class="ident">content</span>,
         <span class="ident">remapped_exercises</span>
             .<span class="ident">iter</span>()
@@ -2312,13 +2459,20 @@ RETURNING id,
     .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">history_content</span> <span class="op">=</span> <span class="ident">serde_json::to_value</span>(<span class="kw-2">&amp;</span><span class="ident">new_content</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">final_exercises</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPageExercise</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">remapped_exercises</span>.<span class="ident">into_values</span>().<span class="ident">collect</span>();
+    <span class="kw">let</span> <span class="ident">final_slides</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPageExerciseSlide</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">remapped_exercise_slides</span>.<span class="ident">into_values</span>().<span class="ident">collect</span>();
+    <span class="kw">let</span> <span class="ident">history_content</span> <span class="op">=</span> <span class="ident">PageHistoryContent</span> {
+        <span class="ident">content</span>: <span class="ident">page</span>.<span class="ident">content</span>.<span class="ident">clone</span>(),
+        <span class="ident">exercises</span>: <span class="ident">final_exercises</span>,
+        <span class="ident">exercise_slides</span>: <span class="ident">final_slides</span>,
+        <span class="ident">exercise_tasks</span>: <span class="ident">final_tasks</span>,
+    };
     <span class="ident"><span class="kw">crate</span>::models::page_history::insert</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>,
         <span class="ident">page_id</span>,
         <span class="kw-2">&amp;</span><span class="ident">page_update</span>.<span class="ident">title</span>,
         <span class="kw-2">&amp;</span><span class="ident">history_content</span>,
-        <span class="ident">HistoryChangeReason::PageSaved</span>,
+        <span class="ident">history_change_reason</span>,
         <span class="ident">author</span>,
         <span class="prelude-val">None</span>,
     )
@@ -2329,9 +2483,9 @@ RETURNING id,
 
     <span class="prelude-val">Ok</span>(<span class="ident">ContentManagementPage</span> {
         <span class="ident">page</span>,
-        <span class="ident">exercises</span>: <span class="ident">remapped_exercises</span>.<span class="ident">into_values</span>().<span class="ident">collect</span>(),
-        <span class="ident">exercise_slides</span>: <span class="ident">remapped_exercise_slides</span>.<span class="ident">into_values</span>().<span class="ident">collect</span>(),
-        <span class="ident">exercise_tasks</span>: <span class="ident">remapped_exercise_tasks</span>,
+        <span class="ident">exercises</span>: <span class="ident">history_content</span>.<span class="ident">exercises</span>,
+        <span class="ident">exercise_slides</span>: <span class="ident">history_content</span>.<span class="ident">exercise_slides</span>,
+        <span class="ident">exercise_tasks</span>: <span class="ident">history_content</span>.<span class="ident">exercise_tasks</span>,
     })
 }
 
@@ -2629,19 +2783,6 @@ WHERE id = $2;
     <span class="prelude-val">Ok</span>(<span class="ident">result_spec</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">update_ids_in_content</span>(
-    <span class="ident">content</span>: <span class="kw-2">&amp;</span><span class="ident">serde_json::Value</span>,
-    <span class="ident">chaged_ids</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">Uuid</span><span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span> {
-    <span class="comment">// naive implementation for now because the structure of the content was not decided at the time of writing this.</span>
-    <span class="comment">// In the future we could only edit the necessary fields.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">content_str</span> <span class="op">=</span> <span class="ident">serde_json::to_string</span>(<span class="ident">content</span>)<span class="question-mark">?</span>;
-    <span class="kw">for</span> (<span class="ident">k</span>, <span class="ident">v</span>) <span class="kw">in</span> <span class="ident">chaged_ids</span>.<span class="ident">into_iter</span>() {
-        <span class="ident">content_str</span> <span class="op">=</span> <span class="ident">content_str</span>.<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="ident">k</span>.<span class="ident">to_string</span>(), <span class="kw-2">&amp;</span><span class="ident">v</span>.<span class="ident">to_string</span>());
-    }
-    <span class="prelude-val">Ok</span>(<span class="ident">serde_json::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">content_str</span>)<span class="question-mark">?</span>)
-}
-
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert_page</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">new_page</span>: <span class="ident">NewPage</span>,
@@ -2705,6 +2846,7 @@ RETURNING id,
         },
         <span class="ident">author</span>,
         <span class="bool-val">false</span>,
+        <span class="ident">HistoryChangeReason::PageSaved</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -3305,48 +3447,100 @@ LIMIT 50;
     <span class="ident">history_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">author</span>: <span class="ident">Uuid</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-
     <span class="comment">// fetch old content</span>
-    <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="ident">get_page</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="ident">page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">content_to_restore</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
-SELECT title, content
-FROM page_history
-WHERE id = $1
-&quot;</span>,
-        <span class="ident">history_id</span>
-    )
-    .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>)
-    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="ident">get_page</span>(<span class="ident">conn</span>, <span class="ident">page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> (<span class="ident">content_to_restore</span>, <span class="ident">title_to_restore</span>) <span class="op">=</span>
+        <span class="ident">page_history::get_history_content_and_title</span>(<span class="ident">conn</span>, <span class="ident">history_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="comment">// restore page content</span>
-    <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
-UPDATE pages
-SET content = $1
-WHERE id = $2
-&quot;</span>,
-        <span class="ident">content_to_restore</span>.<span class="ident">content</span>,
-        <span class="ident">page_id</span>,
-    )
-    .<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>)
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="comment">// TODO(?): Update exercises according to content.</span>
-
-    <span class="kw">let</span> <span class="ident">history_id</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::models::page_history::insert</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>,
-        <span class="ident">page_id</span>,
-        <span class="kw-2">&amp;</span><span class="ident">content_to_restore</span>.<span class="ident">title</span>,
-        <span class="kw-2">&amp;</span><span class="ident">page</span>.<span class="ident">content</span>,
-        <span class="ident">HistoryChangeReason::HistoryRestored</span>,
+    <span class="ident">update_page</span>(
+        <span class="ident">conn</span>,
+        <span class="ident">page</span>.<span class="ident">id</span>,
+        <span class="ident">CmsPageUpdate</span> {
+            <span class="ident">content</span>: <span class="ident">content_to_restore</span>.<span class="ident">content</span>,
+            <span class="ident">exercises</span>: <span class="ident">content_to_restore</span>.<span class="ident">exercises</span>,
+            <span class="ident">exercise_slides</span>: <span class="ident">content_to_restore</span>.<span class="ident">exercise_slides</span>,
+            <span class="ident">exercise_tasks</span>: <span class="ident">content_to_restore</span>.<span class="ident">exercise_tasks</span>,
+            <span class="ident">url_path</span>: <span class="ident">page</span>.<span class="ident">url_path</span>,
+            <span class="ident">title</span>: <span class="ident">title_to_restore</span>,
+            <span class="ident">chapter_id</span>: <span class="ident">page</span>.<span class="ident">chapter_id</span>,
+        },
         <span class="ident">author</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">history_id</span>),
+        <span class="bool-val">true</span>,
+        <span class="ident">HistoryChangeReason::HistoryRestored</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+
     <span class="prelude-val">Ok</span>(<span class="ident">history_id</span>)
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">test</span> {
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">page_update_validation_works</span>() {
+        <span class="kw">let</span> <span class="ident">e1</span> <span class="op">=</span> <span class="ident">CmsPageExercise</span> {
+            <span class="ident">id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;0c9dca80-5904-4d35-a945-8c080446f667&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">name</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">order_number</span>: <span class="number">1</span>,
+        };
+        <span class="kw">let</span> <span class="ident">e1_s1</span> <span class="op">=</span> <span class="ident">CmsPageExerciseSlide</span> {
+            <span class="ident">id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;43380e81-6ff2-4f46-9f38-af0ac6a8421a&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">exercise_id</span>: <span class="ident">e1</span>.<span class="ident">id</span>,
+            <span class="ident">order_number</span>: <span class="number">1</span>,
+        };
+        <span class="kw">let</span> <span class="ident">e1_s1_t1</span> <span class="op">=</span> <span class="ident">CmsPageExerciseTask</span> {
+            <span class="ident">id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;6fb19c22-bca0-42cf-8be5-4141e21cc7a9&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">exercise_slide_id</span>: <span class="ident">e1_s1</span>.<span class="ident">id</span>,
+            <span class="ident">assignment</span>: <span class="macro">serde_json::json!</span>([]),
+            <span class="ident">exercise_type</span>: <span class="string">&quot;exercise&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">private_spec</span>: <span class="prelude-val">None</span>,
+        };
+
+        <span class="comment">// Works without exercises</span>
+        <span class="macro">assert!</span>(<span class="ident">create_update</span>(<span class="macro">vec!</span>[], <span class="macro">vec!</span>[], <span class="macro">vec!</span>[])
+            .<span class="ident">validate_exercise_data</span>()
+            .<span class="ident">is_ok</span>());
+
+        <span class="comment">// Works with single valid exercise</span>
+        <span class="macro">assert!</span>(<span class="ident">create_update</span>(
+            <span class="macro">vec!</span>[<span class="ident">e1</span>.<span class="ident">clone</span>()],
+            <span class="macro">vec!</span>[<span class="ident">e1_s1</span>.<span class="ident">clone</span>()],
+            <span class="macro">vec!</span>[<span class="ident">e1_s1_t1</span>.<span class="ident">clone</span>()],
+        )
+        .<span class="ident">validate_exercise_data</span>()
+        .<span class="ident">is_ok</span>());
+
+        <span class="comment">// Fails with missing slide</span>
+        <span class="macro">assert!</span>(
+            <span class="ident">create_update</span>(<span class="macro">vec!</span>[<span class="ident">e1</span>.<span class="ident">clone</span>()], <span class="macro">vec!</span>[], <span class="macro">vec!</span>[<span class="ident">e1_s1_t1</span>.<span class="ident">clone</span>()],)
+                .<span class="ident">validate_exercise_data</span>()
+                .<span class="ident">is_err</span>()
+        );
+
+        <span class="comment">// Fails with missing task</span>
+        <span class="macro">assert!</span>(
+            <span class="ident">create_update</span>(<span class="macro">vec!</span>[<span class="ident">e1</span>.<span class="ident">clone</span>()], <span class="macro">vec!</span>[<span class="ident">e1_s1</span>.<span class="ident">clone</span>()], <span class="macro">vec!</span>[],)
+                .<span class="ident">validate_exercise_data</span>()
+                .<span class="ident">is_err</span>()
+        );
+    }
+
+    <span class="kw">fn</span> <span class="ident">create_update</span>(
+        <span class="ident">exercises</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPageExercise</span><span class="op">&gt;</span>,
+        <span class="ident">exercise_slides</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPageExerciseSlide</span><span class="op">&gt;</span>,
+        <span class="ident">exercise_tasks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPageExerciseTask</span><span class="op">&gt;</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CmsPageUpdate</span> {
+        <span class="ident">CmsPageUpdate</span> {
+            <span class="ident">content</span>: <span class="macro">serde_json::json!</span>([]),
+            <span class="ident">exercises</span>,
+            <span class="ident">exercise_slides</span>,
+            <span class="ident">exercise_tasks</span>,
+            <span class="ident">url_path</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">title</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">chapter_id</span>: <span class="prelude-val">None</span>,
+        }
+    }
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_actix" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>

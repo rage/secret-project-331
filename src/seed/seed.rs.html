@@ -1811,6 +1811,11 @@
 <span id="1811">1811</span>
 <span id="1812">1812</span>
 <span id="1813">1813</span>
+<span id="1814">1814</span>
+<span id="1815">1815</span>
+<span id="1816">1816</span>
+<span id="1817">1817</span>
+<span id="1818">1818</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">TimeZone</span>, <span class="ident">Utc</span>};
 <span class="kw">use</span> <span class="ident">headless_lms_actix::attributes</span>;
@@ -1820,6 +1825,7 @@
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models::courses::NewCourse</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models::exercises::GradingProgress</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models::feedback</span>::{<span class="ident">FeedbackBlock</span>, <span class="ident">NewFeedback</span>};
+<span class="kw">use</span> <span class="ident">headless_lms_actix::models::page_history::HistoryChangeReason</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models::pages</span>::{
     <span class="ident">CmsPageExercise</span>, <span class="ident">CmsPageExerciseSlide</span>, <span class="ident">CmsPageExerciseTask</span>, <span class="ident">CmsPageUpdate</span>, <span class="ident">NewPage</span>,
 };
@@ -3250,6 +3256,7 @@
         },
         <span class="ident">admin</span>,
         <span class="bool-val">true</span>,
+        <span class="ident">HistoryChangeReason::PageSaved</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="comment">// FAQ, we should add card/accordion block to visualize here.</span>
@@ -3289,6 +3296,7 @@
         },
         <span class="ident">admin</span>,
         <span class="bool-val">true</span>,
+        <span class="ident">HistoryChangeReason::PageSaved</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -3404,6 +3412,7 @@
         },
         <span class="ident">admin</span>,
         <span class="bool-val">true</span>,
+        <span class="ident">HistoryChangeReason::PageSaved</span>
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="comment">// /chapter-2/user-research</span>
@@ -3500,6 +3509,7 @@
         },
         <span class="ident">author</span>,
         <span class="bool-val">true</span>,
+        <span class="ident">HistoryChangeReason::PageSaved</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">page</span>.<span class="ident">id</span>)

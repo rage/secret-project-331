@@ -153,6 +153,7 @@ pub struct ContentManagementPage {
     pub exercises: Vec<CmsPageExercise>,
     pub exercise_slides: Vec<CmsPageExerciseSlide>,
     pub exercise_tasks: Vec<CmsPageExerciseTask>,
+    pub organization_id: Uuid,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
@@ -436,11 +437,13 @@ pub async fn get_page_with_exercises(
         .into_iter()
         .map(|x| x.into())
         .collect();
+    let organization_id = get_organization_id(&mut *conn, id).await?;
     Ok(ContentManagementPage {
         page,
         exercises,
         exercise_slides,
         exercise_tasks,
+        organization_id,
     })
 }
 
@@ -689,6 +692,7 @@ RETURNING id,
     )
     .await
     .context("Failed to create a page history entry")?;
+    let organization_id = get_organization_id(&mut tx, page.id).await?;
 
     tx.commit().await?;
 
@@ -697,6 +701,7 @@ RETURNING id,
         exercises: remapped_exercises.into_values().collect(),
         exercise_slides: remapped_exercise_slides.into_values().collect(),
         exercise_tasks: remapped_exercise_tasks,
+        organization_id,
     })
 }
 
@@ -1732,4 +1737,63 @@ WHERE id = $2
     .await?;
     tx.commit().await?;
     Ok(history_id)
+}
+
+pub async fn get_organization_id(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<Uuid> {
+    let res = sqlx::query!(
+        "
+SELECT organizations.id
+FROM pages
+  LEFT OUTER JOIN courses ON courses.id = pages.course_id
+  LEFT OUTER JOIN exams ON exams.id = pages.exam_id
+  JOIN organizations ON organizations.id = courses.organization_id
+  OR organizations.id = exams.organization_id
+WHERE pages.id = $1
+",
+        page_id,
+    )
+    .fetch_one(&mut *conn)
+    .await?;
+    Ok(res.id)
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::test_helper::*;
+
+    #[tokio::test]
+    async fn gets_organization_id() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        let data = insert_data(tx.as_mut(), "").await.unwrap();
+        let course_page_org = get_organization_id(tx.as_mut(), data.page).await.unwrap();
+        assert_eq!(data.org, course_page_org);
+
+        let exam = Uuid::new_v4();
+        crate::models::exams::insert(tx.as_mut(), exam, "", None, None, data.org)
+            .await
+            .unwrap();
+        let page = crate::models::pages::insert_page(
+            tx.as_mut(),
+            NewPage {
+                exercises: vec![],
+                exercise_slides: vec![],
+                exercise_tasks: vec![],
+                content: serde_json::Value::Array(vec![]),
+                url_path: "url".to_string(),
+                title: "title".to_string(),
+                course_id: None,
+                exam_id: Some(exam),
+                chapter_id: None,
+                front_page_of_chapter_id: None,
+                content_search_language: None,
+            },
+            data.user,
+        )
+        .await
+        .unwrap();
+        let exam_page_org = get_organization_id(tx.as_mut(), page.id).await.unwrap();
+        assert_eq!(data.org, exam_page_org);
+    }
 }

@@ -39,7 +39,7 @@ import { addFilter } from "@wordpress/hooks"
 import { ShortcutProvider } from "@wordpress/keyboard-shortcuts"
 import React, { useContext, useEffect, useState } from "react"
 
-import CourseContext from "../../contexts/CourseContext"
+import PageContext from "../../contexts/PageContext"
 import mediaUploadBuilder, { MediaUploadProps } from "../../services/backend/media/mediaUpload"
 import { modifyBlockAttributes } from "../../utils/Gutenberg/modifyBlockAttributes"
 import { modifyBlockButton } from "../../utils/Gutenberg/modifyBlockButton"
@@ -59,7 +59,7 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
   allowedBlocks,
   customBlocks,
 }: GutenbergEditorProps) => {
-  const courseId = useContext(CourseContext)?.courseId
+  const organizationId = useContext(PageContext)?.organizationId
 
   const [editorSettings, setEditorSettings] = useState<
     Partial<
@@ -68,10 +68,10 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
   >({})
 
   useEffect(() => {
-    if (courseId) {
-      setEditorSettings((prev) => ({ ...prev, mediaUpload: mediaUploadBuilder(courseId) }))
+    if (organizationId) {
+      setEditorSettings((prev) => ({ ...prev, mediaUpload: mediaUploadBuilder(organizationId) }))
     }
-  }, [courseId])
+  }, [organizationId])
 
   const handleChanges = (newContent: BlockInstance[]): void => {
     console.log(newContent)

@@ -5,13 +5,14 @@ use crate::models::courses::Course;
 use crate::models::organizations::DatabaseOrganization;
 use crate::utils::file_store::file_utils::{get_extension_from_filename, upload_media_to_storage};
 use crate::utils::file_store::{
-    course_audio_path, course_file_path, course_image_path, organization_image_path, FileStore,
+    organization_audio_path, organization_file_path, organization_image_path, FileStore,
 };
 use crate::utils::strings::generate_random_string;
 use actix_multipart as mp;
 use actix_web::http::{header, HeaderMap};
 use futures::StreamExt;
 use std::{path::PathBuf, sync::Arc};
+use uuid::Uuid;
 
 pub async fn upload_media_for_course<'a>(
     headers: &HeaderMap,
@@ -29,7 +30,7 @@ pub async fn upload_media_for_course<'a>(
         Ok(field) => {
             let path: PathBuf = match field.content_type().type_() {
                 mime::AUDIO => generate_audio_path(&field, course),
-                mime::IMAGE => generate_image_path(&field, course),
+                mime::IMAGE => generate_image_path(&field, course.organization_id),
                 _ => generate_file_path(&field, course),
             }?;
             upload_media_to_storage(&path, field, file_store).await?;
@@ -54,7 +55,7 @@ pub async fn upload_image_for_organization(
     match next_payload {
         Ok(field) => {
             let path: PathBuf = match field.content_type().type_() {
-                mime::IMAGE => generate_organization_image_path(&field, organization),
+                mime::IMAGE => generate_image_path(&field, organization.id),
                 unsupported => Err(ControllerError::BadRequest(format!(
                     "Unsupported image Mime type: {}",
                     unsupported
@@ -86,7 +87,7 @@ fn generate_audio_path(field: &mp::Field, course: &Course) -> ControllerResult<P
     };
     let mut file_name = generate_random_string(30);
     file_name.push_str(extension);
-    let path = course_audio_path(course, file_name)
+    let path = organization_audio_path(course.organization_id, file_name)
         .map_err(|err| ControllerError::InternalServerError(err.to_string()))?;
 
     Ok(path)
@@ -106,13 +107,13 @@ fn generate_file_path(field: &mp::Field, course: &Course) -> ControllerResult<Pa
         file_name.push_str(format!(".{}", extension).as_str());
     }
 
-    let path = course_file_path(course, file_name)
+    let path = organization_file_path(course.organization_id, file_name)
         .map_err(|err| ControllerError::InternalServerError(err.to_string()))?;
 
     Ok(path)
 }
 
-fn generate_image_path(field: &mp::Field, course: &Course) -> ControllerResult<PathBuf> {
+fn generate_image_path(field: &mp::Field, organization_id: Uuid) -> ControllerResult<PathBuf> {
     let extension = match field.content_type().to_string().as_str() {
         "image/jpeg" => ".jpg",
         "image/png" => ".png",
@@ -134,38 +135,7 @@ fn generate_image_path(field: &mp::Field, course: &Course) -> ControllerResult<P
     // b) we don't want the filename to be too easily guessable (so no uuid)
     let mut file_name = generate_random_string(30);
     file_name.push_str(extension);
-    let path = course_image_path(course, file_name)
-        .map_err(|err| ControllerError::InternalServerError(err.to_string()))?;
-
-    Ok(path)
-}
-
-fn generate_organization_image_path(
-    field: &mp::Field,
-    organization: &DatabaseOrganization,
-) -> ControllerResult<PathBuf> {
-    let extension = match field.content_type().to_string().as_str() {
-        "image/jpeg" => ".jpg",
-        "image/png" => ".png",
-        "image/svg+xml" => ".svg",
-        "image/tiff" => ".tif",
-        "image/bmp" => ".bmp",
-        "image/webp" => ".webp",
-        "image/gif" => ".gif",
-        unsupported => {
-            return Err(ControllerError::BadRequest(format!(
-                "Unsupported image Mime type: {}",
-                unsupported
-            )))
-        }
-    };
-
-    // using a random string for the image name because
-    // a) we don't want the filename to be user controllable
-    // b) we don't want the filename to be too easily guessable (so no uuid)
-    let mut file_name = generate_random_string(30);
-    file_name.push_str(extension);
-    let path = organization_image_path(organization, file_name)
+    let path = organization_image_path(organization_id, file_name)
         .map_err(|err| ControllerError::InternalServerError(err.to_string()))?;
 
     Ok(path)

@@ -1409,6 +1409,7 @@ async fn seed_sample_course(
         "Course exam",
         Some(Utc::now() + Duration::days(30)),
         Some(120),
+        org,
     )
     .await?;
     pages::insert_page(
@@ -1438,6 +1439,7 @@ async fn seed_sample_course(
         "Repeat exam",
         Some(Utc::now() + Duration::days(30)),
         Some(120),
+        org,
     )
     .await?;
     pages::insert_page(

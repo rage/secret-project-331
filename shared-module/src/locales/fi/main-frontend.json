@@ -129,5 +129,6 @@
   "number-of-students": "Opiskelijoiden määrä",
   "student-name": "Opiskelijan nimi",
   "serial-number": "Sarjanumero",
-  "score": "Pisteet"
+  "score": "Pisteet",
+  "organization-exams": "Organisaation kokeet"
 }

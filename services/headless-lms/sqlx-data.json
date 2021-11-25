@@ -4389,6 +4389,37 @@
       "nullable": [false, false, false, true, false, false]
     }
   },
+  "819f7de4f1cb151815153ca87e7f75357d911c93b890a9b42bebc76d9f675d55": {
+    "query": "\nSELECT exams.id,\n    courses.id as course_id,\n    courses.name as course_name,\n    exams.name\nFROM exams\nJOIN course_exams ON course_exams.exam_id = exams.id\nJOIN courses ON courses.id = course_exams.course_id\nWHERE exams.organization_id = $1\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "course_name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "name",
+          "type_info": "Varchar"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false]
+    }
+  },
   "831476e084bba9486fd435565e46067716e6738cc05f393a1dba87a68edc27f7": {
     "query": "\nSELECT user_id,\n  exercise_id,\n  score_given\nFROM user_exercise_states\nWHERE course_instance_id = $1\nORDER BY user_id ASC\n",
     "describe": {
@@ -7343,6 +7374,22 @@
       "nullable": [false, false, false, true, true, false]
     }
   },
+  "d0037081bdb7d84526483a12e5070037392d36867f011134e611cfab8753b6e3": {
+    "query": "\nSELECT courses.organization_id\nFROM course_instances\n  JOIN courses ON courses.id = course_instances.course_id\nWHERE course_instances.id = $1\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "organization_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false]
+    }
+  },
   "d13e367302b3873770dbcd15736161dd89130c0d06620cb5d337b1f7c9f230e8": {
     "query": "UPDATE pages SET chapter_id = $1 WHERE id = $2",
     "describe": {
@@ -7498,6 +7545,22 @@
         "Left": ["Uuid", "Uuid", "Uuid"]
       },
       "nullable": [false, false, true, true, false, false, true, true, false, false, true]
+    }
+  },
+  "d565b3ca168a0beb24ee0a58c078fd031a52cd26a807c348bdb3fac1849bd456": {
+    "query": "\nSELECT organizations.id\nFROM pages\n  LEFT OUTER JOIN courses ON courses.id = pages.course_id\n  LEFT OUTER JOIN exams ON exams.id = pages.exam_id\n  JOIN organizations ON organizations.id = courses.organization_id\n  OR organizations.id = exams.organization_id\nWHERE pages.id = $1\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false]
     }
   },
   "d575fe0c1c24abc4c6920f05c08ed2172819439de166e5e455e7e6a8c2bc37d7": {
@@ -7997,6 +8060,16 @@
       "nullable": [null]
     }
   },
+  "e3406f6e559c0197e5285708fd3db2d82e4844b3f6378cb1a08e0be2b20b8133": {
+    "query": "\nINSERT INTO exams (\n    id,\n    name,\n    opens_at,\n    duration_minutes,\n    organization_id\n  )\nVALUES ($1, $2, $3, $4, $5)\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Varchar", "Timestamptz", "Int4", "Uuid"]
+      },
+      "nullable": []
+    }
+  },
   "e398cd25e0ebe20fbc1cb9bd3d525aacadb8604da50269598f265f9e2f099d49": {
     "query": "\nSELECT COUNT(e.id) AS total_exercises,\n  SUM(e.score_maximum) AS score_maximum\nFROM course_instances AS ci\n  LEFT JOIN exercises AS e ON ci.course_id = e.course_id\nWHERE e.deleted_at IS NULL\n  AND ci.id = $1;\n        ",
     "describe": {
@@ -8251,37 +8324,6 @@
         "Left": []
       },
       "nullable": [false]
-    }
-  },
-  "e6f8b812f11274aa02fdd91eecc9bfadb5e85c46e99ca51a48d37e6d3034c628": {
-    "query": "\nSELECT exams.id,\n    courses.id as course_id,\n    courses.name as course_name,\n    exams.name\nFROM exams\nJOIN courses ON organization_id = $1\nJOIN course_exams ON exam_id = exams.id AND course_id = courses.id\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 2,
-          "name": "course_name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 3,
-          "name": "name",
-          "type_info": "Varchar"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, false, false]
     }
   },
   "e966783963c11d6fa57df792d1bfff0dccf163f9cf5f474c1f3c724972229d4e": {
@@ -8770,16 +8812,6 @@
         "Left": ["Uuid"]
       },
       "nullable": [null]
-    }
-  },
-  "ffc87930199c6e28eacfff0ac3296ce3f6eb0ccddb4190d0714f9f6842edeb55": {
-    "query": "\nINSERT INTO exams (id, name, opens_at, duration_minutes)\nVALUES ($1, $2, $3, $4)\n",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Uuid", "Varchar", "Timestamptz", "Int4"]
-      },
-      "nullable": []
     }
   },
   "ffceb3f0780f56e249bcc6983105d897534b65d8fc362fc56ea275d45661e617": {

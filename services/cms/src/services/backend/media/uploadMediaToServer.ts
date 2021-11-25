@@ -14,13 +14,13 @@ export async function uploadMedia({
   maxUploadFileSize,
   onError = () => undefined,
   onFileChange,
-  courseId,
+  organizationId,
 }: Omit<UploadMediaOptions, "onError" | "onFileChange" | "additionalData"> & {
   // We need to omit the UploadMediaOptions onError function,
   // because it seems to not be supported yet or the types definition is not up-to-date
   // Blocks still seem to use one param:
   // https://github.com/WordPress/gutenberg/blob/trunk/packages/block-library/src/image/edit.js#L113-L116
-  courseId: string
+  organizationId: string
   onError: (message: string) => void
   onFileChange: (files: Partial<MediaItem>[]) => void
 }): Promise<void> {
@@ -41,7 +41,7 @@ export async function uploadMedia({
     validFiles.map(async (file, i) => {
       let res: (Pick<MediaItem, "url"> & Partial<MediaItem>) | null = null
       try {
-        const uploadedMedia = await uploadFileFromPage(file, courseId)
+        const uploadedMedia = await uploadFileFromPage(file, organizationId)
         res = {
           alt: "Add alt",
           caption: "Add caption",

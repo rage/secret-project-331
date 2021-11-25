@@ -104,6 +104,11 @@ export interface CourseInstanceForm {
   closing_time: Date | null
 }
 
+export interface CourseInstanceWithOrganizationId {
+  course_instance: CourseInstance
+  organization_id: string
+}
+
 export type PointMap = Record<string, number>
 
 export interface Points {
@@ -402,6 +407,7 @@ export interface ContentManagementPage {
   exercises: Array<CmsPageExercise>
   exercise_slides: Array<CmsPageExerciseSlide>
   exercise_tasks: Array<CmsPageExerciseTask>
+  organization_id: string
 }
 
 export interface CoursePageWithUserData {

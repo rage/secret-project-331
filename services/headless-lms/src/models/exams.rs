@@ -73,16 +73,24 @@ pub async fn insert(
     name: &str,
     opens_at: Option<DateTime<Utc>>,
     duration_minutes: Option<i32>,
+    organization_id: Uuid,
 ) -> ModelResult<()> {
     sqlx::query!(
         "
-INSERT INTO exams (id, name, opens_at, duration_minutes)
-VALUES ($1, $2, $3, $4)
+INSERT INTO exams (
+    id,
+    name,
+    opens_at,
+    duration_minutes,
+    organization_id
+  )
+VALUES ($1, $2, $3, $4, $5)
 ",
         id,
         name,
         opens_at,
-        duration_minutes
+        duration_minutes,
+        organization_id
     )
     .execute(conn)
     .await?;
@@ -160,8 +168,9 @@ SELECT exams.id,
     courses.name as course_name,
     exams.name
 FROM exams
-JOIN courses ON organization_id = $1
-JOIN course_exams ON exam_id = exams.id AND course_id = courses.id
+JOIN course_exams ON course_exams.exam_id = exams.id
+JOIN courses ON courses.id = course_exams.course_id
+WHERE exams.organization_id = $1
 ",
         organization
     )

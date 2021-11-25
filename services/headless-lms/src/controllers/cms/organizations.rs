@@ -1,4 +1,4 @@
-//! Controllers for requests starting with `/api/v0/cms/courses`.
+//! Controllers for requests starting with `/api/v0/cms/organizations`.
 
 use crate::controllers::helpers::media::upload_media_for_course;
 use crate::controllers::{ControllerResult, UploadResult};
@@ -13,7 +13,7 @@ use sqlx::PgPool;
 use uuid::Uuid;
 
 /**
-POST `/api/v0/cms/courses/:course_id/upload` - Uploads a media (image, audio, file) for the course from Gutenberg page edit.
+POST `/api/v0/cms/organizations/:organization_id/upload` - Uploads a media (image, audio, file) for the course from Gutenberg page edit.
 
 Put the the contents of the media in a form and add a content type header multipart/form-data.
 # Example
@@ -35,8 +35,8 @@ Response:
 ```
 */
 #[instrument(skip(payload, request, pool, file_store, app_conf))]
-async fn add_media_for_course(
-    request_course_id: web::Path<Uuid>,
+async fn add_media_for_organization(
+    request_organization_id: web::Path<Uuid>,
     payload: mp::Multipart,
     request: HttpRequest,
     pool: web::Data<PgPool>,
@@ -45,7 +45,7 @@ async fn add_media_for_course(
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<Json<UploadResult>> {
     let mut conn = pool.acquire().await?;
-    let course = crate::models::courses::get_course(&mut conn, *request_course_id).await?;
+    let course = crate::models::courses::get_course(&mut conn, *request_organization_id).await?;
 
     let media_path =
         upload_media_for_course(request.headers(), payload, &course, &file_store).await?;
@@ -61,6 +61,9 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
-pub fn _add_courses_routes(cfg: &mut ServiceConfig) {
-    cfg.route("/{course_id}/upload", web::post().to(add_media_for_course));
+pub fn _add_organizations_routes(cfg: &mut ServiceConfig) {
+    cfg.route(
+        "/{course_id}/upload",
+        web::post().to(add_media_for_organization),
+    );
 }

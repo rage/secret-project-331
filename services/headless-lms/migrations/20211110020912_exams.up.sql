@@ -4,6 +4,7 @@ CREATE TABLE exams (
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE,
+  organization_id UUID NOT NULL REFERENCES organizations,
   name VARCHAR(255) NOT NULL,
   opens_at TIMESTAMP WITH TIME ZONE,
   duration_minutes INTEGER

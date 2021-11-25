@@ -48,8 +48,14 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
   } = useQuery(`organization-${query.organizationSlug}`, () =>
     fetchOrganizationBySlug(query.organizationSlug),
   )
-  const exams = useQuery(`organization-${query.organizationSlug}-exams`, () =>
-    fetchOrganizationExams(query.organizationSlug),
+  const exams = useQuery(
+    [`organization-${query.organizationSlug}-exams`, dataOrg],
+    () => {
+      if (dataOrg) {
+        return fetchOrganizationExams(dataOrg.id)
+      }
+    },
+    { enabled: !!dataOrg },
   )
   const loginStateContext = useContext(LoginStateContext)
 
@@ -64,10 +70,6 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
 
   if (exams.isError) {
     return <pre>{JSON.stringify(exams.error, undefined, 2)}</pre>
-  }
-
-  if (isErrorResponse(exams.data)) {
-    return <div>error</div>
   }
 
   if (
@@ -156,11 +158,11 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
             </div>
           </Dialog>
         </div>
-        <h1>Organization exams</h1>
+        <h1>{t("organization-exams")}</h1>
         {exams.data.map((e) => (
           <div key={e.id}>
-            <a href={`/courses/exams/${e.id}`}>{e.name}</a> for {e.course_name}{" "}
-            <a href={`/manage/exams/${e.id}`}>Manage</a>
+            <a href={`/org/${query.organizationSlug}/exams/${e.id}`}>{e.name}</a> ({e.course_name}){" "}
+            <a href={`/manage/exams/${e.id}`}>{t("link-manage")}</a>
           </div>
         ))}
         <DebugModal data={dataOrgCourses} />

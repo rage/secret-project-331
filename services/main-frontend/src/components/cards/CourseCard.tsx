@@ -19,9 +19,9 @@ const CourseCard = styled.div`
   margin-bottom: 5px;
 
   position: relative;
-  max-width: 450px;
-  width: 450px;
-  height: 400px;
+  max-width: 360px;
+  width: 360px;
+  height: 320px;
   background: #ededed;
   border-radius: 1px;
 `
@@ -45,7 +45,7 @@ const CourseHeading = styled.div`
   font-family: ${headingFont};
   font-weight: ${fontWeights["semibold"]};
   font-size: 28px;
-  line-height: 1.25;
+  line-height: 28px;
   color: #333333;
   margin-bottom: 13px;
 `
@@ -66,7 +66,7 @@ const CourseLanguageContent = styled.div`
   align-items: center;
 
   position: absolute;
-  bottom: 80px;
+  bottom: 20px;
 `
 
 // eslint-disable-next-line i18next/no-literal-string

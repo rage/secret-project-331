@@ -1,7 +1,6 @@
 //! Shared helper functions for multiple controllers.
 
 use crate::controllers::{ControllerError, ControllerResult};
-use crate::models::courses::Course;
 use crate::models::organizations::DatabaseOrganization;
 use crate::utils::file_store::file_utils::{get_extension_from_filename, upload_media_to_storage};
 use crate::utils::file_store::{
@@ -14,10 +13,10 @@ use futures::StreamExt;
 use std::{path::PathBuf, sync::Arc};
 use uuid::Uuid;
 
-pub async fn upload_media_for_course<'a>(
+pub async fn upload_media_for_organization<'a>(
     headers: &HeaderMap,
     mut payload: mp::Multipart,
-    course: &Course,
+    organization_id: Uuid,
     file_store: &Arc<dyn FileStore>,
 ) -> ControllerResult<PathBuf> {
     validate_media_headers(headers)?;
@@ -29,9 +28,9 @@ pub async fn upload_media_for_course<'a>(
     match next_payload {
         Ok(field) => {
             let path: PathBuf = match field.content_type().type_() {
-                mime::AUDIO => generate_audio_path(&field, course),
-                mime::IMAGE => generate_image_path(&field, course.organization_id),
-                _ => generate_file_path(&field, course),
+                mime::AUDIO => generate_audio_path(&field, organization_id),
+                mime::IMAGE => generate_image_path(&field, organization_id),
+                _ => generate_file_path(&field, organization_id),
             }?;
             upload_media_to_storage(&path, field, file_store).await?;
             Ok(path)
@@ -68,7 +67,7 @@ pub async fn upload_image_for_organization(
     }
 }
 
-fn generate_audio_path(field: &mp::Field, course: &Course) -> ControllerResult<PathBuf> {
+fn generate_audio_path(field: &mp::Field, organization_id: Uuid) -> ControllerResult<PathBuf> {
     let extension = match field.content_type().to_string().as_str() {
         "audio/aac" => ".aac",
         "audio/mpeg" => ".mp3",
@@ -87,13 +86,13 @@ fn generate_audio_path(field: &mp::Field, course: &Course) -> ControllerResult<P
     };
     let mut file_name = generate_random_string(30);
     file_name.push_str(extension);
-    let path = organization_audio_path(course.organization_id, file_name)
+    let path = organization_audio_path(organization_id, file_name)
         .map_err(|err| ControllerError::InternalServerError(err.to_string()))?;
 
     Ok(path)
 }
 
-fn generate_file_path(field: &mp::Field, course: &Course) -> ControllerResult<PathBuf> {
+fn generate_file_path(field: &mp::Field, organization_id: Uuid) -> ControllerResult<PathBuf> {
     let field_content = field
         .content_disposition()
         .ok_or_else(|| ControllerError::BadRequest("Missing field content-disposition".into()))?;
@@ -107,7 +106,7 @@ fn generate_file_path(field: &mp::Field, course: &Course) -> ControllerResult<Pa
         file_name.push_str(format!(".{}", extension).as_str());
     }
 
-    let path = organization_file_path(course.organization_id, file_name)
+    let path = organization_file_path(organization_id, file_name)
         .map_err(|err| ControllerError::InternalServerError(err.to_string()))?;
 
     Ok(path)

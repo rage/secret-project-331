@@ -1,6 +1,6 @@
 //! Controllers for requests starting with `/api/v0/cms/organizations`.
 
-use crate::controllers::helpers::media::upload_media_for_course;
+use crate::controllers::helpers::media::upload_media_for_organization;
 use crate::controllers::{ControllerResult, UploadResult};
 use crate::domain::authorization::AuthUser;
 use crate::utils::file_store::FileStore;
@@ -45,10 +45,12 @@ async fn add_media_for_organization(
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<Json<UploadResult>> {
     let mut conn = pool.acquire().await?;
-    let course = crate::models::courses::get_course(&mut conn, *request_organization_id).await?;
+    let organization =
+        crate::models::organizations::get_organization(&mut conn, *request_organization_id).await?;
 
     let media_path =
-        upload_media_for_course(request.headers(), payload, &course, &file_store).await?;
+        upload_media_for_organization(request.headers(), payload, organization.id, &file_store)
+            .await?;
     let download_url = file_store.get_download_url(media_path.as_path(), app_conf.as_ref());
 
     Ok(Json(UploadResult { url: download_url }))
@@ -63,7 +65,7 @@ We add the routes by calling the route method instead of using the route annotat
 */
 pub fn _add_organizations_routes(cfg: &mut ServiceConfig) {
     cfg.route(
-        "/{course_id}/upload",
+        "/{organization_id}/upload",
         web::post().to(add_media_for_organization),
     );
 }

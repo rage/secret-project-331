@@ -1,7 +1,8 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/courses`.
 use crate::{
     controllers::{
-        helpers::media::upload_media_for_course, ControllerError, ControllerResult, UploadResult,
+        helpers::media::upload_media_for_organization, ControllerError, ControllerResult,
+        UploadResult,
     },
     domain::authorization::{authorize, Action, AuthUser, Resource},
     models::{
@@ -325,8 +326,13 @@ async fn add_media_for_course(
         Resource::Course(*request_course_id),
     )
     .await?;
-    let media_path =
-        upload_media_for_course(request.headers(), payload, &course, &file_store).await?;
+    let media_path = upload_media_for_organization(
+        request.headers(),
+        payload,
+        course.organization_id,
+        &file_store,
+    )
+    .await?;
     let download_url = file_store.get_download_url(media_path.as_path(), app_conf.as_ref());
 
     Ok(Json(UploadResult { url: download_url }))

@@ -37,7 +37,6 @@ import { useTypedSelector } from "../../../../store/store"
 import MarkdownEditor from "../../../MarkdownEditor"
 import { ModalWrapper } from "../../../Shared/Modal"
 
-import MatrixButton from "./MatrixChoiceButton"
 import TableContent from "./TableContent"
 
 const ModalContent = styled.div`
@@ -83,7 +82,6 @@ interface EditorModalProps {
 export const MatrixModalContent: React.FC<EditorModalProps> = ({ item }) => {
   const { t } = useTranslation()
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])
-  const storeOptions = useTypedSelector((state) => state.editor.options)
   const dispatch = useDispatch()
 
   return (
@@ -163,11 +161,6 @@ export const MatrixModalContent: React.FC<EditorModalProps> = ({ item }) => {
       </ModalContent>
       <TableContent item={item}> </TableContent>
       <ModalContentOptionWrapper>
-        {storeItem.options.map((option, i) => (
-          <ModalContent key={option}>
-            <MatrixButton index={i + 1} option={storeOptions[option]} />
-          </ModalContent>
-        ))}
         <ModalContent>
           <Button title={t("add-option")} onClick={() => dispatch(createdNewOption(storeItem.id))}>
             <FontAwesomeIcon icon={faPlus} size="2x" color="blue" />

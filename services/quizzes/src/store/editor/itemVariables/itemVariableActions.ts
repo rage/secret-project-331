@@ -23,16 +23,6 @@ export const setScaleMin = createAction(
   }),
 )<{ itemId: string; newValue: number; valid: boolean }>()
 
-export const setMatrixCellValue = createAction(
-  "SET_SCALE_MIN",
-  (itemId: string, newValue: string, column: number, row: number) => ({
-    itemId: itemId,
-    newValue: newValue,
-    column: column,
-    row: row,
-  }),
-)<{ itemId: string; newValue: string; column: number; row: number }>()
-
 // regex testing state
 export const toggleValidRegexTestingState = createAction(
   "SET_TESTING_REGEX",

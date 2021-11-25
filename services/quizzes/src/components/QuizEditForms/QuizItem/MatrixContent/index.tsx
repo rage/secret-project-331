@@ -1,4 +1,4 @@
-import { faPen, faPlus, faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
+import { faPen, faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Box, Button, Fade, Modal } from "@material-ui/core"
 import React from "react"
@@ -7,13 +7,12 @@ import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
 import { NormalizedQuizItem } from "../../../../../types/types"
-import { createdNewOption, deletedItem } from "../../../../store/editor/editorActions"
+import { deletedItem } from "../../../../store/editor/editorActions"
 import { setAdvancedEditing } from "../../../../store/editor/itemVariables/itemVariableActions"
 import { editedQuizItemTitle } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
 import MarkdownEditor from "../../../MarkdownEditor"
 
-import MatrixButton from "./MatrixChoiceButton"
 import MatrixModalContent from "./MatrixModalContent"
 import TableContent from "./TableContent"
 
@@ -72,7 +71,6 @@ interface MatrixContentProps {
 const MatrixContent: React.FC<MatrixContentProps> = ({ item }) => {
   const { t } = useTranslation()
   const quizId = useTypedSelector((state) => state.editor.quizId)
-  const storeOptions = useTypedSelector((state) => state.editor.options)
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])
   const variables = useTypedSelector((state) => state.editor.itemVariables[item.id])
 
@@ -118,16 +116,8 @@ const MatrixContent: React.FC<MatrixContentProps> = ({ item }) => {
         text={storeItem.title ?? ""}
       />
       <QuizContentLineContainer>
-        <TableContent item={item}> </TableContent>
-        {storeItem.options.map((option, i) => (
-          <QuizContent key={option}>
-            <MatrixButton index={i + 1} option={storeOptions[option]} />
-          </QuizContent>
-        ))}
         <QuizContent>
-          <Button title={t("add-option")} onClick={() => dispatch(createdNewOption(storeItem.id))}>
-            <FontAwesomeIcon icon={faPlus} size="2x" color="blue" />
-          </Button>
+          <TableContent item={item}> </TableContent>{" "}
         </QuizContent>
       </QuizContentLineContainer>
     </>

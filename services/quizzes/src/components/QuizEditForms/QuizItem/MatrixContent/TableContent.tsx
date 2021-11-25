@@ -1,42 +1,38 @@
 /* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
-import { Table, TableBody, TableCell, TableRow, TextField } from "@material-ui/core"
 import React from "react"
-import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
-import styled from "styled-components"
 
-import { NormalizedQuizItem, NormalizedQuizItemOption } from "../../../../../types/types"
+import { NormalizedQuizItem } from "../../../../../types/types"
 import { createdNewOption } from "../../../../store/editor/editorActions"
-import { setMatrixCellValue } from "../../../../store/editor/itemVariables/itemVariableActions"
 import { useTypedSelector } from "../../../../store/store"
-import { ModalContent } from "../../../Shared/Modal"
 
-import TableCellContent from "./TableCellContent"
-
-const ValueFieldContainer = styled(TextField)`
-  width: 100%;
-`
+import TableCellOptionContent from "./TableCellOptionContent"
 
 interface TableContentProps {
   item: NormalizedQuizItem
 }
 
 const TableContent: React.FC<TableContentProps> = ({ item }) => {
-  const { t } = useTranslation()
   const storeOptions = useTypedSelector((state) => state.editor.options)
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])
   const variables = useTypedSelector((state) => state.editor.itemVariables[item.id])
-
   const dispatch = useDispatch()
 
-  const handleAddingNewCell = (text: string, column: number, row: number) => {
-    if (text.length > 0) {
-      dispatch(setMatrixCellValue(storeItem.id, text, column, row))
-      dispatch(createdNewOption(storeItem.id, text, column, row))
+  /*
+  const handleAddingNewCell = (column: number, row: number) => {
+    console.log(storeOptions)
+    dispatch(createdNewOption(storeItem.id, "", column, row))
+  }
+  */
+  if (storeItem.options.length < 1) {
+    for (let i = 0; i < 6; i++) {
+      for (let j = 0; j < 6; j++) {
+        dispatch(createdNewOption(storeItem.id, "", i, j))
+      }
     }
   }
-
+  /*
   function compareRow(a: NormalizedQuizItemOption, b: NormalizedQuizItemOption) {
     if (a.row === null || b.row === null) {
       return 0
@@ -65,39 +61,24 @@ const TableContent: React.FC<TableContentProps> = ({ item }) => {
     }
     return 0
   }
-
+*/
   const options = storeItem.options.map((option) => {
     return storeOptions[option]
   })
 
-  const optionsOrderedByRow = options.sort(compareRow)
+  //const optionsOrderedByRow = options.sort(compareRow)
 
-  const optionsOrderedByColumn = optionsOrderedByRow.sort(compareColumn)
+  //const optionsOrderedByColumn = optionsOrderedByRow.sort(compareColumn)
 
-  const rowAmount = optionsOrderedByColumn.filter((a) => a.column === 0)
+  //const rowAmount = optionsOrderedByColumn.filter((a) => a.column === 0)
 
   const checkNeighbourCells = (column: number, row: number) => {
-    let isOption = false
-    let isNeighbour = false
-    options.find((option) => {
-      if (option.column === column && option.row === row) {
-        isOption = true
-      }
-      if (
-        (option.column === column - 1 && option.row === row) ||
-        (option.column === column + 1 && option.row === row) ||
-        (option.column === column && option.row === row - 1)
-      ) {
-        isNeighbour = true
-      }
-    })
+    const findOption = options.find((option) => option.column === column && option.row === row)
 
-    if (isOption) {
-      return "option"
-    } else if (isNeighbour) {
-      return "neighbour"
+    if (findOption !== undefined) {
+      return findOption
     } else {
-      return undefined
+      return null
     }
   }
 
@@ -105,73 +86,53 @@ const TableContent: React.FC<TableContentProps> = ({ item }) => {
 
   return (
     <>
-      <h2>{t("matrix-option-editor-title")}</h2>
-      <Table width="auto">
-        <TableBody>
-          {rowAmount.length > 0 ? (
-            <>
-              {tempArray.map((rowIndex) => (
-                <TableRow key={`row index: ${rowIndex}`} id="wow">
-                  {tempArray.map((columnIndex) => {
-                    const checkNeighbour = checkNeighbourCells(columnIndex, rowIndex)
-                    return (
+      <table
+        className={css`
+          border-collapse: collapse;
+          padding: 0;
+        `}
+      >
+        <tbody>
+          <>
+            {tempArray.map((rowIndex) => (
+              <tr key={`row index: ${rowIndex}`} id="wow">
+                {tempArray.map((columnIndex) => {
+                  const checkNeighbour = checkNeighbourCells(columnIndex, rowIndex)
+                  console.log(checkNeighbour)
+                  return (
+                    <>
                       <>
-                        {checkNeighbour !== undefined ? (
-                          <>
-                            {checkNeighbour === "option" ? (
-                              <TableCellContent
-                                columnLoop={columnIndex}
-                                rowLoop={rowIndex}
-                                variables={variables}
-                                variation={checkNeighbour}
-                                handleAddingNewCell={handleAddingNewCell}
-                              >
-                                {" "}
-                              </TableCellContent>
-                            ) : (
-                              <TableCellContent
-                                columnLoop={columnIndex}
-                                rowLoop={rowIndex}
-                                variables={variables}
-                                variation={checkNeighbour}
-                                handleAddingNewCell={handleAddingNewCell}
-                              >
-                                {" "}
-                              </TableCellContent>
-                            )}
-                          </>
-                        ) : null}
+                        {
+                          checkNeighbour !== null ? (
+                            <TableCellOptionContent
+                              option={checkNeighbour}
+                              columnLoop={columnIndex}
+                              rowLoop={rowIndex}
+                              variables={variables}
+                            >
+                              {" "}
+                            </TableCellOptionContent>
+                          ) : null /*: (
+                          <TableCellContent
+                            option={checkNeighbour}
+                            columnLoop={columnIndex}
+                            rowLoop={rowIndex}
+                            variables={variables}
+                            handleAddingNewCell={handleAddingNewCell}
+                          >
+                            {" "}
+                          </TableCellContent>
+                        )*/
+                        }
                       </>
-                    )
-                  })}
-                </TableRow>
-              ))}
-            </>
-          ) : (
-            <>
-              <TableRow>
-                <>
-                  <TableCell align="left" component="th" scope="row" max-width={40} padding="none">
-                    <ModalContent
-                      className={css`
-                        padding: 0 !important;
-                      `}
-                    >
-                      <ValueFieldContainer
-                        type="text"
-                        value={variables.textValue ?? ""}
-                        fullWidth
-                        variant="outlined"
-                        onChange={(event) => handleAddingNewCell(event.target.value, 0, 0)}
-                      />
-                    </ModalContent>
-                  </TableCell>
-                </>
-              </TableRow>{" "}
-            </>
-          )}
-        </TableBody>
-      </Table>
+                    </>
+                  )
+                })}
+              </tr>
+            ))}
+          </>
+        </tbody>
+      </table>
     </>
   )
 }

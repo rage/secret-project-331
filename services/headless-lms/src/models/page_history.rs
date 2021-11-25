@@ -1,4 +1,10 @@
-use crate::{models::ModelResult, utils::pagination::Pagination};
+use crate::{
+    models::{
+        pages::{CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask},
+        ModelResult,
+    },
+    utils::pagination::Pagination,
+};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -24,11 +30,19 @@ pub struct PageHistory {
     author_user_id: Uuid,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+pub struct PageHistoryContent {
+    pub content: serde_json::Value,
+    pub exercises: Vec<CmsPageExercise>,
+    pub exercise_slides: Vec<CmsPageExerciseSlide>,
+    pub exercise_tasks: Vec<CmsPageExerciseTask>,
+}
+
 pub async fn insert(
     conn: &mut PgConnection,
     page_id: Uuid,
     title: &str,
-    content: &Value,
+    content: &PageHistoryContent,
     history_change_reason: HistoryChangeReason,
     author_user_id: Uuid,
     restored_from_id: Option<Uuid>,
@@ -48,7 +62,7 @@ RETURNING id
 ",
         page_id,
         title,
-        content,
+        serde_json::to_value(content)?,
         history_change_reason as HistoryChangeReason,
         author_user_id,
         restored_from_id
@@ -56,6 +70,24 @@ RETURNING id
     .fetch_one(conn)
     .await?;
     Ok(res.id)
+}
+
+pub async fn get_history_content_and_title(
+    conn: &mut PgConnection,
+    id: Uuid,
+) -> ModelResult<(PageHistoryContent, String)> {
+    let record = sqlx::query!(
+        "
+SELECT content, title
+FROM page_history
+WHERE id = $1
+  AND deleted_at IS NULL;
+        ",
+        id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok((serde_json::from_value(record.content)?, record.title))
 }
 
 pub async fn history(

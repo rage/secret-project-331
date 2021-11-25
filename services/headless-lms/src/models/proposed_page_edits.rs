@@ -1,4 +1,5 @@
 use super::{
+    page_history::HistoryChangeReason,
     pages::CmsPageUpdate,
     proposed_block_edits::{BlockProposal, BlockProposalInfo, NewProposedBlockEdit},
 };
@@ -325,6 +326,7 @@ WHERE id = $1
         page_update,
         author,
         true,
+        HistoryChangeReason::PageSaved,
     )
     .await?;
 
@@ -394,9 +396,16 @@ mod test {
             exercise_slides: vec![],
             exercise_tasks: vec![],
         };
-        crate::models::pages::update_page(conn, data.page, page_update, data.user, true)
-            .await
-            .unwrap();
+        crate::models::pages::update_page(
+            conn,
+            data.page,
+            page_update,
+            data.user,
+            true,
+            HistoryChangeReason::PageSaved,
+        )
+        .await
+        .unwrap();
         (data, client_id)
     }
 

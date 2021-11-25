@@ -1,3 +1,6 @@
+use std::collections::HashMap;
+
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use serde_json::Map;
 use serde_json::Value;
@@ -189,4 +192,17 @@ pub fn contains_blocks_not_allowed_in_top_level_pages(input: &[GutenbergBlock]) 
         .iter()
         .any(|block| DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES.contains(&block.name.as_str()));
     res
+}
+
+pub fn remap_ids_in_content(
+    content: &serde_json::Value,
+    chaged_ids: HashMap<Uuid, Uuid>,
+) -> Result<serde_json::Value> {
+    // naive implementation for now because the structure of the content was not decided at the time of writing this.
+    // In the future we could only edit the necessary fields.
+    let mut content_str = serde_json::to_string(content)?;
+    for (k, v) in chaged_ids.into_iter() {
+        content_str = content_str.replace(&k.to_string(), &v.to_string());
+    }
+    Ok(serde_json::from_str(&content_str)?)
 }

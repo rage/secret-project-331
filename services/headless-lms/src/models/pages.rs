@@ -15,7 +15,7 @@ use crate::{
         exercise_services::{get_internal_public_spec_url, get_model_solution_url},
         exercise_tasks::ExerciseTask,
         exercises::Exercise,
-        page_history::HistoryChangeReason,
+        page_history::{self, HistoryChangeReason, PageHistoryContent},
         ModelError,
     },
     utils::document_schema_processor::{
@@ -28,7 +28,10 @@ use chrono::{DateTime, Utc};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use sqlx::{Acquire, FromRow, PgConnection};
-use std::{collections::HashMap, time::Duration};
+use std::{
+    collections::{hash_map, HashMap},
+    time::Duration,
+};
 use ts_rs::TS;
 use url::Url;
 use uuid::Uuid;
@@ -204,7 +207,12 @@ RETURNING id
         &mut tx,
         page_res.id,
         title,
-        &serde_json::Value::Array(vec![]),
+        &PageHistoryContent {
+            content: serde_json::Value::Array(vec![]),
+            exercises: vec![],
+            exercise_slides: vec![],
+            exercise_tasks: vec![],
+        },
         HistoryChangeReason::PageSaved,
         author,
         None,
@@ -498,13 +506,58 @@ pub struct CmsPageUpdate {
     pub chapter_id: Option<Uuid>,
 }
 
+impl CmsPageUpdate {
+    /// Checks that each exercise has at least one slide and each slide has at least one task.
+    pub fn validate_exercise_data(&self) -> ModelResult<()> {
+        let mut exercise_ids: HashMap<Uuid, bool> =
+            self.exercises.iter().map(|x| (x.id, false)).collect();
+        let mut slide_ids = self
+            .exercise_slides
+            .iter()
+            .map(|x| {
+                if let hash_map::Entry::Occupied(mut e) = exercise_ids.entry(x.exercise_id) {
+                    e.insert(true);
+                    Ok((x.id, false))
+                } else {
+                    Err(ModelError::PreconditionFailed(
+                        "Exercide ids in slides don't match.".to_string(),
+                    ))
+                }
+            })
+            .collect::<ModelResult<HashMap<Uuid, bool>>>()?;
+        if exercise_ids.values().any(|x| !x) {
+            return Err(ModelError::PreconditionFailed(
+                "All exercises must have at least one slide.".to_string(),
+            ));
+        }
+        for task in self.exercise_tasks.iter() {
+            if let hash_map::Entry::Occupied(mut e) = slide_ids.entry(task.exercise_slide_id) {
+                e.insert(true);
+            } else {
+                return Err(ModelError::PreconditionFailed(
+                    "Exercide slide ids in tasks don't match.".to_string(),
+                ));
+            }
+        }
+        if slide_ids.values().any(|x| !x) {
+            return Err(ModelError::PreconditionFailed(
+                "All exercise slides must have at least one task.".to_string(),
+            ));
+        }
+        Ok(())
+    }
+}
+
 pub async fn update_page(
     conn: &mut PgConnection,
     page_id: Uuid,
     page_update: CmsPageUpdate,
     author: Uuid,
     retain_exercise_ids: bool,
+    history_change_reason: HistoryChangeReason,
 ) -> ModelResult<ContentManagementPage> {
+    page_update.validate_exercise_data()?;
+
     let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(page_update.content)?;
     if page_update.chapter_id.is_none()
         && contains_blocks_not_allowed_in_top_level_pages(&parsed_content)
@@ -515,8 +568,6 @@ pub async fn update_page(
     }
 
     let mut tx = conn.begin().await?;
-
-    // TODO: Make sure that the content maches provided exercises.
 
     // Updating page
     let page = sqlx::query_as!(
@@ -590,11 +641,11 @@ RETURNING id,
   public_spec,
   model_solution_spec;
         ",
-        &existing_exercise_ids,
+        &existing_exercise_slide_ids,
     )
     .fetch_all(&mut tx)
     .await?;
-    let remapped_exercise_tasks = upsert_exercise_tasks(
+    let final_tasks = upsert_exercise_tasks(
         &mut tx,
         &remapped_exercise_slides,
         &existing_exercise_task_specs,
@@ -604,8 +655,7 @@ RETURNING id,
     .await?;
 
     // Now, we might have changed some of the exercise ids and need to do the same changes in the page content as well
-    // TODO: change signature of this function to avoid copying.
-    let new_content = update_ids_in_content(
+    let new_content = crate::utils::document_schema_processor::remap_ids_in_content(
         &page.content,
         remapped_exercises
             .iter()
@@ -637,13 +687,20 @@ RETURNING id,
     .fetch_one(&mut tx)
     .await?;
 
-    let history_content = serde_json::to_value(&new_content)?;
+    let final_exercises: Vec<CmsPageExercise> = remapped_exercises.into_values().collect();
+    let final_slides: Vec<CmsPageExerciseSlide> = remapped_exercise_slides.into_values().collect();
+    let history_content = PageHistoryContent {
+        content: page.content.clone(),
+        exercises: final_exercises,
+        exercise_slides: final_slides,
+        exercise_tasks: final_tasks,
+    };
     crate::models::page_history::insert(
         &mut tx,
         page_id,
         &page_update.title,
         &history_content,
-        HistoryChangeReason::PageSaved,
+        history_change_reason,
         author,
         None,
     )
@@ -654,9 +711,9 @@ RETURNING id,
 
     Ok(ContentManagementPage {
         page,
-        exercises: remapped_exercises.into_values().collect(),
-        exercise_slides: remapped_exercise_slides.into_values().collect(),
-        exercise_tasks: remapped_exercise_tasks,
+        exercises: history_content.exercises,
+        exercise_slides: history_content.exercise_slides,
+        exercise_tasks: history_content.exercise_tasks,
     })
 }
 
@@ -954,19 +1011,6 @@ async fn fetch_derived_spec(
     Ok(result_spec)
 }
 
-fn update_ids_in_content(
-    content: &serde_json::Value,
-    chaged_ids: HashMap<Uuid, Uuid>,
-) -> ModelResult<serde_json::Value> {
-    // naive implementation for now because the structure of the content was not decided at the time of writing this.
-    // In the future we could only edit the necessary fields.
-    let mut content_str = serde_json::to_string(content)?;
-    for (k, v) in chaged_ids.into_iter() {
-        content_str = content_str.replace(&k.to_string(), &v.to_string());
-    }
-    Ok(serde_json::from_str(&content_str)?)
-}
-
 pub async fn insert_page(
     conn: &mut PgConnection,
     new_page: NewPage,
@@ -1030,6 +1074,7 @@ RETURNING id,
         },
         author,
         false,
+        HistoryChangeReason::PageSaved,
     )
     .await?;
 
@@ -1630,46 +1675,98 @@ pub async fn restore(
     history_id: Uuid,
     author: Uuid,
 ) -> ModelResult<Uuid> {
-    let mut tx = conn.begin().await?;
-
     // fetch old content
-    let page = get_page(&mut tx, page_id).await?;
-    let content_to_restore = sqlx::query!(
-        "
-SELECT title, content
-FROM page_history
-WHERE id = $1
-",
-        history_id
-    )
-    .fetch_one(&mut tx)
-    .await?;
+    let page = get_page(conn, page_id).await?;
+    let (content_to_restore, title_to_restore) =
+        page_history::get_history_content_and_title(conn, history_id).await?;
 
-    // restore page content
-    sqlx::query!(
-        "
-UPDATE pages
-SET content = $1
-WHERE id = $2
-",
-        content_to_restore.content,
-        page_id,
-    )
-    .execute(&mut tx)
-    .await?;
-
-    // TODO(?): Update exercises according to content.
-
-    let history_id = crate::models::page_history::insert(
-        &mut tx,
-        page_id,
-        &content_to_restore.title,
-        &page.content,
-        HistoryChangeReason::HistoryRestored,
+    update_page(
+        conn,
+        page.id,
+        CmsPageUpdate {
+            content: content_to_restore.content,
+            exercises: content_to_restore.exercises,
+            exercise_slides: content_to_restore.exercise_slides,
+            exercise_tasks: content_to_restore.exercise_tasks,
+            url_path: page.url_path,
+            title: title_to_restore,
+            chapter_id: page.chapter_id,
+        },
         author,
-        Some(history_id),
+        true,
+        HistoryChangeReason::HistoryRestored,
     )
     .await?;
-    tx.commit().await?;
+
     Ok(history_id)
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[tokio::test]
+    async fn page_update_validation_works() {
+        let e1 = CmsPageExercise {
+            id: Uuid::parse_str("0c9dca80-5904-4d35-a945-8c080446f667").unwrap(),
+            name: "".to_string(),
+            order_number: 1,
+        };
+        let e1_s1 = CmsPageExerciseSlide {
+            id: Uuid::parse_str("43380e81-6ff2-4f46-9f38-af0ac6a8421a").unwrap(),
+            exercise_id: e1.id,
+            order_number: 1,
+        };
+        let e1_s1_t1 = CmsPageExerciseTask {
+            id: Uuid::parse_str("6fb19c22-bca0-42cf-8be5-4141e21cc7a9").unwrap(),
+            exercise_slide_id: e1_s1.id,
+            assignment: serde_json::json!([]),
+            exercise_type: "exercise".to_string(),
+            private_spec: None,
+        };
+
+        // Works without exercises
+        assert!(create_update(vec![], vec![], vec![])
+            .validate_exercise_data()
+            .is_ok());
+
+        // Works with single valid exercise
+        assert!(create_update(
+            vec![e1.clone()],
+            vec![e1_s1.clone()],
+            vec![e1_s1_t1.clone()],
+        )
+        .validate_exercise_data()
+        .is_ok());
+
+        // Fails with missing slide
+        assert!(
+            create_update(vec![e1.clone()], vec![], vec![e1_s1_t1.clone()],)
+                .validate_exercise_data()
+                .is_err()
+        );
+
+        // Fails with missing task
+        assert!(
+            create_update(vec![e1.clone()], vec![e1_s1.clone()], vec![],)
+                .validate_exercise_data()
+                .is_err()
+        );
+    }
+
+    fn create_update(
+        exercises: Vec<CmsPageExercise>,
+        exercise_slides: Vec<CmsPageExerciseSlide>,
+        exercise_tasks: Vec<CmsPageExerciseTask>,
+    ) -> CmsPageUpdate {
+        CmsPageUpdate {
+            content: serde_json::json!([]),
+            exercises,
+            exercise_slides,
+            exercise_tasks,
+            url_path: "".to_string(),
+            title: "".to_string(),
+            chapter_id: None,
+        }
+    }
 }

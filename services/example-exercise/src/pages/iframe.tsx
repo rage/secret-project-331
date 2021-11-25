@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import { Renderer } from "../components/Renderer"
 import { SubmissionResult } from "../shared-module/bindings"
+import { ViewType } from "../shared-module/iframe-protocol-types"
 import { isSetStateMessage } from "../shared-module/iframe-protocol-types.guard"
 import { Alternative, Answer, PublicAlternative } from "../util/stateInterfaces"
 
@@ -21,9 +22,7 @@ const Iframe: React.FC = () => {
   const [state, setState] = useState<SubmissionData | Alternative[] | PublicAlternative[] | null>(
     null,
   )
-  const [viewType, setViewType] = useState<
-    "exercise" | "view-submission" | "exercise-editor" | null
-  >(null)
+  const [viewType, setViewType] = useState<ViewType | null>(null)
   const router = useRouter()
   const rawMaxWidth = router?.query?.width
   let maxWidth: number | null = 500
@@ -63,6 +62,11 @@ const Iframe: React.FC = () => {
             } else if (data.view_type === "view-submission") {
               ReactDOM.flushSync(() => {
                 setState(data.data as SubmissionData)
+                setViewType(data.view_type)
+              })
+            } else if (data.view_type === "playground-exercise") {
+              ReactDOM.flushSync(() => {
+                setState(data.data as PublicAlternative[])
                 setViewType(data.view_type)
               })
             } else {

@@ -1,15 +1,17 @@
-import { Dispatch, SetStateAction } from "react"
+import React, { Dispatch, SetStateAction } from "react"
 import { useTranslation } from "react-i18next"
 
 import { SubmissionData } from "../pages/iframe"
+import { ViewType } from "../shared-module/iframe-protocol-types"
 import { Alternative, ModelSolutionApi, PublicAlternative } from "../util/stateInterfaces"
 
 import Editor from "./Editor"
 import Exercise from "./Exercise"
+import PlaygroundExercise from "./PlaygroundExercise"
 import Submission from "./Submission"
 
 interface RendererProps {
-  viewType: "exercise" | "view-submission" | "exercise-editor"
+  viewType: ViewType
   state: SubmissionData | Alternative[] | PublicAlternative[]
   setState: Dispatch<SetStateAction<SubmissionData | PublicAlternative[] | Alternative[] | null>>
   port: MessagePort
@@ -49,6 +51,10 @@ export const Renderer: React.FC<RendererProps> = ({
   } else if (viewType === "exercise-editor") {
     return (
       <Editor state={state as Alternative[]} maxWidth={maxWidth} port={port} setState={setState} />
+    )
+  } else if (viewType === "playground-exercise") {
+    return (
+      <PlaygroundExercise port={port} maxWidth={maxWidth} state={state as PublicAlternative[]} />
     )
   } else {
     return <>{t("waiting-for-content")}</>

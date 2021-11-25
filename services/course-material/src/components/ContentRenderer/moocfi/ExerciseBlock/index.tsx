@@ -42,7 +42,12 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
     onSuccess: (data) => {
       dispatch({
         type: "exerciseDownloaded",
-        payload: { view_type: "exercise", data: { public_spec: data } },
+        payload: {
+          view_type: "exercise",
+          data: {
+            public_spec: data,
+          },
+        },
       })
     },
   })

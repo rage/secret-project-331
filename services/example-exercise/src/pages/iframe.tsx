@@ -1,17 +1,24 @@
 import { useRouter } from "next/router"
 import React, { useEffect, useState } from "react"
+import ReactDOM from "react-dom"
 import { useTranslation } from "react-i18next"
 
 import { Renderer } from "../components/Renderer"
 import { SubmissionResult } from "../shared-module/bindings"
 import { isSetStateMessage } from "../shared-module/iframe-protocol-types.guard"
-import { Alternative, PublicAlternative } from "../util/stateInterfaces"
+import { Alternative, Answer, PublicAlternative } from "../util/stateInterfaces"
+
+export interface SubmissionData {
+  submission_result: SubmissionResult
+  user_answer: Answer
+  public_spec: PublicAlternative[]
+}
 
 const Iframe: React.FC = () => {
   const { t } = useTranslation()
 
   const [port, setPort] = useState<MessagePort | null>(null)
-  const [state, setState] = useState<SubmissionResult | Alternative[] | PublicAlternative[] | null>(
+  const [state, setState] = useState<SubmissionData | Alternative[] | PublicAlternative[] | null>(
     null,
   )
   const [viewType, setViewType] = useState<
@@ -41,15 +48,23 @@ const Iframe: React.FC = () => {
           console.log(data)
           if (isSetStateMessage(data)) {
             if (data.view_type === "exercise") {
-              setState((data.data as any).current_exercise_task.public_spec as PublicAlternative[])
-              setViewType(data.view_type)
+              ReactDOM.flushSync(() => {
+                setState(
+                  (data.data as any).public_spec.current_exercise_task
+                    .public_spec as PublicAlternative[],
+                )
+                setViewType(data.view_type)
+              })
             } else if (data.view_type === "exercise-editor") {
-              setState(data.data as Alternative[])
-              setViewType(data.view_type)
+              ReactDOM.flushSync(() => {
+                setState(data.data as Alternative[])
+                setViewType(data.view_type)
+              })
             } else if (data.view_type === "view-submission") {
-              console.log(data.data)
-              setState(data.data as SubmissionResult)
-              setViewType(data.view_type)
+              ReactDOM.flushSync(() => {
+                setState(data.data as SubmissionData)
+                setViewType(data.view_type)
+              })
             } else {
               // eslint-disable-next-line i18next/no-literal-string
               console.error("Iframe received an unknown view type")

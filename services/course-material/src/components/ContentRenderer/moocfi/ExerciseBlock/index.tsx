@@ -40,7 +40,10 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const exerciseTask = useQuery(queryUniqueKey, () => fetchExerciseById(id), {
     enabled: showExercise,
     onSuccess: (data) => {
-      dispatch({ type: "exerciseDownloaded", payload: { view_type: "exercise", data: data } })
+      dispatch({
+        type: "exerciseDownloaded",
+        payload: { view_type: "exercise", data: { public_spec: data } },
+      })
     },
   })
   const postSubmissionMutation = useMutation(postSubmission, {
@@ -50,7 +53,11 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
         type: "submissionGraded",
         payload: {
           view_type: "view-submission",
-          data: data,
+          data: {
+            submission_result: data,
+            user_answer: answer,
+            public_spec: exerciseTask.data?.current_exercise_task.public_spec,
+          },
         },
       }),
   })
@@ -181,7 +188,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
             onClick={() => {
               dispatch({
                 type: "showExercise",
-                payload: { view_type: "exercise", data: exerciseTask.data },
+                payload: { view_type: "exercise", data: { public_spec: exerciseTask.data } },
               })
               postSubmissionMutation.reset()
               setAnswerValid(false)

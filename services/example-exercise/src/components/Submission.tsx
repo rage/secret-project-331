@@ -1,30 +1,68 @@
 import { css } from "@emotion/css"
 import React from "react"
-import { useTranslation } from "react-i18next"
 
-import { SubmissionResult } from "../shared-module/bindings"
 import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
+import { baseTheme } from "../shared-module/styles"
+import { ModelSolutionApi, PublicAlternative } from "../util/stateInterfaces"
 
 interface SubmissionProps {
   port: MessagePort
-  maxWidth: number
-  state: SubmissionResult
+  maxWidth: number | null
+  publicAlternatives: PublicAlternative[]
+  selectedId: string | undefined
+  selectedOptionIsCorrect: boolean
+  modelSolutions: ModelSolutionApi
 }
 
-const Submission: React.FC<SubmissionProps> = ({ port, state }) => {
-  const { t } = useTranslation()
+const Submission: React.FC<SubmissionProps> = ({
+  port,
+  maxWidth,
+  publicAlternatives,
+  selectedId,
+  modelSolutions,
+}) => {
+  // Border colors
+  const GREEN = baseTheme.colors.green[300]
+  const RED = baseTheme.colors.red[300]
+
+  const COLOR = "#6188ff"
+  const CHOSEN_COLOR = "#4210f5"
   return (
     <HeightTrackingContainer port={port}>
       <div
-        key={state.grading.id}
         className={css`
+          width: 100%;
+          ${maxWidth && `max-width: ${maxWidth}rem;`}
+          margin: 0 auto;
           display: flex;
-          flex-flow: row no-wrap;
-          justify-content: space-around;
+          flex-direction: column;
         `}
       >
-        <p>{`${t("score-given")}: ${state.grading.score_given}`}</p>
-        <p>{`${t("feedback")}: ${state.grading.feedback_text}`}</p>
+        {publicAlternatives.map((option) => {
+          const selected = selectedId === option.id
+          const optionIsCorrect = modelSolutions.correctOptionIds.includes(option.id)
+
+          // eslint-disable-next-line i18next/no-literal-string
+          const border = `4px solid ${optionIsCorrect ? GREEN : RED}`
+          return (
+            <button
+              role="checkbox"
+              className={css`
+                padding: 1rem 2rem;
+                background-color: ${selected ? CHOSEN_COLOR : COLOR};
+                border-radius: 1rem;
+                border: ${border};
+                color: white;
+                margin-top: 0.5rem;
+                margin-bottom: 0.5rem;
+              `}
+              aria-checked={selected}
+              key={option.id}
+            >
+              {option.name}
+            </button>
+          )
+        })}
       </div>
     </HeightTrackingContainer>
   )

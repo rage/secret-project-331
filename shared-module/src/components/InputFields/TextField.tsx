@@ -52,8 +52,6 @@ const error = css`
   margin-top: -15px;
 `
 
-const Wrapper = styled.div``
-
 // Error string might change in the future
 
 const ERROR = "Please check the secret box"
@@ -62,7 +60,7 @@ export type TextFieldProps = React.HTMLAttributes<HTMLInputElement> & TextFieldE
 
 const TextField = ({ onChange, ...rest }: TextFieldExtraProps) => {
   return (
-    <Wrapper>
+    <>
       <label>
         <span className={cx(label)}>{rest.label}</span>
         <Input
@@ -76,7 +74,7 @@ const TextField = ({ onChange, ...rest }: TextFieldExtraProps) => {
           {ERROR}
         </span>
       )}
-    </Wrapper>
+    </>
   )
 }
 

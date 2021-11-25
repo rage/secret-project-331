@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - canary
+      - production-deploy
   pull_request:
     branches:
       - master
@@ -111,8 +112,15 @@ jobs:
               echo "Authentication to Google Cloud failed. Exiting..."
               exit 1
           fi
-        if: ${{ github.ref == 'refs/heads/master' }}
+        if: ${{ github.ref == 'refs/heads/production-deploy' }}
 
       - name: Push images if master
-        run: skaffold build -p test,push-images
-        if: ${{ github.ref == 'refs/heads/master' }}
+        run: skaffold build -p test,push-images --file-output=skaffold-build-output.json
+        if: ${{ github.ref == 'refs/heads/production-deploy' }}
+
+      - name: Store skaffold output json if master
+        uses: actions/upload-artifact@v2
+        if: ${{ github.ref == 'refs/heads/production-deploy' }}
+        with:
+          name: skaffold-build-output
+          path: ./skaffold-build-output.json

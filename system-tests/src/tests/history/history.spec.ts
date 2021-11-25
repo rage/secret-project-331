@@ -17,13 +17,11 @@ test("test", async ({ page, headless }) => {
     page.waitForNavigation(),
     await page.click("text=University of Helsinki, Department of Computer Science"),
   ])
-  expect(page.url()).toBe(
-    "http://project-331.local/organizations/8bb12295-53ac-4099-9644-ac0ff5e34d92",
-  )
+  expect(page.url()).toBe("http://project-331.local/org/uh-cs")
 
   // Click text=Introduction to history
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-history' }*/),
+    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-history' }*/),
     page.click("text=Introduction to history"),
   ])
 
@@ -34,13 +32,13 @@ test("test", async ({ page, headless }) => {
 
   // Click a:has-text("CHAPTER 1The Basics")
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-history/chapter-1' }*/),
+    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-history/chapter-1' }*/),
     page.click('a:has-text("The Basics")'),
   ])
 
   // Click text=1Page One
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-history/chapter-1/page-1' }*/),
+    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-history/chapter-1/page-1' }*/),
     page.click("text=1Page One"),
   ])
   await page.waitForLoadState("networkidle")
@@ -61,9 +59,7 @@ test("test", async ({ page, headless }) => {
     page.waitForNavigation(),
     page.click("text=University of Helsinki, Department of Computer Science"),
   ])
-  expect(page.url()).toBe(
-    "http://project-331.local/organizations/8bb12295-53ac-4099-9644-ac0ff5e34d92",
-  )
+  expect(page.url()).toBe("http://project-331.local/org/uh-cs")
 
   // Click text=Manage
   await Promise.all([
@@ -92,6 +88,9 @@ test("test", async ({ page, headless }) => {
 
   // Click text=Save
   await page.click("text=Save")
+  // TODO: wait for page saved notification
+  await page.waitForSelector(`button:enabled:text("Save")`)
+  await page.waitForTimeout(100)
 
   // Triple click [placeholder="Exercise name"]
   await page.click('[placeholder="Exercise name"]', {
@@ -103,6 +102,9 @@ test("test", async ({ page, headless }) => {
 
   // Click text=Save
   await page.click("text=Save")
+  // TODO: wait for page saved notification
+  await page.waitForSelector(`button:enabled:text("Save")`)
+  await page.waitForTimeout(100)
 
   // Click [aria-label="Block: ExerciseTask"] div[role="button"]
   await page.click('[aria-label="Block: ExerciseTask"] div[role="button"]')
@@ -126,6 +128,7 @@ test("test", async ({ page, headless }) => {
 
   // Click text=Save
   await page.click("text=Save")
+  await page.waitForSelector(`button:enabled:text("Save")`)
   await page.waitForTimeout(100)
 
   // Click text=Home
@@ -139,9 +142,7 @@ test("test", async ({ page, headless }) => {
     page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
     await page.click("text=University of Helsinki, Department of Computer Science"),
   ])
-  expect(page.url()).toBe(
-    "http://project-331.local/organizations/8bb12295-53ac-4099-9644-ac0ff5e34d92",
-  )
+  expect(page.url()).toBe("http://project-331.local/org/uh-cs")
 
   // Click text=Manage
   await Promise.all([
@@ -270,9 +271,7 @@ test("test", async ({ page, headless }) => {
 
   // Click text=University of Helsinki, Department of Computer Science
   await page.click("text=University of Helsinki, Department of Computer Science")
-  expect(page.url()).toBe(
-    "http://project-331.local/organizations/8bb12295-53ac-4099-9644-ac0ff5e34d92",
-  )
+  expect(page.url()).toBe("http://project-331.local/org/uh-cs")
 
   // Click text=Introduction to history
   await Promise.all([

@@ -1,0 +1,116 @@
+import {
+  Course,
+  CourseInstance,
+  CourseInstanceForm,
+  CourseStructure,
+  CourseUpdate,
+  Exercise,
+  NewCourse,
+  SubmissionCountByExercise,
+  SubmissionCountByWeekAndHour,
+} from "../../shared-module/bindings"
+import {
+  isCourse,
+  isCourseInstance,
+  isCourseStructure,
+  isExercise,
+  isSubmissionCountByExercise,
+  isSubmissionCountByWeekAndHour,
+} from "../../shared-module/bindings.guard"
+import { isArray, isString, validateResponse } from "../../shared-module/utils/fetching"
+import { mainFrontendClient } from "../mainFrontendClient"
+
+export const getCourse = async (courseId: string): Promise<Course> => {
+  const response = await mainFrontendClient.get(`/courses/${courseId}`, { responseType: "json" })
+  return validateResponse(response, isCourse)
+}
+
+export const postNewCourse = async (data: NewCourse): Promise<Course> => {
+  const response = await mainFrontendClient.post("/courses", data, {
+    headers: { "Content-Type": "application/json" },
+  })
+  return validateResponse(response, isCourse)
+}
+
+export const deleteCourse = async (courseId: string): Promise<Course> => {
+  const response = await mainFrontendClient.delete(`/courses/${courseId}`)
+  return validateResponse(response, isCourse)
+}
+
+export const fetchCourseLanguageVersions = async (courseId: string): Promise<Array<Course>> => {
+  const response = await mainFrontendClient.get(`/courses/${courseId}/language-versions`, {
+    responseType: "json",
+  })
+  return validateResponse(response, isArray(isCourse))
+}
+
+export const postNewCourseTranslation = async (
+  courseId: string,
+  data: NewCourse,
+): Promise<Course> => {
+  const response = await mainFrontendClient.post(`/courses/${courseId}/language-versions`, data, {
+    responseType: "json",
+  })
+  return validateResponse(response, isCourse)
+}
+
+export const updateCourse = async (courseId: string, data: CourseUpdate): Promise<Course> => {
+  const response = await mainFrontendClient.put(`/courses/${courseId}`, data, {
+    headers: { "Content-Type": "application/json" },
+  })
+  return validateResponse(response, isCourse)
+}
+
+export const fetchCourseDailySubmissionCounts = async (
+  courseId: string,
+): Promise<Array<SubmissionCountByExercise>> => {
+  const response = await mainFrontendClient.get(`/courses/${courseId}/daily-submission-counts`, {
+    responseType: "json",
+  })
+  return validateResponse(response, isArray(isSubmissionCountByExercise))
+}
+
+export const fetchCourseExercises = async (courseId: string): Promise<Array<Exercise>> => {
+  const response = await mainFrontendClient.get(`/courses/${courseId}/exercises`, {
+    responseType: "json",
+  })
+  return validateResponse(response, isArray(isExercise))
+}
+
+export const fetchCourseStructure = async (courseId: string): Promise<CourseStructure> => {
+  const response = await mainFrontendClient.get(`/courses/${courseId}/structure`, {
+    responseType: "json",
+  })
+  return validateResponse(response, isCourseStructure)
+}
+
+export const fetchCourseWeekdayHourSubmissionCounts = async (
+  courseId: string,
+): Promise<Array<SubmissionCountByWeekAndHour>> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/weekday-hour-submission-counts`,
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(response, isArray(isSubmissionCountByWeekAndHour))
+}
+
+export const fetchCourseInstances = async (courseId: string): Promise<Array<CourseInstance>> => {
+  const response = await mainFrontendClient.get(`/courses/${courseId}/course-instances`, {
+    responseType: "json",
+  })
+  return validateResponse(response, isArray(isCourseInstance))
+}
+
+export const newCourseInstance = async (
+  courseId: string,
+  update: CourseInstanceForm,
+): Promise<string> => {
+  const response = await mainFrontendClient.post(
+    `/courses/${courseId}/new-course-instance`,
+    update,
+    { responseType: "json" },
+  )
+  return validateResponse(response, isString)
+}

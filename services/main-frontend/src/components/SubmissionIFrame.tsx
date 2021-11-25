@@ -4,8 +4,8 @@ import { useTranslation } from "react-i18next"
 
 import { Submission } from "../shared-module/bindings"
 import MessageChannelIFrame from "../shared-module/components/MessageChannelIFrame"
-import { SetStateMessage } from "../shared-module/iframe-protocol-types"
 
+const VIEW_SUBMISSION = "view-submission"
 interface SubmissionIFrameProps {
   url: string
   public_spec: unknown
@@ -39,21 +39,10 @@ const SubmissionIFrame: React.FC<SubmissionIFrameProps> = ({
   return (
     <MessageChannelIFrame
       url={url}
-      onCommunicationChannelEstabilished={(port) => {
-        // eslint-disable-next-line i18next/no-literal-string
-        console.log("posting " + JSON.stringify(state))
-        const message: SetStateMessage = {
-          // eslint-disable-next-line i18next/no-literal-string
-          message: "set-state",
-          // eslint-disable-next-line i18next/no-literal-string
-          view_type: "view-submission",
-          data: state,
-        }
-        port.postMessage(message)
-      }}
       onMessageFromIframe={(messageContainer, _responsePort) => {
         console.log(messageContainer)
       }}
+      postThisStateToIFrame={{ view_type: VIEW_SUBMISSION, data: state }}
     />
   )
 }

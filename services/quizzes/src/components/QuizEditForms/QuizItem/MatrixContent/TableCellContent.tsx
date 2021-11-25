@@ -1,43 +1,70 @@
 /* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
-import React from "react"
+import React, { useState } from "react"
+import { useDispatch } from "react-redux"
 
-import { QuizItemVariables } from "../../../../../types/types"
+import { NormalizedQuizItemOption, QuizItemVariables } from "../../../../../types/types"
+import { editedOptionTitle } from "../../../../store/editor/options/optionActions"
+import { useTypedSelector } from "../../../../store/store"
 
 interface TableCellContentProps {
   rowLoop: number
   columnLoop: number
   variables: QuizItemVariables
-  option: null
-  handleAddingNewCell: (column: number, row: number) => void
+  option: NormalizedQuizItemOption
 }
 
-const TableCellContent: React.FC<TableCellContentProps> = ({
-  columnLoop,
-  rowLoop,
-  variables,
-  handleAddingNewCell,
-}) => {
+const TableCellContent: React.FC<TableCellContentProps> = ({ columnLoop, rowLoop, option }) => {
+  const storeOption = useTypedSelector((state) => state.editor.options[option.id])
+
+  const [IsActive, setIsActive] = useState(false)
+  const dispatch = useDispatch()
+
+  const handleTextarea = (text: string) => {
+    dispatch(editedOptionTitle(text, storeOption.id))
+  }
+  console.log(storeOption)
   return (
     <>
       <td
         key={`row index: , ${rowLoop} column index: , ${columnLoop}`}
         className={css`
           padding: 0;
-          border-collapse: collapse;
+          ${storeOption.title.length === 0 &&
+          `
+          background-color: #DBDBDB;
+        `}
         `}
       >
-        <form>
+        <form
+          className={css`
+            input:focus:invalid {
+              box-shadow: none;
+              border: 2px solid blue !important;
+              outline: none;
+            }
+          `}
+        >
           <textarea
             className={css`
+              padding: 0;
               resize: none;
-              background-color: #ececec;
+              ${IsActive &&
+              `
+              background-color: #DBDBDB;
+              `}
+              ${storeOption.title.length === 0 &&
+              `
+          background-color: #ECECEC;
+        `}
             `}
             placeholder={``}
             cols={1}
             rows={1}
-            value={variables.textValue ?? ""}
-            onClick={() => handleAddingNewCell(columnLoop, rowLoop)}
+            value={storeOption.title ?? ""}
+            onSelect={() => setIsActive(true)}
+            onBlur={() => setIsActive(false)}
+            onChange={(event) => handleTextarea(event.target.value)}
           ></textarea>
         </form>
       </td>

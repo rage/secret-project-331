@@ -222,8 +222,10 @@ SELECT user_id,
 FROM user_exercise_states
 WHERE user_id = $1
   AND exercise_id = $2
-  AND course_instance_id = $3
-  AND exam_id = $4
+  AND (
+    course_instance_id = $3
+    OR exam_id = $4
+  )
 "#,
         user_id,
         exercise_id,
@@ -312,7 +314,7 @@ INSERT INTO user_exercise_states (
     course_instance_id,
     selected_exercise_slide_id
   )
-VALUES ($1, $2, $3, $4) ON CONFLICT (user_id, exercise_id, course_instance_id) DO
+VALUES ($1, $2, $3, $4) ON CONFLICT ON CONSTRAINT user_has_max_one_state_per_exercise_and_course_instance DO
 UPDATE
 SET selected_exercise_slide_id = $4
 ",

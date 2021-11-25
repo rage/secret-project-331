@@ -509,7 +509,7 @@ mod test {
         )
         .await
         .unwrap();
-        users::insert(tx.as_mut(), "user@example.com")
+        users::insert(tx.as_mut(), "user-2347803@example.com")
             .await
             .unwrap();
 

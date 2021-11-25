@@ -15,6 +15,7 @@ SET NOT NULL,
   ALTER course_id
 SET NOT NULL;
 ALTER TABLE user_exercise_states DROP CONSTRAINT course_instance_or_exam_id_set,
+  DROP CONSTRAINT user_has_max_one_state_per_exercise_and_course_instance,
   DROP exam_id,
   ALTER course_instance_id
 SET NOT NULL,

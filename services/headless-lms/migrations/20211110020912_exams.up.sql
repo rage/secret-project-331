@@ -52,6 +52,7 @@ ALTER TABLE exercises ALTER course_id DROP NOT NULL,
 COMMENT ON COLUMN exercises.exam_id IS 'The exam the exercise is associated with.';
 COMMENT ON CONSTRAINT course_or_exam_id_set ON exercises IS 'An exercise must be associated with either a course or an exam.';
 ALTER TABLE user_exercise_states DROP CONSTRAINT user_exercise_states_pkey,
+  ADD CONSTRAINT user_has_max_one_state_per_exercise_and_course_instance UNIQUE (user_id, exercise_id, course_instance_id),
   ADD id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   ALTER course_instance_id DROP NOT NULL,
   ADD exam_id UUID REFERENCES exams,
@@ -61,6 +62,7 @@ ALTER TABLE user_exercise_states DROP CONSTRAINT user_exercise_states_pkey,
 COMMENT ON COLUMN user_exercise_states.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN user_exercise_states.exam_id IS 'The exam the user exercise state is associated with.';
 COMMENT ON CONSTRAINT course_instance_or_exam_id_set ON user_exercise_states IS 'A user exercise state must be associated with either a course instance or an exam.';
+COMMENT ON CONSTRAINT user_has_max_one_state_per_exercise_and_course_instance ON user_exercise_states IS 'A user must only have one state per exercise.';
 ALTER TABLE submissions ALTER course_id DROP NOT NULL,
   ALTER course_instance_id DROP NOT NULL,
   ADD exam_id UUID REFERENCES exams,

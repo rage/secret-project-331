@@ -72,6 +72,7 @@
   "read": "Luetut",
   "create-new-language-version-of": "Luo uusi kieliversio kurssista {{course-name}}",
   "stats": "Tilastot",
+  "manage-page": "Hallinnoi sivua",
   "manage-pages": "Hallinnoi sivuja",
   "manage-feedback": "Hallinnoi palautetta",
   "title-all-course-language-versions": "Kaikki kurssin kieliversiot",
@@ -130,5 +131,9 @@
   "student-name": "Opiskelijan nimi",
   "serial-number": "Sarjanumero",
   "score": "Pisteet",
-  "organization-exams": "Organisaation kokeet"
+  "organization-exams": "Organisaation kokeet",
+  "courses": "Kurssit",
+  "add": "Lisää",
+  "add-course": "Lisää kurssi",
+  "course-id": "Kurssin tunnus"
 }

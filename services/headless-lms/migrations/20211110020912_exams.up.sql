@@ -6,17 +6,26 @@ CREATE TABLE exams (
   deleted_at TIMESTAMP WITH TIME ZONE,
   organization_id UUID NOT NULL REFERENCES organizations,
   name VARCHAR(255) NOT NULL,
-  opens_at TIMESTAMP WITH TIME ZONE,
-  duration_minutes INTEGER
+  starts_at TIMESTAMP WITH TIME ZONE,
+  ends_at TIMESTAMP WITH TIME ZONE,
+  language VARCHAR(15) CHECK (
+    language ~ '^[a-z]{2,3}(-[A-Z][a-z]{3})?-[A-Z]{2}$'
+  ),
+  time_minutes INTEGER,
+  CHECK (TRIM(name) <> ''),
+  CHECK (time_minutes > 0)
 );
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON exams FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 COMMENT ON TABLE exams IS 'An exam is a special set of exercises with a common deadline.';
 COMMENT ON COLUMN exams.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN exams.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN exams.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN exams.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 COMMENT ON COLUMN exams.name IS 'A name for the exam to differentiate it from other exams.';
-COMMENT ON COLUMN exams.opens_at IS 'The timestamp after which the exam can be started.';
-COMMENT ON COLUMN exams.duration_minutes IS 'The duration the exam stays open after it has been started.';
+COMMENT ON COLUMN exams.starts_at IS 'The timestamp after which the exam can be started.';
+COMMENT ON COLUMN exams.ends_at IS 'The timestamp after which students can no longer work on the exam.';
+COMMENT ON COLUMN exams.time_minutes IS 'The duration the exam stays open for the student after they have started it. If the exam ends before the timer runs out (by ends_at), the student''s time is cut short.';
 CREATE TABLE course_exams (
   course_id UUID NOT NULL REFERENCES courses,
   exam_id UUID NOT NULL REFERENCES exams,
@@ -44,6 +53,7 @@ COMMENT ON COLUMN exam_enrollments.deleted_at IS 'Timestamp when the record was 
 ALTER TABLE pages ALTER course_id DROP NOT NULL,
   ADD exam_id UUID REFERENCES exams,
   ADD CONSTRAINT course_or_exam_id_set CHECK ((course_id IS NULL) <> (exam_id IS NULL));
+COMMENT ON COLUMN pages.course_id IS 'The course the page is associated with.';
 COMMENT ON COLUMN pages.exam_id IS 'The exam the page is associated with.';
 COMMENT ON CONSTRAINT course_or_exam_id_set ON pages IS 'A page must be associated with either a course or an exam.';
 ALTER TABLE exercises ALTER course_id DROP NOT NULL,
@@ -52,7 +62,6 @@ ALTER TABLE exercises ALTER course_id DROP NOT NULL,
 COMMENT ON COLUMN exercises.exam_id IS 'The exam the exercise is associated with.';
 COMMENT ON CONSTRAINT course_or_exam_id_set ON exercises IS 'An exercise must be associated with either a course or an exam.';
 ALTER TABLE user_exercise_states DROP CONSTRAINT user_exercise_states_pkey,
-  ADD CONSTRAINT user_has_max_one_state_per_exercise_and_course_instance UNIQUE (user_id, exercise_id, course_instance_id),
   ADD id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   ALTER course_instance_id DROP NOT NULL,
   ADD exam_id UUID REFERENCES exams,
@@ -62,7 +71,6 @@ ALTER TABLE user_exercise_states DROP CONSTRAINT user_exercise_states_pkey,
 COMMENT ON COLUMN user_exercise_states.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN user_exercise_states.exam_id IS 'The exam the user exercise state is associated with.';
 COMMENT ON CONSTRAINT course_instance_or_exam_id_set ON user_exercise_states IS 'A user exercise state must be associated with either a course instance or an exam.';
-COMMENT ON CONSTRAINT user_has_max_one_state_per_exercise_and_course_instance ON user_exercise_states IS 'A user must only have one state per exercise.';
 ALTER TABLE submissions ALTER course_id DROP NOT NULL,
   ALTER course_instance_id DROP NOT NULL,
   ADD exam_id UUID REFERENCES exams,

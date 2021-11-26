@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import Layout from "../../components/Layout"
-import PageContext from "../../contexts/PageContext"
 import { fetchPageWithId, updateExistingPage } from "../../services/backend/pages"
 import { CmsPageUpdate, ContentManagementPage, Page } from "../../shared-module/bindings"
 import Spinner from "../../shared-module/components/Spinner"
@@ -26,20 +25,12 @@ const PageEditor = dynamic(() => import("../../components/editors/PageEditor"), 
   loading: () => EditorLoading,
 })
 
-interface PageWithOrganizationId {
-  page: Page
-  organizationId: string
-}
-
 const Pages = ({ query }: PagesProps) => {
   const { t } = useTranslation()
   const { id } = query
   const { isLoading, error, data, refetch } = useQuery(`page-${id}`, async () => {
     const data = await fetchPageWithId(id)
-    const page: PageWithOrganizationId = {
-      page: { ...data.page, content: denormalizeDocument(data) },
-      organizationId: data.organization_id,
-    }
+    const page: Page = { ...data.page, content: denormalizeDocument(data) }
     return page
   })
 
@@ -64,13 +55,17 @@ const Pages = ({ query }: PagesProps) => {
     return res
   }
 
+  let frontPageUrl
+  if (data.course_id) {
+    /* eslint-disable-next-line i18next/no-literal-string */
+    frontPageUrl = `/manage/courses/${data.course_id}/pages`
+  } else {
+    frontPageUrl = "/"
+  }
   return (
-    <PageContext.Provider value={{ organizationId: data.organizationId }}>
-      {/* eslint-disable-next-line i18next/no-literal-string */}
-      <Layout frontPageUrl={`/manage/courses/${data.page.course_id}/pages`}>
-        <PageEditor data={data.page} handleSave={handleSave} />
-      </Layout>
-    </PageContext.Provider>
+    <Layout frontPageUrl={frontPageUrl}>
+      <PageEditor data={data} handleSave={handleSave} />
+    </Layout>
   )
 }
 

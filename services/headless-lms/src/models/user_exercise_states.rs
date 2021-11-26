@@ -222,10 +222,7 @@ SELECT user_id,
 FROM user_exercise_states
 WHERE user_id = $1
   AND exercise_id = $2
-  AND (
-    course_instance_id = $3
-    OR exam_id = $4
-  )
+  AND (course_instance_id = $3 OR exam_id = $4)
 "#,
         user_id,
         exercise_id,
@@ -241,8 +238,8 @@ WHERE user_id = $1
         sqlx::query_as!(
             UserExerciseState,
             r#"
-    INSERT INTO user_exercise_states (user_id, exercise_id, course_instance_id)
-    VALUES ($1, $2, $3)
+    INSERT INTO user_exercise_states (user_id, exercise_id, course_instance_id, exam_id)
+    VALUES ($1, $2, $3, $4)
     RETURNING user_id,
       exercise_id,
       course_instance_id,
@@ -257,7 +254,8 @@ WHERE user_id = $1
       "#,
             user_id,
             exercise_id,
-            course_instance_id
+            course_instance_id,
+            exam_id
         )
         .fetch_one(&mut *conn)
         .await?
@@ -306,25 +304,55 @@ pub async fn upsert_selected_exercise_slide_id(
     course_instance_id: Uuid,
     selected_exercise_slide_id: Option<Uuid>,
 ) -> ModelResult<()> {
-    sqlx::query!(
+    let existing = sqlx::query!(
         "
-INSERT INTO user_exercise_states (
-    user_id,
-    exercise_id,
-    course_instance_id,
-    selected_exercise_slide_id
-  )
-VALUES ($1, $2, $3, $4) ON CONFLICT ON CONSTRAINT user_has_max_one_state_per_exercise_and_course_instance DO
-UPDATE
-SET selected_exercise_slide_id = $4
+SELECT
+FROM user_exercise_states
+WHERE user_id = $1
+  AND exercise_id = $2
+  AND course_instance_id = $3
 ",
         user_id,
         exercise_id,
-        course_instance_id,
-        selected_exercise_slide_id,
+        course_instance_id
     )
-    .execute(&mut *conn)
+    .fetch_optional(&mut *conn)
     .await?;
+    if existing.is_some() {
+        sqlx::query!(
+            "
+UPDATE user_exercise_states
+SET selected_exercise_slide_id = $4
+WHERE user_id = $1
+  AND exercise_id = $2
+  AND course_instance_id = $3
+    ",
+            user_id,
+            exercise_id,
+            course_instance_id,
+            selected_exercise_slide_id,
+        )
+        .execute(&mut *conn)
+        .await?;
+    } else {
+        sqlx::query!(
+            "
+    INSERT INTO user_exercise_states (
+        user_id,
+        exercise_id,
+        course_instance_id,
+        selected_exercise_slide_id
+      )
+    VALUES ($1, $2, $3, $4)
+    ",
+            user_id,
+            exercise_id,
+            course_instance_id,
+            selected_exercise_slide_id,
+        )
+        .execute(&mut *conn)
+        .await?;
+    }
     Ok(())
 }
 

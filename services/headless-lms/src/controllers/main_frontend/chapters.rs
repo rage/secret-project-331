@@ -2,7 +2,7 @@
 use std::{path::PathBuf, str::FromStr};
 
 use crate::{
-    controllers::helpers::media::upload_media_for_organization,
+    controllers::helpers::media::{upload_media, StoreKind},
     controllers::{ControllerError, ControllerResult},
     domain::authorization::{authorize, Action, AuthUser, Resource},
     models::chapters::{Chapter, ChapterUpdate, NewChapter},
@@ -226,10 +226,10 @@ async fn set_chapter_image(
     .await?;
 
     let course = crate::models::courses::get_course(&mut conn, chapter.course_id).await?;
-    let chapter_image = upload_media_for_organization(
+    let chapter_image = upload_media(
         request.headers(),
         payload,
-        course.organization_id,
+        StoreKind::Course(course.id),
         &file_store,
     )
     .await?

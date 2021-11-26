@@ -9,18 +9,18 @@ use uuid::Uuid;
 
 #[derive(Debug, Serialize, TS)]
 pub struct Exam {
-    id: Uuid,
-    name: String,
-    page_id: Uuid,
-    courses: Vec<Course>,
+    pub id: Uuid,
+    pub name: String,
+    pub page_id: Uuid,
+    pub courses: Vec<Course>,
 }
 
 #[derive(Debug, Serialize, TS)]
 pub struct CourseExam {
-    id: Uuid,
-    course_id: Uuid,
-    course_name: String,
-    name: String,
+    pub id: Uuid,
+    pub course_id: Uuid,
+    pub course_name: String,
+    pub name: String,
 }
 
 pub async fn get(conn: &mut PgConnection, id: Uuid) -> ModelResult<Exam> {
@@ -71,8 +71,9 @@ pub async fn insert(
     conn: &mut PgConnection,
     id: Uuid,
     name: &str,
-    opens_at: Option<DateTime<Utc>>,
-    duration_minutes: Option<i32>,
+    starts_at: Option<DateTime<Utc>>,
+    ends_at: Option<DateTime<Utc>>,
+    time_minutes: Option<i32>,
     organization_id: Uuid,
 ) -> ModelResult<()> {
     sqlx::query!(
@@ -80,16 +81,18 @@ pub async fn insert(
 INSERT INTO exams (
     id,
     name,
-    opens_at,
-    duration_minutes,
+    starts_at,
+    ends_at,
+    time_minutes,
     organization_id
   )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5, $6)
 ",
         id,
         name,
-        opens_at,
-        duration_minutes,
+        starts_at,
+        ends_at,
+        time_minutes,
         organization_id
     )
     .execute(conn)
@@ -101,10 +104,11 @@ pub async fn edit(
     conn: &mut PgConnection,
     id: Uuid,
     name: Option<&str>,
-    opens_at: Option<DateTime<Utc>>,
-    duration_minutes: Option<i32>,
+    starts_at: Option<DateTime<Utc>>,
+    ends_at: Option<DateTime<Utc>>,
+    time_minutes: Option<i32>,
 ) -> ModelResult<()> {
-    if duration_minutes.map(|i| i > 0).unwrap_or_default() {
+    if time_minutes.map(|i| i > 0).unwrap_or_default() {
         return Err(ModelError::PreconditionFailed(
             "Exam duration has to be positive".to_string(),
         ));
@@ -113,14 +117,16 @@ pub async fn edit(
         "
 UPDATE exams
 SET name = COALESCE($2, name),
-  opens_at = $3,
-  duration_minutes = $4
+  starts_at = $3,
+  ends_at = $4,
+  time_minutes = $5
 WHERE id = $1
 ",
         id,
         name,
-        opens_at,
-        duration_minutes,
+        starts_at,
+        ends_at,
+        time_minutes,
     )
     .execute(conn)
     .await?;
@@ -164,13 +170,15 @@ pub async fn get_exams_for_organization(
         CourseExam,
         "
 SELECT exams.id,
-    courses.id as course_id,
-    courses.name as course_name,
-    exams.name
+  courses.id as course_id,
+  courses.name as course_name,
+  exams.name
 FROM exams
-JOIN course_exams ON course_exams.exam_id = exams.id
-JOIN courses ON courses.id = course_exams.course_id
+  JOIN course_exams ON course_exams.exam_id = exams.id
+  JOIN courses ON courses.id = course_exams.course_id
 WHERE exams.organization_id = $1
+  AND exams.deleted_at IS NULL
+  AND courses.deleted_at IS NULL
 ",
         organization
     )
@@ -187,12 +195,14 @@ pub async fn get_exams_for_course(
         CourseExam,
         "
 SELECT exams.id,
-    courses.id as course_id,
-    courses.name as course_name,
-    exams.name
+  courses.id as course_id,
+  courses.name as course_name,
+  exams.name
 FROM exams
-JOIN course_exams ON course_id = $1
-JOIN courses ON courses.id = $1
+  JOIN course_exams ON course_id = $1
+  JOIN courses ON courses.id = $1
+  AND exams.deleted_at IS NULL
+  AND courses.deleted_at IS NULL
 ",
         course
     )

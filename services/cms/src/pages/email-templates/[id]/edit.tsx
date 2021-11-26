@@ -3,8 +3,8 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import Layout from "../../../components/Layout"
-import PageContext from "../../../contexts/PageContext"
-import { fetchOrganizationIdForCourseInstance } from "../../../services/backend/course-instances"
+import CourseContext from "../../../contexts/CourseContext"
+import { fetchCourseInstance } from "../../../services/backend/course-instances"
 import {
   fetchEmailTemplateWithId,
   updateExistingEmailTemplate,
@@ -36,18 +36,18 @@ const EmailTemplateEdit: React.FC<EmailTemplateEditProps> = ({ query }) => {
   const templateQuery = useStateQuery(["email-template", emailTemplateId], (_emailTemplateId) =>
     fetchEmailTemplateWithId(_emailTemplateId),
   )
-  const organizationQuery = useStateQuery(
+  const instanceQuery = useStateQuery(
     // eslint-disable-next-line i18next/no-literal-string
-    ["organization-id-of-instance", templateQuery.data?.course_instance_id],
-    (courseInstanceId) => fetchOrganizationIdForCourseInstance(courseInstanceId),
+    ["course-id-of-instance", templateQuery.data?.course_instance_id],
+    (courseInstanceId) => fetchCourseInstance(courseInstanceId),
   )
 
-  if (templateQuery.state === "error" || organizationQuery.state === "error") {
+  if (templateQuery.state === "error" || instanceQuery.state === "error") {
     return (
       <div>
         <h1>{t("error")}</h1>
         <pre>{JSON.stringify(templateQuery.error, undefined, 2)}</pre>
-        <pre>{JSON.stringify(organizationQuery.error, undefined, 2)}</pre>
+        <pre>{JSON.stringify(instanceQuery.error, undefined, 2)}</pre>
       </div>
     )
   }
@@ -56,7 +56,7 @@ const EmailTemplateEdit: React.FC<EmailTemplateEditProps> = ({ query }) => {
     return <div>{t("loading")}</div>
   }
 
-  if (organizationQuery.state !== "ready") {
+  if (instanceQuery.state !== "ready") {
     return <div>{t("loading")}</div>
   }
 
@@ -69,11 +69,11 @@ const EmailTemplateEdit: React.FC<EmailTemplateEditProps> = ({ query }) => {
   }
 
   return (
-    <PageContext.Provider value={{ organizationId: organizationQuery.data }}>
+    <CourseContext.Provider value={{ courseId: instanceQuery.data.course_id }}>
       <Layout>
         <EmailEditor data={templateQuery.data} handleSave={handleSave} />
       </Layout>
-    </PageContext.Provider>
+    </CourseContext.Provider>
   )
 }
 

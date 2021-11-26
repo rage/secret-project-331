@@ -72,14 +72,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
     return <pre>{JSON.stringify(exams.error, undefined, 2)}</pre>
   }
 
-  if (
-    isLoadingOrgCourses ||
-    !dataOrgCourses ||
-    isLoadingOrg ||
-    !dataOrg ||
-    exams.isLoading ||
-    !exams.data
-  ) {
+  if (isLoadingOrgCourses || !dataOrgCourses || isLoadingOrg || !dataOrg) {
     return <>{t("loading-text")}</>
   }
 
@@ -159,12 +152,15 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
           </Dialog>
         </div>
         <h1>{t("organization-exams")}</h1>
-        {exams.data.map((e) => (
-          <div key={e.id}>
-            <a href={`/org/${query.organizationSlug}/exams/${e.id}`}>{e.name}</a> ({e.course_name}){" "}
-            <a href={`/manage/exams/${e.id}`}>{t("link-manage")}</a>
-          </div>
-        ))}
+        {exams.isSuccess &&
+          exams.data &&
+          exams.data.map((e) => (
+            <div key={e.id}>
+              <a href={`/org/${query.organizationSlug}/exams/${e.id}`}>{e.name}</a> ({e.course_name}
+              ) <a href={`/manage/exams/${e.id}`}>{t("link-manage")}</a>
+            </div>
+          ))}
+        {exams.isLoading && <div>{t("loading-text")}</div>}
         <DebugModal data={dataOrgCourses} />
       </div>
     </Layout>

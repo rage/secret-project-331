@@ -465,6 +465,7 @@ SELECT pages.id,
   pages.copied_from
 FROM pages
 WHERE exam_id = $1
+AND pages.deleted_at IS NULL
 ",
         exam_id
     )
@@ -1771,7 +1772,7 @@ mod test {
         assert_eq!(data.org, course_page_org);
 
         let exam = Uuid::new_v4();
-        crate::models::exams::insert(tx.as_mut(), exam, "", None, None, data.org)
+        crate::models::exams::insert(tx.as_mut(), exam, "name", None, None, None, data.org)
             .await
             .unwrap();
         let page = crate::models::pages::insert_page(

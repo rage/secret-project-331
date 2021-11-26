@@ -76,9 +76,9 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
           {data.name} {data.id}
         </h1>
         <div>
-          <a href={`/cms/pages/${data.page_id}`}>Manage page</a> ({data.page_id})
+          <a href={`/cms/pages/${data.page_id}`}>{t("manage-page")}</a> ({data.page_id})
         </div>
-        <h2>Courses</h2>
+        <h2>{t("courses")}</h2>
         {data.courses.map((c) => (
           <div key={c.id}>
             <a href={`/manage/courses/${c.id}`}>{c.name}</a> ({c.id}){" "}
@@ -87,14 +87,14 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
                 unsetCourseMutation.mutate({ examId: data.id, courseId: c.id })
               }}
             >
-              Remove
+              {t("button-text-remove")}
             </button>
           </div>
         ))}
-        <label htmlFor={"input"}>Add course:</label>
+        <label htmlFor={"input"}>{t("add-course")}:</label>
         <input
           id={"input"}
-          placeholder={"course id"}
+          placeholder={t("course-id")}
           value={newCourse}
           onChange={(ev) => setNewCourse(ev.target.value)}
         />
@@ -104,7 +104,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
             setNewCourse("")
           }}
         >
-          Add
+          {t("add-course")}
         </button>
         {errorResponse && <div>{JSON.stringify(errorResponse, undefined, 2)}</div>}
       </>

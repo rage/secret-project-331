@@ -25,7 +25,6 @@ import {
   CourseInstance,
   CourseInstanceEnrollment,
   CourseInstanceForm,
-  CourseInstanceWithOrganizationId,
   CourseMaterialExercise,
   CourseMaterialExerciseServiceInfo,
   CourseMaterialExerciseTask,
@@ -228,17 +227,6 @@ export function isCourseInstanceForm(obj: any, _argumentName?: string): obj is C
     (obj.support_email === null || typeof obj.support_email === "string") &&
     (obj.opening_time === null || obj.opening_time instanceof Date) &&
     (obj.closing_time === null || obj.closing_time instanceof Date)
-  )
-}
-
-export function isCourseInstanceWithOrganizationId(
-  obj: any,
-  _argumentName?: string,
-): obj is CourseInstanceWithOrganizationId {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (isCourseInstance(obj.course_instance) as boolean) &&
-    typeof obj.organization_id === "string"
   )
 }
 

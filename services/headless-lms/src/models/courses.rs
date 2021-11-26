@@ -783,7 +783,7 @@ mod test {
         tx2.rollback().await;
     }
 
-    //#[tokio::test]
+    #[tokio::test]
     async fn copies_course() {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;

@@ -412,6 +412,8 @@
 <span id="412">412</span>
 <span id="413">413</span>
 <span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::{
     <span class="ident">pages::Page</span>, <span class="ident">user_exercise_states::get_user_course_instance_chapter_metrics</span>, <span class="ident">ModelResult</span>,
 };
@@ -769,13 +771,15 @@ RETURNING *;
     <span class="kw">let</span> <span class="ident">chapter_frontpage</span> <span class="op">=</span> <span class="ident">NewPage</span> {
         <span class="ident">chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">chapter</span>.<span class="ident">id</span>),
         <span class="ident">content</span>: <span class="ident">chapter_frontpage_content</span>,
-        <span class="ident">course_id</span>: <span class="ident">chapter</span>.<span class="ident">course_id</span>,
+        <span class="ident">course_id</span>: <span class="prelude-val">Some</span>(<span class="ident">chapter</span>.<span class="ident">course_id</span>),
+        <span class="ident">exam_id</span>: <span class="prelude-val">None</span>,
         <span class="ident">front_page_of_chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">chapter</span>.<span class="ident">id</span>),
         <span class="ident">title</span>: <span class="ident">chapter</span>.<span class="ident">name</span>.<span class="ident">clone</span>(),
         <span class="ident">url_path</span>: <span class="macro">format!</span>(<span class="string">&quot;/chapter-{}&quot;</span>, <span class="ident">chapter</span>.<span class="ident">chapter_number</span>),
         <span class="ident">exercises</span>: <span class="macro">vec!</span>[],
         <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[],
         <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[],
+        <span class="ident">content_search_language</span>: <span class="prelude-val">None</span>,
     };
     <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::models::pages::insert_page</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="ident">chapter_frontpage</span>, <span class="ident">user</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 

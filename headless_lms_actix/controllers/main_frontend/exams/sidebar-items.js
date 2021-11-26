@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["_add_exams_routes","Add a route for each controller in this module."],["get_exam",""],["set_course",""],["unset_course",""]],"struct":[["ExamCourseInfo",""]]});

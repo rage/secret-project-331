@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["_add_course_instances_routes","Add a route for each controller in this module."],["get_course_instance","GET `/api/v8/course-instances/:course_instance` - Gets a course instance by id."]]});
+initSidebarItems({"fn":[["_add_course_instances_routes","Add a route for each controller in this module."],["get_organization_id","GET `/api/v8/course-instances/:course_instance` - Gets a course instance by id."]]});

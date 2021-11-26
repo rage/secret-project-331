@@ -549,6 +549,24 @@
 <span id="549">549</span>
 <span id="550">550</span>
 <span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">chapters::DatabaseChapter</span>, <span class="ident">users::User</span>, <span class="ident">ModelResult</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">models</span>::{<span class="ident">chapters</span>, <span class="ident">exercises</span>},
@@ -693,6 +711,24 @@ WHERE id = $1
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">course_instance</span>)
+}
+
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_organization_id</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+        <span class="string">&quot;
+SELECT courses.organization_id
+FROM course_instances
+  JOIN courses ON courses.id = course_instances.course_id
+WHERE course_instances.id = $1
+&quot;</span>,
+        <span class="ident">course_instance_id</span>
+    )
+    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">organization_id</span>)
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">current_course_instance_of_user</span>(
@@ -1042,7 +1078,7 @@ WHERE id = $1
         )
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();
-        <span class="ident">users::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;user@example.com&quot;</span>)
+        <span class="ident">users::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;user-2347803@example.com&quot;</span>)
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
 

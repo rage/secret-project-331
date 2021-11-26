@@ -957,6 +957,11 @@
 <span id="957">957</span>
 <span id="958">958</span>
 <span id="959">959</span>
+<span id="960">960</span>
+<span id="961">961</span>
+<span id="962">962</span>
+<span id="963">963</span>
+<span id="964">964</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">sync::Arc</span>};
 
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">course_instances::CourseInstance</span>, <span class="ident">ModelResult</span>};
@@ -1524,13 +1529,15 @@ RETURNING id,
     <span class="kw">let</span> <span class="ident">course_front_page</span> <span class="op">=</span> <span class="ident">NewPage</span> {
         <span class="ident">chapter_id</span>: <span class="prelude-val">None</span>,
         <span class="ident">content</span>: <span class="ident">course_front_page_content</span>,
-        <span class="ident">course_id</span>: <span class="ident">course</span>.<span class="ident">id</span>,
+        <span class="ident">course_id</span>: <span class="prelude-val">Some</span>(<span class="ident">course</span>.<span class="ident">id</span>),
+        <span class="ident">exam_id</span>: <span class="prelude-val">None</span>,
         <span class="ident">front_page_of_chapter_id</span>: <span class="prelude-val">None</span>,
         <span class="ident">title</span>: <span class="ident">course</span>.<span class="ident">name</span>.<span class="ident">clone</span>(),
         <span class="ident">url_path</span>: <span class="ident">String::from</span>(<span class="string">&quot;/&quot;</span>),
         <span class="ident">exercises</span>: <span class="macro">vec!</span>[],
         <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[],
         <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[],
+        <span class="ident">content_search_language</span>: <span class="prelude-val">None</span>,
     };
     <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::models::pages::insert_page</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="ident">course_front_page</span>, <span class="ident">user</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -1868,6 +1875,7 @@ SELECT id,
   created_at,
   updated_at,
   course_id,
+  exam_id,
   chapter_id,
   url_path,
   title,
@@ -1876,7 +1884,9 @@ SELECT id,
   order_number,
   copied_from
 FROM pages
-WHERE chapter_id = $1;&quot;</span>,
+WHERE chapter_id = $1
+  AND course_id IS NOT NULL
+&quot;</span>,
             <span class="ident">copied_chapter</span>.<span class="ident">id</span>
         )
         .<span class="ident">fetch_one</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>())

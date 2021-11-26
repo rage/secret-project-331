@@ -142,6 +142,18 @@
 <span id="142">142</span>
 <span id="143">143</span>
 <span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/cms/pages`.</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">controllers::ControllerResult</span>,
@@ -189,14 +201,21 @@ Response:
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">ContentManagementPage</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::models::pages::get_course_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">request_page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">authorize</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="ident">Action::Edit</span>,
-        <span class="ident">user</span>.<span class="ident">id</span>,
-        <span class="ident">Resource::Course</span>(<span class="ident">course_id</span>),
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> (<span class="ident">course_id</span>, <span class="ident">exam_id</span>) <span class="op">=</span>
+        <span class="ident"><span class="kw">crate</span>::models::pages::get_course_and_exam_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">request_page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">course_id</span>) <span class="op">=</span> <span class="ident">course_id</span> {
+        <span class="ident">authorize</span>(
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+            <span class="ident">Action::Edit</span>,
+            <span class="ident">user</span>.<span class="ident">id</span>,
+            <span class="ident">Resource::Course</span>(<span class="ident">course_id</span>),
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">exam_id</span>) <span class="op">=</span> <span class="ident">exam_id</span> {
+        <span class="ident">authorize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">Action::Edit</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">Resource::Exam</span>(<span class="ident">exam_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+    } <span class="kw">else</span> {
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;No course or exam associated with page&quot;</span>).<span class="ident">into</span>());
+    }
     <span class="kw">let</span> <span class="ident">cms_page</span> <span class="op">=</span>
         <span class="ident"><span class="kw">crate</span>::models::pages::get_page_with_exercises</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">request_page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">cms_page</span>))
@@ -255,14 +274,19 @@ Response:
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">ContentManagementPage</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">page_update</span> <span class="op">=</span> <span class="ident">payload</span>.<span class="number">0</span>;
-    <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::models::pages::get_course_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">request_page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">authorize</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="ident">Action::Edit</span>,
-        <span class="ident">user</span>.<span class="ident">id</span>,
-        <span class="ident">Resource::Course</span>(<span class="ident">course_id</span>),
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> (<span class="ident">course_id</span>, <span class="ident">exam_id</span>) <span class="op">=</span>
+        <span class="ident"><span class="kw">crate</span>::models::pages::get_course_and_exam_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">request_page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">course_id</span>) <span class="op">=</span> <span class="ident">course_id</span> {
+        <span class="ident">authorize</span>(
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+            <span class="ident">Action::Edit</span>,
+            <span class="ident">user</span>.<span class="ident">id</span>,
+            <span class="ident">Resource::Course</span>(<span class="ident">course_id</span>),
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">exam_id</span>) <span class="op">=</span> <span class="ident">exam_id</span> {
+        <span class="ident">authorize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">Action::Edit</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">Resource::Exam</span>(<span class="ident">exam_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+    }
     <span class="kw">let</span> <span class="ident">saved</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::models::pages::update_page</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
         <span class="kw-2">*</span><span class="ident">request_page_id</span>,

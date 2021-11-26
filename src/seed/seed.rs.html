@@ -1816,8 +1816,83 @@
 <span id="1816">1816</span>
 <span id="1817">1817</span>
 <span id="1818">1818</span>
+<span id="1819">1819</span>
+<span id="1820">1820</span>
+<span id="1821">1821</span>
+<span id="1822">1822</span>
+<span id="1823">1823</span>
+<span id="1824">1824</span>
+<span id="1825">1825</span>
+<span id="1826">1826</span>
+<span id="1827">1827</span>
+<span id="1828">1828</span>
+<span id="1829">1829</span>
+<span id="1830">1830</span>
+<span id="1831">1831</span>
+<span id="1832">1832</span>
+<span id="1833">1833</span>
+<span id="1834">1834</span>
+<span id="1835">1835</span>
+<span id="1836">1836</span>
+<span id="1837">1837</span>
+<span id="1838">1838</span>
+<span id="1839">1839</span>
+<span id="1840">1840</span>
+<span id="1841">1841</span>
+<span id="1842">1842</span>
+<span id="1843">1843</span>
+<span id="1844">1844</span>
+<span id="1845">1845</span>
+<span id="1846">1846</span>
+<span id="1847">1847</span>
+<span id="1848">1848</span>
+<span id="1849">1849</span>
+<span id="1850">1850</span>
+<span id="1851">1851</span>
+<span id="1852">1852</span>
+<span id="1853">1853</span>
+<span id="1854">1854</span>
+<span id="1855">1855</span>
+<span id="1856">1856</span>
+<span id="1857">1857</span>
+<span id="1858">1858</span>
+<span id="1859">1859</span>
+<span id="1860">1860</span>
+<span id="1861">1861</span>
+<span id="1862">1862</span>
+<span id="1863">1863</span>
+<span id="1864">1864</span>
+<span id="1865">1865</span>
+<span id="1866">1866</span>
+<span id="1867">1867</span>
+<span id="1868">1868</span>
+<span id="1869">1869</span>
+<span id="1870">1870</span>
+<span id="1871">1871</span>
+<span id="1872">1872</span>
+<span id="1873">1873</span>
+<span id="1874">1874</span>
+<span id="1875">1875</span>
+<span id="1876">1876</span>
+<span id="1877">1877</span>
+<span id="1878">1878</span>
+<span id="1879">1879</span>
+<span id="1880">1880</span>
+<span id="1881">1881</span>
+<span id="1882">1882</span>
+<span id="1883">1883</span>
+<span id="1884">1884</span>
+<span id="1885">1885</span>
+<span id="1886">1886</span>
+<span id="1887">1887</span>
+<span id="1888">1888</span>
+<span id="1889">1889</span>
+<span id="1890">1890</span>
+<span id="1891">1891</span>
+<span id="1892">1892</span>
+<span id="1893">1893</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">TimeZone</span>, <span class="ident">Utc</span>};
+<span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">Duration</span>, <span class="ident">TimeZone</span>, <span class="ident">Utc</span>};
 <span class="kw">use</span> <span class="ident">headless_lms_actix::attributes</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models::chapters::NewChapter</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models::course_instance_enrollments::NewCourseInstanceEnrollment</span>;
@@ -1838,7 +1913,9 @@
     <span class="ident">exercises</span>, <span class="ident">organizations</span>, <span class="ident">pages</span>, <span class="ident">roles</span>, <span class="ident">roles::UserRole</span>, <span class="ident">submissions</span>, <span class="ident">user_exercise_states</span>,
     <span class="ident">users</span>,
 };
-<span class="kw">use</span> <span class="ident">headless_lms_actix::models</span>::{<span class="ident">course_instance_enrollments</span>, <span class="ident">feedback</span>, <span class="ident">playground_examples</span>};
+<span class="kw">use</span> <span class="ident">headless_lms_actix::models</span>::{
+    <span class="ident">course_instance_enrollments</span>, <span class="ident">exams</span>, <span class="ident">feedback</span>, <span class="ident">playground_examples</span>,
+};
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models</span>::{<span class="ident">gradings</span>, <span class="ident">proposed_page_edits</span>};
 <span class="kw">use</span> <span class="ident">headless_lms_actix::setup_tracing</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_actix::utils::document_schema_processor::GutenbergBlock</span>;
@@ -1988,6 +2065,7 @@
         <span class="string">&quot;Introduction to everything&quot;</span>,
         <span class="string">&quot;introduction-to-everything&quot;</span>,
         <span class="ident">admin</span>,
+        <span class="ident">teacher</span>,
         <span class="ident">student</span>,
         <span class="kw-2">&amp;</span><span class="ident">users</span>,
     )
@@ -1999,6 +2077,7 @@
         <span class="string">&quot;Introduction to feedback&quot;</span>,
         <span class="string">&quot;introduction-to-feedback&quot;</span>,
         <span class="ident">admin</span>,
+        <span class="ident">teacher</span>,
         <span class="ident">student</span>,
         <span class="kw-2">&amp;</span><span class="ident">users</span>,
     )
@@ -2010,6 +2089,7 @@
         <span class="string">&quot;Introduction to history&quot;</span>,
         <span class="string">&quot;introduction-to-history&quot;</span>,
         <span class="ident">admin</span>,
+        <span class="ident">teacher</span>,
         <span class="ident">student</span>,
         <span class="kw-2">&amp;</span><span class="ident">users</span>,
     )
@@ -2021,6 +2101,7 @@
         <span class="string">&quot;Introduction to edit proposals&quot;</span>,
         <span class="string">&quot;introduction-to-edit-proposals&quot;</span>,
         <span class="ident">admin</span>,
+        <span class="ident">teacher</span>,
         <span class="ident">student</span>,
         <span class="kw-2">&amp;</span><span class="ident">users</span>,
     )
@@ -2032,6 +2113,7 @@
         <span class="string">&quot;Introduction to localizing&quot;</span>,
         <span class="string">&quot;introduction-to-localizing&quot;</span>,
         <span class="ident">admin</span>,
+        <span class="ident">teacher</span>,
         <span class="ident">student</span>,
         <span class="kw-2">&amp;</span><span class="ident">users</span>,
     )
@@ -2043,6 +2125,7 @@
         <span class="string">&quot;Point view for teachers&quot;</span>,
         <span class="string">&quot;point-view-for-teachers&quot;</span>,
         <span class="ident">admin</span>,
+        <span class="ident">teacher</span>,
         <span class="ident">student</span>,
         <span class="kw-2">&amp;</span><span class="ident">users</span>,
     )
@@ -2054,6 +2137,7 @@
         <span class="string">&quot;Advanced course instance management&quot;</span>,
         <span class="string">&quot;advanced-course-instance-management&quot;</span>,
         <span class="ident">admin</span>,
+        <span class="ident">teacher</span>,
         <span class="ident">student</span>,
         <span class="kw-2">&amp;</span><span class="ident">users</span>,
     )
@@ -2771,6 +2855,7 @@
     <span class="ident">course_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
     <span class="ident">course_slug</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
     <span class="ident">admin</span>: <span class="ident">Uuid</span>,
+    <span class="ident">teacher</span>: <span class="ident">Uuid</span>,
     <span class="ident">student</span>: <span class="ident">Uuid</span>,
     <span class="ident">users</span>: <span class="kw-2">&amp;</span>[<span class="ident">Uuid</span>],
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
@@ -3210,6 +3295,69 @@
     };
     <span class="ident">proposed_page_edits::insert</span>(<span class="ident">conn</span>, <span class="ident">course</span>.<span class="ident">id</span>, <span class="prelude-val">Some</span>(<span class="ident">student</span>), <span class="kw-2">&amp;</span><span class="ident">edits</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
+    <span class="comment">// exams</span>
+    <span class="kw">let</span> <span class="ident">exam_id</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;7d6ed843-2a94-445b-8ced-ab3c67290ad0&quot;</span>);
+    <span class="ident">exams::insert</span>(
+        <span class="ident">conn</span>,
+        <span class="ident">exam_id</span>,
+        <span class="string">&quot;Course exam&quot;</span>,
+        <span class="prelude-val">Some</span>(<span class="ident">Utc::now</span>()),
+        <span class="prelude-val">Some</span>(<span class="ident">Utc::now</span>() <span class="op">+</span> <span class="ident">Duration::days</span>(<span class="number">30</span>)),
+        <span class="prelude-val">Some</span>(<span class="number">120</span>),
+        <span class="ident">org</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">pages::insert_page</span>(
+        <span class="ident">conn</span>,
+        <span class="ident">NewPage</span> {
+            <span class="ident">exercises</span>: <span class="macro">vec!</span>[],
+            <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[],
+            <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[],
+            <span class="ident">content</span>: <span class="ident">Value::Array</span>(<span class="macro">vec!</span>[]),
+            <span class="ident">url_path</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">title</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">course_id</span>: <span class="prelude-val">None</span>,
+            <span class="ident">exam_id</span>: <span class="prelude-val">Some</span>(<span class="ident">exam_id</span>),
+            <span class="ident">chapter_id</span>: <span class="prelude-val">None</span>,
+            <span class="ident">front_page_of_chapter_id</span>: <span class="prelude-val">None</span>,
+            <span class="ident">content_search_language</span>: <span class="prelude-val">None</span>,
+        },
+        <span class="ident">teacher</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">exams::set_course</span>(<span class="ident">conn</span>, <span class="ident">exam_id</span>, <span class="ident">course</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let</span> <span class="ident">exam_id</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;94393cf5-1814-4d57-80d5-e5af93790967&quot;</span>);
+    <span class="ident">exams::insert</span>(
+        <span class="ident">conn</span>,
+        <span class="ident">exam_id</span>,
+        <span class="string">&quot;Repeat exam&quot;</span>,
+        <span class="prelude-val">Some</span>(<span class="ident">Utc::now</span>()),
+        <span class="prelude-val">Some</span>(<span class="ident">Utc::now</span>() <span class="op">+</span> <span class="ident">Duration::days</span>(<span class="number">30</span>)),
+        <span class="prelude-val">Some</span>(<span class="number">120</span>),
+        <span class="ident">org</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">pages::insert_page</span>(
+        <span class="ident">conn</span>,
+        <span class="ident">NewPage</span> {
+            <span class="ident">exercises</span>: <span class="macro">vec!</span>[],
+            <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[],
+            <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[],
+            <span class="ident">content</span>: <span class="ident">Value::Array</span>(<span class="macro">vec!</span>[]),
+            <span class="ident">url_path</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">title</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">course_id</span>: <span class="prelude-val">None</span>,
+            <span class="ident">exam_id</span>: <span class="prelude-val">Some</span>(<span class="ident">exam_id</span>),
+            <span class="ident">chapter_id</span>: <span class="prelude-val">None</span>,
+            <span class="ident">front_page_of_chapter_id</span>: <span class="prelude-val">None</span>,
+            <span class="ident">content_search_language</span>: <span class="prelude-val">None</span>,
+        },
+        <span class="ident">teacher</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">exams::set_course</span>(<span class="ident">conn</span>, <span class="ident">exam_id</span>, <span class="ident">course</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
     <span class="prelude-val">Ok</span>(<span class="ident">course</span>.<span class="ident">id</span>)
 }
 
@@ -3487,12 +3635,14 @@
         <span class="ident">content</span>: <span class="ident">Value::Array</span>(<span class="macro">vec!</span>[]),
         <span class="ident">url_path</span>: <span class="ident">page_data</span>.<span class="ident">url_path</span>.<span class="ident">to_string</span>(),
         <span class="ident">title</span>: <span class="macro">format!</span>(<span class="string">&quot;{} WIP&quot;</span>, <span class="ident">page_data</span>.<span class="ident">title</span>),
-        <span class="ident">course_id</span>,
+        <span class="ident">course_id</span>: <span class="prelude-val">Some</span>(<span class="ident">course_id</span>),
+        <span class="ident">exam_id</span>: <span class="prelude-val">None</span>,
         <span class="ident">chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">chapter_id</span>),
         <span class="ident">front_page_of_chapter_id</span>: <span class="prelude-val">None</span>,
         <span class="ident">exercises</span>: <span class="macro">vec!</span>[],
         <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[],
         <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[],
+        <span class="ident">content_search_language</span>: <span class="prelude-val">None</span>,
     };
     <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="ident">pages::insert_page</span>(<span class="ident">conn</span>, <span class="ident">new_page</span>, <span class="ident">author</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">pages::update_page</span>(

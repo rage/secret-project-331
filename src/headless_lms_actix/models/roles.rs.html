@@ -68,6 +68,11 @@
 <span id="68">68</span>
 <span id="69">69</span>
 <span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">super</span>::ModelResult</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">sqlx::PgConnection</span>;
@@ -87,6 +92,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Role</span> {
     <span class="kw">pub</span> <span class="ident">organization_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">course_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">exam_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">role</span>: <span class="ident">UserRole</span>,
 }
 
@@ -105,6 +111,10 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_role_for_course</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">course_id</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">course_id</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">course_id</span>).<span class="ident">unwrap_or_default</span>()
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_role_for_exam</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">exam_id</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">exam_id</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">exam_id</span>).<span class="ident">unwrap_or_default</span>()
     }
 }
 
@@ -132,7 +142,7 @@ INSERT INTO roles (user_id, organization_id, course_id, role) VALUES ($1, $2, $3
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_roles</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">user_id</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Role</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">roles</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">Role</span>,
-        <span class="string">r#&quot;SELECT organization_id, course_id, role AS &quot;role: UserRole&quot; FROM roles WHERE user_id = $1&quot;#</span>, <span class="ident">user_id</span>
+        <span class="string">r#&quot;SELECT organization_id, course_id, exam_id, role AS &quot;role: UserRole&quot; FROM roles WHERE user_id = $1&quot;#</span>, <span class="ident">user_id</span>
     )
     .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;

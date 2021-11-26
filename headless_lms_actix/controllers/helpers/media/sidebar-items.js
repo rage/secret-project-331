@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["generate_audio_path",""],["generate_file_path",""],["generate_image_path",""],["generate_organization_image_path",""],["upload_image_for_organization",""],["upload_media_for_course",""],["validate_media_headers",""]]});
+initSidebarItems({"enum":[["FileType",""],["StoreKind",""]],"fn":[["generate_audio_path",""],["generate_file_path",""],["generate_image_path",""],["path",""],["upload_image_for_organization",""],["upload_media",""],["validate_media_headers",""]]});

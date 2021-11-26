@@ -53,11 +53,36 @@
 <span id="53">53</span>
 <span id="54">54</span>
 <span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/pages`.</span>
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">controllers::ControllerResult</span>, <span class="ident">models::pages::PageRoutingDataWithChapterStatus</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">controllers::ControllerResult</span>,
+    <span class="ident">models::pages</span>::{<span class="ident">Page</span>, <span class="ident">PageRoutingDataWithChapterStatus</span>},
+};
 <span class="kw">use</span> <span class="ident">actix_web::web</span>::{<span class="self">self</span>, <span class="ident">Json</span>, <span class="ident">ServiceConfig</span>};
 <span class="kw">use</span> <span class="ident">sqlx::PgPool</span>;
 <span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
+
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_exam_id</span>(
+    <span class="ident">id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::models::pages::get_by_exam_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">id</span>.<span class="ident">into_inner</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">page</span>))
+}
 
 <span class="doccomment">/**
  GET /api/v0/course-material/pages/:page_id/next-page - returns next pages info.
@@ -105,7 +130,8 @@
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_pages_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) {
-    <span class="ident">cfg</span>.<span class="ident">route</span>(<span class="string">&quot;/{current_page_id}/next-page&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_next_page</span>))
+    <span class="ident">cfg</span>.<span class="ident">route</span>(<span class="string">&quot;/exam/{page_id}&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_by_exam_id</span>))
+        .<span class="ident">route</span>(<span class="string">&quot;/{current_page_id}/next-page&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_next_page</span>))
         .<span class="ident">route</span>(<span class="string">&quot;/{current_page_id}/url-path&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_url_path</span>));
 }
 </code></pre></div>

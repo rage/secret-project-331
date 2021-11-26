@@ -286,6 +286,8 @@
 <span id="286">286</span>
 <span id="287">287</span>
 <span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">exercise_slides</span>, <span class="ident">exercise_tasks</span>, <span class="ident">user_exercise_states</span>, <span class="ident">ModelError</span>, <span class="ident">ModelResult</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::utils::document_schema_processor::GutenbergBlock</span>;
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
@@ -368,8 +370,8 @@ RETURNING id
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_id</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
-SELECT course_id
+        <span class="string">r#&quot;
+SELECT course_id as &quot;course_id!&quot;
 FROM exercises
 WHERE id = (
     SELECT s.exercise_id
@@ -378,8 +380,9 @@ WHERE id = (
     WHERE s.deleted_at IS NULL
       AND t.id = $1
       AND t.deleted_at IS NULL
-  );
-        &quot;</span>,
+  )
+  AND course_id IS NOT NULL
+&quot;#</span>,
         <span class="ident">id</span>
     )
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
@@ -503,7 +506,8 @@ WHERE exercise_slide_id = ANY($1)
         <span class="ident">conn</span>,
         <span class="ident">user_id</span>,
         <span class="ident">exercise_id</span>,
-        <span class="ident">course_instance_id</span>,
+        <span class="prelude-val">Some</span>(<span class="ident">course_instance_id</span>),
+        <span class="prelude-val">None</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">selected_exercise_slide_id</span> <span class="op">=</span>

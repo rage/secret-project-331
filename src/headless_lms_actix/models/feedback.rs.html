@@ -270,7 +270,7 @@ WHERE id = $2
         <span class="string">r#&quot;
 SELECT feedback.id,
   feedback.user_id,
-  feedback.course_id,
+  feedback.course_id as &quot;course_id!&quot;,
   feedback.feedback_given,
   feedback.selected_text,
   feedback.marked_as_read,

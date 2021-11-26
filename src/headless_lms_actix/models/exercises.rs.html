@@ -524,6 +524,10 @@
 <span id="524">524</span>
 <span id="525">525</span>
 <span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::{
     <span class="ident">course_instances</span>,
     <span class="ident">exercise_tasks</span>::{<span class="self">self</span>, <span class="ident">get_existing_user_exercise_task_for_course_instance</span>},
@@ -551,7 +555,8 @@
     <span class="kw">pub</span> <span class="ident">created_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">updated_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
+    <span class="kw">pub</span> <span class="ident">course_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">exam_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">deadline</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
@@ -758,10 +763,13 @@ WHERE page_id = $1
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_id</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(<span class="string">&quot;SELECT course_id FROM exercises WHERE id = $1;&quot;</span>, <span class="ident">id</span>)
-        .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        .<span class="ident">course_id</span>;
+    <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+        <span class="string">r#&quot;SELECT course_id AS &quot;course_id!&quot; FROM exercises WHERE id = $1 AND course_id IS NOT NULL&quot;#</span>,
+        <span class="ident">id</span>
+    )
+    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>
+    .<span class="ident">course_id</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">course_id</span>)
 }
 
@@ -771,16 +779,18 @@ WHERE page_id = $1
     <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CourseMaterialExercise</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">get_by_id</span>(<span class="ident">conn</span>, <span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">course_id</span>) <span class="op">=</span> <span class="ident">exercise</span>.<span class="ident">course_id</span> {
+        <span class="ident">course_id</span>
+    } <span class="kw">else</span> {
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;The selected exercise is not attached to any course&quot;</span>).<span class="ident">into</span>());
+    };
 
     <span class="kw">let</span> (<span class="ident">selected_exercise_task</span>, <span class="ident">current_course_instance_id</span>) <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">user_id</span>) <span class="op">=</span> <span class="ident">user_id</span> {
-        <span class="kw">let</span> <span class="ident">user_course_settings</span> <span class="op">=</span> <span class="ident">user_course_settings::get_user_course_settings_by_course_id</span>(
-            <span class="ident">conn</span>,
-            <span class="ident">user_id</span>,
-            <span class="ident">exercise</span>.<span class="ident">course_id</span>,
-        )
-        .<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">user_course_settings</span> <span class="op">=</span>
+            <span class="ident">user_course_settings::get_user_course_settings_by_course_id</span>(<span class="ident">conn</span>, <span class="ident">user_id</span>, <span class="ident">course_id</span>)
+                .<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">match</span> <span class="ident">user_course_settings</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">settings</span>) <span class="kw">if</span> <span class="ident">settings</span>.<span class="ident">current_course_id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">exercise</span>.<span class="ident">course_id</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">settings</span>) <span class="kw">if</span> <span class="ident">settings</span>.<span class="ident">current_course_id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">course_id</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// User is enrolled on an instance of the given course.</span>
                 <span class="kw">let</span> <span class="ident">task</span> <span class="op">=</span> <span class="ident">exercise_tasks::get_or_select_user_exercise_task_for_course_instance</span>(
                     <span class="ident">conn</span>,
@@ -795,9 +805,7 @@ WHERE page_id = $1
                 <span class="comment">// User is enrolled on a different language version of the course. Show exercise</span>
                 <span class="comment">// task based on their latest enrollment or a random one.</span>
                 <span class="kw">let</span> <span class="ident">latest_instance</span> <span class="op">=</span> <span class="ident">course_instances::course_instance_by_users_latest_enrollment</span>(
-                    <span class="ident">conn</span>,
-                    <span class="ident">user_id</span>,
-                    <span class="ident">exercise</span>.<span class="ident">course_id</span>,
+                    <span class="ident">conn</span>, <span class="ident">user_id</span>, <span class="ident">course_id</span>,
                 )
                 .<span class="kw">await</span><span class="question-mark">?</span>;
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">instance</span>) <span class="op">=</span> <span class="ident">latest_instance</span> {

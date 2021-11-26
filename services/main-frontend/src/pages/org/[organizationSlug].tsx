@@ -9,11 +9,13 @@ import Layout from "../../components/Layout"
 import OrganizationImageWidget from "../../components/OrganizationImageWidget"
 import NewCourseForm from "../../components/forms/NewCourseForm"
 import { postNewCourse } from "../../services/backend/courses"
+import { fetchOrganizationExams } from "../../services/backend/exams"
 import {
   fetchOrganizationBySlug,
   fetchOrganizationCoursesBySlug,
 } from "../../services/backend/organizations"
 import { NewCourse } from "../../shared-module/bindings"
+import { isErrorResponse } from "../../shared-module/bindings.guard"
 import Button from "../../shared-module/components/Button"
 import DebugModal from "../../shared-module/components/DebugModal"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
@@ -46,6 +48,15 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
   } = useQuery(`organization-${query.organizationSlug}`, () =>
     fetchOrganizationBySlug(query.organizationSlug),
   )
+  const exams = useQuery(
+    [`organization-${query.organizationSlug}-exams`, dataOrg],
+    () => {
+      if (dataOrg) {
+        return fetchOrganizationExams(dataOrg.id)
+      }
+    },
+    { enabled: !!dataOrg },
+  )
   const loginStateContext = useContext(LoginStateContext)
 
   const [newCourseFormOpen, setNewCourseFormOpen] = useState(false)
@@ -55,6 +66,10 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
 
   if (errorOrg) {
     return <pre>{JSON.stringify(errorOrg, undefined, 2)}</pre>
+  }
+
+  if (exams.isError) {
+    return <pre>{JSON.stringify(exams.error, undefined, 2)}</pre>
   }
 
   if (isLoadingOrgCourses || !dataOrgCourses || isLoadingOrg || !dataOrg) {
@@ -136,6 +151,16 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
             </div>
           </Dialog>
         </div>
+        <h1>{t("organization-exams")}</h1>
+        {exams.isSuccess &&
+          exams.data &&
+          exams.data.map((e) => (
+            <div key={e.id}>
+              <a href={`/org/${query.organizationSlug}/exams/${e.id}`}>{e.name}</a> ({e.course_name}
+              ) <a href={`/manage/exams/${e.id}`}>{t("link-manage")}</a>
+            </div>
+          ))}
+        {exams.isLoading && <div>{t("loading-text")}</div>}
         <DebugModal data={dataOrgCourses} />
       </div>
     </Layout>

@@ -28,7 +28,8 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({ o
     ["course-instances", coursePageState.pageData?.course_id],
     () =>
       fetchCourseInstances(
-        (coursePageState.pageData as NonNullable<typeof coursePageState.pageData>).course_id,
+        (coursePageState.pageData as NonNullable<typeof coursePageState.pageData>)
+          .course_id as NonNullable<string>,
       ),
     {
       enabled: open && coursePageState.state === "ready",

@@ -80,8 +80,8 @@ RETURNING id
 
 pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
     let course_id = sqlx::query!(
-        "
-SELECT course_id
+        r#"
+SELECT course_id as "course_id!"
 FROM exercises
 WHERE id = (
     SELECT s.exercise_id
@@ -90,8 +90,9 @@ WHERE id = (
     WHERE s.deleted_at IS NULL
       AND t.id = $1
       AND t.deleted_at IS NULL
-  );
-        ",
+  )
+  AND course_id IS NOT NULL
+"#,
         id
     )
     .fetch_one(conn)
@@ -215,7 +216,8 @@ pub async fn get_or_select_user_exercise_task_for_course_instance(
         conn,
         user_id,
         exercise_id,
-        course_instance_id,
+        Some(course_instance_id),
+        None,
     )
     .await?;
     let selected_exercise_slide_id =

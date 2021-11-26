@@ -91,6 +91,7 @@ pub enum Action {
 pub enum Resource {
     Chapter(Uuid),
     Course(Uuid),
+    Exam(Uuid),
     ExerciseTask(Uuid),
     Exercise(Uuid),
     Grading(Uuid),
@@ -129,37 +130,53 @@ pub async fn authorize(
         }
     }
 
-    let (course_id, organization_id) = match resource {
+    let (exam_id, course_id, organization_id) = match resource {
         Resource::Chapter(chapter_id) => (
+            None,
             Some(crate::models::chapters::get_course_id(conn, chapter_id).await?),
             None,
         ),
-        Resource::Course(course_id) => (Some(course_id), None),
+        Resource::Course(course_id) => (None, Some(course_id), None),
         Resource::ExerciseTask(id) => (
+            None,
             Some(crate::models::exercise_tasks::get_course_id(conn, id).await?),
             None,
         ),
         Resource::Exercise(id) => (
+            None,
             Some(crate::models::exercises::get_course_id(conn, id).await?),
             None,
         ),
         Resource::Grading(id) => (
-            Some(crate::models::gradings::get_course_id(conn, id).await?),
+            None,
+            crate::models::gradings::get_course_id(conn, id).await?,
             None,
         ),
-        Resource::Organization(id) => (None, Some(id)),
-        Resource::Page(id) => (
-            Some(crate::models::pages::get_course_id(conn, id).await?),
-            None,
-        ),
-        Resource::Submission(id) => (
-            Some(crate::models::submissions::get_course_id(conn, id).await?),
-            None,
-        ),
+        Resource::Organization(id) => (None, None, Some(id)),
+        Resource::Page(id) => {
+            let (course_id, exam_id) =
+                crate::models::pages::get_course_and_exam_id(conn, id).await?;
+            (exam_id, course_id, None)
+        }
+        Resource::Submission(id) => {
+            let (course_id, exam_id) =
+                crate::models::submissions::get_course_and_exam_id(conn, id).await?;
+            (exam_id, course_id, None)
+        }
+        Resource::Exam(exam_id) => (Some(exam_id), None, None),
         Resource::Role | Resource::User | Resource::AnyCourse | Resource::PlaygroundExample => {
-            (None, None)
+            (None, None, None)
         }
     };
+
+    // check exam role
+    if let Some(exam_id) = exam_id {
+        for role in &user_roles {
+            if role.is_role_for_exam(exam_id) && has_permission(role.role, action) {
+                return Ok(());
+            }
+        }
+    }
 
     // check course role
     if let Some(course_id) = course_id {

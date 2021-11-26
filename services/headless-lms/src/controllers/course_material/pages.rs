@@ -1,8 +1,20 @@
 //! Controllers for requests starting with `/api/v0/course-material/pages`.
-use crate::{controllers::ControllerResult, models::pages::PageRoutingDataWithChapterStatus};
+use crate::{
+    controllers::ControllerResult,
+    models::pages::{Page, PageRoutingDataWithChapterStatus},
+};
 use actix_web::web::{self, Json, ServiceConfig};
 use sqlx::PgPool;
 use uuid::Uuid;
+
+async fn get_by_exam_id(
+    id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<Json<Page>> {
+    let mut conn = pool.acquire().await?;
+    let page = crate::models::pages::get_by_exam_id(&mut conn, id.into_inner()).await?;
+    Ok(Json(page))
+}
 
 /**
  GET /api/v0/course-material/pages/:page_id/next-page - returns next pages info.
@@ -50,6 +62,7 @@ async fn get_url_path(
 }
 
 pub fn _add_pages_routes(cfg: &mut ServiceConfig) {
-    cfg.route("/{current_page_id}/next-page", web::get().to(get_next_page))
+    cfg.route("/exam/{page_id}", web::get().to(get_by_exam_id))
+        .route("/{current_page_id}/next-page", web::get().to(get_next_page))
         .route("/{current_page_id}/url-path", web::get().to(get_url_path));
 }

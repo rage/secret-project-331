@@ -4,6 +4,7 @@ import {
   CourseInstance,
   CourseMaterialExercise,
   CoursePageWithUserData,
+  ExamEnrollment,
   NewFeedback,
   NewProposedPageEdits,
   NewSubmission,
@@ -67,6 +68,15 @@ export interface Block<T> {
   clientId: string
   attributes: T
   innerBlocks: Block<unknown>[]
+}
+
+export const fetchPageByExamId = async (id: string): Promise<Page> => {
+  const data = (
+    await courseMaterialClient.get(`/pages/exam/${id}`, {
+      responseType: "json",
+    })
+  ).data
+  return data
 }
 
 export const fetchCoursePageByPath = async (
@@ -222,4 +232,17 @@ export const postProposedEdits = async (
   newProposedEdits: NewProposedPageEdits,
 ): Promise<void> => {
   await courseMaterialClient.post(`/proposed-edits/${courseId}`, newProposedEdits)
+}
+
+export const fetchExamEnrollment = async (examId: string): Promise<ExamEnrollment | null> => {
+  const response = await courseMaterialClient.get(`/exams/${examId}/enrollment`)
+  return response.data
+}
+
+export const enrollInExam = async (examId: string): Promise<void> => {
+  await courseMaterialClient.post(`/exams/${examId}/enroll`, { responseType: "json" })
+}
+
+export const startExam = async (examId: string): Promise<void> => {
+  await courseMaterialClient.post(`/exams/${examId}/start`, { responseType: "json" })
 }

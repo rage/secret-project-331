@@ -355,13 +355,15 @@ RETURNING *;
     let chapter_frontpage = NewPage {
         chapter_id: Some(chapter.id),
         content: chapter_frontpage_content,
-        course_id: chapter.course_id,
+        course_id: Some(chapter.course_id),
+        exam_id: None,
         front_page_of_chapter_id: Some(chapter.id),
         title: chapter.name.clone(),
         url_path: format!("/chapter-{}", chapter.chapter_number),
         exercises: vec![],
         exercise_slides: vec![],
         exercise_tasks: vec![],
+        content_search_language: None,
     };
     let page = crate::models::pages::insert_page(&mut tx, chapter_frontpage, user).await?;
 

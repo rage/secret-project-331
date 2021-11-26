@@ -28,6 +28,8 @@ const CourseInstancesList: React.FC<CourseInstancesListProps> = ({ courseId }) =
     return <>{t("loading-text")}</>
   }
 
+  console.log(data)
+
   return (
     <>
       <ul>

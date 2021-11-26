@@ -1,6 +1,6 @@
 //! Controllers for requests starting with `/api/v0/cms/course-instances`.
 
-use crate::{controllers::ControllerResult, models::course_instances::CourseInstance};
+use crate::controllers::ControllerResult;
 use actix_web::web::ServiceConfig;
 use actix_web::web::{self, Json};
 use sqlx::PgPool;
@@ -29,17 +29,17 @@ Response
 ```
 */
 #[instrument(skip(pool))]
-async fn get_course_instance(
+async fn get_organization_id(
     request_course_instance_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<Json<CourseInstance>> {
+) -> ControllerResult<Json<Uuid>> {
     let mut conn = pool.acquire().await?;
-    let course_intance = crate::models::course_instances::get_course_instance(
+    let organization = crate::models::course_instances::get_organization_id(
         &mut conn,
         *request_course_instance_id,
     )
     .await?;
-    Ok(Json(course_intance))
+    Ok(Json(organization))
 }
 
 /**
@@ -50,5 +50,8 @@ The name starts with an underline in order to appear before other functions in t
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
 pub fn _add_course_instances_routes(cfg: &mut ServiceConfig) {
-    cfg.route("/{course_instance_id}", web::get().to(get_course_instance));
+    cfg.route(
+        "/{course_instance_id}/organization",
+        web::get().to(get_organization_id),
+    );
 }

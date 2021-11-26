@@ -11,11 +11,15 @@ export interface MediaUploadProps {
   onFileChange: (files: Partial<MediaItem>[]) => void
 }
 
-export function mediaUploadBuilder(courseId: string): (props: MediaUploadProps) => Promise<void> {
+type MediaUpload = { courseId: string } | { examId: string }
+
+export function mediaUploadBuilder(
+  uploadType: MediaUpload,
+): (props: MediaUploadProps) => Promise<void> {
   const mediaUpload = async (props: MediaUploadProps): Promise<void> => {
     // 10 MB = 10485760 B
     const maxUploadFileSize = 10485760
-    await uploadMedia({ ...props, maxUploadFileSize, courseId })
+    await uploadMedia({ ...props, maxUploadFileSize, uploadType })
   }
   return mediaUpload
 }

@@ -28,7 +28,8 @@ pub struct Grading {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub submission_id: Uuid,
-    pub course_id: Uuid,
+    pub course_id: Option<Uuid>,
+    pub exam_id: Option<Uuid>,
     pub exercise_id: Uuid,
     pub exercise_task_id: Uuid,
     pub grading_priority: i32,
@@ -88,6 +89,7 @@ SELECT id,
   updated_at,
   submission_id,
   course_id,
+  exam_id,
   exercise_id,
   exercise_task_id,
   grading_priority,
@@ -111,7 +113,7 @@ WHERE id = $1
     Ok(res)
 }
 
-pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
+pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Option<Uuid>> {
     let course_id = sqlx::query!(r#"SELECT course_id from gradings where id = $1"#, id)
         .fetch_one(conn)
         .await?
@@ -123,13 +125,38 @@ pub async fn new_grading(conn: &mut PgConnection, submission: &Submission) -> Mo
     let grading = sqlx::query_as!(
         Grading,
         r#"
-INSERT INTO
-  gradings(submission_id, course_id, exercise_id, exercise_task_id, grading_started_at)
-VALUES($1, $2, $3, $4, now())
-RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_task_id, grading_priority, score_given, grading_progress as "grading_progress: _", user_points_update_strategy as "user_points_update_strategy: _", unscaled_score_given, unscaled_score_maximum, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted_at
-        "#,
+INSERT INTO gradings(
+    submission_id,
+    course_id,
+    exam_id,
+    exercise_id,
+    exercise_task_id,
+    grading_started_at
+  )
+VALUES($1, $2, $3, $4, $5, now())
+RETURNING id,
+  created_at,
+  updated_at,
+  submission_id,
+  course_id,
+  exam_id,
+  exercise_id,
+  exercise_task_id,
+  grading_priority,
+  score_given,
+  grading_progress as "grading_progress: _",
+  user_points_update_strategy as "user_points_update_strategy: _",
+  unscaled_score_given,
+  unscaled_score_maximum,
+  grading_started_at,
+  grading_completed_at,
+  feedback_json,
+  feedback_text,
+  deleted_at
+"#,
         submission.id,
         submission.course_id,
+        submission.exam_id,
         submission.exercise_id,
         submission.exercise_task_id
     )
@@ -223,17 +250,34 @@ pub async fn update_grading(
         Grading,
         r#"
 UPDATE gradings
-  SET
-    grading_progress = $2,
-    unscaled_score_given = $3,
-    unscaled_score_maximum = $4,
-    feedback_text = $5,
-    feedback_json = $6,
-    grading_completed_at = $7,
-    score_given = $8
+SET grading_progress = $2,
+  unscaled_score_given = $3,
+  unscaled_score_maximum = $4,
+  feedback_text = $5,
+  feedback_json = $6,
+  grading_completed_at = $7,
+  score_given = $8
 WHERE id = $1
-RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_task_id, grading_priority, score_given, grading_progress as "grading_progress: _", user_points_update_strategy as "user_points_update_strategy: _", unscaled_score_given, unscaled_score_maximum, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted_at
-        "#,
+RETURNING id,
+  created_at,
+  updated_at,
+  submission_id,
+  course_id,
+  exam_id,
+  exercise_id,
+  exercise_task_id,
+  grading_priority,
+  score_given,
+  grading_progress as "grading_progress: _",
+  user_points_update_strategy as "user_points_update_strategy: _",
+  unscaled_score_given,
+  unscaled_score_maximum,
+  grading_started_at,
+  grading_completed_at,
+  feedback_json,
+  feedback_text,
+  deleted_at
+"#,
         grading.id,
         grading_result.grading_progress as GradingProgress,
         grading_result.score_given,

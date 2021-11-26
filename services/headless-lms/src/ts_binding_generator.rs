@@ -3,8 +3,8 @@ use crate::{
     controllers::{
         auth::Login,
         main_frontend::{
-            courses::GetFeedbackQuery, exercises::ExerciseSubmissions, feedback::MarkAsRead,
-            proposed_edits::GetEditProposalsQuery,
+            courses::GetFeedbackQuery, exams::ExamCourseInfo, exercises::ExerciseSubmissions,
+            feedback::MarkAsRead, proposed_edits::GetEditProposalsQuery,
         },
         ErrorResponse, UploadResult,
     },
@@ -37,6 +37,10 @@ ts_rs::export! {
   email_templates::EmailTemplate,
   email_templates::EmailTemplateNew,
   email_templates::EmailTemplateUpdate,
+
+  exams::CourseExam,
+  exams::Exam,
+  exams::ExamEnrollment,
 
   exercise_service_info::CourseMaterialExerciseServiceInfo,
   exercise_service_info::ExerciseServiceInfoApi,
@@ -112,6 +116,7 @@ ts_rs::export! {
 
   users::User,
 
+  ExamCourseInfo,
   Login,
   UploadResult,
   ExerciseSubmissions,

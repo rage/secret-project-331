@@ -13,7 +13,7 @@ use sqlx::PgPool;
 use uuid::Uuid;
 
 /**
-POST `/api/v0/cms/courses/:course_id/upload` - Uploads a media (image, audio, file) for the course from Gutenberg page edit.
+POST `/api/v0/cms/exams/:exam_id/upload` - Uploads a media (image, audio, file) for the course from Gutenberg page edit.
 
 Put the the contents of the media in a form and add a content type header multipart/form-data.
 # Example
@@ -29,14 +29,14 @@ BINARY_DATA
 Response:
 ```json
 {
-    "url": "http://project-331.local/api/v0/files/courses/1b89e57e-8b57-42f2-9fed-c7a6736e3eec/courses/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/images/iHZMHdvsazy43ZtP0Ea01sy8AOpUiZ.png"
+    "url": "http://project-331.local/api/v0/files/exams/1b89e57e-8b57-42f2-9fed-c7a6736e3eec/courses/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/images/iHZMHdvsazy43ZtP0Ea01sy8AOpUiZ.png"
 }
 
 ```
 */
 #[instrument(skip(payload, request, pool, file_store, app_conf))]
 async fn add_media(
-    course_id: web::Path<Uuid>,
+    exam_id: web::Path<Uuid>,
     payload: mp::Multipart,
     request: HttpRequest,
     pool: web::Data<PgPool>,
@@ -45,12 +45,12 @@ async fn add_media(
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<Json<UploadResult>> {
     let mut conn = pool.acquire().await?;
-    let course = crate::models::courses::get_course(&mut conn, *course_id).await?;
+    let exam = crate::models::exams::get(&mut conn, *exam_id).await?;
 
     let media_path = upload_media(
         request.headers(),
         payload,
-        StoreKind::Course(course.id),
+        StoreKind::Exam(exam.id),
         &file_store,
     )
     .await?;
@@ -66,6 +66,6 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
-pub fn _add_courses_routes(cfg: &mut ServiceConfig) {
-    cfg.route("/{course_id}/upload", web::post().to(add_media));
+pub fn _add_exams_routes(cfg: &mut ServiceConfig) {
+    cfg.route("/{exam_id}/upload", web::post().to(add_media));
 }

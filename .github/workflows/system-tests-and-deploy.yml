@@ -28,9 +28,9 @@ jobs:
       - name: Install kustomize, kubectl & skaffold
         uses: yokawasa/action-setup-kube-tools@v0.7.1
         with:
-          kubectl: "1.22.2"
-          kustomize: "4.2.0"
-          skaffold: "1.32.0"
+          kubectl: "1.22.4"
+          kustomize: "4.4.0"
+          skaffold: "1.35.0"
       - name: Workaround for kube-proxy set nf_conntrack_max permission denied
         run: |
           # Workarounds this issue when starting up kube-system/kube-proxy:
@@ -42,7 +42,7 @@ jobs:
         uses: manusa/actions-setup-minikube@v2.4.2
         with:
           minikube version: "v1.23.2"
-          kubernetes version: "v1.22.2"
+          kubernetes version: "v1.22.4"
           start args: "--addons ingress --memory max"
           driver: "docker"
 
@@ -143,9 +143,9 @@ jobs:
       - name: Install kustomize, kubectl & skaffold
         uses: yokawasa/action-setup-kube-tools@v0.7.1
         with:
-          kubectl: "1.22.2"
-          kustomize: "4.2.0"
-          skaffold: "1.32.0"
+          kubectl: "1.22.4"
+          kustomize: "4.4.0"
+          skaffold: "1.35.0"
       - uses: google-github-actions/setup-gcloud@94337306dda8180d967a56932ceb4ddcf01edae7
         with:
           service_account_key: ${{ secrets.GCLOUD_SERVICE_KEY_DEPLOY_TO_PRODUCTION }}
@@ -159,6 +159,11 @@ jobs:
           cluster_name: ${{ secrets.GKE_CLUSTER }}
           location: ${{ secrets.GKE_ZONE }}
           credentials: ${{ secrets.GCLOUD_SERVICE_KEY_DEPLOY_TO_PRODUCTION }}
+
+      - name: Masking
+        run: |
+          IPS=$(kubectl config view | grep server | tr -s ' ' | cut -d ' ' -f 3 | xargs echo)
+          echo "::add-mask::$IPS"
 
       - name: Deploy with Skaffold
         run: skaffold deploy -p test,production --build-artifacts=./skaffold-build-output/skaffold-build-output.json --namespace courses-moocfi

@@ -37,10 +37,9 @@ import { Popover, SlotFillProvider } from "@wordpress/components"
 import { addFilter } from "@wordpress/hooks"
 // @ts-ignore: no types
 import { ShortcutProvider } from "@wordpress/keyboard-shortcuts"
-import React, { useContext, useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 
-import CourseContext from "../../contexts/CourseContext"
-import mediaUploadBuilder, { MediaUploadProps } from "../../services/backend/media/mediaUpload"
+import { MediaUploadProps } from "../../services/backend/media/mediaUpload"
 import { modifyBlockAttributes } from "../../utils/Gutenberg/modifyBlockAttributes"
 import { modifyBlockButton } from "../../utils/Gutenberg/modifyBlockButton"
 
@@ -50,6 +49,7 @@ interface GutenbergEditorProps {
   allowedBlocks?: string[]
   allowedBlockVariations?: Record<string, string[]>
   customBlocks?: Array<Parameters<typeof registerBlockType>>
+  mediaUpload: (props: MediaUploadProps) => void
 }
 
 const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
@@ -58,9 +58,8 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
   allowedBlockVariations,
   allowedBlocks,
   customBlocks,
+  mediaUpload,
 }: GutenbergEditorProps) => {
-  const courseId = useContext(CourseContext)?.courseId
-
   const [editorSettings, setEditorSettings] = useState<
     Partial<
       EditorSettings & EditorBlockListSettings & { mediaUpload: (props: MediaUploadProps) => void }
@@ -68,10 +67,8 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
   >({})
 
   useEffect(() => {
-    if (courseId) {
-      setEditorSettings((prev) => ({ ...prev, mediaUpload: mediaUploadBuilder(courseId) }))
-    }
-  }, [courseId])
+    setEditorSettings((prev) => ({ ...prev, mediaUpload }))
+  }, [mediaUpload])
 
   const handleChanges = (newContent: BlockInstance[]): void => {
     console.log(newContent)

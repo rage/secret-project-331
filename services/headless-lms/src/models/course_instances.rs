@@ -144,6 +144,24 @@ WHERE id = $1
     Ok(course_instance)
 }
 
+pub async fn get_organization_id(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+) -> ModelResult<Uuid> {
+    let res = sqlx::query!(
+        "
+SELECT courses.organization_id
+FROM course_instances
+  JOIN courses ON courses.id = course_instances.course_id
+WHERE course_instances.id = $1
+",
+        course_instance_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.organization_id)
+}
+
 pub async fn current_course_instance_of_user(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -491,7 +509,7 @@ mod test {
         )
         .await
         .unwrap();
-        users::insert(tx.as_mut(), "user@example.com")
+        users::insert(tx.as_mut(), "user-2347803@example.com")
             .await
             .unwrap();
 

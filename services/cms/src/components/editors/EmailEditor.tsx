@@ -2,10 +2,12 @@ import SaveIcon from "@material-ui/icons/Save"
 import LoadingButton from "@material-ui/lab/LoadingButton"
 import { BlockInstance } from "@wordpress/blocks"
 import dynamic from "next/dynamic"
-import React, { useState } from "react"
+import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { allowedEmailCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
+import CourseContext from "../../contexts/CourseContext"
+import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
 import { EmailTemplate, EmailTemplateUpdate } from "../../shared-module/bindings"
 import Spinner from "../../shared-module/components/Spinner"
 import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
@@ -26,6 +28,7 @@ const EmailGutenbergEditor = dynamic(() => import("./GutenbergEditor"), {
 })
 
 const EmailEditor: React.FC<EmailEditorProps> = ({ data, handleSave }) => {
+  const courseId = useContext(CourseContext)?.courseId
   const { t } = useTranslation()
   const [content, setContent] = useState<BlockInstance[]>(
     modifyBlocks(
@@ -86,11 +89,14 @@ const EmailEditor: React.FC<EmailEditorProps> = ({ data, handleSave }) => {
         </div>
       </div>
 
-      <EmailGutenbergEditor
-        content={content}
-        onContentChange={setContent}
-        allowedBlocks={allowedEmailCoreBlocks}
-      />
+      {courseId && (
+        <EmailGutenbergEditor
+          content={content}
+          onContentChange={setContent}
+          allowedBlocks={allowedEmailCoreBlocks}
+          mediaUpload={mediaUploadBuilder({ courseId: courseId })}
+        />
+      )}
     </>
   )
 }

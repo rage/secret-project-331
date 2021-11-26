@@ -12,11 +12,9 @@ use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use bytes::Bytes;
 use futures::Stream;
+use uuid::Uuid;
 
-use crate::{
-    models::{courses::Course, organizations::DatabaseOrganization},
-    ApplicationConfiguration,
-};
+use crate::ApplicationConfiguration;
 
 pub type GenericPayload = Pin<Box<dyn Stream<Item = Result<Bytes>>>>;
 /**
@@ -65,37 +63,26 @@ fn path_to_str(path: &Path) -> Result<&str> {
     }
 }
 
-pub fn organization_image_path(
-    organization: &DatabaseOrganization,
-    image_name: String,
-) -> Result<PathBuf> {
+pub fn organization_image_path(organization_id: Uuid, image_name: String) -> Result<PathBuf> {
     let path = PathBuf::from(format!(
         "organizations/{}/images/{}",
-        organization.id, image_name
+        organization_id, image_name
     ));
     Ok(path)
 }
 
-pub fn course_image_path(course: &Course, image_name: String) -> Result<PathBuf> {
+pub fn organization_audio_path(organization_id: Uuid, audio_name: String) -> Result<PathBuf> {
     let path = PathBuf::from(format!(
-        "organizations/{}/courses/{}/images/{}",
-        course.organization_id, course.id, image_name
+        "organizations/{}/audios/{}",
+        organization_id, audio_name
     ));
     Ok(path)
 }
 
-pub fn course_audio_path(course: &Course, audio_name: String) -> Result<PathBuf> {
+pub fn organization_file_path(organization_id: Uuid, file_name: String) -> Result<PathBuf> {
     let path = PathBuf::from(format!(
-        "organizations/{}/courses/{}/audios/{}",
-        course.organization_id, course.id, audio_name
-    ));
-    Ok(path)
-}
-
-pub fn course_file_path(course: &Course, file_name: String) -> Result<PathBuf> {
-    let path = PathBuf::from(format!(
-        "organizations/{}/courses/{}/files/{}",
-        course.organization_id, course.id, file_name
+        "organizations/{}/files/{}",
+        organization_id, file_name
     ));
     Ok(path)
 }

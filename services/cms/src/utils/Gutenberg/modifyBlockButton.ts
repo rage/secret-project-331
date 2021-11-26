@@ -1,5 +1,5 @@
 /* eslint-disable i18next/no-literal-string */
-import { BlockInstance, registerBlockStyle, unregisterBlockStyle } from "@wordpress/blocks"
+import { registerBlockStyle, unregisterBlockStyle } from "@wordpress/blocks"
 
 export const modifyBlockButton = (): void => {
   // Unregister default Button blocks from Wordpress

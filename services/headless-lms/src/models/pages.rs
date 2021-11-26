@@ -25,6 +25,7 @@ use crate::{
 
 use anyhow::Context;
 use chrono::{DateTime, Utc};
+use futures::future::OptionFuture;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use sqlx::{Acquire, FromRow, PgConnection};
@@ -41,7 +42,8 @@ pub struct Page {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
-    pub course_id: Uuid,
+    pub course_id: Option<Uuid>,
+    pub exam_id: Option<Uuid>,
     pub chapter_id: Option<Uuid>,
     pub url_path: String,
     pub title: String,
@@ -70,7 +72,8 @@ pub struct PageWithExercises {
     id: Uuid,
     created_at: DateTime<Utc>,
     updated_at: DateTime<Utc>,
-    course_id: Uuid,
+    course_id: Option<Uuid>,
+    exam_id: Option<Uuid>,
     chapter_id: Option<Uuid>,
     content: serde_json::Value,
     url_path: String,
@@ -86,13 +89,17 @@ pub struct NewPage {
     pub exercises: Vec<CmsPageExercise>,
     pub exercise_slides: Vec<CmsPageExerciseSlide>,
     pub exercise_tasks: Vec<CmsPageExerciseTask>,
+    // should always be a Vec<GutenbergBlock>, but is more convenient to keep as Value
     pub content: serde_json::Value,
     pub url_path: String,
     pub title: String,
-    pub course_id: Uuid,
+    pub course_id: Option<Uuid>,
+    pub exam_id: Option<Uuid>,
     pub chapter_id: Option<Uuid>,
     /// If set, set this page to be the front page of this course part.
     pub front_page_of_chapter_id: Option<Uuid>,
+    /// Read from the course's settings if None. If course_id is None as well, defaults to "simple"
+    pub content_search_language: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -130,7 +137,8 @@ pub struct PageMetadata {
     order_number: i32,
     chapter_id: Option<Uuid>,
     chapter_number: Option<i32>,
-    course_id: Uuid,
+    course_id: Option<Uuid>,
+    exam_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
@@ -148,6 +156,7 @@ pub struct ContentManagementPage {
     pub exercises: Vec<CmsPageExercise>,
     pub exercise_slides: Vec<CmsPageExerciseSlide>,
     pub exercise_tasks: Vec<CmsPageExerciseTask>,
+    pub organization_id: Uuid,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
@@ -237,10 +246,13 @@ pub async fn set_chapter(
     Ok(())
 }
 
-pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
-    let course_id = sqlx::query!(
+pub async fn get_course_and_exam_id(
+    conn: &mut PgConnection,
+    id: Uuid,
+) -> ModelResult<(Option<Uuid>, Option<Uuid>)> {
+    let res = sqlx::query!(
         "
-SELECT course_id
+SELECT course_id, exam_id
 FROM pages
 WHERE id = $1
   AND deleted_at IS NULL;
@@ -248,9 +260,8 @@ WHERE id = $1
         id
     )
     .fetch_one(conn)
-    .await?
-    .course_id;
-    Ok(course_id)
+    .await?;
+    Ok((res.course_id, res.exam_id))
 }
 
 pub async fn course_pages(conn: &mut PgConnection, course_id: Uuid) -> ModelResult<Vec<Page>> {
@@ -261,6 +272,7 @@ SELECT id,
   created_at,
   updated_at,
   course_id,
+  exam_id,
   chapter_id,
   url_path,
   title,
@@ -287,6 +299,7 @@ SELECT id,
   created_at,
   updated_at,
   course_id,
+  exam_id,
   chapter_id,
   url_path,
   title,
@@ -313,6 +326,7 @@ SELECT id,
   created_at,
   updated_at,
   course_id,
+  exam_id,
   chapter_id,
   url_path,
   title,
@@ -342,6 +356,7 @@ SELECT pages.id,
   pages.created_at,
   pages.updated_at,
   pages.course_id,
+  pages.exam_id,
   pages.chapter_id,
   pages.url_path,
   pages.title,
@@ -379,28 +394,26 @@ pub async fn get_page_with_user_data_by_path(
         }
     }
 
-    if let Some(user) = user {
-        let instance =
-            course_instances::current_course_instance_of_user(conn, user.id, page.course_id)
-                .await?;
-        let settings = user_course_settings::get_user_course_settings_by_course_id(
-            conn,
-            user.id,
-            page.course_id,
-        )
-        .await?;
-        Ok(CoursePageWithUserData {
-            page,
-            instance,
-            settings,
-        })
-    } else {
-        Ok(CoursePageWithUserData {
-            page,
-            instance: None,
-            settings: None,
-        })
+    if let Some(course_id) = page.course_id {
+        if let Some(user) = user {
+            let instance =
+                course_instances::current_course_instance_of_user(conn, user.id, course_id).await?;
+            let settings = user_course_settings::get_user_course_settings_by_course_id(
+                conn, user.id, course_id,
+            )
+            .await?;
+            return Ok(CoursePageWithUserData {
+                page,
+                instance,
+                settings,
+            });
+        }
     }
+    Ok(CoursePageWithUserData {
+        page,
+        instance: None,
+        settings: None,
+    })
 }
 
 pub async fn get_page_with_exercises(
@@ -432,12 +445,41 @@ pub async fn get_page_with_exercises(
         .into_iter()
         .map(|x| x.into())
         .collect();
+    let organization_id = get_organization_id(&mut *conn, id).await?;
     Ok(ContentManagementPage {
         page,
         exercises,
         exercise_slides,
         exercise_tasks,
+        organization_id,
     })
+}
+
+pub async fn get_by_exam_id(conn: &mut PgConnection, exam_id: Uuid) -> ModelResult<Page> {
+    let res = sqlx::query_as!(
+        Page,
+        "
+SELECT pages.id,
+  pages.created_at,
+  pages.updated_at,
+  pages.course_id,
+  pages.exam_id,
+  pages.chapter_id,
+  pages.url_path,
+  pages.title,
+  pages.deleted_at,
+  pages.content,
+  pages.order_number,
+  pages.copied_from
+FROM pages
+WHERE exam_id = $1
+AND pages.deleted_at IS NULL
+",
+        exam_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
@@ -583,6 +625,7 @@ RETURNING id,
   created_at,
   updated_at,
   course_id,
+  exam_id,
   chapter_id,
   url_path,
   title,
@@ -673,6 +716,7 @@ RETURNING id,
   created_at,
   updated_at,
   course_id,
+  exam_id,
   chapter_id,
   url_path,
   title,
@@ -706,6 +750,7 @@ RETURNING id,
     )
     .await
     .context("Failed to create a page history entry")?;
+    let organization_id = get_organization_id(&mut tx, page.id).await?;
 
     tx.commit().await?;
 
@@ -714,6 +759,7 @@ RETURNING id,
         exercises: history_content.exercises,
         exercise_slides: history_content.exercise_slides,
         exercise_tasks: history_content.exercise_tasks,
+        organization_id,
     })
 }
 
@@ -1016,19 +1062,31 @@ pub async fn insert_page(
     new_page: NewPage,
     author: Uuid,
 ) -> ModelResult<Page> {
-    let next_order_number = match new_page.chapter_id {
-        Some(id) => get_next_page_order_number_in_chapter(conn, id).await?,
-        None => get_next_order_number_for_courses_top_level_pages(conn, new_page.course_id).await?,
+    let next_order_number = match (new_page.chapter_id, new_page.course_id) {
+        (Some(id), _) => get_next_page_order_number_in_chapter(conn, id).await?,
+        (None, Some(course_id)) => {
+            get_next_order_number_for_courses_top_level_pages(conn, course_id).await?
+        }
+        (None, None) => 1,
     };
-    let course = crate::models::courses::get_course(conn, new_page.course_id).await?;
+    let course: OptionFuture<_> = new_page
+        .course_id
+        .map(|id| crate::models::courses::get_course(conn, id))
+        .into();
+    let course = course.await.transpose()?;
 
     let mut tx = conn.begin().await?;
 
+    let content_search_language = course
+        .and_then(|c| c.content_search_language)
+        .or(new_page.content_search_language)
+        .unwrap_or_else(|| "simple".to_string());
     let page = sqlx::query_as!(
         Page,
         r#"
 INSERT INTO pages(
     course_id,
+    exam_id,
     content,
     url_path,
     title,
@@ -1036,11 +1094,12 @@ INSERT INTO pages(
     chapter_id,
     content_search_language
   )
-VALUES($1, $2, $3, $4, $5, $6, $7::regconfig)
+VALUES($1, $2, $3, $4, $5, $6, $7, $8::regconfig)
 RETURNING id,
   created_at,
   updated_at,
   course_id,
+  exam_id,
   chapter_id,
   url_path,
   title,
@@ -1050,12 +1109,13 @@ RETURNING id,
   copied_from
           "#,
         new_page.course_id,
+        new_page.exam_id,
         new_page.content,
         new_page.url_path.trim(),
         new_page.title.trim(),
         next_order_number,
         new_page.chapter_id,
-        course.content_search_language as _
+        content_search_language as _
     )
     .fetch_one(&mut tx)
     .await?;
@@ -1099,6 +1159,7 @@ RETURNING *;
     Ok(Page {
         content: cms_page.page.content,
         course_id: page.course_id,
+        exam_id: page.exam_id,
         created_at: page.created_at,
         updated_at: page.updated_at,
         deleted_at: page.deleted_at,
@@ -1126,6 +1187,7 @@ RETURNING id,
   created_at,
   updated_at,
   course_id,
+  exam_id,
   chapter_id,
   url_path,
   title,
@@ -1196,6 +1258,7 @@ SELECT id,
   created_at,
   updated_at,
   course_id,
+  exam_id,
   chapter_id,
   url_path,
   title,
@@ -1245,6 +1308,7 @@ WHERE page_id IN (
                 created_at: page.created_at,
                 updated_at: page.updated_at,
                 course_id: page.course_id,
+                exam_id: page.exam_id,
                 chapter_id: page.chapter_id,
                 content: page.content,
                 url_path: page.url_path,
@@ -1315,6 +1379,7 @@ async fn get_current_page_metadata(
 SELECT p.id as page_id,
   p.order_number as order_number,
   p.course_id as course_id,
+  p.exam_id as exam_id,
   c.id as "chapter_id?",
   c.chapter_number as "chapter_number?"
 FROM pages p
@@ -1459,6 +1524,7 @@ SELECT id,
   created_at,
   updated_at,
   course_id,
+  exam_id,
   chapter_id,
   url_path,
   title,
@@ -1701,9 +1767,63 @@ pub async fn restore(
     Ok(history_id)
 }
 
+pub async fn get_organization_id(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<Uuid> {
+    let res = sqlx::query!(
+        "
+SELECT organizations.id
+FROM pages
+  LEFT OUTER JOIN courses ON courses.id = pages.course_id
+  LEFT OUTER JOIN exams ON exams.id = pages.exam_id
+  JOIN organizations ON organizations.id = courses.organization_id
+  OR organizations.id = exams.organization_id
+WHERE pages.id = $1
+",
+        page_id,
+    )
+    .fetch_one(&mut *conn)
+    .await?;
+    Ok(res.id)
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::test_helper::*;
+
+    #[tokio::test]
+    async fn gets_organization_id() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        let data = insert_data(tx.as_mut(), "").await.unwrap();
+        let course_page_org = get_organization_id(tx.as_mut(), data.page).await.unwrap();
+        assert_eq!(data.org, course_page_org);
+
+        let exam = Uuid::new_v4();
+        crate::models::exams::insert(tx.as_mut(), exam, "name", None, None, None, data.org)
+            .await
+            .unwrap();
+        let page = crate::models::pages::insert_page(
+            tx.as_mut(),
+            NewPage {
+                exercises: vec![],
+                exercise_slides: vec![],
+                exercise_tasks: vec![],
+                content: serde_json::Value::Array(vec![]),
+                url_path: "url".to_string(),
+                title: "title".to_string(),
+                course_id: None,
+                exam_id: Some(exam),
+                chapter_id: None,
+                front_page_of_chapter_id: None,
+                content_search_language: None,
+            },
+            data.user,
+        )
+        .await
+        .unwrap();
+        let exam_page_org = get_organization_id(tx.as_mut(), page.id).await.unwrap();
+        assert_eq!(data.org, exam_page_org);
+    }
 
     #[tokio::test]
     async fn page_update_validation_works() {

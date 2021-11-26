@@ -83,6 +83,7 @@
   "read": "Read",
   "create-new-language-version-of": "Create new language version of {{course-name}}",
   "stats": "Stats",
+  "manage-page": "Manage page",
   "manage-pages": "Manage pages",
   "manage-feedback": "Manage feedback",
   "title-all-course-language-versions": "All course language versions",
@@ -168,5 +169,10 @@
   "student-name": "Student name",
   "serial-number": "Serial number",
   "score": "Score",
-  "data-to-post-to-iframe": "Data to post to the IFrame"
+  "data-to-post-to-iframe": "Data to post to the IFrame",
+  "organization-exams": "Organization exams",
+  "courses": "Courses",
+  "add": "Add",
+  "add-course": "Add course",
+  "course-id": "Course id"
 }

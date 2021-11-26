@@ -73,5 +73,6 @@
   "search": "Search",
   "search-field-placeholder": "Search...",
   "available-in-languages": "Available in {{num}} languages",
-  "screen-reader-opens-in-new-tab": "(opens in a new tab)"
+  "screen-reader-opens-in-new-tab": "(opens in a new tab)",
+  "error-page-without-course": "Error: Page is not associated with any course"
 }

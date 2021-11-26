@@ -2,7 +2,10 @@
 use crate::{
     controllers::ControllerResult,
     domain::authorization::{authorize, Action, AuthUser, Resource},
-    models::pages::{CmsPageUpdate, ContentManagementPage},
+    models::{
+        page_history::HistoryChangeReason,
+        pages::{CmsPageUpdate, ContentManagementPage},
+    },
 };
 use actix_web::web::ServiceConfig;
 use actix_web::web::{self, Json};
@@ -42,14 +45,21 @@ async fn get_page(
     user: AuthUser,
 ) -> ControllerResult<Json<ContentManagementPage>> {
     let mut conn = pool.acquire().await?;
-    let course_id = crate::models::pages::get_course_id(&mut conn, *request_page_id).await?;
-    authorize(
-        &mut conn,
-        Action::Edit,
-        user.id,
-        Resource::Course(course_id),
-    )
-    .await?;
+    let (course_id, exam_id) =
+        crate::models::pages::get_course_and_exam_id(&mut conn, *request_page_id).await?;
+    if let Some(course_id) = course_id {
+        authorize(
+            &mut conn,
+            Action::Edit,
+            user.id,
+            Resource::Course(course_id),
+        )
+        .await?;
+    } else if let Some(exam_id) = exam_id {
+        authorize(&mut conn, Action::Edit, user.id, Resource::Exam(exam_id)).await?;
+    } else {
+        return Err(anyhow::anyhow!("No course or exam associated with page").into());
+    }
     let cms_page =
         crate::models::pages::get_page_with_exercises(&mut conn, *request_page_id).await?;
     Ok(Json(cms_page))
@@ -108,17 +118,28 @@ async fn update_page(
 ) -> ControllerResult<Json<ContentManagementPage>> {
     let mut conn = pool.acquire().await?;
     let page_update = payload.0;
-    let course_id = crate::models::pages::get_course_id(&mut conn, *request_page_id).await?;
-    authorize(
+    let (course_id, exam_id) =
+        crate::models::pages::get_course_and_exam_id(&mut conn, *request_page_id).await?;
+    if let Some(course_id) = course_id {
+        authorize(
+            &mut conn,
+            Action::Edit,
+            user.id,
+            Resource::Course(course_id),
+        )
+        .await?;
+    } else if let Some(exam_id) = exam_id {
+        authorize(&mut conn, Action::Edit, user.id, Resource::Exam(exam_id)).await?;
+    }
+    let saved = crate::models::pages::update_page(
         &mut conn,
-        Action::Edit,
+        *request_page_id,
+        page_update,
         user.id,
-        Resource::Course(course_id),
+        false,
+        HistoryChangeReason::PageSaved,
     )
     .await?;
-    let saved =
-        crate::models::pages::update_page(&mut conn, *request_page_id, page_update, user.id, false)
-            .await?;
     Ok(Json(saved))
 }
 

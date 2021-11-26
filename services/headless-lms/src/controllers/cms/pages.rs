@@ -2,7 +2,10 @@
 use crate::{
     controllers::ControllerResult,
     domain::authorization::{authorize, Action, AuthUser, Resource},
-    models::pages::{CmsPageUpdate, ContentManagementPage},
+    models::{
+        page_history::HistoryChangeReason,
+        pages::{CmsPageUpdate, ContentManagementPage},
+    },
 };
 use actix_web::web::ServiceConfig;
 use actix_web::web::{self, Json};
@@ -127,12 +130,16 @@ async fn update_page(
         .await?;
     } else if let Some(exam_id) = exam_id {
         authorize(&mut conn, Action::Edit, user.id, Resource::Exam(exam_id)).await?;
-    } else {
-        return Err(anyhow::anyhow!("No course or exam associated with page").into());
     }
-    let saved =
-        crate::models::pages::update_page(&mut conn, *request_page_id, page_update, user.id, false)
-            .await?;
+    let saved = crate::models::pages::update_page(
+        &mut conn,
+        *request_page_id,
+        page_update,
+        user.id,
+        false,
+        HistoryChangeReason::PageSaved,
+    )
+    .await?;
     Ok(Json(saved))
 }
 

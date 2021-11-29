@@ -1,0 +1,7 @@
+- op: add
+  path: "/spec/tls"
+  value:
+    - hosts:
+      - courses.mooc.fi
+      secretName: courses-moocfi-tls
+

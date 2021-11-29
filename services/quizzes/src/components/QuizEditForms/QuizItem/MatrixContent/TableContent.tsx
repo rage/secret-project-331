@@ -46,8 +46,23 @@ const TableContent: React.FC<TableContentProps> = ({ item }) => {
     <>
       <table
         className={css`
+          background-color: grey;
           border-collapse: collapse;
-          padding: 0;
+          td {
+            border: 2px solid #e1e1e199;
+          }
+          &tr:first-child td {
+            border-top: 4px;
+          }
+          &tr td:first-child {
+            border-left: 4px;
+          }
+          &tr:last-child td {
+            border-bottom: 4px;
+          }
+          &tr td:last-child {
+            border-right: 4px;
+          }
         `}
       >
         <tbody>

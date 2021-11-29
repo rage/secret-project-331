@@ -20,8 +20,6 @@ const Matrix: React.FunctionComponent<QuizItemComponentProps> = ({
   quizItem,
   setQuizItemAnswerState,
 }) => {
-  const direction = quizItem.direction || "row"
-
   const handleOptionSelect = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (!quizItemAnswerState) {
       return
@@ -46,114 +44,59 @@ const Matrix: React.FunctionComponent<QuizItemComponentProps> = ({
     setQuizItemAnswerState(newItemAnswer)
   }
 
-  // 2 directions
-  // render title and body
-  // render options
-
-  // direction row = everything in one row
-
-  if (direction === "row") {
-    return (
-      <div
-        className={css`
-          display: flex;
-          flex-direction: column;
-          ${respondToOrLarger.md} {
-            flex-direction: row;
-          }
-        `}
-      >
-        <div
-          className={css`
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            margin: 0.5rem;
-          `}
-        >
-          {quizItem.title && <MarkdownText text={quizItem.title} />}
-          {quizItem.body && <MarkdownText text={quizItem.body} />}
-        </div>
-        <div
-          className={css`
-            display: flex;
-            flex: 2;
-            flex-direction: column;
-            justify-content: space-between;
-            ${respondToOrLarger.sm} {
-              flex-direction: row;
-            }
-          `}
-        >
-          {quizItem.options.map((qo) => {
-            return (
-              <button
-                key={qo.id}
-                value={qo.id}
-                onClick={handleOptionSelect}
-                className={css`
-                  display: flex;
-                  margin: 0.5rem;
-                  flex: 2;
-                  justify-content: center;
-                  align-items: center;
-                  ${quizItemAnswerState?.optionAnswers?.includes(qo.id) &&
-                  "border: 2px solid #4caf50; /* Green */"}
-                `}
-              >
-                {qo.title || qo.body}
-              </button>
-            )
-          })}
-        </div>
-      </div>
-    )
-  }
-
-  // direction column = everything stacked
-
   return (
     <div
       className={css`
         display: flex;
         flex-direction: column;
+        ${respondToOrLarger.md} {
+          flex-direction: row;
+        }
       `}
     >
       <div
         className={css`
           display: flex;
+          flex-direction: column;
+          flex: 1;
           margin: 0.5rem;
         `}
       >
         {quizItem.title && <MarkdownText text={quizItem.title} />}
+        {quizItem.body && <MarkdownText text={quizItem.body} />}
       </div>
       <div
         className={css`
           display: flex;
-          margin: 0.5rem;
+          flex: 2;
+          flex-direction: column;
+          justify-content: space-between;
+          ${respondToOrLarger.sm} {
+            flex-direction: row;
+          }
         `}
       >
-        {quizItem.body && <MarkdownText text={quizItem.body} />}
+        {quizItem.options.map((qo) => {
+          return (
+            <button
+              key={qo.id}
+              value={qo.id}
+              onClick={handleOptionSelect}
+              className={css`
+                display: flex;
+                margin: 0.5rem;
+                flex: 2;
+                justify-content: center;
+                align-items: center;
+                ${quizItemAnswerState?.optionAnswers?.includes(qo.id) &&
+                "border: 2px solid #4caf50; /* Green */"}
+              `}
+            >
+              {qo.title || qo.body}
+            </button>
+          )
+        })}
       </div>
-      {quizItem.options.map((qo) => {
-        return (
-          <button
-            key={qo.id}
-            value={qo.id}
-            onClick={handleOptionSelect}
-            className={css`
-              display: flex;
-              margin: 0.5rem;
-              flex: 1;
-              justify-content: center;
-              ${quizItemAnswerState?.optionAnswers?.includes(qo.id) &&
-              "border: 2px solid #4caf50; /* Green */"}
-            `}
-          >
-            {qo.title || qo.body}
-          </button>
-        )
-      })}
     </div>
   )
 }

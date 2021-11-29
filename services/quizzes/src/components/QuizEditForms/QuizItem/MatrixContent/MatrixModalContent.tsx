@@ -1,7 +1,4 @@
-import { faPlus } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
-  Button,
   Checkbox,
   FormControl,
   FormControlLabel,
@@ -20,8 +17,6 @@ import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
 import { NormalizedQuizItem } from "../../../../../types/types"
-//import { createdNewOption } from "../../../../store/editor/editorActions"
-import { createdNewOption } from "../../../../store/editor/editorActions"
 import {
   editedItemDirection,
   editedItemFailureMessage,
@@ -53,16 +48,6 @@ const ModalContentTitleWrapper = styled.div`
   justify-content: center;
   @media only screen and (max-width: 600px) {
     width: auto !important;
-  }
-`
-
-const ModalContentOptionWrapper = styled.div`
-  padding: 0.5rem;
-  display: flex !important;
-  justify-content: space-evenly !important;
-  @media only screen and (max-width: 600px) {
-    flex-wrap: wrap;
-    width: auto;
   }
 `
 
@@ -160,13 +145,6 @@ export const MatrixModalContent: React.FC<EditorModalProps> = ({ item }) => {
         </AllAnswersCorrectField>
       </ModalContent>
       <TableContent item={item}> </TableContent>
-      <ModalContentOptionWrapper>
-        <ModalContent>
-          <Button title={t("add-option")} onClick={() => dispatch(createdNewOption(storeItem.id))}>
-            <FontAwesomeIcon icon={faPlus} size="2x" color="blue" />
-          </Button>
-        </ModalContent>
-      </ModalContentOptionWrapper>
       <Spacer />
       {/* eslint-disable-next-line i18next/no-literal-string */}
       <FormControl component="fieldset">

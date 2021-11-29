@@ -30,43 +30,33 @@ const TableCellContent: React.FC<TableCellContentProps> = ({ columnLoop, rowLoop
         key={`row index: , ${rowLoop} column index: , ${columnLoop}`}
         className={css`
           padding: 0;
-          ${storeOption.title.length === 0 &&
-          `
-          background-color: #DBDBDB;
-        `}
+          font-size: 30px;
         `}
       >
-        <form
+        <input
           className={css`
-            input:focus:invalid {
-              box-shadow: none;
-              border: 2px solid blue !important;
-              outline: none;
-            }
+            display: block;
+            width: 50px;
+            height: 50px;
+            border: 0;
+            outline: none;
+            text-align: center;
+            resize: none;
+            ${storeOption.title.length === 0 &&
+            `
+            background-color: #ECECEC;
           `}
-        >
-          <textarea
-            className={css`
-              padding: 0;
-              resize: none;
-              ${IsActive &&
-              `
+            ${IsActive &&
+            storeOption.title.length === 0 &&
+            `
               background-color: #DBDBDB;
               `}
-              ${storeOption.title.length === 0 &&
-              `
-          background-color: #ECECEC;
-        `}
-            `}
-            placeholder={``}
-            cols={1}
-            rows={1}
-            value={storeOption.title ?? ""}
-            onSelect={() => setIsActive(true)}
-            onBlur={() => setIsActive(false)}
-            onChange={(event) => handleTextarea(event.target.value)}
-          ></textarea>
-        </form>
+          `}
+          value={storeOption.title ?? ""}
+          onSelect={() => setIsActive(true)}
+          onBlur={() => setIsActive(false)}
+          onChange={(event) => handleTextarea(event.target.value)}
+        ></input>
       </td>
     </>
   )

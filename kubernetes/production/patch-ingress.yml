@@ -5,3 +5,7 @@
       - courses.mooc.fi
       secretName: courses-moocfi-tls
 
+- op: add
+  path: "/spec/rules/0/host"
+  value:
+    courses.mooc.fi

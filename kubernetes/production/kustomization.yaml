@@ -18,6 +18,11 @@ patches:
     target:
       version: v1
       labelSelector: "needs-db=true"
+  - path: ./headless-lms/patch-add-db-host-aliases-job.yml
+    target:
+      version: v1
+      labelSelector: "needs-db=job"
+
 
 
 # Patch image names

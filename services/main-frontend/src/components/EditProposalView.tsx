@@ -35,6 +35,7 @@ const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
             overflow: scroll;
           `}
           role="tabpanel"
+          tabIndex={0}
         >
           {t("current-text", { "current-text": block.current_text })}
         </div>

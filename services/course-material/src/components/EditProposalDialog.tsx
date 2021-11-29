@@ -6,6 +6,7 @@ import { useMutation } from "react-query"
 import { postProposedEdits } from "../services/backend"
 import { NewProposedBlockEdit } from "../shared-module/bindings"
 import Button from "../shared-module/components/Button"
+import { baseTheme } from "../shared-module/styles"
 
 interface Props {
   courseId: string
@@ -130,7 +131,7 @@ const EditProposalDialog: React.FC<Props> = ({
             <div
               className={css`
                 line-height: 19px;
-                color: rgba(117, 117, 117, 0.8);
+                color: ${baseTheme.colors.grey[700]};
 
                 margin: 15px;
                 flex-grow: 1;

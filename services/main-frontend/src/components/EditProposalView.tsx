@@ -34,6 +34,8 @@ const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
             max-height: 100px;
             overflow: scroll;
           `}
+          role="tabpanel"
+          tabIndex={0}
         >
           {t("current-text", { "current-text": block.current_text })}
         </div>
@@ -42,6 +44,8 @@ const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
             max-height: 100px;
             overflow: scroll;
           `}
+          role="tabpanel"
+          tabIndex={0}
         >
           {t("proposed-text", { "changed-text": block.changed_text })}
         </div>

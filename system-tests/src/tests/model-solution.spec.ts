@@ -40,7 +40,6 @@ test.describe("Model solutions", () => {
     const stableElement = await frame.waitForSelector("text=a")
 
     await expectScreenshotsToMatchSnapshots({
-      axeSkip: true, // not for new screenshots
       page,
       headless,
       snapshotName: "model-solutions-in-submissions",
@@ -97,7 +96,6 @@ test.describe("Model solutions", () => {
     const stableElement = await frame.waitForSelector("text=a")
 
     await expectScreenshotsToMatchSnapshots({
-      axeSkip: true, // not for new screenshots
       page,
       headless,
       snapshotName: "model-solutions-in-exercises",

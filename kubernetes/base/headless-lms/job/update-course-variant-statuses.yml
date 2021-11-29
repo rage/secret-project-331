@@ -2,6 +2,7 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: update-course-variant-statuses
+  needs-db: "true"
 spec:
   schedule: "0 3 * * *"
   startingDeadlineSeconds: 900

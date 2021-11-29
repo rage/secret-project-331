@@ -19,6 +19,7 @@ metadata:
   labels:
     app: headless-lms
     deploymentType: with-init-container
+    needs-db: "true"
 spec:
   replicas: 1
   selector:
@@ -75,6 +76,7 @@ metadata:
   name: headless-lms-run-migrations
   labels:
     deploymentType: without-init-container
+    needs-db: "true"
 spec:
   backoffLimit: 10
   template:

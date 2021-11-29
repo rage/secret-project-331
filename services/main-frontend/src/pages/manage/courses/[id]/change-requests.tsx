@@ -4,7 +4,7 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import Layout from "../../../../components/Layout"
-import EditProposalList from "../../../../components/lists/EditProposalList"
+import EditProposalList from "../../../../components/page-specific/manage/courses/id/change-request/EditProposalList"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import { frontendWideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import {

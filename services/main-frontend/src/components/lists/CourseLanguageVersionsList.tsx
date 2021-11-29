@@ -5,8 +5,10 @@ import { useQuery } from "react-query"
 
 import { fetchCourseLanguageVersions } from "../../services/backend/courses"
 
-// eslint-disable-next-line i18next/no-literal-string
-export const formatQueryKey = (courseId: string): string => `course-${courseId}-language-versions`
+export const formatLanguageVersionsQueryKey = (courseId: string): string => {
+  // eslint-disable-next-line i18next/no-literal-string
+  return `course-${courseId}-language-versions`
+}
 
 export interface CourseTranslationsListProps {
   courseId: string
@@ -14,7 +16,7 @@ export interface CourseTranslationsListProps {
 
 const CourseLanguageVersionsList: React.FC<CourseTranslationsListProps> = ({ courseId }) => {
   const { t } = useTranslation()
-  const { isLoading, error, data } = useQuery(formatQueryKey(courseId), () =>
+  const { isLoading, error, data } = useQuery(formatLanguageVersionsQueryKey(courseId), () =>
     fetchCourseLanguageVersions(courseId),
   )
 

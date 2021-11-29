@@ -16,7 +16,8 @@ const BannerWrapper = styled.div`
 `
 
 const Content = styled.div`
-  padding-top: 2rem;
+  padding-top: 3rem;
+  padding-bottom: 3rem;
   max-width: 100%;
   font-weight: 500;
   font-size: 1rem;
@@ -68,10 +69,12 @@ const DetailTag = styled.div`
     list-style: none;
     color: ${baseTheme.colors.grey[800]};
     outline: 0;
-  }
-
-  details summary::-webkit-details-marker {
-    display: none;
+    ::-webkit-details-marker {
+      display: none;
+    }
+    &:hover {
+      text-decoration: underline;
+    }
   }
 
   details[open] > summary {

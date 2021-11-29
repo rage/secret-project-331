@@ -251,6 +251,7 @@ const FeedbackDialog: React.FC<Props> = ({
               box-sizing: border-box;
               border-radius: 2px;
             `}
+            placeholder={t("write-your-feedback-here")}
             fullWidth
             multiline
             rows={3}

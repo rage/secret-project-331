@@ -3,6 +3,7 @@ import { diffChars } from "diff"
 import KaTex from "katex"
 import dynamic from "next/dynamic"
 import React, { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useMemo } from "use-memo-one"
 
 import { BlockRendererProps } from "../../.."
@@ -77,6 +78,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
   // eslint-disable-next-line i18next/no-literal-string
   const bgColor = colorMapper(backgroundColor, "unset")
   const [editedContent, setEditedContent] = useState(data.attributes.content)
+  const { t } = useTranslation()
 
   // edited content should not persist between edit proposals
   // reset edited content when no longer editing
@@ -139,7 +141,8 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
         if (diff.added) {
           spans.push(
             <mark
-              aria-roledescription={"Added text"}
+              role="note"
+              aria-label={t("added-text")}
               className={css`
                 background: ${baseTheme.colors.blue[0]};
               `}
@@ -150,7 +153,8 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
         } else if (diff.removed) {
           spans.push(
             <mark
-              aria-roledescription={"Removed text"}
+              role="note"
+              aria-label={t("removed-text")}
               className={css`
                 background: ${baseTheme.colors.red[0]};
               `}

@@ -3,7 +3,7 @@ kind: Ingress
 metadata:
   name: project-331-ingress
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-dev
+    cert-manager.io/cluster-issuer: letsencrypt-prod
     nginx.org/websocket-services: "ws"
     nginx.ingress.kubernetes.io/limit-connections: "100"
     nginx.ingress.kubernetes.io/limit-rps: "100"

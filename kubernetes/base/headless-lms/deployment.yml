@@ -40,11 +40,11 @@ spec:
               name: headless-lms
           resources:
             requests:
-              memory: 200Mi
-              cpu: 200m
+              memory: 100Mi
+              cpu: 20m
             limits:
-              memory: 500Mi
-              cpu: 500m
+              memory: 300Mi
+              cpu: 200m
           envFrom:
             - secretRef:
                 name: headless-lms-secrets
@@ -60,11 +60,11 @@ spec:
               ./wait-for-db-migrations.sh
           resources:
             requests:
-              memory: 200Mi
-              cpu: 200m
+              memory: 100Mi
+              cpu: 20m
             limits:
-              memory: 500Mi
-              cpu: 500m
+              memory: 300Mi
+              cpu: 200m
           envFrom:
             - secretRef:
                 name: headless-lms-secrets
@@ -105,9 +105,9 @@ spec:
                 name: headless-lms-secrets
           resources:
             requests:
-              memory: 200Mi
-              cpu: 200m
+              memory: 100Mi
+              cpu: 20m
             limits:
-              memory: 500Mi
-              cpu: 500m
+              memory: 300Mi
+              cpu: 200m
       restartPolicy: Never

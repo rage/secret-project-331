@@ -5,6 +5,7 @@ metadata:
   labels:
     app: service-info-fetcher
     deploymentType: with-init-container
+    needs-db: "true"
 spec:
   replicas: 1
   selector:

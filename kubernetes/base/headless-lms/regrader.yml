@@ -5,6 +5,7 @@ metadata:
   labels:
     app: regrader
     deploymentType: with-init-container
+    needs-db: "true"
 spec:
   replicas: 1
   selector:

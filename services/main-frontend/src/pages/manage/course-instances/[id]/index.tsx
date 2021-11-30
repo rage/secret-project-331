@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next"
 import { useMutation, useQuery } from "react-query"
 
 import Layout from "../../../../components/Layout"
-import Form from "../../../../components/forms/CourseInstanceForm"
+import NewCourseInstanceForm from "../../../../components/page-specific/manage/courses/id/new-course-instance/NewCourseInstanceForm"
 import {
   deleteCourseInstance,
   editCourseInstance,
@@ -91,7 +91,7 @@ const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) 
   let instanceInfo
   if (editing) {
     instanceInfo = (
-      <Form
+      <NewCourseInstanceForm
         initialData={data}
         onSubmit={(data) => {
           mutation.mutate(data)

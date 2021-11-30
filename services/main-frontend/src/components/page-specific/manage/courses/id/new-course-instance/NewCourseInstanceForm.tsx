@@ -5,9 +5,9 @@ import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { CourseInstance, CourseInstanceForm } from "../../shared-module/bindings"
-import Button from "../../shared-module/components/Button"
-import FormField from "../FormField"
+import { CourseInstance, CourseInstanceForm } from "../../../../../../shared-module/bindings"
+import Button from "../../../../../../shared-module/components/Button"
+import FormField from "../../../../../FormField"
 
 interface FormProps {
   initialData: CourseInstance | null
@@ -25,7 +25,7 @@ interface Fields {
 
 const DATETIME_FORMAT = "yyyy-MM-dd HH:mm"
 
-const Form: React.FC<FormProps> = ({ initialData, onSubmit, onCancel }) => {
+const NewCourseInstanceForm: React.FC<FormProps> = ({ initialData, onSubmit, onCancel }) => {
   const { t } = useTranslation()
   const {
     register,
@@ -116,4 +116,4 @@ const Form: React.FC<FormProps> = ({ initialData, onSubmit, onCancel }) => {
   )
 }
 
-export default Form
+export default NewCourseInstanceForm

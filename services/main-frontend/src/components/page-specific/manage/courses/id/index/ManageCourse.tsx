@@ -15,11 +15,12 @@ import { Course, NewCourse } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
 import NewCourseForm from "../../../../../forms/NewCourseForm"
 import UpdateCourseForm from "../../../../../forms/UpdateCourseForm"
-import CourseInstancesList from "../../../../../lists/CourseInstancesList"
+import ExerciseList from "../../../../../lists/ExerciseList"
+
+import CourseInstancesList from "./CourseInstancesList"
 import CourseLanguageVersionsList, {
   formatLanguageVersionsQueryKey,
-} from "../../../../../lists/CourseLanguageVersionsList"
-import ExerciseList from "../../../../../lists/ExerciseList"
+} from "./CourseLanguageVersionsList"
 
 interface Props {
   course: Course

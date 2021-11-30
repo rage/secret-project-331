@@ -3,7 +3,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
-import { fetchCourseLanguageVersions } from "../../services/backend/courses"
+import { fetchCourseLanguageVersions } from "../../../../../../services/backend/courses"
 
 export const formatLanguageVersionsQueryKey = (courseId: string): string => {
   // eslint-disable-next-line i18next/no-literal-string

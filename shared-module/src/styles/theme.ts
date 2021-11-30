@@ -12,9 +12,11 @@ export const baseTheme = {
       500: "#050449",
     },
     green: {
-      100: "#37BC9B",
-      200: "#48CFAD",
-      300: "#62DDBD",
+      100: "#145A48",
+      200: "#37BC9B",
+      300: "#48CFAD",
+      400: "#62DDBD",
+      500: "#E0F4EF",
     },
     grey: {
       100: "#f5f5f5",
@@ -55,10 +57,10 @@ export const theme = {
   primary: {
     text: baseTheme.colors.neutral[100],
     border: baseTheme.colors.neutral[100],
-    bg: baseTheme.colors.green[100],
+    bg: baseTheme.colors.green[200],
     hoverText: baseTheme.colors.blue[200],
     hoverBg: baseTheme.colors.neutral[100],
-    hoverBorder: baseTheme.colors.green[100],
+    hoverBorder: baseTheme.colors.green[200],
     focusBorder: baseTheme.colors.neutral[100],
     activeBg: baseTheme.colors.neutral[100],
     disabledText: baseTheme.colors.neutral[100],

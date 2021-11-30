@@ -2,11 +2,12 @@ pub mod controllers;
 pub mod domain;
 pub mod models;
 pub mod regrading;
-mod ts_binding_generator;
 pub mod utils;
 
 #[cfg(test)]
 pub mod test_helper;
+#[cfg(test)]
+pub mod ts_binding_generator;
 
 #[macro_use]
 extern crate tracing;

@@ -45,6 +45,8 @@ const NewPageForm: React.FC<NewPageFormProps> = ({
       exercises: [],
       exercise_slides: [],
       exercise_tasks: [],
+      exam_id: null,
+      content_search_language: null,
     })
     onSubmitForm()
   }

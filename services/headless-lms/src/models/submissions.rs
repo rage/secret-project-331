@@ -31,8 +31,9 @@ pub struct Submission {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub exercise_id: Uuid,
-    pub course_id: Uuid,
-    pub course_instance_id: Uuid,
+    pub course_id: Option<Uuid>,
+    pub course_instance_id: Option<Uuid>,
+    pub exam_id: Option<Uuid>,
     pub exercise_task_id: Uuid,
     pub data_json: Option<serde_json::Value>,
     pub grading_id: Option<Uuid>,
@@ -199,12 +200,17 @@ WHERE id = $1
     Ok(submission)
 }
 
-pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
-    let course_id = sqlx::query!("SELECT course_id FROM submissions WHERE id = $1", id)
-        .fetch_one(conn)
-        .await?
-        .course_id;
-    Ok(course_id)
+pub async fn get_course_and_exam_id(
+    conn: &mut PgConnection,
+    id: Uuid,
+) -> ModelResult<(Option<Uuid>, Option<Uuid>)> {
+    let res = sqlx::query!(
+        "SELECT course_id, exam_id FROM submissions WHERE id = $1",
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok((res.course_id, res.exam_id))
 }
 
 pub async fn exercise_submission_count(

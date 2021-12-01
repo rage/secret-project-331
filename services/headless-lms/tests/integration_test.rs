@@ -45,6 +45,8 @@ pub async fn init_db() -> String {
         .await
         .expect("failed to run migrations");
     setup_tracing().expect("Could not setup tracing.");
+    let mut lock = DB_URL.lock().await;
+    *lock = Some(db.clone());
     db
 }
 

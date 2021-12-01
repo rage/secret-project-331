@@ -1,6 +1,6 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/pages`.
 use crate::{
-    controllers::ControllerResult,
+    controllers::{ControllerError, ControllerResult},
     domain::authorization::{authorize, Action, AuthUser, Resource},
     models::{
         page_history::PageHistory,
@@ -71,11 +71,14 @@ async fn post_new_page(
 ) -> ControllerResult<Json<Page>> {
     let mut conn = pool.acquire().await?;
     let new_page = payload.0;
+    let course_id = new_page.course_id.ok_or_else(|| {
+        ControllerError::BadRequest("Cannot create a new page without a course id".to_string())
+    })?;
     authorize(
         &mut conn,
         Action::Edit,
         user.id,
-        Resource::Course(new_page.course_id),
+        Resource::Course(course_id),
     )
     .await?;
     let page = crate::models::pages::insert_page(&mut conn, new_page, user.id).await?;
@@ -116,14 +119,21 @@ async fn delete_page(
     user: AuthUser,
 ) -> ControllerResult<Json<Page>> {
     let mut conn = pool.acquire().await?;
-    let course_id = crate::models::pages::get_course_id(&mut conn, *request_page_id).await?;
-    authorize(
-        &mut conn,
-        Action::Edit,
-        user.id,
-        Resource::Course(course_id),
-    )
-    .await?;
+    let (course_id, exam_id) =
+        crate::models::pages::get_course_and_exam_id(&mut conn, *request_page_id).await?;
+    if let Some(course_id) = course_id {
+        authorize(
+            &mut conn,
+            Action::Edit,
+            user.id,
+            Resource::Course(course_id),
+        )
+        .await?;
+    } else if let Some(exam_id) = exam_id {
+        authorize(&mut conn, Action::Edit, user.id, Resource::Exam(exam_id)).await?;
+    } else {
+        return Err(anyhow::anyhow!("Page not associated with course or exam").into());
+    }
     let deleted_page =
         crate::models::pages::delete_page_and_exercises(&mut conn, *request_page_id).await?;
     Ok(Json(deleted_page))

@@ -129,7 +129,6 @@ const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) 
     }
     instanceInfo = (
       <>
-        <h2>{data.name}</h2>
         <div>{data.description}</div>
         <hr />
         <div>

@@ -57,7 +57,6 @@ test("test", async ({ page, headless }) => {
   await page.click("text=Improve material")
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "no-edits-yet",
@@ -69,7 +68,6 @@ test("test", async ({ page, headless }) => {
   await page.click("text=So big, that we need many paragraphs.")
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "currently-editing",
@@ -107,7 +105,6 @@ test("test", async ({ page, headless }) => {
   await page.click('button:has-text("Preview")')
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "preview",

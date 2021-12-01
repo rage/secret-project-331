@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next"
 import { blockTypeMapForPages, blockTypeMapForTopLevelPages } from "../../blocks"
 import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import { EditorContentDispatch, editorContentReducer } from "../../contexts/EditorContentContext"
+import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
 import { CmsPageUpdate, ContentManagementPage, Page } from "../../shared-module/bindings"
 import DebugModal from "../../shared-module/components/DebugModal"
 import Spinner from "../../shared-module/components/Spinner"
@@ -84,6 +85,15 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
     }
   }
 
+  let mediaUpload
+  if (data.course_id) {
+    mediaUpload = mediaUploadBuilder({ courseId: data.course_id })
+  } else if (data.exam_id) {
+    mediaUpload = mediaUploadBuilder({ examId: data.exam_id })
+  } else {
+    throw "The backend should ensure that a page is associated with either a course or an exam"
+  }
+
   return (
     <EditorContentDispatch.Provider value={contentDispatch}>
       <div className="editor__component">
@@ -111,6 +121,7 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
           }
           allowedBlocks={supportedCoreBlocks}
           allowedBlockVariations={allowedBlockVariants}
+          mediaUpload={mediaUpload}
         />
       </div>
       <div className="editor__component">

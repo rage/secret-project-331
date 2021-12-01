@@ -11,6 +11,7 @@ pub mod courses;
 pub mod email_deliveries;
 pub mod email_templates;
 mod error;
+pub mod exams;
 pub mod exercise_service_info;
 pub mod exercise_services;
 pub mod exercise_slides;

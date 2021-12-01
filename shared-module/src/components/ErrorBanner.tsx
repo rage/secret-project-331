@@ -101,6 +101,10 @@ const DetailTag = styled.div`
     border: 2px solid #c1c1c1;
     border-radius: 10px;
   }
+
+  ul li pre {
+    white-space: pre-line;
+  }
 `
 
 export interface BannerExtraProps {
@@ -163,7 +167,9 @@ const Banner: React.FC<BannerProps> = (props) => {
                 <details>
                   <summary>{t("show-error-source")}</summary>
                   <ul>
-                    <li>{<pre>{JSON.stringify(error.data, undefined, 2)}</pre>}</li>
+                    <li>
+                      <pre>{JSON.stringify(error.data, undefined, 2)}</pre>
+                    </li>
                   </ul>
                 </details>
               )}

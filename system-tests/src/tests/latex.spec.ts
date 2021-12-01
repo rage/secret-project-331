@@ -129,7 +129,6 @@ test("latex-block renders", async ({ headless, page }) => {
   expectPath(page, "org/uh-mathstat/courses/latex-course/chapter-1")
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "latex",

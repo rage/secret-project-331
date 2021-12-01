@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import Layout from "../../components/Layout"
-import CourseContext from "../../contexts/CourseContext"
 import { fetchPageWithId, updateExistingPage } from "../../services/backend/pages"
 import { CmsPageUpdate, ContentManagementPage, Page } from "../../shared-module/bindings"
 import Spinner from "../../shared-module/components/Spinner"
@@ -56,13 +55,17 @@ const Pages = ({ query }: PagesProps) => {
     return res
   }
 
+  let frontPageUrl
+  if (data.course_id) {
+    /* eslint-disable-next-line i18next/no-literal-string */
+    frontPageUrl = `/manage/courses/${data.course_id}/pages`
+  } else {
+    frontPageUrl = "/"
+  }
   return (
-    <CourseContext.Provider value={{ courseId: data.course_id }}>
-      {/* eslint-disable-next-line i18next/no-literal-string */}
-      <Layout frontPageUrl={`/manage/courses/${data.course_id}/pages`}>
-        <PageEditor data={data} handleSave={handleSave} />
-      </Layout>
-    </CourseContext.Provider>
+    <Layout frontPageUrl={frontPageUrl}>
+      <PageEditor data={data} handleSave={handleSave} />
+    </Layout>
   )
 }
 

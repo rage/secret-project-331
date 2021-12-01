@@ -20,7 +20,7 @@ interface ExpectScreenshotsToMatchSnapshotsProps {
   page?: Page
   frame?: Frame
   pageScreenshotOptions?: PageScreenshotOptions
-  axeSkip: boolean
+  axeSkip?: boolean
 }
 
 export default async function expectScreenshotsToMatchSnapshots({

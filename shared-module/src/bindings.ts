@@ -172,6 +172,26 @@ export interface EmailTemplateUpdate {
   points_threshold: number | null
 }
 
+export interface CourseExam {
+  id: string
+  course_id: string
+  course_name: string
+  name: string
+}
+
+export interface Exam {
+  id: string
+  name: string
+  page_id: string
+  courses: Array<Course>
+}
+
+export interface ExamEnrollment {
+  user_id: string
+  exam_id: string
+  started_at: Date | null
+}
+
 export interface CourseMaterialExerciseServiceInfo {
   exercise_iframe_url: string
 }
@@ -250,7 +270,8 @@ export interface Exercise {
   created_at: Date
   updated_at: Date
   name: string
-  course_id: string
+  course_id: string | null
+  exam_id: string | null
   page_id: string
   chapter_id: string
   deadline: Date | null
@@ -300,7 +321,8 @@ export interface Grading {
   created_at: Date
   updated_at: Date
   submission_id: string
-  course_id: string
+  course_id: string | null
+  exam_id: string | null
   exercise_id: string
   exercise_task_id: string
   grading_priority: number
@@ -378,6 +400,7 @@ export interface ContentManagementPage {
   exercises: Array<CmsPageExercise>
   exercise_slides: Array<CmsPageExerciseSlide>
   exercise_tasks: Array<CmsPageExerciseTask>
+  organization_id: string
 }
 
 export interface CoursePageWithUserData {
@@ -407,7 +430,8 @@ export interface Page {
   id: string
   created_at: Date
   updated_at: Date
-  course_id: string
+  course_id: string | null
+  exam_id: string | null
   chapter_id: string | null
   url_path: string
   title: string
@@ -443,7 +467,8 @@ export interface PageWithExercises {
   id: string
   created_at: Date
   updated_at: Date
-  course_id: string
+  course_id: string | null
+  exam_id: string | null
   chapter_id: string | null
   content: unknown
   url_path: string
@@ -460,9 +485,11 @@ export interface NewPage {
   content: unknown
   url_path: string
   title: string
-  course_id: string
+  course_id: string | null
+  exam_id: string | null
   chapter_id: string | null
   front_page_of_chapter_id: string | null
+  content_search_language: string | null
 }
 
 export interface PlaygroundExample {
@@ -543,8 +570,9 @@ export interface Submission {
   updated_at: Date
   deleted_at: Date | null
   exercise_id: string
-  course_id: string
-  course_instance_id: string
+  course_id: string | null
+  course_instance_id: string | null
+  exam_id: string | null
   exercise_task_id: string
   data_json: unknown | null
   grading_id: string | null
@@ -618,6 +646,10 @@ export interface User {
   deleted_at: Date | null
   upstream_id: number | null
   email: string
+}
+
+export interface ExamCourseInfo {
+  course_id: string
 }
 
 export interface Login {

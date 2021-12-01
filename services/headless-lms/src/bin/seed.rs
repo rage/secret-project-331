@@ -1,5 +1,5 @@
 use anyhow::Result;
-use chrono::{TimeZone, Utc};
+use chrono::{Duration, TimeZone, Utc};
 use headless_lms_actix::attributes;
 use headless_lms_actix::models::chapters::NewChapter;
 use headless_lms_actix::models::course_instance_enrollments::NewCourseInstanceEnrollment;
@@ -7,6 +7,7 @@ use headless_lms_actix::models::course_instances::NewCourseInstance;
 use headless_lms_actix::models::courses::NewCourse;
 use headless_lms_actix::models::exercises::GradingProgress;
 use headless_lms_actix::models::feedback::{FeedbackBlock, NewFeedback};
+use headless_lms_actix::models::page_history::HistoryChangeReason;
 use headless_lms_actix::models::pages::{
     CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate, NewPage,
 };
@@ -19,7 +20,9 @@ use headless_lms_actix::models::{
     exercises, organizations, pages, roles, roles::UserRole, submissions, user_exercise_states,
     users,
 };
-use headless_lms_actix::models::{course_instance_enrollments, feedback, playground_examples};
+use headless_lms_actix::models::{
+    course_instance_enrollments, exams, feedback, playground_examples,
+};
 use headless_lms_actix::models::{gradings, proposed_page_edits};
 use headless_lms_actix::setup_tracing;
 use headless_lms_actix::utils::document_schema_processor::GutenbergBlock;
@@ -169,6 +172,7 @@ async fn main() -> Result<()> {
         "Introduction to everything",
         "introduction-to-everything",
         admin,
+        teacher,
         student,
         &users,
     )
@@ -180,6 +184,7 @@ async fn main() -> Result<()> {
         "Introduction to feedback",
         "introduction-to-feedback",
         admin,
+        teacher,
         student,
         &users,
     )
@@ -191,6 +196,7 @@ async fn main() -> Result<()> {
         "Introduction to history",
         "introduction-to-history",
         admin,
+        teacher,
         student,
         &users,
     )
@@ -202,6 +208,7 @@ async fn main() -> Result<()> {
         "Introduction to edit proposals",
         "introduction-to-edit-proposals",
         admin,
+        teacher,
         student,
         &users,
     )
@@ -213,6 +220,7 @@ async fn main() -> Result<()> {
         "Introduction to localizing",
         "introduction-to-localizing",
         admin,
+        teacher,
         student,
         &users,
     )
@@ -224,6 +232,7 @@ async fn main() -> Result<()> {
         "Point view for teachers",
         "point-view-for-teachers",
         admin,
+        teacher,
         student,
         &users,
     )
@@ -235,6 +244,7 @@ async fn main() -> Result<()> {
         "Advanced course instance management",
         "advanced-course-instance-management",
         admin,
+        teacher,
         student,
         &users,
     )
@@ -952,6 +962,7 @@ async fn seed_sample_course(
     course_name: &str,
     course_slug: &str,
     admin: Uuid,
+    teacher: Uuid,
     student: Uuid,
     users: &[Uuid],
 ) -> Result<Uuid> {
@@ -1391,6 +1402,69 @@ async fn seed_sample_course(
     };
     proposed_page_edits::insert(conn, course.id, Some(student), &edits).await?;
 
+    // exams
+    let exam_id = Uuid::new_v5(&course_id, b"7d6ed843-2a94-445b-8ced-ab3c67290ad0");
+    exams::insert(
+        conn,
+        exam_id,
+        "Course exam",
+        Some(Utc::now()),
+        Some(Utc::now() + Duration::days(30)),
+        Some(120),
+        org,
+    )
+    .await?;
+    pages::insert_page(
+        conn,
+        NewPage {
+            exercises: vec![],
+            exercise_slides: vec![],
+            exercise_tasks: vec![],
+            content: Value::Array(vec![]),
+            url_path: "".to_string(),
+            title: "".to_string(),
+            course_id: None,
+            exam_id: Some(exam_id),
+            chapter_id: None,
+            front_page_of_chapter_id: None,
+            content_search_language: None,
+        },
+        teacher,
+    )
+    .await?;
+    exams::set_course(conn, exam_id, course.id).await?;
+
+    let exam_id = Uuid::new_v5(&course_id, b"94393cf5-1814-4d57-80d5-e5af93790967");
+    exams::insert(
+        conn,
+        exam_id,
+        "Repeat exam",
+        Some(Utc::now()),
+        Some(Utc::now() + Duration::days(30)),
+        Some(120),
+        org,
+    )
+    .await?;
+    pages::insert_page(
+        conn,
+        NewPage {
+            exercises: vec![],
+            exercise_slides: vec![],
+            exercise_tasks: vec![],
+            content: Value::Array(vec![]),
+            url_path: "".to_string(),
+            title: "".to_string(),
+            course_id: None,
+            exam_id: Some(exam_id),
+            chapter_id: None,
+            front_page_of_chapter_id: None,
+            content_search_language: None,
+        },
+        teacher,
+    )
+    .await?;
+    exams::set_course(conn, exam_id, course.id).await?;
+
     Ok(course.id)
 }
 
@@ -1437,6 +1511,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         },
         admin,
         true,
+        HistoryChangeReason::PageSaved,
     )
     .await?;
     // FAQ, we should add card/accordion block to visualize here.
@@ -1476,6 +1551,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         },
         admin,
         true,
+        HistoryChangeReason::PageSaved,
     )
     .await?;
 
@@ -1591,6 +1667,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         },
         admin,
         true,
+        HistoryChangeReason::PageSaved
     )
     .await?;
     // /chapter-2/user-research
@@ -1665,12 +1742,14 @@ async fn create_page(
         content: Value::Array(vec![]),
         url_path: page_data.url_path.to_string(),
         title: format!("{} WIP", page_data.title),
-        course_id,
+        course_id: Some(course_id),
+        exam_id: None,
         chapter_id: Some(chapter_id),
         front_page_of_chapter_id: None,
         exercises: vec![],
         exercise_slides: vec![],
         exercise_tasks: vec![],
+        content_search_language: None,
     };
     let page = pages::insert_page(conn, new_page, author).await?;
     pages::update_page(
@@ -1687,6 +1766,7 @@ async fn create_page(
         },
         author,
         true,
+        HistoryChangeReason::PageSaved,
     )
     .await?;
     Ok(page.id)

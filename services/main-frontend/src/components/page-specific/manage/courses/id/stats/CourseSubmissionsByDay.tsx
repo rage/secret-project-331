@@ -1,0 +1,109 @@
+import { css } from "@emotion/css"
+import { groupBy, max } from "lodash"
+import React from "react"
+import { useTranslation } from "react-i18next"
+import { useQuery } from "react-query"
+
+import { fetchCourseDailySubmissionCounts } from "../../../../../../services/backend/courses"
+import DebugModal from "../../../../../../shared-module/components/DebugModal"
+import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../../../../shared-module/components/Spinner"
+import { dontRenderUntilQueryParametersReady } from "../../../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import Echarts from "../../../../../Echarts"
+
+export interface CourseSubmissionsByDayProps {
+  courseId: string
+}
+
+const CourseSubmissionsByDay: React.FC<CourseSubmissionsByDayProps> = ({ courseId }) => {
+  const { t } = useTranslation()
+  const getCourseDailySubmissionCounts = useQuery(
+    `course-daily-submission-counts-${courseId}`,
+    () => fetchCourseDailySubmissionCounts(courseId),
+    {
+      select: (data) => {
+        const eChartsData = groupBy(data, (o) => {
+          // @ts-expect-error: todo
+          const dateString = o.date
+          const year = dateString.substring(0, dateString.indexOf("-"))
+          return year
+        })
+        const maxValue = max(data.map((o) => o.count)) || 10000
+        return { apiData: data, eChartsData, maxValue }
+      },
+    },
+  )
+
+  return (
+    <div
+      className={css`
+        margin-bottom: 1rem;
+      `}
+    >
+      {getCourseDailySubmissionCounts.isError && (
+        <ErrorBanner variant={"readOnly"} error={getCourseDailySubmissionCounts.error} />
+      )}
+      {getCourseDailySubmissionCounts.isLoading && <Spinner variant={"medium"} />}
+
+      {getCourseDailySubmissionCounts.isSuccess &&
+        getCourseDailySubmissionCounts.data.apiData.length === 0 && <div>{t("no-data")}</div>}
+
+      {getCourseDailySubmissionCounts.isSuccess &&
+        getCourseDailySubmissionCounts.data.apiData.length !== 0 && (
+          <>
+            <Echarts
+              height={200 * Object.keys(getCourseDailySubmissionCounts.data.eChartsData).length}
+              options={{
+                tooltip: {
+                  // eslint-disable-next-line i18next/no-literal-string
+                  position: "top",
+                  formatter: (a) => {
+                    return t("daily-submissions-visualization-tooltip", {
+                      // @ts-expect-error: todo
+                      day: a.data[0],
+                      // @ts-expect-error: todo
+                      submissions: a.data[1],
+                    })
+                  },
+                },
+                visualMap: {
+                  show: false,
+                  min: 0,
+                  max: getCourseDailySubmissionCounts.data.maxValue,
+                },
+                calendar: Object.entries(getCourseDailySubmissionCounts.data.eChartsData).map(
+                  ([year, _submissionCounts], i) => {
+                    return {
+                      range: year,
+                      // eslint-disable-next-line i18next/no-literal-string
+                      cellSize: ["auto", 20],
+                      dayLabel: {
+                        firstDay: 1,
+                      },
+                      top: 190 * i + 40,
+                    }
+                  },
+                ),
+                series: Object.entries(getCourseDailySubmissionCounts.data.eChartsData).map(
+                  ([_year, submissionCounts], i) => {
+                    return {
+                      // eslint-disable-next-line i18next/no-literal-string
+                      type: "heatmap",
+                      // eslint-disable-next-line i18next/no-literal-string
+                      coordinateSystem: "calendar",
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      data: (submissionCounts as any[]).map((o) => [o.date, o.count]),
+                      calendarIndex: i,
+                    }
+                  },
+                ),
+              }}
+            />
+            <DebugModal data={getCourseDailySubmissionCounts.data.apiData} />
+          </>
+        )}
+    </div>
+  )
+}
+
+export default dontRenderUntilQueryParametersReady(CourseSubmissionsByDay)

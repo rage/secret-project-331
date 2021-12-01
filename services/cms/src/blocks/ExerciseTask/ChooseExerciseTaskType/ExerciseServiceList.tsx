@@ -11,7 +11,7 @@ export interface ExerciseTaskTypes {
 // Fetch iFrame exercise types from an endpoint?
 export const exerciseTaskTypes: ExerciseTaskTypes[] = [
   // eslint-disable-next-line i18next/no-literal-string
-  { name: "Quizzes", url: "/quizzes/editor", identifier: "quizzes" },
+  { name: "Quizzes", url: "/quizzes/iframe", identifier: "quizzes" },
   // eslint-disable-next-line i18next/no-literal-string
   { name: "Test My Code", url: null, identifier: "tmc" },
   // eslint-disable-next-line i18next/no-literal-string

@@ -6,6 +6,8 @@ import { PublicAlternative } from "../util/stateInterfaces"
 
 import ExerciseBase from "./ExerciseBase"
 
+const CURRENT_STATE_MESSAGE = "current-state"
+
 export interface PlaygroundExerciseProps {
   port: MessagePort
   maxWidth: number | null
@@ -25,8 +27,7 @@ const PlaygroundExercise: React.FC<PlaygroundExerciseProps> = ({ port, maxWidth,
     // eslint-disable-next-line i18next/no-literal-string
     console.info("Posting current state to parent")
     const message: CurrentStateMessage = {
-      // eslint-disable-next-line i18next/no-literal-string
-      message: "current-state",
+      message: CURRENT_STATE_MESSAGE,
       data: { selectedOptionId: value },
       valid: true,
     }

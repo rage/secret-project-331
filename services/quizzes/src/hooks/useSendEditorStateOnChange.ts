@@ -1,22 +1,24 @@
 import { useEffect } from "react"
 
-import { WidgetReducerState } from "../components/widget"
 import { CurrentStateMessage } from "../shared-module/iframe-protocol-types"
+import { StoreState } from "../store/store"
+import { denormalizeData } from "../util/normalizerFunctions"
 
 const CURRENT_STATE = "current-state"
 
-export const useSendQuizAnswerOnChange = (port: MessagePort, state: WidgetReducerState): void => {
+export const useSendEditorStateOnChange = (port: MessagePort, state: StoreState): void => {
   useEffect(() => {
     if (!port) {
       return
     }
+
     const message: CurrentStateMessage = {
       message: CURRENT_STATE,
-      data: state.quiz_answer,
-      valid: state.quiz_answer_is_valid,
+      data: { private_spec: denormalizeData(state) },
+      valid: true,
     }
     // eslint-disable-next-line i18next/no-literal-string
     console.info("Sending current data", JSON.stringify(message))
     port.postMessage(message)
-  }, [port, state])
+  }, [state, port])
 }

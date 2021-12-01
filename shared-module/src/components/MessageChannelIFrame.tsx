@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
-import React, { useEffect, useRef } from "react"
+import { isEqual } from "lodash"
+import React, { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import useMessageChannel from "../hooks/useMessageChannel"
@@ -19,6 +20,8 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
 }) => {
   const { t } = useTranslation()
   const iframeRef = useRef<HTMLIFrameElement>(null)
+
+  const [lastThingPosted, setLastThingPosted] = useState<any>(null)
 
   const messageChannel = useMessageChannel()
 
@@ -92,7 +95,7 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
   }, [messageChannel])
 
   useEffect(() => {
-    if (!messageChannel) {
+    if (!messageChannel || isEqual(lastThingPosted, postThisStateToIFrame)) {
       return
     }
     const postData: SetStateMessage = {
@@ -104,6 +107,7 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
     // eslint-disable-next-line i18next/no-literal-string
     console.log(`parent posting data ${postData}`)
     messageChannel.port1.postMessage(postData)
+    setLastThingPosted(postThisStateToIFrame)
   }, [messageChannel, postThisStateToIFrame])
 
   if (!messageChannel) {

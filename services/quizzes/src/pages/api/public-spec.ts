@@ -49,6 +49,8 @@ function handlePost(req: NextApiRequest, res: NextApiResponse) {
             order: o.order,
             title: o.title,
             quizItemId: o.quizItemId,
+            column: o.column,
+            row: o.row,
           }
           return po
         }),

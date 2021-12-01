@@ -1,10 +1,9 @@
-/* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useDispatch } from "react-redux"
 
 import { NormalizedQuizItemOption, QuizItemVariables } from "../../../../../types/types"
-import { editedOptionTitle } from "../../../../store/editor/options/optionActions"
+import { editedOptionCorrectAnswer } from "../../../../store/editor/options/optionActions"
 import { useTypedSelector } from "../../../../store/store"
 
 interface TableCellContentProps {
@@ -21,13 +20,13 @@ const TableCellContent: React.FC<TableCellContentProps> = ({ columnLoop, rowLoop
   const dispatch = useDispatch()
 
   const handleTextarea = (text: string) => {
-    dispatch(editedOptionTitle(text, storeOption.id))
+    dispatch(editedOptionCorrectAnswer(text, storeOption.id))
   }
   console.log(storeOption)
   return (
     <>
       <td
-        key={`row index: , ${rowLoop} column index: , ${columnLoop}`}
+        key={`cell ${rowLoop} ${columnLoop}`}
         className={css`
           padding: 0;
           font-size: 30px;
@@ -42,17 +41,17 @@ const TableCellContent: React.FC<TableCellContentProps> = ({ columnLoop, rowLoop
             outline: none;
             text-align: center;
             resize: none;
-            ${storeOption.title.length === 0 &&
+            ${storeOption.correctAnswer.length === 0 &&
             `
             background-color: #ECECEC;
           `}
             ${IsActive &&
-            storeOption.title.length === 0 &&
+            storeOption.correctAnswer.length === 0 &&
             `
               background-color: #DBDBDB;
               `}
           `}
-          value={storeOption.title ?? ""}
+          value={storeOption.correctAnswer ?? ""}
           onSelect={() => setIsActive(true)}
           onBlur={() => setIsActive(false)}
           onChange={(event) => handleTextarea(event.target.value)}

@@ -219,6 +219,7 @@ export interface NormalizedQuizItemOption {
   quizItemId: string
   order: number
   correct: boolean
+  correctAnswer: string
   createdAt: string
   updatedAt: string
   title: string
@@ -239,6 +240,8 @@ export interface PublicQuizItemOption {
   order: number
   title: string | null
   body: string | null
+  row: number | null
+  column: number | null
 }
 
 export interface QuizAnswer {
@@ -263,6 +266,14 @@ export interface QuizItemAnswer {
   valid: boolean
   /** Only contains an id of a selected option */
   optionAnswers: string[] | null
+  optionCells: MatrixItemAnswer[] | null
+}
+
+export interface MatrixItemAnswer {
+  optionId: string
+  textData: string
+  column: number
+  row: number
 }
 
 export interface UserQuizState {

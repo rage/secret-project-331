@@ -90,6 +90,7 @@ const ExercisePage: React.FC = () => {
           intData: null,
           textData: null,
           optionAnswers: null,
+          optionCells: null,
         }
       }),
     },

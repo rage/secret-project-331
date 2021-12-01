@@ -1,11 +1,7 @@
-/* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
-import _ from "lodash"
-import React from "react"
+import React, { useState } from "react"
 
-import { QuizItemAnswer } from "../../../types/types"
-import { respondToOrLarger } from "../../shared-module/styles/respond"
-import { MarkdownText } from "../MarkdownText"
+import { MatrixItemAnswer, PublicQuizItemOption, QuizItemAnswer } from "../../../types/types"
 
 import { QuizItemComponentProps } from "."
 
@@ -20,84 +16,165 @@ const Matrix: React.FunctionComponent<QuizItemComponentProps> = ({
   quizItem,
   setQuizItemAnswerState,
 }) => {
-  const handleOptionSelect = (event: React.MouseEvent<HTMLButtonElement>) => {
-    if (!quizItemAnswerState) {
+  const [IsActive, setIsActive] = useState(false)
+  const handleOptionSelect = (
+    text: string,
+    option: PublicQuizItemOption,
+    column: number,
+    row: number,
+  ) => {
+    if (!quizItemAnswerState?.optionCells) {
       return
     }
 
-    const selectedOptionId = event.currentTarget.value
-    let newItemAnswer: QuizItemAnswer
-    // multi is set to true then student can select multiple options for an answer
-    if (quizItem.multi) {
-      newItemAnswer = {
-        ...quizItemAnswerState,
-        optionAnswers: _.xor(quizItemAnswerState.optionAnswers, [selectedOptionId]),
-        valid: true,
-      }
-    } else {
-      newItemAnswer = {
-        ...quizItemAnswerState,
-        optionAnswers: [selectedOptionId],
-        valid: true,
-      }
+    const selectedOptionId = option.id
+    const newMatrixItemAnswer = {
+      optionId: selectedOptionId,
+      textData: text,
+      column: column,
+      row: row,
     }
+    const newOptionCells: MatrixItemAnswer[] = quizItemAnswerState.optionCells?.map((option) => {
+      if (option.optionId === selectedOptionId) {
+        return newMatrixItemAnswer
+      } else {
+        return option
+      }
+    })
+
+    const newItemAnswer: QuizItemAnswer = {
+      ...quizItemAnswerState,
+      optionCells: newOptionCells,
+      valid: true,
+    }
+
     setQuizItemAnswerState(newItemAnswer)
   }
 
-  return (
-    <div
-      className={css`
-        display: flex;
-        flex-direction: column;
-        ${respondToOrLarger.md} {
-          flex-direction: row;
+  if (quizItemAnswerState?.optionCells === null) {
+    const initializeQuizAnswers: MatrixItemAnswer[] = quizItem.options.map((option) => {
+      if (option.column !== null && option.row !== null) {
+        return {
+          optionId: option.id,
+          textData: "",
+          column: option.column,
+          row: option.row,
         }
-      `}
-    >
-      <div
+      } else {
+        return {
+          optionId: option.id,
+          textData: "",
+          column: -1,
+          row: -1,
+        }
+      }
+    })
+    if (initializeQuizAnswers !== null) {
+      const newItemAnswer: QuizItemAnswer = {
+        ...quizItemAnswerState,
+        optionCells: initializeQuizAnswers,
+      }
+      setQuizItemAnswerState(newItemAnswer)
+    }
+  }
+
+  const findOptionText = (optionId: string): string => {
+    const option = quizItemAnswerState?.optionCells?.find((option) => option.optionId === optionId)
+    if (option === undefined) {
+      return ""
+    }
+    return option?.textData
+  }
+
+  const tempArray = [0, 1, 2, 3, 4, 5]
+  return (
+    <>
+      <table
         className={css`
-          display: flex;
-          flex-direction: column;
-          flex: 1;
-          margin: 0.5rem;
-        `}
-      >
-        {quizItem.title && <MarkdownText text={quizItem.title} />}
-        {quizItem.body && <MarkdownText text={quizItem.body} />}
-      </div>
-      <div
-        className={css`
-          display: flex;
-          flex: 2;
-          flex-direction: column;
-          justify-content: space-between;
-          ${respondToOrLarger.sm} {
-            flex-direction: row;
+          margin: auto;
+          background-color: grey;
+          border-collapse: collapse;
+          td {
+            border: 2px solid #e1e1e199;
+          }
+          &tr:first-child td {
+            border-top: 4px;
+          }
+          &tr td:first-child {
+            border-left: 4px;
+          }
+          &tr:last-child td {
+            border-bottom: 4px;
+          }
+          &tr td:last-child {
+            border-right: 4px;
           }
         `}
       >
-        {quizItem.options.map((qo) => {
-          return (
-            <button
-              key={qo.id}
-              value={qo.id}
-              onClick={handleOptionSelect}
-              className={css`
-                display: flex;
-                margin: 0.5rem;
-                flex: 2;
-                justify-content: center;
-                align-items: center;
-                ${quizItemAnswerState?.optionAnswers?.includes(qo.id) &&
-                "border: 2px solid #4caf50; /* Green */"}
-              `}
-            >
-              {qo.title || qo.body}
-            </button>
-          )
-        })}
-      </div>
-    </div>
+        <tbody>
+          <>
+            {tempArray.map((rowIndex) => {
+              return (
+                <tr key={`row${rowIndex}`}>
+                  {quizItem.options.map((option, columnIndex) => {
+                    if (option.row === rowIndex) {
+                      //         const checkNeighbour = checkNeighbourCells(columnIndex, rowIndex)
+                      return (
+                        <>
+                          <>
+                            <td
+                              key={`cell ${rowIndex} ${columnIndex}`}
+                              className={css`
+                                padding: 0;
+                                font-size: 30px;
+                              `}
+                            >
+                              {
+                                <input
+                                  className={css`
+                                    display: block;
+                                    width: 50px;
+                                    height: 50px;
+                                    border: 0;
+                                    outline: none;
+                                    text-align: center;
+                                    resize: none;
+                                    ${option.body?.length === 0 &&
+                                    `
+                              background-color: #ECECEC;
+                            `}
+                                    ${IsActive &&
+                                    option.body?.length === 0 &&
+                                    `
+                                background-color: #DBDBDB;
+                                `}
+                                  `}
+                                  value={findOptionText(option.id) ?? ""}
+                                  onSelect={() => setIsActive(true)}
+                                  onBlur={() => setIsActive(false)}
+                                  onChange={(event) =>
+                                    handleOptionSelect(
+                                      event.target.value,
+                                      option,
+                                      columnIndex,
+                                      rowIndex,
+                                    )
+                                  }
+                                ></input>
+                              }
+                            </td>
+                          </>
+                        </>
+                      )
+                    }
+                  })}
+                </tr>
+              )
+            })}
+          </>
+        </tbody>
+      </table>
+    </>
   )
 }
 

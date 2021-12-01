@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import React from "react"
 import { useDispatch } from "react-redux"
@@ -68,7 +67,7 @@ const TableContent: React.FC<TableContentProps> = ({ item }) => {
         <tbody>
           <>
             {tempArray.map((rowIndex) => (
-              <tr key={`row index: ${rowIndex}`} id="wow">
+              <tr key={`row ${rowIndex}`}>
                 {tempArray.map((columnIndex) => {
                   const checkNeighbour = checkNeighbourCells(columnIndex, rowIndex)
                   console.log(checkNeighbour)

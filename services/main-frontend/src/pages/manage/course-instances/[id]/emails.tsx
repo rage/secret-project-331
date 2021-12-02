@@ -13,7 +13,7 @@ import {
 import { deleteEmailTemplate } from "../../../../services/backend/email-templates"
 import Button from "../../../../shared-module/components/Button"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
-import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import { frontendNormalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
@@ -67,7 +67,7 @@ const CourseInstanceEmailTemplates: React.FC<CourseInstanceEmailTemplatesProps> 
     <Layout navVariant="complex">
       <div
         className={css`
-          ${normalWidthCenteredComponentStyles}
+          ${frontendNormalWidthCenteredComponentStyles}
           margin-bottom: 1rem;
         `}
       >

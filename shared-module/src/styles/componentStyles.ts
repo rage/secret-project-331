@@ -7,20 +7,18 @@ import { respondToOrLarger } from "./respond"
 // in a page to be inside a container. Some elements need the entire width
 // of the page.
 
-// Use only in CMS
-// Sidebar removed at 75rem, sidebar width 280px
+// Use in main-frontend
 // eslint-disable-next-line i18next/no-literal-string
-export const normalWidthCenteredComponentStyles = css`
+export const frontendNormalWidthCenteredComponentStyles = css`
   max-width: ${defaultContainerWidth}rem;
   margin-left: auto;
   margin-right: auto;
+  padding: 0rem 1.375rem;
   ${respondToOrLarger.xl} {
-    margin-right: calc(50% - 280px);
+    padding: 0rem;
   }
 `
-
-// Use only in CMS
-// Sidebar removed at 75rem, sidebar width 280px
+// Use in main-frontend
 // eslint-disable-next-line i18next/no-literal-string
 export const frontendWideWidthCenteredComponentStyles = css`
   max-width: ${wideContainerWidth}rem;

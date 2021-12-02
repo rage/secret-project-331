@@ -6,7 +6,7 @@ import Layout from "../../components/Layout"
 import SubmissionIFrame from "../../components/SubmissionIFrame"
 import { fetchSubmissionInfo } from "../../services/backend/submissions"
 import DebugModal from "../../shared-module/components/DebugModal"
-import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
+import { frontendNormalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
@@ -51,7 +51,7 @@ const Submission: React.FC<SubmissionPageProps> = ({ query }) => {
 
   return (
     <Layout navVariant="complex">
-      <div className={normalWidthCenteredComponentStyles}>
+      <div className={frontendNormalWidthCenteredComponentStyles}>
         <h1>{t("title-submission-id", { id: data.submission.id })}</h1>
         {grading}
         <SubmissionIFrame

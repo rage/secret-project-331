@@ -3394,20 +3394,21 @@ checksum = "59547bce71d9c38b83d9c0e92b6066c4253371f15005def0c30d9657f50c7642"
 
 [[package]]
 name = "ts-rs"
-version = "5.1.1"
-source = "git+https://github.com/Heliozoa/ts-rs?rev=db1580718a3cc10ac9e7d07173dec2700c119ca0#db1580718a3cc10ac9e7d07173dec2700c119ca0"
+version = "6.0.5"
+source = "git+https://github.com/Heliozoa/ts-rs?rev=3d0fd4f71fd1698e4236393206597d70974079c0#3d0fd4f71fd1698e4236393206597d70974079c0"
 dependencies = [
  "chrono",
  "dprint-plugin-typescript",
  "serde_json",
+ "thiserror",
  "ts-rs-macros",
  "uuid",
 ]
 
 [[package]]
 name = "ts-rs-macros"
-version = "5.1.0"
-source = "git+https://github.com/Heliozoa/ts-rs?rev=db1580718a3cc10ac9e7d07173dec2700c119ca0#db1580718a3cc10ac9e7d07173dec2700c119ca0"
+version = "6.0.5"
+source = "git+https://github.com/Heliozoa/ts-rs?rev=3d0fd4f71fd1698e4236393206597d70974079c0#3d0fd4f71fd1698e4236393206597d70974079c0"
 dependencies = [
  "Inflector",
  "proc-macro2",

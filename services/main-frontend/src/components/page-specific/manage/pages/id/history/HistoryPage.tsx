@@ -27,20 +27,15 @@ const HistoryPage: React.FC<Props> = ({
   onRestore,
 }) => {
   const { t } = useTranslation()
-  const getPageHistory = useQuery(`page-history-${pageId}-${page}-${limit}`, async () => {
-    const history = await fetchHistoryForPage(pageId, page, limit)
-    if (history.length === 0) {
-      console.error(t("error-could-not-find-edit-history-for-page"))
-      throw new Error(t("error-could-not-find-edit-history-for-page"))
-    }
-    return history
-  })
+  const getPageHistory = useQuery(`page-history-${pageId}-${page}-${limit}`, () =>
+    fetchHistoryForPage(pageId, page, limit),
+  )
 
   return (
     <>
       {getPageHistory.isError && <ErrorBanner variant={"readOnly"} error={getPageHistory.error} />}
       {getPageHistory.isLoading && <Spinner variant={"medium"} />}
-      {getPageHistory.isSuccess && (
+      {getPageHistory.isSuccess && getPageHistory.data.length !== 0 ? (
         <>
           {getPageHistory.data.map((h) => {
             return (
@@ -83,6 +78,8 @@ const HistoryPage: React.FC<Props> = ({
             )
           })}
         </>
+      ) : (
+        <div>{t("error-could-not-find-edit-history-for-page")}</div>
       )}
     </>
   )

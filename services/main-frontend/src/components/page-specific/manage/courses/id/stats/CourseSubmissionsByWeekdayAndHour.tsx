@@ -9,7 +9,8 @@ import DebugModal from "../../../../../../shared-module/components/DebugModal"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
 import { dontRenderUntilQueryParametersReady } from "../../../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import Echarts from "../../../../../Echarts"
+
+import Echarts from "./Echarts"
 
 export interface CourseSubmissionsByWeekdayAndHourProps {
   courseId: string

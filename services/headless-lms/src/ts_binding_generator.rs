@@ -1,4 +1,3 @@
-#[cfg(test)]
 use crate::{
     controllers::{
         auth::Login,
@@ -12,118 +11,139 @@ use crate::{
     utils::pagination::Pagination,
 };
 
-ts_rs::export! {
-  chapters::Chapter,
-  chapters::ChapterStatus,
-  chapters::ChapterUpdate,
-  chapters::ChapterWithStatus,
-  chapters::NewChapter,
-  chapters::UserCourseInstanceChapterProgress,
+macro_rules! export {
+    ($target:expr, $($types:ty),*) => {
+        {
+            let target = $target;
+            fn _export(target: &mut impl ::std::io::Write) -> ::std::result::Result<(), ::std::io::Error> {
+                $(
+                    writeln!(target, "export {}\n", <$types as ::ts_rs::TS>::decl())?;
+                )*
+                Ok(())
+            }
+            _export(target)
+        }
+    };
+}
 
-  course_instance_enrollments::CourseInstanceEnrollment,
+#[test]
+fn ts_binding_generator() {
+    let mut target = std::fs::File::create("../../shared-module/src/bindings.ts").unwrap();
+    let res = export! {
+        &mut target,
 
-  course_instances::ChapterScore,
-  course_instances::CourseInstance,
-  course_instances::CourseInstanceForm,
-  course_instances::PointMap,
-  course_instances::Points,
-  course_instances::VariantStatus,
+        chapters::Chapter,
+        chapters::ChapterStatus,
+        chapters::ChapterUpdate,
+        chapters::ChapterWithStatus,
+        chapters::NewChapter,
+        chapters::UserCourseInstanceChapterProgress,
 
-  courses::Course,
-  courses::CourseStructure,
-  courses::CourseUpdate,
-  courses::NewCourse,
+        course_instance_enrollments::CourseInstanceEnrollment,
 
-  email_templates::EmailTemplate,
-  email_templates::EmailTemplateNew,
-  email_templates::EmailTemplateUpdate,
+        course_instances::ChapterScore,
+        course_instances::CourseInstance,
+        course_instances::CourseInstanceForm,
+        course_instances::PointMap,
+        course_instances::Points,
+        course_instances::VariantStatus,
 
-  exams::CourseExam,
-  exams::Exam,
-  exams::ExamEnrollment,
+        courses::Course,
+        courses::CourseStructure,
+        courses::CourseUpdate,
+        courses::NewCourse,
 
-  exercise_service_info::CourseMaterialExerciseServiceInfo,
-  exercise_service_info::ExerciseServiceInfoApi,
+        email_templates::EmailTemplate,
+        email_templates::EmailTemplateNew,
+        email_templates::EmailTemplateUpdate,
 
-  exercise_services::ExerciseService,
-  exercise_services::ExerciseServiceNewOrUpdate,
+        exams::CourseExam,
+        exams::Exam,
+        exams::ExamEnrollment,
 
-  exercise_slides::ExerciseSlide,
+        exercise_service_info::CourseMaterialExerciseServiceInfo,
+        exercise_service_info::ExerciseServiceInfoApi,
 
-  exercise_tasks::CourseMaterialExerciseTask,
-  exercise_tasks::ExerciseTask,
+        exercise_services::ExerciseService,
+        exercise_services::ExerciseServiceNewOrUpdate,
 
-  exercises::ActivityProgress,
-  exercises::CourseMaterialExercise,
-  exercises::Exercise,
-  exercises::ExerciseStatus,
-  exercises::GradingProgress,
+        exercise_slides::ExerciseSlide,
 
-  feedback::Feedback,
-  feedback::FeedbackBlock,
-  feedback::FeedbackCount,
-  feedback::NewFeedback,
+        exercise_tasks::CourseMaterialExerciseTask,
+        exercise_tasks::ExerciseTask,
 
-  gradings::Grading,
-  gradings::UserPointsUpdateStrategy,
+        exercises::ActivityProgress,
+        exercises::CourseMaterialExercise,
+        exercises::Exercise,
+        exercises::ExerciseStatus,
+        exercises::GradingProgress,
 
-  organizations::Organization,
+        feedback::Feedback,
+        feedback::FeedbackBlock,
+        feedback::FeedbackCount,
+        feedback::NewFeedback,
 
-  page_history::PageHistory,
-  page_history::HistoryChangeReason,
+        gradings::Grading,
+        gradings::UserPointsUpdateStrategy,
 
-  pages::CmsPageExercise,
-  pages::CmsPageExerciseSlide,
-  pages::CmsPageExerciseTask,
-  pages::CmsPageUpdate,
-  pages::ContentManagementPage,
-  pages::CoursePageWithUserData,
-  pages::ExerciseWithExerciseTasks,
-  pages::HistoryRestoreData,
-  pages::Page,
-  pages::PageRoutingDataWithChapterStatus,
-  pages::PageSearchRequest,
-  pages::PageSearchResult,
-  pages::PageWithExercises,
-  pages::NewPage,
+        organizations::Organization,
 
-  playground_examples::PlaygroundExample,
-  playground_examples::PlaygroundExampleData,
+        page_history::PageHistory,
+        page_history::HistoryChangeReason,
 
-  proposed_block_edits::BlockProposal,
-  proposed_block_edits::BlockProposalAction,
-  proposed_block_edits::BlockProposalInfo,
-  proposed_block_edits::NewProposedBlockEdit,
-  proposed_block_edits::ProposalStatus,
+        pages::CmsPageExercise,
+        pages::CmsPageExerciseSlide,
+        pages::CmsPageExerciseTask,
+        pages::CmsPageUpdate,
+        pages::ContentManagementPage,
+        pages::CoursePageWithUserData,
+        pages::ExerciseWithExerciseTasks,
+        pages::HistoryRestoreData,
+        pages::Page,
+        pages::PageRoutingDataWithChapterStatus,
+        pages::PageSearchRequest,
+        pages::PageSearchResult,
+        pages::PageWithExercises,
+        pages::NewPage,
 
-  proposed_page_edits::EditProposalInfo,
-  proposed_page_edits::NewProposedPageEdits,
-  proposed_page_edits::PageProposal,
-  proposed_page_edits::ProposalCount,
+        playground_examples::PlaygroundExample,
+        playground_examples::PlaygroundExampleData,
 
-  submissions::Submission,
-  submissions::SubmissionCount,
-  submissions::SubmissionCountByWeekAndHour,
-  submissions::SubmissionCountByExercise,
-  submissions::SubmissionInfo,
-  submissions::SubmissionResult,
-  submissions::NewSubmission,
+        proposed_block_edits::BlockProposal,
+        proposed_block_edits::BlockProposalAction,
+        proposed_block_edits::BlockProposalInfo,
+        proposed_block_edits::NewProposedBlockEdit,
+        proposed_block_edits::ProposalStatus,
 
-  user_course_settings::UserCourseSettings,
+        proposed_page_edits::EditProposalInfo,
+        proposed_page_edits::NewProposedPageEdits,
+        proposed_page_edits::PageProposal,
+        proposed_page_edits::ProposalCount,
 
-  user_exercise_states::UserCourseInstanceChapterExerciseProgress,
-  user_exercise_states::UserCourseInstanceProgress,
+        submissions::Submission,
+        submissions::SubmissionCount,
+        submissions::SubmissionCountByWeekAndHour,
+        submissions::SubmissionCountByExercise,
+        submissions::SubmissionInfo,
+        submissions::SubmissionResult,
+        submissions::NewSubmission,
 
-  users::User,
+        user_course_settings::UserCourseSettings,
 
-  ExamCourseInfo,
-  Login,
-  UploadResult,
-  ExerciseSubmissions,
-  MarkAsRead,
-  GetFeedbackQuery,
-  GetEditProposalsQuery,
-  ErrorResponse,
-  Pagination
-    => "../../shared-module/src/bindings.ts"
+        user_exercise_states::UserCourseInstanceChapterExerciseProgress,
+        user_exercise_states::UserCourseInstanceProgress,
+
+        users::User,
+
+        ExamCourseInfo,
+        Login,
+        UploadResult,
+        ExerciseSubmissions,
+        MarkAsRead,
+        GetFeedbackQuery,
+        GetEditProposalsQuery,
+        ErrorResponse,
+        Pagination
+    };
+    res.unwrap();
 }

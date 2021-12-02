@@ -521,11 +521,7 @@ export interface BlockProposal {
   accept_preview: string | null
 }
 
-export type BlockProposalAction =
-  | { tag: "Accept"; data: string }
-  | {
-      tag: "Reject"
-    }
+export type BlockProposalAction = { tag: "Accept"; data: string } | { tag: "Reject" }
 
 export interface BlockProposalInfo {
   id: string

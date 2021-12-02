@@ -1413,7 +1413,7 @@ async fn seed_sample_course(
             instructions: "Do your best!",
             starts_at: Some(Utc::now()),
             ends_at: Some(Utc::now() + Duration::days(30)),
-            time_minutes: Some(120),
+            time_minutes: 120,
             organization_id: org,
         },
     )
@@ -1447,7 +1447,7 @@ async fn seed_sample_course(
             instructions: "Do your best!",
             starts_at: Some(Utc::now()),
             ends_at: Some(Utc::now() + Duration::days(30)),
-            time_minutes: Some(120),
+            time_minutes: 120,
             organization_id: org,
         },
     )

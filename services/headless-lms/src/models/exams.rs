@@ -88,7 +88,7 @@ pub struct NewExam<'a> {
     pub instructions: &'a str,
     pub starts_at: Option<DateTime<Utc>>,
     pub ends_at: Option<DateTime<Utc>>,
-    pub time_minutes: Option<i32>,
+    pub time_minutes: i32,
     pub organization_id: Uuid,
 }
 

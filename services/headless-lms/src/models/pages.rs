@@ -1807,7 +1807,7 @@ mod test {
                 instructions: "instr",
                 starts_at: None,
                 ends_at: None,
-                time_minutes: None,
+                time_minutes: 120,
                 organization_id: data.org,
             },
         )

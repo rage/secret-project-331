@@ -4,13 +4,15 @@ import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
-import { fetchHistoryForPage } from "../services/backend/pages"
-import { PageHistory } from "../shared-module/bindings"
-import { monospaceFont } from "../shared-module/styles"
-import monacoFontFixer from "../shared-module/styles/monacoFontFixer"
-import replaceUuidsWithPlaceholdersInText from "../shared-module/utils/testing/replaceUuidsWithPlaceholders"
+import { fetchHistoryForPage } from "../../../../../../services/backend/pages"
+import { PageHistory } from "../../../../../../shared-module/bindings"
+import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../../../../shared-module/components/Spinner"
+import { monospaceFont } from "../../../../../../shared-module/styles"
+import monacoFontFixer from "../../../../../../shared-module/styles/monacoFontFixer"
+import replaceUuidsWithPlaceholdersInText from "../../../../../../shared-module/utils/testing/replaceUuidsWithPlaceholders"
 
-import HistoryList from "./lists/HistoryList"
+import HistoryList from "./HistoryList"
 
 interface Props {
   pageId: string
@@ -23,7 +25,7 @@ const HistoryView: React.FC<Props> = ({ pageId }) => {
   const [currentRevision, setCurrentRevision] = useState<string | null>(null)
   const [selectedRevision, setSelectedRevision] = useState<string | null>(null)
 
-  const { isLoading, error, data } = useQuery(`page-history-current-${pageId}`, async () => {
+  const getCurrentPageHistory = useQuery(`page-history-current-${pageId}`, async () => {
     const history = await fetchHistoryForPage(pageId, 1, 1)
     if (history.length === 0) {
       // there is always at least one history entry corresponding to the current state of the page
@@ -50,19 +52,6 @@ const HistoryView: React.FC<Props> = ({ pageId }) => {
     return () => window.removeEventListener("testing-mode-replace-content-for-screenshot", callback)
   }, [currentRevision, selectedRevision])
 
-  if (error) {
-    return (
-      <div>
-        <h1>{t("error-title")}</h1>
-        <pre>{JSON.stringify(error, undefined, 2)}</pre>
-      </div>
-    )
-  }
-
-  if (isLoading || !data) {
-    return <div>{t("loading-text")}</div>
-  }
-
   function onCompare(ph: PageHistory) {
     setSelectedTitle(ph.title)
     setSelectedRevision(JSON.stringify(ph.content, null, 2))
@@ -74,32 +63,40 @@ const HistoryView: React.FC<Props> = ({ pageId }) => {
   }
 
   return (
-    <div className={monacoFontFixer}>
-      <p
-        className={css`
-          text-align: center;
-        `}
-      >
-        {t("previous-title-current-title", {
-          "current-title": currentTitle,
-          "selected-title": selectedTitle,
-        })}
-      </p>
-      <DiffEditor
-        height="40vh"
-        // eslint-disable-next-line i18next/no-literal-string
-        language="json"
-        original={currentRevision || t("loading-text")}
-        modified={selectedRevision || t("loading-text")}
-        options={{ readOnly: true, fontFamily: monospaceFont }}
-      />
-      <HistoryList
-        pageId={pageId}
-        initialSelectedRevisionId={data.id}
-        onCompare={onCompare}
-        onRestore={onRestore}
-      />
-    </div>
+    <>
+      {getCurrentPageHistory.isError && (
+        <ErrorBanner variant={"readOnly"} error={getCurrentPageHistory.error} />
+      )}
+      {getCurrentPageHistory.isLoading && <Spinner variant={"medium"} />}
+      {getCurrentPageHistory.isSuccess && (
+        <div className={monacoFontFixer}>
+          <p
+            className={css`
+              text-align: center;
+            `}
+          >
+            {t("previous-title-current-title", {
+              "current-title": currentTitle,
+              "selected-title": selectedTitle,
+            })}
+          </p>
+          <DiffEditor
+            height="40vh"
+            // eslint-disable-next-line i18next/no-literal-string
+            language="json"
+            original={currentRevision || t("loading-text")}
+            modified={selectedRevision || t("loading-text")}
+            options={{ readOnly: true, fontFamily: monospaceFont }}
+          />
+          <HistoryList
+            pageId={pageId}
+            initialSelectedRevisionId={getCurrentPageHistory.data.id}
+            onCompare={onCompare}
+            onRestore={onRestore}
+          />
+        </div>
+      )}
+    </>
   )
 }
 

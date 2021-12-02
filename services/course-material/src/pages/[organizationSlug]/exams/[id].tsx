@@ -6,6 +6,7 @@ import { useQuery } from "react-query"
 
 import Layout from "../../../components/Layout"
 import Page from "../../../components/Page"
+import ExamStartBanner from "../../../components/exams/ExamStartBanner"
 import ExamTimer from "../../../components/exams/ExamTimer"
 import CoursePageContext, {
   CoursePageDispatch,
@@ -13,6 +14,7 @@ import CoursePageContext, {
 } from "../../../contexts/CoursePageContext"
 import coursePageStateReducer from "../../../reducers/coursePageStateReducer"
 import { enrollInExam, fetchExam } from "../../../services/backend"
+import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import { respondToOrLarger } from "../../../shared-module/styles/respond"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
@@ -63,14 +65,14 @@ const Exam: React.FC<ExamProps> = ({ query }) => {
     return (
       <>
         <Layout organizationSlug={query.organizationSlug}>
-          <button
-            onClick={async () => {
-              await enrollInExam(examId)
-              exam.refetch()
-            }}
-          >
-            {t("enroll")}
-          </button>
+          <div className={normalWidthCenteredComponentStyles}>
+            <ExamStartBanner
+              onStart={async () => {
+                await enrollInExam(examId)
+                exam.refetch()
+              }}
+            />
+          </div>
         </Layout>
       </>
     )

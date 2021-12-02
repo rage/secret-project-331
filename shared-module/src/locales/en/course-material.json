@@ -80,9 +80,12 @@
   "screen-reader-opens-in-new-tab": "(opens in a new tab)",
   "error-page-without-course": "Error: Page is not associated with any course",
   "course-title": "Course: {{title}}",
+  "things-to-know-before-you-start": "Things to know before you start!",
   "max-score-n-marks": "Max score: <2>{{marks}} marks</2>",
   "started-at-time": "Started: {{time}}",
   "ends-at-time": "Ends: {{time}}",
   "enroll": "Enroll",
-  "instructions": "Instructions"
+  "start-the-exam": "Start the exam!",
+  "instructions": "Instructions",
+  "template-exercise-instructions": "You can submit your answer to each question to save their state before submitting the exam. You will see the results after you submit the exam or the timer runs out."
 }

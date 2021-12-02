@@ -183,7 +183,6 @@
 <span id="183">183</span>
 <span id="184">184</span>
 <span id="185">185</span>
-<span id="186">186</span>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0`.
 
@@ -228,10 +227,9 @@ Represents error messages that are sent in responses.
 # Example
 ```json
 {
-    &quot;type&quot;: &quot;https://httpstatuses.com/500&quot;,
-    &quot;status&quot;: 500,
     &quot;title&quot;: &quot;Internal Server Error&quot;,
-    &quot;detail&quot;: &quot;pool timed out while waiting for an open connection&quot;
+    &quot;message&quot;: &quot;pool timed out while waiting for an open connection&quot;
+    &quot;source&quot;: &quot;source of error&quot;
 }
 ```
 */</span>

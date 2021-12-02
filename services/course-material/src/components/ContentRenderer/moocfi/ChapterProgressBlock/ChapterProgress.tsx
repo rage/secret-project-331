@@ -5,7 +5,7 @@ import { useQuery } from "react-query"
 
 import { fetchUserChapterInstanceChapterProgress } from "../../../../services/backend"
 import CircularProgress from "../../../../shared-module/components/CourseProgress/CircularProgress"
-import { courseMaterialCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import GenericLoading from "../../../GenericLoading"
 
 interface ChapterProgressProps {
@@ -29,7 +29,7 @@ const ChapterProgress: React.FC<ChapterProgressProps> = ({ chapterId, courseInst
   }
 
   return (
-    <div className={courseMaterialCenteredComponentStyles}>
+    <div className={normalWidthCenteredComponentStyles}>
       <div
         className={css`
           width: 100%;

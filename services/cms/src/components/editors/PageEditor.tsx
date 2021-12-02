@@ -14,7 +14,7 @@ import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
 import { CmsPageUpdate, ContentManagementPage, Page } from "../../shared-module/bindings"
 import DebugModal from "../../shared-module/components/DebugModal"
 import Spinner from "../../shared-module/components/Spinner"
-import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
+import { cmsNormalWidthCenteredComponentStyles } from "../../styles/EditorStyles"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 import { denormalizeDocument, normalizeDocument } from "../../utils/documentSchemaProcessor"
@@ -97,7 +97,7 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
   return (
     <EditorContentDispatch.Provider value={contentDispatch}>
       <div className="editor__component">
-        <div className={normalWidthCenteredComponentStyles}>
+        <div className={cmsNormalWidthCenteredComponentStyles}>
           {error && <pre>{error}</pre>}
           <LoadingButton
             // eslint-disable-next-line i18next/no-literal-string
@@ -112,7 +112,7 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
           <UpdatePageDetailsForm title={title} setTitle={setTitle} />
         </div>
       </div>
-      <div className={normalWidthCenteredComponentStyles}>
+      <div className={cmsNormalWidthCenteredComponentStyles}>
         <GutenbergEditor
           content={content}
           onContentChange={(value) => contentDispatch({ type: "setContent", payload: value })}
@@ -127,7 +127,7 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
       <div className="editor__component">
         <div
           className={css`
-            ${normalWidthCenteredComponentStyles}
+            ${cmsNormalWidthCenteredComponentStyles}
             margin-top: 1rem;
             margin-bottom: 1rem;
           `}

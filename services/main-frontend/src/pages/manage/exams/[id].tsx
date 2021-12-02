@@ -7,7 +7,7 @@ import Layout from "../../../components/Layout"
 import { fetchExam, setCourse, unsetCourse } from "../../../services/backend/exams"
 import { ErrorResponse } from "../../../shared-module/bindings"
 import { isErrorResponse } from "../../../shared-module/bindings.guard"
-import { frontendWideWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
+import { wideWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
@@ -115,7 +115,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
     <Layout frontPageUrl={"/"} navVariant={"complex"}>
       <div
         className={css`
-          ${frontendWideWidthCenteredComponentStyles}
+          ${wideWidthCenteredComponentStyles}
           margin-bottom: 1rem;
         `}
       >

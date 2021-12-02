@@ -17,7 +17,7 @@ import { isErrorResponse } from "../../../../shared-module/bindings.guard"
 import Button from "../../../../shared-module/components/Button"
 import Spinner from "../../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
-import { frontendWideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import basePath from "../../../../shared-module/utils/base-path"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
@@ -158,7 +158,7 @@ const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) 
     <Layout frontPageUrl={basePath()} navVariant="complex">
       <div
         className={css`
-          ${frontendWideWidthCenteredComponentStyles}
+          ${wideWidthCenteredComponentStyles}
           margin-bottom: 1rem;
         `}
       >

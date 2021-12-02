@@ -8,8 +8,8 @@ import {
   BlockProposalAction,
   BlockProposalInfo,
   PageProposal,
-} from "../shared-module/bindings"
-import Button from "../shared-module/components/Button"
+} from "../../../../../../shared-module/bindings"
+import Button from "../../../../../../shared-module/components/Button"
 
 export interface Props {
   proposal: PageProposal

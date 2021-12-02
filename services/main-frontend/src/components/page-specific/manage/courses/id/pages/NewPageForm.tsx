@@ -4,9 +4,9 @@ import { TextField } from "@material-ui/core"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { postNewPage } from "../../services/backend/pages"
-import Button from "../../shared-module/components/Button"
-import { normalizePath } from "../../utils/normalizePath"
+import { postNewPage } from "../../../../../../services/backend/pages"
+import Button from "../../../../../../shared-module/components/Button"
+import { normalizePath } from "../../../../../../utils/normalizePath"
 
 const PathFieldWithPrefixElement = styled.div`
   display: flex;

@@ -4,7 +4,7 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import Layout from "../../../../components/Layout"
-import FeedbackList from "../../../../components/lists/FeedbackList"
+import FeedbackList from "../../../../components/page-specific/manage/courses/id/feedback/FeedbackList"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import { frontendWideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import {

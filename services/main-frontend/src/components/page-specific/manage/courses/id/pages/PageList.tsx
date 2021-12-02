@@ -6,10 +6,11 @@ import { Dialog } from "@material-ui/core"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { deletePage } from "../../services/backend/pages"
-import { Chapter, Page } from "../../shared-module/bindings"
-import Button from "../../shared-module/components/Button"
-import NewPageForm from "../forms/NewPageForm"
+import { deletePage } from "../../../../../../services/backend/pages"
+import { Chapter, Page } from "../../../../../../shared-module/bindings"
+import Button from "../../../../../../shared-module/components/Button"
+
+import NewPageForm from "./NewPageForm"
 
 const DeleteButton = styled.button`
   border: 0;

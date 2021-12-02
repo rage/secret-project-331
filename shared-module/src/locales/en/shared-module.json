@@ -38,5 +38,6 @@
   "please-sign-in-to-view-this-page": "Please sign in to view this page",
   "error-part-of-page-has-crashed-error": "Part of page has crashed: {{error}}",
   "hide-trace": "Hide trace",
-  "show-trace": "Show trace"
+  "show-trace": "Show trace",
+  "error-title": "Error"
 }

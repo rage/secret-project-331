@@ -35,6 +35,7 @@ export function validateResponse<T, U>(
       source: response.request?.responseURL,
     }
     response.data = error
+    response.status = 422
     throw response
   }
 }

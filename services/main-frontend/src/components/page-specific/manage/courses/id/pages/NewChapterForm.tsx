@@ -4,8 +4,8 @@ import { TextField } from "@material-ui/core"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { postNewChapter } from "../../services/backend/chapters"
-import Button from "../../shared-module/components/Button"
+import { postNewChapter } from "../../../../../../services/backend/chapters"
+import Button from "../../../../../../shared-module/components/Button"
 
 const StyledTextField = styled(TextField)`
   margin: 0.3rem;

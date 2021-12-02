@@ -28,9 +28,9 @@ const EditProposalList: React.FC<Props> = ({ courseId, pending, perPage }) => {
   }
   const [page, setPage] = useState(initialPage)
 
-  const getEditProposalCount = useQuery(`edit-proposal-count-${courseId}`, () => {
-    return fetchEditProposalCount(courseId)
-  })
+  const getEditProposalCount = useQuery(`edit-proposal-count-${courseId}`, () =>
+    fetchEditProposalCount(courseId),
+  )
 
   if (getEditProposalCount.isError) {
     return <ErrorBanner variant={"readOnly"} error={getEditProposalCount.error} />

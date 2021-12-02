@@ -5,7 +5,8 @@ import { fetchFeedback, markAsRead } from "../../../../../../services/backend/fe
 import { Feedback } from "../../../../../../shared-module/bindings"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
-import FeedbackView from "../../../../../FeedbackView"
+
+import FeedbackView from "./FeedbackView"
 
 interface Props {
   courseId: string

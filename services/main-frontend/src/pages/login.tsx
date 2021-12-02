@@ -7,7 +7,7 @@ import Layout from "../components/Layout"
 import LoginStateContext from "../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../shared-module/hooks/useQueryParameter"
 import { login } from "../shared-module/services/backend/auth"
-import { frontendWideWidthCenteredComponentStyles } from "../shared-module/styles/componentStyles"
+import { wideWidthCenteredComponentStyles } from "../shared-module/styles/componentStyles"
 import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 
 const Login: React.FC = () => {
@@ -22,7 +22,7 @@ const Login: React.FC = () => {
 
   return (
     <Layout>
-      <div className={frontendWideWidthCenteredComponentStyles}>
+      <div className={wideWidthCenteredComponentStyles}>
         <form
           onSubmit={async (event) => {
             event.preventDefault()

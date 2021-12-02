@@ -9,10 +9,12 @@ import { useTranslation } from "react-i18next"
 
 import { EditorContentDispatch } from "../../contexts/EditorContentContext"
 import { baseTheme, primaryFont, typography } from "../../shared-module/styles"
-import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import { defaultContainerWidth } from "../../shared-module/styles/constants"
 import { runCallbackIfEnterPressed } from "../../shared-module/utils/accessibility"
-import { gutenbergControlsVisible } from "../../styles/EditorStyles"
+import {
+  cmsNormalWidthCenteredComponentStyles,
+  gutenbergControlsVisible,
+} from "../../styles/EditorStyles"
 
 import ChooseExerciseTaskType from "./ChooseExerciseTaskType"
 import { exerciseTaskTypes } from "./ChooseExerciseTaskType/ExerciseServiceList"
@@ -92,7 +94,7 @@ const ExerciseTaskEditor: React.FC<BlockEditProps<ExerciseTaskAttributes>> = ({
 
   return (
     <div>
-      <div className={normalWidthCenteredComponentStyles}>
+      <div className={cmsNormalWidthCenteredComponentStyles}>
         <div
           className={css`
             align-items: stretch;

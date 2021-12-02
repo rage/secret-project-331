@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import { BlockRendererProps } from "../.."
 import CoursePageContext from "../../../../contexts/CoursePageContext"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
-import { courseMaterialCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import GenericLoading from "../../../GenericLoading"
 
@@ -31,7 +31,7 @@ const PagesInChapterBlock: React.FC<BlockRendererProps<unknown>> = () => {
   }
 
   return (
-    <div className={courseMaterialCenteredComponentStyles}>
+    <div className={normalWidthCenteredComponentStyles}>
       <PagesInChapter
         chapterId={chapterId}
         organizationSlug={organizationSlug}

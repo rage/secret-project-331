@@ -11,7 +11,7 @@ import { SubmissionResult } from "../../../../shared-module/bindings"
 import Button from "../../../../shared-module/components/Button"
 import DebugModal from "../../../../shared-module/components/DebugModal"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
-import { courseMaterialCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import { defaultContainerWidth } from "../../../../shared-module/styles/constants"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import GenericLoading from "../../../GenericLoading"
@@ -76,7 +76,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
     >
       <div
         className={css`
-          ${courseMaterialCenteredComponentStyles}
+          ${normalWidthCenteredComponentStyles}
           display: flex;
           align-items: center;
           margin-bottom: 1.5rem;
@@ -133,7 +133,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
       )}
       <div
         className={css`
-          ${courseMaterialCenteredComponentStyles}
+          ${normalWidthCenteredComponentStyles}
           button {
             margin-bottom: 0.5rem;
           }

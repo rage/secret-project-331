@@ -1,9 +1,9 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { markAsRead } from "../services/backend/feedback"
-import { Feedback } from "../shared-module/bindings"
-import Button from "../shared-module/components/Button"
+import { markAsRead } from "../../../../../../services/backend/feedback"
+import { Feedback } from "../../../../../../shared-module/bindings"
+import Button from "../../../../../../shared-module/components/Button"
 
 export interface FeedbackViewProps {
   feedback: Feedback

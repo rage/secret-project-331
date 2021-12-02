@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../../.."
 import { ImageAttributes } from "../../../../../../types/GutenbergBlockAttributes"
-import { courseMaterialCenteredComponentStyles } from "../../../../../shared-module/styles/componentStyles"
+import { normalWidthCenteredComponentStyles } from "../../../../../shared-module/styles/componentStyles"
 import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
 
 const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => {
@@ -37,7 +37,7 @@ const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => 
   return (
     <div
       className={css`
-        ${courseMaterialCenteredComponentStyles}
+        ${normalWidthCenteredComponentStyles}
       `}
     >
       <figure

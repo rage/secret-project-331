@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 
 import { BlockRendererProps } from "../.."
 import { PullquoteAttributes } from "../../../../../types/GutenbergBlockAttributes"
-import { courseMaterialCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import colorMapper from "../../../../styles/colorMapper"
 import { sanitizeCourseMaterialHtml } from "../../../../utils/sanitizeCourseMaterialHtml"
 
@@ -27,7 +27,7 @@ const PullquoteBlock: React.FC<BlockRendererProps<PullquoteAttributes>> = ({ dat
   return (
     <div
       className={css`
-        ${courseMaterialCenteredComponentStyles}
+        ${normalWidthCenteredComponentStyles}
         ${textAlignNotCenterWidth}
       `}
     >

@@ -19,7 +19,7 @@ import { isErrorResponse } from "../../shared-module/bindings.guard"
 import Button from "../../shared-module/components/Button"
 import DebugModal from "../../shared-module/components/DebugModal"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
-import { frontendWideWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
+import { wideWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import { courseMaterialPageHref } from "../../shared-module/utils/cross-routing"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
@@ -85,7 +85,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
   return (
     // Removing frontPageUrl for some unsolved reason returns to organization front page rather than root
     <Layout frontPageUrl="/">
-      <div className={frontendWideWidthCenteredComponentStyles}>
+      <div className={wideWidthCenteredComponentStyles}>
         <h1>{t("title-organization-courses")}</h1>
         <OrganizationImageWidget
           organization={dataOrg}

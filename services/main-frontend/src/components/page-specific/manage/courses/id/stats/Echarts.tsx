@@ -2,7 +2,7 @@ import { EChartsOption } from "echarts/types/src/export/option"
 import dynamic from "next/dynamic"
 import React from "react"
 
-import Spinner from "../shared-module/components/Spinner"
+import Spinner from "../../../../../../shared-module/components/Spinner"
 
 const ReactECharts = dynamic(() => import("echarts-for-react"), {
   ssr: false,

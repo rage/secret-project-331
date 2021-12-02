@@ -3,7 +3,7 @@ import React from "react"
 
 import { BlockRendererProps } from "../.."
 import { HtmlAttributes } from "../../../../../types/GutenbergBlockAttributes"
-import { courseMaterialCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import { sanitizeCourseMaterialHtml } from "../../../../utils/sanitizeCourseMaterialHtml"
 
 const CustomHTMLBlock: React.FC<BlockRendererProps<HtmlAttributes>> = ({ data }) => {
@@ -12,7 +12,7 @@ const CustomHTMLBlock: React.FC<BlockRendererProps<HtmlAttributes>> = ({ data })
   return (
     <div
       className={css`
-        ${courseMaterialCenteredComponentStyles}
+        ${normalWidthCenteredComponentStyles}
       `}
       dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(content ?? "undefined") }}
     ></div>

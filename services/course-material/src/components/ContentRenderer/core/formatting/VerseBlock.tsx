@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 
 import { BlockRendererProps } from "../.."
 import { VerseAttributes } from "../../../../../types/GutenbergBlockAttributes"
-import { courseMaterialCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import colorMapper from "../../../../styles/colorMapper"
 import fontSizeMapper from "../../../../styles/fontSizeMapper"
 import { sanitizeCourseMaterialHtml } from "../../../../utils/sanitizeCourseMaterialHtml"
@@ -23,7 +23,7 @@ const VerseBlock: React.FC<BlockRendererProps<VerseAttributes>> = ({ data }) => 
   return (
     <pre
       className={css`
-        ${courseMaterialCenteredComponentStyles}
+        ${normalWidthCenteredComponentStyles}
         ${backgroundColor && `background: ${colorMapper(backgroundColor)};`}
         ${gradient && `background: ${colorMapper(gradient)};`}
         ${textColor && `color: ${colorMapper(textColor)};`}

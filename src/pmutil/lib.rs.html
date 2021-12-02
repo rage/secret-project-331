@@ -91,17 +91,17 @@
 <span class="doccomment">///[syn::Ident]:../syn/struct.Ident.html</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IdentExt</span> {
     <span class="doccomment">/// Creates a new ident with same span by applying `map` to `self`.</span>
-    <span class="kw">fn</span> <span class="ident">new_ident_with</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ident</span>
+    <span class="kw">fn</span> <span class="ident">new_ident_with</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="ident">F</span>) -&gt; <span class="ident">Ident</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">S</span>,
+        <span class="ident">F</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) -&gt; <span class="ident">S</span>,
         <span class="ident">S</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>;
 }
 
 <span class="kw">impl</span> <span class="ident">IdentExt</span> <span class="kw">for</span> <span class="ident">Ident</span> {
     <span class="doccomment">/// Creates a new ident with same span by applying `map` to `self`.</span>
-    <span class="kw">fn</span> <span class="ident">new_ident_with</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ident</span>
+    <span class="kw">fn</span> <span class="ident">new_ident_with</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="ident">F</span>) -&gt; <span class="ident">Ident</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">S</span>,
+        <span class="ident">F</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) -&gt; <span class="ident">S</span>,
         <span class="ident">S</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
     {
         <span class="ident">Ident::new</span>(<span class="ident">map</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="self">self</span>)).<span class="ident">as_ref</span>(), <span class="self">self</span>.<span class="ident">span</span>())
@@ -109,14 +109,14 @@
 }
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ToTokensExt</span>: <span class="ident">ToTokens</span> {
-    <span class="kw">fn</span> <span class="ident">dump</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream</span> {
+    <span class="kw">fn</span> <span class="ident">dump</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tmp</span> <span class="op">=</span> <span class="ident">TokenStream::new</span>();
         <span class="self">self</span>.<span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tmp</span>);
         <span class="ident">tmp</span>
     }
 
     <span class="doccomment">/// Usage: `Quote::new(body.first_last())`</span>
-    <span class="kw">fn</span> <span class="ident">first_last</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">respan::FirstLast</span> {
+    <span class="kw">fn</span> <span class="ident">first_last</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">respan::FirstLast</span> {
         <span class="ident">respan::FirstLast::from_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)
     }
 }

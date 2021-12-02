@@ -45,14 +45,14 @@
 <span id="45">45</span>
 </pre><pre class="rust"><code><span class="doccomment">/// Copied from https://users.rust-lang.org/t/iterator-need-to-identify-the-last-element/8836/3</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IdentifyLast</span>: <span class="ident">Iterator</span> <span class="op">+</span> <span class="ident">Sized</span> {
-    <span class="kw">fn</span> <span class="ident">identify_last</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">identify_last</span>(<span class="self">self</span>) -&gt; <span class="ident">Iter</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>;
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">It</span><span class="op">&gt;</span> <span class="ident">IdentifyLast</span> <span class="kw">for</span> <span class="ident">It</span>
 <span class="kw">where</span>
     <span class="ident">It</span>: <span class="ident">Iterator</span>,
 {
-    <span class="kw">fn</span> <span class="ident">identify_last</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">identify_last</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">Iter</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">e</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">next</span>();
         <span class="ident">Iter</span> {
             <span class="ident">iter</span>: <span class="self">self</span>,
@@ -75,12 +75,12 @@
 {
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> (<span class="ident">bool</span>, <span class="ident">It::Item</span>);
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">buffer</span>.<span class="ident">take</span>() {
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">iter</span>.<span class="ident">next</span>() {
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>((<span class="bool-val">true</span>, <span class="ident">e</span>)),
-                <span class="prelude-val">Some</span>(<span class="ident">f</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="prelude-val">Some</span>(<span class="ident">e</span>) =&gt; <span class="kw">match</span> <span class="self">self</span>.<span class="ident">iter</span>.<span class="ident">next</span>() {
+                <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Some</span>((<span class="bool-val">true</span>, <span class="ident">e</span>)),
+                <span class="prelude-val">Some</span>(<span class="ident">f</span>) =&gt; {
                     <span class="self">self</span>.<span class="ident">buffer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">f</span>);
                     <span class="prelude-val">Some</span>((<span class="bool-val">false</span>, <span class="ident">e</span>))
                 }

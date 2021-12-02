@@ -467,7 +467,7 @@
         <span class="ident">chapter</span>: <span class="kw-2">&amp;</span><span class="ident">DatabaseChapter</span>,
         <span class="ident">file_store</span>: <span class="kw-2">&amp;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FileStore</span><span class="op">&gt;</span>,
         <span class="ident">app_conf</span>: <span class="kw-2">&amp;</span><span class="ident">ApplicationConfiguration</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    ) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">chapter_image_url</span> <span class="op">=</span> <span class="ident">chapter</span>.<span class="ident">chapter_image_path</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">image</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">PathBuf::from</span>(<span class="ident">image</span>);
             <span class="ident">file_store</span>.<span class="ident">get_download_url</span>(<span class="ident">path</span>.<span class="ident">as_path</span>(), <span class="ident">app_conf</span>)
@@ -496,7 +496,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ChapterStatus</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::Closed</span>
     }
 }
@@ -534,7 +534,7 @@
     <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
     <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">chapter_number</span>: <span class="ident">i32</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 INSERT INTO chapters (name, course_id, chapter_number)
@@ -554,7 +554,7 @@ RETURNING id
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">front_page_id</span>: <span class="ident">Uuid</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;UPDATE chapters SET front_page_id = $1 WHERE id = $2&quot;</span>,
         <span class="ident">front_page_id</span>,
@@ -569,7 +569,7 @@ RETURNING id
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">opens_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;UPDATE chapters SET opens_at = $1 WHERE id = $2&quot;</span>,
         <span class="ident">opens_at</span>,
@@ -581,7 +581,7 @@ RETURNING id
 }
 
 <span class="doccomment">/// Checks the opens_at field for the chapter and compares it to the current time. If null, the chapter is always open.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">is_open</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">is_open</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
         <span class="string">r#&quot;
 SELECT opens_at
@@ -599,7 +599,7 @@ WHERE id = $1
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_chapter</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">DatabaseChapter</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">DatabaseChapter</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">chapter</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">DatabaseChapter</span>,
         <span class="string">&quot;
@@ -613,7 +613,7 @@ where id = $1;&quot;</span>,
     <span class="prelude-val">Ok</span>(<span class="ident">chapter</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_id</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_id</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(<span class="string">&quot;SELECT course_id from chapters where id = $1&quot;</span>, <span class="ident">chapter_id</span>)
         .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
         .<span class="kw">await</span><span class="question-mark">?</span>
@@ -625,7 +625,7 @@ where id = $1;&quot;</span>,
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">chapter_update</span>: <span class="ident">ChapterUpdate</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">DatabaseChapter</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">DatabaseChapter</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">DatabaseChapter</span>,
         <span class="string">r#&quot;
@@ -648,7 +648,7 @@ RETURNING *;
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">chapter_image_path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">DatabaseChapter</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">DatabaseChapter</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">updated_chapter</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">DatabaseChapter</span>,
         <span class="string">&quot;
@@ -686,7 +686,7 @@ RETURNING *;&quot;</span>,
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">course_chapters</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DatabaseChapter</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DatabaseChapter</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">chapters</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">DatabaseChapter</span>,
         <span class="string">r#&quot;
@@ -715,7 +715,7 @@ WHERE course_id = $1
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">course_instance_chapters</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DatabaseChapter</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DatabaseChapter</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">chapters</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">DatabaseChapter</span>,
         <span class="string">r#&quot;
@@ -745,7 +745,7 @@ WHERE course_id = (SELECT course_id FROM course_instances WHERE id = $1)
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">chapter</span>: <span class="ident">NewChapter</span>,
     <span class="ident">user</span>: <span class="ident">Uuid</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span>(<span class="ident">DatabaseChapter</span>, <span class="ident">Page</span>)<span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>(<span class="ident">DatabaseChapter</span>, <span class="ident">Page</span>)<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">chapter</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
@@ -790,7 +790,7 @@ RETURNING *;
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_chapter</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">DatabaseChapter</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">DatabaseChapter</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">deleted</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">DatabaseChapter</span>,
         <span class="string">r#&quot;
@@ -811,7 +811,7 @@ RETURNING *;
     <span class="ident">course_instance_id</span>: <span class="kw-2">&amp;</span><span class="ident">Uuid</span>,
     <span class="ident">chapter_id</span>: <span class="kw-2">&amp;</span><span class="ident">Uuid</span>,
     <span class="ident">user_id</span>: <span class="kw-2">&amp;</span><span class="ident">Uuid</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserCourseInstanceChapterProgress</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserCourseInstanceChapterProgress</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connection</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">exercises</span> <span class="op">=</span>

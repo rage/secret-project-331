@@ -1517,15 +1517,15 @@
 <span class="doccomment">/// parsing from a URL-like type, whilst also supporting proxy schemes</span>
 <span class="doccomment">/// built directly using the factory methods.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IntoProxyScheme</span> {
-    <span class="kw">fn</span> <span class="ident">into_proxy_scheme</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">ProxyScheme</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">into_proxy_scheme</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">ProxyScheme</span><span class="op">&gt;</span>;
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">IntoUrl</span><span class="op">&gt;</span> <span class="ident">IntoProxyScheme</span> <span class="kw">for</span> <span class="ident">S</span> {
-    <span class="kw">fn</span> <span class="ident">into_proxy_scheme</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">ProxyScheme</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">into_proxy_scheme</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">ProxyScheme</span><span class="op">&gt;</span> {
         <span class="comment">// validate the URL</span>
         <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">as_str</span>().<span class="ident">into_url</span>() {
-            <span class="prelude-val">Ok</span>(<span class="ident">ok</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ok</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Ok</span>(<span class="ident">ok</span>) =&gt; <span class="ident">ok</span>,
+            <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
                 <span class="comment">// the issue could have been caused by a missing scheme, so we try adding http://</span>
                 <span class="macro">format!</span>(<span class="string">&quot;http://{}&quot;</span>, <span class="self">self</span>.<span class="ident">as_str</span>())
                     .<span class="ident">into_url</span>()
@@ -1551,7 +1551,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">IntoProxyScheme</span> <span class="kw">for</span> <span class="ident">ProxyScheme</span> {
-    <span class="kw">fn</span> <span class="ident">into_proxy_scheme</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">ProxyScheme</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">into_proxy_scheme</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">ProxyScheme</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
 }
@@ -1571,7 +1571,7 @@
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// # fn main() {}</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">http</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">IntoProxyScheme</span><span class="op">&gt;</span>(<span class="ident">proxy_scheme</span>: <span class="ident">U</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Proxy</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">http</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">IntoProxyScheme</span><span class="op">&gt;</span>(<span class="ident">proxy_scheme</span>: <span class="ident">U</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Proxy</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">Proxy::new</span>(<span class="ident">Intercept::Http</span>(
             <span class="ident">proxy_scheme</span>.<span class="ident">into_proxy_scheme</span>()<span class="question-mark">?</span>,
         )))
@@ -1591,7 +1591,7 @@
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// # fn main() {}</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">https</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">IntoProxyScheme</span><span class="op">&gt;</span>(<span class="ident">proxy_scheme</span>: <span class="ident">U</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Proxy</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">https</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">IntoProxyScheme</span><span class="op">&gt;</span>(<span class="ident">proxy_scheme</span>: <span class="ident">U</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Proxy</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">Proxy::new</span>(<span class="ident">Intercept::Https</span>(
             <span class="ident">proxy_scheme</span>.<span class="ident">into_proxy_scheme</span>()<span class="question-mark">?</span>,
         )))
@@ -1611,7 +1611,7 @@
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// # fn main() {}</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">IntoProxyScheme</span><span class="op">&gt;</span>(<span class="ident">proxy_scheme</span>: <span class="ident">U</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Proxy</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">IntoProxyScheme</span><span class="op">&gt;</span>(<span class="ident">proxy_scheme</span>: <span class="ident">U</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Proxy</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">Proxy::new</span>(<span class="ident">Intercept::All</span>(
             <span class="ident">proxy_scheme</span>.<span class="ident">into_proxy_scheme</span>()<span class="question-mark">?</span>,
         )))
@@ -1637,9 +1637,9 @@
     <span class="doccomment">/// # Ok(())</span>
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// # fn main() {}</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">custom</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">U</span>: <span class="ident">IntoProxyScheme</span><span class="op">&gt;</span>(<span class="ident">fun</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Proxy</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">custom</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">U</span>: <span class="ident">IntoProxyScheme</span><span class="op">&gt;</span>(<span class="ident">fun</span>: <span class="ident">F</span>) -&gt; <span class="ident">Proxy</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">Url</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
         <span class="ident">Proxy::new</span>(<span class="ident">Intercept::Custom</span>(<span class="ident">Custom</span> {
             <span class="ident">auth</span>: <span class="prelude-val">None</span>,
@@ -1647,7 +1647,7 @@
         }))
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">system</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Proxy</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">system</span>() -&gt; <span class="ident">Proxy</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">proxy</span> <span class="op">=</span> <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__internal_proxy_sys_no_cache&quot;</span>) {
             <span class="ident">Proxy::new</span>(<span class="ident">Intercept::System</span>(<span class="ident">Arc::new</span>(<span class="ident">get_sys_proxies</span>(
                 <span class="ident">get_from_registry</span>(),
@@ -1659,7 +1659,7 @@
         <span class="ident">proxy</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">intercept</span>: <span class="ident">Intercept</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Proxy</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">intercept</span>: <span class="ident">Intercept</span>) -&gt; <span class="ident">Proxy</span> {
         <span class="ident">Proxy</span> {
             <span class="ident">intercept</span>,
             <span class="ident">no_proxy</span>: <span class="prelude-val">None</span>,
@@ -1679,70 +1679,70 @@
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// # fn main() {}</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">basic_auth</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">username</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">password</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Proxy</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">basic_auth</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">username</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">password</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Proxy</span> {
         <span class="self">self</span>.<span class="ident">intercept</span>.<span class="ident">set_basic_auth</span>(<span class="ident">username</span>, <span class="ident">password</span>);
         <span class="self">self</span>
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">maybe_has_http_auth</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">maybe_has_http_auth</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">intercept</span> {
             <span class="ident">Intercept::All</span>(<span class="ident">ProxyScheme::Http</span> { <span class="ident">auth</span>: <span class="prelude-val">Some</span>(..), .. })
             <span class="op">|</span> <span class="ident">Intercept::Http</span>(<span class="ident">ProxyScheme::Http</span> { <span class="ident">auth</span>: <span class="prelude-val">Some</span>(..), .. })
             <span class="comment">// Custom *may* match &#39;http&#39;, so assume so.</span>
-            <span class="op">|</span> <span class="ident">Intercept::Custom</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="ident">Intercept::System</span>(<span class="kw-2">ref</span> <span class="ident">system</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="op">|</span> <span class="ident">Intercept::Custom</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
+            <span class="ident">Intercept::System</span>(<span class="kw-2">ref</span> <span class="ident">system</span>) =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ProxyScheme::Http</span> { <span class="ident">auth</span>, .. }) <span class="op">=</span> <span class="ident">system</span>.<span class="ident">get</span>(<span class="string">&quot;http&quot;</span>) {
                     <span class="ident">auth</span>.<span class="ident">is_some</span>()
                 } <span class="kw">else</span> {
                     <span class="bool-val">false</span>
                 }
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">http_basic_auth</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">Dst</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HeaderValue</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">http_basic_auth</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">Dst</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="ident">D</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HeaderValue</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">intercept</span> {
             <span class="ident">Intercept::All</span>(<span class="ident">ProxyScheme::Http</span> { <span class="kw-2">ref</span> <span class="ident">auth</span>, .. })
-            <span class="op">|</span> <span class="ident">Intercept::Http</span>(<span class="ident">ProxyScheme::Http</span> { <span class="kw-2">ref</span> <span class="ident">auth</span>, .. }) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">auth</span>.<span class="ident">clone</span>(),
-            <span class="ident">Intercept::System</span>(<span class="kw-2">ref</span> <span class="ident">system</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="op">|</span> <span class="ident">Intercept::Http</span>(<span class="ident">ProxyScheme::Http</span> { <span class="kw-2">ref</span> <span class="ident">auth</span>, .. }) =&gt; <span class="ident">auth</span>.<span class="ident">clone</span>(),
+            <span class="ident">Intercept::System</span>(<span class="kw-2">ref</span> <span class="ident">system</span>) =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">proxy</span>) <span class="op">=</span> <span class="ident">system</span>.<span class="ident">get</span>(<span class="string">&quot;http&quot;</span>) {
                     <span class="kw">match</span> <span class="ident">proxy</span> {
-                        <span class="ident">ProxyScheme::Http</span> { <span class="ident">auth</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">auth</span>.<span class="ident">clone</span>(),
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+                        <span class="ident">ProxyScheme::Http</span> { <span class="ident">auth</span>, .. } =&gt; <span class="ident">auth</span>.<span class="ident">clone</span>(),
+                        <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
                     }
                 } <span class="kw">else</span> {
                     <span class="prelude-val">None</span>
                 }
             }
-            <span class="ident">Intercept::Custom</span>(<span class="kw-2">ref</span> <span class="ident">custom</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">custom</span>.<span class="ident">call</span>(<span class="ident">uri</span>).<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">scheme</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">scheme</span> {
-                <span class="ident">ProxyScheme::Http</span> { <span class="ident">auth</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">auth</span>,
-                <span class="ident">ProxyScheme::Https</span> { <span class="ident">auth</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">auth</span>,
+            <span class="ident">Intercept::Custom</span>(<span class="kw-2">ref</span> <span class="ident">custom</span>) =&gt; <span class="ident">custom</span>.<span class="ident">call</span>(<span class="ident">uri</span>).<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">scheme</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">scheme</span> {
+                <span class="ident">ProxyScheme::Http</span> { <span class="ident">auth</span>, .. } =&gt; <span class="ident">auth</span>,
+                <span class="ident">ProxyScheme::Https</span> { <span class="ident">auth</span>, .. } =&gt; <span class="ident">auth</span>,
                 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;socks&quot;</span>)]</span>
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+                <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
             }),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">intercept</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">Dst</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ProxyScheme</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">intercept</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">Dst</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="ident">D</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ProxyScheme</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">intercept</span> {
-            <span class="ident">Intercept::All</span>(<span class="kw-2">ref</span> <span class="ident">u</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">u</span>.<span class="ident">clone</span>()),
-            <span class="ident">Intercept::Http</span>(<span class="kw-2">ref</span> <span class="ident">u</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="ident">uri</span>.<span class="ident">scheme</span>() <span class="op">=</span><span class="op">=</span> <span class="string">&quot;http&quot;</span> {
+            <span class="ident">Intercept::All</span>(<span class="kw-2">ref</span> <span class="ident">u</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">u</span>.<span class="ident">clone</span>()),
+            <span class="ident">Intercept::Http</span>(<span class="kw-2">ref</span> <span class="ident">u</span>) =&gt; {
+                <span class="kw">if</span> <span class="ident">uri</span>.<span class="ident">scheme</span>() <span class="op">==</span> <span class="string">&quot;http&quot;</span> {
                     <span class="prelude-val">Some</span>(<span class="ident">u</span>.<span class="ident">clone</span>())
                 } <span class="kw">else</span> {
                     <span class="prelude-val">None</span>
                 }
             }
-            <span class="ident">Intercept::Https</span>(<span class="kw-2">ref</span> <span class="ident">u</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="ident">uri</span>.<span class="ident">scheme</span>() <span class="op">=</span><span class="op">=</span> <span class="string">&quot;https&quot;</span> {
+            <span class="ident">Intercept::Https</span>(<span class="kw-2">ref</span> <span class="ident">u</span>) =&gt; {
+                <span class="kw">if</span> <span class="ident">uri</span>.<span class="ident">scheme</span>() <span class="op">==</span> <span class="string">&quot;https&quot;</span> {
                     <span class="prelude-val">Some</span>(<span class="ident">u</span>.<span class="ident">clone</span>())
                 } <span class="kw">else</span> {
                     <span class="prelude-val">None</span>
                 }
             }
-            <span class="ident">Intercept::System</span>(<span class="kw-2">ref</span> <span class="ident">map</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Intercept::System</span>(<span class="kw-2">ref</span> <span class="ident">map</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">in_no_proxy</span> <span class="op">=</span> <span class="self">self</span>
                     .<span class="ident">no_proxy</span>
                     .<span class="ident">as_ref</span>()
@@ -1753,23 +1753,23 @@
                     <span class="ident">map</span>.<span class="ident">get</span>(<span class="ident">uri</span>.<span class="ident">scheme</span>()).<span class="ident">cloned</span>()
                 }
             }
-            <span class="ident">Intercept::Custom</span>(<span class="kw-2">ref</span> <span class="ident">custom</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">custom</span>.<span class="ident">call</span>(<span class="ident">uri</span>),
+            <span class="ident">Intercept::Custom</span>(<span class="kw-2">ref</span> <span class="ident">custom</span>) =&gt; <span class="ident">custom</span>.<span class="ident">call</span>(<span class="ident">uri</span>),
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_match</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">Dst</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_match</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">Dst</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="ident">D</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">intercept</span> {
-            <span class="ident">Intercept::All</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="ident">Intercept::Http</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">uri</span>.<span class="ident">scheme</span>() <span class="op">=</span><span class="op">=</span> <span class="string">&quot;http&quot;</span>,
-            <span class="ident">Intercept::Https</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">uri</span>.<span class="ident">scheme</span>() <span class="op">=</span><span class="op">=</span> <span class="string">&quot;https&quot;</span>,
-            <span class="ident">Intercept::System</span>(<span class="kw-2">ref</span> <span class="ident">map</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">map</span>.<span class="ident">contains_key</span>(<span class="ident">uri</span>.<span class="ident">scheme</span>()),
-            <span class="ident">Intercept::Custom</span>(<span class="kw-2">ref</span> <span class="ident">custom</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">custom</span>.<span class="ident">call</span>(<span class="ident">uri</span>).<span class="ident">is_some</span>(),
+            <span class="ident">Intercept::All</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
+            <span class="ident">Intercept::Http</span>(<span class="kw">_</span>) =&gt; <span class="ident">uri</span>.<span class="ident">scheme</span>() <span class="op">==</span> <span class="string">&quot;http&quot;</span>,
+            <span class="ident">Intercept::Https</span>(<span class="kw">_</span>) =&gt; <span class="ident">uri</span>.<span class="ident">scheme</span>() <span class="op">==</span> <span class="string">&quot;https&quot;</span>,
+            <span class="ident">Intercept::System</span>(<span class="kw-2">ref</span> <span class="ident">map</span>) =&gt; <span class="ident">map</span>.<span class="ident">contains_key</span>(<span class="ident">uri</span>.<span class="ident">scheme</span>()),
+            <span class="ident">Intercept::Custom</span>(<span class="kw-2">ref</span> <span class="ident">custom</span>) =&gt; <span class="ident">custom</span>.<span class="ident">call</span>(<span class="ident">uri</span>).<span class="ident">is_some</span>(),
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Proxy</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="ident">f</span>.<span class="ident">debug_tuple</span>(<span class="string">&quot;Proxy&quot;</span>)
             .<span class="ident">field</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">intercept</span>)
             .<span class="ident">field</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">no_proxy</span>)
@@ -1780,7 +1780,7 @@
 <span class="kw">impl</span> <span class="ident">NoProxy</span> {
     <span class="doccomment">/// Returns a new no proxy configration if the NO_PROXY/no_proxy environment variable is set.</span>
     <span class="doccomment">/// Returns None otherwise</span>
-    <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="ident">env::var</span>(<span class="string">&quot;NO_PROXY&quot;</span>)
             .<span class="ident">or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">env::var</span>(<span class="string">&quot;no_proxy&quot;</span>))
             .<span class="ident">unwrap_or_default</span>();
@@ -1793,10 +1793,10 @@
         <span class="kw">for</span> <span class="ident">part</span> <span class="kw">in</span> <span class="ident">parts</span> {
             <span class="kw">match</span> <span class="ident">part</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">IpNet</span><span class="op">&gt;</span>() {
                 <span class="comment">// If we can parse an IP net or address, then use it, otherwise, assume it is a domain</span>
-                <span class="prelude-val">Ok</span>(<span class="ident">ip</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ips</span>.<span class="ident">push</span>(<span class="ident">Ip::Network</span>(<span class="ident">ip</span>)),
-                <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">part</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">IpAddr</span><span class="op">&gt;</span>() {
-                    <span class="prelude-val">Ok</span>(<span class="ident">addr</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ips</span>.<span class="ident">push</span>(<span class="ident">Ip::Address</span>(<span class="ident">addr</span>)),
-                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">domains</span>.<span class="ident">push</span>(<span class="ident">part</span>.<span class="ident">to_owned</span>()),
+                <span class="prelude-val">Ok</span>(<span class="ident">ip</span>) =&gt; <span class="ident">ips</span>.<span class="ident">push</span>(<span class="ident">Ip::Network</span>(<span class="ident">ip</span>)),
+                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">match</span> <span class="ident">part</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">IpAddr</span><span class="op">&gt;</span>() {
+                    <span class="prelude-val">Ok</span>(<span class="ident">addr</span>) =&gt; <span class="ident">ips</span>.<span class="ident">push</span>(<span class="ident">Ip::Address</span>(<span class="ident">addr</span>)),
+                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="ident">domains</span>.<span class="ident">push</span>(<span class="ident">part</span>.<span class="ident">to_owned</span>()),
                 },
             }
         }
@@ -1806,7 +1806,7 @@
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">host</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">host</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
         <span class="comment">// According to RFC3986, raw IPv6 hosts will be wrapped in []. So we need to strip those off</span>
         <span class="comment">// the end in order to parse correctly</span>
         <span class="kw">let</span> <span class="ident">host</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">host</span>.<span class="ident">starts_with</span>(<span class="string">&#39;[&#39;</span>) {
@@ -1817,22 +1817,22 @@
         };
         <span class="kw">match</span> <span class="ident">host</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">IpAddr</span><span class="op">&gt;</span>() {
             <span class="comment">// If we can parse an IP addr, then use it, otherwise, assume it is a domain</span>
-            <span class="prelude-val">Ok</span>(<span class="ident">ip</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">ips</span>.<span class="ident">contains</span>(<span class="ident">ip</span>),
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">domains</span>.<span class="ident">contains</span>(<span class="ident">host</span>),
+            <span class="prelude-val">Ok</span>(<span class="ident">ip</span>) =&gt; <span class="self">self</span>.<span class="ident">ips</span>.<span class="ident">contains</span>(<span class="ident">ip</span>),
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="self">self</span>.<span class="ident">domains</span>.<span class="ident">contains</span>(<span class="ident">host</span>),
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">IpMatcher</span> {
-    <span class="kw">fn</span> <span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">addr</span>: <span class="ident">IpAddr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">addr</span>: <span class="ident">IpAddr</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">for</span> <span class="ident">ip</span> <span class="kw">in</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">iter</span>() {
             <span class="kw">match</span> <span class="ident">ip</span> {
-                <span class="ident">Ip::Address</span>(<span class="ident">address</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">if</span> <span class="kw-2">&amp;</span><span class="ident">addr</span> <span class="op">=</span><span class="op">=</span> <span class="ident">address</span> {
+                <span class="ident">Ip::Address</span>(<span class="ident">address</span>) =&gt; {
+                    <span class="kw">if</span> <span class="kw-2">&amp;</span><span class="ident">addr</span> <span class="op">==</span> <span class="ident">address</span> {
                         <span class="kw">return</span> <span class="bool-val">true</span>;
                     }
                 }
-                <span class="ident">Ip::Network</span>(<span class="ident">net</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Ip::Network</span>(<span class="ident">net</span>) =&gt; {
                     <span class="kw">if</span> <span class="ident">net</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">addr</span>) {
                         <span class="kw">return</span> <span class="bool-val">true</span>;
                     }
@@ -1844,12 +1844,12 @@
 }
 
 <span class="kw">impl</span> <span class="ident">DomainMatcher</span> {
-    <span class="kw">fn</span> <span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">domain</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">domain</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">for</span> <span class="ident">d</span> <span class="kw">in</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">iter</span>() {
             <span class="comment">// First check for a &quot;wildcard&quot; domain match. A single &quot;.&quot; will match anything.</span>
             <span class="comment">// Otherwise, check that the domains are equal</span>
             <span class="kw">if</span> (<span class="ident">d</span>.<span class="ident">starts_with</span>(<span class="string">&#39;.&#39;</span>) <span class="op">&amp;&amp;</span> <span class="ident">domain</span>.<span class="ident">ends_with</span>(<span class="ident">d</span>.<span class="ident">get</span>(<span class="number">1</span>..).<span class="ident">unwrap_or_default</span>()))
-                <span class="op">|</span><span class="op">|</span> <span class="ident">d</span> <span class="op">=</span><span class="op">=</span> <span class="ident">domain</span>
+                <span class="op">|</span><span class="op">|</span> <span class="ident">d</span> <span class="op">==</span> <span class="ident">domain</span>
             {
                 <span class="kw">return</span> <span class="bool-val">true</span>;
             }
@@ -1862,7 +1862,7 @@
     <span class="comment">// To start conservative, keep builders private for now.</span>
 
     <span class="doccomment">/// Proxy traffic via the specified URL over HTTP</span>
-    <span class="kw">fn</span> <span class="ident">http</span>(<span class="ident">host</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">http</span>(<span class="ident">host</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">ProxyScheme::Http</span> {
             <span class="ident">auth</span>: <span class="prelude-val">None</span>,
             <span class="ident">host</span>: <span class="ident">host</span>.<span class="ident">parse</span>().<span class="ident">map_err</span>(<span class="ident"><span class="kw">crate</span>::error::builder</span>)<span class="question-mark">?</span>,
@@ -1870,7 +1870,7 @@
     }
 
     <span class="doccomment">/// Proxy traffic via the specified URL over HTTPS</span>
-    <span class="kw">fn</span> <span class="ident">https</span>(<span class="ident">host</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">https</span>(<span class="ident">host</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">ProxyScheme::Https</span> {
             <span class="ident">auth</span>: <span class="prelude-val">None</span>,
             <span class="ident">host</span>: <span class="ident">host</span>.<span class="ident">parse</span>().<span class="ident">map_err</span>(<span class="ident"><span class="kw">crate</span>::error::builder</span>)<span class="question-mark">?</span>,
@@ -1883,7 +1883,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Current SOCKS5 support is provided via blocking IO.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;socks&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">socks5</span>(<span class="ident">addr</span>: <span class="ident">SocketAddr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">socks5</span>(<span class="ident">addr</span>: <span class="ident">SocketAddr</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">ProxyScheme::Socks5</span> {
             <span class="ident">addr</span>,
             <span class="ident">auth</span>: <span class="prelude-val">None</span>,
@@ -1899,7 +1899,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Current SOCKS5 support is provided via blocking IO.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;socks&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">socks5h</span>(<span class="ident">addr</span>: <span class="ident">SocketAddr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">socks5h</span>(<span class="ident">addr</span>: <span class="ident">SocketAddr</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">ProxyScheme::Socks5</span> {
             <span class="ident">addr</span>,
             <span class="ident">auth</span>: <span class="prelude-val">None</span>,
@@ -1912,42 +1912,42 @@
         <span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">username</span>: <span class="ident">T</span>,
         <span class="ident">password</span>: <span class="ident">U</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    ) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">set_basic_auth</span>(<span class="ident">username</span>, <span class="ident">password</span>);
         <span class="self">self</span>
     }
 
     <span class="kw">fn</span> <span class="ident">set_basic_auth</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">U</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">username</span>: <span class="ident">T</span>, <span class="ident">password</span>: <span class="ident">U</span>) {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">ProxyScheme::Http</span> { <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">auth</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ProxyScheme::Http</span> { <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">auth</span>, .. } =&gt; {
                 <span class="kw">let</span> <span class="ident">header</span> <span class="op">=</span> <span class="ident">encode_basic_auth</span>(<span class="kw-2">&amp;</span><span class="ident">username</span>.<span class="ident">into</span>(), <span class="kw-2">&amp;</span><span class="ident">password</span>.<span class="ident">into</span>());
                 <span class="kw-2">*</span><span class="ident">auth</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">header</span>);
             }
-            <span class="ident">ProxyScheme::Https</span> { <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">auth</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ProxyScheme::Https</span> { <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">auth</span>, .. } =&gt; {
                 <span class="kw">let</span> <span class="ident">header</span> <span class="op">=</span> <span class="ident">encode_basic_auth</span>(<span class="kw-2">&amp;</span><span class="ident">username</span>.<span class="ident">into</span>(), <span class="kw-2">&amp;</span><span class="ident">password</span>.<span class="ident">into</span>());
                 <span class="kw-2">*</span><span class="ident">auth</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">header</span>);
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;socks&quot;</span>)]</span>
-            <span class="ident">ProxyScheme::Socks5</span> { <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">auth</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ProxyScheme::Socks5</span> { <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">auth</span>, .. } =&gt; {
                 <span class="kw-2">*</span><span class="ident">auth</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">username</span>.<span class="ident">into</span>(), <span class="ident">password</span>.<span class="ident">into</span>()));
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">if_no_auth</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">update</span>: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HeaderValue</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">if_no_auth</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">update</span>: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HeaderValue</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ProxyScheme::Http</span> { <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">auth</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ProxyScheme::Http</span> { <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">auth</span>, .. } =&gt; {
                 <span class="kw">if</span> <span class="ident">auth</span>.<span class="ident">is_none</span>() {
                     <span class="kw-2">*</span><span class="ident">auth</span> <span class="op">=</span> <span class="ident">update</span>.<span class="ident">clone</span>();
                 }
             }
-            <span class="ident">ProxyScheme::Https</span> { <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">auth</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ProxyScheme::Https</span> { <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">auth</span>, .. } =&gt; {
                 <span class="kw">if</span> <span class="ident">auth</span>.<span class="ident">is_none</span>() {
                     <span class="kw-2">*</span><span class="ident">auth</span> <span class="op">=</span> <span class="ident">update</span>.<span class="ident">clone</span>();
                 }
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;socks&quot;</span>)]</span>
-            <span class="ident">ProxyScheme::Socks5</span> { .. } <span class="op">=</span><span class="op">&gt;</span> {}
+            <span class="ident">ProxyScheme::Socks5</span> { .. } =&gt; {}
         }
 
         <span class="self">self</span>
@@ -1957,7 +1957,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Supported schemes: HTTP, HTTPS, (SOCKS5, SOCKS5H if `socks` feature is enabled).</span>
     <span class="comment">// Private for now...</span>
-    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">url</span>: <span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">url</span>: <span class="ident">Url</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">use</span> <span class="ident">url::Position</span>;
 
         <span class="comment">// Resolve URL to a host and port</span>
@@ -1965,8 +1965,8 @@
         <span class="kw">let</span> <span class="ident">to_addr</span> <span class="op">=</span> <span class="op">|</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">addrs</span> <span class="op">=</span> <span class="ident">url</span>
                 .<span class="ident">socket_addrs</span>(<span class="op">|</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">url</span>.<span class="ident">scheme</span>() {
-                    <span class="string">&quot;socks5&quot;</span> <span class="op">|</span> <span class="string">&quot;socks5h&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="number">1080</span>),
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+                    <span class="string">&quot;socks5&quot;</span> <span class="op">|</span> <span class="string">&quot;socks5h&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="number">1080</span>),
+                    <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
                 })
                 .<span class="ident">map_err</span>(<span class="ident"><span class="kw">crate</span>::error::builder</span>)<span class="question-mark">?</span>;
             <span class="ident">addrs</span>
@@ -1976,13 +1976,13 @@
         };
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scheme</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">url</span>.<span class="ident">scheme</span>() {
-            <span class="string">&quot;http&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::http</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>[<span class="ident">Position::BeforeHost</span>..<span class="ident">Position::AfterPort</span>])<span class="question-mark">?</span>,
-            <span class="string">&quot;https&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::https</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>[<span class="ident">Position::BeforeHost</span>..<span class="ident">Position::AfterPort</span>])<span class="question-mark">?</span>,
+            <span class="string">&quot;http&quot;</span> =&gt; <span class="ident"><span class="self">Self</span>::http</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>[<span class="ident">Position::BeforeHost</span>..<span class="ident">Position::AfterPort</span>])<span class="question-mark">?</span>,
+            <span class="string">&quot;https&quot;</span> =&gt; <span class="ident"><span class="self">Self</span>::https</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>[<span class="ident">Position::BeforeHost</span>..<span class="ident">Position::AfterPort</span>])<span class="question-mark">?</span>,
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;socks&quot;</span>)]</span>
-            <span class="string">&quot;socks5&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::socks5</span>(<span class="ident">to_addr</span>()<span class="question-mark">?</span>)<span class="question-mark">?</span>,
+            <span class="string">&quot;socks5&quot;</span> =&gt; <span class="ident"><span class="self">Self</span>::socks5</span>(<span class="ident">to_addr</span>()<span class="question-mark">?</span>)<span class="question-mark">?</span>,
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;socks&quot;</span>)]</span>
-            <span class="string">&quot;socks5h&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::socks5h</span>(<span class="ident">to_addr</span>()<span class="question-mark">?</span>)<span class="question-mark">?</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::error::builder</span>(<span class="string">&quot;unknown proxy scheme&quot;</span>)),
+            <span class="string">&quot;socks5h&quot;</span> =&gt; <span class="ident"><span class="self">Self</span>::socks5h</span>(<span class="ident">to_addr</span>()<span class="question-mark">?</span>)<span class="question-mark">?</span>,
+            <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::error::builder</span>(<span class="string">&quot;unknown proxy scheme&quot;</span>)),
         };
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pwd</span>) <span class="op">=</span> <span class="ident">url</span>.<span class="ident">password</span>() {
@@ -1995,37 +1995,37 @@
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">scheme</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+    <span class="kw">fn</span> <span class="ident">scheme</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ProxyScheme::Http</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;http&quot;</span>,
-            <span class="ident">ProxyScheme::Https</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;https&quot;</span>,
+            <span class="ident">ProxyScheme::Http</span> { .. } =&gt; <span class="string">&quot;http&quot;</span>,
+            <span class="ident">ProxyScheme::Https</span> { .. } =&gt; <span class="string">&quot;https&quot;</span>,
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;socks&quot;</span>)]</span>
-            <span class="ident">ProxyScheme::Socks5</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;socks5&quot;</span>,
+            <span class="ident">ProxyScheme::Socks5</span> { .. } =&gt; <span class="string">&quot;socks5&quot;</span>,
         }
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">host</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+    <span class="kw">fn</span> <span class="ident">host</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ProxyScheme::Http</span> { <span class="ident">host</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">host</span>.<span class="ident">as_str</span>(),
-            <span class="ident">ProxyScheme::Https</span> { <span class="ident">host</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">host</span>.<span class="ident">as_str</span>(),
+            <span class="ident">ProxyScheme::Http</span> { <span class="ident">host</span>, .. } =&gt; <span class="ident">host</span>.<span class="ident">as_str</span>(),
+            <span class="ident">ProxyScheme::Https</span> { <span class="ident">host</span>, .. } =&gt; <span class="ident">host</span>.<span class="ident">as_str</span>(),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;socks&quot;</span>)]</span>
-            <span class="ident">ProxyScheme::Socks5</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;socks5&quot;</span>),
+            <span class="ident">ProxyScheme::Socks5</span> { .. } =&gt; <span class="macro">panic!</span>(<span class="string">&quot;socks5&quot;</span>),
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">ProxyScheme</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ProxyScheme::Http</span> { <span class="ident">auth</span>: <span class="ident">_auth</span>, <span class="ident">host</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;http://{}&quot;</span>, <span class="ident">host</span>),
-            <span class="ident">ProxyScheme::Https</span> { <span class="ident">auth</span>: <span class="ident">_auth</span>, <span class="ident">host</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;https://{}&quot;</span>, <span class="ident">host</span>),
+            <span class="ident">ProxyScheme::Http</span> { <span class="ident">auth</span>: <span class="ident">_auth</span>, <span class="ident">host</span> } =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;http://{}&quot;</span>, <span class="ident">host</span>),
+            <span class="ident">ProxyScheme::Https</span> { <span class="ident">auth</span>: <span class="ident">_auth</span>, <span class="ident">host</span> } =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;https://{}&quot;</span>, <span class="ident">host</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;socks&quot;</span>)]</span>
             <span class="ident">ProxyScheme::Socks5</span> {
                 <span class="ident">addr</span>,
                 <span class="ident">auth</span>: <span class="ident">_auth</span>,
                 <span class="ident">remote_dns</span>,
-            } <span class="op">=</span><span class="op">&gt;</span> {
+            } =&gt; {
                 <span class="kw">let</span> <span class="ident">h</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">remote_dns</span> { <span class="string">&quot;h&quot;</span> } <span class="kw">else</span> { <span class="string">&quot;&quot;</span> };
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;socks5{}://{}&quot;</span>, <span class="ident">h</span>, <span class="ident">addr</span>)
             }
@@ -2050,9 +2050,9 @@
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">Intercept::All</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span>)
             <span class="op">|</span> <span class="ident">Intercept::Http</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span>)
-            <span class="op">|</span> <span class="ident">Intercept::Https</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">s</span>.<span class="ident">set_basic_auth</span>(<span class="ident">username</span>, <span class="ident">password</span>),
-            <span class="ident">Intercept::System</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(),
-            <span class="ident">Intercept::Custom</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">custom</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="op">|</span> <span class="ident">Intercept::Https</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">set_basic_auth</span>(<span class="ident">username</span>, <span class="ident">password</span>),
+            <span class="ident">Intercept::System</span>(<span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(),
+            <span class="ident">Intercept::Custom</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">custom</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">header</span> <span class="op">=</span> <span class="ident">encode_basic_auth</span>(<span class="ident">username</span>, <span class="ident">password</span>);
                 <span class="ident">custom</span>.<span class="ident">auth</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">header</span>);
             }
@@ -2064,11 +2064,11 @@
 <span class="kw">struct</span> <span class="ident">Custom</span> {
     <span class="comment">// This auth only applies if the returned ProxyScheme doesn&#39;t have an auth...</span>
     <span class="ident">auth</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HeaderValue</span><span class="op">&gt;</span>,
-    <span class="ident">func</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">ProxyScheme</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>,
+    <span class="ident">func</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">Url</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">ProxyScheme</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Custom</span> {
-    <span class="kw">fn</span> <span class="ident">call</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">Dst</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ProxyScheme</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">call</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">Dst</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="ident">D</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ProxyScheme</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(
             <span class="string">&quot;{}://{}{}{}&quot;</span>,
             <span class="ident">uri</span>.<span class="ident">scheme</span>(),
@@ -2086,12 +2086,12 @@
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Custom</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;_&quot;</span>)
     }
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">encode_basic_auth</span>(<span class="ident">username</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">password</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HeaderValue</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">encode_basic_auth</span>(<span class="ident">username</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">password</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">HeaderValue</span> {
     <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}:{}&quot;</span>, <span class="ident">username</span>, <span class="ident">password</span>);
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">header</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;Basic {}&quot;</span>, <span class="ident">base64::encode</span>(<span class="kw-2">&amp;</span><span class="ident">val</span>))
         .<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">HeaderValue</span><span class="op">&gt;</span>()
@@ -2103,22 +2103,22 @@
 <span class="doccomment">/// A helper trait to allow testing `Proxy::intercept` without having to</span>
 <span class="doccomment">/// construct `hyper::client::connect::Destination`s.</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">trait</span> <span class="ident">Dst</span> {
-    <span class="kw">fn</span> <span class="ident">scheme</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span>;
-    <span class="kw">fn</span> <span class="ident">host</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span>;
-    <span class="kw">fn</span> <span class="ident">port</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">scheme</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span>;
+    <span class="kw">fn</span> <span class="ident">host</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span>;
+    <span class="kw">fn</span> <span class="ident">port</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span>;
 }
 
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">impl</span> <span class="ident">Dst</span> <span class="kw">for</span> <span class="ident">Uri</span> {
-    <span class="kw">fn</span> <span class="ident">scheme</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+    <span class="kw">fn</span> <span class="ident">scheme</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="self">self</span>.<span class="ident">scheme</span>().<span class="ident">expect</span>(<span class="string">&quot;Uri should have a scheme&quot;</span>).<span class="ident">as_str</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">host</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+    <span class="kw">fn</span> <span class="ident">host</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="ident">Uri::host</span>(<span class="self">self</span>).<span class="ident">expect</span>(<span class="string">&quot;&lt;Uri as Dst&gt;::host should have a str&quot;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">port</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">port</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">port</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">as_u16</span>())
     }
 }
@@ -2140,7 +2140,7 @@
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;windows&quot;</span>), <span class="ident">allow</span>(<span class="ident">unused_variables</span>))]</span> <span class="ident">registry_values</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>
         <span class="ident">RegistryProxyValues</span>,
     <span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SystemProxyMap</span> {
+) -&gt; <span class="ident">SystemProxyMap</span> {
     <span class="kw">let</span> <span class="ident">proxies</span> <span class="op">=</span> <span class="ident">get_from_environment</span>();
 
     <span class="comment">// TODO: move the following #[cfg] to `if expression` when attributes on `if` expressions allowed</span>
@@ -2156,7 +2156,7 @@
     <span class="ident">proxies</span>
 }
 
-<span class="kw">fn</span> <span class="ident">insert_proxy</span>(<span class="ident">proxies</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SystemProxyMap</span>, <span class="ident">scheme</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">addr</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+<span class="kw">fn</span> <span class="ident">insert_proxy</span>(<span class="ident">proxies</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SystemProxyMap</span>, <span class="ident">scheme</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">addr</span>: <span class="ident">String</span>) -&gt; <span class="ident">bool</span> {
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">valid_addr</span>) <span class="op">=</span> <span class="ident">addr</span>.<span class="ident">into_proxy_scheme</span>() {
         <span class="ident">proxies</span>.<span class="ident">insert</span>(<span class="ident">scheme</span>.<span class="ident">into</span>(), <span class="ident">valid_addr</span>);
         <span class="bool-val">true</span>
@@ -2165,7 +2165,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">get_from_environment</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SystemProxyMap</span> {
+<span class="kw">fn</span> <span class="ident">get_from_environment</span>() -&gt; <span class="ident">SystemProxyMap</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">proxies</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
 
     <span class="kw">if</span> <span class="ident">is_cgi</span>() {
@@ -2183,7 +2183,7 @@
     <span class="ident">proxies</span>
 }
 
-<span class="kw">fn</span> <span class="ident">insert_from_env</span>(<span class="ident">proxies</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SystemProxyMap</span>, <span class="ident">scheme</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">var</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+<span class="kw">fn</span> <span class="ident">insert_from_env</span>(<span class="ident">proxies</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SystemProxyMap</span>, <span class="ident">scheme</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">var</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">val</span>) <span class="op">=</span> <span class="ident">env::var</span>(<span class="ident">var</span>) {
         <span class="ident">insert_proxy</span>(<span class="ident">proxies</span>, <span class="ident">scheme</span>, <span class="ident">val</span>)
     } <span class="kw">else</span> {
@@ -2195,12 +2195,12 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// If so, a malicious client can send the `Proxy:` header, and it will</span>
 <span class="doccomment">/// be in the `HTTP_PROXY` env var. So we don&#39;t use it :)</span>
-<span class="kw">fn</span> <span class="ident">is_cgi</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+<span class="kw">fn</span> <span class="ident">is_cgi</span>() -&gt; <span class="ident">bool</span> {
     <span class="ident">env::var_os</span>(<span class="string">&quot;REQUEST_METHOD&quot;</span>).<span class="ident">is_some</span>()
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;windows&quot;</span>)]</span>
-<span class="kw">fn</span> <span class="ident">get_from_registry_impl</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">RegistryProxyValues</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">get_from_registry_impl</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">RegistryProxyValues</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">hkcu</span> <span class="op">=</span> <span class="ident">RegKey::predef</span>(<span class="ident">HKEY_CURRENT_USER</span>);
     <span class="kw">let</span> <span class="ident">internet_setting</span>: <span class="ident">RegKey</span> <span class="op">=</span>
         <span class="ident">hkcu</span>.<span class="ident">open_subkey</span>(<span class="string">&quot;Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings&quot;</span>)<span class="question-mark">?</span>;
@@ -2212,22 +2212,22 @@
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;windows&quot;</span>)]</span>
-<span class="kw">fn</span> <span class="ident">get_from_registry</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RegistryProxyValues</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">get_from_registry</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RegistryProxyValues</span><span class="op">&gt;</span> {
     <span class="ident">get_from_registry_impl</span>().<span class="ident">ok</span>()
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;windows&quot;</span>))]</span>
-<span class="kw">fn</span> <span class="ident">get_from_registry</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RegistryProxyValues</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">get_from_registry</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RegistryProxyValues</span><span class="op">&gt;</span> {
     <span class="prelude-val">None</span>
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;windows&quot;</span>)]</span>
 <span class="kw">fn</span> <span class="ident">parse_registry_values_impl</span>(
     <span class="ident">registry_values</span>: <span class="ident">RegistryProxyValues</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SystemProxyMap</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SystemProxyMap</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> (<span class="ident">proxy_enable</span>, <span class="ident">proxy_server</span>) <span class="op">=</span> <span class="ident">registry_values</span>;
 
-    <span class="kw">if</span> <span class="ident">proxy_enable</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+    <span class="kw">if</span> <span class="ident">proxy_enable</span> <span class="op">==</span> <span class="number">0</span> {
         <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">HashMap::new</span>());
     }
 
@@ -2237,7 +2237,7 @@
         <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">proxy_server</span>.<span class="ident">split</span>(<span class="string">&quot;;&quot;</span>) {
             <span class="kw">let</span> <span class="ident">protocol_parts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">split</span>(<span class="string">&quot;=&quot;</span>).<span class="ident">collect</span>();
             <span class="kw">match</span> <span class="ident">protocol_parts</span>.<span class="ident">as_slice</span>() {
-                [<span class="ident">protocol</span>, <span class="ident">address</span>] <span class="op">=</span><span class="op">&gt;</span> {
+                [<span class="ident">protocol</span>, <span class="ident">address</span>] =&gt; {
                     <span class="comment">// If address doesn&#39;t specify an explicit protocol as protocol://address</span>
                     <span class="comment">// then default to HTTP</span>
                     <span class="kw">let</span> <span class="ident">address</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">extract_type_prefix</span>(<span class="kw-2">*</span><span class="ident">address</span>).<span class="ident">is_some</span>() {
@@ -2248,7 +2248,7 @@
 
                     <span class="ident">insert_proxy</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">proxies</span>, <span class="kw-2">*</span><span class="ident">protocol</span>, <span class="ident">address</span>);
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">_</span> =&gt; {
                     <span class="comment">// Contains invalid protocol setting, just break the loop</span>
                     <span class="comment">// And make proxies to be empty.</span>
                     <span class="ident">proxies</span>.<span class="ident">clear</span>();
@@ -2272,13 +2272,13 @@
 <span class="doccomment">/// Extract the protocol from the given address, if present</span>
 <span class="doccomment">/// For example, &quot;https://example.com&quot; will return Some(&quot;https&quot;)</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;windows&quot;</span>)]</span>
-<span class="kw">fn</span> <span class="ident">extract_type_prefix</span>(<span class="ident">address</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">extract_type_prefix</span>(<span class="ident">address</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">indice</span>) <span class="op">=</span> <span class="ident">address</span>.<span class="ident">find</span>(<span class="string">&quot;://&quot;</span>) {
-        <span class="kw">if</span> <span class="ident">indice</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+        <span class="kw">if</span> <span class="ident">indice</span> <span class="op">==</span> <span class="number">0</span> {
             <span class="prelude-val">None</span>
         } <span class="kw">else</span> {
             <span class="kw">let</span> <span class="ident">prefix</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">address</span>[..<span class="ident">indice</span>];
-            <span class="kw">let</span> <span class="ident">contains_banned</span> <span class="op">=</span> <span class="ident">prefix</span>.<span class="ident">contains</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;:&#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;/&#39;</span>);
+            <span class="kw">let</span> <span class="ident">contains_banned</span> <span class="op">=</span> <span class="ident">prefix</span>.<span class="ident">contains</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;:&#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;/&#39;</span>);
 
             <span class="kw">if</span> <span class="op">!</span><span class="ident">contains_banned</span> {
                 <span class="prelude-val">Some</span>(<span class="ident">prefix</span>)
@@ -2292,7 +2292,7 @@
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;windows&quot;</span>)]</span>
-<span class="kw">fn</span> <span class="ident">parse_registry_values</span>(<span class="ident">registry_values</span>: <span class="ident">RegistryProxyValues</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SystemProxyMap</span> {
+<span class="kw">fn</span> <span class="ident">parse_registry_values</span>(<span class="ident">registry_values</span>: <span class="ident">RegistryProxyValues</span>) -&gt; <span class="ident">SystemProxyMap</span> {
     <span class="ident">parse_registry_values_impl</span>(<span class="ident">registry_values</span>).<span class="ident">unwrap_or</span>(<span class="ident">HashMap::new</span>())
 }
 
@@ -2303,29 +2303,29 @@
     <span class="kw">use</span> <span class="ident">std::sync::Mutex</span>;
 
     <span class="kw">impl</span> <span class="ident">Dst</span> <span class="kw">for</span> <span class="ident">Url</span> {
-        <span class="kw">fn</span> <span class="ident">scheme</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+        <span class="kw">fn</span> <span class="ident">scheme</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
             <span class="ident">Url::scheme</span>(<span class="self">self</span>)
         }
 
-        <span class="kw">fn</span> <span class="ident">host</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+        <span class="kw">fn</span> <span class="ident">host</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
             <span class="ident">Url::host_str</span>(<span class="self">self</span>).<span class="ident">expect</span>(<span class="string">&quot;&lt;Url as Dst&gt;::host should have a str&quot;</span>)
         }
 
-        <span class="kw">fn</span> <span class="ident">port</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> {
+        <span class="kw">fn</span> <span class="ident">port</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> {
             <span class="ident">Url::port</span>(<span class="self">self</span>)
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">url</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Url</span> {
+    <span class="kw">fn</span> <span class="ident">url</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Url</span> {
         <span class="ident">s</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">intercepted_uri</span>(<span class="ident">p</span>: <span class="kw-2">&amp;</span><span class="ident">Proxy</span>, <span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Uri</span> {
+    <span class="kw">fn</span> <span class="ident">intercepted_uri</span>(<span class="ident">p</span>: <span class="kw-2">&amp;</span><span class="ident">Proxy</span>, <span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Uri</span> {
         <span class="kw">let</span> (<span class="ident">scheme</span>, <span class="ident">host</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">p</span>.<span class="ident">intercept</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>(<span class="ident">s</span>)).<span class="ident">unwrap</span>() {
-            <span class="ident">ProxyScheme::Http</span> { <span class="ident">host</span>, .. } <span class="op">=</span><span class="op">&gt;</span> (<span class="string">&quot;http&quot;</span>, <span class="ident">host</span>),
-            <span class="ident">ProxyScheme::Https</span> { <span class="ident">host</span>, .. } <span class="op">=</span><span class="op">&gt;</span> (<span class="string">&quot;https&quot;</span>, <span class="ident">host</span>),
+            <span class="ident">ProxyScheme::Http</span> { <span class="ident">host</span>, .. } =&gt; (<span class="string">&quot;http&quot;</span>, <span class="ident">host</span>),
+            <span class="ident">ProxyScheme::Https</span> { <span class="ident">host</span>, .. } =&gt; (<span class="string">&quot;https&quot;</span>, <span class="ident">host</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;socks&quot;</span>)]</span>
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;intercepted as socks&quot;</span>),
+            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;intercepted as socks&quot;</span>),
         };
         <span class="ident">http::Uri::builder</span>()
             .<span class="ident">scheme</span>(<span class="ident">scheme</span>)
@@ -2378,9 +2378,9 @@
         <span class="kw">let</span> <span class="ident">target1</span> <span class="op">=</span> <span class="string">&quot;http://example.domain/&quot;</span>;
         <span class="kw">let</span> <span class="ident">target2</span> <span class="op">=</span> <span class="string">&quot;https://example.domain/&quot;</span>;
         <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">Proxy::custom</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">url</span><span class="op">|</span> {
-            <span class="kw">if</span> <span class="ident">url</span>.<span class="ident">host_str</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&quot;hyper.rs&quot;</span>) {
+            <span class="kw">if</span> <span class="ident">url</span>.<span class="ident">host_str</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="string">&quot;hyper.rs&quot;</span>) {
                 <span class="ident">target1</span>.<span class="ident">parse</span>().<span class="ident">ok</span>()
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">url</span>.<span class="ident">scheme</span>() <span class="op">=</span><span class="op">=</span> <span class="string">&quot;http&quot;</span> {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">url</span>.<span class="ident">scheme</span>() <span class="op">==</span> <span class="string">&quot;http&quot;</span> {
                 <span class="ident">target2</span>.<span class="ident">parse</span>().<span class="ident">ok</span>()
             } <span class="kw">else</span> {
                 <span class="prelude-val">None</span>::<span class="op">&lt;</span><span class="ident">Url</span><span class="op">&gt;</span>
@@ -2401,11 +2401,11 @@
         <span class="kw">let</span> <span class="ident">ps</span> <span class="op">=</span> <span class="string">&quot;http://foo:bar@localhost:1239&quot;</span>.<span class="ident">into_proxy_scheme</span>().<span class="ident">unwrap</span>();
 
         <span class="kw">match</span> <span class="ident">ps</span> {
-            <span class="ident">ProxyScheme::Http</span> { <span class="ident">auth</span>, <span class="ident">host</span> } <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ProxyScheme::Http</span> { <span class="ident">auth</span>, <span class="ident">host</span> } =&gt; {
                 <span class="macro">assert_eq!</span>(<span class="ident">auth</span>.<span class="ident">unwrap</span>(), <span class="ident">encode_basic_auth</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>));
                 <span class="macro">assert_eq!</span>(<span class="ident">host</span>, <span class="string">&quot;localhost:1239&quot;</span>);
             }
-            <span class="ident">other</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;unexpected: {:?}&quot;</span>, <span class="ident">other</span>),
+            <span class="ident">other</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;unexpected: {:?}&quot;</span>, <span class="ident">other</span>),
         }
     }
 
@@ -2414,11 +2414,11 @@
         <span class="kw">let</span> <span class="ident">ps</span> <span class="op">=</span> <span class="string">&quot;192.168.1.1:8888&quot;</span>.<span class="ident">into_proxy_scheme</span>().<span class="ident">unwrap</span>();
 
         <span class="kw">match</span> <span class="ident">ps</span> {
-            <span class="ident">ProxyScheme::Http</span> { <span class="ident">auth</span>, <span class="ident">host</span> } <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ProxyScheme::Http</span> { <span class="ident">auth</span>, <span class="ident">host</span> } =&gt; {
                 <span class="macro">assert!</span>(<span class="ident">auth</span>.<span class="ident">is_none</span>());
                 <span class="macro">assert_eq!</span>(<span class="ident">host</span>, <span class="string">&quot;192.168.1.1:8888&quot;</span>);
             }
-            <span class="ident">other</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;unexpected: {:?}&quot;</span>, <span class="ident">other</span>),
+            <span class="ident">other</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;unexpected: {:?}&quot;</span>, <span class="ident">other</span>),
         }
     }
 
@@ -2428,11 +2428,11 @@
         <span class="kw">let</span> <span class="ident">ps</span> <span class="op">=</span> <span class="string">&quot;foo:bar@localhost:1239&quot;</span>.<span class="ident">into_proxy_scheme</span>().<span class="ident">unwrap</span>();
 
         <span class="kw">match</span> <span class="ident">ps</span> {
-            <span class="ident">ProxyScheme::Http</span> { <span class="ident">auth</span>, <span class="ident">host</span> } <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ProxyScheme::Http</span> { <span class="ident">auth</span>, <span class="ident">host</span> } =&gt; {
                 <span class="macro">assert_eq!</span>(<span class="ident">auth</span>.<span class="ident">unwrap</span>(), <span class="ident">encode_basic_auth</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>));
                 <span class="macro">assert_eq!</span>(<span class="ident">host</span>, <span class="string">&quot;localhost:1239&quot;</span>);
             }
-            <span class="ident">other</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;unexpected: {:?}&quot;</span>, <span class="ident">other</span>),
+            <span class="ident">other</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;unexpected: {:?}&quot;</span>, <span class="ident">other</span>),
         }
     }
 
@@ -2679,7 +2679,7 @@
 
     <span class="doccomment">/// Guard an environment variable, resetting it to the original value</span>
     <span class="doccomment">/// when dropped.</span>
-    <span class="kw">fn</span> <span class="ident">env_guard</span>(<span class="ident">name</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">EnvGuard</span> {
+    <span class="kw">fn</span> <span class="ident">env_guard</span>(<span class="ident">name</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) -&gt; <span class="ident">EnvGuard</span> {
         <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">name</span>.<span class="ident">into</span>();
         <span class="kw">let</span> <span class="ident">orig_val</span> <span class="op">=</span> <span class="ident">env::var</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>).<span class="ident">ok</span>();
         <span class="ident">env::remove_var</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>);

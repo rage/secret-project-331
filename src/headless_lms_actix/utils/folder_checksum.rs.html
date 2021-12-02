@@ -230,7 +230,7 @@ contents, the file type, and the unix file mode are included as well.
 Please note that if you have very large files in the directory, the running time
 might take a while since reading a lot of data from disk is not fast.
 */</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">hash_folder</span>(<span class="ident">root_path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Hash</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">hash_folder</span>(<span class="ident">root_path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Hash</span><span class="op">&gt;</span> {
     <span class="comment">// Blake3 hasher lets us build the hash incrementally, avoiding the need to load everything to be hashed to memory at once.</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hasher</span> <span class="op">=</span> <span class="ident">blake3::Hasher::new</span>();
 
@@ -287,7 +287,7 @@ might take a while since reading a lot of data from disk is not fast.
     <span class="prelude-val">Ok</span>(<span class="ident">hash</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">determine_permissions_mode_for_hashing</span>(<span class="ident">permissions</span>: <span class="kw-2">&amp;</span><span class="ident">Permissions</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+<span class="kw">fn</span> <span class="ident">determine_permissions_mode_for_hashing</span>(<span class="ident">permissions</span>: <span class="kw-2">&amp;</span><span class="ident">Permissions</span>) -&gt; <span class="ident">u32</span> {
     <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">unix</span>) {
         <span class="kw">return</span> <span class="ident">permissions</span>.<span class="ident">mode</span>();
     }

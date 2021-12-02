@@ -2303,7 +2303,7 @@ fn main() {
     <span class="doccomment">/// Owner with the dereference type substituted to `Erased`.</span>
     <span class="kw">type</span> <span class="ident">Erased</span>;
     <span class="doccomment">/// Perform the type erasure.</span>
-    <span class="kw">fn</span> <span class="ident">into_erased</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Erased</span>;
+    <span class="kw">fn</span> <span class="ident">into_erased</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Erased</span>;
 }
 
 <span class="comment">/////////////////////////////////////////////////////////////////////////////</span>
@@ -2324,7 +2324,7 @@ fn main() {
     <span class="doccomment">///     assert_eq!(*owning_ref, 42);</span>
     <span class="doccomment">/// }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">o</span>: <span class="ident">O</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">o</span>: <span class="ident">O</span>) -&gt; <span class="self">Self</span>
         <span class="kw">where</span> <span class="ident">O</span>: <span class="ident">StableAddress</span>,
               <span class="ident">O</span>: <span class="ident">Deref</span><span class="op">&lt;</span><span class="ident">Target</span> <span class="op">=</span> <span class="ident">T</span><span class="op">&gt;</span>,
     {
@@ -2339,7 +2339,7 @@ fn main() {
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is useful for cases where coherence rules prevents implementing the trait</span>
     <span class="doccomment">/// without adding a dependency to this crate in a third-party library.</span>
-    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new_assert_stable_address</span>(<span class="ident">o</span>: <span class="ident">O</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new_assert_stable_address</span>(<span class="ident">o</span>: <span class="ident">O</span>) -&gt; <span class="self">Self</span>
         <span class="kw">where</span> <span class="ident">O</span>: <span class="ident">Deref</span><span class="op">&lt;</span><span class="ident">Target</span> <span class="op">=</span> <span class="ident">T</span><span class="op">&gt;</span>,
     {
         <span class="ident">OwningRef</span> {
@@ -2368,9 +2368,9 @@ fn main() {
     <span class="doccomment">///     assert_eq!(*owning_ref, 3);</span>
     <span class="doccomment">/// }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">U</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OwningRef</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">U</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">U</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">OwningRef</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">U</span><span class="op">&gt;</span>
         <span class="kw">where</span> <span class="ident">O</span>: <span class="ident">StableAddress</span>,
-              <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">U</span>
+              <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">U</span>
     {
         <span class="ident">OwningRef</span> {
             <span class="ident">reference</span>: <span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="self">self</span>),
@@ -2400,9 +2400,9 @@ fn main() {
     <span class="doccomment">///     assert_eq!(*owning_ref, 2);</span>
     <span class="doccomment">/// }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_with_owner</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">U</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OwningRef</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">U</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_with_owner</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">U</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">OwningRef</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">U</span><span class="op">&gt;</span>
         <span class="kw">where</span> <span class="ident">O</span>: <span class="ident">StableAddress</span>,
-              <span class="ident">F</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">O</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">U</span>
+              <span class="ident">F</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">O</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">U</span>
     {
         <span class="ident">OwningRef</span> {
             <span class="ident">reference</span>: <span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">owner</span>, <span class="kw-2">&amp;</span><span class="self">self</span>),
@@ -2432,9 +2432,9 @@ fn main() {
     <span class="doccomment">///     assert_eq!(*owning_ref.unwrap(), 3);</span>
     <span class="doccomment">/// }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_map</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">U</span>: <span class="question-mark">?</span><span class="ident">Sized</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OwningRef</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">U</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_map</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">U</span>: <span class="question-mark">?</span><span class="ident">Sized</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OwningRef</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">U</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>
         <span class="kw">where</span> <span class="ident">O</span>: <span class="ident">StableAddress</span>,
-              <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">U</span>, <span class="ident">E</span><span class="op">&gt;</span>
+              <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">U</span>, <span class="ident">E</span><span class="op">&gt;</span>
     {
         <span class="prelude-val">Ok</span>(<span class="ident">OwningRef</span> {
             <span class="ident">reference</span>: <span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)<span class="question-mark">?</span>,
@@ -2465,9 +2465,9 @@ fn main() {
     <span class="doccomment">///     assert_eq!(*owning_ref.unwrap(), 2);</span>
     <span class="doccomment">/// }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_map_with_owner</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">U</span>: <span class="question-mark">?</span><span class="ident">Sized</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OwningRef</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">U</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_map_with_owner</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">U</span>: <span class="question-mark">?</span><span class="ident">Sized</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OwningRef</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">U</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>
         <span class="kw">where</span> <span class="ident">O</span>: <span class="ident">StableAddress</span>,
-              <span class="ident">F</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">O</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">U</span>, <span class="ident">E</span><span class="op">&gt;</span>
+              <span class="ident">F</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">O</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">U</span>, <span class="ident">E</span><span class="op">&gt;</span>
     {
         <span class="prelude-val">Ok</span>(<span class="ident">OwningRef</span> {
             <span class="ident">reference</span>: <span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">owner</span>, <span class="kw-2">&amp;</span><span class="self">self</span>)<span class="question-mark">?</span>,
@@ -2480,10 +2480,10 @@ fn main() {
     <span class="doccomment">/// The new owner type needs to still contain the original owner in some way</span>
     <span class="doccomment">/// so that the reference into it remains valid. This function is marked unsafe</span>
     <span class="doccomment">/// because the user needs to manually uphold this guarantee.</span>
-    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">map_owner</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">P</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OwningRef</span><span class="op">&lt;</span><span class="ident">P</span>, <span class="ident">T</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">map_owner</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">P</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">OwningRef</span><span class="op">&lt;</span><span class="ident">P</span>, <span class="ident">T</span><span class="op">&gt;</span>
         <span class="kw">where</span> <span class="ident">O</span>: <span class="ident">StableAddress</span>,
               <span class="ident">P</span>: <span class="ident">StableAddress</span>,
-              <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">O</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">P</span>
+              <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">O</span>) -&gt; <span class="ident">P</span>
     {
         <span class="ident">OwningRef</span> {
             <span class="ident">reference</span>: <span class="self">self</span>.<span class="ident">reference</span>,
@@ -2496,7 +2496,7 @@ fn main() {
     <span class="doccomment">///</span>
     <span class="doccomment">/// This can be used to safely erase the owner of any `OwningRef&lt;O, T&gt;`</span>
     <span class="doccomment">/// to a `OwningRef&lt;Box&lt;dyn Erased&gt;, T&gt;`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_owner_box</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OwningRef</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>, <span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_owner_box</span>(<span class="self">self</span>) -&gt; <span class="ident">OwningRef</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>, <span class="ident">T</span><span class="op">&gt;</span> {
         <span class="ident">OwningRef</span> {
             <span class="ident">reference</span>: <span class="self">self</span>.<span class="ident">reference</span>,
             <span class="ident">owner</span>: <span class="ident">Box::new</span>(<span class="self">self</span>.<span class="ident">owner</span>),
@@ -2535,7 +2535,7 @@ fn main() {
     <span class="doccomment">///     assert_eq!(*owning_refs[1], 1);</span>
     <span class="doccomment">/// }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">erase_owner</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OwningRef</span><span class="op">&lt;</span><span class="ident">O::Erased</span>, <span class="ident">T</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">erase_owner</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="self">self</span>) -&gt; <span class="ident">OwningRef</span><span class="op">&lt;</span><span class="ident">O::Erased</span>, <span class="ident">T</span><span class="op">&gt;</span>
         <span class="kw">where</span> <span class="ident">O</span>: <span class="ident">IntoErased</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
     {
         <span class="ident">OwningRef</span> {
@@ -2547,12 +2547,12 @@ fn main() {
     <span class="comment">// TODO: wrap_owner</span>
 
     <span class="doccomment">/// A reference to the underlying owner.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_owner</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">O</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_owner</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">O</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">owner</span>
     }
 
     <span class="doccomment">/// Discards the reference and retrieves the owner.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_owner</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">O</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_owner</span>(<span class="self">self</span>) -&gt; <span class="ident">O</span> {
         <span class="self">self</span>.<span class="ident">owner</span>
     }
 }
@@ -2571,7 +2571,7 @@ fn main() {
     <span class="doccomment">///     assert_eq!(*owning_ref_mut, 42);</span>
     <span class="doccomment">/// }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="kw-2">mut</span> <span class="ident">o</span>: <span class="ident">O</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="kw-2">mut</span> <span class="ident">o</span>: <span class="ident">O</span>) -&gt; <span class="self">Self</span>
         <span class="kw">where</span> <span class="ident">O</span>: <span class="ident">StableAddress</span>,
               <span class="ident">O</span>: <span class="ident">DerefMut</span><span class="op">&lt;</span><span class="ident">Target</span> <span class="op">=</span> <span class="ident">T</span><span class="op">&gt;</span>,
     {
@@ -2586,7 +2586,7 @@ fn main() {
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is useful for cases where coherence rules prevents implementing the trait</span>
     <span class="doccomment">/// without adding a dependency to this crate in a third-party library.</span>
-    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new_assert_stable_address</span>(<span class="kw-2">mut</span> <span class="ident">o</span>: <span class="ident">O</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new_assert_stable_address</span>(<span class="kw-2">mut</span> <span class="ident">o</span>: <span class="ident">O</span>) -&gt; <span class="self">Self</span>
         <span class="kw">where</span> <span class="ident">O</span>: <span class="ident">DerefMut</span><span class="op">&lt;</span><span class="ident">Target</span> <span class="op">=</span> <span class="ident">T</span><span class="op">&gt;</span>,
     {
         <span class="ident">OwningRefMut</span> {
@@ -2615,9 +2615,9 @@ fn main() {
     <span class="doccomment">///     assert_eq!(*owning_ref, 3);</span>
     <span class="doccomment">/// }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">U</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OwningRef</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">U</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">U</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">OwningRef</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">U</span><span class="op">&gt;</span>
         <span class="kw">where</span> <span class="ident">O</span>: <span class="ident">StableAddress</span>,
-              <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">U</span>
+              <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">U</span>
     {
         <span class="ident">OwningRef</span> {
             <span class="ident">reference</span>: <span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>),
@@ -2645,9 +2645,9 @@ fn main() {
     <span class="doccomment">///     assert_eq!(*owning_ref_mut, 3);</span>
     <span class="doccomment">/// }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_mut</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">U</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OwningRefMut</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">U</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_mut</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">U</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">OwningRefMut</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">U</span><span class="op">&gt;</span>
         <span class="kw">where</span> <span class="ident">O</span>: <span class="ident">StableAddress</span>,
-              <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">U</span>
+              <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">U</span>
     {
         <span class="ident">OwningRefMut</span> {
             <span class="ident">reference</span>: <span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>),
@@ -2677,9 +2677,9 @@ fn main() {
     <span class="doccomment">///     assert_eq!(*owning_ref.unwrap(), 3);</span>
     <span class="doccomment">/// }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_map</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">U</span>: <span class="question-mark">?</span><span class="ident">Sized</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OwningRef</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">U</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_map</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">U</span>: <span class="question-mark">?</span><span class="ident">Sized</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OwningRef</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">U</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>
         <span class="kw">where</span> <span class="ident">O</span>: <span class="ident">StableAddress</span>,
-              <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">U</span>, <span class="ident">E</span><span class="op">&gt;</span>
+              <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">U</span>, <span class="ident">E</span><span class="op">&gt;</span>
     {
         <span class="prelude-val">Ok</span>(<span class="ident">OwningRef</span> {
             <span class="ident">reference</span>: <span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>)<span class="question-mark">?</span>,
@@ -2709,9 +2709,9 @@ fn main() {
     <span class="doccomment">///     assert_eq!(*owning_ref_mut.unwrap(), 3);</span>
     <span class="doccomment">/// }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_map_mut</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">U</span>: <span class="question-mark">?</span><span class="ident">Sized</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OwningRefMut</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">U</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_map_mut</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">U</span>: <span class="question-mark">?</span><span class="ident">Sized</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OwningRefMut</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">U</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>
         <span class="kw">where</span> <span class="ident">O</span>: <span class="ident">StableAddress</span>,
-              <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">U</span>, <span class="ident">E</span><span class="op">&gt;</span>
+              <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">U</span>, <span class="ident">E</span><span class="op">&gt;</span>
     {
         <span class="prelude-val">Ok</span>(<span class="ident">OwningRefMut</span> {
             <span class="ident">reference</span>: <span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>)<span class="question-mark">?</span>,
@@ -2724,10 +2724,10 @@ fn main() {
     <span class="doccomment">/// The new owner type needs to still contain the original owner in some way</span>
     <span class="doccomment">/// so that the reference into it remains valid. This function is marked unsafe</span>
     <span class="doccomment">/// because the user needs to manually uphold this guarantee.</span>
-    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">map_owner</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">P</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OwningRefMut</span><span class="op">&lt;</span><span class="ident">P</span>, <span class="ident">T</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">map_owner</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">P</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">OwningRefMut</span><span class="op">&lt;</span><span class="ident">P</span>, <span class="ident">T</span><span class="op">&gt;</span>
         <span class="kw">where</span> <span class="ident">O</span>: <span class="ident">StableAddress</span>,
               <span class="ident">P</span>: <span class="ident">StableAddress</span>,
-              <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">O</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">P</span>
+              <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">O</span>) -&gt; <span class="ident">P</span>
     {
         <span class="ident">OwningRefMut</span> {
             <span class="ident">reference</span>: <span class="self">self</span>.<span class="ident">reference</span>,
@@ -2740,7 +2740,7 @@ fn main() {
     <span class="doccomment">///</span>
     <span class="doccomment">/// This can be used to safely erase the owner of any `OwningRefMut&lt;O, T&gt;`</span>
     <span class="doccomment">/// to a `OwningRefMut&lt;Box&lt;dyn Erased&gt;, T&gt;`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_owner_box</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OwningRefMut</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>, <span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_owner_box</span>(<span class="self">self</span>) -&gt; <span class="ident">OwningRefMut</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>, <span class="ident">T</span><span class="op">&gt;</span> {
         <span class="ident">OwningRefMut</span> {
             <span class="ident">reference</span>: <span class="self">self</span>.<span class="ident">reference</span>,
             <span class="ident">owner</span>: <span class="ident">Box::new</span>(<span class="self">self</span>.<span class="ident">owner</span>),
@@ -2779,7 +2779,7 @@ fn main() {
     <span class="doccomment">///     assert_eq!(*owning_refs_mut[1], 1);</span>
     <span class="doccomment">/// }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">erase_owner</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OwningRefMut</span><span class="op">&lt;</span><span class="ident">O::Erased</span>, <span class="ident">T</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">erase_owner</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="self">self</span>) -&gt; <span class="ident">OwningRefMut</span><span class="op">&lt;</span><span class="ident">O::Erased</span>, <span class="ident">T</span><span class="op">&gt;</span>
         <span class="kw">where</span> <span class="ident">O</span>: <span class="ident">IntoErased</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
     {
         <span class="ident">OwningRefMut</span> {
@@ -2791,17 +2791,17 @@ fn main() {
     <span class="comment">// TODO: wrap_owner</span>
 
     <span class="doccomment">/// A reference to the underlying owner.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_owner</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">O</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_owner</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">O</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">owner</span>
     }
 
     <span class="doccomment">/// A mutable reference to the underlying owner.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_owner_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">O</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_owner_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">O</span> {
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">owner</span>
     }
 
     <span class="doccomment">/// Discards the reference and retrieves the owner.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_owner</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">O</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_owner</span>(<span class="self">self</span>) -&gt; <span class="ident">O</span> {
         <span class="self">self</span>.<span class="ident">owner</span>
     }
 }
@@ -2842,7 +2842,7 @@ fn main() {
     <span class="kw">where</span> <span class="ident">O</span>: <span class="ident">StableAddress</span>, <span class="ident">H</span>: <span class="ident">Deref</span>,
 {
     <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">H::Target</span>;
-    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">H::Target</span> {
+    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">H::Target</span> {
         <span class="self">self</span>.<span class="ident">handle</span>.<span class="ident">deref</span>()
     }
 }
@@ -2854,7 +2854,7 @@ fn main() {
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">H</span><span class="op">&gt;</span> <span class="ident">DerefMut</span> <span class="kw">for</span> <span class="ident">OwningHandle</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">H</span><span class="op">&gt;</span>
     <span class="kw">where</span> <span class="ident">O</span>: <span class="ident">StableAddress</span>, <span class="ident">H</span>: <span class="ident">DerefMut</span>,
 {
-    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">H::Target</span> {
+    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">H::Target</span> {
         <span class="self">self</span>.<span class="ident">handle</span>.<span class="ident">deref_mut</span>()
     }
 }
@@ -2866,7 +2866,7 @@ fn main() {
 
     <span class="doccomment">/// Given an appropriately-long-lived pointer to ourselves, create a</span>
     <span class="doccomment">/// handle to be encapsulated by the `OwningHandle`.</span>
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">to_handle</span>(<span class="ident">x</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Handle</span>;
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">to_handle</span>(<span class="ident">x</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="self">Self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Handle</span>;
 }
 
 <span class="doccomment">/// Trait to implement the conversion of owner to mutable handle for common types.</span>
@@ -2876,7 +2876,7 @@ fn main() {
 
     <span class="doccomment">/// Given an appropriately-long-lived pointer to ourselves, create a</span>
     <span class="doccomment">/// mutable handle to be encapsulated by the `OwningHandle`.</span>
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">to_handle_mut</span>(<span class="ident">x</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::HandleMut</span>;
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">to_handle_mut</span>(<span class="ident">x</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="self">Self</span>) -&gt; <span class="ident"><span class="self">Self</span>::HandleMut</span>;
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">H</span><span class="op">&gt;</span> <span class="ident">OwningHandle</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">H</span><span class="op">&gt;</span>
@@ -2885,7 +2885,7 @@ fn main() {
     <span class="doccomment">/// Create a new `OwningHandle` for a type that implements `ToHandle`. For types</span>
     <span class="doccomment">/// that don&#39;t implement `ToHandle`, callers may invoke `new_with_fn`, which accepts</span>
     <span class="doccomment">/// a callback to perform the conversion.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">o</span>: <span class="ident">O</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">o</span>: <span class="ident">O</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">OwningHandle::new_with_fn</span>(<span class="ident">o</span>, <span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw">unsafe</span> { <span class="ident">O::Target::to_handle</span>(<span class="ident">x</span>) })
     }
 }
@@ -2894,7 +2894,7 @@ fn main() {
     <span class="kw">where</span> <span class="ident">O</span>: <span class="ident">StableAddress</span>, <span class="ident">O::Target</span>: <span class="ident">ToHandleMut</span><span class="op">&lt;</span><span class="ident">HandleMut</span> <span class="op">=</span> <span class="ident">H</span><span class="op">&gt;</span>, <span class="ident">H</span>: <span class="ident">DerefMut</span>,
 {
     <span class="doccomment">/// Create a new mutable `OwningHandle` for a type that implements `ToHandleMut`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_mut</span>(<span class="ident">o</span>: <span class="ident">O</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_mut</span>(<span class="ident">o</span>: <span class="ident">O</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">OwningHandle::new_with_fn</span>(<span class="ident">o</span>, <span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw">unsafe</span> { <span class="ident">O::Target::to_handle_mut</span>(<span class="ident">x</span>) })
     }
 }
@@ -2906,8 +2906,8 @@ fn main() {
     <span class="doccomment">/// a pointer to the object owned by `o`, and the returned value is stored</span>
     <span class="doccomment">/// as the object to which this `OwningHandle` will forward `Deref` and</span>
     <span class="doccomment">/// `DerefMut`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_with_fn</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="ident">o</span>: <span class="ident">O</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
-        <span class="kw">where</span> <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">*</span><span class="kw">const</span> <span class="ident">O::Target</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">H</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_with_fn</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="ident">o</span>: <span class="ident">O</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="self">Self</span>
+        <span class="kw">where</span> <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">*</span><span class="kw">const</span> <span class="ident">O::Target</span>) -&gt; <span class="ident">H</span>
     {
         <span class="kw">let</span> <span class="ident">h</span>: <span class="ident">H</span>;
         {
@@ -2924,8 +2924,8 @@ fn main() {
     <span class="doccomment">/// a pointer to the object owned by `o`, and the returned value is stored</span>
     <span class="doccomment">/// as the object to which this `OwningHandle` will forward `Deref` and</span>
     <span class="doccomment">/// `DerefMut`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_new</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">o</span>: <span class="ident">O</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">E</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">*</span><span class="kw">const</span> <span class="ident">O::Target</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">H</span>, <span class="ident">E</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_new</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">o</span>: <span class="ident">O</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">E</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">*</span><span class="kw">const</span> <span class="ident">O::Target</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">H</span>, <span class="ident">E</span><span class="op">&gt;</span>
     {
         <span class="kw">let</span> <span class="ident">h</span>: <span class="ident">H</span>;
         {
@@ -2939,12 +2939,12 @@ fn main() {
     }
 
     <span class="doccomment">/// A getter for the underlying owner.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_owner</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">O</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_owner</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">O</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">_owner</span>
     }
 
     <span class="doccomment">/// Discards the dependent object and returns the owner.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_owner</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">O</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_owner</span>(<span class="self">self</span>) -&gt; <span class="ident">O</span> {
         <span class="self">self</span>.<span class="ident">_owner</span>
     }
 }
@@ -2963,7 +2963,7 @@ fn main() {
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">OwningRef</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">T</span>;
 
-    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">T</span> {
+    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">T</span> {
         <span class="kw">unsafe</span> {
             <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">reference</span>
         }
@@ -2973,7 +2973,7 @@ fn main() {
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">OwningRefMut</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">T</span>;
 
-    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">T</span> {
+    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">T</span> {
         <span class="kw">unsafe</span> {
             <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">reference</span>
         }
@@ -2981,7 +2981,7 @@ fn main() {
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="ident">DerefMut</span> <span class="kw">for</span> <span class="ident">OwningRefMut</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span> {
+    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span> {
         <span class="kw">unsafe</span> {
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">reference</span>
         }
@@ -2993,25 +2993,25 @@ fn main() {
 <span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="ident">StableAddress</span> <span class="kw">for</span> <span class="ident">OwningRefMut</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span> {}
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">OwningRef</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">T</span> {
+    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">T</span> {
         <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">OwningRefMut</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">T</span> {
+    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">T</span> {
         <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="ident">AsMut</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">OwningRefMut</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">as_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span> {
+    <span class="kw">fn</span> <span class="ident">as_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span> {
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="self">self</span>
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="ident">Borrow</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">OwningRef</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">borrow</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">T</span> {
+    <span class="kw">fn</span> <span class="ident">borrow</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">T</span> {
         <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>
     }
 }
@@ -3020,7 +3020,7 @@ fn main() {
     <span class="kw">where</span> <span class="ident">O</span>: <span class="ident">StableAddress</span>,
           <span class="ident">O</span>: <span class="ident">Deref</span><span class="op">&lt;</span><span class="ident">Target</span> <span class="op">=</span> <span class="ident">T</span><span class="op">&gt;</span>,
 {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">owner</span>: <span class="ident">O</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">owner</span>: <span class="ident">O</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">OwningRef::new</span>(<span class="ident">owner</span>)
     }
 }
@@ -3029,7 +3029,7 @@ fn main() {
     <span class="kw">where</span> <span class="ident">O</span>: <span class="ident">StableAddress</span>,
           <span class="ident">O</span>: <span class="ident">DerefMut</span><span class="op">&lt;</span><span class="ident">Target</span> <span class="op">=</span> <span class="ident">T</span><span class="op">&gt;</span>
 {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">owner</span>: <span class="ident">O</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">owner</span>: <span class="ident">O</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">OwningRefMut::new</span>(<span class="ident">owner</span>)
     }
 }
@@ -3038,7 +3038,7 @@ fn main() {
     <span class="kw">where</span> <span class="ident">O</span>: <span class="ident">StableAddress</span>,
           <span class="ident">O</span>: <span class="ident">DerefMut</span><span class="op">&lt;</span><span class="ident">Target</span> <span class="op">=</span> <span class="ident">T</span><span class="op">&gt;</span>
 {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">other</span>: <span class="ident">OwningRefMut</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">other</span>: <span class="ident">OwningRefMut</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">OwningRef</span> {
             <span class="ident">owner</span>: <span class="ident">other</span>.<span class="ident">owner</span>,
             <span class="ident">reference</span>: <span class="ident">other</span>.<span class="ident">reference</span>,
@@ -3052,7 +3052,7 @@ fn main() {
     <span class="kw">where</span> <span class="ident">O</span>: <span class="ident">Debug</span>,
           <span class="ident">T</span>: <span class="ident">Debug</span>,
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">fmt::Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">fmt::Error</span><span class="op">&gt;</span> {
         <span class="macro">write!</span>(<span class="ident">f</span>,
                <span class="string">&quot;OwningRef {{ owner: {:?}, reference: {:?} }}&quot;</span>,
                <span class="self">self</span>.<span class="ident">as_owner</span>(),
@@ -3064,7 +3064,7 @@ fn main() {
     <span class="kw">where</span> <span class="ident">O</span>: <span class="ident">Debug</span>,
           <span class="ident">T</span>: <span class="ident">Debug</span>,
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">fmt::Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">fmt::Error</span><span class="op">&gt;</span> {
         <span class="macro">write!</span>(<span class="ident">f</span>,
                <span class="string">&quot;OwningRefMut {{ owner: {:?}, reference: {:?} }}&quot;</span>,
                <span class="self">self</span>.<span class="ident">as_owner</span>(),
@@ -3075,7 +3075,7 @@ fn main() {
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">OwningRef</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span>
     <span class="kw">where</span> <span class="ident">O</span>: <span class="ident">CloneStableAddress</span>,
 {
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">OwningRef</span> {
             <span class="ident">owner</span>: <span class="self">self</span>.<span class="ident">owner</span>.<span class="ident">clone</span>(),
             <span class="ident">reference</span>: <span class="self">self</span>.<span class="ident">reference</span>,
@@ -3097,13 +3097,13 @@ fn main() {
     <span class="kw">where</span> <span class="ident">O</span>: <span class="ident">Sync</span>, <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">T</span>): <span class="ident">Sync</span> {}
 
 <span class="kw">impl</span> <span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">dyn</span> <span class="ident">Erased</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">fmt::Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">fmt::Error</span><span class="op">&gt;</span> {
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&lt;dyn Erased&gt;&quot;</span>,)
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="ident">PartialEq</span> <span class="kw">for</span> <span class="ident">OwningRef</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">PartialEq</span> {
-    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="ident">bool</span> {
         (<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span> <span class="kw">as</span> <span class="kw-2">&amp;</span><span class="ident">T</span>).<span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">other</span> <span class="kw">as</span> <span class="kw-2">&amp;</span><span class="ident">T</span>)
      }
 }
@@ -3111,13 +3111,13 @@ fn main() {
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="ident">Eq</span> <span class="kw">for</span> <span class="ident">OwningRef</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">Eq</span> {}
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="ident">PartialOrd</span> <span class="kw">for</span> <span class="ident">OwningRef</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">PartialOrd</span> {
-    <span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Ordering</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Ordering</span><span class="op">&gt;</span> {
         (<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span> <span class="kw">as</span> <span class="kw-2">&amp;</span><span class="ident">T</span>).<span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">other</span> <span class="kw">as</span> <span class="kw-2">&amp;</span><span class="ident">T</span>)
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="ident">Ord</span> <span class="kw">for</span> <span class="ident">OwningRef</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">Ord</span> {
-    <span class="kw">fn</span> <span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ordering</span> {
+    <span class="kw">fn</span> <span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="ident">Ordering</span> {
         (<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span> <span class="kw">as</span> <span class="kw-2">&amp;</span><span class="ident">T</span>).<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">other</span> <span class="kw">as</span> <span class="kw-2">&amp;</span><span class="ident">T</span>)
     }
 }
@@ -3129,7 +3129,7 @@ fn main() {
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="ident">PartialEq</span> <span class="kw">for</span> <span class="ident">OwningRefMut</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">PartialEq</span> {
-    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="ident">bool</span> {
         (<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span> <span class="kw">as</span> <span class="kw-2">&amp;</span><span class="ident">T</span>).<span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">other</span> <span class="kw">as</span> <span class="kw-2">&amp;</span><span class="ident">T</span>)
      }
 }
@@ -3137,13 +3137,13 @@ fn main() {
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="ident">Eq</span> <span class="kw">for</span> <span class="ident">OwningRefMut</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">Eq</span> {}
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="ident">PartialOrd</span> <span class="kw">for</span> <span class="ident">OwningRefMut</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">PartialOrd</span> {
-    <span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Ordering</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Ordering</span><span class="op">&gt;</span> {
         (<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span> <span class="kw">as</span> <span class="kw-2">&amp;</span><span class="ident">T</span>).<span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">other</span> <span class="kw">as</span> <span class="kw-2">&amp;</span><span class="ident">T</span>)
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="ident">Ord</span> <span class="kw">for</span> <span class="ident">OwningRefMut</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">Ord</span> {
-    <span class="kw">fn</span> <span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ordering</span> {
+    <span class="kw">fn</span> <span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="ident">Ordering</span> {
         (<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span> <span class="kw">as</span> <span class="kw-2">&amp;</span><span class="ident">T</span>).<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">other</span> <span class="kw">as</span> <span class="kw-2">&amp;</span><span class="ident">T</span>)
     }
 }
@@ -3166,12 +3166,12 @@ fn main() {
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">ToHandle</span> <span class="kw">for</span> <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Handle</span> <span class="op">=</span> <span class="ident">Ref</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">T</span><span class="op">&gt;</span>;
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">to_handle</span>(<span class="ident">x</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Handle</span> { (<span class="kw-2">*</span><span class="ident">x</span>).<span class="ident">borrow</span>() }
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">to_handle</span>(<span class="ident">x</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="self">Self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Handle</span> { (<span class="kw-2">*</span><span class="ident">x</span>).<span class="ident">borrow</span>() }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">ToHandleMut</span> <span class="kw">for</span> <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">HandleMut</span> <span class="op">=</span> <span class="ident">RefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">T</span><span class="op">&gt;</span>;
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">to_handle_mut</span>(<span class="ident">x</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::HandleMut</span> { (<span class="kw-2">*</span><span class="ident">x</span>).<span class="ident">borrow_mut</span>() }
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">to_handle_mut</span>(<span class="ident">x</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="self">Self</span>) -&gt; <span class="ident"><span class="self">Self</span>::HandleMut</span> { (<span class="kw-2">*</span><span class="ident">x</span>).<span class="ident">borrow_mut</span>() }
 }
 
 <span class="comment">// NB: Implementing ToHandle{,Mut} for Mutex and RwLock requires a decision</span>
@@ -3217,19 +3217,19 @@ fn main() {
 
 <span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">IntoErased</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Erased</span> <span class="op">=</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">Erased</span> <span class="op">+</span> <span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">into_erased</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Erased</span> {
+    <span class="kw">fn</span> <span class="ident">into_erased</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Erased</span> {
         <span class="self">self</span>
     }
 }
 <span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">IntoErased</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Erased</span> <span class="op">=</span> <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">Erased</span> <span class="op">+</span> <span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">into_erased</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Erased</span> {
+    <span class="kw">fn</span> <span class="ident">into_erased</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Erased</span> {
         <span class="self">self</span>
     }
 }
 <span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">IntoErased</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Erased</span> <span class="op">=</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">Erased</span> <span class="op">+</span> <span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">into_erased</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Erased</span> {
+    <span class="kw">fn</span> <span class="ident">into_erased</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Erased</span> {
         <span class="self">self</span>
     }
 }
@@ -3257,7 +3257,7 @@ fn main() {
 
         <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
         <span class="kw">struct</span> <span class="ident">Example</span>(<span class="ident">u32</span>, <span class="ident">String</span>, [<span class="ident">u8</span>; <span class="number">3</span>]);
-        <span class="kw">fn</span> <span class="ident">example</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Example</span> {
+        <span class="kw">fn</span> <span class="ident">example</span>() -&gt; <span class="ident">Example</span> {
             <span class="ident">Example</span>(<span class="number">42</span>, <span class="string">&quot;hello world&quot;</span>.<span class="ident">to_string</span>(), [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>])
         }
 
@@ -3348,7 +3348,7 @@ fn main() {
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">x</span>[..]);
 
             <span class="kw">let</span> <span class="ident">os</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ErasedBoxRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">o1</span>.<span class="ident">erase_owner</span>(), <span class="ident">o2</span>.<span class="ident">erase_owner</span>()];
-            <span class="macro">assert!</span>(<span class="ident">os</span>.<span class="ident">iter</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">e</span>[..] <span class="op">=</span><span class="op">=</span> <span class="string">&quot;hello world&quot;</span>));
+            <span class="macro">assert!</span>(<span class="ident">os</span>.<span class="ident">iter</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">e</span>[..] <span class="op">==</span> <span class="string">&quot;hello world&quot;</span>));
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -3359,7 +3359,7 @@ fn main() {
             <span class="comment">// FIXME: lifetime inference fails us, and we can&#39;t easily define a lifetime for a closure</span>
             <span class="comment">// (see https://github.com/rust-lang/rust/issues/22340)</span>
             <span class="comment">// So we use a function to identify the lifetimes instead.</span>
-            <span class="kw">fn</span> <span class="ident">borrow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">&amp;</span>[<span class="ident">i32</span>; <span class="number">2</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">i32</span> {
+            <span class="kw">fn</span> <span class="ident">borrow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">&amp;</span>[<span class="ident">i32</span>; <span class="number">2</span>]) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">i32</span> {
                 <span class="kw-2">&amp;</span><span class="ident">a</span>[<span class="number">0</span>]
             }
 
@@ -3673,7 +3673,7 @@ fn main() {
 
         <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
         <span class="kw">struct</span> <span class="ident">Example</span>(<span class="ident">u32</span>, <span class="ident">String</span>, [<span class="ident">u8</span>; <span class="number">3</span>]);
-        <span class="kw">fn</span> <span class="ident">example</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Example</span> {
+        <span class="kw">fn</span> <span class="ident">example</span>() -&gt; <span class="ident">Example</span> {
             <span class="ident">Example</span>(<span class="number">42</span>, <span class="string">&quot;hello world&quot;</span>.<span class="ident">to_string</span>(), [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>])
         }
 
@@ -3819,7 +3819,7 @@ fn main() {
                 .<span class="ident">map_mut</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">x</span>[..]);
 
             <span class="kw">let</span> <span class="ident">os</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ErasedBoxRefMut</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">o1</span>.<span class="ident">erase_owner</span>(), <span class="ident">o2</span>.<span class="ident">erase_owner</span>()];
-            <span class="macro">assert!</span>(<span class="ident">os</span>.<span class="ident">iter</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">e</span>[..] <span class="op">=</span><span class="op">=</span> <span class="string">&quot;hello world&quot;</span>));
+            <span class="macro">assert!</span>(<span class="ident">os</span>.<span class="ident">iter</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">e</span>[..] <span class="op">==</span> <span class="string">&quot;hello world&quot;</span>));
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -3830,7 +3830,7 @@ fn main() {
             <span class="comment">// FIXME: lifetime inference fails us, and we can&#39;t easily define a lifetime for a closure</span>
             <span class="comment">// (see https://github.com/rust-lang/rust/issues/22340)</span>
             <span class="comment">// So we use a function to identify the lifetimes instead.</span>
-            <span class="kw">fn</span> <span class="ident">borrow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">i32</span>; <span class="number">2</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">i32</span> {
+            <span class="kw">fn</span> <span class="ident">borrow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">i32</span>; <span class="number">2</span>]) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">i32</span> {
                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>[<span class="number">0</span>]
             }
 

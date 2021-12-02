@@ -142,25 +142,25 @@
 
 <span class="doccomment">/// this trait does not allow for transient errors: they must be retried in the underlying layer</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">CustomWrite</span><span class="op">&lt;</span><span class="ident">ErrType</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">write</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">ErrType</span><span class="op">&gt;</span>;
-  <span class="kw">fn</span> <span class="ident">flush</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ErrType</span><span class="op">&gt;</span>;
+  <span class="kw">fn</span> <span class="ident">write</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">ErrType</span><span class="op">&gt;</span>;
+  <span class="kw">fn</span> <span class="ident">flush</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ErrType</span><span class="op">&gt;</span>;
 }
 <span class="doccomment">/// this trait does not allow for transient errors: they must be retried in the underlying layer</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">CustomRead</span><span class="op">&lt;</span><span class="ident">ErrType</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">read</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">ErrType</span><span class="op">&gt;</span>;
+  <span class="kw">fn</span> <span class="ident">read</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">ErrType</span><span class="op">&gt;</span>;
 }
 
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span> <span class="comment">// prefer to replace 2 inlines in BrotliDecompressCustomIo once traits work</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">write_all</span><span class="op">&lt;</span><span class="ident">ErrType</span>, <span class="ident">OutputType</span><span class="op">&gt;</span>(<span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">OutputType</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ErrType</span><span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">write_all</span><span class="op">&lt;</span><span class="ident">ErrType</span>, <span class="ident">OutputType</span><span class="op">&gt;</span>(<span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">OutputType</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ErrType</span><span class="op">&gt;</span>
   <span class="kw">where</span> <span class="ident">OutputType</span>: <span class="ident">CustomWrite</span><span class="op">&lt;</span><span class="ident">ErrType</span><span class="op">&gt;</span>
 {
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_written</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
   <span class="kw">while</span> <span class="ident">total_written</span> <span class="op">&lt;</span> <span class="ident">buf</span>.<span class="ident">len</span>() {
     <span class="kw">match</span> <span class="ident">w</span>.<span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[<span class="ident">total_written</span>..]) {
-      <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">Result::Err</span>(<span class="ident">e</span>),
+      <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="kw">return</span> <span class="ident">Result::Err</span>(<span class="ident">e</span>),
       <span class="comment">// CustomResult::Transient(e) =&gt; continue,</span>
-      <span class="prelude-val">Ok</span>(<span class="ident">cur_written</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro">assert_eq!</span>(<span class="ident">cur_written</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>, <span class="bool-val">false</span>); <span class="comment">// not allowed by the contract</span>
+      <span class="prelude-val">Ok</span>(<span class="ident">cur_written</span>) =&gt; {
+        <span class="macro">assert_eq!</span>(<span class="ident">cur_written</span> <span class="op">==</span> <span class="number">0</span>, <span class="bool-val">false</span>); <span class="comment">// not allowed by the contract</span>
         <span class="ident">total_written</span> <span class="op">+</span><span class="op">=</span> <span class="ident">cur_written</span>;
       }
     }
@@ -184,29 +184,29 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">OutputType</span>: <span class="ident">Write</span><span class="op">&gt;</span> <span class="ident">CustomWrite</span><span class="op">&lt;</span><span class="ident">io::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">IoWriterWrapper</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">OutputType</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">write</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">io::Error</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">write</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">io::Error</span><span class="op">&gt;</span> {
     <span class="kw">loop</span> {
       <span class="kw">match</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">write</span>(<span class="ident">buf</span>) {
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
           <span class="kw">match</span> <span class="ident">e</span>.<span class="ident">kind</span>() {
-            <span class="ident">ErrorKind::Interrupted</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">continue</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+            <span class="ident">ErrorKind::Interrupted</span> =&gt; <span class="kw">continue</span>,
+            <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
           }
         }
-        <span class="prelude-val">Ok</span>(<span class="ident">cur_written</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">cur_written</span>),
+        <span class="prelude-val">Ok</span>(<span class="ident">cur_written</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">cur_written</span>),
       }
     }
   }
-  <span class="kw">fn</span> <span class="ident">flush</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">io::Error</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">flush</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">io::Error</span><span class="op">&gt;</span> {
     <span class="kw">loop</span> {
       <span class="kw">match</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">flush</span>() {
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
           <span class="kw">match</span> <span class="ident">e</span>.<span class="ident">kind</span>() {
-            <span class="ident">ErrorKind::Interrupted</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">continue</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+            <span class="ident">ErrorKind::Interrupted</span> =&gt; <span class="kw">continue</span>,
+            <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
           }
         }
-        <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>(()),
+        <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(()),
       }
     }
   }
@@ -215,16 +215,16 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">InputType</span>: <span class="ident">Read</span><span class="op">&gt;</span> <span class="ident">CustomRead</span><span class="op">&lt;</span><span class="ident">io::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">IoReaderWrapper</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">InputType</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">read</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">io::Error</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">read</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">io::Error</span><span class="op">&gt;</span> {
     <span class="kw">loop</span> {
       <span class="kw">match</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">read</span>(<span class="ident">buf</span>) {
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
           <span class="kw">match</span> <span class="ident">e</span>.<span class="ident">kind</span>() {
-            <span class="ident">ErrorKind::Interrupted</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">continue</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+            <span class="ident">ErrorKind::Interrupted</span> =&gt; <span class="kw">continue</span>,
+            <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
           }
         }
-        <span class="prelude-val">Ok</span>(<span class="ident">cur_read</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">cur_read</span>),
+        <span class="prelude-val">Ok</span>(<span class="ident">cur_read</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">cur_read</span>),
       }
     }
   }
@@ -232,16 +232,16 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">InputType</span>: <span class="ident">Read</span><span class="op">&gt;</span> <span class="ident">CustomRead</span><span class="op">&lt;</span><span class="ident">io::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">IntoIoReader</span><span class="op">&lt;</span><span class="ident">InputType</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">read</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">io::Error</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">read</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">io::Error</span><span class="op">&gt;</span> {
     <span class="kw">loop</span> {
       <span class="kw">match</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">read</span>(<span class="ident">buf</span>) {
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
           <span class="kw">match</span> <span class="ident">e</span>.<span class="ident">kind</span>() {
-            <span class="ident">ErrorKind::Interrupted</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">continue</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+            <span class="ident">ErrorKind::Interrupted</span> =&gt; <span class="kw">continue</span>,
+            <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
           }
         }
-        <span class="prelude-val">Ok</span>(<span class="ident">cur_read</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">cur_read</span>),
+        <span class="prelude-val">Ok</span>(<span class="ident">cur_read</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">cur_read</span>),
       }
     }
   }
@@ -249,29 +249,29 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">InputType</span>: <span class="ident">Write</span><span class="op">&gt;</span> <span class="ident">CustomWrite</span><span class="op">&lt;</span><span class="ident">io::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">IntoIoWriter</span><span class="op">&lt;</span><span class="ident">InputType</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">flush</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">io::Error</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">flush</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">io::Error</span><span class="op">&gt;</span> {
     <span class="kw">loop</span> {
       <span class="kw">match</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">flush</span>() {
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
           <span class="kw">match</span> <span class="ident">e</span>.<span class="ident">kind</span>() {
-            <span class="ident">ErrorKind::Interrupted</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">continue</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+            <span class="ident">ErrorKind::Interrupted</span> =&gt; <span class="kw">continue</span>,
+            <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
           }
         }
-        <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>(()),
+        <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(()),
       }
     }     
   }
-  <span class="kw">fn</span> <span class="ident">write</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">io::Error</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">write</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">io::Error</span><span class="op">&gt;</span> {
     <span class="kw">loop</span> {
       <span class="kw">match</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">write</span>(<span class="ident">buf</span>) {
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
           <span class="kw">match</span> <span class="ident">e</span>.<span class="ident">kind</span>() {
-            <span class="ident">ErrorKind::Interrupted</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">continue</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+            <span class="ident">ErrorKind::Interrupted</span> =&gt; <span class="kw">continue</span>,
+            <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
           }
         }
-        <span class="prelude-val">Ok</span>(<span class="ident">cur_written</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">cur_written</span>),
+        <span class="prelude-val">Ok</span>(<span class="ident">cur_written</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">cur_written</span>),
       }
     }
   }

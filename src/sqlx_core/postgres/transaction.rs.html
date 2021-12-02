@@ -80,7 +80,7 @@
 <span class="kw">impl</span> <span class="ident">TransactionManager</span> <span class="kw">for</span> <span class="ident">PgTransactionManager</span> {
     <span class="kw">type</span> <span class="ident">Database</span> <span class="op">=</span> <span class="ident">Postgres</span>;
 
-    <span class="kw">fn</span> <span class="ident">begin</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">begin</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
             <span class="ident">conn</span>.<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">begin_ansi_transaction_sql</span>(<span class="ident">conn</span>.<span class="ident">transaction_depth</span>))
                 .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -91,7 +91,7 @@
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">commit</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">commit</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
             <span class="kw">if</span> <span class="ident">conn</span>.<span class="ident">transaction_depth</span> <span class="op">&gt;</span> <span class="number">0</span> {
                 <span class="ident">conn</span>.<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">commit_ansi_transaction_sql</span>(<span class="ident">conn</span>.<span class="ident">transaction_depth</span>))
@@ -104,7 +104,7 @@
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">rollback</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">rollback</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
             <span class="kw">if</span> <span class="ident">conn</span>.<span class="ident">transaction_depth</span> <span class="op">&gt;</span> <span class="number">0</span> {
                 <span class="ident">conn</span>.<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">rollback_ansi_transaction_sql</span>(<span class="ident">conn</span>.<span class="ident">transaction_depth</span>))

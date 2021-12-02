@@ -95,7 +95,7 @@
 
 <span class="kw">impl</span> <span class="ident">Decode</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CommandComplete</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">decode_with</span>(<span class="ident">buf</span>: <span class="ident">Bytes</span>, <span class="kw">_</span>: ()) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">decode_with</span>(<span class="ident">buf</span>: <span class="ident">Bytes</span>, <span class="kw">_</span>: ()) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">CommandComplete</span> { <span class="ident">tag</span>: <span class="ident">buf</span> })
     }
 }
@@ -103,7 +103,7 @@
 <span class="kw">impl</span> <span class="ident">CommandComplete</span> {
     <span class="doccomment">/// Returns the number of rows affected.</span>
     <span class="doccomment">/// If the command does not return rows (e.g., &quot;CREATE TABLE&quot;), returns 0.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rows_affected</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u64</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rows_affected</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u64</span> {
         <span class="comment">// Look backwards for the first SPACE</span>
         <span class="ident">memrchr</span>(<span class="string">b&#39; &#39;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">tag</span>)
             <span class="comment">// This is either a word or the number of rows affected</span>

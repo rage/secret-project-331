@@ -176,7 +176,7 @@
 
 <span class="doccomment">/// Export `T` to the file specified by the `#[ts(export = ..)]` attribute and/or the `out_dir`</span>
 <span class="doccomment">/// setting in the `ts.toml` config file.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">export_type</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ExportError</span><span class="op">&gt;</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">export_type</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ExportError</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">output_path</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">String::with_capacity</span>(<span class="number">1024</span>);
@@ -195,7 +195,7 @@
 }
 
 <span class="doccomment">/// Compute the output path to where `T` should be exported.</span>
-<span class="kw">fn</span> <span class="ident">output_path</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PathBuf</span>, <span class="ident">ExportError</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">output_path</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PathBuf</span>, <span class="ident">ExportError</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">manifest_dir</span> <span class="op">=</span> <span class="ident">std::env::var</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">ManifestDirNotSet</span>)<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">manifest_dir</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="kw-2">&amp;</span><span class="ident">manifest_dir</span>);
     <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">PathBuf::from</span>(<span class="ident">T::EXPORT_TO</span>.<span class="ident">ok_or</span>(<span class="ident">CannotBeExported</span>)<span class="question-mark">?</span>);
@@ -209,7 +209,7 @@
 }
 
 <span class="doccomment">/// Push an import statement for all dependencies of `T`</span>
-<span class="kw">fn</span> <span class="ident">generate_imports</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="ident">out</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ExportError</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">generate_imports</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="ident">out</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ExportError</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="ident">T::EXPORT_TO</span>.<span class="ident">ok_or</span>(<span class="ident">ExportError::CannotBeExported</span>)<span class="question-mark">?</span>);
 
     <span class="kw">let</span> <span class="ident">deps</span> <span class="op">=</span> <span class="ident">T::dependencies</span>()
@@ -231,12 +231,12 @@
 }
 
 <span class="doccomment">/// Returns the required import path for importing `import` from the file `from`</span>
-<span class="kw">fn</span> <span class="ident">import_path</span>(<span class="ident">from</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>, <span class="ident">import</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">fn</span> <span class="ident">import_path</span>(<span class="ident">from</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>, <span class="ident">import</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="ident">String</span> {
     <span class="kw">let</span> <span class="ident">rel_path</span> <span class="op">=</span>
         <span class="ident">diff_paths</span>(<span class="ident">import</span>, <span class="ident">from</span>.<span class="ident">parent</span>().<span class="ident">unwrap</span>()).<span class="ident">expect</span>(<span class="string">&quot;failed to calculate import path&quot;</span>);
     <span class="kw">match</span> <span class="ident">rel_path</span>.<span class="ident">components</span>().<span class="ident">next</span>() {
-        <span class="prelude-val">Some</span>(<span class="ident">Component::Normal</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(<span class="string">&quot;./{}&quot;</span>, <span class="ident">rel_path</span>.<span class="ident">to_string_lossy</span>()),
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">rel_path</span>.<span class="ident">to_string_lossy</span>().<span class="ident">into</span>(),
+        <span class="prelude-val">Some</span>(<span class="ident">Component::Normal</span>(<span class="kw">_</span>)) =&gt; <span class="macro">format!</span>(<span class="string">&quot;./{}&quot;</span>, <span class="ident">rel_path</span>.<span class="ident">to_string_lossy</span>()),
+        <span class="kw">_</span> =&gt; <span class="ident">rel_path</span>.<span class="ident">to_string_lossy</span>().<span class="ident">into</span>(),
     }
     .<span class="ident">trim_end_matches</span>(<span class="string">&quot;.ts&quot;</span>)
     .<span class="ident">to_owned</span>()
@@ -254,7 +254,7 @@
 <span class="comment">//</span>
 <span class="comment">// Adapted from rustc&#39;s path_relative_from</span>
 <span class="comment">// https://github.com/rust-lang/rust/blob/e1d0de82cc40b666b88d4a6d2c9dcbc81d7ed27f/src/librustc_back/rpath.rs#L116-L158</span>
-<span class="kw">fn</span> <span class="ident">diff_paths</span><span class="op">&lt;</span><span class="ident">P</span>, <span class="ident">B</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="ident">P</span>, <span class="ident">base</span>: <span class="ident">B</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span>
+<span class="kw">fn</span> <span class="ident">diff_paths</span><span class="op">&lt;</span><span class="ident">P</span>, <span class="ident">B</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="ident">P</span>, <span class="ident">base</span>: <span class="ident">B</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>,
     <span class="ident">B</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>,
@@ -274,17 +274,17 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">comps</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Component</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[];
         <span class="kw">loop</span> {
             <span class="kw">match</span> (<span class="ident">ita</span>.<span class="ident">next</span>(), <span class="ident">itb</span>.<span class="ident">next</span>()) {
-                (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">break</span>,
-                (<span class="prelude-val">Some</span>(<span class="ident">a</span>), <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; <span class="kw">break</span>,
+                (<span class="prelude-val">Some</span>(<span class="ident">a</span>), <span class="prelude-val">None</span>) =&gt; {
                     <span class="ident">comps</span>.<span class="ident">push</span>(<span class="ident">a</span>);
                     <span class="ident">comps</span>.<span class="ident">extend</span>(<span class="ident">ita</span>.<span class="ident">by_ref</span>());
                     <span class="kw">break</span>;
                 }
-                (<span class="prelude-val">None</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">comps</span>.<span class="ident">push</span>(<span class="ident">Component::ParentDir</span>),
-                (<span class="prelude-val">Some</span>(<span class="ident">a</span>), <span class="prelude-val">Some</span>(<span class="ident">b</span>)) <span class="kw">if</span> <span class="ident">comps</span>.<span class="ident">is_empty</span>() <span class="op">&amp;&amp;</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="ident">b</span> <span class="op">=</span><span class="op">&gt;</span> (),
-                (<span class="prelude-val">Some</span>(<span class="ident">a</span>), <span class="prelude-val">Some</span>(<span class="ident">b</span>)) <span class="kw">if</span> <span class="ident">b</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Component::CurDir</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">comps</span>.<span class="ident">push</span>(<span class="ident">a</span>),
-                (<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">Some</span>(<span class="ident">b</span>)) <span class="kw">if</span> <span class="ident">b</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Component::ParentDir</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">None</span>,
-                (<span class="prelude-val">Some</span>(<span class="ident">a</span>), <span class="prelude-val">Some</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                (<span class="prelude-val">None</span>, <span class="kw">_</span>) =&gt; <span class="ident">comps</span>.<span class="ident">push</span>(<span class="ident">Component::ParentDir</span>),
+                (<span class="prelude-val">Some</span>(<span class="ident">a</span>), <span class="prelude-val">Some</span>(<span class="ident">b</span>)) <span class="kw">if</span> <span class="ident">comps</span>.<span class="ident">is_empty</span>() <span class="op">&amp;&amp;</span> <span class="ident">a</span> <span class="op">==</span> <span class="ident">b</span> =&gt; (),
+                (<span class="prelude-val">Some</span>(<span class="ident">a</span>), <span class="prelude-val">Some</span>(<span class="ident">b</span>)) <span class="kw">if</span> <span class="ident">b</span> <span class="op">==</span> <span class="ident">Component::CurDir</span> =&gt; <span class="ident">comps</span>.<span class="ident">push</span>(<span class="ident">a</span>),
+                (<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">Some</span>(<span class="ident">b</span>)) <span class="kw">if</span> <span class="ident">b</span> <span class="op">==</span> <span class="ident">Component::ParentDir</span> =&gt; <span class="kw">return</span> <span class="prelude-val">None</span>,
+                (<span class="prelude-val">Some</span>(<span class="ident">a</span>), <span class="prelude-val">Some</span>(<span class="kw">_</span>)) =&gt; {
                     <span class="ident">comps</span>.<span class="ident">push</span>(<span class="ident">Component::ParentDir</span>);
                     <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="ident">itb</span> {
                         <span class="ident">comps</span>.<span class="ident">push</span>(<span class="ident">Component::ParentDir</span>);

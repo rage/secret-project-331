@@ -382,7 +382,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">SmtpInfo</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">server</span>: <span class="string">&quot;localhost&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">port</span>: <span class="ident">SMTP_PORT</span>,

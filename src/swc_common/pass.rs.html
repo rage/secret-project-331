@@ -39,14 +39,14 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// - name should follow hyphen-case.</span>
     <span class="doccomment">/// - an implementation should return same name</span>
-    <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">name</span>() -&gt; <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span>;
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span> <span class="ident">CompilerPass</span> <span class="kw">for</span> <span class="ident">Repeat</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">V</span>: <span class="ident">CompilerPass</span> <span class="op">+</span> <span class="ident">Repeated</span>,
 {
-    <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">name</span>() -&gt; <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span> {
         <span class="ident">Cow::Owned</span>(<span class="macro">format!</span>(<span class="string">&quot;repeat({})&quot;</span>, <span class="ident">V::name</span>()))
     }
 }
@@ -56,7 +56,7 @@
     <span class="ident">A</span>: <span class="ident">CompilerPass</span>,
     <span class="ident">B</span>: <span class="ident">CompilerPass</span>,
 {
-    <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">name</span>() -&gt; <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span> {
         <span class="ident">Cow::Owned</span>(<span class="macro">format!</span>(<span class="string">&quot;{} -&gt; {}&quot;</span>, <span class="ident">A::name</span>(), <span class="ident">B::name</span>()))
     }
 }

@@ -266,7 +266,7 @@
         <span class="kw">use</span> <span class="ident">packed_simd::u16x8</span>;
 
         <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-        <span class="kw">fn</span> <span class="ident">shift_upper</span>(<span class="ident">unpacked</span>: <span class="ident">u16x8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u16x8</span> {
+        <span class="kw">fn</span> <span class="ident">shift_upper</span>(<span class="ident">unpacked</span>: <span class="ident">u16x8</span>) -&gt; <span class="ident">u16x8</span> {
             <span class="kw">let</span> <span class="ident">highest_ascii</span> <span class="op">=</span> <span class="ident">u16x8::splat</span>(<span class="number">0x7F</span>);
             <span class="ident">unpacked</span> <span class="op">+</span> <span class="ident">unpacked</span>.<span class="ident">gt</span>(<span class="ident">highest_ascii</span>).<span class="ident">select</span>(<span class="ident">u16x8::splat</span>(<span class="number">0xF700</span>), <span class="ident">u16x8::splat</span>(<span class="number">0</span>))        }
     } <span class="kw">else</span> {
@@ -276,19 +276,19 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UserDefinedDecoder</span>;
 
 <span class="kw">impl</span> <span class="ident">UserDefinedDecoder</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">VariantDecoder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">VariantDecoder</span> {
         <span class="ident">VariantDecoder::UserDefined</span>(<span class="ident">UserDefinedDecoder</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_utf16_buffer_length</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">byte_length</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_utf16_buffer_length</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">byte_length</span>: <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="prelude-val">Some</span>(<span class="ident">byte_length</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_utf8_buffer_length_without_replacement</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">byte_length</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_utf8_buffer_length_without_replacement</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">byte_length</span>: <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="ident">byte_length</span>.<span class="ident">checked_mul</span>(<span class="number">3</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_utf8_buffer_length</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">byte_length</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_utf8_buffer_length</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">byte_length</span>: <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="ident">byte_length</span>.<span class="ident">checked_mul</span>(<span class="number">3</span>)
     }
 
@@ -324,7 +324,7 @@
         <span class="ident">src</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">dst</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u16</span>],
         <span class="ident">_last</span>: <span class="ident">bool</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">DecoderResult</span>, <span class="ident">usize</span>, <span class="ident">usize</span>) {
+    ) -&gt; (<span class="ident">DecoderResult</span>, <span class="ident">usize</span>, <span class="ident">usize</span>) {
         <span class="kw">let</span> (<span class="ident">pending</span>, <span class="ident">length</span>) <span class="op">=</span> <span class="kw">if</span> <span class="ident">dst</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident">src</span>.<span class="ident">len</span>() {
             (<span class="ident">DecoderResult::OutputFull</span>, <span class="ident">dst</span>.<span class="ident">len</span>())
         } <span class="kw">else</span> {
@@ -354,7 +354,7 @@
         <span class="ident">src</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">dst</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u16</span>],
         <span class="ident">_last</span>: <span class="ident">bool</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">DecoderResult</span>, <span class="ident">usize</span>, <span class="ident">usize</span>) {
+    ) -&gt; (<span class="ident">DecoderResult</span>, <span class="ident">usize</span>, <span class="ident">usize</span>) {
         <span class="kw">let</span> (<span class="ident">pending</span>, <span class="ident">length</span>) <span class="op">=</span> <span class="kw">if</span> <span class="ident">dst</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident">src</span>.<span class="ident">len</span>() {
             (<span class="ident">DecoderResult::OutputFull</span>, <span class="ident">dst</span>.<span class="ident">len</span>())
         } <span class="kw">else</span> {
@@ -395,21 +395,21 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UserDefinedEncoder</span>;
 
 <span class="kw">impl</span> <span class="ident">UserDefinedEncoder</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">encoding</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Encoding</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Encoder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">encoding</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Encoding</span>) -&gt; <span class="ident">Encoder</span> {
         <span class="ident">Encoder::new</span>(<span class="ident">encoding</span>, <span class="ident">VariantEncoder::UserDefined</span>(<span class="ident">UserDefinedEncoder</span>))
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_buffer_length_from_utf16_without_replacement</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">u16_length</span>: <span class="ident">usize</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="prelude-val">Some</span>(<span class="ident">u16_length</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_buffer_length_from_utf8_without_replacement</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">byte_length</span>: <span class="ident">usize</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="prelude-val">Some</span>(<span class="ident">byte_length</span>)
     }
 

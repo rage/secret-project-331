@@ -3,7 +3,7 @@
 A <code>BigInt</code> is a combination of <code>BigUint</code> and <code>Sign</code>.</p>
 <p>Common numerical operations are overloaded, so we can treat them
 the same way we treat other numbers.</p>
-<h2 id="example" class="section-header"><a href="#example">Example</a></h2>
+<h3 id="example" class="section-header"><a href="#example">Example</a></h3>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">num_bigint</span>;
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">num_traits</span>;
 
@@ -12,7 +12,7 @@ the same way we treat other numbers.</p>
 <span class="kw">use</span> <span class="ident">std::mem::replace</span>;
 
 <span class="comment">// Calculate large fibonacci numbers.</span>
-<span class="kw">fn</span> <span class="ident">fib</span>(<span class="ident">n</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BigUint</span> {
+<span class="kw">fn</span> <span class="ident">fib</span>(<span class="ident">n</span>: <span class="ident">usize</span>) -&gt; <span class="ident">BigUint</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">f0</span>: <span class="ident">BigUint</span> <span class="op">=</span> <span class="ident">Zero::zero</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">f1</span>: <span class="ident">BigUint</span> <span class="op">=</span> <span class="ident">One::one</span>();
     <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">n</span> {
@@ -43,7 +43,7 @@ the same way we treat other numbers.</p>
 <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">a</span> <span class="op">*</span> <span class="ident">b</span>);
 </code></pre></div>
 <p>See the “Features” section for instructions for enabling random number generation.</p>
-<h2 id="features" class="section-header"><a href="#features">Features</a></h2>
+<h3 id="features" class="section-header"><a href="#features">Features</a></h3>
 <p>The <code>std</code> crate feature is mandatory and enabled by default.  If you depend on
 <code>num-bigint</code> with <code>default-features = false</code>, you must manually enable the
 <code>std</code> feature yourself.  In the future, we hope to support <code>#![no_std]</code> with
@@ -51,25 +51,25 @@ the <code>alloc</code> crate when <code>std</code> is not enabled.</p>
 <p>Implementations for <code>i128</code> and <code>u128</code> are only available with Rust 1.26 and
 later.  The build script automatically detects this, but you can make it
 mandatory by enabling the <code>i128</code> crate feature.</p>
-<h3 id="random-generation" class="section-header"><a href="#random-generation">Random Generation</a></h3>
+<h4 id="random-generation" class="section-header"><a href="#random-generation">Random Generation</a></h4>
 <p><code>num-bigint</code> supports the generation of random big integers when the <code>rand</code>
 feature is enabled. To enable it include rand as</p>
 <div class="example-wrap"><pre class="language-toml"><code>rand = &quot;0.5&quot;
 num-bigint = { version = &quot;0.2&quot;, features = [&quot;rand&quot;] }</code></pre></div>
 <p>Note that you must use the version of <code>rand</code> that <code>num-bigint</code> is compatible
 with: <code>0.5</code>.</p>
-<h2 id="compatibility" class="section-header"><a href="#compatibility">Compatibility</a></h2>
+<h3 id="compatibility" class="section-header"><a href="#compatibility">Compatibility</a></h3>
 <p>The <code>num-bigint</code> crate is tested for rustc 1.15 and greater.</p>
 </div></details><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.BigInt.html" title="num_bigint::BigInt struct">BigInt</a></div><div class="item-right docblock-short"><p>A big signed integer type.</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.BigUint.html" title="num_bigint::BigUint struct">BigUint</a></div><div class="item-right docblock-short"><p>A big unsigned integer type.</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.ParseBigIntError.html" title="num_bigint::ParseBigIntError struct">ParseBigIntError</a></div><div class="item-right docblock-short"></div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="enum" href="enum.Sign.html" title="num_bigint::Sign enum">Sign</a></div><div class="item-right docblock-short"><p>A Sign is a <code>BigInt</code>’s composing element.</p>
-</div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="trait" href="trait.ToBigInt.html" title="num_bigint::ToBigInt trait">ToBigInt</a></div><div class="item-right docblock-short"><p>A generic trait for converting a value to a <code>BigInt</code>. This may return
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.BigInt.html" title="num_bigint::BigInt struct">BigInt</a></div><div class="item-right docblock-short"><p>A big signed integer type.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.BigUint.html" title="num_bigint::BigUint struct">BigUint</a></div><div class="item-right docblock-short"><p>A big unsigned integer type.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.ParseBigIntError.html" title="num_bigint::ParseBigIntError struct">ParseBigIntError</a></div><div class="item-right docblock-short"></div></div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.Sign.html" title="num_bigint::Sign enum">Sign</a></div><div class="item-right docblock-short"><p>A Sign is a <code>BigInt</code>’s composing element.</p>
+</div></div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.ToBigInt.html" title="num_bigint::ToBigInt trait">ToBigInt</a></div><div class="item-right docblock-short"><p>A generic trait for converting a value to a <code>BigInt</code>. This may return
 <code>None</code> when converting from <code>f32</code> or <code>f64</code>, and will always succeed
 when converting from any integer or unsigned primitive, or <code>BigUint</code>.</p>
-</div><div class="item-left module-item"><a class="trait" href="trait.ToBigUint.html" title="num_bigint::ToBigUint trait">ToBigUint</a></div><div class="item-right docblock-short"><p>A generic trait for converting a value to a <code>BigUint</code>.</p>
-</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="num_bigint" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.ToBigUint.html" title="num_bigint::ToBigUint trait">ToBigUint</a></div><div class="item-right docblock-short"><p>A generic trait for converting a value to a <code>BigUint</code>.</p>
+</div></div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="num_bigint" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
     <script src="../main.js"></script>
 </body></html>

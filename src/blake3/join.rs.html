@@ -112,10 +112,10 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// See the [`join` module docs](index.html) for more details.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Join</span> {
-    <span class="kw">fn</span> <span class="ident">join</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">RA</span>, <span class="ident">RB</span><span class="op">&gt;</span>(<span class="ident">oper_a</span>: <span class="ident">A</span>, <span class="ident">oper_b</span>: <span class="ident">B</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">RA</span>, <span class="ident">RB</span>)
+    <span class="kw">fn</span> <span class="ident">join</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">RA</span>, <span class="ident">RB</span><span class="op">&gt;</span>(<span class="ident">oper_a</span>: <span class="ident">A</span>, <span class="ident">oper_b</span>: <span class="ident">B</span>) -&gt; (<span class="ident">RA</span>, <span class="ident">RB</span>)
     <span class="kw">where</span>
-        <span class="ident">A</span>: <span class="ident">FnOnce</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RA</span> <span class="op">+</span> <span class="ident">Send</span>,
-        <span class="ident">B</span>: <span class="ident">FnOnce</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RB</span> <span class="op">+</span> <span class="ident">Send</span>,
+        <span class="ident">A</span>: <span class="ident">FnOnce</span>() -&gt; <span class="ident">RA</span> <span class="op">+</span> <span class="ident">Send</span>,
+        <span class="ident">B</span>: <span class="ident">FnOnce</span>() -&gt; <span class="ident">RB</span> <span class="op">+</span> <span class="ident">Send</span>,
         <span class="ident">RA</span>: <span class="ident">Send</span>,
         <span class="ident">RB</span>: <span class="ident">Send</span>;
 }
@@ -130,10 +130,10 @@
 
 <span class="kw">impl</span> <span class="ident">Join</span> <span class="kw">for</span> <span class="ident">SerialJoin</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">join</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">RA</span>, <span class="ident">RB</span><span class="op">&gt;</span>(<span class="ident">oper_a</span>: <span class="ident">A</span>, <span class="ident">oper_b</span>: <span class="ident">B</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">RA</span>, <span class="ident">RB</span>)
+    <span class="kw">fn</span> <span class="ident">join</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">RA</span>, <span class="ident">RB</span><span class="op">&gt;</span>(<span class="ident">oper_a</span>: <span class="ident">A</span>, <span class="ident">oper_b</span>: <span class="ident">B</span>) -&gt; (<span class="ident">RA</span>, <span class="ident">RB</span>)
     <span class="kw">where</span>
-        <span class="ident">A</span>: <span class="ident">FnOnce</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RA</span> <span class="op">+</span> <span class="ident">Send</span>,
-        <span class="ident">B</span>: <span class="ident">FnOnce</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RB</span> <span class="op">+</span> <span class="ident">Send</span>,
+        <span class="ident">A</span>: <span class="ident">FnOnce</span>() -&gt; <span class="ident">RA</span> <span class="op">+</span> <span class="ident">Send</span>,
+        <span class="ident">B</span>: <span class="ident">FnOnce</span>() -&gt; <span class="ident">RB</span> <span class="op">+</span> <span class="ident">Send</span>,
         <span class="ident">RA</span>: <span class="ident">Send</span>,
         <span class="ident">RB</span>: <span class="ident">Send</span>,
     {
@@ -152,10 +152,10 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rayon&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">Join</span> <span class="kw">for</span> <span class="ident">RayonJoin</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">join</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">RA</span>, <span class="ident">RB</span><span class="op">&gt;</span>(<span class="ident">oper_a</span>: <span class="ident">A</span>, <span class="ident">oper_b</span>: <span class="ident">B</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">RA</span>, <span class="ident">RB</span>)
+    <span class="kw">fn</span> <span class="ident">join</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">RA</span>, <span class="ident">RB</span><span class="op">&gt;</span>(<span class="ident">oper_a</span>: <span class="ident">A</span>, <span class="ident">oper_b</span>: <span class="ident">B</span>) -&gt; (<span class="ident">RA</span>, <span class="ident">RB</span>)
     <span class="kw">where</span>
-        <span class="ident">A</span>: <span class="ident">FnOnce</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RA</span> <span class="op">+</span> <span class="ident">Send</span>,
-        <span class="ident">B</span>: <span class="ident">FnOnce</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RB</span> <span class="op">+</span> <span class="ident">Send</span>,
+        <span class="ident">A</span>: <span class="ident">FnOnce</span>() -&gt; <span class="ident">RA</span> <span class="op">+</span> <span class="ident">Send</span>,
+        <span class="ident">B</span>: <span class="ident">FnOnce</span>() -&gt; <span class="ident">RB</span> <span class="op">+</span> <span class="ident">Send</span>,
         <span class="ident">RA</span>: <span class="ident">Send</span>,
         <span class="ident">RB</span>: <span class="ident">Send</span>,
     {

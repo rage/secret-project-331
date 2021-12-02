@@ -537,7 +537,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;unsafe&quot;</span>, <span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))))]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliDecompress</span><span class="op">&lt;</span><span class="ident">InputType</span>, <span class="ident">OutputType</span><span class="op">&gt;</span>(<span class="ident">r</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">InputType</span>,
                                                <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">OutputType</span>)
-                                               <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">io::Error</span><span class="op">&gt;</span>
+                                               -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">io::Error</span><span class="op">&gt;</span>
   <span class="kw">where</span> <span class="ident">InputType</span>: <span class="ident">Read</span>,
         <span class="ident">OutputType</span>: <span class="ident">Write</span>
 {
@@ -559,7 +559,7 @@
                                                          <span class="ident">input_buffer</span>:<span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>],
                                                          <span class="ident">output_buffer</span>:<span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>],
                                                          <span class="ident">custom_dictionary</span>:<span class="ident">std::vec::Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>)
-                                                          <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">io::Error</span><span class="op">&gt;</span>
+                                                          -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">io::Error</span><span class="op">&gt;</span>
   <span class="kw">where</span> <span class="ident">InputType</span>: <span class="ident">Read</span>,
         <span class="ident">OutputType</span>: <span class="ident">Write</span>
 {
@@ -569,11 +569,11 @@
   {
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">borrowed_input_buffer</span> <span class="op">=</span> <span class="ident">input_buffer</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">borrowed_output_buffer</span> <span class="op">=</span> <span class="ident">output_buffer</span>;
-  <span class="kw">if</span> <span class="ident">borrowed_input_buffer</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+  <span class="kw">if</span> <span class="ident">borrowed_input_buffer</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">0</span> {
      <span class="ident">input_buffer_backing</span> <span class="op">=</span> <span class="ident">alloc_u8</span>.<span class="ident">alloc_cell</span>(<span class="number">4096</span>);
      <span class="ident">borrowed_input_buffer</span> <span class="op">=</span> <span class="ident">input_buffer_backing</span>.<span class="ident">slice_mut</span>();
   }
-  <span class="kw">if</span> <span class="ident">borrowed_output_buffer</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+  <span class="kw">if</span> <span class="ident">borrowed_output_buffer</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">0</span> {
      <span class="ident">output_buffer_backing</span> <span class="op">=</span> <span class="ident">alloc_u8</span>.<span class="ident">alloc_cell</span>(<span class="number">4096</span>);
      <span class="ident">borrowed_output_buffer</span> <span class="op">=</span> <span class="ident">output_buffer_backing</span>.<span class="ident">slice_mut</span>();
   }
@@ -593,7 +593,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;unsafe&quot;</span>,<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliDecompress</span><span class="op">&lt;</span><span class="ident">InputType</span>, <span class="ident">OutputType</span><span class="op">&gt;</span>(<span class="ident">r</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">InputType</span>,
                                                <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">OutputType</span>)
-                                               <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">io::Error</span><span class="op">&gt;</span>
+                                               -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">io::Error</span><span class="op">&gt;</span>
   <span class="kw">where</span> <span class="ident">InputType</span>: <span class="ident">Read</span>,
         <span class="ident">OutputType</span>: <span class="ident">Write</span>
 {
@@ -622,7 +622,7 @@
    <span class="ident">alloc_u8</span>: <span class="ident">AllocU8</span>,
    <span class="ident">alloc_u32</span>: <span class="ident">AllocU32</span>,
    <span class="ident">alloc_hc</span>: <span class="ident">AllocHC</span>)
-   <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">io::Error</span><span class="op">&gt;</span>
+   -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">io::Error</span><span class="op">&gt;</span>
   <span class="kw">where</span> <span class="ident">InputType</span>: <span class="ident">Read</span>,
         <span class="ident">OutputType</span>: <span class="ident">Write</span>
 {
@@ -649,7 +649,7 @@
    <span class="ident">alloc_u32</span>: <span class="ident">AllocU32</span>,
    <span class="ident">alloc_hc</span>: <span class="ident">AllocHC</span>,
    <span class="ident">unexpected_eof_error_constant</span>: <span class="ident">ErrType</span>)
-   <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ErrType</span><span class="op">&gt;</span>
+   -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ErrType</span><span class="op">&gt;</span>
   <span class="kw">where</span> <span class="ident">InputType</span>: <span class="ident">CustomRead</span><span class="op">&lt;</span><span class="ident">ErrType</span><span class="op">&gt;</span>,
         <span class="ident">OutputType</span>: <span class="ident">CustomWrite</span><span class="op">&lt;</span><span class="ident">ErrType</span><span class="op">&gt;</span>
 {
@@ -670,7 +670,7 @@
    <span class="ident">alloc_hc</span>: <span class="ident">AllocHC</span>,
    <span class="ident">custom_dictionary</span>: <span class="ident">AllocU8::AllocatedMemory</span>,
    <span class="ident">unexpected_eof_error_constant</span>: <span class="ident">ErrType</span>)
-   <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ErrType</span><span class="op">&gt;</span>
+   -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ErrType</span><span class="op">&gt;</span>
   <span class="kw">where</span> <span class="ident">InputType</span>: <span class="ident">CustomRead</span><span class="op">&lt;</span><span class="ident">ErrType</span><span class="op">&gt;</span>,
         <span class="ident">OutputType</span>: <span class="ident">CustomWrite</span><span class="op">&lt;</span><span class="ident">ErrType</span><span class="op">&gt;</span>
 {
@@ -685,30 +685,30 @@
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span>: <span class="ident">BrotliResult</span> <span class="op">=</span> <span class="ident">BrotliResult::NeedsMoreInput</span>;
   <span class="kw">loop</span> {
     <span class="kw">match</span> <span class="ident">result</span> {
-      <span class="ident">BrotliResult::NeedsMoreInput</span> <span class="op">=</span><span class="op">&gt;</span> {
+      <span class="ident">BrotliResult::NeedsMoreInput</span> =&gt; {
         <span class="ident">input_offset</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">match</span> <span class="ident">r</span>.<span class="ident">read</span>(<span class="ident">input_buffer</span>) {
-          <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+          <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>);
           },
-          <span class="prelude-val">Ok</span>(<span class="ident">size</span>) <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="kw">if</span> <span class="ident">size</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+          <span class="prelude-val">Ok</span>(<span class="ident">size</span>) =&gt; {
+            <span class="kw">if</span> <span class="ident">size</span> <span class="op">==</span> <span class="number">0</span> {
               <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">unexpected_eof_error_constant</span>);
             }
             <span class="ident">available_in</span> <span class="op">=</span> <span class="ident">size</span>;
           }
         }
       }
-      <span class="ident">BrotliResult::NeedsMoreOutput</span> <span class="op">=</span><span class="op">&gt;</span> {
+      <span class="ident">BrotliResult::NeedsMoreOutput</span> =&gt; {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_written</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">while</span> <span class="ident">total_written</span> <span class="op">&lt;</span> <span class="ident">output_offset</span> {
           <span class="comment">// this would be a call to write_all</span>
           <span class="kw">match</span> <span class="ident">w</span>.<span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="ident">output_buffer</span>[<span class="ident">total_written</span>..<span class="ident">output_offset</span>]) {
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
               <span class="kw">return</span> <span class="ident">Result::Err</span>(<span class="ident">e</span>);
             },
-            <span class="prelude-val">Ok</span>(<span class="ident">cur_written</span>) <span class="op">=</span><span class="op">&gt;</span> {
-              <span class="macro">assert_eq!</span>(<span class="ident">cur_written</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>, <span class="bool-val">false</span>); <span class="comment">// not allowed by the contract</span>
+            <span class="prelude-val">Ok</span>(<span class="ident">cur_written</span>) =&gt; {
+              <span class="macro">assert_eq!</span>(<span class="ident">cur_written</span> <span class="op">==</span> <span class="number">0</span>, <span class="bool-val">false</span>); <span class="comment">// not allowed by the contract</span>
               <span class="ident">total_written</span> <span class="op">+</span><span class="op">=</span> <span class="ident">cur_written</span>;
             }
           }
@@ -716,8 +716,8 @@
 
         <span class="ident">output_offset</span> <span class="op">=</span> <span class="number">0</span>;
       }
-      <span class="ident">BrotliResult::ResultSuccess</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">break</span>,
-      <span class="ident">BrotliResult::ResultFailure</span> <span class="op">=</span><span class="op">&gt;</span> {
+      <span class="ident">BrotliResult::ResultSuccess</span> =&gt; <span class="kw">break</span>,
+      <span class="ident">BrotliResult::ResultFailure</span> =&gt; {
         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">unexpected_eof_error_constant</span>);
       }
     }
@@ -735,12 +735,12 @@
       <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_written</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
       <span class="kw">while</span> <span class="ident">total_written</span> <span class="op">&lt;</span> <span class="ident">output_offset</span> {
         <span class="kw">match</span> <span class="ident">w</span>.<span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="ident">output_buffer</span>[<span class="ident">total_written</span>..<span class="ident">output_offset</span>]) {
-          <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+          <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
             <span class="kw">return</span> <span class="ident">Result::Err</span>(<span class="ident">e</span>);
           },
           <span class="comment">// CustomResult::Transient(e) =&gt; continue,</span>
-          <span class="prelude-val">Ok</span>(<span class="ident">cur_written</span>) <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="macro">assert_eq!</span>(<span class="ident">cur_written</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>, <span class="bool-val">false</span>); <span class="comment">// not allowed by the contract</span>
+          <span class="prelude-val">Ok</span>(<span class="ident">cur_written</span>) =&gt; {
+            <span class="macro">assert_eq!</span>(<span class="ident">cur_written</span> <span class="op">==</span> <span class="number">0</span>, <span class="bool-val">false</span>); <span class="comment">// not allowed by the contract</span>
             <span class="ident">total_written</span> <span class="op">+</span><span class="op">=</span> <span class="ident">cur_written</span>;
           }
         }
@@ -754,29 +754,29 @@
 
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">copy_from_to</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">io::Read</span>, <span class="ident">W</span>: <span class="ident">io::Write</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">r</span>: <span class="ident">R</span>, <span class="kw-2">mut</span> <span class="ident">w</span>: <span class="ident">W</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">copy_from_to</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">io::Read</span>, <span class="ident">W</span>: <span class="ident">io::Write</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">r</span>: <span class="ident">R</span>, <span class="kw-2">mut</span> <span class="ident">w</span>: <span class="ident">W</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer</span>: [<span class="ident">u8</span>; <span class="number">65536</span>] <span class="op">=</span> [<span class="number">0</span>; <span class="number">65536</span>];
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out_size</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
   <span class="kw">loop</span> {
     <span class="kw">match</span> <span class="ident">r</span>.<span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buffer</span>[..]) {
-      <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+      <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">io::ErrorKind::Interrupted</span> <span class="op">=</span>  <span class="ident">e</span>.<span class="ident">kind</span>() {
           <span class="kw">continue</span>
         }
         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>);
       }
-      <span class="prelude-val">Ok</span>(<span class="ident">size</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">size</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+      <span class="prelude-val">Ok</span>(<span class="ident">size</span>) =&gt; {
+        <span class="kw">if</span> <span class="ident">size</span> <span class="op">==</span> <span class="number">0</span> {
           <span class="kw">break</span>;
         } <span class="kw">else</span> {
           <span class="kw">match</span> <span class="ident">w</span>.<span class="ident">write_all</span>(<span class="kw-2">&amp;</span><span class="ident">buffer</span>[..<span class="ident">size</span>]) {
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
               <span class="kw">if</span> <span class="kw">let</span> <span class="ident">io::ErrorKind::Interrupted</span> <span class="op">=</span> <span class="ident">e</span>.<span class="ident">kind</span>() {
                 <span class="kw">continue</span>
               }
               <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>);
             }
-            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">out_size</span> <span class="op">+</span><span class="op">=</span> <span class="ident">size</span>,
+            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="ident">out_size</span> <span class="op">+</span><span class="op">=</span> <span class="ident">size</span>,
           }
         }
       }
@@ -799,7 +799,7 @@
         <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="ident">BrotliState</span><span class="op">&lt;</span><span class="ident">AllocU8</span>, <span class="ident">AllocU32</span>, <span class="ident">AllocHC</span><span class="op">&gt;</span>,
         <span class="ident">result</span>: <span class="ident">BrotliResult</span>,
         <span class="ident">output_size</span>: <span class="ident">usize</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    ) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">BrotliDecoderReturnInfo</span>{
             <span class="ident">result</span>: <span class="ident">result</span>,
             <span class="ident">decoded_size</span>: <span class="ident">output_size</span>,
@@ -810,7 +810,7 @@
                 [<span class="number">0u8</span>;<span class="number">256</span>]
             },
         };
-        <span class="kw">if</span> <span class="ident">ret</span>.<span class="ident">error_string</span>[<span class="number">0</span>] <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+        <span class="kw">if</span> <span class="ident">ret</span>.<span class="ident">error_string</span>[<span class="number">0</span>] <span class="op">==</span> <span class="number">0</span> {
             <span class="kw">let</span> <span class="ident">error_string</span> <span class="op">=</span> <span class="ident">state::BrotliDecoderErrorStr</span>(<span class="ident">ret</span>.<span class="ident">error_code</span>);
             <span class="kw">let</span> <span class="ident">to_copy</span> <span class="op">=</span> <span class="ident">core::cmp::min</span>(<span class="ident">error_string</span>.<span class="ident">len</span>(), <span class="ident">ret</span>.<span class="ident">error_string</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>);
             <span class="kw">for</span> (<span class="ident">dst</span>, <span class="ident">src</span>) <span class="kw">in</span> <span class="ident">ret</span>.<span class="ident">error_string</span>[..<span class="ident">to_copy</span>].<span class="ident">iter_mut</span>().<span class="ident">zip</span>(<span class="ident">error_string</span>[..<span class="ident">to_copy</span>].<span class="ident">bytes</span>()) {
@@ -829,7 +829,7 @@
   <span class="ident">scratch_u8</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>],
   <span class="ident">scratch_u32</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u32</span>],
   <span class="ident">scratch_hc</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">HuffmanCode</span>],
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BrotliDecoderReturnInfo</span> {
+) -&gt; <span class="ident">BrotliDecoderReturnInfo</span> {
   <span class="kw">let</span> <span class="ident">stack_u8_allocator</span> <span class="op">=</span> <span class="ident">MemPool</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="ident">::new_allocator</span>(<span class="ident">scratch_u8</span>, <span class="ident">bzero</span>);
   <span class="kw">let</span> <span class="ident">stack_u32_allocator</span> <span class="op">=</span> <span class="ident">MemPool</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="ident">::new_allocator</span>(<span class="ident">scratch_u32</span>, <span class="ident">bzero</span>);
   <span class="kw">let</span> <span class="ident">stack_hc_allocator</span> <span class="op">=</span> <span class="ident">MemPool</span>::<span class="op">&lt;</span><span class="ident">HuffmanCode</span><span class="op">&gt;</span><span class="ident">::new_allocator</span>(<span class="ident">scratch_hc</span>, <span class="ident">bzero</span>);
@@ -856,7 +856,7 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">brotli_decode</span>(
     <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
     <span class="ident">output_and_scratch</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span>[<span class="ident">u8</span>],
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BrotliDecoderReturnInfo</span> {
+) -&gt; <span class="ident">BrotliDecoderReturnInfo</span> {
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stack_u32_buffer</span> <span class="op">=</span> [<span class="number">0u32</span>; <span class="number">12</span> <span class="op">*</span> <span class="number">1024</span> <span class="op">*</span> <span class="number">6</span>];
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stack_hc_buffer</span> <span class="op">=</span> [<span class="ident">HuffmanCode::default</span>(); <span class="number">128</span> <span class="op">*</span> (<span class="ident">decode::kNumInsertAndCopyCodes</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">+</span> <span class="ident">decode::kNumLiteralCodes</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">+</span> <span class="number">6</span> <span class="op">*</span> <span class="ident">decode::kNumBlockLengthCodes</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">*</span> <span class="ident">huffman::BROTLI_HUFFMAN_MAX_TABLE_SIZE</span> <span class="kw">as</span> <span class="ident">usize</span>];
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">guessed_output_size</span> <span class="op">=</span> <span class="ident">core::cmp::min</span>(
@@ -899,7 +899,7 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">brotli_decode</span>(
     <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
     <span class="kw-2">mut</span> <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span>[<span class="ident">u8</span>],
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BrotliDecoderReturnInfo</span> {
+) -&gt; <span class="ident">BrotliDecoderReturnInfo</span> {
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">available_out</span> <span class="op">=</span> <span class="ident">output</span>.<span class="ident">len</span>();
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">available_in</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">len</span>();
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">input_offset</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;

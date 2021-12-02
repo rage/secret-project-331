@@ -209,13 +209,13 @@
 <span class="kw">impl</span> <span class="ident">std::error::Error</span> <span class="kw">for</span> <span class="ident">ConnectError</span> {}
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">actix_tls::connect::ConnectError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ConnectError</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">actix_tls::connect::ConnectError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ConnectError</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">actix_tls::connect::ConnectError</span>) -&gt; <span class="ident">ConnectError</span> {
         <span class="kw">match</span> <span class="ident">err</span> {
-            <span class="ident">actix_tls::connect::ConnectError::Resolver</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ConnectError::Resolver</span>(<span class="ident">e</span>),
-            <span class="ident">actix_tls::connect::ConnectError::NoRecords</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ConnectError::NoRecords</span>,
-            <span class="ident">actix_tls::connect::ConnectError::InvalidInput</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(),
-            <span class="ident">actix_tls::connect::ConnectError::Unresolved</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ConnectError::Unresolved</span>,
-            <span class="ident">actix_tls::connect::ConnectError::Io</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ConnectError::Io</span>(<span class="ident">e</span>),
+            <span class="ident">actix_tls::connect::ConnectError::Resolver</span>(<span class="ident">e</span>) =&gt; <span class="ident">ConnectError::Resolver</span>(<span class="ident">e</span>),
+            <span class="ident">actix_tls::connect::ConnectError::NoRecords</span> =&gt; <span class="ident">ConnectError::NoRecords</span>,
+            <span class="ident">actix_tls::connect::ConnectError::InvalidInput</span> =&gt; <span class="macro">panic!</span>(),
+            <span class="ident">actix_tls::connect::ConnectError::Unresolved</span> =&gt; <span class="ident">ConnectError::Unresolved</span>,
+            <span class="ident">actix_tls::connect::ConnectError::Io</span>(<span class="ident">e</span>) =&gt; <span class="ident">ConnectError::Io</span>(<span class="ident">e</span>),
         }
     }
 }
@@ -302,11 +302,11 @@
 <span class="kw">impl</span> <span class="ident">std::error::Error</span> <span class="kw">for</span> <span class="ident">FreezeRequestError</span> {}
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">FreezeRequestError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SendRequestError</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">FreezeRequestError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">FreezeRequestError</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">err</span> {
-            <span class="ident">FreezeRequestError::Url</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">err</span>.<span class="ident">into</span>(),
-            <span class="ident">FreezeRequestError::Http</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">err</span>.<span class="ident">into</span>(),
-            <span class="ident">FreezeRequestError::Custom</span>(<span class="ident">err</span>, <span class="ident">msg</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SendRequestError::Custom</span>(<span class="ident">err</span>, <span class="ident">msg</span>),
+            <span class="ident">FreezeRequestError::Url</span>(<span class="ident">err</span>) =&gt; <span class="ident">err</span>.<span class="ident">into</span>(),
+            <span class="ident">FreezeRequestError::Http</span>(<span class="ident">err</span>) =&gt; <span class="ident">err</span>.<span class="ident">into</span>(),
+            <span class="ident">FreezeRequestError::Custom</span>(<span class="ident">err</span>, <span class="ident">msg</span>) =&gt; <span class="ident">SendRequestError::Custom</span>(<span class="ident">err</span>, <span class="ident">msg</span>),
         }
     }
 }

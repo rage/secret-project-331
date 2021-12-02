@@ -46,42 +46,42 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Address</span>;
 
 <span class="kw">impl</span> <span class="ident">Address</span> <span class="kw">for</span> <span class="ident">Uri</span> {
-    <span class="kw">fn</span> <span class="ident">hostname</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+    <span class="kw">fn</span> <span class="ident">hostname</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="self">self</span>.<span class="ident">host</span>().<span class="ident">unwrap_or</span>(<span class="string">&quot;&quot;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">port</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">port</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">port_u16</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">port</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">port</span>),
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">scheme_to_port</span>(<span class="self">self</span>.<span class="ident">scheme_str</span>()),
+            <span class="prelude-val">Some</span>(<span class="ident">port</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">port</span>),
+            <span class="prelude-val">None</span> =&gt; <span class="ident">scheme_to_port</span>(<span class="self">self</span>.<span class="ident">scheme_str</span>()),
         }
     }
 }
 
 <span class="comment">// Get port from well-known URL schemes.</span>
-<span class="kw">fn</span> <span class="ident">scheme_to_port</span>(<span class="ident">scheme</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">scheme_to_port</span>(<span class="ident">scheme</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="ident">scheme</span> {
         <span class="comment">// HTTP</span>
-        <span class="prelude-val">Some</span>(<span class="string">&quot;http&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="number">80</span>),
-        <span class="prelude-val">Some</span>(<span class="string">&quot;https&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="number">443</span>),
+        <span class="prelude-val">Some</span>(<span class="string">&quot;http&quot;</span>) =&gt; <span class="prelude-val">Some</span>(<span class="number">80</span>),
+        <span class="prelude-val">Some</span>(<span class="string">&quot;https&quot;</span>) =&gt; <span class="prelude-val">Some</span>(<span class="number">443</span>),
 
         <span class="comment">// WebSockets</span>
-        <span class="prelude-val">Some</span>(<span class="string">&quot;ws&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="number">80</span>),
-        <span class="prelude-val">Some</span>(<span class="string">&quot;wss&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="number">443</span>),
+        <span class="prelude-val">Some</span>(<span class="string">&quot;ws&quot;</span>) =&gt; <span class="prelude-val">Some</span>(<span class="number">80</span>),
+        <span class="prelude-val">Some</span>(<span class="string">&quot;wss&quot;</span>) =&gt; <span class="prelude-val">Some</span>(<span class="number">443</span>),
 
         <span class="comment">// Advanced Message Queuing Protocol (AMQP)</span>
-        <span class="prelude-val">Some</span>(<span class="string">&quot;amqp&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="number">5672</span>),
-        <span class="prelude-val">Some</span>(<span class="string">&quot;amqps&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="number">5671</span>),
+        <span class="prelude-val">Some</span>(<span class="string">&quot;amqp&quot;</span>) =&gt; <span class="prelude-val">Some</span>(<span class="number">5672</span>),
+        <span class="prelude-val">Some</span>(<span class="string">&quot;amqps&quot;</span>) =&gt; <span class="prelude-val">Some</span>(<span class="number">5671</span>),
 
         <span class="comment">// Message Queuing Telemetry Transport (MQTT)</span>
-        <span class="prelude-val">Some</span>(<span class="string">&quot;mqtt&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="number">1883</span>),
-        <span class="prelude-val">Some</span>(<span class="string">&quot;mqtts&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="number">8883</span>),
+        <span class="prelude-val">Some</span>(<span class="string">&quot;mqtt&quot;</span>) =&gt; <span class="prelude-val">Some</span>(<span class="number">1883</span>),
+        <span class="prelude-val">Some</span>(<span class="string">&quot;mqtts&quot;</span>) =&gt; <span class="prelude-val">Some</span>(<span class="number">8883</span>),
 
         <span class="comment">// File Transfer Protocol (FTP)</span>
-        <span class="prelude-val">Some</span>(<span class="string">&quot;ftp&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="number">1883</span>),
-        <span class="prelude-val">Some</span>(<span class="string">&quot;ftps&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="number">990</span>),
+        <span class="prelude-val">Some</span>(<span class="string">&quot;ftp&quot;</span>) =&gt; <span class="prelude-val">Some</span>(<span class="number">1883</span>),
+        <span class="prelude-val">Some</span>(<span class="string">&quot;ftps&quot;</span>) =&gt; <span class="prelude-val">Some</span>(<span class="number">990</span>),
 
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+        <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
     }
 }
 </code></pre></div>

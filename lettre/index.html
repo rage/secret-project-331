@@ -7,24 +7,24 @@
 <li>Async support</li>
 </ul>
 <p>Lettre requires Rust 1.52.1 or newer.</p>
-<h2 id="features" class="section-header"><a href="#features">Features</a></h2>
+<h3 id="features" class="section-header"><a href="#features">Features</a></h3>
 <p>This section lists each lettre feature and briefly explains it.
 More info about each module can be found in the corresponding module page.</p>
 <p>Features with <code>📫</code> near them are enabled by default.</p>
-<h3 id="typed-message-builder" class="section-header"><a href="#typed-message-builder">Typed message builder</a></h3>
+<h4 id="typed-message-builder" class="section-header"><a href="#typed-message-builder">Typed message builder</a></h4>
 <p><em>Strongly typed <a href="message/index.html" title="message"><code>message</code></a> builder</em></p>
 <ul>
 <li><strong>builder</strong> 📫: Enable the <a href="struct.Message.html" title="Message"><code>Message</code></a> builder</li>
 <li><strong>hostname</strong> 📫: Try to use the actual system hostname in the <code>Message-ID</code> header</li>
 </ul>
-<h3 id="smtp-transport" class="section-header"><a href="#smtp-transport">SMTP transport</a></h3>
+<h4 id="smtp-transport" class="section-header"><a href="#smtp-transport">SMTP transport</a></h4>
 <p><em>Send emails using <a href="transport/smtp/index.html"><code>SMTP</code></a></em></p>
 <ul>
 <li><strong>smtp-transport</strong> 📫: Enable the SMTP transport</li>
 <li><strong>pool</strong> 📫: Connection pool for SMTP transport</li>
 <li><strong>hostname</strong> 📫: Try to use the actual system hostname for the SMTP <code>CLIENTID</code></li>
 </ul>
-<h4 id="smtp-over-tls-via-the-native-tls-crate" class="section-header"><a href="#smtp-over-tls-via-the-native-tls-crate">SMTP over TLS via the native-tls crate</a></h4>
+<h5 id="smtp-over-tls-via-the-native-tls-crate" class="section-header"><a href="#smtp-over-tls-via-the-native-tls-crate">SMTP over TLS via the native-tls crate</a></h5>
 <p><em>Secure SMTP connections using TLS from the <code>native-tls</code> crate</em></p>
 <p>Uses schannel on Windows, Security-Framework on macOS, and OpenSSL on Linux.</p>
 <ul>
@@ -32,7 +32,7 @@ More info about each module can be found in the corresponding module page.</p>
 <li><strong>tokio1-native-tls</strong>: TLS support for the <code>tokio1</code> async version of the API</li>
 </ul>
 <p>NOTE: native-tls isn’t supported with <code>async-std</code></p>
-<h4 id="smtp-over-tls-via-the-rustls-crate" class="section-header"><a href="#smtp-over-tls-via-the-rustls-crate">SMTP over TLS via the rustls crate</a></h4>
+<h5 id="smtp-over-tls-via-the-rustls-crate" class="section-header"><a href="#smtp-over-tls-via-the-rustls-crate">SMTP over TLS via the rustls crate</a></h5>
 <p><em>Secure SMTP connections using TLS from the <code>rustls-tls</code> crate</em></p>
 <p>Rustls uses <a href="https://github.com/briansmith/ring#ring">ring</a> as the cryptography implementation. As a result, <a href="https://github.com/briansmith/ring#online-automated-testing">not all Rust’s targets are supported</a>.</p>
 <ul>
@@ -40,18 +40,18 @@ More info about each module can be found in the corresponding module page.</p>
 <li><strong>tokio1-rustls-tls</strong>: TLS support for the <code>tokio1</code> async version of the API</li>
 <li><strong>async-std1-rustls-tls</strong>: TLS support for the <code>async-std1</code> async version of the API</li>
 </ul>
-<h3 id="sendmail-transport" class="section-header"><a href="#sendmail-transport">Sendmail transport</a></h3>
+<h4 id="sendmail-transport" class="section-header"><a href="#sendmail-transport">Sendmail transport</a></h4>
 <p><em>Send emails using the <a href="crate::transport::sendmail"><code>sendmail</code></a> command</em></p>
 <ul>
 <li><strong>sendmail-transport</strong>: Enable the <code>sendmail</code> transport</li>
 </ul>
-<h3 id="file-transport" class="section-header"><a href="#file-transport">File transport</a></h3>
+<h4 id="file-transport" class="section-header"><a href="#file-transport">File transport</a></h4>
 <p><em>Save emails as an <code>.eml</code> <a href="crate::transport::file"><code>file</code></a></em></p>
 <ul>
 <li><strong>file-transport</strong>: Enable the file transport (saves emails into an <code>.eml</code> file)</li>
 <li><strong>file-transport-envelope</strong>: Allow writing the envelope into a JSON file (additionally saves envelopes into a <code>.json</code> file)</li>
 </ul>
-<h3 id="async-execution-runtimes" class="section-header"><a href="#async-execution-runtimes">Async execution runtimes</a></h3>
+<h4 id="async-execution-runtimes" class="section-header"><a href="#async-execution-runtimes">Async execution runtimes</a></h4>
 <p><em>Use <a href="https://docs.rs/tokio/1">tokio</a> or <a href="https://docs.rs/async-std/1">async-std</a> as an async execution runtime for sending emails</em></p>
 <p>The correct runtime version must be chosen in order for lettre to work correctly.
 For example, when sending emails from a Tokio 1.x context, the Tokio 1.x executor
@@ -62,7 +62,7 @@ or async-std, would result in a runtime panic.</p>
 <li><strong>async-std1</strong>: Allow to asynchronously send emails using <a href="https://docs.rs/async-std/1">async-std 1.x</a></li>
 </ul>
 <p>NOTE: native-tls isn’t supported with <code>async-std</code></p>
-<h3 id="misc-features" class="section-header"><a href="#misc-features">Misc features</a></h3>
+<h4 id="misc-features" class="section-header"><a href="#misc-features">Misc features</a></h4>
 <p><em>Additional features</em></p>
 <ul>
 <li><strong>serde</strong>: Serialization/Deserialization of entities</li>
@@ -70,16 +70,16 @@ or async-std, would result in a runtime panic.</p>
 <li><strong>mime03</strong>: Allow creating a <a href="message/header/struct.ContentType.html"><code>ContentType</code></a> from an existing <a href="https://docs.rs/mime/0.3">mime 0.3</a> <code>Mime</code> struct</li>
 </ul>
 </div></details><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="mod" href="address/index.html" title="lettre::address mod">address</a></div><div class="item-right docblock-short"><p>Email addresses</p>
-</div><div class="item-left module-item"><a class="mod" href="error/index.html" title="lettre::error mod">error</a></div><div class="item-right docblock-short"><p>Error type for email messages</p>
-</div><div class="item-left module-item"><a class="mod" href="message/index.html" title="lettre::message mod">message</a></div><div class="item-right docblock-short"><p>Provides a strongly typed way to build emails</p>
-</div><div class="item-left module-item"><a class="mod" href="transport/index.html" title="lettre::transport mod">transport</a></div><div class="item-right docblock-short"><p>Transports for sending emails</p>
-</div></div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.Address.html" title="lettre::Address struct">Address</a></div><div class="item-right docblock-short"><p>Represents an email address with a user and a domain name.</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.Message.html" title="lettre::Message struct">Message</a></div><div class="item-right docblock-short"><p>Email message which can be formatted</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.SmtpTransport.html" title="lettre::SmtpTransport struct">SmtpTransport</a></div><div class="item-right docblock-short"><p>Sends emails using the SMTP protocol</p>
-</div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="trait" href="trait.Transport.html" title="lettre::Transport trait">Transport</a></div><div class="item-right docblock-short"><p>Blocking Transport method for emails</p>
-</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="lettre" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="mod" href="address/index.html" title="lettre::address mod">address</a></div><div class="item-right docblock-short"><p>Email addresses</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="error/index.html" title="lettre::error mod">error</a></div><div class="item-right docblock-short"><p>Error type for email messages</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="message/index.html" title="lettre::message mod">message</a></div><div class="item-right docblock-short"><p>Provides a strongly typed way to build emails</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="transport/index.html" title="lettre::transport mod">transport</a></div><div class="item-right docblock-short"><p>Transports for sending emails</p>
+</div></div></div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Address.html" title="lettre::Address struct">Address</a></div><div class="item-right docblock-short"><p>Represents an email address with a user and a domain name.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Message.html" title="lettre::Message struct">Message</a></div><div class="item-right docblock-short"><p>Email message which can be formatted</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.SmtpTransport.html" title="lettre::SmtpTransport struct">SmtpTransport</a></div><div class="item-right docblock-short"><p>Sends emails using the SMTP protocol</p>
+</div></div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.Transport.html" title="lettre::Transport trait">Transport</a></div><div class="item-right docblock-short"><p>Blocking Transport method for emails</p>
+</div></div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="lettre" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
     <script src="../main.js"></script>
 </body></html>

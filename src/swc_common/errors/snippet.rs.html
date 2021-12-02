@@ -230,7 +230,7 @@
         <span class="self">self</span>.<span class="ident">depth</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_start</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Annotation</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_start</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Annotation</span> {
         <span class="ident">Annotation</span> {
             <span class="ident">start_col</span>: <span class="self">self</span>.<span class="ident">start_col</span>,
             <span class="ident">end_col</span>: <span class="self">self</span>.<span class="ident">start_col</span> <span class="op">+</span> <span class="number">1</span>,
@@ -240,7 +240,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_end</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Annotation</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_end</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Annotation</span> {
         <span class="ident">Annotation</span> {
             <span class="ident">start_col</span>: <span class="self">self</span>.<span class="ident">end_col</span>.<span class="ident">saturating_sub</span>(<span class="number">1</span>),
             <span class="ident">end_col</span>: <span class="self">self</span>.<span class="ident">end_col</span>,
@@ -250,7 +250,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Annotation</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Annotation</span> {
         <span class="ident">Annotation</span> {
             <span class="ident">start_col</span>: <span class="number">0</span>,
             <span class="ident">end_col</span>: <span class="number">0</span>,
@@ -314,7 +314,7 @@
 
 <span class="kw">impl</span> <span class="ident">Annotation</span> {
     <span class="doccomment">/// Whether this annotation is a vertical line placeholder.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">AnnotationType::MultilineLine</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">annotation_type</span> {
             <span class="bool-val">true</span>
         } <span class="kw">else</span> {
@@ -322,17 +322,17 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_multiline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_multiline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">annotation_type</span> {
             <span class="ident">AnnotationType::Multiline</span>(<span class="kw">_</span>)
             <span class="op">|</span> <span class="ident">AnnotationType::MultilineStart</span>(<span class="kw">_</span>)
             <span class="op">|</span> <span class="ident">AnnotationType::MultilineLine</span>(<span class="kw">_</span>)
-            <span class="op">|</span> <span class="ident">AnnotationType::MultilineEnd</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="op">|</span> <span class="ident">AnnotationType::MultilineEnd</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="comment">// Account for usize underflows</span>
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">end_col</span> <span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">start_col</span> {
             <span class="self">self</span>.<span class="ident">end_col</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">start_col</span>
@@ -341,7 +341,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_label</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_label</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">label</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">label</span> {
             <span class="comment">// Consider labels with no text as effectively not being there</span>
             <span class="comment">// to avoid weird output with unnecessary vertical lines, like:</span>
@@ -359,11 +359,11 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">takes_space</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">takes_space</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="comment">// Multiline annotations always have to keep vertical space.</span>
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">annotation_type</span> {
-            <span class="ident">AnnotationType::MultilineStart</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">AnnotationType::MultilineEnd</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">AnnotationType::MultilineStart</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">AnnotationType::MultilineEnd</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }
 }

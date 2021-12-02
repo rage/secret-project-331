@@ -225,7 +225,7 @@
     <span class="kw-2">mut</span> <span class="ident">payload</span>: <span class="ident">mp::Multipart</span>,
     <span class="ident">store_kind</span>: <span class="ident">StoreKind</span>,
     <span class="ident">file_store</span>: <span class="kw-2">&amp;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FileStore</span><span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
     <span class="ident">validate_media_headers</span>(<span class="ident">headers</span>)<span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">file_payload</span> <span class="op">=</span> <span class="ident">payload</span>
@@ -233,16 +233,16 @@
         .<span class="kw">await</span>
         .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">ControllerError::BadRequest</span>(<span class="string">&quot;Missing form data&quot;</span>.<span class="ident">into</span>()))<span class="question-mark">?</span>;
     <span class="kw">match</span> <span class="ident">file_payload</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">field</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="ident">field</span>) =&gt; {
             <span class="kw">let</span> <span class="ident">path</span>: <span class="ident">PathBuf</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">field</span>.<span class="ident">content_type</span>().<span class="ident">type_</span>() {
-                <span class="ident">mime::AUDIO</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">generate_audio_path</span>(<span class="kw-2">&amp;</span><span class="ident">field</span>, <span class="ident">store_kind</span>),
-                <span class="ident">mime::IMAGE</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">generate_image_path</span>(<span class="kw-2">&amp;</span><span class="ident">field</span>, <span class="ident">store_kind</span>),
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">generate_file_path</span>(<span class="kw-2">&amp;</span><span class="ident">field</span>, <span class="ident">store_kind</span>),
+                <span class="ident">mime::AUDIO</span> =&gt; <span class="ident">generate_audio_path</span>(<span class="kw-2">&amp;</span><span class="ident">field</span>, <span class="ident">store_kind</span>),
+                <span class="ident">mime::IMAGE</span> =&gt; <span class="ident">generate_image_path</span>(<span class="kw-2">&amp;</span><span class="ident">field</span>, <span class="ident">store_kind</span>),
+                <span class="kw">_</span> =&gt; <span class="ident">generate_file_path</span>(<span class="kw-2">&amp;</span><span class="ident">field</span>, <span class="ident">store_kind</span>),
             }<span class="question-mark">?</span>;
             <span class="ident">upload_media_to_storage</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>, <span class="ident">field</span>, <span class="ident">file_store</span>).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(<span class="ident">path</span>)
         }
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::InternalServerError</span>(<span class="ident">err</span>.<span class="ident">to_string</span>())),
+        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">ControllerError::InternalServerError</span>(<span class="ident">err</span>.<span class="ident">to_string</span>())),
     }
 }
 
@@ -251,7 +251,7 @@
     <span class="kw-2">mut</span> <span class="ident">payload</span>: <span class="ident">mp::Multipart</span>,
     <span class="ident">organization</span>: <span class="kw-2">&amp;</span><span class="ident">DatabaseOrganization</span>,
     <span class="ident">file_store</span>: <span class="kw-2">&amp;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FileStore</span><span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
     <span class="ident">validate_media_headers</span>(<span class="ident">headers</span>)<span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">next_payload</span> <span class="op">=</span> <span class="ident">payload</span>
@@ -259,12 +259,12 @@
         .<span class="kw">await</span>
         .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">ControllerError::BadRequest</span>(<span class="string">&quot;Missing form data&quot;</span>.<span class="ident">into</span>()))<span class="question-mark">?</span>;
     <span class="kw">match</span> <span class="ident">next_payload</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">field</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="ident">field</span>) =&gt; {
             <span class="kw">let</span> <span class="ident">path</span>: <span class="ident">PathBuf</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">field</span>.<span class="ident">content_type</span>().<span class="ident">type_</span>() {
-                <span class="ident">mime::IMAGE</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">mime::IMAGE</span> =&gt; {
                     <span class="ident">generate_image_path</span>(<span class="kw-2">&amp;</span><span class="ident">field</span>, <span class="ident">StoreKind::Organization</span>(<span class="ident">organization</span>.<span class="ident">id</span>))
                 }
-                <span class="ident">unsupported</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::BadRequest</span>(<span class="macro">format!</span>(
+                <span class="ident">unsupported</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">ControllerError::BadRequest</span>(<span class="macro">format!</span>(
                     <span class="string">&quot;Unsupported image Mime type: {}&quot;</span>,
                     <span class="ident">unsupported</span>
                 ))),
@@ -272,21 +272,21 @@
             <span class="ident">upload_media_to_storage</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>, <span class="ident">field</span>, <span class="ident">file_store</span>).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(<span class="ident">path</span>)
         }
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::InternalServerError</span>(<span class="ident">err</span>.<span class="ident">to_string</span>())),
+        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">ControllerError::InternalServerError</span>(<span class="ident">err</span>.<span class="ident">to_string</span>())),
     }
 }
 
-<span class="kw">fn</span> <span class="ident">generate_audio_path</span>(<span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">mp::Field</span>, <span class="ident">store_kind</span>: <span class="ident">StoreKind</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">generate_audio_path</span>(<span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">mp::Field</span>, <span class="ident">store_kind</span>: <span class="ident">StoreKind</span>) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">extension</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">field</span>.<span class="ident">content_type</span>().<span class="ident">to_string</span>().<span class="ident">as_str</span>() {
-        <span class="string">&quot;audio/aac&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;.aac&quot;</span>,
-        <span class="string">&quot;audio/mpeg&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;.mp3&quot;</span>,
-        <span class="string">&quot;audio/ogg&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;.oga&quot;</span>,
-        <span class="string">&quot;audio/opus&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;.opus&quot;</span>,
-        <span class="string">&quot;audio/wav&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;.wav&quot;</span>,
-        <span class="string">&quot;audio/webm&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;.weba&quot;</span>,
-        <span class="string">&quot;audio/midi&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;.mid&quot;</span>,
-        <span class="string">&quot;audio/x-midi&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;.mid&quot;</span>,
-        <span class="ident">unsupported</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="string">&quot;audio/aac&quot;</span> =&gt; <span class="string">&quot;.aac&quot;</span>,
+        <span class="string">&quot;audio/mpeg&quot;</span> =&gt; <span class="string">&quot;.mp3&quot;</span>,
+        <span class="string">&quot;audio/ogg&quot;</span> =&gt; <span class="string">&quot;.oga&quot;</span>,
+        <span class="string">&quot;audio/opus&quot;</span> =&gt; <span class="string">&quot;.opus&quot;</span>,
+        <span class="string">&quot;audio/wav&quot;</span> =&gt; <span class="string">&quot;.wav&quot;</span>,
+        <span class="string">&quot;audio/webm&quot;</span> =&gt; <span class="string">&quot;.weba&quot;</span>,
+        <span class="string">&quot;audio/midi&quot;</span> =&gt; <span class="string">&quot;.mid&quot;</span>,
+        <span class="string">&quot;audio/x-midi&quot;</span> =&gt; <span class="string">&quot;.mid&quot;</span>,
+        <span class="ident">unsupported</span> =&gt; {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::BadRequest</span>(<span class="macro">format!</span>(
                 <span class="string">&quot;Unsupported audio Mime type: {}&quot;</span>,
                 <span class="ident">unsupported</span>
@@ -300,7 +300,7 @@
     <span class="prelude-val">Ok</span>(<span class="ident">path</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">generate_file_path</span>(<span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">mp::Field</span>, <span class="ident">store_kind</span>: <span class="ident">StoreKind</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">generate_file_path</span>(<span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">mp::Field</span>, <span class="ident">store_kind</span>: <span class="ident">StoreKind</span>) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">field_content</span> <span class="op">=</span> <span class="ident">field</span>
         .<span class="ident">content_disposition</span>()
         .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">ControllerError::BadRequest</span>(<span class="string">&quot;Missing field content-disposition&quot;</span>.<span class="ident">into</span>()))<span class="question-mark">?</span>;
@@ -319,16 +319,16 @@
     <span class="prelude-val">Ok</span>(<span class="ident">path</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">generate_image_path</span>(<span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">mp::Field</span>, <span class="ident">store_kind</span>: <span class="ident">StoreKind</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">generate_image_path</span>(<span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">mp::Field</span>, <span class="ident">store_kind</span>: <span class="ident">StoreKind</span>) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">extension</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">field</span>.<span class="ident">content_type</span>().<span class="ident">to_string</span>().<span class="ident">as_str</span>() {
-        <span class="string">&quot;image/jpeg&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;.jpg&quot;</span>,
-        <span class="string">&quot;image/png&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;.png&quot;</span>,
-        <span class="string">&quot;image/svg+xml&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;.svg&quot;</span>,
-        <span class="string">&quot;image/tiff&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;.tif&quot;</span>,
-        <span class="string">&quot;image/bmp&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;.bmp&quot;</span>,
-        <span class="string">&quot;image/webp&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;.webp&quot;</span>,
-        <span class="string">&quot;image/gif&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;.gif&quot;</span>,
-        <span class="ident">unsupported</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="string">&quot;image/jpeg&quot;</span> =&gt; <span class="string">&quot;.jpg&quot;</span>,
+        <span class="string">&quot;image/png&quot;</span> =&gt; <span class="string">&quot;.png&quot;</span>,
+        <span class="string">&quot;image/svg+xml&quot;</span> =&gt; <span class="string">&quot;.svg&quot;</span>,
+        <span class="string">&quot;image/tiff&quot;</span> =&gt; <span class="string">&quot;.tif&quot;</span>,
+        <span class="string">&quot;image/bmp&quot;</span> =&gt; <span class="string">&quot;.bmp&quot;</span>,
+        <span class="string">&quot;image/webp&quot;</span> =&gt; <span class="string">&quot;.webp&quot;</span>,
+        <span class="string">&quot;image/gif&quot;</span> =&gt; <span class="string">&quot;.gif&quot;</span>,
+        <span class="ident">unsupported</span> =&gt; {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::BadRequest</span>(<span class="macro">format!</span>(
                 <span class="string">&quot;Unsupported image Mime type: {}&quot;</span>,
                 <span class="ident">unsupported</span>
@@ -346,7 +346,7 @@
     <span class="prelude-val">Ok</span>(<span class="ident">path</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">validate_media_headers</span>(<span class="ident">headers</span>: <span class="kw-2">&amp;</span><span class="ident">HeaderMap</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">validate_media_headers</span>(<span class="ident">headers</span>: <span class="kw-2">&amp;</span><span class="ident">HeaderMap</span>) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">content_type</span> <span class="op">=</span> <span class="ident">headers</span>.<span class="ident">get</span>(<span class="ident">header::CONTENT_TYPE</span>).<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
         <span class="ident">ControllerError::BadRequest</span>(<span class="string">&quot;Please provide a Content-Type header&quot;</span>.<span class="ident">into</span>())
     })<span class="question-mark">?</span>;
@@ -383,16 +383,16 @@
     <span class="ident">File</span>,
 }
 
-<span class="kw">fn</span> <span class="ident">path</span>(<span class="ident">file_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">file_type</span>: <span class="ident">FileType</span>, <span class="ident">store_kind</span>: <span class="ident">StoreKind</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PathBuf</span> {
+<span class="kw">fn</span> <span class="ident">path</span>(<span class="ident">file_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">file_type</span>: <span class="ident">FileType</span>, <span class="ident">store_kind</span>: <span class="ident">StoreKind</span>) -&gt; <span class="ident">PathBuf</span> {
     <span class="kw">let</span> (<span class="ident">base_dir</span>, <span class="ident">base_id</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">store_kind</span> {
-        <span class="ident">StoreKind::Organization</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="string">&quot;organization&quot;</span>, <span class="ident">id</span>),
-        <span class="ident">StoreKind::Course</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="string">&quot;course&quot;</span>, <span class="ident">id</span>),
-        <span class="ident">StoreKind::Exam</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="string">&quot;exam&quot;</span>, <span class="ident">id</span>),
+        <span class="ident">StoreKind::Organization</span>(<span class="ident">id</span>) =&gt; (<span class="string">&quot;organization&quot;</span>, <span class="ident">id</span>),
+        <span class="ident">StoreKind::Course</span>(<span class="ident">id</span>) =&gt; (<span class="string">&quot;course&quot;</span>, <span class="ident">id</span>),
+        <span class="ident">StoreKind::Exam</span>(<span class="ident">id</span>) =&gt; (<span class="string">&quot;exam&quot;</span>, <span class="ident">id</span>),
     };
     <span class="kw">let</span> <span class="ident">file_type_subdir</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">file_type</span> {
-        <span class="ident">FileType::Image</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;images&quot;</span>,
-        <span class="ident">FileType::Audio</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;audios&quot;</span>,
-        <span class="ident">FileType::File</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;files&quot;</span>,
+        <span class="ident">FileType::Image</span> =&gt; <span class="string">&quot;images&quot;</span>,
+        <span class="ident">FileType::Audio</span> =&gt; <span class="string">&quot;audios&quot;</span>,
+        <span class="ident">FileType::File</span> =&gt; <span class="string">&quot;files&quot;</span>,
     };
     [<span class="ident">base_dir</span>, <span class="kw-2">&amp;</span><span class="ident">base_id</span>.<span class="ident">to_string</span>(), <span class="ident">file_type_subdir</span>, <span class="ident">file_name</span>]
         .<span class="ident">iter</span>()

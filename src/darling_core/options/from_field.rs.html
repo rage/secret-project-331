@@ -93,7 +93,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">FromFieldOptions</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">di</span>: <span class="kw-2">&amp;</span><span class="ident">syn::DeriveInput</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">di</span>: <span class="kw-2">&amp;</span><span class="ident">syn::DeriveInput</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         (<span class="ident">FromFieldOptions</span> {
             <span class="ident">base</span>: <span class="ident">OuterFrom::start</span>(<span class="ident">di</span>),
             <span class="ident">vis</span>: <span class="ident">Default::default</span>(),
@@ -105,17 +105,17 @@
 }
 
 <span class="kw">impl</span> <span class="ident">ParseAttribute</span> <span class="kw">for</span> <span class="ident">FromFieldOptions</span> {
-    <span class="kw">fn</span> <span class="ident">parse_nested</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">mi</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Meta</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_nested</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">mi</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Meta</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">base</span>.<span class="ident">parse_nested</span>(<span class="ident">mi</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">ParseData</span> <span class="kw">for</span> <span class="ident">FromFieldOptions</span> {
-    <span class="kw">fn</span> <span class="ident">parse_variant</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">variant</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Variant</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_variant</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">variant</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Variant</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">base</span>.<span class="ident">parse_variant</span>(<span class="ident">variant</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">parse_field</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Field</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_field</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Field</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">field</span>
             .<span class="ident">ident</span>
             .<span class="ident">as_ref</span>()
@@ -123,21 +123,21 @@
             .<span class="ident">as_ref</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="ident">v</span>.<span class="ident">as_str</span>())
         {
-            <span class="prelude-val">Some</span>(<span class="string">&quot;vis&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="string">&quot;vis&quot;</span>) =&gt; {
                 <span class="self">self</span>.<span class="ident">vis</span> <span class="op">=</span> <span class="ident">field</span>.<span class="ident">ident</span>.<span class="ident">clone</span>();
                 <span class="prelude-val">Ok</span>(())
             }
-            <span class="prelude-val">Some</span>(<span class="string">&quot;ty&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="string">&quot;ty&quot;</span>) =&gt; {
                 <span class="self">self</span>.<span class="ident">ty</span> <span class="op">=</span> <span class="ident">field</span>.<span class="ident">ident</span>.<span class="ident">clone</span>();
                 <span class="prelude-val">Ok</span>(())
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">base</span>.<span class="ident">parse_field</span>(<span class="ident">field</span>),
+            <span class="kw">_</span> =&gt; <span class="self">self</span>.<span class="ident">base</span>.<span class="ident">parse_field</span>(<span class="ident">field</span>),
         }
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">FromFieldOptions</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">FromFieldImpl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">FromFieldOptions</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">FromFieldOptions</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">FromFieldImpl</span> {
             <span class="ident">ident</span>: <span class="ident">v</span>.<span class="ident">base</span>.<span class="ident">ident</span>.<span class="ident">as_ref</span>(),
             <span class="ident">vis</span>: <span class="ident">v</span>.<span class="ident">vis</span>.<span class="ident">as_ref</span>(),

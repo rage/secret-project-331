@@ -369,14 +369,14 @@
     <span class="doccomment">/// Create a `Policy` with a maximum number of redirects.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// An `Error` will be returned if the max is reached.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">limited</span>(<span class="ident">max</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">limited</span>(<span class="ident">max</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">inner</span>: <span class="ident">PolicyKind::Limit</span>(<span class="ident">max</span>),
         }
     }
 
     <span class="doccomment">/// Create a `Policy` that does not follow any redirect.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">none</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">none</span>() -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">inner</span>: <span class="ident">PolicyKind::None</span>,
         }
@@ -420,9 +420,9 @@
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`Attempt`]: struct.Attempt.html</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">custom</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">policy</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">custom</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">policy</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Fn</span>(<span class="ident">Attempt</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Action</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="ident">T</span>: <span class="ident">Fn</span>(<span class="ident">Attempt</span>) -&gt; <span class="ident">Action</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
         <span class="self">Self</span> {
             <span class="ident">inner</span>: <span class="ident">PolicyKind::Custom</span>(<span class="ident">Box::new</span>(<span class="ident">policy</span>)),
@@ -449,21 +449,21 @@
     <span class="doccomment">/// # Ok(())</span>
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">redirect</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">attempt</span>: <span class="ident">Attempt</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Action</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">redirect</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">attempt</span>: <span class="ident">Attempt</span>) -&gt; <span class="ident">Action</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">inner</span> {
-            <span class="ident">PolicyKind::Custom</span>(<span class="kw-2">ref</span> <span class="ident">custom</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">custom</span>(<span class="ident">attempt</span>),
-            <span class="ident">PolicyKind::Limit</span>(<span class="ident">max</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="ident">attempt</span>.<span class="ident">previous</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">max</span> {
+            <span class="ident">PolicyKind::Custom</span>(<span class="kw-2">ref</span> <span class="ident">custom</span>) =&gt; <span class="ident">custom</span>(<span class="ident">attempt</span>),
+            <span class="ident">PolicyKind::Limit</span>(<span class="ident">max</span>) =&gt; {
+                <span class="kw">if</span> <span class="ident">attempt</span>.<span class="ident">previous</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="ident">max</span> {
                     <span class="ident">attempt</span>.<span class="ident">error</span>(<span class="ident">TooManyRedirects</span>)
                 } <span class="kw">else</span> {
                     <span class="ident">attempt</span>.<span class="ident">follow</span>()
                 }
             }
-            <span class="ident">PolicyKind::None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">attempt</span>.<span class="ident">stop</span>(),
+            <span class="ident">PolicyKind::None</span> =&gt; <span class="ident">attempt</span>.<span class="ident">stop</span>(),
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">status</span>: <span class="ident">StatusCode</span>, <span class="ident">next</span>: <span class="kw-2">&amp;</span><span class="ident">Url</span>, <span class="ident">previous</span>: <span class="kw-2">&amp;</span>[<span class="ident">Url</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ActionKind</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">status</span>: <span class="ident">StatusCode</span>, <span class="ident">next</span>: <span class="kw-2">&amp;</span><span class="ident">Url</span>, <span class="ident">previous</span>: <span class="kw-2">&amp;</span>[<span class="ident">Url</span>]) -&gt; <span class="ident">ActionKind</span> {
         <span class="self">self</span>.<span class="ident">redirect</span>(<span class="ident">Attempt</span> {
             <span class="ident">status</span>,
             <span class="ident">next</span>,
@@ -472,13 +472,13 @@
         .<span class="ident">inner</span>
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_default</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_default</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">inner</span>, <span class="ident">PolicyKind::Limit</span>(<span class="number">10</span>))
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Policy</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Policy</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">Policy</span> {
         <span class="comment">// Keep `is_default` in sync</span>
         <span class="ident">Policy::limited</span>(<span class="number">10</span>)
     }
@@ -486,21 +486,21 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Attempt</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Get the type of redirect.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">status</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">StatusCode</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">status</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">StatusCode</span> {
         <span class="self">self</span>.<span class="ident">status</span>
     }
 
     <span class="doccomment">/// Get the next URL to redirect to.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">url</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Url</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">url</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Url</span> {
         <span class="self">self</span>.<span class="ident">next</span>
     }
 
     <span class="doccomment">/// Get the list of previous URLs that have already been requested in this chain.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">previous</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">Url</span>] {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">previous</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">Url</span>] {
         <span class="self">self</span>.<span class="ident">previous</span>
     }
     <span class="doccomment">/// Returns an action meaning reqwest should follow the next URL.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">follow</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Action</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">follow</span>(<span class="self">self</span>) -&gt; <span class="ident">Action</span> {
         <span class="ident">Action</span> {
             <span class="ident">inner</span>: <span class="ident">ActionKind::Follow</span>,
         }
@@ -509,7 +509,7 @@
     <span class="doccomment">/// Returns an action meaning reqwest should not follow the next URL.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The 30x response will be returned as the `Ok` result.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stop</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Action</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stop</span>(<span class="self">self</span>) -&gt; <span class="ident">Action</span> {
         <span class="ident">Action</span> {
             <span class="ident">inner</span>: <span class="ident">ActionKind::Stop</span>,
         }
@@ -518,7 +518,7 @@
     <span class="doccomment">/// Returns an action failing the redirect with an error.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The `Error` will be returned for the result of the sent request.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">error</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">error</span>: <span class="ident">E</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Action</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">error</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">error</span>: <span class="ident">E</span>) -&gt; <span class="ident">Action</span> {
         <span class="ident">Action</span> {
             <span class="ident">inner</span>: <span class="ident">ActionKind::Error</span>(<span class="ident">error</span>.<span class="ident">into</span>()),
         }
@@ -526,23 +526,23 @@
 }
 
 <span class="kw">enum</span> <span class="ident">PolicyKind</span> {
-    <span class="ident">Custom</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">Attempt</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Action</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>),
+    <span class="ident">Custom</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">Attempt</span>) -&gt; <span class="ident">Action</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>),
     <span class="ident">Limit</span>(<span class="ident">usize</span>),
     <span class="prelude-val">None</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Policy</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="ident">f</span>.<span class="ident">debug_tuple</span>(<span class="string">&quot;Policy&quot;</span>).<span class="ident">field</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>).<span class="ident">finish</span>()
     }
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">PolicyKind</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">PolicyKind::Custom</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">pad</span>(<span class="string">&quot;Custom&quot;</span>),
-            <span class="ident">PolicyKind::Limit</span>(<span class="ident">max</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">debug_tuple</span>(<span class="string">&quot;Limit&quot;</span>).<span class="ident">field</span>(<span class="kw-2">&amp;</span><span class="ident">max</span>).<span class="ident">finish</span>(),
-            <span class="ident">PolicyKind::None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">pad</span>(<span class="string">&quot;None&quot;</span>),
+            <span class="ident">PolicyKind::Custom</span>(..) =&gt; <span class="ident">f</span>.<span class="ident">pad</span>(<span class="string">&quot;Custom&quot;</span>),
+            <span class="ident">PolicyKind::Limit</span>(<span class="ident">max</span>) =&gt; <span class="ident">f</span>.<span class="ident">debug_tuple</span>(<span class="string">&quot;Limit&quot;</span>).<span class="ident">field</span>(<span class="kw-2">&amp;</span><span class="ident">max</span>).<span class="ident">finish</span>(),
+            <span class="ident">PolicyKind::None</span> =&gt; <span class="ident">f</span>.<span class="ident">pad</span>(<span class="string">&quot;None&quot;</span>),
         }
     }
 }
@@ -574,7 +574,7 @@
 <span class="kw">struct</span> <span class="ident">TooManyRedirects</span>;
 
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">TooManyRedirects</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;too many redirects&quot;</span>)
     }
 }
@@ -590,22 +590,22 @@
         .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
 
     <span class="kw">match</span> <span class="ident">policy</span>.<span class="ident">check</span>(<span class="ident">StatusCode::FOUND</span>, <span class="kw-2">&amp;</span><span class="ident">next</span>, <span class="kw-2">&amp;</span><span class="ident">previous</span>) {
-        <span class="ident">ActionKind::Follow</span> <span class="op">=</span><span class="op">&gt;</span> (),
-        <span class="ident">other</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;unexpected {:?}&quot;</span>, <span class="ident">other</span>),
+        <span class="ident">ActionKind::Follow</span> =&gt; (),
+        <span class="ident">other</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;unexpected {:?}&quot;</span>, <span class="ident">other</span>),
     }
 
     <span class="ident">previous</span>.<span class="ident">push</span>(<span class="ident">Url::parse</span>(<span class="string">&quot;http://a.b.d/e/33&quot;</span>).<span class="ident">unwrap</span>());
 
     <span class="kw">match</span> <span class="ident">policy</span>.<span class="ident">check</span>(<span class="ident">StatusCode::FOUND</span>, <span class="kw-2">&amp;</span><span class="ident">next</span>, <span class="kw-2">&amp;</span><span class="ident">previous</span>) {
-        <span class="ident">ActionKind::Error</span>(<span class="ident">err</span>) <span class="kw">if</span> <span class="ident">err</span>.<span class="ident">is</span>::<span class="op">&lt;</span><span class="ident">TooManyRedirects</span><span class="op">&gt;</span>() <span class="op">=</span><span class="op">&gt;</span> (),
-        <span class="ident">other</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;unexpected {:?}&quot;</span>, <span class="ident">other</span>),
+        <span class="ident">ActionKind::Error</span>(<span class="ident">err</span>) <span class="kw">if</span> <span class="ident">err</span>.<span class="ident">is</span>::<span class="op">&lt;</span><span class="ident">TooManyRedirects</span><span class="op">&gt;</span>() =&gt; (),
+        <span class="ident">other</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;unexpected {:?}&quot;</span>, <span class="ident">other</span>),
     }
 }
 
 <span class="attribute">#[<span class="ident">test</span>]</span>
 <span class="kw">fn</span> <span class="ident">test_redirect_policy_custom</span>() {
     <span class="kw">let</span> <span class="ident">policy</span> <span class="op">=</span> <span class="ident">Policy::custom</span>(<span class="op">|</span><span class="ident">attempt</span><span class="op">|</span> {
-        <span class="kw">if</span> <span class="ident">attempt</span>.<span class="ident">url</span>().<span class="ident">host_str</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&quot;foo&quot;</span>) {
+        <span class="kw">if</span> <span class="ident">attempt</span>.<span class="ident">url</span>().<span class="ident">host_str</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="string">&quot;foo&quot;</span>) {
             <span class="ident">attempt</span>.<span class="ident">stop</span>()
         } <span class="kw">else</span> {
             <span class="ident">attempt</span>.<span class="ident">follow</span>()
@@ -614,14 +614,14 @@
 
     <span class="kw">let</span> <span class="ident">next</span> <span class="op">=</span> <span class="ident">Url::parse</span>(<span class="string">&quot;http://bar/baz&quot;</span>).<span class="ident">unwrap</span>();
     <span class="kw">match</span> <span class="ident">policy</span>.<span class="ident">check</span>(<span class="ident">StatusCode::FOUND</span>, <span class="kw-2">&amp;</span><span class="ident">next</span>, <span class="kw-2">&amp;</span>[]) {
-        <span class="ident">ActionKind::Follow</span> <span class="op">=</span><span class="op">&gt;</span> (),
-        <span class="ident">other</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;unexpected {:?}&quot;</span>, <span class="ident">other</span>),
+        <span class="ident">ActionKind::Follow</span> =&gt; (),
+        <span class="ident">other</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;unexpected {:?}&quot;</span>, <span class="ident">other</span>),
     }
 
     <span class="kw">let</span> <span class="ident">next</span> <span class="op">=</span> <span class="ident">Url::parse</span>(<span class="string">&quot;http://foo/baz&quot;</span>).<span class="ident">unwrap</span>();
     <span class="kw">match</span> <span class="ident">policy</span>.<span class="ident">check</span>(<span class="ident">StatusCode::FOUND</span>, <span class="kw-2">&amp;</span><span class="ident">next</span>, <span class="kw-2">&amp;</span>[]) {
-        <span class="ident">ActionKind::Stop</span> <span class="op">=</span><span class="op">&gt;</span> (),
-        <span class="ident">other</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;unexpected {:?}&quot;</span>, <span class="ident">other</span>),
+        <span class="ident">ActionKind::Stop</span> =&gt; (),
+        <span class="ident">other</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;unexpected {:?}&quot;</span>, <span class="ident">other</span>),
     }
 }
 

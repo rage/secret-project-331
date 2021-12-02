@@ -259,7 +259,7 @@
 
 <span class="kw">impl</span> <span class="ident">PgSeverity</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_error</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_error</span>(<span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident"><span class="self">Self</span>::Panic</span> <span class="op">|</span> <span class="ident"><span class="self">Self</span>::Fatal</span> <span class="op">|</span> <span class="ident"><span class="self">Self</span>::Error</span>)
     }
 }
@@ -267,18 +267,18 @@
 <span class="kw">impl</span> <span class="ident">std::convert::TryFrom</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgSeverity</span> {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PgSeverity</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PgSeverity</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">s</span> {
-            <span class="string">&quot;PANIC&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PgSeverity::Panic</span>,
-            <span class="string">&quot;FATAL&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PgSeverity::Fatal</span>,
-            <span class="string">&quot;ERROR&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PgSeverity::Error</span>,
-            <span class="string">&quot;WARNING&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PgSeverity::Warning</span>,
-            <span class="string">&quot;NOTICE&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PgSeverity::Notice</span>,
-            <span class="string">&quot;DEBUG&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PgSeverity::Debug</span>,
-            <span class="string">&quot;INFO&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PgSeverity::Info</span>,
-            <span class="string">&quot;LOG&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PgSeverity::Log</span>,
+            <span class="string">&quot;PANIC&quot;</span> =&gt; <span class="ident">PgSeverity::Panic</span>,
+            <span class="string">&quot;FATAL&quot;</span> =&gt; <span class="ident">PgSeverity::Fatal</span>,
+            <span class="string">&quot;ERROR&quot;</span> =&gt; <span class="ident">PgSeverity::Error</span>,
+            <span class="string">&quot;WARNING&quot;</span> =&gt; <span class="ident">PgSeverity::Warning</span>,
+            <span class="string">&quot;NOTICE&quot;</span> =&gt; <span class="ident">PgSeverity::Notice</span>,
+            <span class="string">&quot;DEBUG&quot;</span> =&gt; <span class="ident">PgSeverity::Debug</span>,
+            <span class="string">&quot;INFO&quot;</span> =&gt; <span class="ident">PgSeverity::Info</span>,
+            <span class="string">&quot;LOG&quot;</span> =&gt; <span class="ident">PgSeverity::Log</span>,
 
-            <span class="ident">severity</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">severity</span> =&gt; {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">err_protocol!</span>(<span class="string">&quot;unknown severity: {:?}&quot;</span>, <span class="ident">severity</span>));
             }
         };
@@ -297,17 +297,17 @@
 
 <span class="kw">impl</span> <span class="ident">Notice</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">severity</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgSeverity</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">severity</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PgSeverity</span> {
         <span class="self">self</span>.<span class="ident">severity</span>
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="self">self</span>.<span class="ident">get_cached_str</span>(<span class="self">self</span>.<span class="ident">code</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="self">self</span>.<span class="ident">get_cached_str</span>(<span class="self">self</span>.<span class="ident">message</span>)
     }
 
@@ -315,13 +315,13 @@
     <span class="comment">//  https://www.postgresql.org/docs/current/protocol-error-fields.html</span>
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ty</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ty</span>: <span class="ident">u8</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">get_raw</span>(<span class="ident">ty</span>).<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="ident">from_utf8</span>(<span class="ident">v</span>).<span class="ident">ok</span>())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ty</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ty</span>: <span class="ident">u8</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">fields</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span>(<span class="ident">field</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">field</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ty</span>)
+            .<span class="ident">filter</span>(<span class="op">|</span>(<span class="ident">field</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">field</span> <span class="op">==</span> <span class="ident">ty</span>)
             .<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, (<span class="ident">start</span>, <span class="ident">end</span>))<span class="op">|</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">storage</span>[<span class="ident">start</span> <span class="kw">as</span> <span class="ident">usize</span>..<span class="ident">end</span> <span class="kw">as</span> <span class="ident">usize</span>])
             .<span class="ident">next</span>()
     }
@@ -329,7 +329,7 @@
 
 <span class="kw">impl</span> <span class="ident">Notice</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">fields</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Fields</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">fields</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Fields</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
         <span class="ident">Fields</span> {
             <span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">storage</span>,
             <span class="ident">offset</span>: <span class="number">0</span>,
@@ -337,14 +337,14 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">get_cached_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cache</span>: (<span class="ident">u16</span>, <span class="ident">u16</span>)) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+    <span class="kw">fn</span> <span class="ident">get_cached_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cache</span>: (<span class="ident">u16</span>, <span class="ident">u16</span>)) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="comment">// unwrap: this cannot fail at this stage</span>
         <span class="ident">from_utf8</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">storage</span>[<span class="ident">cache</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">usize</span>..<span class="ident">cache</span>.<span class="number">1</span> <span class="kw">as</span> <span class="ident">usize</span>]).<span class="ident">unwrap</span>()
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Decode</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Notice</span> {
-    <span class="kw">fn</span> <span class="ident">decode_with</span>(<span class="ident">buf</span>: <span class="ident">Bytes</span>, <span class="kw">_</span>: ()) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">decode_with</span>(<span class="ident">buf</span>: <span class="ident">Bytes</span>, <span class="kw">_</span>: ()) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="comment">// In order to support PostgreSQL 9.5 and older we need to parse the localized S field.</span>
         <span class="comment">// Newer versions additionally come with the V field that is guaranteed to be in English.</span>
         <span class="comment">// We thus read both versions and prefer the unlocalized one if available.</span>
@@ -371,7 +371,7 @@
 
             <span class="kw">use</span> <span class="ident">std::convert::TryInto</span>;
             <span class="kw">match</span> <span class="ident">field</span> {
-                <span class="string">b&#39;S&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">b&#39;S&#39;</span> =&gt; {
                     <span class="comment">// Discard potential errors, because the message might be localized</span>
                     <span class="ident">severity_s</span> <span class="op">=</span> <span class="ident">from_utf8</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[<span class="ident">v</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">usize</span>..<span class="ident">v</span>.<span class="number">1</span> <span class="kw">as</span> <span class="ident">usize</span>])
                         .<span class="ident">unwrap</span>()
@@ -379,7 +379,7 @@
                         .<span class="ident">ok</span>();
                 }
 
-                <span class="string">b&#39;V&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">b&#39;V&#39;</span> =&gt; {
                     <span class="comment">// Propagate errors here, because V is not localized and thus we are missing a possible</span>
                     <span class="comment">// variant.</span>
                     <span class="ident">severity_v</span> <span class="op">=</span> <span class="prelude-val">Some</span>(
@@ -389,15 +389,15 @@
                     );
                 }
 
-                <span class="string">b&#39;M&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">b&#39;M&#39;</span> =&gt; {
                     <span class="ident">message</span> <span class="op">=</span> <span class="ident">v</span>;
                 }
 
-                <span class="string">b&#39;C&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">b&#39;C&#39;</span> =&gt; {
                     <span class="ident">code</span> <span class="op">=</span> <span class="ident">v</span>;
                 }
 
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+                <span class="kw">_</span> =&gt; {}
             }
         }
 
@@ -419,13 +419,13 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">Fields</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> (<span class="ident">u8</span>, (<span class="ident">u16</span>, <span class="ident">u16</span>));
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
         <span class="comment">// The fields in the response body are sequentially stored as [tag][string],</span>
         <span class="comment">// ending in a final, additional [nul]</span>
 
         <span class="kw">let</span> <span class="ident">ty</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">storage</span>[<span class="self">self</span>.<span class="ident">offset</span> <span class="kw">as</span> <span class="ident">usize</span>];
 
-        <span class="kw">if</span> <span class="ident">ty</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+        <span class="kw">if</span> <span class="ident">ty</span> <span class="op">==</span> <span class="number">0</span> {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
 

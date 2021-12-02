@@ -41,7 +41,7 @@
 Starts a thread that will periodically send regrading submissions to the corresponding exercise services for regrading.
 */</span>
 <span class="attribute">#[<span class="ident">tokio::main</span>]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">main</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">main</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="ident">env::set_var</span>(<span class="string">&quot;RUST_LOG&quot;</span>, <span class="string">&quot;info,actix_web=info,sqlx=warn&quot;</span>);
     <span class="ident">dotenv::dotenv</span>().<span class="ident">ok</span>();
     <span class="ident">headless_lms_actix::setup_tracing</span>()<span class="question-mark">?</span>;

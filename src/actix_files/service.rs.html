@@ -207,7 +207,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">err</span>: <span class="ident">io::Error</span>,
         <span class="ident">req</span>: <span class="ident">ServiceRequest</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">LocalBoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ServiceResponse</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">LocalBoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ServiceResponse</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="macro">log::debug!</span>(<span class="string">&quot;error handling {}: {}&quot;</span>, <span class="ident">req</span>.<span class="ident">path</span>(), <span class="ident">err</span>);
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">default</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">default</span> {
@@ -219,7 +219,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">FilesService</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;FilesService&quot;</span>)
     }
 }
@@ -231,7 +231,7 @@
 
     <span class="macro">actix_service::always_ready!</span>();
 
-    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">ServiceRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Future</span> {
+    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">ServiceRequest</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
         <span class="kw">let</span> <span class="ident">is_method_valid</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">guard</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">guards</span> {
             <span class="comment">// execute user defined guards</span>
             (<span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">guard</span>).<span class="ident">check</span>(<span class="ident">req</span>.<span class="ident">head</span>())
@@ -250,8 +250,8 @@
 
         <span class="kw">let</span> <span class="ident">real_path</span> <span class="op">=</span>
             <span class="kw">match</span> <span class="ident">PathBufWrap::parse_path</span>(<span class="ident">req</span>.<span class="ident">match_info</span>().<span class="ident">path</span>(), <span class="self">self</span>.<span class="ident">hidden_files</span>) {
-                <span class="prelude-val">Ok</span>(<span class="ident">item</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">item</span>,
-                <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">Box::pin</span>(<span class="ident">ok</span>(<span class="ident">req</span>.<span class="ident">error_response</span>(<span class="ident">e</span>))),
+                <span class="prelude-val">Ok</span>(<span class="ident">item</span>) =&gt; <span class="ident">item</span>,
+                <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="kw">return</span> <span class="ident">Box::pin</span>(<span class="ident">ok</span>(<span class="ident">req</span>.<span class="ident">error_response</span>(<span class="ident">e</span>))),
             };
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">filter</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">path_filter</span> {
@@ -305,26 +305,26 @@
                 <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> (<span class="self">self</span>.<span class="ident">renderer</span>)(<span class="kw-2">&amp;</span><span class="ident">dir</span>, <span class="kw-2">&amp;</span><span class="ident">req</span>);
 
                 <span class="ident">Box::pin</span>(<span class="kw">match</span> <span class="ident">x</span> {
-                    <span class="prelude-val">Ok</span>(<span class="ident">resp</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ok</span>(<span class="ident">resp</span>),
-                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ok</span>(<span class="ident">ServiceResponse::from_err</span>(<span class="ident">err</span>, <span class="ident">req</span>)),
+                    <span class="prelude-val">Ok</span>(<span class="ident">resp</span>) =&gt; <span class="ident">ok</span>(<span class="ident">resp</span>),
+                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="ident">ok</span>(<span class="ident">ServiceResponse::from_err</span>(<span class="ident">err</span>, <span class="ident">req</span>)),
                 })
             };
 
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">index</span> {
-                <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">NamedFile::open</span>(<span class="ident">path</span>.<span class="ident">join</span>(<span class="ident">index</span>)) {
-                    <span class="prelude-val">Ok</span>(<span class="ident">named_file</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">serve_named_file</span>(<span class="ident">req</span>, <span class="ident">named_file</span>),
-                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="kw">if</span> <span class="self">self</span>.<span class="ident">show_index</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">show_index</span>(<span class="ident">req</span>),
-                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">handle_err</span>(<span class="ident">err</span>, <span class="ident">req</span>),
+                <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">index</span>) =&gt; <span class="kw">match</span> <span class="ident">NamedFile::open</span>(<span class="ident">path</span>.<span class="ident">join</span>(<span class="ident">index</span>)) {
+                    <span class="prelude-val">Ok</span>(<span class="ident">named_file</span>) =&gt; <span class="ident">serve_named_file</span>(<span class="ident">req</span>, <span class="ident">named_file</span>),
+                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="kw">if</span> <span class="self">self</span>.<span class="ident">show_index</span> =&gt; <span class="ident">show_index</span>(<span class="ident">req</span>),
+                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="self">self</span>.<span class="ident">handle_err</span>(<span class="ident">err</span>, <span class="ident">req</span>),
                 },
-                <span class="prelude-val">None</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">show_index</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">show_index</span>(<span class="ident">req</span>),
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Box::pin</span>(<span class="ident">ok</span>(<span class="ident">ServiceResponse::from_err</span>(
+                <span class="prelude-val">None</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">show_index</span> =&gt; <span class="ident">show_index</span>(<span class="ident">req</span>),
+                <span class="kw">_</span> =&gt; <span class="ident">Box::pin</span>(<span class="ident">ok</span>(<span class="ident">ServiceResponse::from_err</span>(
                     <span class="ident">FilesError::IsDirectory</span>,
                     <span class="ident">req</span>.<span class="ident">into_parts</span>().<span class="number">0</span>,
                 ))),
             }
         } <span class="kw">else</span> {
             <span class="kw">match</span> <span class="ident">NamedFile::open</span>(<span class="ident">path</span>) {
-                <span class="prelude-val">Ok</span>(<span class="kw-2">mut</span> <span class="ident">named_file</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Ok</span>(<span class="kw-2">mut</span> <span class="ident">named_file</span>) =&gt; {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">mime_override</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">mime_override</span> {
                         <span class="kw">let</span> <span class="ident">new_disposition</span> <span class="op">=</span> <span class="ident">mime_override</span>(<span class="kw-2">&amp;</span><span class="ident">named_file</span>.<span class="ident">content_type</span>.<span class="ident">type_</span>());
                         <span class="ident">named_file</span>.<span class="ident">content_disposition</span>.<span class="ident">disposition</span> <span class="op">=</span> <span class="ident">new_disposition</span>;
@@ -335,7 +335,7 @@
                     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">named_file</span>.<span class="ident">into_response</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>);
                     <span class="ident">Box::pin</span>(<span class="ident">ok</span>(<span class="ident">ServiceResponse::new</span>(<span class="ident">req</span>, <span class="ident">res</span>)))
                 }
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">handle_err</span>(<span class="ident">err</span>, <span class="ident">req</span>),
+                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="self">self</span>.<span class="ident">handle_err</span>(<span class="ident">err</span>, <span class="ident">req</span>),
             }
         }
     }

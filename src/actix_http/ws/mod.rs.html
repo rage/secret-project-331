@@ -450,40 +450,40 @@
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">HandshakeError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="kw-2">&amp;</span><span class="ident">HandshakeError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="kw-2">&amp;</span><span class="ident">HandshakeError</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">err</span> {
-            <span class="ident">HandshakeError::GetMethodRequired</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">HandshakeError::GetMethodRequired</span> =&gt; {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response::new</span>(<span class="ident">StatusCode::METHOD_NOT_ALLOWED</span>);
                 <span class="ident">res</span>.<span class="ident">headers_mut</span>()
                     .<span class="ident">insert</span>(<span class="ident">header::ALLOW</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;GET&quot;</span>));
                 <span class="ident">res</span>
             }
 
-            <span class="ident">HandshakeError::NoWebsocketUpgrade</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">HandshakeError::NoWebsocketUpgrade</span> =&gt; {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response::bad_request</span>();
                 <span class="ident">res</span>.<span class="ident">head_mut</span>().<span class="ident">reason</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&quot;No WebSocket Upgrade header found&quot;</span>);
                 <span class="ident">res</span>
             }
 
-            <span class="ident">HandshakeError::NoConnectionUpgrade</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">HandshakeError::NoConnectionUpgrade</span> =&gt; {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response::bad_request</span>();
                 <span class="ident">res</span>.<span class="ident">head_mut</span>().<span class="ident">reason</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&quot;No Connection upgrade&quot;</span>);
                 <span class="ident">res</span>
             }
 
-            <span class="ident">HandshakeError::NoVersionHeader</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">HandshakeError::NoVersionHeader</span> =&gt; {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response::bad_request</span>();
                 <span class="ident">res</span>.<span class="ident">head_mut</span>().<span class="ident">reason</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&quot;WebSocket version header is required&quot;</span>);
                 <span class="ident">res</span>
             }
 
-            <span class="ident">HandshakeError::UnsupportedVersion</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">HandshakeError::UnsupportedVersion</span> =&gt; {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response::bad_request</span>();
                 <span class="ident">res</span>.<span class="ident">head_mut</span>().<span class="ident">reason</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&quot;Unsupported WebSocket version&quot;</span>);
                 <span class="ident">res</span>
             }
 
-            <span class="ident">HandshakeError::BadWebsocketKey</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">HandshakeError::BadWebsocketKey</span> =&gt; {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response::bad_request</span>();
                 <span class="ident">res</span>.<span class="ident">head_mut</span>().<span class="ident">reason</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&quot;Handshake error&quot;</span>);
                 <span class="ident">res</span>
@@ -493,19 +493,19 @@
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">HandshakeError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">HandshakeError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">HandshakeError</span>) -&gt; <span class="self">Self</span> {
         (<span class="kw-2">&amp;</span><span class="ident">err</span>).<span class="ident">into</span>()
     }
 }
 
 <span class="doccomment">/// Verify WebSocket handshake request and create handshake response.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">handshake</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">RequestHead</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ResponseBuilder</span>, <span class="ident">HandshakeError</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">handshake</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">RequestHead</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ResponseBuilder</span>, <span class="ident">HandshakeError</span><span class="op">&gt;</span> {
     <span class="ident">verify_handshake</span>(<span class="ident">req</span>)<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">handshake_response</span>(<span class="ident">req</span>))
 }
 
 <span class="doccomment">/// Verify WebSocket handshake request.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">verify_handshake</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">RequestHead</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">HandshakeError</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">verify_handshake</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">RequestHead</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">HandshakeError</span><span class="op">&gt;</span> {
     <span class="comment">// WebSocket accepts only GET</span>
     <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">method</span> <span class="op">!</span><span class="op">=</span> <span class="ident">Method::GET</span> {
         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">HandshakeError::GetMethodRequired</span>);
@@ -536,7 +536,7 @@
     }
     <span class="kw">let</span> <span class="ident">supported_ver</span> <span class="op">=</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">hdr</span>) <span class="op">=</span> <span class="ident">req</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">header::SEC_WEBSOCKET_VERSION</span>) {
-            <span class="ident">hdr</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;13&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">hdr</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;8&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">hdr</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;7&quot;</span>
+            <span class="ident">hdr</span> <span class="op">==</span> <span class="string">&quot;13&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">hdr</span> <span class="op">==</span> <span class="string">&quot;8&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">hdr</span> <span class="op">==</span> <span class="string">&quot;7&quot;</span>
         } <span class="kw">else</span> {
             <span class="bool-val">false</span>
         }
@@ -555,7 +555,7 @@
 <span class="doccomment">/// Create WebSocket handshake response.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// This function returns handshake `Response`, ready to send to peer.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">handshake_response</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">RequestHead</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ResponseBuilder</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">handshake_response</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">RequestHead</span>) -&gt; <span class="ident">ResponseBuilder</span> {
     <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> {
         <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">header::SEC_WEBSOCKET_KEY</span>).<span class="ident">unwrap</span>();
         <span class="ident">proto::hash_key</span>(<span class="ident">key</span>.<span class="ident">as_ref</span>())

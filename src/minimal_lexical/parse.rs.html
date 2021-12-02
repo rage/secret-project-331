@@ -223,7 +223,7 @@
     <span class="ident">integer</span>: <span class="ident">Iter1</span>,
     <span class="ident">fraction</span>: <span class="ident">Iter2</span>,
     <span class="ident">exponent</span>: <span class="ident">i32</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Number</span><span class="op">&gt;</span>
+) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Number</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">Iter1</span>: <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">u8</span><span class="op">&gt;</span>,
     <span class="ident">Iter2</span>: <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">u8</span><span class="op">&gt;</span>,
@@ -256,7 +256,7 @@
 <span class="doccomment">/// * `integer`     - Slice containing the integer digits.</span>
 <span class="doccomment">/// * `fraction`    - Slice containing the fraction digits.</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="kw">fn</span> <span class="ident">parse_number</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Iter1</span>, <span class="ident">Iter2</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">integer</span>: <span class="ident">Iter1</span>, <span class="kw-2">mut</span> <span class="ident">fraction</span>: <span class="ident">Iter2</span>, <span class="ident">exponent</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Number</span>
+<span class="kw">fn</span> <span class="ident">parse_number</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Iter1</span>, <span class="ident">Iter2</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">integer</span>: <span class="ident">Iter1</span>, <span class="kw-2">mut</span> <span class="ident">fraction</span>: <span class="ident">Iter2</span>, <span class="ident">exponent</span>: <span class="ident">i32</span>) -&gt; <span class="ident">Number</span>
 <span class="kw">where</span>
     <span class="ident">Iter1</span>: <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">u8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span>,
     <span class="ident">Iter2</span>: <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">u8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span>,
@@ -271,7 +271,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count</span> <span class="op">=</span> <span class="number">0</span>;
     <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">c</span>) <span class="op">=</span> <span class="ident">integer</span>.<span class="ident">next</span>() {
         <span class="ident">count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-        <span class="kw">if</span> <span class="ident">count</span> <span class="op">=</span><span class="op">=</span> <span class="number">20</span> {
+        <span class="kw">if</span> <span class="ident">count</span> <span class="op">==</span> <span class="number">20</span> {
             <span class="comment">// Only the integer digits affect the exponent.</span>
             <span class="ident">num</span>.<span class="ident">many_digits</span> <span class="op">=</span> <span class="bool-val">true</span>;
             <span class="ident">num</span>.<span class="ident">exponent</span> <span class="op">=</span> <span class="ident">exponent</span>.<span class="ident">saturating_add</span>(<span class="ident">into_i32</span>(<span class="number">1</span> <span class="op">+</span> <span class="ident">integer</span>.<span class="ident">count</span>()));
@@ -285,7 +285,7 @@
     <span class="comment">// Skip leading fraction zeros.</span>
     <span class="comment">// This is required otherwise we might have a 0 mantissa and many digits.</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fraction_count</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">if</span> <span class="ident">count</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+    <span class="kw">if</span> <span class="ident">count</span> <span class="op">==</span> <span class="number">0</span> {
         <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">c</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fraction</span> {
             <span class="ident">fraction_count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             <span class="kw">if</span> <span class="ident">c</span> <span class="op">!</span><span class="op">=</span> <span class="string">b&#39;0&#39;</span> {
@@ -299,7 +299,7 @@
     <span class="kw">for</span> <span class="ident">c</span> <span class="kw">in</span> <span class="ident">fraction</span> {
         <span class="ident">fraction_count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
         <span class="ident">count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-        <span class="kw">if</span> <span class="ident">count</span> <span class="op">=</span><span class="op">=</span> <span class="number">20</span> {
+        <span class="kw">if</span> <span class="ident">count</span> <span class="op">==</span> <span class="number">20</span> {
             <span class="ident">num</span>.<span class="ident">many_digits</span> <span class="op">=</span> <span class="bool-val">true</span>;
             <span class="comment">// This can&#39;t wrap, since we have at most 20 digits.</span>
             <span class="comment">// We&#39;ve adjusted the exponent too high by `fraction_count - 1`.</span>
@@ -344,7 +344,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// We cannot efficiently remove trailing zeros while only accepting a</span>
 <span class="doccomment">/// forward iterator.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_float</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span>, <span class="ident">Iter1</span>, <span class="ident">Iter2</span><span class="op">&gt;</span>(<span class="ident">integer</span>: <span class="ident">Iter1</span>, <span class="ident">fraction</span>: <span class="ident">Iter2</span>, <span class="ident">exponent</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">F</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_float</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span>, <span class="ident">Iter1</span>, <span class="ident">Iter2</span><span class="op">&gt;</span>(<span class="ident">integer</span>: <span class="ident">Iter1</span>, <span class="ident">fraction</span>: <span class="ident">Iter2</span>, <span class="ident">exponent</span>: <span class="ident">i32</span>) -&gt; <span class="ident">F</span>
 <span class="kw">where</span>
     <span class="ident">F</span>: <span class="ident">Float</span>,
     <span class="ident">Iter1</span>: <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">u8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span>,
@@ -374,7 +374,7 @@
 <span class="doccomment">/// Wrapper for different moderate-path algorithms.</span>
 <span class="doccomment">/// A return exponent of `-1` indicates an invalid value.</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">moderate_path</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Float</span><span class="op">&gt;</span>(<span class="ident">num</span>: <span class="kw-2">&amp;</span><span class="ident">Number</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ExtendedFloat</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">moderate_path</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Float</span><span class="op">&gt;</span>(<span class="ident">num</span>: <span class="kw-2">&amp;</span><span class="ident">Number</span>) -&gt; <span class="ident">ExtendedFloat</span> {
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compact&quot;</span>))]</span>
     <span class="kw">return</span> <span class="ident">lemire</span>::<span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="ident">num</span>);
 
@@ -387,7 +387,7 @@
 <span class="doccomment">/// This is needed to ensure when adjusting the exponent relative to</span>
 <span class="doccomment">/// the mantissa we do not overflow for comically-long exponents.</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="kw">fn</span> <span class="ident">into_i32</span>(<span class="ident">value</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span> {
+<span class="kw">fn</span> <span class="ident">into_i32</span>(<span class="ident">value</span>: <span class="ident">usize</span>) -&gt; <span class="ident">i32</span> {
     <span class="kw">if</span> <span class="ident">value</span> <span class="op">&gt;</span> <span class="ident">i32::max_value</span>() <span class="kw">as</span> <span class="ident">usize</span> {
         <span class="ident">i32::max_value</span>()
     } <span class="kw">else</span> {
@@ -397,7 +397,7 @@
 
 <span class="comment">// Add digit to mantissa.</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_digit</span>(<span class="ident">value</span>: <span class="ident">u64</span>, <span class="ident">digit</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_digit</span>(<span class="ident">value</span>: <span class="ident">u64</span>, <span class="ident">digit</span>: <span class="ident">u8</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
     <span class="ident">value</span>.<span class="ident">checked_mul</span>(<span class="number">10</span>)<span class="question-mark">?</span>.<span class="ident">checked_add</span>(<span class="ident">digit</span> <span class="kw">as</span> <span class="ident">u64</span>)
 }
 </code></pre></div>

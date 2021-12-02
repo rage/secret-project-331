@@ -216,7 +216,7 @@
 
 <span class="kw">impl</span> <span class="ident">TcpConnectorFactory</span> {
     <span class="doccomment">/// Create TCP connector service</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TcpConnector</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TcpConnector</span> {
         <span class="ident">TcpConnector</span>
     }
 }
@@ -229,7 +229,7 @@
     <span class="kw">type</span> <span class="ident">InitError</span> <span class="op">=</span> ();
     <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">LocalBoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Service</span>, <span class="ident"><span class="self">Self</span>::InitError</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">new_service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: ()) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Future</span> {
+    <span class="kw">fn</span> <span class="ident">new_service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: ()) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
         <span class="kw">let</span> <span class="ident">service</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">service</span>();
         <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> { <span class="prelude-val">Ok</span>(<span class="ident">service</span>) })
     }
@@ -246,7 +246,7 @@
 
     <span class="macro">actix_service::always_ready!</span>();
 
-    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">Connect</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Future</span> {
+    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">Connect</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
         <span class="kw">let</span> <span class="ident">port</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">port</span>();
         <span class="kw">let</span> <span class="ident">Connect</span> {
             <span class="ident">req</span>,
@@ -277,7 +277,7 @@
         <span class="ident">port</span>: <span class="ident">u16</span>,
         <span class="ident">local_addr</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">IpAddr</span><span class="op">&gt;</span>,
         <span class="ident">addr</span>: <span class="ident">ConnectAddrs</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TcpConnectorResponse</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">TcpConnectorResponse</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">addr</span>.<span class="ident">is_none</span>() {
             <span class="macro">error!</span>(<span class="string">&quot;TCP connector: unresolved connection address&quot;</span>);
             <span class="kw">return</span> <span class="ident">TcpConnectorResponse::Error</span>(<span class="prelude-val">Some</span>(<span class="ident">ConnectError::Unresolved</span>));
@@ -290,9 +290,9 @@
         );
 
         <span class="kw">match</span> <span class="ident">addr</span> {
-            <span class="ident">ConnectAddrs::None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(<span class="string">&quot;none variant already checked&quot;</span>),
+            <span class="ident">ConnectAddrs::None</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;none variant already checked&quot;</span>),
 
-            <span class="ident">ConnectAddrs::One</span>(<span class="ident">addr</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TcpConnectorResponse::Response</span> {
+            <span class="ident">ConnectAddrs::One</span>(<span class="ident">addr</span>) =&gt; <span class="ident">TcpConnectorResponse::Response</span> {
                 <span class="ident">req</span>: <span class="prelude-val">Some</span>(<span class="ident">req</span>),
                 <span class="ident">port</span>,
                 <span class="ident">local_addr</span>,
@@ -302,7 +302,7 @@
 
             <span class="comment">// when resolver returns multiple socket addr for request they would be popped from</span>
             <span class="comment">// front end of queue and returns with the first successful tcp connection.</span>
-            <span class="ident">ConnectAddrs::Multi</span>(<span class="kw-2">mut</span> <span class="ident">addrs</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ConnectAddrs::Multi</span>(<span class="kw-2">mut</span> <span class="ident">addrs</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">addr</span> <span class="op">=</span> <span class="ident">addrs</span>.<span class="ident">pop_front</span>().<span class="ident">unwrap</span>();
 
                 <span class="ident">TcpConnectorResponse::Response</span> {
@@ -320,9 +320,9 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Address</span><span class="op">&gt;</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">TcpConnectorResponse</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Connection</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">TcpStream</span><span class="op">&gt;</span>, <span class="ident">ConnectError</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">get_mut</span>() {
-            <span class="ident">TcpConnectorResponse::Error</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>())),
+            <span class="ident">TcpConnectorResponse::Error</span>(<span class="ident">err</span>) =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>())),
 
             <span class="ident">TcpConnectorResponse::Response</span> {
                 <span class="ident">req</span>,
@@ -330,9 +330,9 @@
                 <span class="ident">local_addr</span>,
                 <span class="ident">addrs</span>,
                 <span class="ident">stream</span>,
-            } <span class="op">=</span><span class="op">&gt;</span> <span class="kw">loop</span> {
+            } =&gt; <span class="kw">loop</span> {
                 <span class="kw">match</span> <span class="macro">ready!</span>(<span class="ident">stream</span>.<span class="ident">poll</span>(<span class="ident">cx</span>)) {
-                    <span class="prelude-val">Ok</span>(<span class="ident">sock</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="prelude-val">Ok</span>(<span class="ident">sock</span>) =&gt; {
                         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
                         <span class="macro">trace!</span>(
                             <span class="string">&quot;TCP connector: successfully connected to {:?} - {:?}&quot;</span>,
@@ -342,7 +342,7 @@
                         <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">Connection::new</span>(<span class="ident">sock</span>, <span class="ident">req</span>)));
                     }
 
-                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
                         <span class="macro">trace!</span>(
                             <span class="string">&quot;TCP connector: failed to connect to {:?} port: {}&quot;</span>,
                             <span class="ident">req</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">hostname</span>(),
@@ -361,18 +361,18 @@
     }
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">connect</span>(<span class="ident">addr</span>: <span class="ident">SocketAddr</span>, <span class="ident">local_addr</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">IpAddr</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">TcpStream</span><span class="op">&gt;</span> {
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">connect</span>(<span class="ident">addr</span>: <span class="ident">SocketAddr</span>, <span class="ident">local_addr</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">IpAddr</span><span class="op">&gt;</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">TcpStream</span><span class="op">&gt;</span> {
     <span class="comment">// use local addr if connect asks for it.</span>
     <span class="kw">match</span> <span class="ident">local_addr</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">ip_addr</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Some</span>(<span class="ident">ip_addr</span>) =&gt; {
             <span class="kw">let</span> <span class="ident">socket</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">ip_addr</span> {
-                <span class="ident">IpAddr::V4</span>(<span class="ident">ip_addr</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">IpAddr::V4</span>(<span class="ident">ip_addr</span>) =&gt; {
                     <span class="kw">let</span> <span class="ident">socket</span> <span class="op">=</span> <span class="ident">TcpSocket::new_v4</span>()<span class="question-mark">?</span>;
                     <span class="kw">let</span> <span class="ident">addr</span> <span class="op">=</span> <span class="ident">SocketAddr::V4</span>(<span class="ident">SocketAddrV4::new</span>(<span class="ident">ip_addr</span>, <span class="number">0</span>));
                     <span class="ident">socket</span>.<span class="ident">bind</span>(<span class="ident">addr</span>)<span class="question-mark">?</span>;
                     <span class="ident">socket</span>
                 }
-                <span class="ident">IpAddr::V6</span>(<span class="ident">ip_addr</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">IpAddr::V6</span>(<span class="ident">ip_addr</span>) =&gt; {
                     <span class="kw">let</span> <span class="ident">socket</span> <span class="op">=</span> <span class="ident">TcpSocket::new_v6</span>()<span class="question-mark">?</span>;
                     <span class="kw">let</span> <span class="ident">addr</span> <span class="op">=</span> <span class="ident">SocketAddr::V6</span>(<span class="ident">SocketAddrV6::new</span>(<span class="ident">ip_addr</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>));
                     <span class="ident">socket</span>.<span class="ident">bind</span>(<span class="ident">addr</span>)<span class="question-mark">?</span>;
@@ -383,7 +383,7 @@
             <span class="ident">socket</span>.<span class="ident">connect</span>(<span class="ident">addr</span>).<span class="kw">await</span>
         }
 
-        <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TcpStream::connect</span>(<span class="ident">addr</span>).<span class="kw">await</span>,
+        <span class="prelude-val">None</span> =&gt; <span class="ident">TcpStream::connect</span>(<span class="ident">addr</span>).<span class="kw">await</span>,
     }
 }
 </code></pre></div>

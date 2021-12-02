@@ -160,7 +160,7 @@ Response headers:
 */</span>
 <span class="attribute">#[<span class="ident">instrument</span>]</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::async_yields_async</span>)]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">redirect_to_storage_service</span>(<span class="ident">tail</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HttpResponse</span> {
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">redirect_to_storage_service</span>(<span class="ident">tail</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) -&gt; <span class="ident">HttpResponse</span> {
     <span class="kw">let</span> <span class="ident">prefix</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/api/v0/files/uploads/&quot;</span>);
     <span class="kw">let</span> <span class="ident">path</span>: <span class="ident">PathBuf</span> <span class="op">=</span> <span class="ident">prefix</span>.<span class="ident">join</span>(<span class="ident">tail</span>.<span class="ident">into_inner</span>());
     <span class="kw">let</span> <span class="ident">path_string</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">to_string_lossy</span>().<span class="ident">to_string</span>();
@@ -183,7 +183,7 @@ Result:
 The file.
 */</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">req</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">serve_upload</span>(<span class="ident">req</span>: <span class="ident">HttpRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">HttpResponse</span><span class="op">&gt;</span> {
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">serve_upload</span>(<span class="ident">req</span>: <span class="ident">HttpRequest</span>) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">HttpResponse</span><span class="op">&gt;</span> {
     <span class="comment">// TODO: replace this whole function with the actix_files::Files service once it works with the used actix version.</span>
     <span class="kw">let</span> <span class="ident">base_folder</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;uploads&quot;</span>);
     <span class="kw">let</span> <span class="ident">relative_path</span>: <span class="ident">PathBuf</span> <span class="op">=</span> <span class="ident">req</span>
@@ -204,12 +204,12 @@ The file.
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mime_type</span> <span class="op">=</span> <span class="prelude-val">None</span>;
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ext_string</span>) <span class="op">=</span> <span class="ident">extension</span> {
         <span class="ident">mime_type</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">ext_string</span>.<span class="ident">as_str</span>() {
-            <span class="string">&quot;jpg&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;image/jpg&quot;</span>),
-            <span class="string">&quot;png&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;image/png&quot;</span>),
-            <span class="string">&quot;svg&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;image/svg+xml&quot;</span>),
-            <span class="string">&quot;webp&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;image/webp&quot;</span>),
-            <span class="string">&quot;gif&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;image/gif&quot;</span>),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+            <span class="string">&quot;jpg&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;image/jpg&quot;</span>),
+            <span class="string">&quot;png&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;image/png&quot;</span>),
+            <span class="string">&quot;svg&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;image/svg+xml&quot;</span>),
+            <span class="string">&quot;webp&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;image/webp&quot;</span>),
+            <span class="string">&quot;gif&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;image/gif&quot;</span>),
+            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
         };
     }
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">response</span> <span class="op">=</span> <span class="ident">HttpResponse::Ok</span>();

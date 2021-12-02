@@ -3,21 +3,21 @@
 <a href="trait.AsyncWrite.html" title="AsyncWrite"><code>AsyncWrite</code></a>, to framed streams implementing <a href="../futures_sink/trait.Sink.html"><code>Sink</code></a> and <a href="../futures_core/stream/trait.Stream.html"><code>Stream</code></a>.
 Framed streams are also known as <code>transports</code>.</p>
 </div></details><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.BytesCodec.html" title="actix_codec::BytesCodec struct">BytesCodec</a></div><div class="item-right docblock-short"><p>Bytes codec.</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.Framed.html" title="actix_codec::Framed struct">Framed</a></div><div class="item-right docblock-short"><p>A unified <code>Stream</code> and <code>Sink</code> interface to an underlying I/O object, using
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.BytesCodec.html" title="actix_codec::BytesCodec struct">BytesCodec</a></div><div class="item-right docblock-short"><p>Bytes codec.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Framed.html" title="actix_codec::Framed struct">Framed</a></div><div class="item-right docblock-short"><p>A unified <code>Stream</code> and <code>Sink</code> interface to an underlying I/O object, using
 the <code>Encoder</code> and <code>Decoder</code> traits to encode and decode frames.</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.FramedParts.html" title="actix_codec::FramedParts struct">FramedParts</a></div><div class="item-right docblock-short"><p><code>FramedParts</code> contains an export of the data of a Framed transport.
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.FramedParts.html" title="actix_codec::FramedParts struct">FramedParts</a></div><div class="item-right docblock-short"><p><code>FramedParts</code> contains an export of the data of a Framed transport.
 It can be used to construct a new <code>Framed</code> with a different codec.
 It contains all current buffers and the inner transport.</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.ReadBuf.html" title="actix_codec::ReadBuf struct">ReadBuf</a></div><div class="item-right docblock-short"><p>A wrapper around a byte buffer that is incrementally filled and initialized.</p>
-</div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="trait" href="trait.AsyncRead.html" title="actix_codec::AsyncRead trait">AsyncRead</a></div><div class="item-right docblock-short"><p>Reads bytes from a source.</p>
-</div><div class="item-left module-item"><a class="trait" href="trait.AsyncWrite.html" title="actix_codec::AsyncWrite trait">AsyncWrite</a></div><div class="item-right docblock-short"><p>Writes bytes asynchronously.</p>
-</div><div class="item-left module-item"><a class="trait" href="trait.Decoder.html" title="actix_codec::Decoder trait">Decoder</a></div><div class="item-right docblock-short"><p>Decoding of frames via buffers.</p>
-</div><div class="item-left module-item"><a class="trait" href="trait.Encoder.html" title="actix_codec::Encoder trait">Encoder</a></div><div class="item-right docblock-short"><p>Trait of helper objects to write out messages as bytes, for use with
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.ReadBuf.html" title="actix_codec::ReadBuf struct">ReadBuf</a></div><div class="item-right docblock-short"><p>A wrapper around a byte buffer that is incrementally filled and initialized.</p>
+</div></div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.AsyncRead.html" title="actix_codec::AsyncRead trait">AsyncRead</a></div><div class="item-right docblock-short"><p>Reads bytes from a source.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.AsyncWrite.html" title="actix_codec::AsyncWrite trait">AsyncWrite</a></div><div class="item-right docblock-short"><p>Writes bytes asynchronously.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.Decoder.html" title="actix_codec::Decoder trait">Decoder</a></div><div class="item-right docblock-short"><p>Decoding of frames via buffers.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.Encoder.html" title="actix_codec::Encoder trait">Encoder</a></div><div class="item-right docblock-short"><p>Trait of helper objects to write out messages as bytes, for use with
 <a href="../tokio_util/codec/framed_write/struct.FramedWrite.html"><code>FramedWrite</code></a>.</p>
-</div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="fn" href="fn.poll_read_buf.html" title="actix_codec::poll_read_buf fn">poll_read_buf</a></div><div class="item-right docblock-short"><p>Try to read data from an <code>AsyncRead</code> into an implementer of the <a href="../bytes/buf/buf_impl/trait.Buf.html"><code>BufMut</code></a> trait.</p>
-</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="actix_codec" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+</div></div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.poll_read_buf.html" title="actix_codec::poll_read_buf fn">poll_read_buf</a></div><div class="item-right docblock-short"><p>Try to read data from an <code>AsyncRead</code> into an implementer of the <a href="../bytes/buf/buf_impl/trait.Buf.html"><code>BufMut</code></a> trait.</p>
+</div></div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="actix_codec" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
     <script src="../main.js"></script>
 </body></html>

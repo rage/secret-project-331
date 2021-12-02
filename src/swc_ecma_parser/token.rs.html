@@ -830,7 +830,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">BinOpToken</span> {
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">before_expr</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">before_expr</span>(<span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="bool-val">true</span>
     }
 }
@@ -845,7 +845,7 @@
 
 <span class="kw">impl</span> <span class="ident">Spanned</span> <span class="kw">for</span> <span class="ident">TokenAndSpan</span> {
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
+    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
         <span class="self">self</span>.<span class="ident">span</span>
     }
 }
@@ -868,127 +868,127 @@
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">JsWord</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Word</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">i</span>: <span class="ident">JsWord</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">i</span>: <span class="ident">JsWord</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">i</span> {
-            <span class="macro">js_word!</span>(<span class="string">&quot;null&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Word::Null</span>,
-            <span class="macro">js_word!</span>(<span class="string">&quot;true&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Word::True</span>,
-            <span class="macro">js_word!</span>(<span class="string">&quot;false&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Word::False</span>,
-            <span class="macro">js_word!</span>(<span class="string">&quot;await&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Await</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;break&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Break</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;case&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Case</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;catch&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Catch</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;continue&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Continue</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;debugger&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Debugger</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;default&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Default_</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;do&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Do</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;export&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Export</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;else&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Else</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;finally&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Finally</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;for&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">For</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;function&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Function</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;if&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">If</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;return&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Return</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;switch&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Switch</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;throw&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Throw</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;try&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Try</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;var&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Var</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;let&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Let</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;const&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Const</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;while&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">While</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;with&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">With</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;new&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">New</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;this&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">This</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;super&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Super</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;class&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Class</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;extends&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Extends</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;import&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Import</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;yield&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Yield</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;in&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">In</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;instanceof&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">InstanceOf</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;typeof&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TypeOf</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;void&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Void</span>.<span class="ident">into</span>(),
-            <span class="macro">js_word!</span>(<span class="string">&quot;delete&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Delete</span>.<span class="ident">into</span>(),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Word::Ident</span>(<span class="ident">i</span>),
+            <span class="macro">js_word!</span>(<span class="string">&quot;null&quot;</span>) =&gt; <span class="ident">Word::Null</span>,
+            <span class="macro">js_word!</span>(<span class="string">&quot;true&quot;</span>) =&gt; <span class="ident">Word::True</span>,
+            <span class="macro">js_word!</span>(<span class="string">&quot;false&quot;</span>) =&gt; <span class="ident">Word::False</span>,
+            <span class="macro">js_word!</span>(<span class="string">&quot;await&quot;</span>) =&gt; <span class="ident">Await</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;break&quot;</span>) =&gt; <span class="ident">Break</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;case&quot;</span>) =&gt; <span class="ident">Case</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;catch&quot;</span>) =&gt; <span class="ident">Catch</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;continue&quot;</span>) =&gt; <span class="ident">Continue</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;debugger&quot;</span>) =&gt; <span class="ident">Debugger</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;default&quot;</span>) =&gt; <span class="ident">Default_</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;do&quot;</span>) =&gt; <span class="ident">Do</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;export&quot;</span>) =&gt; <span class="ident">Export</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;else&quot;</span>) =&gt; <span class="ident">Else</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;finally&quot;</span>) =&gt; <span class="ident">Finally</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;for&quot;</span>) =&gt; <span class="ident">For</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;function&quot;</span>) =&gt; <span class="ident">Function</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;if&quot;</span>) =&gt; <span class="ident">If</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;return&quot;</span>) =&gt; <span class="ident">Return</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;switch&quot;</span>) =&gt; <span class="ident">Switch</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;throw&quot;</span>) =&gt; <span class="ident">Throw</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;try&quot;</span>) =&gt; <span class="ident">Try</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;var&quot;</span>) =&gt; <span class="ident">Var</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;let&quot;</span>) =&gt; <span class="ident">Let</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;const&quot;</span>) =&gt; <span class="ident">Const</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;while&quot;</span>) =&gt; <span class="ident">While</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;with&quot;</span>) =&gt; <span class="ident">With</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;new&quot;</span>) =&gt; <span class="ident">New</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;this&quot;</span>) =&gt; <span class="ident">This</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;super&quot;</span>) =&gt; <span class="ident">Super</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;class&quot;</span>) =&gt; <span class="ident">Class</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;extends&quot;</span>) =&gt; <span class="ident">Extends</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;import&quot;</span>) =&gt; <span class="ident">Import</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;yield&quot;</span>) =&gt; <span class="ident">Yield</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;in&quot;</span>) =&gt; <span class="ident">In</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;instanceof&quot;</span>) =&gt; <span class="ident">InstanceOf</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;typeof&quot;</span>) =&gt; <span class="ident">TypeOf</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;void&quot;</span>) =&gt; <span class="ident">Void</span>.<span class="ident">into</span>(),
+            <span class="macro">js_word!</span>(<span class="string">&quot;delete&quot;</span>) =&gt; <span class="ident">Delete</span>.<span class="ident">into</span>(),
+            <span class="kw">_</span> =&gt; <span class="ident">Word::Ident</span>(<span class="ident">i</span>),
         }
     }
 }
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Keyword</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Word</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">kwd</span>: <span class="ident">Keyword</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">kwd</span>: <span class="ident">Keyword</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">Word::Keyword</span>(<span class="ident">kwd</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Word</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">JsWord</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">w</span>: <span class="ident">Word</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">w</span>: <span class="ident">Word</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">w</span> {
-            <span class="ident">Word::Keyword</span>(<span class="ident">k</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">k</span> {
-                <span class="ident">Await</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;await&quot;</span>),
-                <span class="ident">Break</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;break&quot;</span>),
-                <span class="ident">Case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;case&quot;</span>),
-                <span class="ident">Catch</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;catch&quot;</span>),
-                <span class="ident">Continue</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;continue&quot;</span>),
-                <span class="ident">Debugger</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;debugger&quot;</span>),
-                <span class="ident">Default_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;default&quot;</span>),
-                <span class="ident">Do</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;do&quot;</span>),
-                <span class="ident">Else</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;else&quot;</span>),
+            <span class="ident">Word::Keyword</span>(<span class="ident">k</span>) =&gt; <span class="kw">match</span> <span class="ident">k</span> {
+                <span class="ident">Await</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;await&quot;</span>),
+                <span class="ident">Break</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;break&quot;</span>),
+                <span class="ident">Case</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;case&quot;</span>),
+                <span class="ident">Catch</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;catch&quot;</span>),
+                <span class="ident">Continue</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;continue&quot;</span>),
+                <span class="ident">Debugger</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;debugger&quot;</span>),
+                <span class="ident">Default_</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;default&quot;</span>),
+                <span class="ident">Do</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;do&quot;</span>),
+                <span class="ident">Else</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;else&quot;</span>),
 
-                <span class="ident">Finally</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;finally&quot;</span>),
-                <span class="ident">For</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;for&quot;</span>),
+                <span class="ident">Finally</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;finally&quot;</span>),
+                <span class="ident">For</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;for&quot;</span>),
 
-                <span class="ident">Function</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;function&quot;</span>),
+                <span class="ident">Function</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;function&quot;</span>),
 
-                <span class="ident">If</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;if&quot;</span>),
+                <span class="ident">If</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;if&quot;</span>),
 
-                <span class="ident">Return</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;return&quot;</span>),
+                <span class="ident">Return</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;return&quot;</span>),
 
-                <span class="ident">Switch</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;switch&quot;</span>),
+                <span class="ident">Switch</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;switch&quot;</span>),
 
-                <span class="ident">Throw</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;throw&quot;</span>),
+                <span class="ident">Throw</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;throw&quot;</span>),
 
-                <span class="ident">Try</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;try&quot;</span>),
-                <span class="ident">Var</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;var&quot;</span>),
-                <span class="ident">Let</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;let&quot;</span>),
-                <span class="ident">Const</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;const&quot;</span>),
-                <span class="ident">While</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;while&quot;</span>),
-                <span class="ident">With</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;with&quot;</span>),
+                <span class="ident">Try</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;try&quot;</span>),
+                <span class="ident">Var</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;var&quot;</span>),
+                <span class="ident">Let</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;let&quot;</span>),
+                <span class="ident">Const</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;const&quot;</span>),
+                <span class="ident">While</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;while&quot;</span>),
+                <span class="ident">With</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;with&quot;</span>),
 
-                <span class="ident">New</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;new&quot;</span>),
-                <span class="ident">This</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;this&quot;</span>),
-                <span class="ident">Super</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;super&quot;</span>),
+                <span class="ident">New</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;new&quot;</span>),
+                <span class="ident">This</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;this&quot;</span>),
+                <span class="ident">Super</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;super&quot;</span>),
 
-                <span class="ident">Class</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;class&quot;</span>),
+                <span class="ident">Class</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;class&quot;</span>),
 
-                <span class="ident">Extends</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;extends&quot;</span>),
+                <span class="ident">Extends</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;extends&quot;</span>),
 
-                <span class="ident">Export</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;export&quot;</span>),
-                <span class="ident">Import</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;import&quot;</span>),
+                <span class="ident">Export</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;export&quot;</span>),
+                <span class="ident">Import</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;import&quot;</span>),
 
-                <span class="ident">Yield</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;yield&quot;</span>),
+                <span class="ident">Yield</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;yield&quot;</span>),
 
-                <span class="ident">In</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;in&quot;</span>),
-                <span class="ident">InstanceOf</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;instanceof&quot;</span>),
+                <span class="ident">In</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;in&quot;</span>),
+                <span class="ident">InstanceOf</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;instanceof&quot;</span>),
 
-                <span class="ident">TypeOf</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;typeof&quot;</span>),
+                <span class="ident">TypeOf</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;typeof&quot;</span>),
 
-                <span class="ident">Void</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;void&quot;</span>),
+                <span class="ident">Void</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;void&quot;</span>),
 
-                <span class="ident">Delete</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;delete&quot;</span>),
+                <span class="ident">Delete</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;delete&quot;</span>),
             },
 
-            <span class="ident">Word::Null</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;null&quot;</span>),
-            <span class="ident">Word::True</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;true&quot;</span>),
-            <span class="ident">Word::False</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;false&quot;</span>),
+            <span class="ident">Word::Null</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;null&quot;</span>),
+            <span class="ident">Word::True</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;true&quot;</span>),
+            <span class="ident">Word::False</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;false&quot;</span>),
 
-            <span class="ident">Word::Ident</span>(<span class="ident">w</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">w</span>,
+            <span class="ident">Word::Ident</span>(<span class="ident">w</span>) =&gt; <span class="ident">w</span>,
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">Word</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">Word::Ident</span>(<span class="kw-2">ref</span> <span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Display::fmt</span>(<span class="ident">s</span>, <span class="ident">f</span>),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Word::Ident</span>(<span class="kw-2">ref</span> <span class="ident">s</span>) =&gt; <span class="ident">Display::fmt</span>(<span class="ident">s</span>, <span class="ident">f</span>),
+            <span class="kw">_</span> =&gt; {
                 <span class="kw">let</span> <span class="ident">s</span>: <span class="ident">JsWord</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">clone</span>().<span class="ident">into</span>();
                 <span class="ident">Display::fmt</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>, <span class="ident">f</span>)
             }
@@ -1077,65 +1077,65 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Keyword</span> {
-    <span class="kw">fn</span> <span class="ident">into_js_word</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">JsWord</span> {
+    <span class="kw">fn</span> <span class="ident">into_js_word</span>(<span class="self">self</span>) -&gt; <span class="ident">JsWord</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Await</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;await&quot;</span>),
-            <span class="ident">Break</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;break&quot;</span>),
-            <span class="ident">Case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;case&quot;</span>),
-            <span class="ident">Catch</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;catch&quot;</span>),
-            <span class="ident">Continue</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;continue&quot;</span>),
-            <span class="ident">Debugger</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;debugger&quot;</span>),
-            <span class="ident">Default_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;default&quot;</span>),
-            <span class="ident">Do</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;do&quot;</span>),
-            <span class="ident">Else</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;else&quot;</span>),
+            <span class="ident">Await</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;await&quot;</span>),
+            <span class="ident">Break</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;break&quot;</span>),
+            <span class="ident">Case</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;case&quot;</span>),
+            <span class="ident">Catch</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;catch&quot;</span>),
+            <span class="ident">Continue</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;continue&quot;</span>),
+            <span class="ident">Debugger</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;debugger&quot;</span>),
+            <span class="ident">Default_</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;default&quot;</span>),
+            <span class="ident">Do</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;do&quot;</span>),
+            <span class="ident">Else</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;else&quot;</span>),
 
-            <span class="ident">Finally</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;finally&quot;</span>),
-            <span class="ident">For</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;for&quot;</span>),
+            <span class="ident">Finally</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;finally&quot;</span>),
+            <span class="ident">For</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;for&quot;</span>),
 
-            <span class="ident">Function</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;function&quot;</span>),
+            <span class="ident">Function</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;function&quot;</span>),
 
-            <span class="ident">If</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;if&quot;</span>),
+            <span class="ident">If</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;if&quot;</span>),
 
-            <span class="ident">Return</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;return&quot;</span>),
+            <span class="ident">Return</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;return&quot;</span>),
 
-            <span class="ident">Switch</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;switch&quot;</span>),
+            <span class="ident">Switch</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;switch&quot;</span>),
 
-            <span class="ident">Throw</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;throw&quot;</span>),
+            <span class="ident">Throw</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;throw&quot;</span>),
 
-            <span class="ident">Try</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;try&quot;</span>),
-            <span class="ident">Var</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;var&quot;</span>),
-            <span class="ident">Let</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;let&quot;</span>),
-            <span class="ident">Const</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;const&quot;</span>),
-            <span class="ident">While</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;while&quot;</span>),
-            <span class="ident">With</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;with&quot;</span>),
+            <span class="ident">Try</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;try&quot;</span>),
+            <span class="ident">Var</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;var&quot;</span>),
+            <span class="ident">Let</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;let&quot;</span>),
+            <span class="ident">Const</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;const&quot;</span>),
+            <span class="ident">While</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;while&quot;</span>),
+            <span class="ident">With</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;with&quot;</span>),
 
-            <span class="ident">New</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;new&quot;</span>),
-            <span class="ident">This</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;this&quot;</span>),
-            <span class="ident">Super</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;super&quot;</span>),
+            <span class="ident">New</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;new&quot;</span>),
+            <span class="ident">This</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;this&quot;</span>),
+            <span class="ident">Super</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;super&quot;</span>),
 
-            <span class="ident">Class</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;class&quot;</span>),
+            <span class="ident">Class</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;class&quot;</span>),
 
-            <span class="ident">Extends</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;extends&quot;</span>),
+            <span class="ident">Extends</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;extends&quot;</span>),
 
-            <span class="ident">Export</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;export&quot;</span>),
-            <span class="ident">Import</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;import&quot;</span>),
+            <span class="ident">Export</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;export&quot;</span>),
+            <span class="ident">Import</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;import&quot;</span>),
 
-            <span class="ident">Yield</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;yield&quot;</span>),
+            <span class="ident">Yield</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;yield&quot;</span>),
 
-            <span class="ident">In</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;in&quot;</span>),
-            <span class="ident">InstanceOf</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;instanceof&quot;</span>),
+            <span class="ident">In</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;in&quot;</span>),
+            <span class="ident">InstanceOf</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;instanceof&quot;</span>),
 
-            <span class="ident">TypeOf</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;typeof&quot;</span>),
+            <span class="ident">TypeOf</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;typeof&quot;</span>),
 
-            <span class="ident">Void</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;void&quot;</span>),
+            <span class="ident">Void</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;void&quot;</span>),
 
-            <span class="ident">Delete</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">js_word!</span>(<span class="string">&quot;delete&quot;</span>),
+            <span class="ident">Delete</span> =&gt; <span class="macro">js_word!</span>(<span class="string">&quot;delete&quot;</span>),
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">Keyword</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;keyword &#39;{}&#39;&quot;</span>, <span class="self">self</span>.<span class="ident">into_js_word</span>())<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(())
@@ -1143,32 +1143,32 @@
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">BinOpToken</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">BinaryOp</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">t</span>: <span class="ident">BinOpToken</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">t</span>: <span class="ident">BinOpToken</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">use</span> <span class="ident"><span class="self">self</span>::BinaryOp</span>::<span class="kw-2">*</span>;
         <span class="kw">match</span> <span class="ident">t</span> {
-            <span class="ident">BinOpToken::EqEq</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">EqEq</span>,
-            <span class="ident">BinOpToken::NotEq</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">NotEq</span>,
-            <span class="ident">BinOpToken::EqEqEq</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">EqEqEq</span>,
-            <span class="ident">BinOpToken::NotEqEq</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">NotEqEq</span>,
-            <span class="ident">BinOpToken::Lt</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Lt</span>,
-            <span class="ident">BinOpToken::LtEq</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">LtEq</span>,
-            <span class="ident">BinOpToken::Gt</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Gt</span>,
-            <span class="ident">BinOpToken::GtEq</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GtEq</span>,
-            <span class="ident">BinOpToken::LShift</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">LShift</span>,
-            <span class="ident">BinOpToken::RShift</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">RShift</span>,
-            <span class="ident">BinOpToken::ZeroFillRShift</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ZeroFillRShift</span>,
-            <span class="ident">BinOpToken::Add</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Add</span>,
-            <span class="ident">BinOpToken::Sub</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Sub</span>,
-            <span class="ident">BinOpToken::Mul</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Mul</span>,
-            <span class="ident">BinOpToken::Div</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Div</span>,
-            <span class="ident">BinOpToken::Mod</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Mod</span>,
-            <span class="ident">BinOpToken::BitOr</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">BitOr</span>,
-            <span class="ident">BinOpToken::BitXor</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">BitXor</span>,
-            <span class="ident">BinOpToken::BitAnd</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">BitAnd</span>,
-            <span class="ident">BinOpToken::LogicalOr</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">LogicalOr</span>,
-            <span class="ident">BinOpToken::LogicalAnd</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">LogicalAnd</span>,
-            <span class="ident">BinOpToken::Exp</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Exp</span>,
-            <span class="ident">BinOpToken::NullishCoalescing</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">NullishCoalescing</span>,
+            <span class="ident">BinOpToken::EqEq</span> =&gt; <span class="ident">EqEq</span>,
+            <span class="ident">BinOpToken::NotEq</span> =&gt; <span class="ident">NotEq</span>,
+            <span class="ident">BinOpToken::EqEqEq</span> =&gt; <span class="ident">EqEqEq</span>,
+            <span class="ident">BinOpToken::NotEqEq</span> =&gt; <span class="ident">NotEqEq</span>,
+            <span class="ident">BinOpToken::Lt</span> =&gt; <span class="ident">Lt</span>,
+            <span class="ident">BinOpToken::LtEq</span> =&gt; <span class="ident">LtEq</span>,
+            <span class="ident">BinOpToken::Gt</span> =&gt; <span class="ident">Gt</span>,
+            <span class="ident">BinOpToken::GtEq</span> =&gt; <span class="ident">GtEq</span>,
+            <span class="ident">BinOpToken::LShift</span> =&gt; <span class="ident">LShift</span>,
+            <span class="ident">BinOpToken::RShift</span> =&gt; <span class="ident">RShift</span>,
+            <span class="ident">BinOpToken::ZeroFillRShift</span> =&gt; <span class="ident">ZeroFillRShift</span>,
+            <span class="ident">BinOpToken::Add</span> =&gt; <span class="ident">Add</span>,
+            <span class="ident">BinOpToken::Sub</span> =&gt; <span class="ident">Sub</span>,
+            <span class="ident">BinOpToken::Mul</span> =&gt; <span class="ident">Mul</span>,
+            <span class="ident">BinOpToken::Div</span> =&gt; <span class="ident">Div</span>,
+            <span class="ident">BinOpToken::Mod</span> =&gt; <span class="ident">Mod</span>,
+            <span class="ident">BinOpToken::BitOr</span> =&gt; <span class="ident">BitOr</span>,
+            <span class="ident">BinOpToken::BitXor</span> =&gt; <span class="ident">BitXor</span>,
+            <span class="ident">BinOpToken::BitAnd</span> =&gt; <span class="ident">BitAnd</span>,
+            <span class="ident">BinOpToken::LogicalOr</span> =&gt; <span class="ident">LogicalOr</span>,
+            <span class="ident">BinOpToken::LogicalAnd</span> =&gt; <span class="ident">LogicalAnd</span>,
+            <span class="ident">BinOpToken::Exp</span> =&gt; <span class="ident">Exp</span>,
+            <span class="ident">BinOpToken::NullishCoalescing</span> =&gt; <span class="ident">NullishCoalescing</span>,
         }
     }
 }
@@ -1177,26 +1177,26 @@
     <span class="doccomment">/// Returns true if `self` can follow keyword let.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// e.g. `let a = xx;`, `let {a:{}} = 1`</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">follows_keyword_let</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_strict</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">follows_keyword_let</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_strict</span>: <span class="ident">bool</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
             <span class="comment">// This is required to recognize `let let` in strict mode.</span>
-            <span class="macro">tok!</span>(<span class="string">&quot;let&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="macro">tok!</span>(<span class="string">&quot;let&quot;</span>) =&gt; <span class="bool-val">true</span>,
 
-            <span class="macro">tok!</span>(<span class="string">&#39;{&#39;</span>) <span class="op">|</span> <span class="macro">tok!</span>(<span class="string">&#39;[&#39;</span>) <span class="op">|</span> <span class="ident">Word</span>(<span class="ident">Word::Ident</span>(..)) <span class="op">|</span> <span class="macro">tok!</span>(<span class="string">&quot;yield&quot;</span>) <span class="op">|</span> <span class="macro">tok!</span>(<span class="string">&quot;await&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="macro">tok!</span>(<span class="string">&#39;{&#39;</span>) <span class="op">|</span> <span class="macro">tok!</span>(<span class="string">&#39;[&#39;</span>) <span class="op">|</span> <span class="ident">Word</span>(<span class="ident">Word::Ident</span>(..)) <span class="op">|</span> <span class="macro">tok!</span>(<span class="string">&quot;yield&quot;</span>) <span class="op">|</span> <span class="macro">tok!</span>(<span class="string">&quot;await&quot;</span>) =&gt; <span class="bool-val">true</span>,
 
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Word</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">cow</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Cow</span><span class="op">&lt;</span><span class="ident">JsWord</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">cow</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Cow</span><span class="op">&lt;</span><span class="ident">JsWord</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">Word::Keyword</span>(<span class="ident">k</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Cow::Owned</span>(<span class="ident">k</span>.<span class="ident">into_js_word</span>()),
-            <span class="ident">Word::Ident</span>(<span class="kw-2">ref</span> <span class="ident">w</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Cow::Borrowed</span>(<span class="kw-2">&amp;</span><span class="ident">w</span>),
-            <span class="ident">Word::False</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Cow::Owned</span>(<span class="macro">js_word!</span>(<span class="string">&quot;false&quot;</span>)),
-            <span class="ident">Word::True</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Cow::Owned</span>(<span class="macro">js_word!</span>(<span class="string">&quot;true&quot;</span>)),
-            <span class="ident">Word::Null</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Cow::Owned</span>(<span class="macro">js_word!</span>(<span class="string">&quot;null&quot;</span>)),
+            <span class="ident">Word::Keyword</span>(<span class="ident">k</span>) =&gt; <span class="ident">Cow::Owned</span>(<span class="ident">k</span>.<span class="ident">into_js_word</span>()),
+            <span class="ident">Word::Ident</span>(<span class="kw-2">ref</span> <span class="ident">w</span>) =&gt; <span class="ident">Cow::Borrowed</span>(<span class="kw-2">&amp;</span><span class="ident">w</span>),
+            <span class="ident">Word::False</span> =&gt; <span class="ident">Cow::Owned</span>(<span class="macro">js_word!</span>(<span class="string">&quot;false&quot;</span>)),
+            <span class="ident">Word::True</span> =&gt; <span class="ident">Cow::Owned</span>(<span class="macro">js_word!</span>(<span class="string">&quot;true&quot;</span>)),
+            <span class="ident">Word::Null</span> =&gt; <span class="ident">Cow::Owned</span>(<span class="macro">js_word!</span>(<span class="string">&quot;null&quot;</span>)),
         }
     }
 }
@@ -1205,44 +1205,44 @@
     <span class="doccomment">/// This method is called only in the case of parsing failure.</span>
     <span class="attribute">#[<span class="ident">cold</span>]</span>
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">never</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Token::Word</span>(<span class="ident">w</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{:?}&quot;</span>, <span class="ident">w</span>)<span class="question-mark">?</span>,
-            <span class="ident">Arrow</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;=&gt;&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">Hash</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;#&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">At</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;@&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">Dot</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;.&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">DotDotDot</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;...&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">Bang</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;!&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">LParen</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;(&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">RParen</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;)&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">LBracket</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;[&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">RBracket</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;]&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">LBrace</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{{&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">RBrace</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;}}&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">Semi</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;;&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">Comma</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;,&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">BackQuote</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;`&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">Template</span> { <span class="ident">raw</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;template token ({})&quot;</span>, <span class="ident">raw</span>)<span class="question-mark">?</span>,
-            <span class="ident">Colon</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;:&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">ColonColon</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;::&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">BinOp</span>(<span class="ident">op</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">BinaryOp::from</span>(<span class="kw-2">*</span><span class="ident">op</span>).<span class="ident">as_str</span>())<span class="question-mark">?</span>,
-            <span class="ident">AssignOp</span>(<span class="ident">op</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">op</span>.<span class="ident">as_str</span>())<span class="question-mark">?</span>,
-            <span class="ident">DollarLBrace</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;${{&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">QuestionMark</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;?&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">PlusPlus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;++&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">MinusMinus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;--&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">Tilde</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;~&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">Str</span> { <span class="ident">value</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;string literal ({})&quot;</span>, <span class="ident">value</span>)<span class="question-mark">?</span>,
-            <span class="ident">Regex</span>(<span class="ident">exp</span>, <span class="ident">flags</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;regexp literal ({}, {})&quot;</span>, <span class="ident">exp</span>, <span class="ident">flags</span>)<span class="question-mark">?</span>,
-            <span class="ident">Num</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;numeric literal&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">BigInt</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;bigint literal&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">JSXName</span> { <span class="ident">name</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;jsx name ({})&quot;</span>, <span class="ident">name</span>)<span class="question-mark">?</span>,
-            <span class="ident">JSXText</span> { <span class="ident">raw</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;jsx text ({})&quot;</span>, <span class="ident">raw</span>)<span class="question-mark">?</span>,
-            <span class="ident">JSXTagStart</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&lt; (jsx tag start)&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">JSXTagEnd</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&gt; (jsx tag end)&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">Shebang</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;#!&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">Token::Error</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&lt;lexing error&gt;&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">Token::Word</span>(<span class="ident">w</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{:?}&quot;</span>, <span class="ident">w</span>)<span class="question-mark">?</span>,
+            <span class="ident">Arrow</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;=&gt;&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">Hash</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;#&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">At</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;@&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">Dot</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;.&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">DotDotDot</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;...&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">Bang</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;!&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">LParen</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;(&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">RParen</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;)&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">LBracket</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;[&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">RBracket</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;]&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">LBrace</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{{&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">RBrace</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;}}&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">Semi</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;;&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">Comma</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;,&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">BackQuote</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;`&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">Template</span> { <span class="ident">raw</span>, .. } =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;template token ({})&quot;</span>, <span class="ident">raw</span>)<span class="question-mark">?</span>,
+            <span class="ident">Colon</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;:&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">ColonColon</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;::&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">BinOp</span>(<span class="ident">op</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">BinaryOp::from</span>(<span class="kw-2">*</span><span class="ident">op</span>).<span class="ident">as_str</span>())<span class="question-mark">?</span>,
+            <span class="ident">AssignOp</span>(<span class="ident">op</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">op</span>.<span class="ident">as_str</span>())<span class="question-mark">?</span>,
+            <span class="ident">DollarLBrace</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;${{&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">QuestionMark</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;?&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">PlusPlus</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;++&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">MinusMinus</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;--&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">Tilde</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;~&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">Str</span> { <span class="ident">value</span>, .. } =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;string literal ({})&quot;</span>, <span class="ident">value</span>)<span class="question-mark">?</span>,
+            <span class="ident">Regex</span>(<span class="ident">exp</span>, <span class="ident">flags</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;regexp literal ({}, {})&quot;</span>, <span class="ident">exp</span>, <span class="ident">flags</span>)<span class="question-mark">?</span>,
+            <span class="ident">Num</span>(..) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;numeric literal&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">BigInt</span>(..) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;bigint literal&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">JSXName</span> { <span class="ident">name</span> } =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;jsx name ({})&quot;</span>, <span class="ident">name</span>)<span class="question-mark">?</span>,
+            <span class="ident">JSXText</span> { <span class="ident">raw</span> } =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;jsx text ({})&quot;</span>, <span class="ident">raw</span>)<span class="question-mark">?</span>,
+            <span class="ident">JSXTagStart</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&lt; (jsx tag start)&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">JSXTagEnd</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&gt; (jsx tag end)&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">Shebang</span>(<span class="kw">_</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;#!&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">Token::Error</span>(<span class="kw">_</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&lt;lexing error&gt;&quot;</span>)<span class="question-mark">?</span>,
         }
 
         <span class="prelude-val">Ok</span>(())

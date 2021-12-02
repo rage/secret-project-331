@@ -280,7 +280,7 @@
 <span class="doccomment">/// - Field annotated with `#[use_eq]` will be compared using `==`.</span>
 <span class="doccomment">/// - Field annotated with `#[not_type]` will be ignored</span>
 <span class="attribute">#[<span class="ident">proc_macro_derive</span>(<span class="ident">TypeEq</span>, <span class="ident">attributes</span>(<span class="ident">not_type</span>, <span class="ident">use_eq</span>, <span class="ident">use_eq_ignore_span</span>))]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">derive_type_eq</span>(<span class="ident">item</span>: <span class="ident">proc_macro::TokenStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">proc_macro::TokenStream</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">derive_type_eq</span>(<span class="ident">item</span>: <span class="ident">proc_macro::TokenStream</span>) -&gt; <span class="ident">proc_macro::TokenStream</span> {
     <span class="ident">Deriver</span> {
         <span class="ident">trait_name</span>: <span class="ident">Ident::new</span>(<span class="string">&quot;TypeEq&quot;</span>, <span class="ident">Span::call_site</span>()),
         <span class="ident">method_name</span>: <span class="ident">Ident::new</span>(<span class="string">&quot;type_eq&quot;</span>, <span class="ident">Span::call_site</span>()),
@@ -301,7 +301,7 @@
 <span class="doccomment">/// Fields annotated with `#[not_panned]` or `#[use_eq]` will use` ==` instead</span>
 <span class="doccomment">/// of `eq_ignore_span`.</span>
 <span class="attribute">#[<span class="ident">proc_macro_derive</span>(<span class="ident">EqIgnoreSpan</span>, <span class="ident">attributes</span>(<span class="ident">not_spanned</span>, <span class="ident">use_eq</span>))]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">derive_eq_ignore_span</span>(<span class="ident">item</span>: <span class="ident">proc_macro::TokenStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">proc_macro::TokenStream</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">derive_eq_ignore_span</span>(<span class="ident">item</span>: <span class="ident">proc_macro::TokenStream</span>) -&gt; <span class="ident">proc_macro::TokenStream</span> {
     <span class="ident">Deriver</span> {
         <span class="ident">trait_name</span>: <span class="ident">Ident::new</span>(<span class="string">&quot;EqIgnoreSpan&quot;</span>, <span class="ident">Span::call_site</span>()),
         <span class="ident">method_name</span>: <span class="ident">Ident::new</span>(<span class="string">&quot;eq_ignore_span&quot;</span>, <span class="ident">Span::call_site</span>()),
@@ -316,11 +316,11 @@
 <span class="kw">struct</span> <span class="ident">Deriver</span> {
     <span class="ident">trait_name</span>: <span class="ident">Ident</span>,
     <span class="ident">method_name</span>: <span class="ident">Ident</span>,
-    <span class="ident">ignore_field</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">Field</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span><span class="op">&gt;</span>,
+    <span class="ident">ignore_field</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">Field</span>) -&gt; <span class="ident">bool</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Deriver</span> {
-    <span class="kw">fn</span> <span class="ident">derive</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">item</span>: <span class="ident">proc_macro::TokenStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">proc_macro::TokenStream</span> {
+    <span class="kw">fn</span> <span class="ident">derive</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">item</span>: <span class="ident">proc_macro::TokenStream</span>) -&gt; <span class="ident">proc_macro::TokenStream</span> {
         <span class="kw">let</span> <span class="ident">input</span>: <span class="ident">DeriveInput</span> <span class="op">=</span> <span class="ident">parse</span>(<span class="ident">item</span>).<span class="ident">unwrap</span>();
 
         <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_body</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">data</span>);
@@ -336,7 +336,7 @@
                 <span class="attribute">#[<span class="ident">automatically_derived</span>]</span>
                 <span class="kw">impl</span> <span class="ident">::swc_common::TraitName</span> <span class="kw">for</span> <span class="ident">Type</span> {
                     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_snake_case</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">method_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+                    <span class="kw">fn</span> <span class="ident">method_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="ident">bool</span> {
                         <span class="ident">body</span>
                     }
                 }
@@ -345,14 +345,14 @@
         .<span class="ident">into</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">make_body</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="ident">Data</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Expr</span> {
+    <span class="kw">fn</span> <span class="ident">make_body</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="ident">Data</span>) -&gt; <span class="ident">Expr</span> {
         <span class="kw">match</span> <span class="ident">data</span> {
-            <span class="ident">Data::Struct</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Data::Struct</span>(<span class="ident">s</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">arm</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_arm_from_fields</span>(<span class="macro">q!</span>({ <span class="self">Self</span> }).<span class="ident">parse</span>(), <span class="kw-2">&amp;</span><span class="ident">s</span>.<span class="ident">fields</span>);
 
                 <span class="macro">q!</span>(<span class="ident">Vars</span> { <span class="ident">arm</span> }, (<span class="kw">match</span> (<span class="self">self</span>, <span class="ident">other</span>) { <span class="ident">arm</span> })).<span class="ident">parse</span>()
             }
-            <span class="ident">Data::Enum</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Data::Enum</span>(<span class="ident">e</span>) =&gt; {
                 <span class="comment">//</span>
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">arms</span> <span class="op">=</span> <span class="ident">Punctuated</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="macro">Token!</span>[,]<span class="op">&gt;</span><span class="ident">::default</span>();
                 <span class="kw">for</span> <span class="ident">v</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">e</span>.<span class="ident">variants</span> {
@@ -366,18 +366,18 @@
 
                 <span class="ident">arms</span>.<span class="ident">push</span>(
                     <span class="macro">q!</span>({
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>
+                        <span class="kw">_</span> =&gt; <span class="bool-val">false</span>
                     })
                     .<span class="ident">parse</span>(),
                 );
 
                 <span class="macro">q!</span>(<span class="ident">Vars</span> { <span class="ident">arms</span> }, (<span class="kw">match</span> (<span class="self">self</span>, <span class="ident">other</span>) { <span class="ident">arms</span> })).<span class="ident">parse</span>()
             }
-            <span class="ident">Data::Union</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;union&quot;</span>),
+            <span class="ident">Data::Union</span>(<span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;union&quot;</span>),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">make_arm_from_fields</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pat_path</span>: <span class="ident">Path</span>, <span class="ident">fields</span>: <span class="kw-2">&amp;</span><span class="ident">Fields</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Arm</span> {
+    <span class="kw">fn</span> <span class="ident">make_arm_from_fields</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pat_path</span>: <span class="ident">Path</span>, <span class="ident">fields</span>: <span class="kw-2">&amp;</span><span class="ident">Fields</span>) -&gt; <span class="ident">Arm</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">l_pat_fields</span> <span class="op">=</span> <span class="ident">Punctuated</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="macro">Token!</span>[,]<span class="op">&gt;</span><span class="ident">::default</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">r_pat_fields</span> <span class="op">=</span> <span class="ident">Punctuated</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="macro">Token!</span>[,]<span class="op">&gt;</span><span class="ident">::default</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">exprs</span> <span class="op">=</span> <span class="macro">vec!</span>[];
@@ -414,8 +414,8 @@
             <span class="kw">let</span> <span class="ident">make_pat_field</span> <span class="op">=</span> <span class="op">|</span><span class="ident">ident</span>: <span class="kw-2">&amp;</span><span class="ident">Ident</span><span class="op">|</span> <span class="ident">FieldPat</span> {
                 <span class="ident">attrs</span>: <span class="ident">Default::default</span>(),
                 <span class="ident">member</span>: <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">field</span>.<span class="ident">ident</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Member::Named</span>(<span class="ident">v</span>.<span class="ident">clone</span>()),
-                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Member::Unnamed</span>(<span class="ident">Index</span> {
+                    <span class="prelude-val">Some</span>(<span class="ident">v</span>) =&gt; <span class="ident">Member::Named</span>(<span class="ident">v</span>.<span class="ident">clone</span>()),
+                    <span class="prelude-val">None</span> =&gt; <span class="ident">Member::Unnamed</span>(<span class="ident">Index</span> {
                         <span class="ident">index</span>: <span class="ident">i</span> <span class="kw">as</span> <span class="kw">_</span>,
                         <span class="ident">span</span>: <span class="ident">field</span>.<span class="ident">ty</span>.<span class="ident">span</span>(),
                     }),

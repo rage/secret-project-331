@@ -146,15 +146,15 @@
 <span class="doccomment">/// A trait for any object that already represents a valid header field and value.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Header</span>: <span class="ident">IntoHeaderValue</span> {
     <span class="doccomment">/// Returns the name of the header field</span>
-    <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HeaderName</span>;
+    <span class="kw">fn</span> <span class="ident">name</span>() -&gt; <span class="ident">HeaderName</span>;
 
     <span class="doccomment">/// Parse a header</span>
-    <span class="kw">fn</span> <span class="ident">parse</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">HttpMessage</span><span class="op">&gt;</span>(<span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">ParseError</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">parse</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">HttpMessage</span><span class="op">&gt;</span>(<span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">ParseError</span><span class="op">&gt;</span>;
 }
 
 <span class="doccomment">/// Convert `http::HeaderMap` to our `HeaderMap`.</span>
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">http::HeaderMap</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">HeaderMap</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="kw-2">mut</span> <span class="ident">map</span>: <span class="ident">http::HeaderMap</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HeaderMap</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="kw-2">mut</span> <span class="ident">map</span>: <span class="ident">http::HeaderMap</span>) -&gt; <span class="ident">HeaderMap</span> {
         <span class="ident">HeaderMap::from_drain</span>(<span class="ident">map</span>.<span class="ident">drain</span>())
     }
 }

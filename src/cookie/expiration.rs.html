@@ -186,10 +186,10 @@
     <span class="doccomment">/// let expires = Expiration::from(OffsetDateTime::now());</span>
     <span class="doccomment">/// assert!(expires.is_datetime());</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_datetime</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_datetime</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Expiration::DateTime</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="ident">Expiration::Session</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>
+            <span class="ident">Expiration::DateTime</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
+            <span class="ident">Expiration::Session</span> =&gt; <span class="bool-val">false</span>
         }
     }
 
@@ -207,10 +207,10 @@
     <span class="doccomment">/// let expires = Expiration::from(OffsetDateTime::now());</span>
     <span class="doccomment">/// assert!(!expires.is_session());</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_session</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_session</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Expiration::DateTime</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-            <span class="ident">Expiration::Session</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>
+            <span class="ident">Expiration::DateTime</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">false</span>,
+            <span class="ident">Expiration::Session</span> =&gt; <span class="bool-val">true</span>
         }
     }
 
@@ -229,10 +229,10 @@
     <span class="doccomment">/// let expires = Expiration::from(now);</span>
     <span class="doccomment">/// assert_eq!(expires.datetime(), Some(now));</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">datetime</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OffsetDateTime</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">datetime</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OffsetDateTime</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Expiration::Session</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-            <span class="ident">Expiration::DateTime</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">v</span>)
+            <span class="ident">Expiration::Session</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">Expiration::DateTime</span>(<span class="ident">v</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">v</span>)
         }
     }
 
@@ -254,21 +254,21 @@
     <span class="doccomment">/// let expires = Expiration::from(None);</span>
     <span class="doccomment">/// assert_eq!(expires.map(|t| t + one_week).datetime(), None);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
-        <span class="kw">where</span> <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">OffsetDateTime</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OffsetDateTime</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="self">Self</span>
+        <span class="kw">where</span> <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">OffsetDateTime</span>) -&gt; <span class="ident">OffsetDateTime</span>
     {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Expiration::Session</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Expiration::Session</span>,
-            <span class="ident">Expiration::DateTime</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Expiration::DateTime</span>(<span class="ident">f</span>(<span class="ident">v</span>)),
+            <span class="ident">Expiration::Session</span> =&gt; <span class="ident">Expiration::Session</span>,
+            <span class="ident">Expiration::DateTime</span>(<span class="ident">v</span>) =&gt; <span class="ident">Expiration::DateTime</span>(<span class="ident">f</span>(<span class="ident">v</span>)),
         }
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OffsetDateTime</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Expiration</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">option</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">option</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">option</span>.<span class="ident">into</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Expiration::DateTime</span>(<span class="ident">value</span>),
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Expiration::Session</span>
+            <span class="prelude-val">Some</span>(<span class="ident">value</span>) =&gt; <span class="ident">Expiration::DateTime</span>(<span class="ident">value</span>),
+            <span class="prelude-val">None</span> =&gt; <span class="ident">Expiration::Session</span>
         }
     }
 }

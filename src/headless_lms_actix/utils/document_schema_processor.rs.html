@@ -226,10 +226,10 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::attributes</span>;
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">attributes</span> {
-    () <span class="op">=</span><span class="op">&gt;</span> {{
+    () =&gt; {{
         <span class="ident">Map</span>::<span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">serde_json::Value</span><span class="op">&gt;</span><span class="ident">::new</span>()
     }};
-    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>: <span class="ident">tt</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">value</span>: <span class="ident">expr</span>),<span class="op">+</span> $(,)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>: <span class="ident">tt</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">value</span>: <span class="ident">expr</span>),<span class="op">+</span> $(,)<span class="kw-2">*</span>) =&gt; {{
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">serde_json::Map</span>::<span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">serde_json::Value</span><span class="op">&gt;</span><span class="ident">::new</span>();
         $(<span class="ident">map</span>.<span class="ident">insert</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>.<span class="ident">into</span>(), <span class="macro">serde_json::json!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">value</span>));)<span class="op">*</span>
         <span class="ident">map</span>
@@ -249,7 +249,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">GutenbergBlock</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty_block_from_name</span>(<span class="ident">name</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty_block_from_name</span>(<span class="ident">name</span>: <span class="ident">String</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">GutenbergBlock</span> {
             <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>(),
             <span class="ident">name</span>,
@@ -258,7 +258,7 @@
             <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
         }
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">block_with_name_and_attributes</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">attributes</span>: <span class="ident">Map</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Value</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">block_with_name_and_attributes</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">attributes</span>: <span class="ident">Map</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Value</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">GutenbergBlock</span> {
             <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>(),
             <span class="ident">name</span>: <span class="ident">name</span>.<span class="ident">to_string</span>(),
@@ -271,7 +271,7 @@
         <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">attributes</span>: <span class="ident">Map</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Value</span><span class="op">&gt;</span>,
         <span class="ident">inner_blocks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">GutenbergBlock</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    ) -&gt; <span class="self">Self</span> {
         <span class="ident">GutenbergBlock</span> {
             <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>(),
             <span class="ident">name</span>: <span class="ident">name</span>.<span class="ident">to_string</span>(),
@@ -280,7 +280,7 @@
             <span class="ident">inner_blocks</span>,
         }
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hero_section</span>(<span class="ident">title</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">sub_title</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hero_section</span>(<span class="ident">title</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">sub_title</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(
             <span class="string">&quot;moocfi/hero-section&quot;</span>,
             <span class="macro">attributes!</span> {
@@ -289,7 +289,7 @@
             },
         )
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">landing_page_hero_section</span>(<span class="ident">title</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">sub_title</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">landing_page_hero_section</span>(<span class="ident">title</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">sub_title</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">GutenbergBlock::block_with_name_attributes_and_inner_blocks</span>(
             <span class="string">&quot;moocfi/landing-page-hero-section&quot;</span>,
             <span class="macro">attributes!</span> {<span class="string">&quot;title&quot;</span>: <span class="ident">title</span>.<span class="ident">to_string</span>()},
@@ -304,7 +304,7 @@
             )],
         )
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">course_objective_section</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">course_objective_section</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">GutenbergBlock::block_with_name_attributes_and_inner_blocks</span>(
             <span class="string">&quot;moocfi/course-objective-section&quot;</span>,
             <span class="macro">attributes!</span> {
@@ -387,7 +387,7 @@
         )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_id</span>(<span class="self">self</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_id</span>(<span class="self">self</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">client_id</span>: <span class="ident">id</span>,
             ..<span class="self">self</span>
@@ -395,7 +395,7 @@
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains_blocks_not_allowed_in_top_level_pages</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">GutenbergBlock</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains_blocks_not_allowed_in_top_level_pages</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">GutenbergBlock</span>]) -&gt; <span class="ident">bool</span> {
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">input</span>
         .<span class="ident">iter</span>()
         .<span class="ident">any</span>(<span class="op">|</span><span class="ident">block</span><span class="op">|</span> <span class="ident">DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">block</span>.<span class="ident">name</span>.<span class="ident">as_str</span>()));
@@ -405,7 +405,7 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remap_ids_in_content</span>(
     <span class="ident">content</span>: <span class="kw-2">&amp;</span><span class="ident">serde_json::Value</span>,
     <span class="ident">chaged_ids</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">Uuid</span><span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span> {
     <span class="comment">// naive implementation for now because the structure of the content was not decided at the time of writing this.</span>
     <span class="comment">// In the future we could only edit the necessary fields.</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">content_str</span> <span class="op">=</span> <span class="ident">serde_json::to_string</span>(<span class="ident">content</span>)<span class="question-mark">?</span>;

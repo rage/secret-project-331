@@ -415,7 +415,7 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;arbitrary&quot;</span>)]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">arbitrary::Arbitrary</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SyntaxContext</span> {
-    <span class="kw">fn</span> <span class="ident">arbitrary</span>(<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">arbitrary::Unstructured</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">arbitrary::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">arbitrary</span>(<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">arbitrary::Unstructured</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">arbitrary::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">SyntaxContext::empty</span>())
     }
 }
@@ -441,7 +441,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Mark</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fresh</span>(<span class="ident">parent</span>: <span class="ident">Mark</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fresh</span>(<span class="ident">parent</span>: <span class="ident">Mark</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">HygieneData::with</span>(<span class="op">|</span><span class="ident">data</span><span class="op">|</span> {
             <span class="ident">data</span>.<span class="ident">marks</span>.<span class="ident">push</span>(<span class="ident">MarkData</span> {
                 <span class="ident">parent</span>,
@@ -454,27 +454,27 @@
     <span class="doccomment">/// The mark of the theoretical expansion that generates freshly parsed,</span>
     <span class="doccomment">/// unexpanded AST.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">root</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">root</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">Mark</span>(<span class="number">0</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_u32</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_u32</span>(<span class="self">self</span>) -&gt; <span class="ident">u32</span> {
         <span class="self">self</span>.<span class="number">0</span>
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_u32</span>(<span class="ident">raw</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Mark</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_u32</span>(<span class="ident">raw</span>: <span class="ident">u32</span>) -&gt; <span class="ident">Mark</span> {
         <span class="ident">Mark</span>(<span class="ident">raw</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parent</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Mark</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parent</span>(<span class="self">self</span>) -&gt; <span class="ident">Mark</span> {
         <span class="ident">HygieneData::with</span>(<span class="op">|</span><span class="ident">data</span><span class="op">|</span> <span class="ident">data</span>.<span class="ident">marks</span>[<span class="self">self</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">usize</span>].<span class="ident">parent</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_builtin</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_builtin</span>(<span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="macro">assert_ne!</span>(<span class="self">self</span>, <span class="ident">Mark::root</span>());
         <span class="ident">HygieneData::with</span>(<span class="op">|</span><span class="ident">data</span><span class="op">|</span> <span class="ident">data</span>.<span class="ident">marks</span>[<span class="self">self</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">usize</span>].<span class="ident">is_builtin</span>)
     }
@@ -485,10 +485,10 @@
         <span class="ident">HygieneData::with</span>(<span class="op">|</span><span class="ident">data</span><span class="op">|</span> <span class="ident">data</span>.<span class="ident">marks</span>[<span class="self">self</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">usize</span>].<span class="ident">is_builtin</span> <span class="op">=</span> <span class="ident">is_builtin</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_descendant_of</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ancestor</span>: <span class="ident">Mark</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_descendant_of</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ancestor</span>: <span class="ident">Mark</span>) -&gt; <span class="ident">bool</span> {
         <span class="ident">HygieneData::with</span>(<span class="op">|</span><span class="ident">data</span><span class="op">|</span> {
             <span class="kw">while</span> <span class="self">self</span> <span class="op">!</span><span class="op">=</span> <span class="ident">ancestor</span> {
-                <span class="kw">if</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Mark::root</span>() {
+                <span class="kw">if</span> <span class="self">self</span> <span class="op">==</span> <span class="ident">Mark::root</span>() {
                     <span class="kw">return</span> <span class="bool-val">false</span>;
                 }
                 <span class="self">self</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">marks</span>[<span class="self">self</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">usize</span>].<span class="ident">parent</span>;
@@ -505,7 +505,7 @@
     <span class="doccomment">/// assert!(a.is_descendant_of(la))</span>
     <span class="doccomment">/// assert!(b.is_descendant_of(la))</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">least_ancestor</span>(<span class="kw-2">mut</span> <span class="ident">a</span>: <span class="ident">Mark</span>, <span class="kw-2">mut</span> <span class="ident">b</span>: <span class="ident">Mark</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Mark</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">least_ancestor</span>(<span class="kw-2">mut</span> <span class="ident">a</span>: <span class="ident">Mark</span>, <span class="kw-2">mut</span> <span class="ident">b</span>: <span class="ident">Mark</span>) -&gt; <span class="ident">Mark</span> {
         <span class="ident">HygieneData::with</span>(<span class="op">|</span><span class="ident">data</span><span class="op">|</span> {
             <span class="comment">// Compute the path from a to the root</span>
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a_path</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="op">&lt;</span><span class="ident">Mark</span><span class="op">&gt;</span><span class="ident">::default</span>();
@@ -532,13 +532,13 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">HygieneData</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::new</span>()
     }
 }
 
 <span class="kw">impl</span> <span class="ident">HygieneData</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">HygieneData</span> {
             <span class="ident">marks</span>: <span class="macro">vec!</span>[<span class="ident">MarkData</span> {
                 <span class="ident">parent</span>: <span class="ident">Mark::root</span>(),
@@ -556,7 +556,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">with</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HygieneData</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span> {
+    <span class="kw">fn</span> <span class="ident">with</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HygieneData</span>) -&gt; <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">T</span> {
         <span class="ident">GLOBALS</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">globals</span><span class="op">|</span> <span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">globals</span>.<span class="ident">hygiene_data</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>()))
     }
 }
@@ -566,7 +566,7 @@
 <span class="comment">// }</span>
 
 <span class="kw">impl</span> <span class="ident">SyntaxContext</span> {
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">empty</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">empty</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">SyntaxContext</span>(<span class="number">0</span>)
     }
 
@@ -580,12 +580,12 @@
 
     <span class="doccomment">/// Extend a syntax context with a given mark and default transparency for</span>
     <span class="doccomment">/// that mark.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">apply_mark</span>(<span class="self">self</span>, <span class="ident">mark</span>: <span class="ident">Mark</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SyntaxContext</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">apply_mark</span>(<span class="self">self</span>, <span class="ident">mark</span>: <span class="ident">Mark</span>) -&gt; <span class="ident">SyntaxContext</span> {
         <span class="macro">assert_ne!</span>(<span class="ident">mark</span>, <span class="ident">Mark::root</span>());
         <span class="kw">return</span> <span class="self">self</span>.<span class="ident">apply_mark_internal</span>(<span class="ident">mark</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">apply_mark_internal</span>(<span class="self">self</span>, <span class="ident">mark</span>: <span class="ident">Mark</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SyntaxContext</span> {
+    <span class="kw">fn</span> <span class="ident">apply_mark_internal</span>(<span class="self">self</span>, <span class="ident">mark</span>: <span class="ident">Mark</span>) -&gt; <span class="ident">SyntaxContext</span> {
         <span class="ident">HygieneData::with</span>(<span class="op">|</span><span class="ident">data</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">syntax_contexts</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">data</span>.<span class="ident">syntax_contexts</span>;
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">opaque</span> <span class="op">=</span> <span class="ident">syntax_contexts</span>[<span class="self">self</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">usize</span>].<span class="ident">opaque</span>;
@@ -635,7 +635,7 @@
     <span class="doccomment">/// an invocation of g (call it g1), calling remove_mark will result in</span>
     <span class="doccomment">/// the SyntaxContext for the invocation of f that created g1.</span>
     <span class="doccomment">/// Returns the mark that was removed.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove_mark</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Mark</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove_mark</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">Mark</span> {
         <span class="ident">HygieneData::with</span>(<span class="op">|</span><span class="ident">data</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">outer_mark</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">syntax_contexts</span>[<span class="self">self</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">usize</span>].<span class="ident">outer_mark</span>;
             <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">syntax_contexts</span>[<span class="self">self</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">usize</span>].<span class="ident">prev_ctxt</span>;
@@ -671,7 +671,7 @@
     <span class="doccomment">/// This returns the expansion whose definition scope we use to privacy</span>
     <span class="doccomment">/// check the resolution, or `None` if we privacy check as usual (i.e.</span>
     <span class="doccomment">/// not w.r.t. a macro definition scope).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">adjust</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">expansion</span>: <span class="ident">Mark</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Mark</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">adjust</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">expansion</span>: <span class="ident">Mark</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Mark</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scope</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">while</span> <span class="op">!</span><span class="ident">expansion</span>.<span class="ident">is_descendant_of</span>(<span class="self">self</span>.<span class="ident">outer</span>()) {
             <span class="ident">scope</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">remove_mark</span>());
@@ -709,7 +709,7 @@
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">expansion</span>: <span class="ident">Mark</span>,
         <span class="kw-2">mut</span> <span class="ident">glob_ctxt</span>: <span class="ident">SyntaxContext</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Mark</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Mark</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scope</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">while</span> <span class="op">!</span><span class="ident">expansion</span>.<span class="ident">is_descendant_of</span>(<span class="ident">glob_ctxt</span>.<span class="ident">outer</span>()) {
             <span class="ident">scope</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">glob_ctxt</span>.<span class="ident">remove_mark</span>());
@@ -734,7 +734,7 @@
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">expansion</span>: <span class="ident">Mark</span>,
         <span class="kw-2">mut</span> <span class="ident">glob_ctxt</span>: <span class="ident">SyntaxContext</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Mark</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Mark</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">adjust</span>(<span class="ident">expansion</span>).<span class="ident">is_some</span>() {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
@@ -752,19 +752,19 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">outer</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Mark</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">outer</span>(<span class="self">self</span>) -&gt; <span class="ident">Mark</span> {
         <span class="ident">HygieneData::with</span>(<span class="op">|</span><span class="ident">data</span><span class="op">|</span> <span class="ident">data</span>.<span class="ident">syntax_contexts</span>[<span class="self">self</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">usize</span>].<span class="ident">outer_mark</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">SyntaxContext</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;#{}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Mark</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">Mark::root</span>()
     }
 }

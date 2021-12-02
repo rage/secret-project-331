@@ -13,7 +13,7 @@
 </pre><pre class="rust"><code><span class="comment">// todo: move these down to dprint_core eventually</span>
 <span class="kw">use</span> <span class="ident">dprint_core::formatting</span>::<span class="kw-2">*</span>;
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">indent_if_start_of_line_or_start_of_line_indented</span>(<span class="ident">items</span>: <span class="ident">PrintItems</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Condition</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">indent_if_start_of_line_or_start_of_line_indented</span>(<span class="ident">items</span>: <span class="ident">PrintItems</span>) -&gt; <span class="ident">Condition</span> {
     <span class="kw">let</span> <span class="ident">rc_path</span> <span class="op">=</span> <span class="ident">items</span>.<span class="ident">into_rc_path</span>();
     <span class="ident">conditions::if_true_or</span>(
         <span class="string">&quot;withIndentIfStartOfLineOrStartOfLineIndented&quot;</span>,

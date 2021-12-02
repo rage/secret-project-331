@@ -201,7 +201,7 @@
 
 <span class="kw">impl</span> <span class="ident">CompressParams</span> {
     <span class="doccomment">/// Creates a new default set of compression parameters.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CompressParams</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">CompressParams</span> {
         <span class="ident">CompressParams</span> {
             <span class="ident">mode</span>: <span class="ident">brotli_sys::BROTLI_DEFAULT_MODE</span>,
             <span class="ident">quality</span>: <span class="ident">brotli_sys::BROTLI_DEFAULT_QUALITY</span>,
@@ -211,7 +211,7 @@
     }
 
     <span class="doccomment">/// Set the mode of this compression.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">mode</span>: <span class="ident">CompressMode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CompressParams</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">mode</span>: <span class="ident">CompressMode</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CompressParams</span> {
         <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">mode</span> <span class="kw">as</span> <span class="ident">u32</span>;
         <span class="self">self</span>
     }
@@ -220,7 +220,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// The higher the quality, the slower the compression. Currently the range</span>
     <span class="doccomment">/// for the quality is 0 to 11.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">quality</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">quality</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CompressParams</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">quality</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">quality</span>: <span class="ident">u32</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CompressParams</span> {
         <span class="self">self</span>.<span class="ident">quality</span> <span class="op">=</span> <span class="ident">quality</span>;
         <span class="self">self</span>
     }
@@ -228,7 +228,7 @@
     <span class="doccomment">/// Sets the base 2 logarithm of the sliding window size.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Currently the range is 10 to 24.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lgwin</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">lgwin</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CompressParams</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lgwin</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">lgwin</span>: <span class="ident">u32</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CompressParams</span> {
         <span class="self">self</span>.<span class="ident">lgwin</span> <span class="op">=</span> <span class="ident">lgwin</span>;
         <span class="self">self</span>
     }
@@ -237,30 +237,30 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Currently the range is 16 to 24, and if set to 0 the value will be set</span>
     <span class="doccomment">/// based on the quality.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lgblock</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">lgblock</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CompressParams</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lgblock</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">lgblock</span>: <span class="ident">u32</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CompressParams</span> {
         <span class="self">self</span>.<span class="ident">lgblock</span> <span class="op">=</span> <span class="ident">lgblock</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Get the current block size</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_lgblock_readable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_lgblock_readable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="number">1usize</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">lgblock</span>
     }
 
     <span class="doccomment">/// Get the native lgblock size</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_lgblock</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_lgblock</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u32</span> {
         <span class="self">self</span>.<span class="ident">lgblock</span>.<span class="ident">clone</span>()
     }
     <span class="doccomment">/// Get the current window size</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_lgwin_readable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_lgwin_readable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="number">1usize</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">lgwin</span>
     }
     <span class="doccomment">/// Get the native lgwin value</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_lgwin</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_lgwin</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u32</span> {
         <span class="self">self</span>.<span class="ident">lgwin</span>.<span class="ident">clone</span>()
     }
 }

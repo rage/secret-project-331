@@ -146,7 +146,7 @@
     <span class="doccomment">///     ])</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    (<span class="ident">IfNoneMatch</span>, <span class="ident">IF_NONE_MATCH</span>) <span class="op">=</span><span class="op">&gt;</span> {<span class="ident">Any</span> <span class="op">/</span> (<span class="ident">EntityTag</span>)<span class="op">+</span>}
+    (<span class="ident">IfNoneMatch</span>, <span class="ident">IF_NONE_MATCH</span>) =&gt; {<span class="ident">Any</span> <span class="op">/</span> (<span class="ident">EntityTag</span>)<span class="op">+</span>}
 
     <span class="ident">test_if_none_match</span> {
         <span class="macro">crate::http::header::common_header_test!</span>(<span class="ident">test1</span>, <span class="macro">vec!</span>[<span class="string">b&quot;\&quot;xyzzy\&quot;&quot;</span>]);

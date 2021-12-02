@@ -30,19 +30,19 @@
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">GenericsExt</span> {
     <span class="doccomment">/// Get the set of all lifetimes declared by the syntax element.</span>
     <span class="doccomment">/// This does not look for usage of the lifetime; see `UsesLifetimes` for that.</span>
-    <span class="kw">fn</span> <span class="ident">declared_lifetimes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">LifetimeSet</span>;
+    <span class="kw">fn</span> <span class="ident">declared_lifetimes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">LifetimeSet</span>;
 
     <span class="doccomment">/// Get the set of all type parameters declared by the syntax element.</span>
     <span class="doccomment">/// This does not look for usage of the type parameter; see `UsesTypeParams` for that.</span>
-    <span class="kw">fn</span> <span class="ident">declared_type_params</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IdentSet</span>;
+    <span class="kw">fn</span> <span class="ident">declared_type_params</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">IdentSet</span>;
 }
 
 <span class="kw">impl</span> <span class="ident">GenericsExt</span> <span class="kw">for</span> <span class="ident">Generics</span> {
-    <span class="kw">fn</span> <span class="ident">declared_lifetimes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">LifetimeSet</span> {
+    <span class="kw">fn</span> <span class="ident">declared_lifetimes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">LifetimeSet</span> {
         <span class="self">self</span>.<span class="ident">lifetimes</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">lt</span><span class="op">|</span> <span class="ident">lt</span>.<span class="ident">lifetime</span>.<span class="ident">clone</span>()).<span class="ident">collect</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">declared_type_params</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IdentSet</span> {
+    <span class="kw">fn</span> <span class="ident">declared_type_params</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">IdentSet</span> {
         <span class="self">self</span>.<span class="ident">type_params</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">tp</span><span class="op">|</span> <span class="ident">tp</span>.<span class="ident">ident</span>.<span class="ident">clone</span>()).<span class="ident">collect</span>()
     }
 }

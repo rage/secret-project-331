@@ -184,9 +184,9 @@
 
 <span class="kw">impl</span> <span class="ident">TestServer</span> {
     <span class="doccomment">/// Start new server with server builder</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">start</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">factory</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TestServerRuntime</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">start</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">factory</span>: <span class="ident">F</span>) -&gt; <span class="ident">TestServerRuntime</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">ServerBuilder</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ServerBuilder</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">ServerBuilder</span>) -&gt; <span class="ident">ServerBuilder</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
         <span class="kw">let</span> (<span class="ident">tx</span>, <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">mpsc::channel</span>();
 
@@ -209,7 +209,7 @@
     }
 
     <span class="doccomment">/// Start new test server with application factory</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">TcpStream</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">factory</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TestServerRuntime</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">TcpStream</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">factory</span>: <span class="ident">F</span>) -&gt; <span class="ident">TestServerRuntime</span> {
         <span class="kw">let</span> (<span class="ident">tx</span>, <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">mpsc::channel</span>();
 
         <span class="comment">// run server in separate thread</span>
@@ -244,7 +244,7 @@
     }
 
     <span class="doccomment">/// Get first available unused local address</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unused_addr</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">net::SocketAddr</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unused_addr</span>() -&gt; <span class="ident">net::SocketAddr</span> {
         <span class="kw">let</span> <span class="ident">addr</span>: <span class="ident">net::SocketAddr</span> <span class="op">=</span> <span class="string">&quot;127.0.0.1:0&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">socket</span> <span class="op">=</span> <span class="ident">mio::net::TcpSocket::new_v4</span>().<span class="ident">unwrap</span>();
         <span class="ident">socket</span>.<span class="ident">bind</span>(<span class="ident">addr</span>).<span class="ident">unwrap</span>();
@@ -256,17 +256,17 @@
 
 <span class="kw">impl</span> <span class="ident">TestServerRuntime</span> {
     <span class="doccomment">/// Test server host</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">host</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">host</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">host</span>
     }
 
     <span class="doccomment">/// Test server port</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">port</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u16</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">port</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u16</span> {
         <span class="self">self</span>.<span class="ident">port</span>
     }
 
     <span class="doccomment">/// Get test server address</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">addr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">net::SocketAddr</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">addr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">net::SocketAddr</span> {
         <span class="self">self</span>.<span class="ident">addr</span>
     }
 
@@ -276,7 +276,7 @@
     }
 
     <span class="doccomment">/// Connect to server, return tokio TcpStream</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connect</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">std::io::Result</span><span class="op">&lt;</span><span class="ident">TcpStream</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connect</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">std::io::Result</span><span class="op">&lt;</span><span class="ident">TcpStream</span><span class="op">&gt;</span> {
         <span class="ident">TcpStream::from_std</span>(<span class="ident">net::TcpStream::connect</span>(<span class="self">self</span>.<span class="ident">addr</span>)<span class="question-mark">?</span>)
     }
 }

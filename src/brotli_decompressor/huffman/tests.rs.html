@@ -8903,7 +8903,7 @@
   <span class="kw">for</span> <span class="ident">index</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">end_table</span>.<span class="ident">len</span>() {
     <span class="macro">assert_eq!</span>([<span class="ident">index</span>, <span class="ident">table</span>[<span class="ident">index</span>].<span class="ident">bits</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">table</span>[<span class="ident">index</span>].<span class="ident">value</span> <span class="kw">as</span> <span class="ident">usize</span>],
                [<span class="ident">index</span>, <span class="ident">end_table</span>[<span class="ident">index</span>].<span class="ident">bits</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">end_table</span>[<span class="ident">index</span>].<span class="ident">value</span> <span class="kw">as</span> <span class="ident">usize</span>]);
-    <span class="macro">assert!</span>(<span class="ident">table</span>[<span class="ident">index</span>] <span class="op">=</span><span class="op">=</span> <span class="ident">end_table</span>[<span class="ident">index</span>]);
+    <span class="macro">assert!</span>(<span class="ident">table</span>[<span class="ident">index</span>] <span class="op">==</span> <span class="ident">end_table</span>[<span class="ident">index</span>]);
   }
 }
 <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -9047,7 +9047,7 @@
   <span class="kw">for</span> <span class="ident">index</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">end_table</span>.<span class="ident">len</span>() {
     <span class="macro">assert_eq!</span>([<span class="ident">index</span>, <span class="ident">table</span>[<span class="ident">index</span>].<span class="ident">bits</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">table</span>[<span class="ident">index</span>].<span class="ident">value</span> <span class="kw">as</span> <span class="ident">usize</span>],
                [<span class="ident">index</span>, <span class="ident">end_table</span>[<span class="ident">index</span>].<span class="ident">bits</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">end_table</span>[<span class="ident">index</span>].<span class="ident">value</span> <span class="kw">as</span> <span class="ident">usize</span>]);
-    <span class="macro">assert!</span>(<span class="ident">table</span>[<span class="ident">index</span>] <span class="op">=</span><span class="op">=</span> <span class="ident">end_table</span>[<span class="ident">index</span>]);
+    <span class="macro">assert!</span>(<span class="ident">table</span>[<span class="ident">index</span>] <span class="op">==</span> <span class="ident">end_table</span>[<span class="ident">index</span>]);
   }
 }
 <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -9068,7 +9068,7 @@
   <span class="kw">for</span> <span class="ident">index</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">end_table</span>.<span class="ident">len</span>() {
     <span class="macro">assert_eq!</span>([<span class="ident">index</span>, <span class="ident">table</span>[<span class="ident">index</span>].<span class="ident">bits</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">table</span>[<span class="ident">index</span>].<span class="ident">value</span> <span class="kw">as</span> <span class="ident">usize</span>],
                [<span class="ident">index</span>, <span class="ident">end_table</span>[<span class="ident">index</span>].<span class="ident">bits</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">end_table</span>[<span class="ident">index</span>].<span class="ident">value</span> <span class="kw">as</span> <span class="ident">usize</span>]);
-    <span class="macro">assert!</span>(<span class="ident">table</span>[<span class="ident">index</span>] <span class="op">=</span><span class="op">=</span> <span class="ident">end_table</span>[<span class="ident">index</span>]);
+    <span class="macro">assert!</span>(<span class="ident">table</span>[<span class="ident">index</span>] <span class="op">==</span> <span class="ident">end_table</span>[<span class="ident">index</span>]);
   }
 }
 
@@ -10438,7 +10438,7 @@
   <span class="kw">for</span> <span class="ident">index</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">end_table</span>.<span class="ident">len</span>() {
     <span class="macro">assert_eq!</span>([<span class="ident">index</span>, <span class="ident">table</span>[<span class="ident">index</span>].<span class="ident">bits</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">table</span>[<span class="ident">index</span>].<span class="ident">value</span> <span class="kw">as</span> <span class="ident">usize</span>],
                [<span class="ident">index</span>, <span class="ident">end_table</span>[<span class="ident">index</span>].<span class="ident">bits</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">end_table</span>[<span class="ident">index</span>].<span class="ident">value</span> <span class="kw">as</span> <span class="ident">usize</span>]);
-    <span class="macro">assert!</span>(<span class="ident">table</span>[<span class="ident">index</span>] <span class="op">=</span><span class="op">=</span> <span class="ident">end_table</span>[<span class="ident">index</span>]);
+    <span class="macro">assert!</span>(<span class="ident">table</span>[<span class="ident">index</span>] <span class="op">==</span> <span class="ident">end_table</span>[<span class="ident">index</span>]);
   }
 }
 <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -12238,7 +12238,7 @@
   <span class="kw">for</span> <span class="ident">index</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">end_table</span>.<span class="ident">len</span>() {
     <span class="macro">assert_eq!</span>([<span class="ident">index</span>, <span class="ident">table</span>[<span class="ident">index</span>].<span class="ident">bits</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">table</span>[<span class="ident">index</span>].<span class="ident">value</span> <span class="kw">as</span> <span class="ident">usize</span>],
                [<span class="ident">index</span>, <span class="ident">end_table</span>[<span class="ident">index</span>].<span class="ident">bits</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">end_table</span>[<span class="ident">index</span>].<span class="ident">value</span> <span class="kw">as</span> <span class="ident">usize</span>]);
-    <span class="macro">assert!</span>(<span class="ident">table</span>[<span class="ident">index</span>] <span class="op">=</span><span class="op">=</span> <span class="ident">end_table</span>[<span class="ident">index</span>]);
+    <span class="macro">assert!</span>(<span class="ident">table</span>[<span class="ident">index</span>] <span class="op">==</span> <span class="ident">end_table</span>[<span class="ident">index</span>]);
   }
 
 }
@@ -13336,7 +13336,7 @@
   <span class="kw">for</span> <span class="ident">index</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">end_table</span>.<span class="ident">len</span>() {
     <span class="macro">assert_eq!</span>([<span class="ident">index</span>, <span class="ident">table</span>[<span class="ident">index</span>].<span class="ident">bits</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">table</span>[<span class="ident">index</span>].<span class="ident">value</span> <span class="kw">as</span> <span class="ident">usize</span>],
                [<span class="ident">index</span>, <span class="ident">end_table</span>[<span class="ident">index</span>].<span class="ident">bits</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">end_table</span>[<span class="ident">index</span>].<span class="ident">value</span> <span class="kw">as</span> <span class="ident">usize</span>]);
-    <span class="macro">assert!</span>(<span class="ident">table</span>[<span class="ident">index</span>] <span class="op">=</span><span class="op">=</span> <span class="ident">end_table</span>[<span class="ident">index</span>]);
+    <span class="macro">assert!</span>(<span class="ident">table</span>[<span class="ident">index</span>] <span class="op">==</span> <span class="ident">end_table</span>[<span class="ident">index</span>]);
   }
 }
 <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -13355,7 +13355,7 @@
   <span class="kw">for</span> <span class="ident">index</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">end_table</span>.<span class="ident">len</span>() {
     <span class="macro">assert_eq!</span>([<span class="ident">index</span>, <span class="ident">table</span>[<span class="ident">index</span>].<span class="ident">bits</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">table</span>[<span class="ident">index</span>].<span class="ident">value</span> <span class="kw">as</span> <span class="ident">usize</span>],
                [<span class="ident">index</span>, <span class="ident">end_table</span>[<span class="ident">index</span>].<span class="ident">bits</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">end_table</span>[<span class="ident">index</span>].<span class="ident">value</span> <span class="kw">as</span> <span class="ident">usize</span>]);
-    <span class="macro">assert!</span>(<span class="ident">table</span>[<span class="ident">index</span>] <span class="op">=</span><span class="op">=</span> <span class="ident">end_table</span>[<span class="ident">index</span>]);
+    <span class="macro">assert!</span>(<span class="ident">table</span>[<span class="ident">index</span>] <span class="op">==</span> <span class="ident">end_table</span>[<span class="ident">index</span>]);
   }
 }
 <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -14394,7 +14394,7 @@
   <span class="kw">for</span> <span class="ident">index</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">end_table</span>.<span class="ident">len</span>() {
     <span class="macro">assert_eq!</span>([<span class="ident">index</span>, <span class="ident">table</span>[<span class="ident">index</span>].<span class="ident">bits</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">table</span>[<span class="ident">index</span>].<span class="ident">value</span> <span class="kw">as</span> <span class="ident">usize</span>],
                [<span class="ident">index</span>, <span class="ident">end_table</span>[<span class="ident">index</span>].<span class="ident">bits</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">end_table</span>[<span class="ident">index</span>].<span class="ident">value</span> <span class="kw">as</span> <span class="ident">usize</span>]);
-    <span class="macro">assert!</span>(<span class="ident">table</span>[<span class="ident">index</span>] <span class="op">=</span><span class="op">=</span> <span class="ident">end_table</span>[<span class="ident">index</span>]);
+    <span class="macro">assert!</span>(<span class="ident">table</span>[<span class="ident">index</span>] <span class="op">==</span> <span class="ident">end_table</span>[<span class="ident">index</span>]);
   }
 }
 
@@ -15437,7 +15437,7 @@
   <span class="kw">for</span> <span class="ident">index</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">end_table</span>.<span class="ident">len</span>() {
     <span class="macro">assert_eq!</span>([<span class="ident">index</span>, <span class="ident">table</span>[<span class="ident">index</span>].<span class="ident">bits</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">table</span>[<span class="ident">index</span>].<span class="ident">value</span> <span class="kw">as</span> <span class="ident">usize</span>],
                [<span class="ident">index</span>, <span class="ident">end_table</span>[<span class="ident">index</span>].<span class="ident">bits</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">end_table</span>[<span class="ident">index</span>].<span class="ident">value</span> <span class="kw">as</span> <span class="ident">usize</span>]);
-    <span class="macro">assert!</span>(<span class="ident">table</span>[<span class="ident">index</span>] <span class="op">=</span><span class="op">=</span> <span class="ident">end_table</span>[<span class="ident">index</span>]);
+    <span class="macro">assert!</span>(<span class="ident">table</span>[<span class="ident">index</span>] <span class="op">==</span> <span class="ident">end_table</span>[<span class="ident">index</span>]);
   }
 }
 <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -16476,7 +16476,7 @@
   <span class="kw">for</span> <span class="ident">index</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">end_table</span>.<span class="ident">len</span>() {
     <span class="macro">assert_eq!</span>([<span class="ident">index</span>, <span class="ident">table</span>[<span class="ident">index</span>].<span class="ident">bits</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">table</span>[<span class="ident">index</span>].<span class="ident">value</span> <span class="kw">as</span> <span class="ident">usize</span>],
                [<span class="ident">index</span>, <span class="ident">end_table</span>[<span class="ident">index</span>].<span class="ident">bits</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">end_table</span>[<span class="ident">index</span>].<span class="ident">value</span> <span class="kw">as</span> <span class="ident">usize</span>]);
-    <span class="macro">assert!</span>(<span class="ident">table</span>[<span class="ident">index</span>] <span class="op">=</span><span class="op">=</span> <span class="ident">end_table</span>[<span class="ident">index</span>]);
+    <span class="macro">assert!</span>(<span class="ident">table</span>[<span class="ident">index</span>] <span class="op">==</span> <span class="ident">end_table</span>[<span class="ident">index</span>]);
   }
 }
 
@@ -17517,7 +17517,7 @@
   <span class="kw">for</span> <span class="ident">index</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">end_table</span>.<span class="ident">len</span>() {
     <span class="macro">assert_eq!</span>([<span class="ident">index</span>, <span class="ident">table</span>[<span class="ident">index</span>].<span class="ident">bits</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">table</span>[<span class="ident">index</span>].<span class="ident">value</span> <span class="kw">as</span> <span class="ident">usize</span>],
                [<span class="ident">index</span>, <span class="ident">end_table</span>[<span class="ident">index</span>].<span class="ident">bits</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">end_table</span>[<span class="ident">index</span>].<span class="ident">value</span> <span class="kw">as</span> <span class="ident">usize</span>]);
-    <span class="macro">assert!</span>(<span class="ident">table</span>[<span class="ident">index</span>] <span class="op">=</span><span class="op">=</span> <span class="ident">end_table</span>[<span class="ident">index</span>]);
+    <span class="macro">assert!</span>(<span class="ident">table</span>[<span class="ident">index</span>] <span class="op">==</span> <span class="ident">end_table</span>[<span class="ident">index</span>]);
   }
 }
 </code></pre></div>

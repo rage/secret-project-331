@@ -886,7 +886,7 @@
 
 <span class="kw">impl</span> <span class="ident">WaitQueueEntry</span> {
     <span class="doccomment">/// Creates a new WaitQueueEntry</span>
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">required_permits</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">WaitQueueEntry</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">required_permits</span>: <span class="ident">usize</span>) -&gt; <span class="ident">WaitQueueEntry</span> {
         <span class="ident">WaitQueueEntry</span> {
             <span class="ident">task</span>: <span class="prelude-val">None</span>,
             <span class="ident">state</span>: <span class="ident">PollState::New</span>,
@@ -903,7 +903,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">SemaphoreState</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">is_fair</span>: <span class="ident">bool</span>, <span class="ident">permits</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">is_fair</span>: <span class="ident">bool</span>, <span class="ident">permits</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">SemaphoreState</span> {
             <span class="ident">is_fair</span>,
             <span class="ident">permits</span>,
@@ -918,8 +918,8 @@
 
         <span class="kw">loop</span> {
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">waiters</span>.<span class="ident">peek_last</span>() {
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span>,
-                <span class="prelude-val">Some</span>(<span class="ident">last_waiter</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">None</span> =&gt; <span class="kw">return</span>,
+                <span class="prelude-val">Some</span>(<span class="ident">last_waiter</span>) =&gt; {
                     <span class="comment">// Check if enough permits are available for this waiter.</span>
                     <span class="comment">// If not then a wakeup attempt won&#39;t be successful.</span>
                     <span class="kw">if</span> <span class="ident">available</span> <span class="op">&lt;</span> <span class="ident">last_waiter</span>.<span class="ident">required_permits</span> {
@@ -958,13 +958,13 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">permits</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">fn</span> <span class="ident">permits</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">permits</span>
     }
 
     <span class="doccomment">/// Releases a certain amount of permits back to the semaphore</span>
     <span class="kw">fn</span> <span class="ident">release</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">permits</span>: <span class="ident">usize</span>) {
-        <span class="kw">if</span> <span class="ident">permits</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+        <span class="kw">if</span> <span class="ident">permits</span> <span class="op">==</span> <span class="number">0</span> {
             <span class="kw">return</span>;
         }
         <span class="comment">// TODO: Overflow check</span>
@@ -977,7 +977,7 @@
     <span class="doccomment">/// Tries to acquire the given amount of permits synchronously.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns true if the permits were obtained and false otherwise.</span>
-    <span class="kw">fn</span> <span class="ident">try_acquire_sync</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">required_permits</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">try_acquire_sync</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">required_permits</span>: <span class="ident">usize</span>) -&gt; <span class="ident">bool</span> {
         <span class="comment">// Permits can only be obtained synchronously if there are</span>
         <span class="comment">// - enough permits available</span>
         <span class="comment">// - the Semaphore is either not fair, or there are no waiters</span>
@@ -985,7 +985,7 @@
         <span class="kw">if</span> (<span class="self">self</span>.<span class="ident">permits</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">required_permits</span>)
             <span class="op">&amp;&amp;</span> (<span class="op">!</span><span class="self">self</span>.<span class="ident">is_fair</span>
                 <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">waiters</span>.<span class="ident">is_empty</span>()
-                <span class="op">|</span><span class="op">|</span> <span class="ident">required_permits</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>)
+                <span class="op">|</span><span class="op">|</span> <span class="ident">required_permits</span> <span class="op">==</span> <span class="number">0</span>)
         {
             <span class="self">self</span>.<span class="ident">permits</span> <span class="op">-</span><span class="op">=</span> <span class="ident">required_permits</span>;
             <span class="bool-val">true</span>
@@ -1003,9 +1003,9 @@
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">wait_node</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">WaitQueueEntry</span><span class="op">&gt;</span>,
         <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">wait_node</span>.<span class="ident">state</span> {
-            <span class="ident">PollState::New</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">PollState::New</span> =&gt; {
                 <span class="comment">// The fast path - enough permits are available</span>
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">try_acquire_sync</span>(<span class="ident">wait_node</span>.<span class="ident">required_permits</span>) {
                     <span class="ident">wait_node</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">PollState::Done</span>;
@@ -1018,7 +1018,7 @@
                     <span class="ident">Poll::Pending</span>
                 }
             }
-            <span class="ident">PollState::Waiting</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">PollState::Waiting</span> =&gt; {
                 <span class="comment">// The SemaphoreAcquireFuture is already in the queue.</span>
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_fair</span> {
                     <span class="comment">// The task needs to wait until it gets notified in order to</span>
@@ -1047,7 +1047,7 @@
                     }
                 }
             }
-            <span class="ident">PollState::Notified</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">PollState::Notified</span> =&gt; {
                 <span class="comment">// We had been woken by the semaphore, since the semaphore is available again.</span>
                 <span class="comment">// The semaphore thereby removed us from the waiters list.</span>
                 <span class="comment">// Just try to lock again. If the semaphore isn&#39;t available,</span>
@@ -1083,7 +1083,7 @@
                     <span class="ident">Poll::Pending</span>
                 }
             }
-            <span class="ident">PollState::Done</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">PollState::Done</span> =&gt; {
                 <span class="comment">// The future had been polled to completion before</span>
                 <span class="macro">panic!</span>(<span class="string">&quot;polled Mutex after completion&quot;</span>);
             }
@@ -1112,7 +1112,7 @@
         <span class="comment">// the wait queue of the Semaphore. This has happened in the PollState::Waiting case.</span>
         <span class="comment">// If the current waiter was notified, another waiter must get notified now.</span>
         <span class="kw">match</span> <span class="ident">wait_node</span>.<span class="ident">state</span> {
-            <span class="ident">PollState::Notified</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">PollState::Notified</span> =&gt; {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_fair</span> {
                     <span class="comment">// In a fair Mutex, the WaitQueueEntry is kept in the</span>
                     <span class="comment">// linked list and must be removed here</span>
@@ -1124,14 +1124,14 @@
                 <span class="comment">// Wakeup more waiters</span>
                 <span class="self">self</span>.<span class="ident">wakeup_waiters</span>();
             }
-            <span class="ident">PollState::Waiting</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">PollState::Waiting</span> =&gt; {
                 <span class="comment">// Remove the WaitQueueEntry from the linked list</span>
                 <span class="comment">// Safety: Due to the state, we know that the node must be part</span>
                 <span class="comment">// of the waiter list</span>
                 <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">force_remove_waiter</span>(<span class="ident">wait_node</span>) };
                 <span class="ident">wait_node</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">PollState::Done</span>;
             }
-            <span class="ident">PollState::New</span> <span class="op">|</span> <span class="ident">PollState::Done</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            <span class="ident">PollState::New</span> <span class="op">|</span> <span class="ident">PollState::Done</span> =&gt; {}
         }
     }
 }
@@ -1151,7 +1151,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span>
     <span class="kw">for</span> <span class="ident">GenericSemaphoreReleaser</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">MutexType</span><span class="op">&gt;</span>
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core::fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">core::fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
         <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;GenericSemaphoreReleaser&quot;</span>).<span class="ident">finish</span>()
     }
 }
@@ -1163,7 +1163,7 @@
     <span class="doccomment">/// than the one of the SemaphoreReleaser.</span>
     <span class="doccomment">/// If this method is used it is important to release the acquired permits</span>
     <span class="doccomment">/// manually back to the Semaphore.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">disarm</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">disarm</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="kw">let</span> <span class="ident">permits</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">permits</span>;
         <span class="self">self</span>.<span class="ident">permits</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="ident">permits</span>
@@ -1202,7 +1202,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>: <span class="ident">RawMutex</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span>
     <span class="kw">for</span> <span class="ident">GenericSemaphoreAcquireFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span><span class="op">&gt;</span>
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core::fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">core::fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
         <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;GenericSemaphoreAcquireFuture&quot;</span>).<span class="ident">finish</span>()
     }
 }
@@ -1212,7 +1212,7 @@
 {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">GenericSemaphoreReleaser</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
         <span class="comment">// Safety: The next operations are safe, because Pin promises us that</span>
         <span class="comment">// the address of the wait queue entry inside GenericSemaphoreAcquireFuture is stable,</span>
         <span class="comment">// and we don&#39;t move any fields inside the future until it gets dropped.</span>
@@ -1228,13 +1228,13 @@
             <span class="kw">unsafe</span> { <span class="ident">semaphore_state</span>.<span class="ident">try_acquire</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">mut_self</span>.<span class="ident">wait_node</span>, <span class="ident">cx</span>) };
 
         <span class="kw">match</span> <span class="ident">poll_res</span> {
-            <span class="ident">Poll::Pending</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Pending</span>,
-            <span class="ident">Poll::Ready</span>(()) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Poll::Pending</span> =&gt; <span class="ident">Poll::Pending</span>,
+            <span class="ident">Poll::Ready</span>(()) =&gt; {
                 <span class="comment">// The semaphore was acquired.</span>
                 <span class="ident">mut_self</span>.<span class="ident">semaphore</span> <span class="op">=</span> <span class="prelude-val">None</span>;
                 <span class="kw">let</span> <span class="ident">to_release</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">mut_self</span>.<span class="ident">auto_release</span> {
-                    <span class="bool-val">true</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">mut_self</span>.<span class="ident">wait_node</span>.<span class="ident">required_permits</span>,
-                    <span class="bool-val">false</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">0</span>,
+                    <span class="bool-val">true</span> =&gt; <span class="ident">mut_self</span>.<span class="ident">wait_node</span>.<span class="ident">required_permits</span>,
+                    <span class="bool-val">false</span> =&gt; <span class="number">0</span>,
                 };
                 <span class="ident">Poll::Ready</span>(<span class="ident">GenericSemaphoreReleaser</span>::<span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span><span class="op">&gt;</span> {
                     <span class="ident">semaphore</span>,
@@ -1248,7 +1248,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>: <span class="ident">RawMutex</span><span class="op">&gt;</span> <span class="ident">FusedFuture</span>
     <span class="kw">for</span> <span class="ident">GenericSemaphoreAcquireFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span><span class="op">&gt;</span>
 {
-    <span class="kw">fn</span> <span class="ident">is_terminated</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_terminated</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">semaphore</span>.<span class="ident">is_none</span>()
     }
 }
@@ -1287,7 +1287,7 @@
 <span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span> <span class="ident">Sync</span> <span class="kw">for</span> <span class="ident">GenericSemaphore</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span> {}
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span> <span class="kw">for</span> <span class="ident">GenericSemaphore</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core::fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">core::fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
         <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;Semaphore&quot;</span>)
             .<span class="ident">field</span>(<span class="string">&quot;permits&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">permits</span>())
             .<span class="ident">finish</span>()
@@ -1313,7 +1313,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// `permits` is the amount of permits that a semaphore should hold when</span>
     <span class="doccomment">/// created.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">is_fair</span>: <span class="ident">bool</span>, <span class="ident">permits</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GenericSemaphore</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">is_fair</span>: <span class="ident">bool</span>, <span class="ident">permits</span>: <span class="ident">usize</span>) -&gt; <span class="ident">GenericSemaphore</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span> {
         <span class="ident">GenericSemaphore</span>::<span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span> {
             <span class="ident">state</span>: <span class="ident">LockApiMutex::new</span>(<span class="ident">SemaphoreState::new</span>(<span class="ident">is_fair</span>, <span class="ident">permits</span>)),
         }
@@ -1328,7 +1328,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">acquire</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">nr_permits</span>: <span class="ident">usize</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GenericSemaphoreAcquireFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">MutexType</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">GenericSemaphoreAcquireFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">MutexType</span><span class="op">&gt;</span> {
         <span class="ident">GenericSemaphoreAcquireFuture</span>::<span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span> {
             <span class="ident">semaphore</span>: <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>),
             <span class="ident">wait_node</span>: <span class="ident">ListNode::new</span>(<span class="ident">WaitQueueEntry::new</span>(<span class="ident">nr_permits</span>)),
@@ -1346,7 +1346,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_acquire</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">nr_permits</span>: <span class="ident">usize</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">GenericSemaphoreReleaser</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">MutexType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">GenericSemaphoreReleaser</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">MutexType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">lock</span>().<span class="ident">try_acquire_sync</span>(<span class="ident">nr_permits</span>) {
             <span class="prelude-val">Some</span>(<span class="ident">GenericSemaphoreReleaser</span> {
                 <span class="ident">semaphore</span>: <span class="self">self</span>,
@@ -1372,7 +1372,7 @@
     }
 
     <span class="doccomment">/// Returns the amount of permits that are available on the semaphore</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">permits</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">permits</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">lock</span>().<span class="ident">permits</span>()
     }
 }
@@ -1427,7 +1427,7 @@
     <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span>
         <span class="kw">for</span> <span class="ident">GenericSharedSemaphoreReleaser</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span>
     {
-        <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core::fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">core::fmt::Result</span> {
+        <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
             <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;GenericSharedSemaphoreReleaser&quot;</span>).<span class="ident">finish</span>()
         }
     }
@@ -1441,7 +1441,7 @@
         <span class="doccomment">///</span>
         <span class="doccomment">/// If this method is used it is important to release the acquired permits</span>
         <span class="doccomment">/// manually back to the Semaphore.</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">disarm</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">disarm</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">usize</span> {
             <span class="kw">let</span> <span class="ident">permits</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">permits</span>;
             <span class="self">self</span>.<span class="ident">permits</span> <span class="op">=</span> <span class="number">0</span>;
             <span class="ident">permits</span>
@@ -1480,7 +1480,7 @@
     <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span>
         <span class="kw">for</span> <span class="ident">GenericSharedSemaphoreAcquireFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span>
     {
-        <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core::fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">core::fmt::Result</span> {
+        <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
             <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;GenericSharedSemaphoreAcquireFuture&quot;</span>)
                 .<span class="ident">finish</span>()
         }
@@ -1494,7 +1494,7 @@
         <span class="kw">fn</span> <span class="ident">poll</span>(
             <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
             <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
+        ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
             <span class="comment">// Safety: The next operations are safe, because Pin promises us that</span>
             <span class="comment">// the address of the wait queue entry inside</span>
             <span class="comment">// GenericSharedSemaphoreAcquireFuture is stable,</span>
@@ -1512,14 +1512,14 @@
             };
 
             <span class="kw">match</span> <span class="ident">poll_res</span> {
-                <span class="ident">Poll::Pending</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Poll::Pending</span> =&gt; {
                     <span class="ident">mut_self</span>.<span class="ident">semaphore</span>.<span class="ident">replace</span>(<span class="ident">semaphore</span>);
                     <span class="ident">Poll::Pending</span>
                 }
-                <span class="ident">Poll::Ready</span>(()) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Poll::Ready</span>(()) =&gt; {
                     <span class="kw">let</span> <span class="ident">to_release</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">mut_self</span>.<span class="ident">auto_release</span> {
-                        <span class="bool-val">true</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">mut_self</span>.<span class="ident">wait_node</span>.<span class="ident">required_permits</span>,
-                        <span class="bool-val">false</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">0</span>,
+                        <span class="bool-val">true</span> =&gt; <span class="ident">mut_self</span>.<span class="ident">wait_node</span>.<span class="ident">required_permits</span>,
+                        <span class="bool-val">false</span> =&gt; <span class="number">0</span>,
                     };
                     <span class="ident">Poll::Ready</span>(<span class="ident">GenericSharedSemaphoreReleaser</span>::<span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span> {
                         <span class="ident">semaphore</span>,
@@ -1533,7 +1533,7 @@
     <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span><span class="op">&gt;</span> <span class="ident">FusedFuture</span>
         <span class="kw">for</span> <span class="ident">GenericSharedSemaphoreAcquireFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span>
     {
-        <span class="kw">fn</span> <span class="ident">is_terminated</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="kw">fn</span> <span class="ident">is_terminated</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
             <span class="self">self</span>.<span class="ident">semaphore</span>.<span class="ident">is_none</span>()
         }
     }
@@ -1566,7 +1566,7 @@
     }
 
     <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">GenericSharedSemaphore</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span> {
-        <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
             <span class="self">Self</span> {
                 <span class="ident">state</span>: <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">clone</span>(),
             }
@@ -1588,7 +1588,7 @@
     <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span>
         <span class="kw">for</span> <span class="ident">GenericSharedSemaphore</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span>
     {
-        <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core::fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">core::fmt::Result</span> {
+        <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
             <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;Semaphore&quot;</span>)
                 .<span class="ident">field</span>(<span class="string">&quot;permits&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">permits</span>())
                 .<span class="ident">finish</span>()
@@ -1602,7 +1602,7 @@
         <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
             <span class="ident">is_fair</span>: <span class="ident">bool</span>,
             <span class="ident">permits</span>: <span class="ident">usize</span>,
-        ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GenericSharedSemaphore</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span> {
+        ) -&gt; <span class="ident">GenericSharedSemaphore</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span> {
             <span class="ident">GenericSharedSemaphore</span>::<span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span> {
                 <span class="ident">state</span>: <span class="ident">Arc::new</span>(<span class="ident">LockApiMutex::new</span>(<span class="ident">SemaphoreState::new</span>(
                     <span class="ident">is_fair</span>, <span class="ident">permits</span>,
@@ -1619,7 +1619,7 @@
         <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">acquire</span>(
             <span class="kw-2">&amp;</span><span class="self">self</span>,
             <span class="ident">nr_permits</span>: <span class="ident">usize</span>,
-        ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GenericSharedSemaphoreAcquireFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span> {
+        ) -&gt; <span class="ident">GenericSharedSemaphoreAcquireFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span> {
             <span class="ident">GenericSharedSemaphoreAcquireFuture</span>::<span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span> {
                 <span class="ident">semaphore</span>: <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">clone</span>()),
                 <span class="ident">wait_node</span>: <span class="ident">ListNode::new</span>(<span class="ident">WaitQueueEntry::new</span>(<span class="ident">nr_permits</span>)),
@@ -1637,7 +1637,7 @@
         <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_acquire</span>(
             <span class="kw-2">&amp;</span><span class="self">self</span>,
             <span class="ident">nr_permits</span>: <span class="ident">usize</span>,
-        ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">GenericSharedSemaphoreReleaser</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">GenericSharedSemaphoreReleaser</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">lock</span>().<span class="ident">try_acquire_sync</span>(<span class="ident">nr_permits</span>) {
                 <span class="prelude-val">Some</span>(<span class="ident">GenericSharedSemaphoreReleaser</span> {
                     <span class="ident">semaphore</span>: <span class="self">self</span>.<span class="ident">clone</span>(),
@@ -1663,7 +1663,7 @@
         }
 
         <span class="doccomment">/// Returns the amount of permits that are available on the semaphore</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">permits</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">permits</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
             <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">lock</span>().<span class="ident">permits</span>()
         }
     }

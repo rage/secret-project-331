@@ -384,7 +384,7 @@
 }
 
 <span class="macro">macro_rules!</span> <span class="ident">method</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>:<span class="ident">literal</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">KEY</span>:<span class="ident">ty</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>:<span class="ident">literal</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">KEY</span>:<span class="ident">ty</span>) =&gt; {
         <span class="attribute">#[<span class="ident">ast_node</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>)]</span>
         <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">EqIgnoreSpan</span>)]</span>
         <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;arbitrary&quot;</span>, <span class="ident">derive</span>(<span class="ident">arbitrary::Arbitrary</span>))]</span>

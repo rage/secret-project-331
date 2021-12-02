@@ -161,29 +161,29 @@
 
 <span class="comment">// a little rough, but good enough for our purposes</span>
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_node_sorter_from_order</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">order</span>: <span class="ident">SortOrder</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>((<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>), (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>), <span class="kw-2">&amp;</span><span class="ident">Module</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ordering</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_node_sorter_from_order</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">order</span>: <span class="ident">SortOrder</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>((<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>), (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>), <span class="kw-2">&amp;</span><span class="ident">Module</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="ident">Ordering</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="comment">// todo: how to reduce code duplication here?</span>
     <span class="kw">match</span> <span class="ident">order</span> {
-        <span class="ident">SortOrder::Maintain</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-        <span class="ident">SortOrder::CaseInsensitive</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="op">|</span>(<span class="ident">a_index</span>, <span class="ident">a</span>), (<span class="ident">b_index</span>, <span class="ident">b</span>), <span class="ident">module</span><span class="op">|</span> {
+        <span class="ident">SortOrder::Maintain</span> =&gt; <span class="prelude-val">None</span>,
+        <span class="ident">SortOrder::CaseInsensitive</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="op">|</span>(<span class="ident">a_index</span>, <span class="ident">a</span>), (<span class="ident">b_index</span>, <span class="ident">b</span>), <span class="ident">module</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">is_import_or_export_declaration</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>) {
                 <span class="ident">cmp_optional_nodes</span>(<span class="ident">a</span>, <span class="ident">b</span>, <span class="ident">module</span>, <span class="op">|</span><span class="ident">a</span>, <span class="ident">b</span>, <span class="ident">module</span><span class="op">|</span> <span class="ident">cmp_module_specifiers</span>(<span class="ident">a</span>.<span class="ident">text_fast</span>(<span class="ident">module</span>), <span class="ident">b</span>.<span class="ident">text_fast</span>(<span class="ident">module</span>), <span class="ident">cmp_text_case_insensitive</span>))
             } <span class="kw">else</span> {
                 <span class="ident">cmp_optional_nodes</span>(<span class="ident">a</span>, <span class="ident">b</span>, <span class="ident">module</span>, <span class="op">|</span><span class="ident">a</span>, <span class="ident">b</span>, <span class="ident">module</span><span class="op">|</span> <span class="ident">cmp_text_case_insensitive</span>(<span class="ident">a</span>.<span class="ident">text_fast</span>(<span class="ident">module</span>), <span class="ident">b</span>.<span class="ident">text_fast</span>(<span class="ident">module</span>)))
             };
-            <span class="kw">if</span> <span class="ident">result</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Ordering::Equal</span> {
+            <span class="kw">if</span> <span class="ident">result</span> <span class="op">==</span> <span class="ident">Ordering::Equal</span> {
                 <span class="ident">a_index</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">b_index</span>)
             } <span class="kw">else</span> {
                 <span class="ident">result</span>
             }
         })),
-        <span class="ident">SortOrder::CaseSensitive</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="op">|</span>(<span class="ident">a_index</span>, <span class="ident">a</span>), (<span class="ident">b_index</span>, <span class="ident">b</span>), <span class="ident">module</span><span class="op">|</span> {
+        <span class="ident">SortOrder::CaseSensitive</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="op">|</span>(<span class="ident">a_index</span>, <span class="ident">a</span>), (<span class="ident">b_index</span>, <span class="ident">b</span>), <span class="ident">module</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">is_import_or_export_declaration</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>) {
                 <span class="ident">cmp_optional_nodes</span>(<span class="ident">a</span>, <span class="ident">b</span>, <span class="ident">module</span>, <span class="op">|</span><span class="ident">a</span>, <span class="ident">b</span>, <span class="ident">module</span><span class="op">|</span> <span class="ident">cmp_module_specifiers</span>(<span class="ident">a</span>.<span class="ident">text_fast</span>(<span class="ident">module</span>), <span class="ident">b</span>.<span class="ident">text_fast</span>(<span class="ident">module</span>), <span class="ident">cmp_text_case_sensitive</span>))
             } <span class="kw">else</span> {
                 <span class="ident">cmp_optional_nodes</span>(<span class="ident">a</span>, <span class="ident">b</span>, <span class="ident">module</span>, <span class="op">|</span><span class="ident">a</span>, <span class="ident">b</span>, <span class="ident">module</span><span class="op">|</span> <span class="ident">cmp_text_case_sensitive</span>(<span class="ident">a</span>.<span class="ident">text_fast</span>(<span class="ident">module</span>), <span class="ident">b</span>.<span class="ident">text_fast</span>(<span class="ident">module</span>)))
             };
-            <span class="kw">if</span> <span class="ident">result</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Ordering::Equal</span> {
+            <span class="kw">if</span> <span class="ident">result</span> <span class="op">==</span> <span class="ident">Ordering::Equal</span> {
                 <span class="ident">a_index</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">b_index</span>)
             } <span class="kw">else</span> {
                 <span class="ident">result</span>
@@ -196,8 +196,8 @@
     <span class="ident">a</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">b</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">module</span>: <span class="kw-2">&amp;</span><span class="ident">Module</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-    <span class="ident">cmp_func</span>: <span class="kw">impl</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Spanned</span>, <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Spanned</span>, <span class="kw-2">&amp;</span><span class="ident">Module</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ordering</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ordering</span> {
+    <span class="ident">cmp_func</span>: <span class="kw">impl</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Spanned</span>, <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Spanned</span>, <span class="kw-2">&amp;</span><span class="ident">Module</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="ident">Ordering</span>,
+) -&gt; <span class="ident">Ordering</span> {
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">a</span>) <span class="op">=</span> <span class="ident">a</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="ident">b</span> {
             <span class="ident">cmp_nodes</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>, <span class="kw-2">&amp;</span><span class="ident">b</span>, <span class="ident">module</span>, <span class="ident">cmp_func</span>)
@@ -217,8 +217,8 @@
     <span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
     <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
     <span class="ident">module</span>: <span class="kw-2">&amp;</span><span class="ident">Module</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-    <span class="ident">cmp_func</span>: <span class="kw">impl</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Spanned</span>, <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Spanned</span>, <span class="kw-2">&amp;</span><span class="ident">Module</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ordering</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ordering</span> {
+    <span class="ident">cmp_func</span>: <span class="kw">impl</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Spanned</span>, <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Spanned</span>, <span class="kw-2">&amp;</span><span class="ident">Module</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="ident">Ordering</span>,
+) -&gt; <span class="ident">Ordering</span> {
     <span class="kw">let</span> <span class="ident">a_nodes</span> <span class="op">=</span> <span class="ident">get_comparison_nodes</span>(<span class="ident">a</span>);
     <span class="kw">let</span> <span class="ident">b_nodes</span> <span class="op">=</span> <span class="ident">get_comparison_nodes</span>(<span class="ident">b</span>);
 
@@ -240,26 +240,26 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">get_comparison_nodes</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">node</span>: <span class="kw-2">&amp;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Span</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">get_comparison_nodes</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">node</span>: <span class="kw-2">&amp;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Span</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="ident">node</span> {
-        <span class="ident">Node::ImportNamedSpecifier</span>(<span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">Node::ImportNamedSpecifier</span>(<span class="ident">node</span>) =&gt; {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">imported</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">node</span>.<span class="ident">imported</span> {
                 <span class="macro">vec!</span>[<span class="ident">imported</span>.<span class="ident">span</span>(), <span class="ident">node</span>.<span class="ident">local</span>.<span class="ident">span</span>()]
             } <span class="kw">else</span> {
                 <span class="macro">vec!</span>[<span class="ident">node</span>.<span class="ident">local</span>.<span class="ident">span</span>()]
             }
         },
-        <span class="ident">Node::ExportNamedSpecifier</span>(<span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">Node::ExportNamedSpecifier</span>(<span class="ident">node</span>) =&gt; {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">exported</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">node</span>.<span class="ident">exported</span> {
                 <span class="macro">vec!</span>[<span class="ident">node</span>.<span class="ident">orig</span>.<span class="ident">span</span>(), <span class="ident">exported</span>.<span class="ident">span</span>()]
             } <span class="kw">else</span> {
                 <span class="macro">vec!</span>[<span class="ident">node</span>.<span class="ident">orig</span>.<span class="ident">span</span>()]
             }
         },
-        <span class="ident">Node::ImportDecl</span>(<span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">Node::ImportDecl</span>(<span class="ident">node</span>) =&gt; {
             <span class="macro">vec!</span>[<span class="ident">node</span>.<span class="ident">src</span>.<span class="ident">span</span>()]
         },
-        <span class="ident">Node::NamedExport</span>(<span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">Node::NamedExport</span>(<span class="ident">node</span>) =&gt; {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">src</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">node</span>.<span class="ident">src</span> {
                 <span class="macro">vec!</span>[<span class="ident">src</span>.<span class="ident">span</span>()]
             } <span class="kw">else</span> {
@@ -269,10 +269,10 @@
                 <span class="macro">vec!</span>[<span class="ident">node</span>.<span class="ident">span</span>()]
             }
         },
-        <span class="ident">Node::ExportAll</span>(<span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">Node::ExportAll</span>(<span class="ident">node</span>) =&gt; {
             <span class="macro">vec!</span>[<span class="ident">node</span>.<span class="ident">src</span>.<span class="ident">span</span>()]
         },
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw">_</span> =&gt; {
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">debug_assertions</span>)]</span>
             <span class="macro">unimplemented!</span>(<span class="string">&quot;Not implemented sort node.&quot;</span>);
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">debug_assertions</span>))]</span>
@@ -281,25 +281,25 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">cmp_text_case_sensitive</span>(<span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ordering</span> {
+<span class="kw">fn</span> <span class="ident">cmp_text_case_sensitive</span>(<span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Ordering</span> {
     <span class="ident">a</span>.<span class="ident">cmp</span>(<span class="ident">b</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">cmp_text_case_insensitive</span>(<span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ordering</span> {
+<span class="kw">fn</span> <span class="ident">cmp_text_case_insensitive</span>(<span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Ordering</span> {
     <span class="kw">let</span> <span class="ident">case_insensitive_result</span> <span class="op">=</span> <span class="ident">a</span>.<span class="ident">to_lowercase</span>().<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">to_lowercase</span>());
-    <span class="kw">if</span> <span class="ident">case_insensitive_result</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Ordering::Equal</span> {
+    <span class="kw">if</span> <span class="ident">case_insensitive_result</span> <span class="op">==</span> <span class="ident">Ordering::Equal</span> {
         <span class="ident">cmp_text_case_sensitive</span>(<span class="ident">a</span>, <span class="ident">b</span>)
     } <span class="kw">else</span> {
         <span class="ident">case_insensitive_result</span>
     }
 }
 
-<span class="kw">fn</span> <span class="ident">is_import_or_export_declaration</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">node</span>: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+<span class="kw">fn</span> <span class="ident">is_import_or_export_declaration</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">node</span>: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
     <span class="kw">match</span> <span class="ident">node</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">Node::ImportDecl</span>(<span class="kw">_</span>)) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">Node::NamedExport</span>(<span class="kw">_</span>)) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">Node::ExportAll</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Some</span>(<span class="ident">Node::ImportDecl</span>(<span class="kw">_</span>)) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">Node::NamedExport</span>(<span class="kw">_</span>)) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">Node::ExportAll</span>(<span class="kw">_</span>)) =&gt; {
             <span class="bool-val">true</span>
         },
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>
+        <span class="kw">_</span> =&gt; <span class="bool-val">false</span>
     }
 }
 </code></pre></div>

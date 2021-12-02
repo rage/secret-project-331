@@ -173,15 +173,15 @@
     <span class="doccomment">/// Construct a new `HttpsConnector` using the OS root store</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-native-certs&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-native-certs&quot;</span>)))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_native_roots</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_native_roots</span>() -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">ClientConfig::new</span>();
         <span class="ident">config</span>.<span class="ident">root_store</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">rustls_native_certs::load_native_certs</span>() {
-            <span class="prelude-val">Ok</span>(<span class="ident">store</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">store</span>,
-            <span class="prelude-val">Err</span>((<span class="prelude-val">Some</span>(<span class="ident">store</span>), <span class="ident">err</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Ok</span>(<span class="ident">store</span>) =&gt; <span class="ident">store</span>,
+            <span class="prelude-val">Err</span>((<span class="prelude-val">Some</span>(<span class="ident">store</span>), <span class="ident">err</span>)) =&gt; {
                 <span class="macro">log::warn!</span>(<span class="string">&quot;Could not load all certificates: {:?}&quot;</span>, <span class="ident">err</span>);
                 <span class="ident">store</span>
             }
-            <span class="prelude-val">Err</span>((<span class="prelude-val">None</span>, <span class="ident">err</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>).<span class="ident">expect</span>(<span class="string">&quot;cannot access native cert store&quot;</span>),
+            <span class="prelude-val">Err</span>((<span class="prelude-val">None</span>, <span class="ident">err</span>)) =&gt; <span class="prelude-val">Err</span>(<span class="ident">err</span>).<span class="ident">expect</span>(<span class="string">&quot;cannot access native cert store&quot;</span>),
         };
         <span class="kw">if</span> <span class="ident">config</span>.<span class="ident">root_store</span>.<span class="ident">is_empty</span>() {
             <span class="macro">panic!</span>(<span class="string">&quot;no CA certificates found&quot;</span>);
@@ -192,7 +192,7 @@
     <span class="doccomment">/// Construct a new `HttpsConnector` using the `webpki_roots`</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;webpki-roots&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;webpki-roots&quot;</span>)))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_webpki_roots</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_webpki_roots</span>() -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">ClientConfig::new</span>();
         <span class="ident">config</span>
             .<span class="ident">root_store</span>
@@ -200,7 +200,7 @@
         <span class="ident"><span class="self">Self</span>::build</span>(<span class="ident">config</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">mut</span> <span class="ident">config</span>: <span class="ident">ClientConfig</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">mut</span> <span class="ident">config</span>: <span class="ident">ClientConfig</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">http</span> <span class="op">=</span> <span class="ident">HttpConnector::new</span>();
         <span class="ident">http</span>.<span class="ident">enforce_http</span>(<span class="bool-val">false</span>);
 
@@ -211,7 +211,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">HttpsConnector</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;HttpsConnector&quot;</span>).<span class="ident">finish</span>()
     }
 }
@@ -220,7 +220,7 @@
 <span class="kw">where</span>
     <span class="ident">C</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">ClientConfig</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 {
-    <span class="kw">fn</span> <span class="ident">from</span>((<span class="ident">http</span>, <span class="ident">cfg</span>): (<span class="ident">H</span>, <span class="ident">C</span>)) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>((<span class="ident">http</span>, <span class="ident">cfg</span>): (<span class="ident">H</span>, <span class="ident">C</span>)) -&gt; <span class="self">Self</span> {
         <span class="ident">HttpsConnector</span> {
             <span class="ident">http</span>,
             <span class="ident">tls_config</span>: <span class="ident">cfg</span>.<span class="ident">into</span>(),
@@ -242,16 +242,16 @@
     <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span>
         <span class="ident">Pin</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">MaybeHttpsStream</span><span class="op">&lt;</span><span class="ident">T::Response</span><span class="op">&gt;</span>, <span class="ident">BoxError</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">poll_ready</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">poll_ready</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">http</span>.<span class="ident">poll_ready</span>(<span class="ident">cx</span>) {
-            <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(())) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(())),
-            <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>())),
-            <span class="ident">Poll::Pending</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Pending</span>,
+            <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(())) =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(())),
+            <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)) =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>())),
+            <span class="ident">Poll::Pending</span> =&gt; <span class="ident">Poll::Pending</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">dst</span>: <span class="ident">Uri</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Future</span> {
-        <span class="kw">let</span> <span class="ident">is_https</span> <span class="op">=</span> <span class="ident">dst</span>.<span class="ident">scheme_str</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&quot;https&quot;</span>);
+    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">dst</span>: <span class="ident">Uri</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
+        <span class="kw">let</span> <span class="ident">is_https</span> <span class="op">=</span> <span class="ident">dst</span>.<span class="ident">scheme_str</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="string">&quot;https&quot;</span>);
 
         <span class="kw">if</span> <span class="op">!</span><span class="ident">is_https</span> {
             <span class="kw">let</span> <span class="ident">connecting_future</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">http</span>.<span class="ident">call</span>(<span class="ident">dst</span>);

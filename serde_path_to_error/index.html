@@ -3,7 +3,7 @@
 <p>Find out the path at which a deserialization error occurred. This crate
 provides a wrapper that works with any existing Serde <code>Deserializer</code> and
 exposes the chain of field names leading to the error.</p>
-<h1 id="example" class="section-header"><a href="#example">Example</a></h1>
+<h2 id="example" class="section-header"><a href="#example">Example</a></h2>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
 <span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span> <span class="kw">as</span> <span class="ident">Map</span>;
 
@@ -33,25 +33,25 @@ exposes the chain of field names leading to the error.</p>
 
     <span class="kw">let</span> <span class="ident">result</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Package</span>, <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">serde_path_to_error::deserialize</span>(<span class="ident">jd</span>);
     <span class="kw">match</span> <span class="ident">result</span> {
-        <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;expected a type error&quot;</span>),
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;expected a type error&quot;</span>),
+        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
             <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">err</span>.<span class="ident">path</span>().<span class="ident">to_string</span>();
             <span class="macro">assert_eq!</span>(<span class="ident">path</span>, <span class="string">&quot;dependencies.serde.version&quot;</span>);
         }
     }
 }</code></pre></div>
 </div></details><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.Deserializer.html" title="serde_path_to_error::Deserializer struct">Deserializer</a></div><div class="item-right docblock-short"><p>Deserializer adapter that records path to deserialization errors.</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.Error.html" title="serde_path_to_error::Error struct">Error</a></div><div class="item-right docblock-short"><p>Original deserializer error together with the path at which it occurred.</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.Path.html" title="serde_path_to_error::Path struct">Path</a></div><div class="item-right docblock-short"><p>Path to the error value in the input, like <code>dependencies.serde.typo1</code>.</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.Segments.html" title="serde_path_to_error::Segments struct">Segments</a></div><div class="item-right docblock-short"><p>Iterator over segments of a path.</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.Serializer.html" title="serde_path_to_error::Serializer struct">Serializer</a></div><div class="item-right docblock-short"><p>Serializer adapter that records path to serialization errors.</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.Track.html" title="serde_path_to_error::Track struct">Track</a></div><div class="item-right docblock-short"><p>State for bookkeeping across nested deserializer calls.</p>
-</div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="enum" href="enum.Segment.html" title="serde_path_to_error::Segment enum">Segment</a></div><div class="item-right docblock-short"><p>Single segment of a path.</p>
-</div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="fn" href="fn.deserialize.html" title="serde_path_to_error::deserialize fn">deserialize</a></div><div class="item-right docblock-short"><p>Entry point. See <a href="index.html" title="crate">crate documentation</a> for an example.</p>
-</div><div class="item-left module-item"><a class="fn" href="fn.serialize.html" title="serde_path_to_error::serialize fn">serialize</a></div><div class="item-right docblock-short"><p>Entry point for tracking path to Serialize error.</p>
-</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="serde_path_to_error" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Deserializer.html" title="serde_path_to_error::Deserializer struct">Deserializer</a></div><div class="item-right docblock-short"><p>Deserializer adapter that records path to deserialization errors.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Error.html" title="serde_path_to_error::Error struct">Error</a></div><div class="item-right docblock-short"><p>Original deserializer error together with the path at which it occurred.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Path.html" title="serde_path_to_error::Path struct">Path</a></div><div class="item-right docblock-short"><p>Path to the error value in the input, like <code>dependencies.serde.typo1</code>.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Segments.html" title="serde_path_to_error::Segments struct">Segments</a></div><div class="item-right docblock-short"><p>Iterator over segments of a path.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Serializer.html" title="serde_path_to_error::Serializer struct">Serializer</a></div><div class="item-right docblock-short"><p>Serializer adapter that records path to serialization errors.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Track.html" title="serde_path_to_error::Track struct">Track</a></div><div class="item-right docblock-short"><p>State for bookkeeping across nested deserializer calls.</p>
+</div></div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.Segment.html" title="serde_path_to_error::Segment enum">Segment</a></div><div class="item-right docblock-short"><p>Single segment of a path.</p>
+</div></div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.deserialize.html" title="serde_path_to_error::deserialize fn">deserialize</a></div><div class="item-right docblock-short"><p>Entry point. See <a href="index.html" title="crate">crate documentation</a> for an example.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.serialize.html" title="serde_path_to_error::serialize fn">serialize</a></div><div class="item-right docblock-short"><p>Entry point for tracking path to Serialize error.</p>
+</div></div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="serde_path_to_error" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
     <script src="../main.js"></script>
 </body></html>

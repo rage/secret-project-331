@@ -430,13 +430,13 @@
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">KeepAlive</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">keepalive</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">keepalive</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">KeepAlive::Timeout</span>(<span class="ident">keepalive</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">KeepAlive</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">keepalive</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">keepalive</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">keepalive</span>) <span class="op">=</span> <span class="ident">keepalive</span> {
             <span class="ident">KeepAlive::Timeout</span>(<span class="ident">keepalive</span>)
         } <span class="kw">else</span> {
@@ -459,13 +459,13 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">ServiceConfig</span> {
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">ServiceConfig</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">clone</span>())
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ServiceConfig</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">KeepAlive::Timeout</span>(<span class="number">5</span>), <span class="number">0</span>, <span class="number">0</span>, <span class="bool-val">false</span>, <span class="prelude-val">None</span>)
     }
 }
@@ -478,11 +478,11 @@
         <span class="ident">client_disconnect</span>: <span class="ident">u64</span>,
         <span class="ident">secure</span>: <span class="ident">bool</span>,
         <span class="ident">local_addr</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">net::SocketAddr</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ServiceConfig</span> {
+    ) -&gt; <span class="ident">ServiceConfig</span> {
         <span class="kw">let</span> (<span class="ident">keep_alive</span>, <span class="ident">ka_enabled</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">keep_alive</span> {
-            <span class="ident">KeepAlive::Timeout</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">val</span> <span class="kw">as</span> <span class="ident">u64</span>, <span class="bool-val">true</span>),
-            <span class="ident">KeepAlive::Os</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="number">0</span>, <span class="bool-val">true</span>),
-            <span class="ident">KeepAlive::Disabled</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="number">0</span>, <span class="bool-val">false</span>),
+            <span class="ident">KeepAlive::Timeout</span>(<span class="ident">val</span>) =&gt; (<span class="ident">val</span> <span class="kw">as</span> <span class="ident">u64</span>, <span class="bool-val">true</span>),
+            <span class="ident">KeepAlive::Os</span> =&gt; (<span class="number">0</span>, <span class="bool-val">true</span>),
+            <span class="ident">KeepAlive::Disabled</span> =&gt; (<span class="number">0</span>, <span class="bool-val">false</span>),
         };
         <span class="kw">let</span> <span class="ident">keep_alive</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">ka_enabled</span> <span class="op">&amp;&amp;</span> <span class="ident">keep_alive</span> <span class="op">&gt;</span> <span class="number">0</span> {
             <span class="prelude-val">Some</span>(<span class="ident">Duration::from_secs</span>(<span class="ident">keep_alive</span>))
@@ -503,7 +503,7 @@
 
     <span class="doccomment">/// Returns true if connection is secure (HTTPS)</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">secure</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">secure</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="number">0</span>.<span class="ident">secure</span>
     }
 
@@ -511,25 +511,25 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns `None` for connections via UDS (Unix Domain Socket).</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">local_addr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">net::SocketAddr</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">local_addr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">net::SocketAddr</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="number">0</span>.<span class="ident">local_addr</span>
     }
 
     <span class="doccomment">/// Keep alive duration if configured.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">keep_alive</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">keep_alive</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="number">0</span>.<span class="ident">keep_alive</span>
     }
 
     <span class="doccomment">/// Return state of connection keep-alive functionality</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">keep_alive_enabled</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">keep_alive_enabled</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="number">0</span>.<span class="ident">ka_enabled</span>
     }
 
     <span class="doccomment">/// Client timeout for first request.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">client_timer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Sleep</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">client_timer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Sleep</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">delay_time</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">client_timeout</span>;
         <span class="kw">if</span> <span class="ident">delay_time</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
             <span class="prelude-val">Some</span>(<span class="ident">sleep_until</span>(<span class="self">self</span>.<span class="ident">now</span>() <span class="op">+</span> <span class="ident">Duration::from_millis</span>(<span class="ident">delay_time</span>)))
@@ -539,7 +539,7 @@
     }
 
     <span class="doccomment">/// Client timeout for first request.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">client_timer_expire</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Instant</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">client_timer_expire</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Instant</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">delay</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">client_timeout</span>;
         <span class="kw">if</span> <span class="ident">delay</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
             <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">now</span>() <span class="op">+</span> <span class="ident">Duration::from_millis</span>(<span class="ident">delay</span>))
@@ -549,7 +549,7 @@
     }
 
     <span class="doccomment">/// Client disconnect timer</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">client_disconnect_timer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Instant</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">client_disconnect_timer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Instant</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">delay</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">client_disconnect</span>;
         <span class="kw">if</span> <span class="ident">delay</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
             <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">now</span>() <span class="op">+</span> <span class="ident">Duration::from_millis</span>(<span class="ident">delay</span>))
@@ -560,17 +560,17 @@
 
     <span class="doccomment">/// Return keep-alive timer delay is configured.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">keep_alive_timer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Sleep</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">keep_alive_timer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Sleep</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">keep_alive</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">ka</span><span class="op">|</span> <span class="ident">sleep_until</span>(<span class="self">self</span>.<span class="ident">now</span>() <span class="op">+</span> <span class="ident">ka</span>))
     }
 
     <span class="doccomment">/// Keep-alive expire time</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">keep_alive_expire</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Instant</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">keep_alive_expire</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Instant</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">keep_alive</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">ka</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">now</span>() <span class="op">+</span> <span class="ident">ka</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">now</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Instant</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">now</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Instant</span> {
         <span class="self">self</span>.<span class="number">0</span>.<span class="ident">date_service</span>.<span class="ident">now</span>()
     }
 
@@ -599,7 +599,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Date</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Date</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">Date</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">date</span> <span class="op">=</span> <span class="ident">Date</span> {
             <span class="ident">bytes</span>: [<span class="number">0</span>; <span class="ident">DATE_VALUE_LENGTH</span>],
             <span class="ident">pos</span>: <span class="number">0</span>,
@@ -615,7 +615,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Write</span> <span class="kw">for</span> <span class="ident">Date</span> {
-    <span class="kw">fn</span> <span class="ident">write_str</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">write_str</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">len</span>();
         <span class="self">self</span>.<span class="ident">bytes</span>[<span class="self">self</span>.<span class="ident">pos</span>..<span class="self">self</span>.<span class="ident">pos</span> <span class="op">+</span> <span class="ident">len</span>].<span class="ident">copy_from_slice</span>(<span class="ident">s</span>.<span class="ident">as_bytes</span>());
         <span class="self">self</span>.<span class="ident">pos</span> <span class="op">+</span><span class="op">=</span> <span class="ident">len</span>;
@@ -637,7 +637,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">DateService</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
         <span class="comment">// shared date and timer for DateService and update async task.</span>
         <span class="kw">let</span> <span class="ident">current</span> <span class="op">=</span> <span class="ident">Rc::new</span>(<span class="ident">Cell::new</span>((<span class="ident">Date::new</span>(), <span class="ident">Instant::now</span>())));
         <span class="kw">let</span> <span class="ident">current_clone</span> <span class="op">=</span> <span class="ident">Rc::clone</span>(<span class="kw-2">&amp;</span><span class="ident">current</span>);
@@ -658,7 +658,7 @@
         <span class="ident">DateService</span> { <span class="ident">current</span>, <span class="ident">handle</span> }
     }
 
-    <span class="kw">fn</span> <span class="ident">now</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Instant</span> {
+    <span class="kw">fn</span> <span class="ident">now</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Instant</span> {
         <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">get</span>().<span class="number">1</span>
     }
 
@@ -684,7 +684,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">/// Panics when there was no `NotifyOnDrop` instance on current thread.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_dropped</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_dropped</span>() -&gt; <span class="ident">bool</span> {
         <span class="ident">NOTIFY_DROPPED</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">bool</span><span class="op">|</span> {
             <span class="ident">bool</span>.<span class="ident">borrow</span>()
                 .<span class="ident">expect</span>(<span class="string">&quot;No NotifyOnDrop existed on current thread&quot;</span>)
@@ -697,7 +697,7 @@
         <span class="doccomment">/// # Panic:</span>
         <span class="doccomment">///</span>
         <span class="doccomment">/// When construct multiple instances on any given thread.</span>
-        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
             <span class="ident">NOTIFY_DROPPED</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">bool</span><span class="op">|</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bool</span> <span class="op">=</span> <span class="ident">bool</span>.<span class="ident">borrow_mut</span>();
                 <span class="kw">if</span> <span class="ident">bool</span>.<span class="ident">is_some</span>() {

@@ -239,7 +239,7 @@
     <span class="ident">block_len</span>: <span class="ident">u8</span>,
     <span class="ident">counter</span>: <span class="ident">u64</span>,
     <span class="ident">flags</span>: <span class="ident">u8</span>,
-) <span class="op">-</span><span class="op">&gt;</span> [<span class="ident">u32</span>; <span class="number">16</span>] {
+) -&gt; [<span class="ident">u32</span>; <span class="number">16</span>] {
     <span class="kw">let</span> <span class="ident">block_words</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::platform::words_from_le_bytes_64</span>(<span class="ident">block</span>);
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> [
@@ -297,7 +297,7 @@
     <span class="ident">block_len</span>: <span class="ident">u8</span>,
     <span class="ident">counter</span>: <span class="ident">u64</span>,
     <span class="ident">flags</span>: <span class="ident">u8</span>,
-) <span class="op">-</span><span class="op">&gt;</span> [<span class="ident">u8</span>; <span class="number">64</span>] {
+) -&gt; [<span class="ident">u8</span>; <span class="number">64</span>] {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">compress_pre</span>(<span class="ident">cv</span>, <span class="ident">block</span>, <span class="ident">block_len</span>, <span class="ident">counter</span>, <span class="ident">flags</span>);
     <span class="ident">state</span>[<span class="number">0</span>] <span class="op">^</span><span class="op">=</span> <span class="ident">state</span>[<span class="number">8</span>];
     <span class="ident">state</span>[<span class="number">1</span>] <span class="op">^</span><span class="op">=</span> <span class="ident">state</span>[<span class="number">9</span>];
@@ -332,7 +332,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">block_flags</span> <span class="op">=</span> <span class="ident">flags</span> <span class="op">|</span> <span class="ident">flags_start</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">slice</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>[..];
     <span class="kw">while</span> <span class="ident">slice</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">BLOCK_LEN</span> {
-        <span class="kw">if</span> <span class="ident">slice</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">BLOCK_LEN</span> {
+        <span class="kw">if</span> <span class="ident">slice</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="ident">BLOCK_LEN</span> {
             <span class="ident">block_flags</span> <span class="op">|</span><span class="op">=</span> <span class="ident">flags_end</span>;
         }
         <span class="ident">compress_in_place</span>(

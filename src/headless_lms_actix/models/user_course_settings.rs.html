@@ -201,7 +201,7 @@
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upsert_user_course_settings_for_enrollment</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">course_instance_enrollment</span>: <span class="kw-2">&amp;</span><span class="ident">CourseInstanceEnrollment</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserCourseSettings</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserCourseSettings</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">user_course_settings</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">UserCourseSettings</span>,
         <span class="string">&quot;
@@ -236,7 +236,7 @@ RETURNING *;
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">course_language_group_id</span>: <span class="ident">Uuid</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserCourseSettings</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserCourseSettings</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">user_course_settings</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">UserCourseSettings</span>,
         <span class="string">&quot;
@@ -258,7 +258,7 @@ WHERE user_id = $1
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UserCourseSettings</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UserCourseSettings</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">user_course_settings</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">UserCourseSettings</span>,
         <span class="string">&quot;

@@ -334,11 +334,11 @@
 <span class="kw">use</span> <span class="ident">swc_atoms::js_word</span>;
 
 <span class="kw">impl</span> <span class="ident">Context</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_reserved</span>(<span class="self">self</span>, <span class="ident">word</span>: <span class="kw-2">&amp;</span><span class="ident">Word</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_reserved</span>(<span class="self">self</span>, <span class="ident">word</span>: <span class="kw-2">&amp;</span><span class="ident">Word</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">word</span> {
-            <span class="ident">Word::Keyword</span>(<span class="ident">Keyword::Let</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">strict</span>,
-            <span class="ident">Word::Keyword</span>(<span class="ident">Keyword::Await</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">in_async</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">strict</span>,
-            <span class="ident">Word::Keyword</span>(<span class="ident">Keyword::Yield</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">in_generator</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">strict</span>,
+            <span class="ident">Word::Keyword</span>(<span class="ident">Keyword::Let</span>) =&gt; <span class="self">self</span>.<span class="ident">strict</span>,
+            <span class="ident">Word::Keyword</span>(<span class="ident">Keyword::Await</span>) =&gt; <span class="self">self</span>.<span class="ident">in_async</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">strict</span>,
+            <span class="ident">Word::Keyword</span>(<span class="ident">Keyword::Yield</span>) =&gt; <span class="self">self</span>.<span class="ident">in_generator</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">strict</span>,
 
             <span class="ident">Word::Null</span>
             <span class="op">|</span> <span class="ident">Word::True</span>
@@ -374,10 +374,10 @@
             <span class="op">|</span> <span class="ident">Word::Keyword</span>(<span class="ident">Keyword::InstanceOf</span>)
             <span class="op">|</span> <span class="ident">Word::Keyword</span>(<span class="ident">Keyword::TypeOf</span>)
             <span class="op">|</span> <span class="ident">Word::Keyword</span>(<span class="ident">Keyword::Void</span>)
-            <span class="op">|</span> <span class="ident">Word::Keyword</span>(<span class="ident">Keyword::Delete</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="op">|</span> <span class="ident">Word::Keyword</span>(<span class="ident">Keyword::Delete</span>) =&gt; <span class="bool-val">true</span>,
 
             <span class="comment">// Future reserved word</span>
-            <span class="ident">Word::Ident</span>(<span class="macro">js_word!</span>(<span class="string">&quot;enum&quot;</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="ident">Word::Ident</span>(<span class="macro">js_word!</span>(<span class="string">&quot;enum&quot;</span>)) =&gt; <span class="bool-val">true</span>,
 
             <span class="ident">Word::Ident</span>(<span class="macro">js_word!</span>(<span class="string">&quot;implements&quot;</span>))
             <span class="op">|</span> <span class="ident">Word::Ident</span>(<span class="macro">js_word!</span>(<span class="string">&quot;package&quot;</span>))
@@ -385,20 +385,20 @@
             <span class="op">|</span> <span class="ident">Word::Ident</span>(<span class="macro">js_word!</span>(<span class="string">&quot;interface&quot;</span>))
             <span class="op">|</span> <span class="ident">Word::Ident</span>(<span class="macro">js_word!</span>(<span class="string">&quot;private&quot;</span>))
             <span class="op">|</span> <span class="ident">Word::Ident</span>(<span class="macro">js_word!</span>(<span class="string">&quot;public&quot;</span>))
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">strict</span> <span class="op">=</span><span class="op">&gt;</span>
+                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">strict</span> =&gt;
             {
                 <span class="bool-val">true</span>
             }
 
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_reserved_word</span>(<span class="self">self</span>, <span class="ident">word</span>: <span class="kw-2">&amp;</span><span class="ident">JsWord</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_reserved_word</span>(<span class="self">self</span>, <span class="ident">word</span>: <span class="kw-2">&amp;</span><span class="ident">JsWord</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">word</span> {
-            <span class="macro">js_word!</span>(<span class="string">&quot;let&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">strict</span>,
-            <span class="macro">js_word!</span>(<span class="string">&quot;await&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">in_async</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">strict</span>,
-            <span class="macro">js_word!</span>(<span class="string">&quot;yield&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">in_generator</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">strict</span>,
+            <span class="macro">js_word!</span>(<span class="string">&quot;let&quot;</span>) =&gt; <span class="self">self</span>.<span class="ident">strict</span>,
+            <span class="macro">js_word!</span>(<span class="string">&quot;await&quot;</span>) =&gt; <span class="self">self</span>.<span class="ident">in_async</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">strict</span>,
+            <span class="macro">js_word!</span>(<span class="string">&quot;yield&quot;</span>) =&gt; <span class="self">self</span>.<span class="ident">in_generator</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">strict</span>,
 
             <span class="macro">js_word!</span>(<span class="string">&quot;null&quot;</span>)
             <span class="op">|</span> <span class="macro">js_word!</span>(<span class="string">&quot;true&quot;</span>)
@@ -434,10 +434,10 @@
             <span class="op">|</span> <span class="macro">js_word!</span>(<span class="string">&quot;instanceof&quot;</span>)
             <span class="op">|</span> <span class="macro">js_word!</span>(<span class="string">&quot;typeof&quot;</span>)
             <span class="op">|</span> <span class="macro">js_word!</span>(<span class="string">&quot;void&quot;</span>)
-            <span class="op">|</span> <span class="macro">js_word!</span>(<span class="string">&quot;delete&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="op">|</span> <span class="macro">js_word!</span>(<span class="string">&quot;delete&quot;</span>) =&gt; <span class="bool-val">true</span>,
 
             <span class="comment">// Future reserved word</span>
-            <span class="macro">js_word!</span>(<span class="string">&quot;enum&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="macro">js_word!</span>(<span class="string">&quot;enum&quot;</span>) =&gt; <span class="bool-val">true</span>,
 
             <span class="macro">js_word!</span>(<span class="string">&quot;implements&quot;</span>)
             <span class="op">|</span> <span class="macro">js_word!</span>(<span class="string">&quot;package&quot;</span>)
@@ -445,19 +445,19 @@
             <span class="op">|</span> <span class="macro">js_word!</span>(<span class="string">&quot;interface&quot;</span>)
             <span class="op">|</span> <span class="macro">js_word!</span>(<span class="string">&quot;private&quot;</span>)
             <span class="op">|</span> <span class="macro">js_word!</span>(<span class="string">&quot;public&quot;</span>)
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">strict</span> <span class="op">=</span><span class="op">&gt;</span>
+                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">strict</span> =&gt;
             {
                 <span class="bool-val">true</span>
             }
 
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">I</span>: <span class="ident">Tokens</span><span class="op">&gt;</span> <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Original context is restored when returned guard is dropped.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">with_ctx</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="ident">Context</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">WithCtx</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">with_ctx</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="ident">Context</span>) -&gt; <span class="ident">WithCtx</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">orig_ctx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">ctx</span>();
         <span class="self">self</span>.<span class="ident">set_ctx</span>(<span class="ident">ctx</span>);
         <span class="ident">WithCtx</span> {
@@ -467,7 +467,7 @@
     }
 
     <span class="doccomment">/// Original state is restored when returned guard is dropped.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">with_state</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">state</span>: <span class="ident">State</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">WithState</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">with_state</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">state</span>: <span class="ident">State</span>) -&gt; <span class="ident">WithState</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">orig_state</span> <span class="op">=</span> <span class="ident">std::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">state</span>, <span class="ident">state</span>);
         <span class="ident">WithState</span> {
             <span class="ident">orig_state</span>,
@@ -479,7 +479,7 @@
         <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">set_ctx</span>(<span class="ident">ctx</span>);
     }
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">strict_mode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">WithCtx</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">strict_mode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">WithCtx</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">Context</span> {
             <span class="ident">strict</span>: <span class="bool-val">true</span>,
             ..<span class="self">self</span>.<span class="ident">ctx</span>()
@@ -488,7 +488,7 @@
     }
 
     <span class="doccomment">/// Original context is restored when returned guard is dropped.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">in_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">WithCtx</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">in_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">WithCtx</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">Context</span> {
             <span class="ident">in_type</span>: <span class="bool-val">true</span>,
             ..<span class="self">self</span>.<span class="ident">ctx</span>()
@@ -497,7 +497,7 @@
     }
 
     <span class="doccomment">/// Original context is restored when returned guard is dropped.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">include_in_expr</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">include_in_expr</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">WithCtx</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">include_in_expr</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">include_in_expr</span>: <span class="ident">bool</span>) -&gt; <span class="ident">WithCtx</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">Context</span> {
             <span class="ident">include_in_expr</span>,
             ..<span class="self">self</span>.<span class="ident">ctx</span>()
@@ -507,15 +507,15 @@
 
     <span class="doccomment">/// Parse with given closure</span>
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_with</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">Ret</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Ret</span><span class="op">&gt;</span>
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_with</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">Ret</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Ret</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Ret</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Ret</span><span class="op">&gt;</span>,
     {
         <span class="ident">f</span>(<span class="self">self</span>)
     }
 
     <span class="doccomment">/// Creates a span from `start` to current pos.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">start</span>: <span class="ident">BytePos</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">start</span>: <span class="ident">BytePos</span>) -&gt; <span class="ident">Span</span> {
         <span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="macro">last_pos!</span>(<span class="self">self</span>);
         <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">debug_assertions</span>) <span class="op">&amp;&amp;</span> <span class="ident">start</span> <span class="op">&gt;</span> <span class="ident">end</span> {
             <span class="macro">unreachable!</span>(
@@ -527,14 +527,14 @@
         <span class="ident">Span::new</span>(<span class="ident">start</span>, <span class="ident">end</span>, <span class="ident">Default::default</span>())
     }
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">syntax</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Syntax</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">syntax</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Syntax</span> {
         <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>()
     }
 }
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ParseObject</span><span class="op">&lt;</span><span class="ident">Obj</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Prop</span>;
-    <span class="kw">fn</span> <span class="ident">make_object</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">span</span>: <span class="ident">Span</span>, <span class="ident">props</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Prop</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Obj</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">parse_object_prop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Prop</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">make_object</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">span</span>: <span class="ident">Span</span>, <span class="ident">props</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Prop</span><span class="op">&gt;</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Obj</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">parse_object_prop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Prop</span><span class="op">&gt;</span>;
 }
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">WithState</span><span class="op">&lt;</span><span class="lifetime">&#39;w</span>, <span class="ident">I</span>: <span class="lifetime">&#39;w</span> <span class="op">+</span> <span class="ident">Tokens</span><span class="op">&gt;</span> {
@@ -544,12 +544,12 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;w</span>, <span class="ident">I</span>: <span class="ident">Tokens</span><span class="op">&gt;</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">WithState</span><span class="op">&lt;</span><span class="lifetime">&#39;w</span>, <span class="ident">I</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>
     }
 }
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;w</span>, <span class="ident">I</span>: <span class="ident">Tokens</span><span class="op">&gt;</span> <span class="ident">DerefMut</span> <span class="kw">for</span> <span class="ident">WithState</span><span class="op">&lt;</span><span class="lifetime">&#39;w</span>, <span class="ident">I</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">inner</span>
     }
 }
@@ -566,12 +566,12 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;w</span>, <span class="ident">I</span>: <span class="ident">Tokens</span><span class="op">&gt;</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">WithCtx</span><span class="op">&lt;</span><span class="lifetime">&#39;w</span>, <span class="ident">I</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>
     }
 }
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;w</span>, <span class="ident">I</span>: <span class="ident">Tokens</span><span class="op">&gt;</span> <span class="ident">DerefMut</span> <span class="kw">for</span> <span class="ident">WithCtx</span><span class="op">&lt;</span><span class="lifetime">&#39;w</span>, <span class="ident">I</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">inner</span>
     }
 }
@@ -583,13 +583,13 @@
 }
 
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">trait</span> <span class="ident">ExprExt</span> {
-    <span class="kw">fn</span> <span class="ident">as_expr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Expr</span>;
+    <span class="kw">fn</span> <span class="ident">as_expr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Expr</span>;
 
     <span class="doccomment">/// &quot;IsValidSimpleAssignmentTarget&quot; from spec.</span>
-    <span class="kw">fn</span> <span class="ident">is_valid_simple_assignment_target</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">strict</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_valid_simple_assignment_target</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">strict</span>: <span class="ident">bool</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">as_expr</span>() {
-            <span class="ident">Expr::Ident</span>(<span class="ident">Ident</span> { <span class="kw-2">ref</span> <span class="ident">sym</span>, .. }) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="ident">strict</span> <span class="op">&amp;&amp;</span> (<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">sym</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;arguments&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">sym</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;eval&quot;</span>) {
+            <span class="ident">Expr::Ident</span>(<span class="ident">Ident</span> { <span class="kw-2">ref</span> <span class="ident">sym</span>, .. }) =&gt; {
+                <span class="kw">if</span> <span class="ident">strict</span> <span class="op">&amp;&amp;</span> (<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">sym</span> <span class="op">==</span> <span class="string">&quot;arguments&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">sym</span> <span class="op">==</span> <span class="string">&quot;eval&quot;</span>) {
                     <span class="kw">return</span> <span class="bool-val">false</span>;
                 }
                 <span class="bool-val">true</span>
@@ -602,61 +602,61 @@
             <span class="op">|</span> <span class="ident">Expr::Fn</span>(..)
             <span class="op">|</span> <span class="ident">Expr::Class</span>(..)
             <span class="op">|</span> <span class="ident">Expr::Tpl</span>(..)
-            <span class="op">|</span> <span class="ident">Expr::TaggedTpl</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-            <span class="ident">Expr::Paren</span>(<span class="ident">ParenExpr</span> { <span class="kw-2">ref</span> <span class="ident">expr</span>, .. }) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="op">|</span> <span class="ident">Expr::TaggedTpl</span>(..) =&gt; <span class="bool-val">false</span>,
+            <span class="ident">Expr::Paren</span>(<span class="ident">ParenExpr</span> { <span class="kw-2">ref</span> <span class="ident">expr</span>, .. }) =&gt; {
                 <span class="ident">expr</span>.<span class="ident">is_valid_simple_assignment_target</span>(<span class="ident">strict</span>)
             }
 
-            <span class="ident">Expr::Member</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="ident">Expr::Member</span>(..) =&gt; <span class="bool-val">true</span>,
 
-            <span class="ident">Expr::New</span>(..) <span class="op">|</span> <span class="ident">Expr::Call</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">Expr::New</span>(..) <span class="op">|</span> <span class="ident">Expr::Call</span>(..) =&gt; <span class="bool-val">false</span>,
             <span class="comment">// TODO: Spec only mentions `new.target`</span>
-            <span class="ident">Expr::MetaProp</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">Expr::MetaProp</span>(..) =&gt; <span class="bool-val">false</span>,
 
-            <span class="ident">Expr::Update</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">Expr::Update</span>(..) =&gt; <span class="bool-val">false</span>,
 
-            <span class="ident">Expr::Unary</span>(..) <span class="op">|</span> <span class="ident">Expr::Await</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">Expr::Unary</span>(..) <span class="op">|</span> <span class="ident">Expr::Await</span>(..) =&gt; <span class="bool-val">false</span>,
 
-            <span class="ident">Expr::Bin</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">Expr::Bin</span>(..) =&gt; <span class="bool-val">false</span>,
 
-            <span class="ident">Expr::Cond</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">Expr::Cond</span>(..) =&gt; <span class="bool-val">false</span>,
 
-            <span class="ident">Expr::Yield</span>(..) <span class="op">|</span> <span class="ident">Expr::Arrow</span>(..) <span class="op">|</span> <span class="ident">Expr::Assign</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">Expr::Yield</span>(..) <span class="op">|</span> <span class="ident">Expr::Arrow</span>(..) <span class="op">|</span> <span class="ident">Expr::Assign</span>(..) =&gt; <span class="bool-val">false</span>,
 
-            <span class="ident">Expr::Seq</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">Expr::Seq</span>(..) =&gt; <span class="bool-val">false</span>,
 
             <span class="comment">// MemberExpression is valid assignment target</span>
-            <span class="ident">Expr::PrivateName</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">Expr::PrivateName</span>(..) =&gt; <span class="bool-val">false</span>,
 
             <span class="comment">// jsx</span>
             <span class="ident">Expr::JSXMember</span>(..)
             <span class="op">|</span> <span class="ident">Expr::JSXNamespacedName</span>(..)
             <span class="op">|</span> <span class="ident">Expr::JSXEmpty</span>(..)
             <span class="op">|</span> <span class="ident">Expr::JSXElement</span>(..)
-            <span class="op">|</span> <span class="ident">Expr::JSXFragment</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="op">|</span> <span class="ident">Expr::JSXFragment</span>(..) =&gt; <span class="bool-val">false</span>,
 
             <span class="comment">// typescript</span>
             <span class="ident">Expr::OptChain</span>(<span class="ident">OptChainExpr</span> { <span class="kw-2">ref</span> <span class="ident">expr</span>, .. })
             <span class="op">|</span> <span class="ident">Expr::TsNonNull</span>(<span class="ident">TsNonNullExpr</span> { <span class="kw-2">ref</span> <span class="ident">expr</span>, .. })
             <span class="op">|</span> <span class="ident">Expr::TsTypeAssertion</span>(<span class="ident">TsTypeAssertion</span> { <span class="kw-2">ref</span> <span class="ident">expr</span>, .. })
-            <span class="op">|</span> <span class="ident">Expr::TsAs</span>(<span class="ident">TsAsExpr</span> { <span class="kw-2">ref</span> <span class="ident">expr</span>, .. }) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="op">|</span> <span class="ident">Expr::TsAs</span>(<span class="ident">TsAsExpr</span> { <span class="kw-2">ref</span> <span class="ident">expr</span>, .. }) =&gt; {
                 <span class="ident">expr</span>.<span class="ident">is_valid_simple_assignment_target</span>(<span class="ident">strict</span>)
             }
 
-            <span class="ident">Expr::TsConstAssertion</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">Expr::TsConstAssertion</span>(..) =&gt; <span class="bool-val">false</span>,
 
-            <span class="ident">Expr::Invalid</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">Expr::Invalid</span>(..) =&gt; <span class="bool-val">false</span>,
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">ExprExt</span> <span class="kw">for</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expr</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">as_expr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Expr</span> {
+    <span class="kw">fn</span> <span class="ident">as_expr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Expr</span> {
         <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>
     }
 }
 <span class="kw">impl</span> <span class="ident">ExprExt</span> <span class="kw">for</span> <span class="ident">Expr</span> {
-    <span class="kw">fn</span> <span class="ident">as_expr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Expr</span> {
+    <span class="kw">fn</span> <span class="ident">as_expr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Expr</span> {
         <span class="self">self</span>
     }
 }

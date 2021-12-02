@@ -466,7 +466,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">I</span>: <span class="ident">Tokens</span><span class="op">&gt;</span> <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Parse a object literal or object pattern.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_object</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_object</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">ParseObject</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
     {
@@ -495,7 +495,7 @@
     }
 
     <span class="doccomment">/// spec: &#39;PropertyName&#39;</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_prop_name</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">PropName</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_prop_name</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">PropName</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">ctx</span>();
         <span class="self">self</span>.<span class="ident">with_ctx</span>(<span class="ident">Context</span> {
             <span class="ident">in_property_name</span>: <span class="bool-val">true</span>,
@@ -505,8 +505,8 @@
             <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="ident">p</span>);
 
             <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">*</span><span class="macro">cur!</span>(<span class="ident">p</span>, <span class="bool-val">true</span>)<span class="question-mark">?</span> {
-                <span class="ident">Token::Str</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="macro">bump!</span>(<span class="ident">p</span>) {
-                    <span class="ident">Token::Str</span> { <span class="ident">value</span>, <span class="ident">has_escape</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PropName::Str</span>(<span class="ident">Str</span> {
+                <span class="ident">Token::Str</span> { .. } =&gt; <span class="kw">match</span> <span class="macro">bump!</span>(<span class="ident">p</span>) {
+                    <span class="ident">Token::Str</span> { <span class="ident">value</span>, <span class="ident">has_escape</span> } =&gt; <span class="ident">PropName::Str</span>(<span class="ident">Str</span> {
                         <span class="ident">span</span>: <span class="macro">span!</span>(<span class="ident">p</span>, <span class="ident">start</span>),
                         <span class="ident">value</span>,
                         <span class="ident">has_escape</span>,
@@ -514,27 +514,27 @@
                             <span class="ident">contains_quote</span>: <span class="bool-val">true</span>,
                         },
                     }),
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                    <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
                 },
-                <span class="ident">Token::Num</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="macro">bump!</span>(<span class="ident">p</span>) {
-                    <span class="ident">Token::Num</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PropName::Num</span>(<span class="ident">Number</span> {
+                <span class="ident">Token::Num</span>(<span class="kw">_</span>) =&gt; <span class="kw">match</span> <span class="macro">bump!</span>(<span class="ident">p</span>) {
+                    <span class="ident">Token::Num</span>(<span class="ident">value</span>) =&gt; <span class="ident">PropName::Num</span>(<span class="ident">Number</span> {
                         <span class="ident">span</span>: <span class="macro">span!</span>(<span class="ident">p</span>, <span class="ident">start</span>),
                         <span class="ident">value</span>,
                     }),
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                    <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
                 },
-                <span class="ident">Token::BigInt</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="macro">bump!</span>(<span class="ident">p</span>) {
-                    <span class="ident">Token::BigInt</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PropName::BigInt</span>(<span class="ident">BigInt</span> {
+                <span class="ident">Token::BigInt</span>(<span class="kw">_</span>) =&gt; <span class="kw">match</span> <span class="macro">bump!</span>(<span class="ident">p</span>) {
+                    <span class="ident">Token::BigInt</span>(<span class="ident">value</span>) =&gt; <span class="ident">PropName::BigInt</span>(<span class="ident">BigInt</span> {
                         <span class="ident">span</span>: <span class="macro">span!</span>(<span class="ident">p</span>, <span class="ident">start</span>),
                         <span class="ident">value</span>,
                     }),
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                    <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
                 },
-                <span class="ident">Word</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="macro">bump!</span>(<span class="ident">p</span>) {
-                    <span class="ident">Word</span>(<span class="ident">w</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PropName::Ident</span>(<span class="ident">Ident::new</span>(<span class="ident">w</span>.<span class="ident">into</span>(), <span class="macro">span!</span>(<span class="ident">p</span>, <span class="ident">start</span>))),
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                <span class="ident">Word</span>(..) =&gt; <span class="kw">match</span> <span class="macro">bump!</span>(<span class="ident">p</span>) {
+                    <span class="ident">Word</span>(<span class="ident">w</span>) =&gt; <span class="ident">PropName::Ident</span>(<span class="ident">Ident::new</span>(<span class="ident">w</span>.<span class="ident">into</span>(), <span class="macro">span!</span>(<span class="ident">p</span>, <span class="ident">start</span>))),
+                    <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
                 },
-                <span class="macro">tok!</span>(<span class="string">&#39;[&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="macro">tok!</span>(<span class="string">&#39;[&#39;</span>) =&gt; {
                     <span class="macro">bump!</span>(<span class="ident">p</span>);
                     <span class="kw">let</span> <span class="ident">inner_start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="ident">p</span>);
 
@@ -565,7 +565,7 @@
                         <span class="ident">expr</span>,
                     })
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unexpected!</span>(
+                <span class="kw">_</span> =&gt; <span class="macro">unexpected!</span>(
                     <span class="ident">p</span>,
                     <span class="string">&quot;identifier, string literal, numeric literal or [ for the computed key&quot;</span>
                 ),
@@ -579,12 +579,12 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Tokens</span><span class="op">&gt;</span> <span class="ident">ParseObject</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expr</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Prop</span> <span class="op">=</span> <span class="ident">PropOrSpread</span>;
 
-    <span class="kw">fn</span> <span class="ident">make_object</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">span</span>: <span class="ident">Span</span>, <span class="ident">props</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Prop</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expr</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">make_object</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">span</span>: <span class="ident">Span</span>, <span class="ident">props</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Prop</span><span class="op">&gt;</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expr</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">Box::new</span>(<span class="ident">Expr::Object</span>(<span class="ident">ObjectLit</span> { <span class="ident">span</span>, <span class="ident">props</span> })))
     }
 
     <span class="doccomment">/// spec: &#39;PropertyDefinition&#39;</span>
-    <span class="kw">fn</span> <span class="ident">parse_object_prop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Prop</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_object_prop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Prop</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
         <span class="comment">// Parse as &#39;MethodDefinition&#39;</span>
 
@@ -628,8 +628,8 @@
             <span class="op">&amp;&amp;</span> <span class="op">!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>() <span class="op">&amp;&amp;</span> <span class="macro">is!</span>(<span class="self">self</span>, <span class="string">&#39;&lt;&#39;</span>))
             <span class="op">&amp;&amp;</span> <span class="op">!</span>(<span class="macro">is!</span>(<span class="self">self</span>, <span class="string">&#39;}&#39;</span>)
                 <span class="op">&amp;&amp;</span> <span class="kw">match</span> <span class="ident">key</span> {
-                    <span class="ident">PropName::Ident</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+                    <span class="ident">PropName::Ident</span>(..) =&gt; <span class="bool-val">true</span>,
+                    <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
                 })
         {
             <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">cur_span</span>(), <span class="ident">SyntaxError::TS1005</span>);
@@ -669,9 +669,9 @@
         }
 
         <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">key</span> {
-            <span class="ident">PropName::Ident</span>(<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ident</span>,
+            <span class="ident">PropName::Ident</span>(<span class="ident">ident</span>) =&gt; <span class="ident">ident</span>,
             <span class="comment">// TODO</span>
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unexpected!</span>(<span class="self">self</span>, <span class="string">&quot;identifier&quot;</span>),
+            <span class="kw">_</span> =&gt; <span class="macro">unexpected!</span>(<span class="self">self</span>, <span class="string">&quot;identifier&quot;</span>),
         };
 
         <span class="kw">if</span> <span class="macro">eat!</span>(<span class="self">self</span>, <span class="string">&#39;?&#39;</span>) {
@@ -702,17 +702,17 @@
         <span class="comment">// async a(){}</span>
 
         <span class="kw">match</span> <span class="ident">ident</span>.<span class="ident">sym</span> {
-            <span class="macro">js_word!</span>(<span class="string">&quot;get&quot;</span>) <span class="op">|</span> <span class="macro">js_word!</span>(<span class="string">&quot;set&quot;</span>) <span class="op">|</span> <span class="macro">js_word!</span>(<span class="string">&quot;async&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="macro">js_word!</span>(<span class="string">&quot;get&quot;</span>) <span class="op">|</span> <span class="macro">js_word!</span>(<span class="string">&quot;set&quot;</span>) <span class="op">|</span> <span class="macro">js_word!</span>(<span class="string">&quot;async&quot;</span>) =&gt; {
                 <span class="kw">if</span> <span class="ident">has_modifiers</span> {
                     <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">modifiers_span</span>, <span class="ident">SyntaxError::TS1042</span>);
                 }
 
-                <span class="kw">let</span> <span class="ident">is_generator</span> <span class="op">=</span> <span class="ident">ident</span>.<span class="ident">sym</span> <span class="op">=</span><span class="op">=</span> <span class="macro">js_word!</span>(<span class="string">&quot;async&quot;</span>) <span class="op">&amp;&amp;</span> <span class="macro">eat!</span>(<span class="self">self</span>, <span class="string">&#39;*&#39;</span>);
+                <span class="kw">let</span> <span class="ident">is_generator</span> <span class="op">=</span> <span class="ident">ident</span>.<span class="ident">sym</span> <span class="op">==</span> <span class="macro">js_word!</span>(<span class="string">&quot;async&quot;</span>) <span class="op">&amp;&amp;</span> <span class="macro">eat!</span>(<span class="self">self</span>, <span class="string">&#39;*&#39;</span>);
                 <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_prop_name</span>()<span class="question-mark">?</span>;
                 <span class="kw">let</span> <span class="ident">key_span</span> <span class="op">=</span> <span class="ident">key</span>.<span class="ident">span</span>();
 
                 <span class="kw">match</span> <span class="ident">ident</span>.<span class="ident">sym</span> {
-                    <span class="macro">js_word!</span>(<span class="string">&quot;get&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>
+                    <span class="macro">js_word!</span>(<span class="string">&quot;get&quot;</span>) =&gt; <span class="self">self</span>
                         .<span class="ident">parse_fn_args_body</span>(
                             <span class="comment">// no decorator in an object literal</span>
                             <span class="macro">vec!</span>[],
@@ -741,7 +741,7 @@
                                 }
 
                                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>()
-                                    <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">target</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">JscTarget::Es3</span>
+                                    <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">target</span>() <span class="op">==</span> <span class="ident">JscTarget::Es3</span>
                                 {
                                     <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">key_span</span>, <span class="ident">SyntaxError::TS1056</span>);
                                 }
@@ -754,7 +754,7 @@
                                 })))
                             },
                         ),
-                    <span class="macro">js_word!</span>(<span class="string">&quot;set&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>
+                    <span class="macro">js_word!</span>(<span class="string">&quot;set&quot;</span>) =&gt; <span class="self">self</span>
                         .<span class="ident">parse_fn_args_body</span>(
                             <span class="comment">// no decorator in an object literal</span>
                             <span class="macro">vec!</span>[],
@@ -773,7 +773,7 @@
                                 }
 
                                 <span class="kw">if</span> <span class="ident">p</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>()
-                                    <span class="op">&amp;&amp;</span> <span class="ident">p</span>.<span class="ident">input</span>.<span class="ident">target</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">JscTarget::Es3</span>
+                                    <span class="op">&amp;&amp;</span> <span class="ident">p</span>.<span class="ident">input</span>.<span class="ident">target</span>() <span class="op">==</span> <span class="ident">JscTarget::Es3</span>
                                 {
                                     <span class="ident">p</span>.<span class="ident">emit_err</span>(<span class="ident">key_span</span>, <span class="ident">SyntaxError::TS1056</span>);
                                 }
@@ -805,7 +805,7 @@
                                 })))
                             },
                         ),
-                    <span class="macro">js_word!</span>(<span class="string">&quot;async&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>
+                    <span class="macro">js_word!</span>(<span class="string">&quot;async&quot;</span>) =&gt; <span class="self">self</span>
                         .<span class="ident">parse_fn_args_body</span>(
                             <span class="comment">// no decorator in an object literal</span>
                             <span class="macro">vec!</span>[],
@@ -817,10 +817,10 @@
                         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">function</span><span class="op">|</span> {
                             <span class="ident">PropOrSpread::Prop</span>(<span class="ident">Box::new</span>(<span class="ident">Prop::Method</span>(<span class="ident">MethodProp</span> { <span class="ident">key</span>, <span class="ident">function</span> })))
                         }),
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                    <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
                 }
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="kw">_</span> =&gt; {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>() {
                     <span class="macro">unexpected!</span>(
                         <span class="self">self</span>,
@@ -838,14 +838,14 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Tokens</span><span class="op">&gt;</span> <span class="ident">ParseObject</span><span class="op">&lt;</span><span class="ident">Pat</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Prop</span> <span class="op">=</span> <span class="ident">ObjectPatProp</span>;
 
-    <span class="kw">fn</span> <span class="ident">make_object</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">span</span>: <span class="ident">Span</span>, <span class="ident">props</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Prop</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Pat</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">make_object</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">span</span>: <span class="ident">Span</span>, <span class="ident">props</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Prop</span><span class="op">&gt;</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Pat</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">props</span>.<span class="ident">len</span>();
         <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">p</span>) <span class="kw">in</span> <span class="ident">props</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">if</span> <span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">len</span> <span class="op">-</span> <span class="number">1</span> {
+            <span class="kw">if</span> <span class="ident">i</span> <span class="op">==</span> <span class="ident">len</span> <span class="op">-</span> <span class="number">1</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ObjectPatProp::Rest</span>(<span class="kw-2">ref</span> <span class="ident">rest</span>) <span class="op">=</span> <span class="ident">p</span> {
                     <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">rest</span>.<span class="ident">arg</span> {
-                        <span class="ident">Pat::Ident</span>(..) <span class="op">=</span><span class="op">&gt;</span> {}
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">syntax_error!</span>(<span class="self">self</span>, <span class="ident">p</span>.<span class="ident">span</span>(), <span class="ident">SyntaxError::DotsWithoutIdentifier</span>),
+                        <span class="ident">Pat::Ident</span>(..) =&gt; {}
+                        <span class="kw">_</span> =&gt; <span class="macro">syntax_error!</span>(<span class="self">self</span>, <span class="ident">p</span>.<span class="ident">span</span>(), <span class="ident">SyntaxError::DotsWithoutIdentifier</span>),
                     }
                 }
                 <span class="kw">continue</span>;
@@ -869,7 +869,7 @@
     }
 
     <span class="doccomment">/// Production &#39;BindingProperty&#39;</span>
-    <span class="kw">fn</span> <span class="ident">parse_object_prop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Prop</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_object_prop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Prop</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
 
         <span class="kw">if</span> <span class="macro">eat!</span>(<span class="self">self</span>, <span class="string">&quot;...&quot;</span>) {
@@ -893,8 +893,8 @@
             <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">ObjectPatProp::KeyValue</span>(<span class="ident">KeyValuePatProp</span> { <span class="ident">key</span>, <span class="ident">value</span> }));
         }
         <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">key</span> {
-            <span class="ident">PropName::Ident</span>(<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ident</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unexpected!</span>(<span class="self">self</span>, <span class="string">&quot;an identifier&quot;</span>),
+            <span class="ident">PropName::Ident</span>(<span class="ident">ident</span>) =&gt; <span class="ident">ident</span>,
+            <span class="kw">_</span> =&gt; <span class="macro">unexpected!</span>(<span class="self">self</span>, <span class="string">&quot;an identifier&quot;</span>),
         };
 
         <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="kw">if</span> <span class="macro">eat!</span>(<span class="self">self</span>, <span class="string">&#39;=&#39;</span>) {

@@ -164,12 +164,12 @@
     <span class="ident">DerivedTS</span>,
 };
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">r#enum_def</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">ItemEnum</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="ident">DerivedTS</span><span class="op">&gt;</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">r#enum_def</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">ItemEnum</span>) -&gt; <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="ident">DerivedTS</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">enum_attr</span>: <span class="ident">EnumAttr</span> <span class="op">=</span> <span class="ident">EnumAttr::from_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>.<span class="ident">attrs</span>)<span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">enum_attr</span>.<span class="ident">rename</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">existing</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">existing</span>.<span class="ident">clone</span>(),
-        <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">s</span>.<span class="ident">ident</span>.<span class="ident">to_string</span>(),
+        <span class="prelude-val">Some</span>(<span class="ident">existing</span>) =&gt; <span class="ident">existing</span>.<span class="ident">clone</span>(),
+        <span class="prelude-val">None</span> =&gt; <span class="ident">s</span>.<span class="ident">ident</span>.<span class="ident">to_string</span>(),
     };
 
     <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">variants</span>.<span class="ident">is_empty</span>() {
@@ -218,7 +218,7 @@
     <span class="ident">enum_attr</span>: <span class="kw-2">&amp;</span><span class="ident">EnumAttr</span>,
     <span class="ident">variant</span>: <span class="kw-2">&amp;</span><span class="ident">Variant</span>,
     <span class="ident">generics</span>: <span class="kw-2">&amp;</span><span class="ident">Generics</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">syn::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+) -&gt; <span class="ident">syn::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">FieldAttr</span> {
         <span class="ident">type_override</span>,
         <span class="ident">rename</span>,
@@ -229,17 +229,17 @@
     } <span class="op">=</span> <span class="ident">FieldAttr::from_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">variant</span>.<span class="ident">attrs</span>)<span class="question-mark">?</span>;
 
     <span class="kw">match</span> (<span class="ident">skip</span>, <span class="kw-2">&amp;</span><span class="ident">type_override</span>, <span class="ident">inline</span>, <span class="ident">optional</span>, <span class="ident">flatten</span>) {
-        (<span class="bool-val">true</span>, ..) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>(()),
-        (<span class="kw">_</span>, <span class="prelude-val">Some</span>(<span class="kw">_</span>), ..) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">syn_err!</span>(<span class="string">&quot;`type` is not applicable to enum variants&quot;</span>),
-        (<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="bool-val">true</span>, ..) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">syn_err!</span>(<span class="string">&quot;`optional` is not applicable to enum variants&quot;</span>),
-        (<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="bool-val">true</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">syn_err!</span>(<span class="string">&quot;`flatten` is not applicable to enum variants&quot;</span>),
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+        (<span class="bool-val">true</span>, ..) =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(()),
+        (<span class="kw">_</span>, <span class="prelude-val">Some</span>(<span class="kw">_</span>), ..) =&gt; <span class="macro">syn_err!</span>(<span class="string">&quot;`type` is not applicable to enum variants&quot;</span>),
+        (<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="bool-val">true</span>, ..) =&gt; <span class="macro">syn_err!</span>(<span class="string">&quot;`optional` is not applicable to enum variants&quot;</span>),
+        (<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="bool-val">true</span>) =&gt; <span class="macro">syn_err!</span>(<span class="string">&quot;`flatten` is not applicable to enum variants&quot;</span>),
+        <span class="kw">_</span> =&gt; {}
     };
 
     <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="kw">match</span> (<span class="ident">rename</span>, <span class="kw-2">&amp;</span><span class="ident">enum_attr</span>.<span class="ident">rename_all</span>) {
-        (<span class="prelude-val">Some</span>(<span class="ident">rn</span>), <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">rn</span>,
-        (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">variant</span>.<span class="ident">ident</span>.<span class="ident">to_string</span>(),
-        (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">rn</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">rn</span>.<span class="ident">apply</span>(<span class="kw-2">&amp;</span><span class="ident">variant</span>.<span class="ident">ident</span>.<span class="ident">to_string</span>()),
+        (<span class="prelude-val">Some</span>(<span class="ident">rn</span>), <span class="kw">_</span>) =&gt; <span class="ident">rn</span>,
+        (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; <span class="ident">variant</span>.<span class="ident">ident</span>.<span class="ident">to_string</span>(),
+        (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">rn</span>)) =&gt; <span class="ident">rn</span>.<span class="ident">apply</span>(<span class="kw-2">&amp;</span><span class="ident">variant</span>.<span class="ident">ident</span>.<span class="ident">to_string</span>()),
     };
 
     <span class="kw">let</span> <span class="ident">variant_type</span> <span class="op">=</span> <span class="ident">types::type_def</span>(
@@ -253,21 +253,21 @@
     <span class="kw">let</span> <span class="ident">inline_type</span> <span class="op">=</span> <span class="ident">variant_type</span>.<span class="ident">inline</span>;
 
     <span class="kw">let</span> <span class="ident">formatted</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">enum_attr</span>.<span class="ident">tagged</span>()<span class="question-mark">?</span> {
-        <span class="ident">Tagged::Untagged</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">quote!</span>(#<span class="ident">inline_type</span>),
-        <span class="ident">Tagged::Externally</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">variant</span>.<span class="ident">fields</span> {
-            <span class="ident">Fields::Unit</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">quote!</span>(<span class="macro">format!</span>(<span class="string">&quot;\&quot;{}\&quot;&quot;</span>, #<span class="ident">name</span>)),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">quote!</span>(<span class="macro">format!</span>(<span class="string">&quot;{{ {}: {} }}&quot;</span>, #<span class="ident">name</span>, #<span class="ident">inline_type</span>)),
+        <span class="ident">Tagged::Untagged</span> =&gt; <span class="macro">quote!</span>(#<span class="ident">inline_type</span>),
+        <span class="ident">Tagged::Externally</span> =&gt; <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">variant</span>.<span class="ident">fields</span> {
+            <span class="ident">Fields::Unit</span> =&gt; <span class="macro">quote!</span>(<span class="macro">format!</span>(<span class="string">&quot;\&quot;{}\&quot;&quot;</span>, #<span class="ident">name</span>)),
+            <span class="kw">_</span> =&gt; <span class="macro">quote!</span>(<span class="macro">format!</span>(<span class="string">&quot;{{ {}: {} }}&quot;</span>, #<span class="ident">name</span>, #<span class="ident">inline_type</span>)),
         },
-        <span class="ident">Tagged::Adjacently</span> { <span class="ident">tag</span>, <span class="ident">content</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">variant</span>.<span class="ident">fields</span> {
-            <span class="ident">Fields::Unnamed</span>(<span class="ident">unnamed</span>) <span class="kw">if</span> <span class="ident">unnamed</span>.<span class="ident">unnamed</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">Tagged::Adjacently</span> { <span class="ident">tag</span>, <span class="ident">content</span> } =&gt; <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">variant</span>.<span class="ident">fields</span> {
+            <span class="ident">Fields::Unnamed</span>(<span class="ident">unnamed</span>) <span class="kw">if</span> <span class="ident">unnamed</span>.<span class="ident">unnamed</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> =&gt; {
                 <span class="kw">let</span> <span class="ident">ty</span> <span class="op">=</span> <span class="ident">format_type</span>(<span class="kw-2">&amp;</span><span class="ident">unnamed</span>.<span class="ident">unnamed</span>[<span class="number">0</span>].<span class="ident">ty</span>, <span class="ident">dependencies</span>, <span class="ident">generics</span>);
                 <span class="macro">quote!</span>(<span class="macro">format!</span>(<span class="string">&quot;{{ {}: \&quot;{}\&quot;, {}: {} }}&quot;</span>, #<span class="ident">tag</span>, #<span class="ident">name</span>, #<span class="ident">content</span>, #<span class="ident">ty</span>))
             }
-            <span class="ident">Fields::Unit</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">quote!</span>(<span class="macro">format!</span>(<span class="string">&quot;{{ {}: \&quot;{}\&quot; }}&quot;</span>, #<span class="ident">tag</span>, #<span class="ident">name</span>)),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">quote!</span>(<span class="macro">format!</span>(<span class="string">&quot;{{ {}: \&quot;{}\&quot;, {}: {} }}&quot;</span>, #<span class="ident">tag</span>, #<span class="ident">name</span>, #<span class="ident">content</span>, #<span class="ident">inline_type</span>)),
+            <span class="ident">Fields::Unit</span> =&gt; <span class="macro">quote!</span>(<span class="macro">format!</span>(<span class="string">&quot;{{ {}: \&quot;{}\&quot; }}&quot;</span>, #<span class="ident">tag</span>, #<span class="ident">name</span>)),
+            <span class="kw">_</span> =&gt; <span class="macro">quote!</span>(<span class="macro">format!</span>(<span class="string">&quot;{{ {}: \&quot;{}\&quot;, {}: {} }}&quot;</span>, #<span class="ident">tag</span>, #<span class="ident">name</span>, #<span class="ident">content</span>, #<span class="ident">inline_type</span>)),
         },
-        <span class="ident">Tagged::Internally</span> { <span class="ident">tag</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">variant_type</span>.<span class="ident">inline_flattened</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">inline_flattened</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">quote!</span> {
+        <span class="ident">Tagged::Internally</span> { <span class="ident">tag</span> } =&gt; <span class="kw">match</span> <span class="ident">variant_type</span>.<span class="ident">inline_flattened</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">inline_flattened</span>) =&gt; <span class="macro">quote!</span> {
                 <span class="macro">format!</span>(
                     <span class="string">&quot;{{ {}: \&quot;{}\&quot;, {} }}&quot;</span>,
                     #<span class="ident">tag</span>,
@@ -275,13 +275,13 @@
                     #<span class="ident">inline_flattened</span>
                 )
             },
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">variant</span>.<span class="ident">fields</span> {
-                <span class="ident">Fields::Unnamed</span>(<span class="ident">unnamed</span>) <span class="kw">if</span> <span class="ident">unnamed</span>.<span class="ident">unnamed</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">None</span> =&gt; <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">variant</span>.<span class="ident">fields</span> {
+                <span class="ident">Fields::Unnamed</span>(<span class="ident">unnamed</span>) <span class="kw">if</span> <span class="ident">unnamed</span>.<span class="ident">unnamed</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> =&gt; {
                     <span class="kw">let</span> <span class="ident">ty</span> <span class="op">=</span> <span class="ident">format_type</span>(<span class="kw-2">&amp;</span><span class="ident">unnamed</span>.<span class="ident">unnamed</span>[<span class="number">0</span>].<span class="ident">ty</span>, <span class="ident">dependencies</span>, <span class="ident">generics</span>);
                     <span class="macro">quote!</span>(<span class="macro">format!</span>(<span class="string">&quot;{{ {}: \&quot;{}\&quot; }} &amp; {}&quot;</span>, #<span class="ident">tag</span>, #<span class="ident">name</span>, #<span class="ident">ty</span>))
                 }
-                <span class="ident">Fields::Unit</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">quote!</span>(<span class="macro">format!</span>(<span class="string">&quot;{{ {}: \&quot;{}\&quot; }}&quot;</span>, #<span class="ident">tag</span>, #<span class="ident">name</span>)),
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Fields::Unit</span> =&gt; <span class="macro">quote!</span>(<span class="macro">format!</span>(<span class="string">&quot;{{ {}: \&quot;{}\&quot; }}&quot;</span>, #<span class="ident">tag</span>, #<span class="ident">name</span>)),
+                <span class="kw">_</span> =&gt; {
                     <span class="ident">dependencies</span>.<span class="ident">append</span>(<span class="ident">variant_dependencies</span>);
                     <span class="macro">quote!</span>(<span class="macro">format!</span>(<span class="string">&quot;{{ {}: \&quot;{}\&quot; }} &amp; {}&quot;</span>, #<span class="ident">tag</span>, #<span class="ident">name</span>, #<span class="ident">inline_type</span>))
                 }
@@ -294,7 +294,7 @@
 }
 
 <span class="comment">// bindings for an empty enum (`never` in TS)</span>
-<span class="kw">fn</span> <span class="ident">empty_enum</span>(<span class="ident">name</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">enum_attr</span>: <span class="ident">EnumAttr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DerivedTS</span> {
+<span class="kw">fn</span> <span class="ident">empty_enum</span>(<span class="ident">name</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">enum_attr</span>: <span class="ident">EnumAttr</span>) -&gt; <span class="ident">DerivedTS</span> {
     <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">name</span>.<span class="ident">into</span>();
     <span class="ident">DerivedTS</span> {
         <span class="ident">inline</span>: <span class="macro">quote!</span>(<span class="string">&quot;never&quot;</span>.<span class="ident">to_owned</span>()),

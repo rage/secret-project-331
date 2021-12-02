@@ -435,7 +435,7 @@
 <span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">Buf</span> <span class="kw">as</span> <span class="kw">_</span>, <span class="ident">Bytes</span>, <span class="ident">BytesMut</span>};
 
 <span class="macro">macro_rules!</span> <span class="ident">byte</span> (
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rdr</span>:<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> ({
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rdr</span>:<span class="ident">ident</span>) =&gt; ({
         <span class="kw">if</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rdr</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">0</span> {
             <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rdr</span>[<span class="number">0</span>];
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rdr</span>.<span class="ident">advance</span>(<span class="number">1</span>);
@@ -466,36 +466,36 @@
         <span class="ident">body</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>,
         <span class="ident">size</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">u64</span>,
         <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">use</span> <span class="ident"><span class="self">self</span>::ChunkedState</span>::<span class="kw-2">*</span>;
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">Size</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ChunkedState::read_size</span>(<span class="ident">body</span>, <span class="ident">size</span>),
-            <span class="ident">SizeLws</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ChunkedState::read_size_lws</span>(<span class="ident">body</span>),
-            <span class="ident">Extension</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ChunkedState::read_extension</span>(<span class="ident">body</span>),
-            <span class="ident">SizeLf</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ChunkedState::read_size_lf</span>(<span class="ident">body</span>, <span class="kw-2">*</span><span class="ident">size</span>),
-            <span class="ident">Body</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ChunkedState::read_body</span>(<span class="ident">body</span>, <span class="ident">size</span>, <span class="ident">buf</span>),
-            <span class="ident">BodyCr</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ChunkedState::read_body_cr</span>(<span class="ident">body</span>),
-            <span class="ident">BodyLf</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ChunkedState::read_body_lf</span>(<span class="ident">body</span>),
-            <span class="ident">EndCr</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ChunkedState::read_end_cr</span>(<span class="ident">body</span>),
-            <span class="ident">EndLf</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ChunkedState::read_end_lf</span>(<span class="ident">body</span>),
-            <span class="ident">End</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::End</span>)),
+            <span class="ident">Size</span> =&gt; <span class="ident">ChunkedState::read_size</span>(<span class="ident">body</span>, <span class="ident">size</span>),
+            <span class="ident">SizeLws</span> =&gt; <span class="ident">ChunkedState::read_size_lws</span>(<span class="ident">body</span>),
+            <span class="ident">Extension</span> =&gt; <span class="ident">ChunkedState::read_extension</span>(<span class="ident">body</span>),
+            <span class="ident">SizeLf</span> =&gt; <span class="ident">ChunkedState::read_size_lf</span>(<span class="ident">body</span>, <span class="kw-2">*</span><span class="ident">size</span>),
+            <span class="ident">Body</span> =&gt; <span class="ident">ChunkedState::read_body</span>(<span class="ident">body</span>, <span class="ident">size</span>, <span class="ident">buf</span>),
+            <span class="ident">BodyCr</span> =&gt; <span class="ident">ChunkedState::read_body_cr</span>(<span class="ident">body</span>),
+            <span class="ident">BodyLf</span> =&gt; <span class="ident">ChunkedState::read_body_lf</span>(<span class="ident">body</span>),
+            <span class="ident">EndCr</span> =&gt; <span class="ident">ChunkedState::read_end_cr</span>(<span class="ident">body</span>),
+            <span class="ident">EndLf</span> =&gt; <span class="ident">ChunkedState::read_end_lf</span>(<span class="ident">body</span>),
+            <span class="ident">End</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::End</span>)),
         }
     }
 
     <span class="kw">fn</span> <span class="ident">read_size</span>(
         <span class="ident">rdr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>,
         <span class="ident">size</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">u64</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">radix</span> <span class="op">=</span> <span class="number">16</span>;
 
         <span class="kw">let</span> <span class="ident">rem</span> <span class="op">=</span> <span class="kw">match</span> <span class="macro">byte!</span>(<span class="ident">rdr</span>) {
-            <span class="ident">b</span> @ <span class="string">b&#39;0&#39;</span>..<span class="op">=</span><span class="string">b&#39;9&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">b</span> <span class="op">-</span> <span class="string">b&#39;0&#39;</span>,
-            <span class="ident">b</span> @ <span class="string">b&#39;a&#39;</span>..<span class="op">=</span><span class="string">b&#39;f&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">b</span> <span class="op">+</span> <span class="number">10</span> <span class="op">-</span> <span class="string">b&#39;a&#39;</span>,
-            <span class="ident">b</span> @ <span class="string">b&#39;A&#39;</span>..<span class="op">=</span><span class="string">b&#39;F&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">b</span> <span class="op">+</span> <span class="number">10</span> <span class="op">-</span> <span class="string">b&#39;A&#39;</span>,
-            <span class="string">b&#39;\t&#39;</span> <span class="op">|</span> <span class="string">b&#39; &#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::SizeLws</span>)),
-            <span class="string">b&#39;;&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::Extension</span>)),
-            <span class="string">b&#39;\r&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::SizeLf</span>)),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">b</span> @ <span class="string">b&#39;0&#39;</span>..<span class="op">=</span><span class="string">b&#39;9&#39;</span> =&gt; <span class="ident">b</span> <span class="op">-</span> <span class="string">b&#39;0&#39;</span>,
+            <span class="ident">b</span> @ <span class="string">b&#39;a&#39;</span>..<span class="op">=</span><span class="string">b&#39;f&#39;</span> =&gt; <span class="ident">b</span> <span class="op">+</span> <span class="number">10</span> <span class="op">-</span> <span class="string">b&#39;a&#39;</span>,
+            <span class="ident">b</span> @ <span class="string">b&#39;A&#39;</span>..<span class="op">=</span><span class="string">b&#39;F&#39;</span> =&gt; <span class="ident">b</span> <span class="op">+</span> <span class="number">10</span> <span class="op">-</span> <span class="string">b&#39;A&#39;</span>,
+            <span class="string">b&#39;\t&#39;</span> <span class="op">|</span> <span class="string">b&#39; &#39;</span> =&gt; <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::SizeLws</span>)),
+            <span class="string">b&#39;;&#39;</span> =&gt; <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::Extension</span>)),
+            <span class="string">b&#39;\r&#39;</span> =&gt; <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::SizeLf</span>)),
+            <span class="kw">_</span> =&gt; {
                 <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
                     <span class="ident">io::ErrorKind::InvalidInput</span>,
                     <span class="string">&quot;Invalid chunk size line: Invalid Size&quot;</span>,
@@ -504,13 +504,13 @@
         };
 
         <span class="kw">match</span> <span class="ident">size</span>.<span class="ident">checked_mul</span>(<span class="ident">radix</span>) {
-            <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">n</span>) =&gt; {
                 <span class="kw-2">*</span><span class="ident">size</span> <span class="op">=</span> <span class="ident">n</span> <span class="kw">as</span> <span class="ident">u64</span>;
                 <span class="kw-2">*</span><span class="ident">size</span> <span class="op">+</span><span class="op">=</span> <span class="ident">rem</span> <span class="kw">as</span> <span class="ident">u64</span>;
 
                 <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::Size</span>))
             }
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">None</span> =&gt; {
                 <span class="macro">log::debug!</span>(<span class="string">&quot;chunk size would overflow u64&quot;</span>);
                 <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
                     <span class="ident">io::ErrorKind::InvalidInput</span>,
@@ -520,37 +520,37 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">read_size_lws</span>(<span class="ident">rdr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">read_size_lws</span>(<span class="ident">rdr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="macro">byte!</span>(<span class="ident">rdr</span>) {
             <span class="comment">// LWS can follow the chunk size, but no more digits can come</span>
-            <span class="string">b&#39;\t&#39;</span> <span class="op">|</span> <span class="string">b&#39; &#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::SizeLws</span>)),
-            <span class="string">b&#39;;&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::Extension</span>)),
-            <span class="string">b&#39;\r&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::SizeLf</span>)),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
+            <span class="string">b&#39;\t&#39;</span> <span class="op">|</span> <span class="string">b&#39; &#39;</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::SizeLws</span>)),
+            <span class="string">b&#39;;&#39;</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::Extension</span>)),
+            <span class="string">b&#39;\r&#39;</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::SizeLf</span>)),
+            <span class="kw">_</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
                 <span class="ident">io::ErrorKind::InvalidInput</span>,
                 <span class="string">&quot;Invalid chunk size linear white space&quot;</span>,
             ))),
         }
     }
-    <span class="kw">fn</span> <span class="ident">read_extension</span>(<span class="ident">rdr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">read_extension</span>(<span class="ident">rdr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="macro">byte!</span>(<span class="ident">rdr</span>) {
-            <span class="string">b&#39;\r&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::SizeLf</span>)),
+            <span class="string">b&#39;\r&#39;</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::SizeLf</span>)),
             <span class="comment">// strictly 0x20 (space) should be disallowed but we don&#39;t parse quoted strings here</span>
-            <span class="number">0x00</span>..<span class="op">=</span><span class="number">0x08</span> <span class="op">|</span> <span class="number">0x0a</span>..<span class="op">=</span><span class="number">0x1f</span> <span class="op">|</span> <span class="number">0x7f</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
+            <span class="number">0x00</span>..<span class="op">=</span><span class="number">0x08</span> <span class="op">|</span> <span class="number">0x0a</span>..<span class="op">=</span><span class="number">0x1f</span> <span class="op">|</span> <span class="number">0x7f</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
                 <span class="ident">io::ErrorKind::InvalidInput</span>,
                 <span class="string">&quot;Invalid character in chunk extension&quot;</span>,
             ))),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::Extension</span>)), <span class="comment">// no supported extensions</span>
+            <span class="kw">_</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::Extension</span>)), <span class="comment">// no supported extensions</span>
         }
     }
     <span class="kw">fn</span> <span class="ident">read_size_lf</span>(
         <span class="ident">rdr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>,
         <span class="ident">size</span>: <span class="ident">u64</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="macro">byte!</span>(<span class="ident">rdr</span>) {
-            <span class="string">b&#39;\n&#39;</span> <span class="kw">if</span> <span class="ident">size</span> <span class="op">&gt;</span> <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::Body</span>)),
-            <span class="string">b&#39;\n&#39;</span> <span class="kw">if</span> <span class="ident">size</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::EndCr</span>)),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
+            <span class="string">b&#39;\n&#39;</span> <span class="kw">if</span> <span class="ident">size</span> <span class="op">&gt;</span> <span class="number">0</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::Body</span>)),
+            <span class="string">b&#39;\n&#39;</span> <span class="kw">if</span> <span class="ident">size</span> <span class="op">==</span> <span class="number">0</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::EndCr</span>)),
+            <span class="kw">_</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
                 <span class="ident">io::ErrorKind::InvalidInput</span>,
                 <span class="string">&quot;Invalid chunk size LF&quot;</span>,
             ))),
@@ -561,11 +561,11 @@
         <span class="ident">rdr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>,
         <span class="ident">rem</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">u64</span>,
         <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="macro">log::trace!</span>(<span class="string">&quot;Chunked read, remaining={:?}&quot;</span>, <span class="ident">rem</span>);
 
         <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">rdr</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>;
-        <span class="kw">if</span> <span class="ident">len</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+        <span class="kw">if</span> <span class="ident">len</span> <span class="op">==</span> <span class="number">0</span> {
             <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::Body</span>))
         } <span class="kw">else</span> {
             <span class="kw">let</span> <span class="ident">slice</span>;
@@ -585,37 +585,37 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">read_body_cr</span>(<span class="ident">rdr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">read_body_cr</span>(<span class="ident">rdr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="macro">byte!</span>(<span class="ident">rdr</span>) {
-            <span class="string">b&#39;\r&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::BodyLf</span>)),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
+            <span class="string">b&#39;\r&#39;</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::BodyLf</span>)),
+            <span class="kw">_</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
                 <span class="ident">io::ErrorKind::InvalidInput</span>,
                 <span class="string">&quot;Invalid chunk body CR&quot;</span>,
             ))),
         }
     }
-    <span class="kw">fn</span> <span class="ident">read_body_lf</span>(<span class="ident">rdr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">read_body_lf</span>(<span class="ident">rdr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="macro">byte!</span>(<span class="ident">rdr</span>) {
-            <span class="string">b&#39;\n&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::Size</span>)),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
+            <span class="string">b&#39;\n&#39;</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::Size</span>)),
+            <span class="kw">_</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
                 <span class="ident">io::ErrorKind::InvalidInput</span>,
                 <span class="string">&quot;Invalid chunk body LF&quot;</span>,
             ))),
         }
     }
-    <span class="kw">fn</span> <span class="ident">read_end_cr</span>(<span class="ident">rdr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">read_end_cr</span>(<span class="ident">rdr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="macro">byte!</span>(<span class="ident">rdr</span>) {
-            <span class="string">b&#39;\r&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::EndLf</span>)),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
+            <span class="string">b&#39;\r&#39;</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::EndLf</span>)),
+            <span class="kw">_</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
                 <span class="ident">io::ErrorKind::InvalidInput</span>,
                 <span class="string">&quot;Invalid chunk end CR&quot;</span>,
             ))),
         }
     }
-    <span class="kw">fn</span> <span class="ident">read_end_lf</span>(<span class="ident">rdr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">read_end_lf</span>(<span class="ident">rdr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="macro">byte!</span>(<span class="ident">rdr</span>) {
-            <span class="string">b&#39;\n&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::End</span>)),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
+            <span class="string">b&#39;\n&#39;</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::End</span>)),
+            <span class="kw">_</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
                 <span class="ident">io::ErrorKind::InvalidInput</span>,
                 <span class="string">&quot;Invalid chunk end LF&quot;</span>,
             ))),
@@ -636,23 +636,23 @@
     };
 
     <span class="macro">macro_rules!</span> <span class="ident">parse_ready</span> {
-        (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+        (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>:<span class="ident">expr</span>) =&gt; {{
             <span class="kw">match</span> <span class="ident">MessageDecoder</span>::<span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span><span class="ident">::default</span>().<span class="ident">decode</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>) {
-                <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((<span class="ident">msg</span>, <span class="kw">_</span>))) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">msg</span>,
-                <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(<span class="string">&quot;Eof during parsing http request&quot;</span>),
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(<span class="string">&quot;Error during parsing http request: {:?}&quot;</span>, <span class="ident">err</span>),
+                <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((<span class="ident">msg</span>, <span class="kw">_</span>))) =&gt; <span class="ident">msg</span>,
+                <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Eof during parsing http request&quot;</span>),
+                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Error during parsing http request: {:?}&quot;</span>, <span class="ident">err</span>),
             }
         }};
     }
 
     <span class="macro">macro_rules!</span> <span class="ident">expect_parse_err</span> {
-        (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+        (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>:<span class="ident">expr</span>) =&gt; {{
             <span class="kw">match</span> <span class="ident">MessageDecoder</span>::<span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span><span class="ident">::default</span>().<span class="ident">decode</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>) {
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">err</span> {
-                    <span class="ident">ParseError::Io</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(<span class="string">&quot;Parse error expected&quot;</span>),
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="kw">match</span> <span class="ident">err</span> {
+                    <span class="ident">ParseError::Io</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Parse error expected&quot;</span>),
+                    <span class="kw">_</span> =&gt; {}
                 },
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(<span class="string">&quot;Error expected&quot;</span>),
+                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Error expected&quot;</span>),
             }
         }};
     }

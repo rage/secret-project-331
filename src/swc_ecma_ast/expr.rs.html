@@ -1140,11 +1140,11 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Spanned</span> <span class="kw">for</span> <span class="ident">ExprOrSpread</span> {
-    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
+    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
         <span class="kw">let</span> <span class="ident">expr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expr</span>.<span class="ident">span</span>();
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">spread</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">spread</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">expr</span>.<span class="ident">with_lo</span>(<span class="ident">spread</span>.<span class="ident">lo</span>()),
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">expr</span>,
+            <span class="prelude-val">Some</span>(<span class="ident">spread</span>) =&gt; <span class="ident">expr</span>.<span class="ident">with_lo</span>(<span class="ident">spread</span>.<span class="ident">lo</span>()),
+            <span class="prelude-val">None</span> =&gt; <span class="ident">expr</span>,
         }
     }
 }
@@ -1207,7 +1207,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Expr</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">value</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">value</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">Expr::Lit</span>(<span class="ident">Lit::Bool</span>(<span class="ident">Bool</span> {
             <span class="ident">span</span>: <span class="ident">DUMMY_SP</span>,
             <span class="ident">value</span>,
@@ -1216,7 +1216,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Expr</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">value</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">value</span>: <span class="ident">f64</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">Expr::Lit</span>(<span class="ident">Lit::Num</span>(<span class="ident">Number</span> {
             <span class="ident">span</span>: <span class="ident">DUMMY_SP</span>,
             <span class="ident">value</span>,
@@ -1225,19 +1225,19 @@
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Bool</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Expr</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">v</span>: <span class="ident">Bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">v</span>: <span class="ident">Bool</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">Expr::Lit</span>(<span class="ident">Lit::Bool</span>(<span class="ident">v</span>))
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Number</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Expr</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">v</span>: <span class="ident">Number</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">v</span>: <span class="ident">Number</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">Expr::Lit</span>(<span class="ident">Lit::Num</span>(<span class="ident">v</span>))
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Str</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Expr</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">v</span>: <span class="ident">Str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">v</span>: <span class="ident">Str</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">Expr::Lit</span>(<span class="ident">Lit::Str</span>(<span class="ident">v</span>))
     }
 }

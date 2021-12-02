@@ -287,10 +287,10 @@
 }
 
 <span class="kw">impl</span> <span class="ident">PgStream</span> {
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">connect</span>(<span class="ident">options</span>: <span class="kw-2">&amp;</span><span class="ident">PgConnectOptions</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">connect</span>(<span class="ident">options</span>: <span class="kw-2">&amp;</span><span class="ident">PgConnectOptions</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">socket</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">options</span>.<span class="ident">fetch_socket</span>() {
-            <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Socket::connect_uds</span>(<span class="ident">path</span>).<span class="kw">await</span><span class="question-mark">?</span>,
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Socket::connect_tcp</span>(<span class="kw-2">&amp;</span><span class="ident">options</span>.<span class="ident">host</span>, <span class="ident">options</span>.<span class="ident">port</span>).<span class="kw">await</span><span class="question-mark">?</span>,
+            <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">path</span>) =&gt; <span class="ident">Socket::connect_uds</span>(<span class="ident">path</span>).<span class="kw">await</span><span class="question-mark">?</span>,
+            <span class="prelude-val">None</span> =&gt; <span class="ident">Socket::connect_tcp</span>(<span class="kw-2">&amp;</span><span class="ident">options</span>.<span class="ident">host</span>, <span class="ident">options</span>.<span class="ident">port</span>).<span class="kw">await</span><span class="question-mark">?</span>,
         };
 
         <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">BufStream::new</span>(<span class="ident">MaybeTlsStream::Raw</span>(<span class="ident">socket</span>));
@@ -303,7 +303,7 @@
         })
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">send</span><span class="op">&lt;</span><span class="lifetime">&#39;en</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">message</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">send</span><span class="op">&lt;</span><span class="lifetime">&#39;en</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">message</span>: <span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Encode</span><span class="op">&lt;</span><span class="lifetime">&#39;en</span><span class="op">&gt;</span>,
     {
@@ -315,7 +315,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">recv_expect</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, <span class="ident">T</span>: <span class="ident">Decode</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">format</span>: <span class="ident">MessageFormat</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">recv</span>().<span class="kw">await</span><span class="question-mark">?</span>;
 
         <span class="kw">if</span> <span class="ident">message</span>.<span class="ident">format</span> <span class="op">!</span><span class="op">=</span> <span class="ident">format</span> {
@@ -329,7 +329,7 @@
         <span class="ident">message</span>.<span class="ident">decode</span>()
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">recv_unchecked</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Message</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">recv_unchecked</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Message</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="comment">// all packets in postgres start with a 5-byte header</span>
         <span class="comment">// this header contains the message type and the total length of the message</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">header</span>: <span class="ident">Bytes</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">read</span>(<span class="number">5</span>).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -344,17 +344,17 @@
 
     <span class="comment">// Get the next message from the server</span>
     <span class="comment">// May wait for more data from the server</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">recv</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Message</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">recv</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Message</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">loop</span> {
             <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">recv_unchecked</span>().<span class="kw">await</span><span class="question-mark">?</span>;
 
             <span class="kw">match</span> <span class="ident">message</span>.<span class="ident">format</span> {
-                <span class="ident">MessageFormat::ErrorResponse</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">MessageFormat::ErrorResponse</span> =&gt; {
                     <span class="comment">// An error returned from the database server.</span>
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">PgDatabaseError</span>(<span class="ident">message</span>.<span class="ident">decode</span>()<span class="question-mark">?</span>).<span class="ident">into</span>());
                 }
 
-                <span class="ident">MessageFormat::NotificationResponse</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">MessageFormat::NotificationResponse</span> =&gt; {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">buffer</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">notifications</span> {
                         <span class="kw">let</span> <span class="ident">notification</span>: <span class="ident">Notification</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">decode</span>()<span class="question-mark">?</span>;
                         <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">buffer</span>.<span class="ident">send</span>(<span class="ident">notification</span>).<span class="kw">await</span>;
@@ -363,7 +363,7 @@
                     }
                 }
 
-                <span class="ident">MessageFormat::ParameterStatus</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">MessageFormat::ParameterStatus</span> =&gt; {
                     <span class="comment">// informs the frontend about the current (initial)</span>
                     <span class="comment">// setting of backend parameters</span>
 
@@ -371,10 +371,10 @@
                     <span class="comment">// TODO: handle `client_encoding`, `DateStyle` change</span>
 
                     <span class="kw">match</span> <span class="ident">name</span>.<span class="ident">as_str</span>() {
-                        <span class="string">&quot;server_version&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="string">&quot;server_version&quot;</span> =&gt; {
                             <span class="self">self</span>.<span class="ident">server_version_num</span> <span class="op">=</span> <span class="ident">parse_server_version</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>);
                         }
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="kw">_</span> =&gt; {
                             <span class="self">self</span>.<span class="ident">parameter_statuses</span>.<span class="ident">insert</span>(<span class="ident">name</span>, <span class="ident">value</span>);
                         }
                     }
@@ -382,19 +382,19 @@
                     <span class="kw">continue</span>;
                 }
 
-                <span class="ident">MessageFormat::NoticeResponse</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">MessageFormat::NoticeResponse</span> =&gt; {
                     <span class="comment">// do we need this to be more configurable?</span>
                     <span class="comment">// if you are reading this comment and think so, open an issue</span>
 
                     <span class="kw">let</span> <span class="ident">notice</span>: <span class="ident">Notice</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">decode</span>()<span class="question-mark">?</span>;
 
                     <span class="kw">let</span> <span class="ident">lvl</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">notice</span>.<span class="ident">severity</span>() {
-                        <span class="ident">PgSeverity::Fatal</span> <span class="op">|</span> <span class="ident">PgSeverity::Panic</span> <span class="op">|</span> <span class="ident">PgSeverity::Error</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Level::Error</span>,
-                        <span class="ident">PgSeverity::Warning</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Level::Warn</span>,
-                        <span class="ident">PgSeverity::Notice</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Level::Info</span>,
-                        <span class="ident">PgSeverity::Debug</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Level::Debug</span>,
-                        <span class="ident">PgSeverity::Info</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Level::Trace</span>,
-                        <span class="ident">PgSeverity::Log</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Level::Trace</span>,
+                        <span class="ident">PgSeverity::Fatal</span> <span class="op">|</span> <span class="ident">PgSeverity::Panic</span> <span class="op">|</span> <span class="ident">PgSeverity::Error</span> =&gt; <span class="ident">Level::Error</span>,
+                        <span class="ident">PgSeverity::Warning</span> =&gt; <span class="ident">Level::Warn</span>,
+                        <span class="ident">PgSeverity::Notice</span> =&gt; <span class="ident">Level::Info</span>,
+                        <span class="ident">PgSeverity::Debug</span> =&gt; <span class="ident">Level::Debug</span>,
+                        <span class="ident">PgSeverity::Info</span> =&gt; <span class="ident">Level::Trace</span>,
+                        <span class="ident">PgSeverity::Log</span> =&gt; <span class="ident">Level::Trace</span>,
                     };
 
                     <span class="kw">if</span> <span class="ident">lvl</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">log::STATIC_MAX_LEVEL</span> <span class="op">&amp;&amp;</span> <span class="ident">lvl</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">log::max_level</span>() {
@@ -412,7 +412,7 @@
                     <span class="kw">continue</span>;
                 }
 
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+                <span class="kw">_</span> =&gt; {}
             }
 
             <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">message</span>);
@@ -424,28 +424,28 @@
     <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">BufStream</span><span class="op">&lt;</span><span class="ident">MaybeTlsStream</span><span class="op">&lt;</span><span class="ident">Socket</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Target</span> {
+    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Target</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>
     }
 }
 
 <span class="kw">impl</span> <span class="ident">DerefMut</span> <span class="kw">for</span> <span class="ident">PgStream</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident"><span class="self">Self</span>::Target</span> {
+    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident"><span class="self">Self</span>::Target</span> {
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">inner</span>
     }
 }
 
 <span class="comment">// reference:</span>
 <span class="comment">// https://github.com/postgres/postgres/blob/6feebcb6b44631c3dc435e971bd80c2dd218a5ab/src/interfaces/libpq/fe-exec.c#L1030-L1065</span>
-<span class="kw">fn</span> <span class="ident">parse_server_version</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">parse_server_version</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="ident">::with_capacity</span>(<span class="number">3</span>);
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">from</span> <span class="op">=</span> <span class="number">0</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">chs</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">char_indices</span>().<span class="ident">peekable</span>();
     <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">i</span>, <span class="ident">ch</span>)) <span class="op">=</span> <span class="ident">chs</span>.<span class="ident">next</span>() {
         <span class="kw">match</span> <span class="ident">ch</span> {
-            <span class="string">&#39;.&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">&#39;.&#39;</span> =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">num</span>) <span class="op">=</span> <span class="ident">u32::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>[<span class="ident">from</span>..<span class="ident">i</span>]) {
                     <span class="ident">parts</span>.<span class="ident">push</span>(<span class="ident">num</span>);
                     <span class="ident">from</span> <span class="op">=</span> <span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>;
@@ -453,7 +453,7 @@
                     <span class="kw">break</span>;
                 }
             }
-            <span class="kw">_</span> <span class="kw">if</span> <span class="ident">ch</span>.<span class="ident">is_digit</span>(<span class="number">10</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="kw">_</span> <span class="kw">if</span> <span class="ident">ch</span>.<span class="ident">is_digit</span>(<span class="number">10</span>) =&gt; {
                 <span class="kw">if</span> <span class="ident">chs</span>.<span class="ident">peek</span>().<span class="ident">is_none</span>() {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">num</span>) <span class="op">=</span> <span class="ident">u32::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>[<span class="ident">from</span>..]) {
                         <span class="ident">parts</span>.<span class="ident">push</span>(<span class="ident">num</span>);
@@ -461,7 +461,7 @@
                     <span class="kw">break</span>;
                 }
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="kw">_</span> =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">num</span>) <span class="op">=</span> <span class="ident">u32::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>[<span class="ident">from</span>..<span class="ident">i</span>]) {
                     <span class="ident">parts</span>.<span class="ident">push</span>(<span class="ident">num</span>);
                 }
@@ -471,11 +471,11 @@
     }
 
     <span class="kw">let</span> <span class="ident">version_num</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">parts</span>.<span class="ident">as_slice</span>() {
-        [<span class="ident">major</span>, <span class="ident">minor</span>, <span class="ident">rev</span>] <span class="op">=</span><span class="op">&gt;</span> (<span class="number">100</span> <span class="op">*</span> <span class="ident">major</span> <span class="op">+</span> <span class="ident">minor</span>) <span class="op">*</span> <span class="number">100</span> <span class="op">+</span> <span class="ident">rev</span>,
-        [<span class="ident">major</span>, <span class="ident">minor</span>] <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">major</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">10</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">100</span> <span class="op">*</span> <span class="number">100</span> <span class="op">*</span> <span class="ident">major</span> <span class="op">+</span> <span class="ident">minor</span>,
-        [<span class="ident">major</span>, <span class="ident">minor</span>] <span class="op">=</span><span class="op">&gt;</span> (<span class="number">100</span> <span class="op">*</span> <span class="ident">major</span> <span class="op">+</span> <span class="ident">minor</span>) <span class="op">*</span> <span class="number">100</span>,
-        [<span class="ident">major</span>] <span class="op">=</span><span class="op">&gt;</span> <span class="number">100</span> <span class="op">*</span> <span class="number">100</span> <span class="op">*</span> <span class="ident">major</span>,
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">None</span>,
+        [<span class="ident">major</span>, <span class="ident">minor</span>, <span class="ident">rev</span>] =&gt; (<span class="number">100</span> <span class="op">*</span> <span class="ident">major</span> <span class="op">+</span> <span class="ident">minor</span>) <span class="op">*</span> <span class="number">100</span> <span class="op">+</span> <span class="ident">rev</span>,
+        [<span class="ident">major</span>, <span class="ident">minor</span>] <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">major</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">10</span> =&gt; <span class="number">100</span> <span class="op">*</span> <span class="number">100</span> <span class="op">*</span> <span class="ident">major</span> <span class="op">+</span> <span class="ident">minor</span>,
+        [<span class="ident">major</span>, <span class="ident">minor</span>] =&gt; (<span class="number">100</span> <span class="op">*</span> <span class="ident">major</span> <span class="op">+</span> <span class="ident">minor</span>) <span class="op">*</span> <span class="number">100</span>,
+        [<span class="ident">major</span>] =&gt; <span class="number">100</span> <span class="op">*</span> <span class="number">100</span> <span class="op">*</span> <span class="ident">major</span>,
+        <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">None</span>,
     };
 
     <span class="prelude-val">Some</span>(<span class="ident">version_num</span>)

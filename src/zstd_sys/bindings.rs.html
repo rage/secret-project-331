@@ -1407,12 +1407,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_versionNumber() :&quot;</span>]</span>
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Return runtime library version, the value is (MAJOR*100*100 + MINOR*100 + RELEASE).&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_versionNumber</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">libc::c_uint</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_versionNumber</span>() -&gt; <span class="ident">libc::c_uint</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_versionString() :&quot;</span>]</span>
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Return runtime library version, like \&quot;1.4.5\&quot;. Requires v1.3.0+.&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_versionString</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">libc::c_char</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_versionString</span>() -&gt; <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">libc::c_char</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Simple API&quot;</span>]</span>
@@ -1426,7 +1426,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <span class="ident">src</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">libc::c_void</span>,
         <span class="ident">srcSize</span>: <span class="ident">usize</span>,
         <span class="ident">compressionLevel</span>: <span class="ident">libc::c_int</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    ) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_decompress() :&quot;</span>]</span>
@@ -1440,13 +1440,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <span class="ident">dstCapacity</span>: <span class="ident">usize</span>,
         <span class="ident">src</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">libc::c_void</span>,
         <span class="ident">compressedSize</span>: <span class="ident">usize</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    ) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_getFrameContentSize</span>(
         <span class="ident">src</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">libc::c_void</span>,
         <span class="ident">srcSize</span>: <span class="ident">usize</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">libc::c_ulonglong</span>;
+    ) -&gt; <span class="ident">libc::c_ulonglong</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_getDecompressedSize() :&quot;</span>]</span>
@@ -1458,7 +1458,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_getDecompressedSize</span>(
         <span class="ident">src</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">libc::c_void</span>,
         <span class="ident">srcSize</span>: <span class="ident">usize</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">libc::c_ulonglong</span>;
+    ) -&gt; <span class="ident">libc::c_ulonglong</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_findFrameCompressedSize() :&quot;</span>]</span>
@@ -1470,22 +1470,22 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_findFrameCompressedSize</span>(
         <span class="ident">src</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">libc::c_void</span>,
         <span class="ident">srcSize</span>: <span class="ident">usize</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    ) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_compressBound</span>(<span class="ident">srcSize</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_compressBound</span>(<span class="ident">srcSize</span>: <span class="ident">usize</span>) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_isError</span>(<span class="ident">code</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">libc::c_uint</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_isError</span>(<span class="ident">code</span>: <span class="ident">usize</span>) -&gt; <span class="ident">libc::c_uint</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_getErrorName</span>(<span class="ident">code</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">libc::c_char</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_getErrorName</span>(<span class="ident">code</span>: <span class="ident">usize</span>) -&gt; <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">libc::c_char</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_minCLevel</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">libc::c_int</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_minCLevel</span>() -&gt; <span class="ident">libc::c_int</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_maxCLevel</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">libc::c_int</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_maxCLevel</span>() -&gt; <span class="ident">libc::c_int</span>;
 }
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
@@ -1495,10 +1495,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Explicit context&quot;</span>]</span>
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ZSTD_CCtx</span> <span class="op">=</span> <span class="ident">ZSTD_CCtx_s</span>;
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_createCCtx</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_CCtx</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_createCCtx</span>() -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_CCtx</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_freeCCtx</span>(<span class="ident">cctx</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_CCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_freeCCtx</span>(<span class="ident">cctx</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_CCtx</span>) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_compressCCtx() :&quot;</span>]</span>
@@ -1515,7 +1515,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <span class="ident">src</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">libc::c_void</span>,
         <span class="ident">srcSize</span>: <span class="ident">usize</span>,
         <span class="ident">compressionLevel</span>: <span class="ident">libc::c_int</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    ) -&gt; <span class="ident">usize</span>;
 }
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
@@ -1524,10 +1524,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 }
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ZSTD_DCtx</span> <span class="op">=</span> <span class="ident">ZSTD_DCtx_s</span>;
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_createDCtx</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_DCtx</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_createDCtx</span>() -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_DCtx</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_freeDCtx</span>(<span class="ident">dctx</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_DCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_freeDCtx</span>(<span class="ident">dctx</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_DCtx</span>) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_decompressDCtx() :&quot;</span>]</span>
@@ -1540,7 +1540,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <span class="ident">dstCapacity</span>: <span class="ident">usize</span>,
         <span class="ident">src</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">libc::c_void</span>,
         <span class="ident">srcSize</span>: <span class="ident">usize</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    ) -&gt; <span class="ident">usize</span>;
 }
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">u32</span>)]</span>
 <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Advanced compression API&quot;</span>]</span>
@@ -1656,7 +1656,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; @return : a structure, ZSTD_bounds, which contains&quot;</span>]</span>
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;         - an error status field, which must be tested using ZSTD_isError()&quot;</span>]</span>
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;         - lower and upper bounds, both inclusive&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_cParam_getBounds</span>(<span class="ident">cParam</span>: <span class="ident">ZSTD_cParameter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ZSTD_bounds</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_cParam_getBounds</span>(<span class="ident">cParam</span>: <span class="ident">ZSTD_cParameter</span>) -&gt; <span class="ident">ZSTD_bounds</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_CCtx_setParameter() :&quot;</span>]</span>
@@ -1673,7 +1673,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <span class="ident">cctx</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_CCtx</span>,
         <span class="ident">param</span>: <span class="ident">ZSTD_cParameter</span>,
         <span class="ident">value</span>: <span class="ident">libc::c_int</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    ) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_CCtx_setPledgedSrcSize() :&quot;</span>]</span>
@@ -1693,7 +1693,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_CCtx_setPledgedSrcSize</span>(
         <span class="ident">cctx</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_CCtx</span>,
         <span class="ident">pledgedSrcSize</span>: <span class="ident">libc::c_ulonglong</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    ) -&gt; <span class="ident">usize</span>;
 }
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">u32</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
@@ -1719,7 +1719,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_CCtx_reset</span>(
         <span class="ident">cctx</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_CCtx</span>,
         <span class="ident">reset</span>: <span class="ident">ZSTD_ResetDirective</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    ) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_compress2() :&quot;</span>]</span>
@@ -1737,7 +1737,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <span class="ident">dstCapacity</span>: <span class="ident">usize</span>,
         <span class="ident">src</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">libc::c_void</span>,
         <span class="ident">srcSize</span>: <span class="ident">usize</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    ) -&gt; <span class="ident">usize</span>;
 }
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">u32</span>)]</span>
 <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Advanced decompression API&quot;</span>]</span>
@@ -1756,7 +1756,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; @return : a structure, ZSTD_bounds, which contains&quot;</span>]</span>
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;         - an error status field, which must be tested using ZSTD_isError()&quot;</span>]</span>
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;         - both lower and upper bounds, inclusive&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_dParam_getBounds</span>(<span class="ident">dParam</span>: <span class="ident">ZSTD_dParameter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ZSTD_bounds</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_dParam_getBounds</span>(<span class="ident">dParam</span>: <span class="ident">ZSTD_dParameter</span>) -&gt; <span class="ident">ZSTD_bounds</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_DCtx_setParameter() :&quot;</span>]</span>
@@ -1769,7 +1769,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <span class="ident">dctx</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_DCtx</span>,
         <span class="ident">param</span>: <span class="ident">ZSTD_dParameter</span>,
         <span class="ident">value</span>: <span class="ident">libc::c_int</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    ) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_DCtx_reset() :&quot;</span>]</span>
@@ -1780,7 +1780,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_DCtx_reset</span>(
         <span class="ident">dctx</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_DCtx</span>,
         <span class="ident">reset</span>: <span class="ident">ZSTD_ResetDirective</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    ) -&gt; <span class="ident">usize</span>;
 }
 <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Streaming&quot;</span>]</span>
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
@@ -1912,10 +1912,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ZSTD_outBuffer</span> <span class="op">=</span> <span class="ident">ZSTD_outBuffer_s</span>;
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ZSTD_CStream</span> <span class="op">=</span> <span class="ident">ZSTD_CCtx</span>;
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_createCStream</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_CStream</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_createCStream</span>() -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_CStream</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_freeCStream</span>(<span class="ident">zcs</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_CStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_freeCStream</span>(<span class="ident">zcs</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_CStream</span>) -&gt; <span class="ident">usize</span>;
 }
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">u32</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
@@ -1951,13 +1951,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <span class="ident">output</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_outBuffer</span>,
         <span class="ident">input</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_inBuffer</span>,
         <span class="ident">endOp</span>: <span class="ident">ZSTD_EndDirective</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    ) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_CStreamInSize</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_CStreamInSize</span>() -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_CStreamOutSize</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_CStreamOutSize</span>() -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; Equivalent to:&quot;</span>]</span>
@@ -1968,7 +1968,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_initCStream</span>(
         <span class="ident">zcs</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_CStream</span>,
         <span class="ident">compressionLevel</span>: <span class="ident">libc::c_int</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    ) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; Alternative for ZSTD_compressStream2(zcs, output, input, ZSTD_e_continue).&quot;</span>]</span>
@@ -1979,44 +1979,44 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <span class="ident">zcs</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_CStream</span>,
         <span class="ident">output</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_outBuffer</span>,
         <span class="ident">input</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_inBuffer</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    ) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; Equivalent to ZSTD_compressStream2(zcs, output, &amp;emptyInput, ZSTD_e_flush).&quot;</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_flushStream</span>(
         <span class="ident">zcs</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_CStream</span>,
         <span class="ident">output</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_outBuffer</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    ) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; Equivalent to ZSTD_compressStream2(zcs, output, &amp;emptyInput, ZSTD_e_end).&quot;</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_endStream</span>(
         <span class="ident">zcs</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_CStream</span>,
         <span class="ident">output</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_outBuffer</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    ) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ZSTD_DStream</span> <span class="op">=</span> <span class="ident">ZSTD_DCtx</span>;
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_createDStream</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_DStream</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_createDStream</span>() -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_DStream</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_freeDStream</span>(<span class="ident">zds</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_DStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_freeDStream</span>(<span class="ident">zds</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_DStream</span>) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_initDStream</span>(<span class="ident">zds</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_DStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_initDStream</span>(<span class="ident">zds</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_DStream</span>) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_decompressStream</span>(
         <span class="ident">zds</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_DStream</span>,
         <span class="ident">output</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_outBuffer</span>,
         <span class="ident">input</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_inBuffer</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    ) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_DStreamInSize</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_DStreamInSize</span>() -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_DStreamOutSize</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_DStreamOutSize</span>() -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Simple dictionary API&quot;</span>]</span>
@@ -2035,7 +2035,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <span class="ident">dict</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">libc::c_void</span>,
         <span class="ident">dictSize</span>: <span class="ident">usize</span>,
         <span class="ident">compressionLevel</span>: <span class="ident">libc::c_int</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    ) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_decompress_usingDict() :&quot;</span>]</span>
@@ -2052,7 +2052,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <span class="ident">srcSize</span>: <span class="ident">usize</span>,
         <span class="ident">dict</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">libc::c_void</span>,
         <span class="ident">dictSize</span>: <span class="ident">usize</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    ) -&gt; <span class="ident">usize</span>;
 }
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
@@ -2078,12 +2078,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <span class="ident">dictBuffer</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">libc::c_void</span>,
         <span class="ident">dictSize</span>: <span class="ident">usize</span>,
         <span class="ident">compressionLevel</span>: <span class="ident">libc::c_int</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_CDict</span>;
+    ) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_CDict</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_freeCDict() :&quot;</span>]</span>
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Function frees memory allocated by ZSTD_createCDict().&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_freeCDict</span>(<span class="ident">CDict</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_CDict</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_freeCDict</span>(<span class="ident">CDict</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_CDict</span>) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_compress_usingCDict() :&quot;</span>]</span>
@@ -2098,7 +2098,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <span class="ident">src</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">libc::c_void</span>,
         <span class="ident">srcSize</span>: <span class="ident">usize</span>,
         <span class="ident">cdict</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ZSTD_CDict</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    ) -&gt; <span class="ident">usize</span>;
 }
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
@@ -2113,12 +2113,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_createDDict</span>(
         <span class="ident">dictBuffer</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">libc::c_void</span>,
         <span class="ident">dictSize</span>: <span class="ident">usize</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_DDict</span>;
+    ) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_DDict</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_freeDDict() :&quot;</span>]</span>
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Function frees memory allocated with ZSTD_createDDict()&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_freeDDict</span>(<span class="ident">ddict</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_DDict</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_freeDDict</span>(<span class="ident">ddict</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_DDict</span>) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_decompress_usingDDict() :&quot;</span>]</span>
@@ -2131,7 +2131,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <span class="ident">src</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">libc::c_void</span>,
         <span class="ident">srcSize</span>: <span class="ident">usize</span>,
         <span class="ident">ddict</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ZSTD_DDict</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    ) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_getDictID_fromDict() :&quot;</span>]</span>
@@ -2141,14 +2141,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_getDictID_fromDict</span>(
         <span class="ident">dict</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">libc::c_void</span>,
         <span class="ident">dictSize</span>: <span class="ident">usize</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">libc::c_uint</span>;
+    ) -&gt; <span class="ident">libc::c_uint</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_getDictID_fromDDict() :&quot;</span>]</span>
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Provides the dictID of the dictionary loaded into `ddict`.&quot;</span>]</span>
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  If @return == 0, the dictionary is not conformant to Zstandard specification, or empty.&quot;</span>]</span>
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Non-conformant dictionaries can still be loaded, but as content-only dictionaries.&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_getDictID_fromDDict</span>(<span class="ident">ddict</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ZSTD_DDict</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">libc::c_uint</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_getDictID_fromDDict</span>(<span class="ident">ddict</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ZSTD_DDict</span>) -&gt; <span class="ident">libc::c_uint</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_getDictID_fromFrame() :&quot;</span>]</span>
@@ -2164,7 +2164,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_getDictID_fromFrame</span>(
         <span class="ident">src</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">libc::c_void</span>,
         <span class="ident">srcSize</span>: <span class="ident">usize</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">libc::c_uint</span>;
+    ) -&gt; <span class="ident">libc::c_uint</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_CCtx_loadDictionary() :&quot;</span>]</span>
@@ -2188,7 +2188,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <span class="ident">cctx</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_CCtx</span>,
         <span class="ident">dict</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">libc::c_void</span>,
         <span class="ident">dictSize</span>: <span class="ident">usize</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    ) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_CCtx_refCDict() :&quot;</span>]</span>
@@ -2206,7 +2206,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_CCtx_refCDict</span>(
         <span class="ident">cctx</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_CCtx</span>,
         <span class="ident">cdict</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ZSTD_CDict</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    ) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_CCtx_refPrefix() :&quot;</span>]</span>
@@ -2231,7 +2231,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <span class="ident">cctx</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_CCtx</span>,
         <span class="ident">prefix</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">libc::c_void</span>,
         <span class="ident">prefixSize</span>: <span class="ident">usize</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    ) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_DCtx_loadDictionary() :&quot;</span>]</span>
@@ -2252,7 +2252,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <span class="ident">dctx</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_DCtx</span>,
         <span class="ident">dict</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">libc::c_void</span>,
         <span class="ident">dictSize</span>: <span class="ident">usize</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    ) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_DCtx_refDDict() :&quot;</span>]</span>
@@ -2273,7 +2273,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_DCtx_refDDict</span>(
         <span class="ident">dctx</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_DCtx</span>,
         <span class="ident">ddict</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ZSTD_DDict</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    ) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_DCtx_refPrefix() :&quot;</span>]</span>
@@ -2295,28 +2295,28 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <span class="ident">dctx</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ZSTD_DCtx</span>,
         <span class="ident">prefix</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">libc::c_void</span>,
         <span class="ident">prefixSize</span>: <span class="ident">usize</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    ) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_sizeof_*() :&quot;</span>]</span>
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  These functions give the _current_ memory usage of selected object.&quot;</span>]</span>
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note that object memory usage can evolve (increase or decrease) over time.&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_sizeof_CCtx</span>(<span class="ident">cctx</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ZSTD_CCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_sizeof_CCtx</span>(<span class="ident">cctx</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ZSTD_CCtx</span>) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_sizeof_DCtx</span>(<span class="ident">dctx</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ZSTD_DCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_sizeof_DCtx</span>(<span class="ident">dctx</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ZSTD_DCtx</span>) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_sizeof_CStream</span>(<span class="ident">zcs</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ZSTD_CStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_sizeof_CStream</span>(<span class="ident">zcs</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ZSTD_CStream</span>) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_sizeof_DStream</span>(<span class="ident">zds</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ZSTD_DStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_sizeof_DStream</span>(<span class="ident">zds</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ZSTD_DStream</span>) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_sizeof_CDict</span>(<span class="ident">cdict</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ZSTD_CDict</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_sizeof_CDict</span>(<span class="ident">cdict</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ZSTD_CDict</span>) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_sizeof_DDict</span>(<span class="ident">ddict</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ZSTD_DDict</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_sizeof_DDict</span>(<span class="ident">ddict</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ZSTD_DDict</span>) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZDICT_trainFromBuffer():&quot;</span>]</span>
@@ -2344,7 +2344,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <span class="ident">samplesBuffer</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">libc::c_void</span>,
         <span class="ident">samplesSizes</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">usize</span>,
         <span class="ident">nbSamples</span>: <span class="ident">libc::c_uint</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    ) -&gt; <span class="ident">usize</span>;
 }
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
@@ -2450,25 +2450,25 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <span class="ident">samplesSizes</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">usize</span>,
         <span class="ident">nbSamples</span>: <span class="ident">libc::c_uint</span>,
         <span class="ident">parameters</span>: <span class="ident">ZDICT_params_t</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    ) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZDICT_getDictID</span>(
         <span class="ident">dictBuffer</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">libc::c_void</span>,
         <span class="ident">dictSize</span>: <span class="ident">usize</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">libc::c_uint</span>;
+    ) -&gt; <span class="ident">libc::c_uint</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZDICT_getDictHeaderSize</span>(
         <span class="ident">dictBuffer</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">libc::c_void</span>,
         <span class="ident">dictSize</span>: <span class="ident">usize</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    ) -&gt; <span class="ident">usize</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZDICT_isError</span>(<span class="ident">errorCode</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">libc::c_uint</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZDICT_isError</span>(<span class="ident">errorCode</span>: <span class="ident">usize</span>) -&gt; <span class="ident">libc::c_uint</span>;
 }
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZDICT_getErrorName</span>(<span class="ident">errorCode</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">libc::c_char</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZDICT_getErrorName</span>(<span class="ident">errorCode</span>: <span class="ident">usize</span>) -&gt; <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">libc::c_char</span>;
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="zstd_sys" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>

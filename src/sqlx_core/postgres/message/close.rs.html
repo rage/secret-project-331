@@ -50,12 +50,12 @@
         <span class="ident">buf</span>.<span class="ident">push</span>(<span class="string">b&#39;C&#39;</span>);
 
         <span class="ident">buf</span>.<span class="ident">put_length_prefixed</span>(<span class="op">|</span><span class="ident">buf</span><span class="op">|</span> <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Close::Statement</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Close::Statement</span>(<span class="ident">id</span>) =&gt; {
                 <span class="ident">buf</span>.<span class="ident">push</span>(<span class="ident">CLOSE_STATEMENT</span>);
                 <span class="ident">buf</span>.<span class="ident">put_statement_name</span>(<span class="kw-2">*</span><span class="ident">id</span>);
             }
 
-            <span class="ident">Close::Portal</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Close::Portal</span>(<span class="ident">id</span>) =&gt; {
                 <span class="ident">buf</span>.<span class="ident">push</span>(<span class="ident">CLOSE_PORTAL</span>);
                 <span class="ident">buf</span>.<span class="ident">put_portal_name</span>(<span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">id</span>));
             }

@@ -444,7 +444,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">PgConnectOptions</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::new</span>()
     }
 }
@@ -470,7 +470,7 @@
     <span class="doccomment">/// # use sqlx_core::postgres::PgConnectOptions;</span>
     <span class="doccomment">/// let options = PgConnectOptions::new();</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">port</span> <span class="op">=</span> <span class="ident">var</span>(<span class="string">&quot;PGPORT&quot;</span>)
             .<span class="ident">ok</span>()
             .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="ident">v</span>.<span class="ident">parse</span>().<span class="ident">ok</span>())
@@ -520,7 +520,7 @@
     <span class="doccomment">/// let options = PgConnectOptions::new()</span>
     <span class="doccomment">///     .host(&quot;localhost&quot;);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">host</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">host</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">host</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">host</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">host</span> <span class="op">=</span> <span class="ident">host</span>.<span class="ident">to_owned</span>();
         <span class="self">self</span>
     }
@@ -536,7 +536,7 @@
     <span class="doccomment">/// let options = PgConnectOptions::new()</span>
     <span class="doccomment">///     .port(5432);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">port</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">port</span>: <span class="ident">u16</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">port</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">port</span>: <span class="ident">u16</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">port</span> <span class="op">=</span> <span class="ident">port</span>;
         <span class="self">self</span>
     }
@@ -545,7 +545,7 @@
     <span class="doccomment">/// switching the connection method from TCP to the corresponding socket.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// By default set to `None`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">socket</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">socket</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">socket</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>.<span class="ident">as_ref</span>().<span class="ident">to_path_buf</span>());
         <span class="self">self</span>
     }
@@ -562,7 +562,7 @@
     <span class="doccomment">/// let options = PgConnectOptions::new()</span>
     <span class="doccomment">///     .username(&quot;postgres&quot;);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">username</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">username</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">username</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">username</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">username</span> <span class="op">=</span> <span class="ident">username</span>.<span class="ident">to_owned</span>();
         <span class="self">self</span>
     }
@@ -577,7 +577,7 @@
     <span class="doccomment">///     .username(&quot;root&quot;)</span>
     <span class="doccomment">///     .password(&quot;safe-and-secure&quot;);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">password</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">password</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">password</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">password</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">password</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">password</span>.<span class="ident">to_owned</span>());
         <span class="self">self</span>
     }
@@ -591,7 +591,7 @@
     <span class="doccomment">/// let options = PgConnectOptions::new()</span>
     <span class="doccomment">///     .database(&quot;postgres&quot;);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">database</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">database</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">database</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">database</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">database</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">database</span>.<span class="ident">to_owned</span>());
         <span class="self">self</span>
     }
@@ -611,7 +611,7 @@
     <span class="doccomment">/// let options = PgConnectOptions::new()</span>
     <span class="doccomment">///     .ssl_mode(PgSslMode::Require);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ssl_mode</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">mode</span>: <span class="ident">PgSslMode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ssl_mode</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">mode</span>: <span class="ident">PgSslMode</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">ssl_mode</span> <span class="op">=</span> <span class="ident">mode</span>;
         <span class="self">self</span>
     }
@@ -629,7 +629,7 @@
     <span class="doccomment">///     .ssl_mode(PgSslMode::VerifyCa)</span>
     <span class="doccomment">///     .ssl_root_cert(&quot;./ca-certificate.crt&quot;);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ssl_root_cert</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cert</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ssl_root_cert</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cert</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">ssl_root_cert</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">CertificateInput::File</span>(<span class="ident">cert</span>.<span class="ident">as_ref</span>().<span class="ident">to_path_buf</span>()));
         <span class="self">self</span>
     }
@@ -645,7 +645,7 @@
     <span class="doccomment">///     .ssl_mode(PgSslMode::VerifyCa)</span>
     <span class="doccomment">///     .ssl_root_cert_from_pem(vec![]);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ssl_root_cert_from_pem</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pem_certificate</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ssl_root_cert_from_pem</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pem_certificate</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">ssl_root_cert</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">CertificateInput::Inline</span>(<span class="ident">pem_certificate</span>));
         <span class="self">self</span>
     }
@@ -656,7 +656,7 @@
     <span class="doccomment">/// dropped.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The default cache capacity is 100 statements.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">statement_cache_capacity</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">capacity</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">statement_cache_capacity</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">capacity</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">statement_cache_capacity</span> <span class="op">=</span> <span class="ident">capacity</span>;
         <span class="self">self</span>
     }
@@ -670,29 +670,29 @@
     <span class="doccomment">/// let options = PgConnectOptions::new()</span>
     <span class="doccomment">///     .application_name(&quot;my-app&quot;);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">application_name</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">application_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">application_name</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">application_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">application_name</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">application_name</span>.<span class="ident">to_owned</span>());
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// We try using a socket if hostname starts with `/` or if socket parameter</span>
     <span class="doccomment">/// is specified.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">fetch_socket</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">fetch_socket</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">socket</span> {
-            <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">socket</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">socket</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">full_path</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}/.s.PGSQL.{}&quot;</span>, <span class="ident">socket</span>.<span class="ident">display</span>(), <span class="self">self</span>.<span class="ident">port</span>);
                 <span class="prelude-val">Some</span>(<span class="ident">full_path</span>)
             }
-            <span class="prelude-val">None</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">host</span>.<span class="ident">starts_with</span>(<span class="string">&#39;/&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">None</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">host</span>.<span class="ident">starts_with</span>(<span class="string">&#39;/&#39;</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">full_path</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}/.s.PGSQL.{}&quot;</span>, <span class="self">self</span>.<span class="ident">host</span>, <span class="self">self</span>.<span class="ident">port</span>);
                 <span class="prelude-val">Some</span>(<span class="ident">full_path</span>)
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
         }
     }
 }
 
-<span class="kw">fn</span> <span class="ident">default_host</span>(<span class="ident">port</span>: <span class="ident">u16</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">fn</span> <span class="ident">default_host</span>(<span class="ident">port</span>: <span class="ident">u16</span>) -&gt; <span class="ident">String</span> {
     <span class="comment">// try to check for the existence of a unix socket and uses that</span>
     <span class="kw">let</span> <span class="ident">socket</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;.s.PGSQL.{}&quot;</span>, <span class="ident">port</span>);
     <span class="kw">let</span> <span class="ident">candidates</span> <span class="op">=</span> [

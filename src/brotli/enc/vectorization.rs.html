@@ -56,17 +56,17 @@
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Mem256i</span> <span class="op">=</span> <span class="ident">s8</span>;
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">v256</span> <span class="op">=</span> <span class="ident">v8</span>;
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">v256i</span> <span class="op">=</span> <span class="ident">s8</span>;
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sum8</span>(<span class="ident">x</span>: <span class="ident">v256</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f32</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sum8</span>(<span class="ident">x</span>: <span class="ident">v256</span>) -&gt; <span class="ident">f32</span> {
     <span class="ident">x</span>.<span class="ident">extract</span>(<span class="number">0</span>) <span class="op">+</span> <span class="ident">x</span>.<span class="ident">extract</span>(<span class="number">1</span>) <span class="op">+</span> <span class="ident">x</span>.<span class="ident">extract</span>(<span class="number">2</span>) <span class="op">+</span> <span class="ident">x</span>.<span class="ident">extract</span>(<span class="number">3</span>) <span class="op">+</span>
         <span class="ident">x</span>.<span class="ident">extract</span>(<span class="number">4</span>) <span class="op">+</span> <span class="ident">x</span>.<span class="ident">extract</span>(<span class="number">5</span>) <span class="op">+</span> <span class="ident">x</span>.<span class="ident">extract</span>(<span class="number">6</span>) <span class="op">+</span> <span class="ident">x</span>.<span class="ident">extract</span>(<span class="number">7</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sum8i</span>(<span class="ident">x</span>: <span class="ident">v256i</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sum8i</span>(<span class="ident">x</span>: <span class="ident">v256i</span>) -&gt; <span class="ident">i32</span> {
     <span class="ident">x</span>.<span class="ident">extract</span>(<span class="number">0</span>).<span class="ident">wrapping_add</span>(<span class="ident">x</span>.<span class="ident">extract</span>(<span class="number">1</span>)).<span class="ident">wrapping_add</span>( <span class="ident">x</span>.<span class="ident">extract</span>(<span class="number">2</span>)).<span class="ident">wrapping_add</span>( <span class="ident">x</span>.<span class="ident">extract</span>(<span class="number">3</span>)).<span class="ident">wrapping_add</span>(
         <span class="ident">x</span>.<span class="ident">extract</span>(<span class="number">4</span>)).<span class="ident">wrapping_add</span>( <span class="ident">x</span>.<span class="ident">extract</span>(<span class="number">5</span>)).<span class="ident">wrapping_add</span>( <span class="ident">x</span>.<span class="ident">extract</span>(<span class="number">6</span>)).<span class="ident">wrapping_add</span>(<span class="ident">x</span>.<span class="ident">extract</span>(<span class="number">7</span>))
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">log2i</span>(<span class="ident">x</span>: <span class="ident">v256i</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">v256</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">log2i</span>(<span class="ident">x</span>: <span class="ident">v256i</span>) -&gt; <span class="ident">v256</span> {
     <span class="ident">v256::new</span>(<span class="ident">FastLog2</span>(<span class="ident">x</span>.<span class="ident">extract</span>(<span class="number">0</span>) <span class="kw">as</span> <span class="ident">u64</span>),
               <span class="ident">FastLog2</span>(<span class="ident">x</span>.<span class="ident">extract</span>(<span class="number">1</span>) <span class="kw">as</span> <span class="ident">u64</span>),
               <span class="ident">FastLog2</span>(<span class="ident">x</span>.<span class="ident">extract</span>(<span class="number">2</span>) <span class="kw">as</span> <span class="ident">u64</span>),
@@ -76,7 +76,7 @@
               <span class="ident">FastLog2</span>(<span class="ident">x</span>.<span class="ident">extract</span>(<span class="number">6</span>) <span class="kw">as</span> <span class="ident">u64</span>),
               <span class="ident">FastLog2</span>(<span class="ident">x</span>.<span class="ident">extract</span>(<span class="number">7</span>) <span class="kw">as</span> <span class="ident">u64</span>))
 }
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cast_i32_to_f32</span>(<span class="ident">x</span>: <span class="ident">v256i</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">v256</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cast_i32_to_f32</span>(<span class="ident">x</span>: <span class="ident">v256i</span>) -&gt; <span class="ident">v256</span> {
     <span class="ident">v256::new</span>(<span class="ident">x</span>.<span class="ident">extract</span>(<span class="number">0</span>) <span class="kw">as</span> <span class="ident">f32</span>,
               <span class="ident">x</span>.<span class="ident">extract</span>(<span class="number">1</span>) <span class="kw">as</span> <span class="ident">f32</span>,
               <span class="ident">x</span>.<span class="ident">extract</span>(<span class="number">2</span>) <span class="kw">as</span> <span class="ident">f32</span>,
@@ -86,7 +86,7 @@
               <span class="ident">x</span>.<span class="ident">extract</span>(<span class="number">6</span>) <span class="kw">as</span> <span class="ident">f32</span>,
               <span class="ident">x</span>.<span class="ident">extract</span>(<span class="number">7</span>) <span class="kw">as</span> <span class="ident">f32</span>)
 }
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cast_f32_to_i32</span>(<span class="ident">x</span>: <span class="ident">v256</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">v256i</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cast_f32_to_i32</span>(<span class="ident">x</span>: <span class="ident">v256</span>) -&gt; <span class="ident">v256i</span> {
     <span class="ident">v256i::new</span>(<span class="ident">x</span>.<span class="ident">extract</span>(<span class="number">0</span>) <span class="kw">as</span> <span class="ident">i32</span>,
               <span class="ident">x</span>.<span class="ident">extract</span>(<span class="number">1</span>) <span class="kw">as</span> <span class="ident">i32</span>,
               <span class="ident">x</span>.<span class="ident">extract</span>(<span class="number">2</span>) <span class="kw">as</span> <span class="ident">i32</span>,

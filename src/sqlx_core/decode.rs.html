@@ -137,7 +137,7 @@
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Decode</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span>: <span class="ident">Sized</span> {
     <span class="doccomment">/// Decode a new value of this type using a raw value from the database.</span>
-    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="ident">value</span>: <span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::ValueRef</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">BoxDynError</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="ident">value</span>: <span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::ValueRef</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">BoxDynError</span><span class="op">&gt;</span>;
 }
 
 <span class="comment">// implement `Decode` for Option&lt;T&gt; for all SQL types</span>
@@ -146,7 +146,7 @@
     <span class="ident">DB</span>: <span class="ident">Database</span>,
     <span class="ident">T</span>: <span class="ident">Decode</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident">DB</span><span class="op">&gt;</span>,
 {
-    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="ident">value</span>: <span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::ValueRef</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">BoxDynError</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="ident">value</span>: <span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::ValueRef</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">BoxDynError</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">is_null</span>() {
             <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
         } <span class="kw">else</span> {

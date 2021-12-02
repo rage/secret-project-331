@@ -98,27 +98,27 @@
 <span class="doccomment">///[SpanExt#as_token]:../trait.SpanExt.html#method.as_token</span>
 <span class="doccomment">///[Span]:../../proc_macro2/struct.Span.html</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">FromSpan</span> {
-    <span class="kw">fn</span> <span class="ident">from_span</span>(<span class="ident">span</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
+    <span class="kw">fn</span> <span class="ident">from_span</span>(<span class="ident">span</span>: <span class="ident">Span</span>) -&gt; <span class="self">Self</span>;
 }
 
 <span class="kw">impl</span> <span class="ident">FromSpan</span> <span class="kw">for</span> <span class="ident">Span</span> {
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">from_span</span>(<span class="ident">span</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from_span</span>(<span class="ident">span</span>: <span class="ident">Span</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">span</span>
     }
 }
 
 <span class="macro">macro_rules!</span> <span class="ident">impl_array</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">n</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">n</span>:<span class="ident">expr</span>) =&gt; {
         <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FromSpan</span> <span class="op">+</span> <span class="ident">Copy</span><span class="op">&gt;</span> <span class="ident">FromSpan</span> <span class="kw">for</span> [<span class="ident">T</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">n</span>] {
             <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-            <span class="kw">fn</span> <span class="ident">from_span</span>(<span class="ident">span</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>{
+            <span class="kw">fn</span> <span class="ident">from_span</span>(<span class="ident">span</span>: <span class="ident">Span</span>) -&gt; <span class="self">Self</span>{
                 <span class="kw">let</span> <span class="ident">e</span> <span class="op">=</span> <span class="ident">FromSpan::from_span</span>(<span class="ident">span</span>);
                 [<span class="ident">e</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">n</span>]
             }
         }
     };
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">n</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">n</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {
         <span class="macro">impl_array!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">n</span>);
         <span class="macro">impl_array!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>);
     };
@@ -128,16 +128,16 @@
 
 <span class="macro">macro_rules!</span> <span class="ident">bridge_spans</span> {
     <span class="comment">// Done</span>
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">path</span>) =&gt; {
         <span class="kw">impl</span> <span class="ident">FromSpan</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span> {
-            <span class="kw">fn</span> <span class="ident">from_span</span>(<span class="ident">span</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+            <span class="kw">fn</span> <span class="ident">from_span</span>(<span class="ident">span</span>: <span class="ident">Span</span>) -&gt; <span class="self">Self</span> {
                 <span class="kw">let</span> <span class="ident">spans</span> <span class="op">=</span> <span class="ident">FromSpan::from_span</span>(<span class="ident">span</span>);
                 <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span> { <span class="ident">spans</span> }
             }
         }
     };
 
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">path</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="op">+</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">path</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="op">+</span>) =&gt; {
         <span class="macro">bridge_spans!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>);
         <span class="macro">bridge_spans!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>);
     };
@@ -145,19 +145,19 @@
 
 <span class="macro">macro_rules!</span> <span class="ident">bridge</span> {
     <span class="comment">// Done</span>
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">path</span>) =&gt; {
         <span class="kw">impl</span> <span class="ident">FromSpan</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span> {
-            <span class="kw">fn</span> <span class="ident">from_span</span>(<span class="ident">span</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+            <span class="kw">fn</span> <span class="ident">from_span</span>(<span class="ident">span</span>: <span class="ident">Span</span>) -&gt; <span class="self">Self</span> {
                 <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">FromSpan::from_span</span>(<span class="ident">span</span>);
                 <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span> { <span class="ident">span</span> }
             }
         }
     };
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">path</span>,) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">path</span>,) =&gt; {
         <span class="macro">bridge!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>);
     };
 
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">path</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="op">+</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">path</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="op">+</span>) =&gt; {
         <span class="macro">bridge!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>);
         <span class="macro">bridge!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>);
     };

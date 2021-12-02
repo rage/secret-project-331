@@ -61,30 +61,30 @@
 <span class="doccomment">/// - text/plain</span>
 <span class="doccomment">/// - text/csv</span>
 <span class="doccomment">/// - text/tab-separated-values</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">equiv_utf8_text</span>(<span class="ident">ct</span>: <span class="ident">Mime</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Mime</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">equiv_utf8_text</span>(<span class="ident">ct</span>: <span class="ident">Mime</span>) -&gt; <span class="ident">Mime</span> {
     <span class="comment">// use (roughly) order of file-type popularity for a web server</span>
 
-    <span class="kw">if</span> <span class="ident">ct</span> <span class="op">=</span><span class="op">=</span> <span class="ident">mime::APPLICATION_JAVASCRIPT</span> {
+    <span class="kw">if</span> <span class="ident">ct</span> <span class="op">==</span> <span class="ident">mime::APPLICATION_JAVASCRIPT</span> {
         <span class="kw">return</span> <span class="ident">mime::APPLICATION_JAVASCRIPT_UTF_8</span>;
     }
 
-    <span class="kw">if</span> <span class="ident">ct</span> <span class="op">=</span><span class="op">=</span> <span class="ident">mime::TEXT_HTML</span> {
+    <span class="kw">if</span> <span class="ident">ct</span> <span class="op">==</span> <span class="ident">mime::TEXT_HTML</span> {
         <span class="kw">return</span> <span class="ident">mime::TEXT_HTML_UTF_8</span>;
     }
 
-    <span class="kw">if</span> <span class="ident">ct</span> <span class="op">=</span><span class="op">=</span> <span class="ident">mime::TEXT_CSS</span> {
+    <span class="kw">if</span> <span class="ident">ct</span> <span class="op">==</span> <span class="ident">mime::TEXT_CSS</span> {
         <span class="kw">return</span> <span class="ident">mime::TEXT_CSS_UTF_8</span>;
     }
 
-    <span class="kw">if</span> <span class="ident">ct</span> <span class="op">=</span><span class="op">=</span> <span class="ident">mime::TEXT_PLAIN</span> {
+    <span class="kw">if</span> <span class="ident">ct</span> <span class="op">==</span> <span class="ident">mime::TEXT_PLAIN</span> {
         <span class="kw">return</span> <span class="ident">mime::TEXT_PLAIN_UTF_8</span>;
     }
 
-    <span class="kw">if</span> <span class="ident">ct</span> <span class="op">=</span><span class="op">=</span> <span class="ident">mime::TEXT_CSV</span> {
+    <span class="kw">if</span> <span class="ident">ct</span> <span class="op">==</span> <span class="ident">mime::TEXT_CSV</span> {
         <span class="kw">return</span> <span class="ident">mime::TEXT_CSV_UTF_8</span>;
     }
 
-    <span class="kw">if</span> <span class="ident">ct</span> <span class="op">=</span><span class="op">=</span> <span class="ident">mime::TEXT_TAB_SEPARATED_VALUES</span> {
+    <span class="kw">if</span> <span class="ident">ct</span> <span class="op">==</span> <span class="ident">mime::TEXT_TAB_SEPARATED_VALUES</span> {
         <span class="kw">return</span> <span class="ident">mime::TEXT_TAB_SEPARATED_VALUES_UTF_8</span>;
     }
 

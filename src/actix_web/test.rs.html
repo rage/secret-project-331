@@ -911,14 +911,14 @@
 
 <span class="doccomment">/// Create service that always responds with `HttpResponse::Ok()` and no body.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ok_service</span>(
-) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">ServiceRequest</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">Body</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span><span class="op">&gt;</span> {
+) -&gt; <span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">ServiceRequest</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">Body</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="ident">default_service</span>(<span class="ident">StatusCode::OK</span>)
 }
 
 <span class="doccomment">/// Create service that always responds with given status code and no body.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_service</span>(
     <span class="ident">status_code</span>: <span class="ident">StatusCode</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">ServiceRequest</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">Body</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span><span class="op">&gt;</span> {
+) -&gt; <span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">ServiceRequest</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">Body</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span><span class="op">&gt;</span> {
     (<span class="kw">move</span> <span class="op">|</span><span class="ident">req</span>: <span class="ident">ServiceRequest</span><span class="op">|</span> {
         <span class="ident">ok</span>(<span class="ident">req</span>.<span class="ident">into_response</span>(<span class="ident">HttpResponseBuilder::new</span>(<span class="ident">status_code</span>).<span class="ident">finish</span>()))
     })
@@ -948,7 +948,7 @@
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">init_service</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">E</span><span class="op">&gt;</span>(
     <span class="ident">app</span>: <span class="ident">R</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">E</span><span class="op">&gt;</span>
+) -&gt; <span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">R</span>: <span class="ident">IntoServiceFactory</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Request</span><span class="op">&gt;</span>,
     <span class="ident">S</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Config</span> <span class="op">=</span> <span class="ident">AppConfig</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">E</span><span class="op">&gt;</span>,
@@ -962,7 +962,7 @@
 <span class="doccomment">/// Fallible version of [`init_service`] that allows testing initialization errors.</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">try_init_service</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">E</span><span class="op">&gt;</span>(
     <span class="ident">app</span>: <span class="ident">R</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">S::InitError</span><span class="op">&gt;</span>
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">S::InitError</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">R</span>: <span class="ident">IntoServiceFactory</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Request</span><span class="op">&gt;</span>,
     <span class="ident">S</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Config</span> <span class="op">=</span> <span class="ident">AppConfig</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">E</span><span class="op">&gt;</span>,
@@ -994,7 +994,7 @@
 <span class="doccomment">///     assert_eq!(resp.status(), StatusCode::OK);</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">call_service</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">R</span>, <span class="ident">B</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">S</span>, <span class="ident">req</span>: <span class="ident">R</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">S::Response</span>
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">call_service</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">R</span>, <span class="ident">B</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">S</span>, <span class="ident">req</span>: <span class="ident">R</span>) -&gt; <span class="ident">S::Response</span>
 <span class="kw">where</span>
     <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">E</span><span class="op">&gt;</span>,
     <span class="ident">E</span>: <span class="ident">std::fmt::Debug</span>,
@@ -1027,7 +1027,7 @@
 <span class="doccomment">///     assert_eq!(result, Bytes::from_static(b&quot;welcome!&quot;));</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read_response</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">S</span>, <span class="ident">req</span>: <span class="ident">Request</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Bytes</span>
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read_response</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">S</span>, <span class="ident">req</span>: <span class="ident">Request</span>) -&gt; <span class="ident">Bytes</span>
 <span class="kw">where</span>
     <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span><span class="op">&gt;</span>,
     <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="ident">Unpin</span>,
@@ -1075,7 +1075,7 @@
 <span class="doccomment">///     assert_eq!(result, Bytes::from_static(b&quot;welcome!&quot;));</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read_body</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>(<span class="ident">res</span>: <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Bytes</span>
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read_body</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>(<span class="ident">res</span>: <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>) -&gt; <span class="ident">Bytes</span>
 <span class="kw">where</span>
     <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="ident">Unpin</span>,
     <span class="ident">B::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span>,
@@ -1128,7 +1128,7 @@
 <span class="doccomment">///     let result: Person = test::read_body_json(resp).await;</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read_body_json</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">B</span><span class="op">&gt;</span>(<span class="ident">res</span>: <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span>
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read_body_json</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">B</span><span class="op">&gt;</span>(<span class="ident">res</span>: <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>) -&gt; <span class="ident">T</span>
 <span class="kw">where</span>
     <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="ident">Unpin</span>,
     <span class="ident">B::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span>,
@@ -1144,7 +1144,7 @@
     })
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">load_stream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">stream</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident">Error</span><span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">load_stream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">stream</span>: <span class="ident">S</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident">Error</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">S</span>: <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Unpin</span>,
 {
@@ -1155,7 +1155,7 @@
     <span class="prelude-val">Ok</span>(<span class="ident">data</span>.<span class="ident">freeze</span>())
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">load_body</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>(<span class="ident">body</span>: <span class="ident">B</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident">Error</span><span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">load_body</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>(<span class="ident">body</span>: <span class="ident">B</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident">Error</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="ident">Unpin</span>,
     <span class="ident">B::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span>,
@@ -1197,7 +1197,7 @@
 <span class="doccomment">///     let result: Person = test::read_response_json(&amp;mut app, req).await;</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read_response_json</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">S</span>, <span class="ident">req</span>: <span class="ident">Request</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span>
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read_response_json</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">S</span>, <span class="ident">req</span>: <span class="ident">Request</span>) -&gt; <span class="ident">T</span>
 <span class="kw">where</span>
     <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span><span class="op">&gt;</span>,
     <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="ident">Unpin</span>,
@@ -1260,7 +1260,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">TestRequest</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TestRequest</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">TestRequest</span> {
         <span class="ident">TestRequest</span> {
             <span class="ident">req</span>: <span class="ident">HttpTestRequest::default</span>(),
             <span class="ident">rmap</span>: <span class="ident">ResourceMap::new</span>(<span class="ident">ResourceDef::new</span>(<span class="string">&quot;&quot;</span>)),
@@ -1277,55 +1277,55 @@
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::wrong_self_convention</span>)]</span>
 <span class="kw">impl</span> <span class="ident">TestRequest</span> {
     <span class="doccomment">/// Create TestRequest and set request uri</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_uri</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TestRequest</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_uri</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">TestRequest</span> {
         <span class="ident">TestRequest::default</span>().<span class="ident">uri</span>(<span class="ident">path</span>)
     }
 
     <span class="doccomment">/// Create TestRequest and set method to `Method::GET`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TestRequest</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>() -&gt; <span class="ident">TestRequest</span> {
         <span class="ident">TestRequest::default</span>().<span class="ident">method</span>(<span class="ident">Method::GET</span>)
     }
 
     <span class="doccomment">/// Create TestRequest and set method to `Method::POST`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">post</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TestRequest</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">post</span>() -&gt; <span class="ident">TestRequest</span> {
         <span class="ident">TestRequest::default</span>().<span class="ident">method</span>(<span class="ident">Method::POST</span>)
     }
 
     <span class="doccomment">/// Create TestRequest and set method to `Method::PUT`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">put</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TestRequest</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">put</span>() -&gt; <span class="ident">TestRequest</span> {
         <span class="ident">TestRequest::default</span>().<span class="ident">method</span>(<span class="ident">Method::PUT</span>)
     }
 
     <span class="doccomment">/// Create TestRequest and set method to `Method::PATCH`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">patch</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TestRequest</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">patch</span>() -&gt; <span class="ident">TestRequest</span> {
         <span class="ident">TestRequest::default</span>().<span class="ident">method</span>(<span class="ident">Method::PATCH</span>)
     }
 
     <span class="doccomment">/// Create TestRequest and set method to `Method::DELETE`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TestRequest</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete</span>() -&gt; <span class="ident">TestRequest</span> {
         <span class="ident">TestRequest::default</span>().<span class="ident">method</span>(<span class="ident">Method::DELETE</span>)
     }
 
     <span class="doccomment">/// Set HTTP version of this request</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">version</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ver</span>: <span class="ident">Version</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">version</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ver</span>: <span class="ident">Version</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">version</span>(<span class="ident">ver</span>);
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Set HTTP method of this request</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">method</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">meth</span>: <span class="ident">Method</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">method</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">meth</span>: <span class="ident">Method</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">method</span>(<span class="ident">meth</span>);
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Set HTTP Uri of this request</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uri</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uri</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">uri</span>(<span class="ident">path</span>);
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Insert a header, replacing any that were set with an equivalent field name.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert_header</span><span class="op">&lt;</span><span class="ident">H</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">header</span>: <span class="ident">H</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert_header</span><span class="op">&lt;</span><span class="ident">H</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">header</span>: <span class="ident">H</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">H</span>: <span class="ident">IntoHeaderPair</span>,
     {
@@ -1334,7 +1334,7 @@
     }
 
     <span class="doccomment">/// Append a header, keeping any that were set with an equivalent field name.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append_header</span><span class="op">&lt;</span><span class="ident">H</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">header</span>: <span class="ident">H</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append_header</span><span class="op">&lt;</span><span class="ident">H</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">header</span>: <span class="ident">H</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">H</span>: <span class="ident">IntoHeaderPair</span>,
     {
@@ -1344,7 +1344,7 @@
 
     <span class="doccomment">/// Set cookie for this request.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cookie</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cookie</span>: <span class="ident">Cookie</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cookie</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cookie</span>: <span class="ident">Cookie</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">cookies</span>.<span class="ident">add</span>(<span class="ident">cookie</span>.<span class="ident">into_owned</span>());
         <span class="self">self</span>
     }
@@ -1362,26 +1362,26 @@
         <span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">name</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">value</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    ) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">add_static</span>(<span class="ident">name</span>, <span class="ident">value</span>);
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Set peer addr.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">peer_addr</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">addr</span>: <span class="ident">SocketAddr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">peer_addr</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">addr</span>: <span class="ident">SocketAddr</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">peer_addr</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">addr</span>);
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Set request payload.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_payload</span><span class="op">&lt;</span><span class="ident">B</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="ident">B</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_payload</span><span class="op">&lt;</span><span class="ident">B</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="ident">B</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">set_payload</span>(<span class="ident">data</span>);
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Serialize `data` to a URL encoded form and set it as the request payload. The `Content-Type`</span>
     <span class="doccomment">/// header is set to `application/x-www-form-urlencoded`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_form</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Serialize</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_form</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Serialize</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">serde_urlencoded::to_string</span>(<span class="ident">data</span>)
             .<span class="ident">expect</span>(<span class="string">&quot;Failed to serialize test data as a urlencoded form&quot;</span>);
         <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">set_payload</span>(<span class="ident">bytes</span>);
@@ -1391,7 +1391,7 @@
 
     <span class="doccomment">/// Serialize `data` to JSON and set it as the request payload. The `Content-Type` header is</span>
     <span class="doccomment">/// set to `application/json`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_json</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Serialize</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_json</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Serialize</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">serde_json::to_string</span>(<span class="ident">data</span>).<span class="ident">expect</span>(<span class="string">&quot;Failed to serialize test data to json&quot;</span>);
         <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">set_payload</span>(<span class="ident">bytes</span>);
         <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">insert_header</span>(<span class="ident">ContentType::json</span>());
@@ -1400,26 +1400,26 @@
 
     <span class="doccomment">/// Set application data. This is equivalent of `App::data()` method</span>
     <span class="doccomment">/// for testing purpose.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">data</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">data</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">app_data</span>.<span class="ident">insert</span>(<span class="ident">Data::new</span>(<span class="ident">data</span>));
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Set application data. This is equivalent of `App::app_data()` method</span>
     <span class="doccomment">/// for testing purpose.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">app_data</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">app_data</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">app_data</span>.<span class="ident">insert</span>(<span class="ident">data</span>);
         <span class="self">self</span>
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
     <span class="doccomment">/// Set request config</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">rmap</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rmap</span>: <span class="ident">ResourceMap</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">rmap</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rmap</span>: <span class="ident">ResourceMap</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">rmap</span> <span class="op">=</span> <span class="ident">rmap</span>;
         <span class="self">self</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">finish</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Request</span> {
+    <span class="kw">fn</span> <span class="ident">finish</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">Request</span> {
         <span class="comment">// mut used when cookie feature is enabled</span>
         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_mut</span>)]</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">req</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">finish</span>();
@@ -1446,14 +1446,14 @@
     }
 
     <span class="doccomment">/// Complete request creation and generate `Request` instance</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_request</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Request</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_request</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">Request</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">req</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">finish</span>();
         <span class="ident">req</span>.<span class="ident">head_mut</span>().<span class="ident">peer_addr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">peer_addr</span>;
         <span class="ident">req</span>
     }
 
     <span class="doccomment">/// Complete request creation and generate `ServiceRequest` instance</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_srv_request</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ServiceRequest</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_srv_request</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">ServiceRequest</span> {
         <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">head</span>, <span class="ident">payload</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">finish</span>().<span class="ident">into_parts</span>();
         <span class="ident">head</span>.<span class="ident">peer_addr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">peer_addr</span>;
         <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">get_mut</span>().<span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="ident">head</span>.<span class="ident">uri</span>);
@@ -1467,12 +1467,12 @@
     }
 
     <span class="doccomment">/// Complete request creation and generate `ServiceResponse` instance</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_srv_response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">res</span>: <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_srv_response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">res</span>: <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>) -&gt; <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">to_srv_request</span>().<span class="ident">into_response</span>(<span class="ident">res</span>)
     }
 
     <span class="doccomment">/// Complete request creation and generate `HttpRequest` instance</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_http_request</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HttpRequest</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_http_request</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">HttpRequest</span> {
         <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">head</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">finish</span>().<span class="ident">into_parts</span>();
         <span class="ident">head</span>.<span class="ident">peer_addr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">peer_addr</span>;
         <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">get_mut</span>().<span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="ident">head</span>.<span class="ident">uri</span>);
@@ -1483,7 +1483,7 @@
     }
 
     <span class="doccomment">/// Complete request creation and generate `HttpRequest` and `Payload` instances</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_http_parts</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">HttpRequest</span>, <span class="ident">Payload</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_http_parts</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; (<span class="ident">HttpRequest</span>, <span class="ident">Payload</span>) {
         <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">head</span>, <span class="ident">payload</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">finish</span>().<span class="ident">into_parts</span>();
         <span class="ident">head</span>.<span class="ident">peer_addr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">peer_addr</span>;
         <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">get_mut</span>().<span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="ident">head</span>.<span class="ident">uri</span>);
@@ -1496,7 +1496,7 @@
     }
 
     <span class="doccomment">/// Complete request creation, calls service and waits for response future completion.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">send_request</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">S::Response</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">send_request</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">S</span>) -&gt; <span class="ident">S::Response</span>
     <span class="kw">where</span>
         <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">E</span><span class="op">&gt;</span>,
         <span class="ident">E</span>: <span class="ident">std::fmt::Debug</span>,
@@ -1715,14 +1715,14 @@
 
     <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_async_with_block</span>() {
-        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">async_with_block</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">async_with_block</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
             <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">web::block</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> <span class="prelude-val">Some</span>(<span class="number">4usize</span>).<span class="ident">ok_or</span>(<span class="string">&quot;wrong&quot;</span>)).<span class="kw">await</span>;
 
             <span class="kw">match</span> <span class="ident">res</span> {
-                <span class="prelude-val">Ok</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">HttpResponse::Ok</span>()
+                <span class="prelude-val">Ok</span>(<span class="ident">value</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">HttpResponse::Ok</span>()
                     .<span class="ident">content_type</span>(<span class="string">&quot;text/plain&quot;</span>)
                     .<span class="ident">body</span>(<span class="macro">format!</span>(<span class="string">&quot;Async with block value: {:?}&quot;</span>, <span class="ident">value</span>))),
-                <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;Unexpected&quot;</span>),
+                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unexpected&quot;</span>),
             }
         }
 
@@ -1739,7 +1739,7 @@
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span>
     <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_server_data</span>() {
-        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">handler</span>(<span class="ident">data</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Responder</span> {
+        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">handler</span>(<span class="ident">data</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) -&gt; <span class="kw">impl</span> <span class="ident">Responder</span> {
             <span class="macro">assert_eq!</span>(<span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">data</span>, <span class="number">10</span>);
             <span class="ident">HttpResponse::Ok</span>()
         }

@@ -220,7 +220,7 @@
 <span class="doccomment">/// let key = &quot;FOO&quot;;</span>
 <span class="doccomment">/// let value= dotenv::var(key).unwrap();</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">var</span><span class="op">&lt;</span><span class="ident">K</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">OsStr</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">key</span>: <span class="ident">K</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">var</span><span class="op">&lt;</span><span class="ident">K</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">OsStr</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">key</span>: <span class="ident">K</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
     <span class="ident">START</span>.<span class="ident">call_once</span>(<span class="op">|</span><span class="op">|</span> {
         <span class="ident">dotenv</span>().<span class="ident">ok</span>();
     });
@@ -243,7 +243,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// let result: Vec&lt;(String, String)&gt; = dotenv::vars().collect();</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">vars</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vars</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">vars</span>() -&gt; <span class="ident">Vars</span> {
     <span class="ident">START</span>.<span class="ident">call_once</span>(<span class="op">|</span><span class="op">|</span> {
         <span class="ident">dotenv</span>().<span class="ident">ok</span>();
     });
@@ -262,7 +262,7 @@
 <span class="doccomment">/// let my_path = env::home_dir().and_then(|a| Some(a.join(&quot;/.env&quot;))).unwrap();</span>
 <span class="doccomment">/// dotenv::from_path(my_path.as_path());</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_path</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="ident">P</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_path</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="ident">P</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">iter</span> <span class="op">=</span> <span class="ident">Iter::new</span>(<span class="ident">File::open</span>(<span class="ident">path</span>).<span class="ident">map_err</span>(<span class="ident">Error::Io</span>)<span class="question-mark">?</span>);
     <span class="ident">iter</span>.<span class="ident">load</span>()
 }
@@ -285,7 +285,7 @@
 <span class="doccomment">/// }</span>
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">deprecated</span>(<span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.14.1&quot;</span>, <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;please use `from_path` in conjunction with `var` instead&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_path_iter</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="ident">P</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Iter</span><span class="op">&lt;</span><span class="ident">File</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_path_iter</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="ident">P</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Iter</span><span class="op">&lt;</span><span class="ident">File</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="prelude-val">Ok</span>(<span class="ident">Iter::new</span>(<span class="ident">File::open</span>(<span class="ident">path</span>).<span class="ident">map_err</span>(<span class="ident">Error::Io</span>)<span class="question-mark">?</span>))
 }
 
@@ -304,7 +304,7 @@
 <span class="doccomment">/// use dotenv;</span>
 <span class="doccomment">/// dotenv::from_filename(&quot;.env&quot;).ok();</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_filename</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">filename</span>: <span class="ident">P</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_filename</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">filename</span>: <span class="ident">P</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
     <span class="kw">let</span> (<span class="ident">path</span>, <span class="ident">iter</span>) <span class="op">=</span> <span class="ident">Finder::new</span>().<span class="ident">filename</span>(<span class="ident">filename</span>.<span class="ident">as_ref</span>()).<span class="ident">find</span>()<span class="question-mark">?</span>;
     <span class="ident">iter</span>.<span class="ident">load</span>()<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">path</span>)
@@ -331,7 +331,7 @@
 <span class="doccomment">/// }</span>
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">deprecated</span>(<span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.14.1&quot;</span>, <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;please use `from_path` in conjunction with `var` instead&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_filename_iter</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">filename</span>: <span class="ident">P</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Iter</span><span class="op">&lt;</span><span class="ident">File</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_filename_iter</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">filename</span>: <span class="ident">P</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Iter</span><span class="op">&lt;</span><span class="ident">File</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">iter</span>) <span class="op">=</span> <span class="ident">Finder::new</span>().<span class="ident">filename</span>(<span class="ident">filename</span>.<span class="ident">as_ref</span>()).<span class="ident">find</span>()<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">iter</span>)
 }
@@ -344,7 +344,7 @@
 <span class="doccomment">/// use dotenv;</span>
 <span class="doccomment">/// dotenv::dotenv().ok();</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dotenv</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dotenv</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
     <span class="kw">let</span> (<span class="ident">path</span>, <span class="ident">iter</span>) <span class="op">=</span> <span class="ident">Finder::new</span>().<span class="ident">find</span>()<span class="question-mark">?</span>;
     <span class="ident">iter</span>.<span class="ident">load</span>()<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">path</span>)
@@ -362,7 +362,7 @@
 <span class="doccomment">/// }</span>
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">deprecated</span>(<span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.14.1&quot;</span>, <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;please use `from_path` in conjunction with `var` instead&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dotenv_iter</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">iter::Iter</span><span class="op">&lt;</span><span class="ident">File</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dotenv_iter</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">iter::Iter</span><span class="op">&lt;</span><span class="ident">File</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">iter</span>) <span class="op">=</span> <span class="ident">Finder::new</span>().<span class="ident">find</span>()<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">iter</span>)
 }

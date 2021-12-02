@@ -393,14 +393,14 @@
 <span class="doccomment">/// which is `None`.</span>
 <span class="doccomment">///</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">FromRow</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident">R</span>: <span class="ident">Row</span><span class="op">&gt;</span>: <span class="ident">Sized</span> {
-    <span class="kw">fn</span> <span class="ident">from_row</span>(<span class="ident">row</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;r</span> <span class="ident">R</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">from_row</span>(<span class="ident">row</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;r</span> <span class="ident">R</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
 }
 
 <span class="comment">// implement FromRow for tuples of types that implement Decode</span>
 <span class="comment">// up to tuples of 9 values</span>
 
 <span class="macro">macro_rules!</span> <span class="ident">impl_from_row_for_tuple</span> {
-    ($( (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">idx</span>:<span class="ident">tt</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>:<span class="ident">ident</span> );<span class="op">+</span>;) <span class="op">=</span><span class="op">&gt;</span> {
+    ($( (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">idx</span>:<span class="ident">tt</span>) -&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>:<span class="ident">ident</span> );<span class="op">+</span>;) =&gt; {
         <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident">R</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>,)<span class="op">+</span><span class="op">&gt;</span> <span class="ident">FromRow</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="kw">for</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>,)<span class="op">+</span>)
         <span class="kw">where</span>
             <span class="ident">R</span>: <span class="ident">Row</span>,
@@ -408,7 +408,7 @@
             $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>: <span class="ident"><span class="kw">crate</span>::decode::Decode</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident">R::Database</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident"><span class="kw">crate</span>::types::Type</span><span class="op">&lt;</span><span class="ident">R::Database</span><span class="op">&gt;</span>,)<span class="op">+</span>
         {
             <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="ident">from_row</span>(<span class="ident">row</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;r</span> <span class="ident">R</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+            <span class="kw">fn</span> <span class="ident">from_row</span>(<span class="ident">row</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;r</span> <span class="ident">R</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
                 <span class="prelude-val">Ok</span>(($(<span class="ident">row</span>.<span class="ident">try_get</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">idx</span> <span class="kw">as</span> <span class="ident">usize</span>)<span class="question-mark">?</span>,)<span class="op">+</span>))
             }
         }
@@ -416,187 +416,187 @@
 }
 
 <span class="macro">impl_from_row_for_tuple!</span>(
-    (<span class="number">0</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T1</span>;
+    (<span class="number">0</span>) -&gt; <span class="ident">T1</span>;
 );
 
 <span class="macro">impl_from_row_for_tuple!</span>(
-    (<span class="number">0</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T1</span>;
-    (<span class="number">1</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T2</span>;
+    (<span class="number">0</span>) -&gt; <span class="ident">T1</span>;
+    (<span class="number">1</span>) -&gt; <span class="ident">T2</span>;
 );
 
 <span class="macro">impl_from_row_for_tuple!</span>(
-    (<span class="number">0</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T1</span>;
-    (<span class="number">1</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T2</span>;
-    (<span class="number">2</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T3</span>;
+    (<span class="number">0</span>) -&gt; <span class="ident">T1</span>;
+    (<span class="number">1</span>) -&gt; <span class="ident">T2</span>;
+    (<span class="number">2</span>) -&gt; <span class="ident">T3</span>;
 );
 
 <span class="macro">impl_from_row_for_tuple!</span>(
-    (<span class="number">0</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T1</span>;
-    (<span class="number">1</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T2</span>;
-    (<span class="number">2</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T3</span>;
-    (<span class="number">3</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T4</span>;
+    (<span class="number">0</span>) -&gt; <span class="ident">T1</span>;
+    (<span class="number">1</span>) -&gt; <span class="ident">T2</span>;
+    (<span class="number">2</span>) -&gt; <span class="ident">T3</span>;
+    (<span class="number">3</span>) -&gt; <span class="ident">T4</span>;
 );
 
 <span class="macro">impl_from_row_for_tuple!</span>(
-    (<span class="number">0</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T1</span>;
-    (<span class="number">1</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T2</span>;
-    (<span class="number">2</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T3</span>;
-    (<span class="number">3</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T4</span>;
-    (<span class="number">4</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T5</span>;
+    (<span class="number">0</span>) -&gt; <span class="ident">T1</span>;
+    (<span class="number">1</span>) -&gt; <span class="ident">T2</span>;
+    (<span class="number">2</span>) -&gt; <span class="ident">T3</span>;
+    (<span class="number">3</span>) -&gt; <span class="ident">T4</span>;
+    (<span class="number">4</span>) -&gt; <span class="ident">T5</span>;
 );
 
 <span class="macro">impl_from_row_for_tuple!</span>(
-    (<span class="number">0</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T1</span>;
-    (<span class="number">1</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T2</span>;
-    (<span class="number">2</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T3</span>;
-    (<span class="number">3</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T4</span>;
-    (<span class="number">4</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T5</span>;
-    (<span class="number">5</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T6</span>;
+    (<span class="number">0</span>) -&gt; <span class="ident">T1</span>;
+    (<span class="number">1</span>) -&gt; <span class="ident">T2</span>;
+    (<span class="number">2</span>) -&gt; <span class="ident">T3</span>;
+    (<span class="number">3</span>) -&gt; <span class="ident">T4</span>;
+    (<span class="number">4</span>) -&gt; <span class="ident">T5</span>;
+    (<span class="number">5</span>) -&gt; <span class="ident">T6</span>;
 );
 
 <span class="macro">impl_from_row_for_tuple!</span>(
-    (<span class="number">0</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T1</span>;
-    (<span class="number">1</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T2</span>;
-    (<span class="number">2</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T3</span>;
-    (<span class="number">3</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T4</span>;
-    (<span class="number">4</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T5</span>;
-    (<span class="number">5</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T6</span>;
-    (<span class="number">6</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T7</span>;
+    (<span class="number">0</span>) -&gt; <span class="ident">T1</span>;
+    (<span class="number">1</span>) -&gt; <span class="ident">T2</span>;
+    (<span class="number">2</span>) -&gt; <span class="ident">T3</span>;
+    (<span class="number">3</span>) -&gt; <span class="ident">T4</span>;
+    (<span class="number">4</span>) -&gt; <span class="ident">T5</span>;
+    (<span class="number">5</span>) -&gt; <span class="ident">T6</span>;
+    (<span class="number">6</span>) -&gt; <span class="ident">T7</span>;
 );
 
 <span class="macro">impl_from_row_for_tuple!</span>(
-    (<span class="number">0</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T1</span>;
-    (<span class="number">1</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T2</span>;
-    (<span class="number">2</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T3</span>;
-    (<span class="number">3</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T4</span>;
-    (<span class="number">4</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T5</span>;
-    (<span class="number">5</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T6</span>;
-    (<span class="number">6</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T7</span>;
-    (<span class="number">7</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T8</span>;
+    (<span class="number">0</span>) -&gt; <span class="ident">T1</span>;
+    (<span class="number">1</span>) -&gt; <span class="ident">T2</span>;
+    (<span class="number">2</span>) -&gt; <span class="ident">T3</span>;
+    (<span class="number">3</span>) -&gt; <span class="ident">T4</span>;
+    (<span class="number">4</span>) -&gt; <span class="ident">T5</span>;
+    (<span class="number">5</span>) -&gt; <span class="ident">T6</span>;
+    (<span class="number">6</span>) -&gt; <span class="ident">T7</span>;
+    (<span class="number">7</span>) -&gt; <span class="ident">T8</span>;
 );
 
 <span class="macro">impl_from_row_for_tuple!</span>(
-    (<span class="number">0</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T1</span>;
-    (<span class="number">1</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T2</span>;
-    (<span class="number">2</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T3</span>;
-    (<span class="number">3</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T4</span>;
-    (<span class="number">4</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T5</span>;
-    (<span class="number">5</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T6</span>;
-    (<span class="number">6</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T7</span>;
-    (<span class="number">7</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T8</span>;
-    (<span class="number">8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T9</span>;
+    (<span class="number">0</span>) -&gt; <span class="ident">T1</span>;
+    (<span class="number">1</span>) -&gt; <span class="ident">T2</span>;
+    (<span class="number">2</span>) -&gt; <span class="ident">T3</span>;
+    (<span class="number">3</span>) -&gt; <span class="ident">T4</span>;
+    (<span class="number">4</span>) -&gt; <span class="ident">T5</span>;
+    (<span class="number">5</span>) -&gt; <span class="ident">T6</span>;
+    (<span class="number">6</span>) -&gt; <span class="ident">T7</span>;
+    (<span class="number">7</span>) -&gt; <span class="ident">T8</span>;
+    (<span class="number">8</span>) -&gt; <span class="ident">T9</span>;
 );
 
 <span class="macro">impl_from_row_for_tuple!</span>(
-    (<span class="number">0</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T1</span>;
-    (<span class="number">1</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T2</span>;
-    (<span class="number">2</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T3</span>;
-    (<span class="number">3</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T4</span>;
-    (<span class="number">4</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T5</span>;
-    (<span class="number">5</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T6</span>;
-    (<span class="number">6</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T7</span>;
-    (<span class="number">7</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T8</span>;
-    (<span class="number">8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T9</span>;
-    (<span class="number">9</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T10</span>;
+    (<span class="number">0</span>) -&gt; <span class="ident">T1</span>;
+    (<span class="number">1</span>) -&gt; <span class="ident">T2</span>;
+    (<span class="number">2</span>) -&gt; <span class="ident">T3</span>;
+    (<span class="number">3</span>) -&gt; <span class="ident">T4</span>;
+    (<span class="number">4</span>) -&gt; <span class="ident">T5</span>;
+    (<span class="number">5</span>) -&gt; <span class="ident">T6</span>;
+    (<span class="number">6</span>) -&gt; <span class="ident">T7</span>;
+    (<span class="number">7</span>) -&gt; <span class="ident">T8</span>;
+    (<span class="number">8</span>) -&gt; <span class="ident">T9</span>;
+    (<span class="number">9</span>) -&gt; <span class="ident">T10</span>;
 );
 
 <span class="macro">impl_from_row_for_tuple!</span>(
-    (<span class="number">0</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T1</span>;
-    (<span class="number">1</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T2</span>;
-    (<span class="number">2</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T3</span>;
-    (<span class="number">3</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T4</span>;
-    (<span class="number">4</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T5</span>;
-    (<span class="number">5</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T6</span>;
-    (<span class="number">6</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T7</span>;
-    (<span class="number">7</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T8</span>;
-    (<span class="number">8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T9</span>;
-    (<span class="number">9</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T10</span>;
-    (<span class="number">10</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T11</span>;
+    (<span class="number">0</span>) -&gt; <span class="ident">T1</span>;
+    (<span class="number">1</span>) -&gt; <span class="ident">T2</span>;
+    (<span class="number">2</span>) -&gt; <span class="ident">T3</span>;
+    (<span class="number">3</span>) -&gt; <span class="ident">T4</span>;
+    (<span class="number">4</span>) -&gt; <span class="ident">T5</span>;
+    (<span class="number">5</span>) -&gt; <span class="ident">T6</span>;
+    (<span class="number">6</span>) -&gt; <span class="ident">T7</span>;
+    (<span class="number">7</span>) -&gt; <span class="ident">T8</span>;
+    (<span class="number">8</span>) -&gt; <span class="ident">T9</span>;
+    (<span class="number">9</span>) -&gt; <span class="ident">T10</span>;
+    (<span class="number">10</span>) -&gt; <span class="ident">T11</span>;
 );
 
 <span class="macro">impl_from_row_for_tuple!</span>(
-    (<span class="number">0</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T1</span>;
-    (<span class="number">1</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T2</span>;
-    (<span class="number">2</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T3</span>;
-    (<span class="number">3</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T4</span>;
-    (<span class="number">4</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T5</span>;
-    (<span class="number">5</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T6</span>;
-    (<span class="number">6</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T7</span>;
-    (<span class="number">7</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T8</span>;
-    (<span class="number">8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T9</span>;
-    (<span class="number">9</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T10</span>;
-    (<span class="number">10</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T11</span>;
-    (<span class="number">11</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T12</span>;
+    (<span class="number">0</span>) -&gt; <span class="ident">T1</span>;
+    (<span class="number">1</span>) -&gt; <span class="ident">T2</span>;
+    (<span class="number">2</span>) -&gt; <span class="ident">T3</span>;
+    (<span class="number">3</span>) -&gt; <span class="ident">T4</span>;
+    (<span class="number">4</span>) -&gt; <span class="ident">T5</span>;
+    (<span class="number">5</span>) -&gt; <span class="ident">T6</span>;
+    (<span class="number">6</span>) -&gt; <span class="ident">T7</span>;
+    (<span class="number">7</span>) -&gt; <span class="ident">T8</span>;
+    (<span class="number">8</span>) -&gt; <span class="ident">T9</span>;
+    (<span class="number">9</span>) -&gt; <span class="ident">T10</span>;
+    (<span class="number">10</span>) -&gt; <span class="ident">T11</span>;
+    (<span class="number">11</span>) -&gt; <span class="ident">T12</span>;
 );
 
 <span class="macro">impl_from_row_for_tuple!</span>(
-    (<span class="number">0</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T1</span>;
-    (<span class="number">1</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T2</span>;
-    (<span class="number">2</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T3</span>;
-    (<span class="number">3</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T4</span>;
-    (<span class="number">4</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T5</span>;
-    (<span class="number">5</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T6</span>;
-    (<span class="number">6</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T7</span>;
-    (<span class="number">7</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T8</span>;
-    (<span class="number">8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T9</span>;
-    (<span class="number">9</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T10</span>;
-    (<span class="number">10</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T11</span>;
-    (<span class="number">11</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T12</span>;
-    (<span class="number">12</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T13</span>;
+    (<span class="number">0</span>) -&gt; <span class="ident">T1</span>;
+    (<span class="number">1</span>) -&gt; <span class="ident">T2</span>;
+    (<span class="number">2</span>) -&gt; <span class="ident">T3</span>;
+    (<span class="number">3</span>) -&gt; <span class="ident">T4</span>;
+    (<span class="number">4</span>) -&gt; <span class="ident">T5</span>;
+    (<span class="number">5</span>) -&gt; <span class="ident">T6</span>;
+    (<span class="number">6</span>) -&gt; <span class="ident">T7</span>;
+    (<span class="number">7</span>) -&gt; <span class="ident">T8</span>;
+    (<span class="number">8</span>) -&gt; <span class="ident">T9</span>;
+    (<span class="number">9</span>) -&gt; <span class="ident">T10</span>;
+    (<span class="number">10</span>) -&gt; <span class="ident">T11</span>;
+    (<span class="number">11</span>) -&gt; <span class="ident">T12</span>;
+    (<span class="number">12</span>) -&gt; <span class="ident">T13</span>;
 );
 
 <span class="macro">impl_from_row_for_tuple!</span>(
-    (<span class="number">0</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T1</span>;
-    (<span class="number">1</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T2</span>;
-    (<span class="number">2</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T3</span>;
-    (<span class="number">3</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T4</span>;
-    (<span class="number">4</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T5</span>;
-    (<span class="number">5</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T6</span>;
-    (<span class="number">6</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T7</span>;
-    (<span class="number">7</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T8</span>;
-    (<span class="number">8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T9</span>;
-    (<span class="number">9</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T10</span>;
-    (<span class="number">10</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T11</span>;
-    (<span class="number">11</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T12</span>;
-    (<span class="number">12</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T13</span>;
-    (<span class="number">13</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T14</span>;
+    (<span class="number">0</span>) -&gt; <span class="ident">T1</span>;
+    (<span class="number">1</span>) -&gt; <span class="ident">T2</span>;
+    (<span class="number">2</span>) -&gt; <span class="ident">T3</span>;
+    (<span class="number">3</span>) -&gt; <span class="ident">T4</span>;
+    (<span class="number">4</span>) -&gt; <span class="ident">T5</span>;
+    (<span class="number">5</span>) -&gt; <span class="ident">T6</span>;
+    (<span class="number">6</span>) -&gt; <span class="ident">T7</span>;
+    (<span class="number">7</span>) -&gt; <span class="ident">T8</span>;
+    (<span class="number">8</span>) -&gt; <span class="ident">T9</span>;
+    (<span class="number">9</span>) -&gt; <span class="ident">T10</span>;
+    (<span class="number">10</span>) -&gt; <span class="ident">T11</span>;
+    (<span class="number">11</span>) -&gt; <span class="ident">T12</span>;
+    (<span class="number">12</span>) -&gt; <span class="ident">T13</span>;
+    (<span class="number">13</span>) -&gt; <span class="ident">T14</span>;
 );
 
 <span class="macro">impl_from_row_for_tuple!</span>(
-    (<span class="number">0</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T1</span>;
-    (<span class="number">1</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T2</span>;
-    (<span class="number">2</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T3</span>;
-    (<span class="number">3</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T4</span>;
-    (<span class="number">4</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T5</span>;
-    (<span class="number">5</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T6</span>;
-    (<span class="number">6</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T7</span>;
-    (<span class="number">7</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T8</span>;
-    (<span class="number">8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T9</span>;
-    (<span class="number">9</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T10</span>;
-    (<span class="number">10</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T11</span>;
-    (<span class="number">11</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T12</span>;
-    (<span class="number">12</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T13</span>;
-    (<span class="number">13</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T14</span>;
-    (<span class="number">14</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T15</span>;
+    (<span class="number">0</span>) -&gt; <span class="ident">T1</span>;
+    (<span class="number">1</span>) -&gt; <span class="ident">T2</span>;
+    (<span class="number">2</span>) -&gt; <span class="ident">T3</span>;
+    (<span class="number">3</span>) -&gt; <span class="ident">T4</span>;
+    (<span class="number">4</span>) -&gt; <span class="ident">T5</span>;
+    (<span class="number">5</span>) -&gt; <span class="ident">T6</span>;
+    (<span class="number">6</span>) -&gt; <span class="ident">T7</span>;
+    (<span class="number">7</span>) -&gt; <span class="ident">T8</span>;
+    (<span class="number">8</span>) -&gt; <span class="ident">T9</span>;
+    (<span class="number">9</span>) -&gt; <span class="ident">T10</span>;
+    (<span class="number">10</span>) -&gt; <span class="ident">T11</span>;
+    (<span class="number">11</span>) -&gt; <span class="ident">T12</span>;
+    (<span class="number">12</span>) -&gt; <span class="ident">T13</span>;
+    (<span class="number">13</span>) -&gt; <span class="ident">T14</span>;
+    (<span class="number">14</span>) -&gt; <span class="ident">T15</span>;
 );
 
 <span class="macro">impl_from_row_for_tuple!</span>(
-    (<span class="number">0</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T1</span>;
-    (<span class="number">1</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T2</span>;
-    (<span class="number">2</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T3</span>;
-    (<span class="number">3</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T4</span>;
-    (<span class="number">4</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T5</span>;
-    (<span class="number">5</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T6</span>;
-    (<span class="number">6</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T7</span>;
-    (<span class="number">7</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T8</span>;
-    (<span class="number">8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T9</span>;
-    (<span class="number">9</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T10</span>;
-    (<span class="number">10</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T11</span>;
-    (<span class="number">11</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T12</span>;
-    (<span class="number">12</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T13</span>;
-    (<span class="number">13</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T14</span>;
-    (<span class="number">14</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T15</span>;
-    (<span class="number">15</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T16</span>;
+    (<span class="number">0</span>) -&gt; <span class="ident">T1</span>;
+    (<span class="number">1</span>) -&gt; <span class="ident">T2</span>;
+    (<span class="number">2</span>) -&gt; <span class="ident">T3</span>;
+    (<span class="number">3</span>) -&gt; <span class="ident">T4</span>;
+    (<span class="number">4</span>) -&gt; <span class="ident">T5</span>;
+    (<span class="number">5</span>) -&gt; <span class="ident">T6</span>;
+    (<span class="number">6</span>) -&gt; <span class="ident">T7</span>;
+    (<span class="number">7</span>) -&gt; <span class="ident">T8</span>;
+    (<span class="number">8</span>) -&gt; <span class="ident">T9</span>;
+    (<span class="number">9</span>) -&gt; <span class="ident">T10</span>;
+    (<span class="number">10</span>) -&gt; <span class="ident">T11</span>;
+    (<span class="number">11</span>) -&gt; <span class="ident">T12</span>;
+    (<span class="number">12</span>) -&gt; <span class="ident">T13</span>;
+    (<span class="number">13</span>) -&gt; <span class="ident">T14</span>;
+    (<span class="number">14</span>) -&gt; <span class="ident">T15</span>;
+    (<span class="number">15</span>) -&gt; <span class="ident">T16</span>;
 );
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>

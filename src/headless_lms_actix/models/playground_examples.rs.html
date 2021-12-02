@@ -268,7 +268,7 @@
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_all_playground_examples</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PlaygroundExample</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PlaygroundExample</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">examples</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">PlaygroundExample</span>,
         <span class="string">&quot;
@@ -285,7 +285,7 @@ WHERE deleted_at IS NULL;
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert_playground_example</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">data</span>: <span class="ident">PlaygroundExampleData</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">PlaygroundExample</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">PlaygroundExample</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 INSERT INTO playground_examples (name, url, width, data)
@@ -314,7 +314,7 @@ RETURNING *;
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_playground_example</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">data</span>: <span class="ident">PlaygroundExample</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">PlaygroundExample</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">PlaygroundExample</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">PlaygroundExample</span>,
         <span class="string">&quot;
@@ -342,7 +342,7 @@ RETURNING *;
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_playground_example</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">id</span>: <span class="ident">Uuid</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">PlaygroundExample</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">PlaygroundExample</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 UPDATE playground_examples
@@ -391,10 +391,10 @@ RETURNING *;
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();
 
-        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;test&quot;</span>.<span class="ident">to_string</span>());
-        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">url</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;https:\\test.com&quot;</span>.<span class="ident">to_string</span>());
-        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">width</span> <span class="op">=</span><span class="op">=</span> <span class="number">500</span>);
-        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">data</span> <span class="op">=</span><span class="op">=</span> <span class="macro">serde_json::json!</span>({<span class="string">&quot;data&quot;</span>:<span class="string">&quot;test&quot;</span>}));
+        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">name</span> <span class="op">==</span> <span class="string">&quot;test&quot;</span>.<span class="ident">to_string</span>());
+        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">url</span> <span class="op">==</span> <span class="string">&quot;https:\\test.com&quot;</span>.<span class="ident">to_string</span>());
+        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">width</span> <span class="op">==</span> <span class="number">500</span>);
+        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">data</span> <span class="op">==</span> <span class="macro">serde_json::json!</span>({<span class="string">&quot;data&quot;</span>:<span class="string">&quot;test&quot;</span>}));
 
         <span class="kw">let</span> <span class="ident">fetched_data</span> <span class="op">=</span> <span class="ident">get_all_playground_examples</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
@@ -418,10 +418,10 @@ RETURNING *;
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();
 
-        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;test&quot;</span>.<span class="ident">to_string</span>());
-        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">url</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;https:\\test.com&quot;</span>.<span class="ident">to_string</span>());
-        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">width</span> <span class="op">=</span><span class="op">=</span> <span class="number">500</span>);
-        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">data</span> <span class="op">=</span><span class="op">=</span> <span class="macro">serde_json::json!</span>({<span class="string">&quot;data&quot;</span>:<span class="string">&quot;test&quot;</span>}));
+        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">name</span> <span class="op">==</span> <span class="string">&quot;test&quot;</span>.<span class="ident">to_string</span>());
+        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">url</span> <span class="op">==</span> <span class="string">&quot;https:\\test.com&quot;</span>.<span class="ident">to_string</span>());
+        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">width</span> <span class="op">==</span> <span class="number">500</span>);
+        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">data</span> <span class="op">==</span> <span class="macro">serde_json::json!</span>({<span class="string">&quot;data&quot;</span>:<span class="string">&quot;test&quot;</span>}));
 
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">delete_playground_example</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">inserted_data</span>.<span class="ident">id</span>)
             .<span class="kw">await</span>
@@ -451,10 +451,10 @@ RETURNING *;
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();
 
-        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;test&quot;</span>.<span class="ident">to_string</span>());
-        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">url</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;https:\\test.com&quot;</span>.<span class="ident">to_string</span>());
-        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">width</span> <span class="op">=</span><span class="op">=</span> <span class="number">500</span>);
-        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">data</span> <span class="op">=</span><span class="op">=</span> <span class="macro">serde_json::json!</span>({<span class="string">&quot;data&quot;</span>:<span class="string">&quot;test&quot;</span>}));
+        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">name</span> <span class="op">==</span> <span class="string">&quot;test&quot;</span>.<span class="ident">to_string</span>());
+        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">url</span> <span class="op">==</span> <span class="string">&quot;https:\\test.com&quot;</span>.<span class="ident">to_string</span>());
+        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">width</span> <span class="op">==</span> <span class="number">500</span>);
+        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">data</span> <span class="op">==</span> <span class="macro">serde_json::json!</span>({<span class="string">&quot;data&quot;</span>:<span class="string">&quot;test&quot;</span>}));
 
         <span class="kw">let</span> <span class="ident">updated_data</span> <span class="op">=</span> <span class="ident">PlaygroundExample</span> {
             <span class="ident">name</span>: <span class="string">&quot;updated name&quot;</span>.<span class="ident">to_string</span>(),
@@ -468,10 +468,10 @@ RETURNING *;
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
 
-        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;updated name&quot;</span>.<span class="ident">to_string</span>());
-        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">url</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;https:\\updated-url.com&quot;</span>.<span class="ident">to_string</span>());
-        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">width</span> <span class="op">=</span><span class="op">=</span> <span class="number">600</span>);
-        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">data</span> <span class="op">=</span><span class="op">=</span> <span class="macro">serde_json::json!</span>({<span class="string">&quot;data&quot;</span>:<span class="string">&quot;updated data&quot;</span>}));
+        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">name</span> <span class="op">==</span> <span class="string">&quot;updated name&quot;</span>.<span class="ident">to_string</span>());
+        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">url</span> <span class="op">==</span> <span class="string">&quot;https:\\updated-url.com&quot;</span>.<span class="ident">to_string</span>());
+        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">width</span> <span class="op">==</span> <span class="number">600</span>);
+        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">data</span> <span class="op">==</span> <span class="macro">serde_json::json!</span>({<span class="string">&quot;data&quot;</span>:<span class="string">&quot;updated data&quot;</span>}));
 
         <span class="kw">let</span> <span class="ident">fetched_data</span> <span class="op">=</span> <span class="ident">get_all_playground_examples</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
 

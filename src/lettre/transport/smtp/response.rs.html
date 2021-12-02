@@ -614,7 +614,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Severity</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span> {
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="kw-2">*</span><span class="self">self</span> <span class="kw">as</span> <span class="ident">u8</span>)
     }
 }
@@ -638,7 +638,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Category</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span> {
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="kw-2">*</span><span class="self">self</span> <span class="kw">as</span> <span class="ident">u8</span>)
     }
 }
@@ -670,7 +670,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Detail</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span> {
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="kw-2">*</span><span class="self">self</span> <span class="kw">as</span> <span class="ident">u8</span>)
     }
 }
@@ -688,14 +688,14 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Code</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span> {
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}{}{}&quot;</span>, <span class="self">self</span>.<span class="ident">severity</span>, <span class="self">self</span>.<span class="ident">category</span>, <span class="self">self</span>.<span class="ident">detail</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Code</span> {
     <span class="doccomment">/// Creates a new `Code` structure</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">severity</span>: <span class="ident">Severity</span>, <span class="ident">category</span>: <span class="ident">Category</span>, <span class="ident">detail</span>: <span class="ident">Detail</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Code</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">severity</span>: <span class="ident">Severity</span>, <span class="ident">category</span>: <span class="ident">Category</span>, <span class="ident">detail</span>: <span class="ident">Detail</span>) -&gt; <span class="ident">Code</span> {
         <span class="ident">Code</span> {
             <span class="ident">severity</span>,
             <span class="ident">category</span>,
@@ -704,7 +704,7 @@
     }
 
     <span class="doccomment">/// Tells if the response is positive</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_positive</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_positive</span>(<span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="macro">matches!</span>(
             <span class="self">self</span>.<span class="ident">severity</span>,
             <span class="ident">Severity::PositiveCompletion</span> <span class="op">|</span> <span class="ident">Severity::PositiveIntermediate</span>
@@ -728,7 +728,7 @@
 <span class="kw">impl</span> <span class="ident">FromStr</span> <span class="kw">for</span> <span class="ident">Response</span> {
     <span class="kw">type</span> <span class="prelude-val">Err</span> <span class="op">=</span> <span class="ident">Error</span>;
 
-    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">result::Result</span><span class="op">&lt;</span><span class="ident">Response</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">result::Result</span><span class="op">&lt;</span><span class="ident">Response</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="ident">parse_response</span>(<span class="ident">s</span>)
             .<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">r</span>)<span class="op">|</span> <span class="ident">r</span>)
             .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">error::response</span>(<span class="ident">e</span>.<span class="ident">to_string</span>()))
@@ -737,46 +737,46 @@
 
 <span class="kw">impl</span> <span class="ident">Response</span> {
     <span class="doccomment">/// Creates a new `Response`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">code</span>: <span class="ident">Code</span>, <span class="ident">message</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Response</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">code</span>: <span class="ident">Code</span>, <span class="ident">message</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) -&gt; <span class="ident">Response</span> {
         <span class="ident">Response</span> { <span class="ident">code</span>, <span class="ident">message</span> }
     }
 
     <span class="doccomment">/// Tells if the response is positive</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_positive</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_positive</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">code</span>.<span class="ident">is_positive</span>()
     }
 
     <span class="doccomment">/// Tests code equality</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">code</span>: <span class="ident">u16</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">code</span>.<span class="ident">to_string</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">code</span>.<span class="ident">to_string</span>()
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">code</span>: <span class="ident">u16</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">code</span>.<span class="ident">to_string</span>() <span class="op">==</span> <span class="ident">code</span>.<span class="ident">to_string</span>()
     }
 
     <span class="doccomment">/// Returns only the first word of the message if possible</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">first_word</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">first_word</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">message</span>
             .<span class="ident">first</span>()
             .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">line</span><span class="op">|</span> <span class="ident">line</span>.<span class="ident">split_whitespace</span>().<span class="ident">next</span>())
     }
 
     <span class="doccomment">/// Returns only the line of the message if possible</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">first_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">first_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">first</span>().<span class="ident">map</span>(<span class="ident">String::as_str</span>)
     }
 
     <span class="doccomment">/// Response code</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Code</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Code</span> {
         <span class="self">self</span>.<span class="ident">code</span>
     }
 
     <span class="doccomment">/// Server response string (array of lines)</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="ident">String::as_str</span>)
     }
 }
 
 <span class="comment">// Parsers (originally from tokio-smtp)</span>
 
-<span class="kw">fn</span> <span class="ident">parse_code</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">Code</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">parse_code</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">IResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">Code</span><span class="op">&gt;</span> {
     <span class="kw">let</span> (<span class="ident">i</span>, <span class="ident">severity</span>) <span class="op">=</span> <span class="ident">parse_severity</span>(<span class="ident">i</span>)<span class="question-mark">?</span>;
     <span class="kw">let</span> (<span class="ident">i</span>, <span class="ident">category</span>) <span class="op">=</span> <span class="ident">parse_category</span>(<span class="ident">i</span>)<span class="question-mark">?</span>;
     <span class="kw">let</span> (<span class="ident">i</span>, <span class="ident">detail</span>) <span class="op">=</span> <span class="ident">parse_detail</span>(<span class="ident">i</span>)<span class="question-mark">?</span>;
@@ -790,7 +790,7 @@
     ))
 }
 
-<span class="kw">fn</span> <span class="ident">parse_severity</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">Severity</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">parse_severity</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">IResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">Severity</span><span class="op">&gt;</span> {
     <span class="ident">alt</span>((
         <span class="ident">map</span>(<span class="ident">tag</span>(<span class="string">&quot;2&quot;</span>), <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Severity::PositiveCompletion</span>),
         <span class="ident">map</span>(<span class="ident">tag</span>(<span class="string">&quot;3&quot;</span>), <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Severity::PositiveIntermediate</span>),
@@ -799,7 +799,7 @@
     ))(<span class="ident">i</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">parse_category</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">Category</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">parse_category</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">IResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">Category</span><span class="op">&gt;</span> {
     <span class="ident">alt</span>((
         <span class="ident">map</span>(<span class="ident">tag</span>(<span class="string">&quot;0&quot;</span>), <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Category::Syntax</span>),
         <span class="ident">map</span>(<span class="ident">tag</span>(<span class="string">&quot;1&quot;</span>), <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Category::Information</span>),
@@ -810,7 +810,7 @@
     ))(<span class="ident">i</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">parse_detail</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">Detail</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">parse_detail</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">IResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">Detail</span><span class="op">&gt;</span> {
     <span class="ident">alt</span>((
         <span class="ident">map</span>(<span class="ident">tag</span>(<span class="string">&quot;0&quot;</span>), <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Detail::Zero</span>),
         <span class="ident">map</span>(<span class="ident">tag</span>(<span class="string">&quot;1&quot;</span>), <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Detail::One</span>),
@@ -825,7 +825,7 @@
     ))(<span class="ident">i</span>)
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">parse_response</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">Response</span><span class="op">&gt;</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">parse_response</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">IResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">Response</span><span class="op">&gt;</span> {
     <span class="kw">let</span> (<span class="ident">i</span>, <span class="ident">lines</span>) <span class="op">=</span> <span class="ident">many0</span>(<span class="ident">tuple</span>((
         <span class="ident">parse_code</span>,
         <span class="ident">preceded</span>(<span class="ident">tag</span>(<span class="string">&quot;-&quot;</span>), <span class="ident">take_until</span>(<span class="string">&quot;\r\n&quot;</span>)),
@@ -836,7 +836,7 @@
     <span class="kw">let</span> (<span class="ident">i</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">complete</span>(<span class="ident">tag</span>(<span class="string">&quot;\r\n&quot;</span>))(<span class="ident">i</span>)<span class="question-mark">?</span>;
 
     <span class="comment">// Check that all codes are equal.</span>
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">lines</span>.<span class="ident">iter</span>().<span class="ident">all</span>(<span class="op">|</span><span class="kw-2">&amp;</span>(<span class="ident">code</span>, <span class="kw">_</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">code</span> <span class="op">=</span><span class="op">=</span> <span class="ident">last_code</span>) {
+    <span class="kw">if</span> <span class="op">!</span><span class="ident">lines</span>.<span class="ident">iter</span>().<span class="ident">all</span>(<span class="op">|</span><span class="kw-2">&amp;</span>(<span class="ident">code</span>, <span class="kw">_</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">code</span> <span class="op">==</span> <span class="ident">last_code</span>) {
         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">nom::Err::Failure</span>(<span class="ident">nom::error::Error::new</span>(
             <span class="string">&quot;&quot;</span>,
             <span class="ident">nom::error::ErrorKind::Not</span>,
@@ -1073,8 +1073,8 @@
         <span class="kw">let</span> <span class="ident">raw_response</span> <span class="op">=</span> <span class="string">&quot;250-smtp.example.org\r\n&quot;</span>;
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">parse_response</span>(<span class="ident">raw_response</span>);
         <span class="kw">match</span> <span class="ident">res</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">nom::Err::Incomplete</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {}
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;Expected incomplete response, got {:?}&quot;</span>, <span class="ident">res</span>),
+            <span class="prelude-val">Err</span>(<span class="ident">nom::Err::Incomplete</span>(<span class="kw">_</span>)) =&gt; {}
+            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Expected incomplete response, got {:?}&quot;</span>, <span class="ident">res</span>),
         }
     }
 

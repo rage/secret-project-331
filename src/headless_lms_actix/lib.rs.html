@@ -136,7 +136,7 @@
     <span class="kw">let</span> <span class="ident">json_config</span> <span class="op">=</span>
         <span class="ident">web::JsonConfig::default</span>()
             .<span class="ident">limit</span>(<span class="number">1048576</span>)
-            .<span class="ident">error_handler</span>(<span class="op">|</span><span class="ident">err</span>, <span class="ident">_req</span><span class="op">|</span> <span class="op">-</span><span class="op">&gt;</span> <span class="ident">actix_web::Error</span> {
+            .<span class="ident">error_handler</span>(<span class="op">|</span><span class="ident">err</span>, <span class="ident">_req</span><span class="op">|</span> -&gt; <span class="ident">actix_web::Error</span> {
                 <span class="macro">info!</span>(<span class="string">&quot;Bad request: {}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">err</span>);
                 <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{{\&quot;title\&quot;: \&quot;Bad Request\&quot;, \&quot;message\&quot;: \&quot;{}\&quot;}}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">err</span>);
                 <span class="kw">let</span> <span class="ident">body_bytes</span> <span class="op">=</span> <span class="ident">body</span>.<span class="ident">as_bytes</span>();
@@ -168,7 +168,7 @@ use std::env;
 env::set_var(&quot;RUST_LOG&quot;, &quot;info,actix_web=info,sqlx=warn&quot;);
 ```
 */</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">setup_tracing</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">setup_tracing</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">subscriber</span> <span class="op">=</span> <span class="ident">tracing_subscriber::Registry::default</span>()
         .<span class="ident">with</span>(
             <span class="ident">tracing_subscriber::fmt::layer</span>()

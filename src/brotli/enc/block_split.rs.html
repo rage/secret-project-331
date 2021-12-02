@@ -45,7 +45,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Alloc</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">BlockSplit</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span> {
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BlockSplit</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span> {
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">BlockSplit</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span> {
     <span class="ident">BlockSplit</span> {
       <span class="ident">num_types</span>: <span class="number">0</span>,
       <span class="ident">num_blocks</span>: <span class="number">0</span>,
@@ -59,10 +59,10 @@
     <span class="self">self</span>.<span class="ident">num_blocks</span> <span class="op">=</span> <span class="number">0</span>;
     <span class="self">self</span>.<span class="ident">num_types</span> <span class="op">=</span> <span class="number">0</span>;
   }
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">types_alloc_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">types_alloc_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
     <span class="self">self</span>.<span class="ident">types</span>.<span class="ident">slice</span>().<span class="ident">len</span>()
   }
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lengths_alloc_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lengths_alloc_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
     <span class="self">self</span>.<span class="ident">lengths</span>.<span class="ident">slice</span>().<span class="ident">len</span>()
   }
 }

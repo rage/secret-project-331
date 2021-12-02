@@ -72,18 +72,18 @@
 
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">BrotliResult</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">BrotliDecoderResult</span> {
-  <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">r</span>: <span class="ident">BrotliResult</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+  <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">r</span>: <span class="ident">BrotliResult</span>) -&gt; <span class="self">Self</span> {
     <span class="kw">match</span> <span class="ident">r</span> {
-      <span class="ident">BrotliResult::ResultSuccess</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">BrotliDecoderResult::BROTLI_DECODER_RESULT_SUCCESS</span>,
-      <span class="ident">BrotliResult::ResultFailure</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">BrotliDecoderResult::BROTLI_DECODER_RESULT_ERROR</span>,
-      <span class="ident">BrotliResult::NeedsMoreInput</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">BrotliDecoderResult::BROTLI_DECODER_RESULT_NEEDS_MORE_INPUT</span> ,
-      <span class="ident">BrotliResult::NeedsMoreOutput</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">BrotliDecoderResult::BROTLI_DECODER_RESULT_NEEDS_MORE_OUTPUT</span> ,
+      <span class="ident">BrotliResult::ResultSuccess</span> =&gt; <span class="ident">BrotliDecoderResult::BROTLI_DECODER_RESULT_SUCCESS</span>,
+      <span class="ident">BrotliResult::ResultFailure</span> =&gt; <span class="ident">BrotliDecoderResult::BROTLI_DECODER_RESULT_ERROR</span>,
+      <span class="ident">BrotliResult::NeedsMoreInput</span> =&gt; <span class="ident">BrotliDecoderResult::BROTLI_DECODER_RESULT_NEEDS_MORE_INPUT</span> ,
+      <span class="ident">BrotliResult::NeedsMoreOutput</span> =&gt; <span class="ident">BrotliDecoderResult::BROTLI_DECODER_RESULT_NEEDS_MORE_OUTPUT</span> ,
     }
   }
 }
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">brotli_alloc_func</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>(<span class="ident">data</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>, <span class="ident">size</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span><span class="op">&gt;</span>;
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">brotli_alloc_func</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>(<span class="ident">data</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>, <span class="ident">size</span>: <span class="ident">usize</span>) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span><span class="op">&gt;</span>;
 
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">brotli_free_func</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>(<span class="ident">data</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>, <span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>) <span class="op">-</span><span class="op">&gt;</span> ()<span class="op">&gt;</span>;
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">brotli_free_func</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>(<span class="ident">data</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>, <span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>) -&gt; ()<span class="op">&gt;</span>;
 
 
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>

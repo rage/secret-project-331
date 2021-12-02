@@ -416,13 +416,13 @@
 
 <span class="kw">impl</span> <span class="ident">Compress</span> {
     <span class="doccomment">/// Create new `Compress` middleware with the specified encoding.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">encoding</span>: <span class="ident">ContentEncoding</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">encoding</span>: <span class="ident">ContentEncoding</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">Compress</span>(<span class="ident">encoding</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Compress</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">Compress::new</span>(<span class="ident">ContentEncoding::Auto</span>)
     }
 }
@@ -438,7 +438,7 @@
     <span class="kw">type</span> <span class="ident">InitError</span> <span class="op">=</span> ();
     <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">Ready</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Transform</span>, <span class="ident"><span class="self">Self</span>::InitError</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">new_transform</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">service</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Future</span> {
+    <span class="kw">fn</span> <span class="ident">new_transform</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">service</span>: <span class="ident">S</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
         <span class="ident">ok</span>(<span class="ident">CompressMiddleware</span> {
             <span class="ident">service</span>,
             <span class="ident">encoding</span>: <span class="self">self</span>.<span class="number">0</span>,
@@ -488,7 +488,7 @@
     <span class="macro">actix_service::forward_ready!</span>(<span class="ident">service</span>);
 
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::borrow_interior_mutable_const</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">ServiceRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Future</span> {
+    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">ServiceRequest</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
         <span class="comment">// negotiate content-encoding</span>
         <span class="kw">let</span> <span class="ident">encoding_result</span> <span class="op">=</span> <span class="ident">req</span>
             .<span class="ident">headers</span>()
@@ -498,21 +498,21 @@
 
         <span class="kw">match</span> <span class="ident">encoding_result</span> {
             <span class="comment">// Missing header =&gt; fallback to identity</span>
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Either::left</span>(<span class="ident">CompressResponse</span> {
+            <span class="prelude-val">None</span> =&gt; <span class="ident">Either::left</span>(<span class="ident">CompressResponse</span> {
                 <span class="ident">encoding</span>: <span class="ident">ContentEncoding::Identity</span>,
                 <span class="ident">fut</span>: <span class="self">self</span>.<span class="ident">service</span>.<span class="ident">call</span>(<span class="ident">req</span>),
                 <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
             }),
 
             <span class="comment">// Valid encoding</span>
-            <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">encoding</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Either::left</span>(<span class="ident">CompressResponse</span> {
+            <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">encoding</span>)) =&gt; <span class="ident">Either::left</span>(<span class="ident">CompressResponse</span> {
                 <span class="ident">encoding</span>,
                 <span class="ident">fut</span>: <span class="self">self</span>.<span class="ident">service</span>.<span class="ident">call</span>(<span class="ident">req</span>),
                 <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
             }),
 
             <span class="comment">// There is an HTTP header but we cannot match what client as asked for</span>
-            <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="kw">_</span>)) =&gt; {
                 <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">HttpResponse::with_body</span>(
                     <span class="ident">StatusCode::NOT_ACCEPTABLE</span>,
                     <span class="ident">SUPPORTED_ALGORITHM_NAMES</span>.<span class="ident">as_str</span>(),
@@ -545,11 +545,11 @@
 {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">ResponseBody</span><span class="op">&lt;</span><span class="ident">Encoder</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">project</span>();
 
         <span class="kw">match</span> <span class="macro">ready!</span>(<span class="ident">this</span>.<span class="ident">fut</span>.<span class="ident">poll</span>(<span class="ident">cx</span>)) {
-            <span class="prelude-val">Ok</span>(<span class="ident">resp</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Ok</span>(<span class="ident">resp</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">enc</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">enc</span>) <span class="op">=</span> <span class="ident">resp</span>.<span class="ident">response</span>().<span class="ident">get_encoding</span>() {
                     <span class="ident">enc</span>
                 } <span class="kw">else</span> {
@@ -560,7 +560,7 @@
                     <span class="ident">Encoder::response</span>(<span class="ident">enc</span>, <span class="ident">head</span>, <span class="ident">ResponseBody::Body</span>(<span class="ident">body</span>))
                 })))
             }
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)),
+            <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)),
         }
     }
 }
@@ -575,7 +575,7 @@
 
 <span class="kw">impl</span> <span class="ident">Ord</span> <span class="kw">for</span> <span class="ident">AcceptEncoding</span> {
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::comparison_chain</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">AcceptEncoding</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">cmp::Ordering</span> {
+    <span class="kw">fn</span> <span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">AcceptEncoding</span>) -&gt; <span class="ident">cmp::Ordering</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">quality</span> <span class="op">&gt;</span> <span class="ident">other</span>.<span class="ident">quality</span> {
             <span class="ident">cmp::Ordering::Less</span>
         } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">quality</span> <span class="op">&lt;</span> <span class="ident">other</span>.<span class="ident">quality</span> {
@@ -587,14 +587,14 @@
 }
 
 <span class="kw">impl</span> <span class="ident">PartialOrd</span> <span class="kw">for</span> <span class="ident">AcceptEncoding</span> {
-    <span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">AcceptEncoding</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">cmp::Ordering</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">AcceptEncoding</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">cmp::Ordering</span><span class="op">&gt;</span> {
         <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">cmp</span>(<span class="ident">other</span>))
     }
 }
 
 <span class="kw">impl</span> <span class="ident">PartialEq</span> <span class="kw">for</span> <span class="ident">AcceptEncoding</span> {
-    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">AcceptEncoding</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">encoding</span> <span class="op">=</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">encoding</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">quality</span> <span class="op">=</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">quality</span>
+    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">AcceptEncoding</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">encoding</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">encoding</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">quality</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">quality</span>
     }
 }
 
@@ -602,7 +602,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// If parse fail, then fallback to default value which is 1.</span>
 <span class="doccomment">/// More details available here: &lt;https://developer.mozilla.org/en-US/docs/Glossary/Quality_values&gt;</span>
-<span class="kw">fn</span> <span class="ident">parse_quality</span>(<span class="ident">parts</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">str</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+<span class="kw">fn</span> <span class="ident">parse_quality</span>(<span class="ident">parts</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">str</span>]) -&gt; <span class="ident">f64</span> {
     <span class="kw">for</span> <span class="ident">part</span> <span class="kw">in</span> <span class="ident">parts</span> {
         <span class="kw">if</span> <span class="ident">part</span>.<span class="ident">trim</span>().<span class="ident">starts_with</span>(<span class="string">&quot;q=&quot;</span>) {
             <span class="kw">return</span> <span class="ident">part</span>[<span class="number">2</span>..].<span class="ident">parse</span>().<span class="ident">unwrap_or</span>(<span class="number">1.0</span>);
@@ -620,13 +620,13 @@
 }
 
 <span class="kw">impl</span> <span class="ident">AcceptEncoding</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">tag</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AcceptEncoding</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">tag</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AcceptEncoding</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">parts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">tag</span>.<span class="ident">split</span>(<span class="string">&#39;;&#39;</span>).<span class="ident">collect</span>();
         <span class="kw">let</span> <span class="ident">encoding</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">parts</span>.<span class="ident">len</span>() {
-            <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">None</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">ContentEncoding::try_from</span>(<span class="ident">parts</span>[<span class="number">0</span>]) {
-                <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">None</span>,
-                <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>,
+            <span class="number">0</span> =&gt; <span class="kw">return</span> <span class="prelude-val">None</span>,
+            <span class="kw">_</span> =&gt; <span class="kw">match</span> <span class="ident">ContentEncoding::try_from</span>(<span class="ident">parts</span>[<span class="number">0</span>]) {
+                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">None</span>,
+                <span class="prelude-val">Ok</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>,
             },
         };
 
@@ -643,7 +643,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_parse</span>(
         <span class="ident">raw</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">encoding</span>: <span class="ident">ContentEncoding</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ContentEncoding</span>, <span class="ident">AcceptEncodingError</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ContentEncoding</span>, <span class="ident">AcceptEncodingError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">encodings</span> <span class="op">=</span> <span class="ident">raw</span>
             .<span class="ident">replace</span>(<span class="string">&#39; &#39;</span>, <span class="string">&quot;&quot;</span>)
             .<span class="ident">split</span>(<span class="string">&#39;,&#39;</span>)
@@ -653,7 +653,7 @@
         <span class="ident">encodings</span>.<span class="ident">sort</span>();
 
         <span class="kw">for</span> <span class="ident">enc</span> <span class="kw">in</span> <span class="ident">encodings</span> {
-            <span class="kw">if</span> <span class="ident">encoding</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ContentEncoding::Auto</span> <span class="op">|</span><span class="op">|</span> <span class="ident">encoding</span> <span class="op">=</span><span class="op">=</span> <span class="ident">enc</span>.<span class="ident">encoding</span> {
+            <span class="kw">if</span> <span class="ident">encoding</span> <span class="op">==</span> <span class="ident">ContentEncoding::Auto</span> <span class="op">|</span><span class="op">|</span> <span class="ident">encoding</span> <span class="op">==</span> <span class="ident">enc</span>.<span class="ident">encoding</span> {
                 <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">enc</span>.<span class="ident">encoding</span>);
             }
         }
@@ -674,7 +674,7 @@
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
     <span class="macro">macro_rules!</span> <span class="ident">assert_parse_eq</span> {
-        (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">raw</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">result</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">raw</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">result</span>:<span class="ident">expr</span>) =&gt; {
             <span class="macro">assert_eq!</span>(
                 <span class="ident">AcceptEncoding::try_parse</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">raw</span>, <span class="ident">ContentEncoding::Auto</span>),
                 <span class="prelude-val">Ok</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">result</span>)
@@ -683,7 +683,7 @@
     }
 
     <span class="macro">macro_rules!</span> <span class="ident">assert_parse_fail</span> {
-        (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">raw</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">raw</span>:<span class="ident">expr</span>) =&gt; {
             <span class="macro">assert!</span>(<span class="ident">AcceptEncoding::try_parse</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">raw</span>, <span class="ident">ContentEncoding::Auto</span>).<span class="ident">is_err</span>());
         };
     }

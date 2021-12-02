@@ -156,21 +156,21 @@
 <span id="156">156</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cmp::Ordering</span>;
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cmp_module_specifiers</span>(<span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">cmp_text</span>: <span class="kw">impl</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ordering</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ordering</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cmp_module_specifiers</span>(<span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">cmp_text</span>: <span class="kw">impl</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Ordering</span>) -&gt; <span class="ident">Ordering</span> {
     <span class="kw">let</span> <span class="ident">a_info</span> <span class="op">=</span> <span class="ident">get_module_specifier_info</span>(<span class="ident">a</span>);
     <span class="kw">let</span> <span class="ident">b_info</span> <span class="op">=</span> <span class="ident">get_module_specifier_info</span>(<span class="ident">b</span>);
 
     <span class="kw">return</span> <span class="kw">match</span> <span class="ident">a_info</span>.<span class="ident">kind</span> {
-        <span class="ident">ModuleSpecifierKind::Absolute</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">ModuleSpecifierKind::Absolute</span> =&gt; {
             <span class="kw">match</span> <span class="ident">b_info</span>.<span class="ident">kind</span> {
-                <span class="ident">ModuleSpecifierKind::Absolute</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">compare_folder_items</span>(<span class="kw-2">&amp;</span><span class="ident">a_info</span>, <span class="kw-2">&amp;</span><span class="ident">b_info</span>, <span class="ident">cmp_text</span>),
-                <span class="ident">ModuleSpecifierKind::Relative</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Ordering::Less</span>,
+                <span class="ident">ModuleSpecifierKind::Absolute</span> =&gt; <span class="ident">compare_folder_items</span>(<span class="kw-2">&amp;</span><span class="ident">a_info</span>, <span class="kw-2">&amp;</span><span class="ident">b_info</span>, <span class="ident">cmp_text</span>),
+                <span class="ident">ModuleSpecifierKind::Relative</span>(<span class="kw">_</span>) =&gt; <span class="ident">Ordering::Less</span>,
             }
         },
-        <span class="ident">ModuleSpecifierKind::Relative</span>(<span class="ident">a_relative_count</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">ModuleSpecifierKind::Relative</span>(<span class="ident">a_relative_count</span>) =&gt; {
             <span class="kw">match</span> <span class="ident">b_info</span>.<span class="ident">kind</span> {
-                <span class="ident">ModuleSpecifierKind::Absolute</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Ordering::Greater</span>,
-                <span class="ident">ModuleSpecifierKind::Relative</span>(<span class="ident">b_relative_count</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">ModuleSpecifierKind::Absolute</span> =&gt; <span class="ident">Ordering::Greater</span>,
+                <span class="ident">ModuleSpecifierKind::Relative</span>(<span class="ident">b_relative_count</span>) =&gt; {
                     <span class="kw">if</span> <span class="ident">a_relative_count</span> <span class="op">&gt;</span> <span class="ident">b_relative_count</span> {
                         <span class="ident">Ordering::Less</span>
                     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">a_relative_count</span> <span class="op">&lt;</span> <span class="ident">b_relative_count</span> {
@@ -183,7 +183,7 @@
         }
     };
 
-    <span class="kw">fn</span> <span class="ident">compare_folder_items</span>(<span class="ident">a_info</span>: <span class="kw-2">&amp;</span><span class="ident">ModuleSpecifierInfo</span>, <span class="ident">b_info</span>: <span class="kw-2">&amp;</span><span class="ident">ModuleSpecifierInfo</span>, <span class="ident">cmp_text</span>: <span class="kw">impl</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ordering</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ordering</span> {
+    <span class="kw">fn</span> <span class="ident">compare_folder_items</span>(<span class="ident">a_info</span>: <span class="kw-2">&amp;</span><span class="ident">ModuleSpecifierInfo</span>, <span class="ident">b_info</span>: <span class="kw-2">&amp;</span><span class="ident">ModuleSpecifierInfo</span>, <span class="ident">cmp_text</span>: <span class="kw">impl</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Ordering</span>) -&gt; <span class="ident">Ordering</span> {
         <span class="kw">let</span> <span class="ident">max_len</span> <span class="op">=</span> <span class="ident">std::cmp::min</span>(<span class="ident">a_info</span>.<span class="ident">folder_items</span>.<span class="ident">len</span>(), <span class="ident">b_info</span>.<span class="ident">folder_items</span>.<span class="ident">len</span>());
         <span class="comment">// compare the common items except for the potential file name at the end</span>
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">max_len</span> <span class="op">-</span> <span class="number">1</span> {
@@ -220,22 +220,22 @@
     <span class="ident">Relative</span>(<span class="ident">usize</span>),
 }
 
-<span class="kw">fn</span> <span class="ident">get_module_specifier_info</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModuleSpecifierInfo</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">get_module_specifier_info</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) -&gt; <span class="ident">ModuleSpecifierInfo</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">no_quotes_text</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">text</span>[<span class="number">1</span>..<span class="ident">text</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>];
     <span class="kw">let</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">no_quotes_text</span>.<span class="ident">split</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-    <span class="kw">if</span> <span class="ident">parts</span>[<span class="number">0</span>] <span class="op">=</span><span class="op">=</span> <span class="string">&quot;.&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">parts</span>[<span class="number">0</span>] <span class="op">=</span><span class="op">=</span> <span class="string">&quot;..&quot;</span> {
+    <span class="kw">if</span> <span class="ident">parts</span>[<span class="number">0</span>] <span class="op">==</span> <span class="string">&quot;.&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">parts</span>[<span class="number">0</span>] <span class="op">==</span> <span class="string">&quot;..&quot;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">relative_count</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">start_index</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">let</span> <span class="ident">parts_len</span> <span class="op">=</span> <span class="ident">parts</span>.<span class="ident">len</span>();
         <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">part</span>) <span class="kw">in</span> <span class="ident">parts</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">if</span> <span class="ident">part</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;..&quot;</span> {
+            <span class="kw">if</span> <span class="ident">part</span> <span class="op">==</span> <span class="string">&quot;..&quot;</span> {
                 <span class="ident">relative_count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">part</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;.&quot;</span> {
                 <span class="kw">break</span>;
             }
 
             <span class="comment">// use 0 for last part since it does not have a slash after it</span>
-            <span class="kw">let</span> <span class="ident">next_slash_width</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">parts_len</span> <span class="op">-</span> <span class="number">1</span> { <span class="number">0</span> } <span class="kw">else</span> { <span class="number">1</span> };
+            <span class="kw">let</span> <span class="ident">next_slash_width</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">i</span> <span class="op">==</span> <span class="ident">parts_len</span> <span class="op">-</span> <span class="number">1</span> { <span class="number">0</span> } <span class="kw">else</span> { <span class="number">1</span> };
             <span class="ident">start_index</span> <span class="op">+</span><span class="op">=</span> <span class="ident">part</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="ident">next_slash_width</span>;
         }
 

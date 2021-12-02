@@ -211,7 +211,7 @@
 <span class="doccomment">/// - there was an error while sending request</span>
 <span class="doccomment">/// - redirect loop was detected</span>
 <span class="doccomment">/// - redirect limit was exhausted</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident"><span class="kw">crate</span>::IntoUrl</span><span class="op">&gt;</span>(<span class="ident">url</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident"><span class="kw">crate</span>::IntoUrl</span><span class="op">&gt;</span>(<span class="ident">url</span>: <span class="ident">T</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&gt;</span> {
     <span class="ident">Client::builder</span>().<span class="ident">build</span>()<span class="question-mark">?</span>.<span class="ident">get</span>(<span class="ident">url</span>).<span class="ident">send</span>()
 }
 </code></pre></div>

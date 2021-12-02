@@ -330,7 +330,7 @@
     <span class="doccomment">/// Creates a new `Writer`.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// All output from the given operation will be forwarded to `writer`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">writer</span>: <span class="ident">W</span>, <span class="ident">operation</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">writer</span>: <span class="ident">W</span>, <span class="ident">operation</span>: <span class="ident">D</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">Writer</span> {
             <span class="ident">writer</span>,
             <span class="ident">operation</span>,
@@ -353,7 +353,7 @@
     <span class="doccomment">/// an incomplete output.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Keep calling it until it returns `Ok(())`, then don&#39;t call it again.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">finish</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">finish</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">loop</span> {
             <span class="comment">// Keep trying until we&#39;re really done.</span>
             <span class="self">self</span>.<span class="ident">write_from_offset</span>()<span class="question-mark">?</span>;
@@ -387,7 +387,7 @@
 
             <span class="comment">// println!(&quot;Finishing {}, {}&quot;, bytes_written, hint);</span>
 
-            <span class="self">self</span>.<span class="ident">finished</span> <span class="op">=</span> <span class="ident">hint</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>;
+            <span class="self">self</span>.<span class="ident">finished</span> <span class="op">=</span> <span class="ident">hint</span> <span class="op">==</span> <span class="number">0</span>;
         }
     }
 
@@ -397,9 +397,9 @@
     <span class="doccomment">/// but the memory there may be uninitialized.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// It is only safe to write in this buffer, not to read from there.</span>
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">with_full_buffer</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span>
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">with_full_buffer</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">T</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">OutBuffer</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span>,
+        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">OutBuffer</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">D</span>) -&gt; <span class="ident">T</span>,
     {
         <span class="kw">let</span> <span class="ident">capacity</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">buffer</span>.<span class="ident">capacity</span>();
         <span class="self">self</span>.<span class="ident">buffer</span>.<span class="ident">set_len</span>(<span class="ident">capacity</span>);
@@ -416,14 +416,14 @@
     <span class="doccomment">/// Attempt to write `self.buffer` to the wrapped writer.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns `Ok(())` once all the buffer has been written.</span>
-    <span class="kw">fn</span> <span class="ident">write_from_offset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">write_from_offset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="comment">// The code looks a lot like `write_all`, but keeps track of what has</span>
         <span class="comment">// been written in case we&#39;re interrupted.</span>
         <span class="kw">while</span> <span class="self">self</span>.<span class="ident">offset</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">buffer</span>.<span class="ident">len</span>() {
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">buffer</span>[<span class="self">self</span>.<span class="ident">offset</span>..]) {
-                <span class="prelude-val">Ok</span>(<span class="ident">n</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">offset</span> <span class="op">+</span><span class="op">=</span> <span class="ident">n</span>,
-                <span class="prelude-val">Err</span>(<span class="kw-2">ref</span> <span class="ident">e</span>) <span class="kw">if</span> <span class="ident">e</span>.<span class="ident">kind</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">io::ErrorKind::Interrupted</span> <span class="op">=</span><span class="op">&gt;</span> (),
-                <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+                <span class="prelude-val">Ok</span>(<span class="ident">n</span>) =&gt; <span class="self">self</span>.<span class="ident">offset</span> <span class="op">+</span><span class="op">=</span> <span class="ident">n</span>,
+                <span class="prelude-val">Err</span>(<span class="kw-2">ref</span> <span class="ident">e</span>) <span class="kw">if</span> <span class="ident">e</span>.<span class="ident">kind</span>() <span class="op">==</span> <span class="ident">io::ErrorKind::Interrupted</span> =&gt; (),
+                <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
             }
         }
         <span class="prelude-val">Ok</span>(())
@@ -433,39 +433,39 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Careful: if you call this before calling [`Writer::finish()`], the</span>
     <span class="doccomment">/// output may be incomplete.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_inner</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">W</span>, <span class="ident">D</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_inner</span>(<span class="self">self</span>) -&gt; (<span class="ident">W</span>, <span class="ident">D</span>) {
         (<span class="self">self</span>.<span class="ident">writer</span>, <span class="self">self</span>.<span class="ident">operation</span>)
     }
 
     <span class="doccomment">/// Gives a reference to the inner writer.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">writer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">W</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">writer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">W</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">writer</span>
     }
 
     <span class="doccomment">/// Gives a mutable reference to the inner writer.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">writer_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">writer_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span> {
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>
     }
 
     <span class="doccomment">/// Gives a reference to the inner operation.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">operation</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">D</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">operation</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">D</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">operation</span>
     }
 
     <span class="doccomment">/// Gives a mutable reference to the inner operation.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">operation_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">D</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">operation_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">D</span> {
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">operation</span>
     }
 
     <span class="doccomment">/// Returns the offset in the current buffer. Only useful for debugging.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">offset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">offset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">offset</span>
     }
 
     <span class="doccomment">/// Returns the current buffer. Only useful for debugging.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">buffer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">buffer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">buffer</span>
     }
 }
@@ -475,7 +475,7 @@
     <span class="ident">W</span>: <span class="ident">Write</span>,
     <span class="ident">D</span>: <span class="ident">Operation</span>,
 {
-    <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="comment">// Keep trying until _something_ has been consumed.</span>
         <span class="comment">// As soon as some input has been taken, we cannot afford</span>
         <span class="comment">// to take any chance: if an error occurs, the user couldn&#39;t know</span>
@@ -503,7 +503,7 @@
             <span class="self">self</span>.<span class="ident">offset</span> <span class="op">=</span> <span class="number">0</span>;
             <span class="kw">let</span> <span class="ident">hint</span> <span class="op">=</span> <span class="ident">hint</span><span class="question-mark">?</span>;
 
-            <span class="kw">if</span> <span class="ident">hint</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+            <span class="kw">if</span> <span class="ident">hint</span> <span class="op">==</span> <span class="number">0</span> {
                 <span class="self">self</span>.<span class="ident">finished_frame</span> <span class="op">=</span> <span class="bool-val">true</span>;
             }
 
@@ -515,7 +515,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">finished</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">finished</span>;
         <span class="kw">loop</span> {
             <span class="comment">// If the output is blocked or has an error, return now.</span>
@@ -531,7 +531,7 @@
             <span class="self">self</span>.<span class="ident">offset</span> <span class="op">=</span> <span class="number">0</span>;
             <span class="kw">let</span> <span class="ident">hint</span> <span class="op">=</span> <span class="ident">hint</span><span class="question-mark">?</span>;
 
-            <span class="ident">finished</span> <span class="op">=</span> <span class="ident">hint</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>;
+            <span class="ident">finished</span> <span class="op">=</span> <span class="ident">hint</span> <span class="op">==</span> <span class="number">0</span>;
         }
     }
 }

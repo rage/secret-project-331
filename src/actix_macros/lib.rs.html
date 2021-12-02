@@ -229,11 +229,11 @@
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::needless_doctest_main</span>)]</span>
 <span class="attribute">#[<span class="ident">proc_macro_attribute</span>]</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">test</span>))]</span> <span class="comment">// Work around for rust-lang/rust#62127</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">main</span>(<span class="ident">args</span>: <span class="ident">TokenStream</span>, <span class="ident">item</span>: <span class="ident">TokenStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">main</span>(<span class="ident">args</span>: <span class="ident">TokenStream</span>, <span class="ident">item</span>: <span class="ident">TokenStream</span>) -&gt; <span class="ident">TokenStream</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">input</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">syn::parse</span>::<span class="op">&lt;</span><span class="ident">syn::ItemFn</span><span class="op">&gt;</span>(<span class="ident">item</span>.<span class="ident">clone</span>()) {
-        <span class="prelude-val">Ok</span>(<span class="ident">input</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">input</span>,
+        <span class="prelude-val">Ok</span>(<span class="ident">input</span>) =&gt; <span class="ident">input</span>,
         <span class="comment">// on parse err, make IDEs happy; see fn docs</span>
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">input_and_compile_error</span>(<span class="ident">item</span>, <span class="ident">err</span>),
+        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="kw">return</span> <span class="ident">input_and_compile_error</span>(<span class="ident">item</span>, <span class="ident">err</span>),
     };
 
     <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="macro">syn::parse_macro_input!</span>(<span class="ident">args</span> <span class="kw">as</span> <span class="ident">syn::AttributeArgs</span>);
@@ -260,26 +260,26 @@
                 <span class="ident">lit</span>: <span class="ident">syn::Lit::Str</span>(<span class="ident">lit</span>),
                 <span class="ident">path</span>,
                 ..
-            })) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">path</span>
+            })) =&gt; <span class="kw">match</span> <span class="ident">path</span>
                 .<span class="ident">get_ident</span>()
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">i</span>.<span class="ident">to_string</span>().<span class="ident">to_lowercase</span>())
                 .<span class="ident">as_deref</span>()
             {
-                <span class="prelude-val">Some</span>(<span class="string">&quot;system&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">lit</span>.<span class="ident">parse</span>() {
-                    <span class="prelude-val">Ok</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">system</span> <span class="op">=</span> <span class="ident">path</span>,
-                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Some</span>(<span class="string">&quot;system&quot;</span>) =&gt; <span class="kw">match</span> <span class="ident">lit</span>.<span class="ident">parse</span>() {
+                    <span class="prelude-val">Ok</span>(<span class="ident">path</span>) =&gt; <span class="ident">system</span> <span class="op">=</span> <span class="ident">path</span>,
+                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
                         <span class="kw">return</span> <span class="ident">syn::Error::new_spanned</span>(<span class="ident">lit</span>, <span class="string">&quot;Expected path&quot;</span>)
                             .<span class="ident">to_compile_error</span>()
                             .<span class="ident">into</span>();
                     }
                 },
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">_</span> =&gt; {
                     <span class="kw">return</span> <span class="ident">syn::Error::new_spanned</span>(<span class="ident">arg</span>, <span class="string">&quot;Unknown attribute specified&quot;</span>)
                         .<span class="ident">to_compile_error</span>()
                         .<span class="ident">into</span>();
                 }
             },
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="kw">_</span> =&gt; {
                 <span class="kw">return</span> <span class="ident">syn::Error::new_spanned</span>(<span class="ident">arg</span>, <span class="string">&quot;Unknown attribute specified&quot;</span>)
                     .<span class="ident">to_compile_error</span>()
                     .<span class="ident">into</span>();
@@ -308,11 +308,11 @@
 <span class="doccomment">/// }</span>
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">proc_macro_attribute</span>]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">test</span>(<span class="ident">args</span>: <span class="ident">TokenStream</span>, <span class="ident">item</span>: <span class="ident">TokenStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">test</span>(<span class="ident">args</span>: <span class="ident">TokenStream</span>, <span class="ident">item</span>: <span class="ident">TokenStream</span>) -&gt; <span class="ident">TokenStream</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">input</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">syn::parse</span>::<span class="op">&lt;</span><span class="ident">syn::ItemFn</span><span class="op">&gt;</span>(<span class="ident">item</span>.<span class="ident">clone</span>()) {
-        <span class="prelude-val">Ok</span>(<span class="ident">input</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">input</span>,
+        <span class="prelude-val">Ok</span>(<span class="ident">input</span>) =&gt; <span class="ident">input</span>,
         <span class="comment">// on parse err, make IDEs happy; see fn docs</span>
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">input_and_compile_error</span>(<span class="ident">item</span>, <span class="ident">err</span>),
+        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="kw">return</span> <span class="ident">input_and_compile_error</span>(<span class="ident">item</span>, <span class="ident">err</span>),
     };
 
     <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="macro">syn::parse_macro_input!</span>(<span class="ident">args</span> <span class="kw">as</span> <span class="ident">syn::AttributeArgs</span>);
@@ -354,26 +354,26 @@
                 <span class="ident">lit</span>: <span class="ident">syn::Lit::Str</span>(<span class="ident">lit</span>),
                 <span class="ident">path</span>,
                 ..
-            })) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">path</span>
+            })) =&gt; <span class="kw">match</span> <span class="ident">path</span>
                 .<span class="ident">get_ident</span>()
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">i</span>.<span class="ident">to_string</span>().<span class="ident">to_lowercase</span>())
                 .<span class="ident">as_deref</span>()
             {
-                <span class="prelude-val">Some</span>(<span class="string">&quot;system&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">lit</span>.<span class="ident">parse</span>() {
-                    <span class="prelude-val">Ok</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">system</span> <span class="op">=</span> <span class="ident">path</span>,
-                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Some</span>(<span class="string">&quot;system&quot;</span>) =&gt; <span class="kw">match</span> <span class="ident">lit</span>.<span class="ident">parse</span>() {
+                    <span class="prelude-val">Ok</span>(<span class="ident">path</span>) =&gt; <span class="ident">system</span> <span class="op">=</span> <span class="ident">path</span>,
+                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
                         <span class="kw">return</span> <span class="ident">syn::Error::new_spanned</span>(<span class="ident">lit</span>, <span class="string">&quot;Expected path&quot;</span>)
                             .<span class="ident">to_compile_error</span>()
                             .<span class="ident">into</span>();
                     }
                 },
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">_</span> =&gt; {
                     <span class="kw">return</span> <span class="ident">syn::Error::new_spanned</span>(<span class="ident">arg</span>, <span class="string">&quot;Unknown attribute specified&quot;</span>)
                         .<span class="ident">to_compile_error</span>()
                         .<span class="ident">into</span>();
                 }
             },
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="kw">_</span> =&gt; {
                 <span class="kw">return</span> <span class="ident">syn::Error::new_spanned</span>(<span class="ident">arg</span>, <span class="string">&quot;Unknown attribute specified&quot;</span>)
                     .<span class="ident">to_compile_error</span>()
                     .<span class="ident">into</span>();
@@ -397,7 +397,7 @@
 <span class="doccomment">/// recover and show more precise errors within the macro body.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// See &lt;https://github.com/rust-analyzer/rust-analyzer/issues/10468&gt; for more info.</span>
-<span class="kw">fn</span> <span class="ident">input_and_compile_error</span>(<span class="kw-2">mut</span> <span class="ident">item</span>: <span class="ident">TokenStream</span>, <span class="ident">err</span>: <span class="ident">syn::Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream</span> {
+<span class="kw">fn</span> <span class="ident">input_and_compile_error</span>(<span class="kw-2">mut</span> <span class="ident">item</span>: <span class="ident">TokenStream</span>, <span class="ident">err</span>: <span class="ident">syn::Error</span>) -&gt; <span class="ident">TokenStream</span> {
     <span class="kw">let</span> <span class="ident">compile_err</span> <span class="op">=</span> <span class="ident">TokenStream::from</span>(<span class="ident">err</span>.<span class="ident">to_compile_error</span>());
     <span class="ident">item</span>.<span class="ident">extend</span>(<span class="ident">compile_err</span>);
     <span class="ident">item</span>

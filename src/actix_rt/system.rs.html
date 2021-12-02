@@ -290,7 +290,7 @@
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">/// Panics if underlying Tokio runtime can not be created.</span>
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::new_ret_no_self</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SystemRunner</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">SystemRunner</span> {
         <span class="ident"><span class="self">Self</span>::with_tokio_rt</span>(<span class="op">|</span><span class="op">|</span> {
             <span class="ident">default_tokio_runtime</span>()
                 .<span class="ident">expect</span>(<span class="string">&quot;Default Actix (Tokio) runtime could not be created.&quot;</span>)
@@ -301,9 +301,9 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// [tokio-runtime]: tokio::runtime::Runtime</span>
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_tokio_rt</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="ident">runtime_factory</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SystemRunner</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_tokio_rt</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="ident">runtime_factory</span>: <span class="ident">F</span>) -&gt; <span class="ident">SystemRunner</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">Fn</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">tokio::runtime::Runtime</span>,
+        <span class="ident">F</span>: <span class="ident">Fn</span>() -&gt; <span class="ident">tokio::runtime::Runtime</span>,
     {
         <span class="kw">let</span> (<span class="ident">stop_tx</span>, <span class="ident">stop_rx</span>) <span class="op">=</span> <span class="ident">oneshot::channel</span>();
         <span class="kw">let</span> (<span class="ident">sys_tx</span>, <span class="ident">sys_rx</span>) <span class="op">=</span> <span class="ident">mpsc::unbounded_channel</span>();
@@ -332,7 +332,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">construct</span>(
         <span class="ident">sys_tx</span>: <span class="ident">mpsc::UnboundedSender</span><span class="op">&lt;</span><span class="ident">SystemCommand</span><span class="op">&gt;</span>,
         <span class="ident">arbiter_handle</span>: <span class="ident">ArbiterHandle</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    ) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">sys</span> <span class="op">=</span> <span class="ident">System</span> {
             <span class="ident">sys_tx</span>,
             <span class="ident">arbiter_handle</span>,
@@ -348,10 +348,10 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">/// Panics if no system is registered on the current thread.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">current</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">System</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">current</span>() -&gt; <span class="ident">System</span> {
         <span class="ident">CURRENT</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">cell</span><span class="op">|</span> <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">cell</span>.<span class="ident">borrow</span>() {
-            <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">sys</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">sys</span>.<span class="ident">clone</span>(),
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;System is not running&quot;</span>),
+            <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">sys</span>) =&gt; <span class="ident">sys</span>.<span class="ident">clone</span>(),
+            <span class="prelude-val">None</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;System is not running&quot;</span>),
         })
     }
 
@@ -360,17 +360,17 @@
     <span class="doccomment">/// Returns `None` if no System has been started.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Contrary to `current`, this never panics.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_current</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">System</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_current</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">System</span><span class="op">&gt;</span> {
         <span class="ident">CURRENT</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">cell</span><span class="op">|</span> <span class="ident">cell</span>.<span class="ident">borrow</span>().<span class="ident">clone</span>())
     }
 
     <span class="doccomment">/// Get handle to a the System&#39;s initial [Arbiter].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">arbiter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">ArbiterHandle</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">arbiter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">ArbiterHandle</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">arbiter_handle</span>
     }
 
     <span class="doccomment">/// Check if there is a System registered on the current thread.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_registered</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_registered</span>() -&gt; <span class="ident">bool</span> {
         <span class="ident">CURRENT</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">sys</span><span class="op">|</span> <span class="ident">sys</span>.<span class="ident">borrow</span>().<span class="ident">is_some</span>())
     }
 
@@ -385,7 +385,7 @@
     <span class="doccomment">/// Numeric system identifier.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Useful when using multiple Systems.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">id</span>
     }
 
@@ -399,7 +399,7 @@
         <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">sys_tx</span>.<span class="ident">send</span>(<span class="ident">SystemCommand::Exit</span>(<span class="ident">code</span>));
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">tx</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">mpsc::UnboundedSender</span><span class="op">&lt;</span><span class="ident">SystemCommand</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">tx</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">mpsc::UnboundedSender</span><span class="op">&lt;</span><span class="ident">SystemCommand</span><span class="op">&gt;</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">sys_tx</span>
     }
 }
@@ -415,12 +415,12 @@
 
 <span class="kw">impl</span> <span class="ident">SystemRunner</span> {
     <span class="doccomment">/// Starts event loop and will return once [System] is [stopped](System::stop).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run</span>(<span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">SystemRunner</span> { <span class="ident">rt</span>, <span class="ident">stop_rx</span>, .. } <span class="op">=</span> <span class="self">self</span>;
 
         <span class="comment">// run loop</span>
         <span class="kw">match</span> <span class="ident">rt</span>.<span class="ident">block_on</span>(<span class="ident">stop_rx</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">code</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Ok</span>(<span class="ident">code</span>) =&gt; {
                 <span class="kw">if</span> <span class="ident">code</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
                     <span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
                         <span class="ident">io::ErrorKind::Other</span>,
@@ -431,13 +431,13 @@
                 }
             }
 
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(<span class="ident">io::ErrorKind::Other</span>, <span class="ident">e</span>)),
+            <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(<span class="ident">io::ErrorKind::Other</span>, <span class="ident">e</span>)),
         }
     }
 
     <span class="doccomment">/// Runs the provided future, blocking the current thread until the future completes.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">block_on</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Future</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fut</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">F::Output</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">block_on</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Future</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fut</span>: <span class="ident">F</span>) -&gt; <span class="ident">F::Output</span> {
         <span class="self">self</span>.<span class="ident">rt</span>.<span class="ident">block_on</span>(<span class="ident">fut</span>)
     }
 }
@@ -462,7 +462,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(
         <span class="ident">cmd_rx</span>: <span class="ident">mpsc::UnboundedReceiver</span><span class="op">&lt;</span><span class="ident">SystemCommand</span><span class="op">&gt;</span>,
         <span class="ident">stop_tx</span>: <span class="ident">oneshot::Sender</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    ) -&gt; <span class="self">Self</span> {
         <span class="ident">SystemController</span> {
             <span class="ident">cmd_rx</span>,
             <span class="ident">stop_tx</span>: <span class="prelude-val">Some</span>(<span class="ident">stop_tx</span>),
@@ -474,16 +474,16 @@
 <span class="kw">impl</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">SystemController</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> ();
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
         <span class="comment">// process all items currently buffered in channel</span>
         <span class="kw">loop</span> {
             <span class="kw">match</span> <span class="macro">ready!</span>(<span class="ident">Pin::new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">cmd_rx</span>).<span class="ident">poll_recv</span>(<span class="ident">cx</span>)) {
                 <span class="comment">// channel closed; no more messages can be received</span>
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">Poll::Ready</span>(()),
+                <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="ident">Poll::Ready</span>(()),
 
                 <span class="comment">// process system command</span>
-                <span class="prelude-val">Some</span>(<span class="ident">cmd</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">cmd</span> {
-                    <span class="ident">SystemCommand::Exit</span>(<span class="ident">code</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">cmd</span>) =&gt; <span class="kw">match</span> <span class="ident">cmd</span> {
+                    <span class="ident">SystemCommand::Exit</span>(<span class="ident">code</span>) =&gt; {
                         <span class="comment">// stop all arbiters</span>
                         <span class="kw">for</span> <span class="ident">arb</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">arbiters</span>.<span class="ident">values</span>() {
                             <span class="ident">arb</span>.<span class="ident">stop</span>();
@@ -496,11 +496,11 @@
                         }
                     }
 
-                    <span class="ident">SystemCommand::RegisterArbiter</span>(<span class="ident">id</span>, <span class="ident">arb</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">SystemCommand::RegisterArbiter</span>(<span class="ident">id</span>, <span class="ident">arb</span>) =&gt; {
                         <span class="self">self</span>.<span class="ident">arbiters</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">arb</span>);
                     }
 
-                    <span class="ident">SystemCommand::DeregisterArbiter</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">SystemCommand::DeregisterArbiter</span>(<span class="ident">id</span>) =&gt; {
                         <span class="self">self</span>.<span class="ident">arbiters</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>);
                     }
                 },

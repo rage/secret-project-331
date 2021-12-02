@@ -4,7 +4,7 @@
 assertions</em> when they are enabled (they are off by default in release
 builds). This is a feature! Debug checking does <strong>not</strong> make your code safe,
 but it helps finding bugs in <code>unsafe</code> code. Test your code responsibly.</p>
-<h1 id="example" class="section-header"><a href="#example">Example</a></h1>
+<h2 id="example" class="section-header"><a href="#example">Example</a></h2>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code>
 <span class="kw">use</span> <span class="ident">unchecked_index::unchecked_index</span>;
 
@@ -27,17 +27,17 @@ but it helps finding bugs in <code>unsafe</code> code. Test your code responsibl
         <span class="ident">perm</span>[<span class="ident">current</span>] <span class="op">=</span> <span class="ident">current</span>;
     }
 }</code></pre></div>
-<h1 id="crate-features" class="section-header"><a href="#crate-features">Crate Features</a></h1>
+<h2 id="crate-features" class="section-header"><a href="#crate-features">Crate Features</a></h2>
 <p>This crate is always <code>#![no_std]</code>.</p>
-<h1 id="rust-version" class="section-header"><a href="#rust-version">Rust Version</a></h1>
+<h2 id="rust-version" class="section-header"><a href="#rust-version">Rust Version</a></h2>
 <p>This version of the crate requires Rust 1.15 or later.</p>
 </div></details><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.UncheckedIndex.html" title="unchecked_index::UncheckedIndex struct">UncheckedIndex</a></div><div class="item-right docblock-short"><p>Wrapper type for unchecked indexing through the regular index syntax</p>
-</div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="trait" href="trait.CheckIndex.html" title="unchecked_index::CheckIndex trait">CheckIndex</a></div><div class="item-right docblock-short"></div><div class="item-left module-item"><a class="trait" href="trait.GetUnchecked.html" title="unchecked_index::GetUnchecked trait">GetUnchecked</a></div><div class="item-right docblock-short"></div><div class="item-left module-item"><a class="trait" href="trait.GetUncheckedMut.html" title="unchecked_index::GetUncheckedMut trait">GetUncheckedMut</a></div><div class="item-right docblock-short"></div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="fn" href="fn.get_unchecked.html" title="unchecked_index::get_unchecked fn">get_unchecked</a><a title="unsafe function" href="#"><sup>⚠</sup></a></div><div class="item-right docblock-short"><p>Access the element(s) at <code>index</code>, without bounds checks!</p>
-</div><div class="item-left module-item"><a class="fn" href="fn.get_unchecked_mut.html" title="unchecked_index::get_unchecked_mut fn">get_unchecked_mut</a><a title="unsafe function" href="#"><sup>⚠</sup></a></div><div class="item-right docblock-short"><p>Access the element(s) at <code>index</code>, without bounds checks!</p>
-</div><div class="item-left module-item"><a class="fn" href="fn.unchecked_index.html" title="unchecked_index::unchecked_index fn">unchecked_index</a><a title="unsafe function" href="#"><sup>⚠</sup></a></div><div class="item-right docblock-short"><p>Create a new unchecked indexing wrapper.</p>
-</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="unchecked_index" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.UncheckedIndex.html" title="unchecked_index::UncheckedIndex struct">UncheckedIndex</a></div><div class="item-right docblock-short"><p>Wrapper type for unchecked indexing through the regular index syntax</p>
+</div></div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.CheckIndex.html" title="unchecked_index::CheckIndex trait">CheckIndex</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.GetUnchecked.html" title="unchecked_index::GetUnchecked trait">GetUnchecked</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.GetUncheckedMut.html" title="unchecked_index::GetUncheckedMut trait">GetUncheckedMut</a></div><div class="item-right docblock-short"></div></div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.get_unchecked.html" title="unchecked_index::get_unchecked fn">get_unchecked</a><a title="unsafe function" href="#"><sup>⚠</sup></a></div><div class="item-right docblock-short"><p>Access the element(s) at <code>index</code>, without bounds checks!</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.get_unchecked_mut.html" title="unchecked_index::get_unchecked_mut fn">get_unchecked_mut</a><a title="unsafe function" href="#"><sup>⚠</sup></a></div><div class="item-right docblock-short"><p>Access the element(s) at <code>index</code>, without bounds checks!</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.unchecked_index.html" title="unchecked_index::unchecked_index fn">unchecked_index</a><a title="unsafe function" href="#"><sup>⚠</sup></a></div><div class="item-right docblock-short"><p>Create a new unchecked indexing wrapper.</p>
+</div></div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="unchecked_index" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
     <script src="../main.js"></script>
 </body></html>

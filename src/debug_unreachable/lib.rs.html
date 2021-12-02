@@ -60,8 +60,8 @@
 <span class="doccomment">/// }</span>
 <span class="doccomment">/// ```</span>
 <span class="macro">macro_rules!</span> <span class="ident">debug_unreachable</span> {
-    () <span class="op">=</span><span class="op">&gt;</span> { <span class="macro">debug_unreachable!</span>(<span class="string">&quot;entered unreachable code&quot;</span>) };
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    () =&gt; { <span class="macro">debug_unreachable!</span>(<span class="string">&quot;entered unreachable code&quot;</span>) };
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>:<span class="ident">expr</span>) =&gt; {
         <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">debug_assertions</span>) {
             <span class="macro">panic!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>)
         } <span class="kw">else</span> {

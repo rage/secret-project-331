@@ -1098,7 +1098,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ClientBuilder</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::new</span>()
     }
 }
@@ -1107,7 +1107,7 @@
     <span class="doccomment">/// Constructs a new `ClientBuilder`.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is the same as `Client::builder()`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">ClientBuilder</span> {
         <span class="ident">ClientBuilder</span> {
             <span class="ident">inner</span>: <span class="ident">async_impl::ClientBuilder::new</span>(),
             <span class="ident">timeout</span>: <span class="ident">Timeout::default</span>(),
@@ -1125,7 +1125,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This method panics if called from within an async runtime. See docs on</span>
     <span class="doccomment">/// [`reqwest::blocking`][crate::blocking] for details.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Client</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Client</span><span class="op">&gt;</span> {
         <span class="ident">ClientHandle::new</span>(<span class="self">self</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">handle</span><span class="op">|</span> <span class="ident">Client</span> { <span class="ident">inner</span>: <span class="ident">handle</span> })
     }
 
@@ -1151,7 +1151,7 @@
     <span class="doccomment">/// # Ok(())</span>
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">user_agent</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">value</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">user_agent</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">value</span>: <span class="ident">V</span>) -&gt; <span class="ident">ClientBuilder</span>
     <span class="kw">where</span>
         <span class="ident">V</span>: <span class="ident">TryInto</span><span class="op">&lt;</span><span class="ident">HeaderValue</span><span class="op">&gt;</span>,
         <span class="ident">V::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">http::Error</span><span class="op">&gt;</span>,
@@ -1203,7 +1203,7 @@
     <span class="doccomment">/// # Ok(())</span>
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_headers</span>(<span class="self">self</span>, <span class="ident">headers</span>: <span class="ident">header::HeaderMap</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_headers</span>(<span class="self">self</span>, <span class="ident">headers</span>: <span class="ident">header::HeaderMap</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">with_inner</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">inner</span>.<span class="ident">default_headers</span>(<span class="ident">headers</span>))
     }
 
@@ -1219,7 +1219,7 @@
     <span class="doccomment">/// This requires the optional `cookies` feature to be enabled.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cookie_store</span>(<span class="self">self</span>, <span class="ident">enable</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cookie_store</span>(<span class="self">self</span>, <span class="ident">enable</span>: <span class="ident">bool</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">with_inner</span>(<span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">inner</span>.<span class="ident">cookie_store</span>(<span class="ident">enable</span>))
     }
 
@@ -1238,7 +1238,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cookie_provider</span><span class="op">&lt;</span><span class="ident">C</span>: <span class="ident"><span class="kw">crate</span>::cookie::CookieStore</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
         <span class="ident">cookie_store</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    ) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">with_inner</span>(<span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">inner</span>.<span class="ident">cookie_provider</span>(<span class="ident">cookie_store</span>))
     }
 
@@ -1260,7 +1260,7 @@
     <span class="doccomment">/// This requires the optional `gzip` feature to be enabled</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gzip&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gzip&quot;</span>)))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">gzip</span>(<span class="self">self</span>, <span class="ident">enable</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">gzip</span>(<span class="self">self</span>, <span class="ident">enable</span>: <span class="ident">bool</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">with_inner</span>(<span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">inner</span>.<span class="ident">gzip</span>(<span class="ident">enable</span>))
     }
 
@@ -1282,7 +1282,7 @@
     <span class="doccomment">/// This requires the optional `brotli` feature to be enabled</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;brotli&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;brotli&quot;</span>)))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">brotli</span>(<span class="self">self</span>, <span class="ident">enable</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">brotli</span>(<span class="self">self</span>, <span class="ident">enable</span>: <span class="ident">bool</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">with_inner</span>(<span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">inner</span>.<span class="ident">brotli</span>(<span class="ident">enable</span>))
     }
 
@@ -1304,7 +1304,7 @@
     <span class="doccomment">/// This requires the optional `deflate` feature to be enabled</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;deflate&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;deflate&quot;</span>)))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">deflate</span>(<span class="self">self</span>, <span class="ident">enable</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">deflate</span>(<span class="self">self</span>, <span class="ident">enable</span>: <span class="ident">bool</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">with_inner</span>(<span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">inner</span>.<span class="ident">deflate</span>(<span class="ident">enable</span>))
     }
 
@@ -1313,7 +1313,7 @@
     <span class="doccomment">/// This method exists even if the optional `gzip` feature is not enabled.</span>
     <span class="doccomment">/// This can be used to ensure a `Client` doesn&#39;t use gzip decompression</span>
     <span class="doccomment">/// even if another dependency were to enable the optional `gzip` feature.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">no_gzip</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">no_gzip</span>(<span class="self">self</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">with_inner</span>(<span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">inner</span>.<span class="ident">no_gzip</span>())
     }
 
@@ -1322,7 +1322,7 @@
     <span class="doccomment">/// This method exists even if the optional `brotli` feature is not enabled.</span>
     <span class="doccomment">/// This can be used to ensure a `Client` doesn&#39;t use brotli decompression</span>
     <span class="doccomment">/// even if another dependency were to enable the optional `brotli` feature.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">no_brotli</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">no_brotli</span>(<span class="self">self</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">with_inner</span>(<span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">inner</span>.<span class="ident">no_brotli</span>())
     }
 
@@ -1331,7 +1331,7 @@
     <span class="doccomment">/// This method exists even if the optional `deflate` feature is not enabled.</span>
     <span class="doccomment">/// This can be used to ensure a `Client` doesn&#39;t use deflate decompression</span>
     <span class="doccomment">/// even if another dependency were to enable the optional `deflate` feature.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">no_deflate</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">no_deflate</span>(<span class="self">self</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">with_inner</span>(<span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">inner</span>.<span class="ident">no_deflate</span>())
     }
 
@@ -1340,14 +1340,14 @@
     <span class="doccomment">/// Set a `redirect::Policy` for this client.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Default will follow redirects up to a maximum of 10.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">redirect</span>(<span class="self">self</span>, <span class="ident">policy</span>: <span class="ident">redirect::Policy</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">redirect</span>(<span class="self">self</span>, <span class="ident">policy</span>: <span class="ident">redirect::Policy</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">with_inner</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">inner</span>.<span class="ident">redirect</span>(<span class="ident">policy</span>))
     }
 
     <span class="doccomment">/// Enable or disable automatic setting of the `Referer` header.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Default is `true`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">referer</span>(<span class="self">self</span>, <span class="ident">enable</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">referer</span>(<span class="self">self</span>, <span class="ident">enable</span>: <span class="ident">bool</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">with_inner</span>(<span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">inner</span>.<span class="ident">referer</span>(<span class="ident">enable</span>))
     }
 
@@ -1358,14 +1358,14 @@
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Adding a proxy will disable the automatic usage of the &quot;system&quot; proxy.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">proxy</span>(<span class="self">self</span>, <span class="ident">proxy</span>: <span class="ident">Proxy</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">proxy</span>(<span class="self">self</span>, <span class="ident">proxy</span>: <span class="ident">Proxy</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">with_inner</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">inner</span>.<span class="ident">proxy</span>(<span class="ident">proxy</span>))
     }
 
     <span class="doccomment">/// Clear all `Proxies`, so `Client` will use no proxy anymore.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This also disables the automatic usage of the &quot;system&quot; proxy.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">no_proxy</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">no_proxy</span>(<span class="self">self</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">with_inner</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">inner</span>.<span class="ident">no_proxy</span>())
     }
 
@@ -1376,7 +1376,7 @@
     <span class="doccomment">/// Default is 30 seconds.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Pass `None` to disable timeout.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">timeout</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">timeout</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">timeout</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">timeout</span>: <span class="ident">T</span>) -&gt; <span class="ident">ClientBuilder</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
@@ -1387,7 +1387,7 @@
     <span class="doccomment">/// Set a timeout for only the connect phase of a `Client`.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Default is `None`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connect_timeout</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">timeout</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connect_timeout</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">timeout</span>: <span class="ident">T</span>) -&gt; <span class="ident">ClientBuilder</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
@@ -1405,7 +1405,7 @@
     <span class="doccomment">/// for read and write operations on connections.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [log]: https://crates.io/crates/log</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connection_verbose</span>(<span class="self">self</span>, <span class="ident">verbose</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connection_verbose</span>(<span class="self">self</span>, <span class="ident">verbose</span>: <span class="ident">bool</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">with_inner</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">inner</span>.<span class="ident">connection_verbose</span>(<span class="ident">verbose</span>))
     }
 
@@ -1416,7 +1416,7 @@
     <span class="doccomment">/// Pass `None` to disable timeout.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Default is 90 seconds.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pool_idle_timeout</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">val</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pool_idle_timeout</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">val</span>: <span class="ident">D</span>) -&gt; <span class="ident">ClientBuilder</span>
     <span class="kw">where</span>
         <span class="ident">D</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
@@ -1424,31 +1424,31 @@
     }
 
     <span class="doccomment">/// Sets the maximum idle connection per host allowed in the pool.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pool_max_idle_per_host</span>(<span class="self">self</span>, <span class="ident">max</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pool_max_idle_per_host</span>(<span class="self">self</span>, <span class="ident">max</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">with_inner</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">inner</span>.<span class="ident">pool_max_idle_per_host</span>(<span class="ident">max</span>))
     }
 
     <span class="doccomment">/// Enable case sensitive headers.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">http1_title_case_headers</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">http1_title_case_headers</span>(<span class="self">self</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">with_inner</span>(<span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">inner</span>.<span class="ident">http1_title_case_headers</span>())
     }
 
     <span class="doccomment">/// Only use HTTP/2.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">http2_prior_knowledge</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">http2_prior_knowledge</span>(<span class="self">self</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">with_inner</span>(<span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">inner</span>.<span class="ident">http2_prior_knowledge</span>())
     }
 
     <span class="doccomment">/// Sets the `SETTINGS_INITIAL_WINDOW_SIZE` option for HTTP2 stream-level flow control.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Default is currently 65,535 but may change internally to optimize for common uses.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">http2_initial_stream_window_size</span>(<span class="self">self</span>, <span class="ident">sz</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">http2_initial_stream_window_size</span>(<span class="self">self</span>, <span class="ident">sz</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">with_inner</span>(<span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">inner</span>.<span class="ident">http2_initial_stream_window_size</span>(<span class="ident">sz</span>))
     }
 
     <span class="doccomment">/// Sets the max connection-level flow control for HTTP2</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Default is currently 65,535 but may change internally to optimize for common uses.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">http2_initial_connection_window_size</span>(<span class="self">self</span>, <span class="ident">sz</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">http2_initial_connection_window_size</span>(<span class="self">self</span>, <span class="ident">sz</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">with_inner</span>(<span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">inner</span>.<span class="ident">http2_initial_connection_window_size</span>(<span class="ident">sz</span>))
     }
 
@@ -1456,14 +1456,14 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Enabling this will override the limits set in `http2_initial_stream_window_size` and</span>
     <span class="doccomment">/// `http2_initial_connection_window_size`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">http2_adaptive_window</span>(<span class="self">self</span>, <span class="ident">enabled</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">http2_adaptive_window</span>(<span class="self">self</span>, <span class="ident">enabled</span>: <span class="ident">bool</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">with_inner</span>(<span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">inner</span>.<span class="ident">http2_adaptive_window</span>(<span class="ident">enabled</span>))
     }
 
     <span class="doccomment">/// Sets the maximum frame size to use for HTTP2.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Default is currently 16,384 but may change internally to optimize for common uses.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">http2_max_frame_size</span>(<span class="self">self</span>, <span class="ident">sz</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">http2_max_frame_size</span>(<span class="self">self</span>, <span class="ident">sz</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">with_inner</span>(<span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">inner</span>.<span class="ident">http2_max_frame_size</span>(<span class="ident">sz</span>))
     }
 
@@ -1472,7 +1472,7 @@
     <span class="doccomment">/// Set whether sockets have `SO_NODELAY` enabled.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Default is `true`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tcp_nodelay</span>(<span class="self">self</span>, <span class="ident">enabled</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tcp_nodelay</span>(<span class="self">self</span>, <span class="ident">enabled</span>: <span class="ident">bool</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">with_inner</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">inner</span>.<span class="ident">tcp_nodelay</span>(<span class="ident">enabled</span>))
     }
 
@@ -1487,7 +1487,7 @@
     <span class="doccomment">///     .local_address(local_addr)</span>
     <span class="doccomment">///     .build().unwrap();</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">local_address</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">addr</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">local_address</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">addr</span>: <span class="ident">T</span>) -&gt; <span class="ident">ClientBuilder</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">IpAddr</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
@@ -1497,7 +1497,7 @@
     <span class="doccomment">/// Set that all sockets have `SO_KEEPALIVE` set with the supplied duration.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If `None`, the option will not be set.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tcp_keepalive</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">val</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tcp_keepalive</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">val</span>: <span class="ident">D</span>) -&gt; <span class="ident">ClientBuilder</span>
     <span class="kw">where</span>
         <span class="ident">D</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
@@ -1546,7 +1546,7 @@
             <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>
         )))
     )]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_root_certificate</span>(<span class="self">self</span>, <span class="ident">cert</span>: <span class="ident">Certificate</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_root_certificate</span>(<span class="self">self</span>, <span class="ident">cert</span>: <span class="ident">Certificate</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">with_inner</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">inner</span>.<span class="ident">add_root_certificate</span>(<span class="ident">cert</span>))
     }
 
@@ -1567,7 +1567,7 @@
             <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>
         )))
     )]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tls_built_in_root_certs</span>(<span class="self">self</span>, <span class="ident">tls_built_in_root_certs</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tls_built_in_root_certs</span>(<span class="self">self</span>, <span class="ident">tls_built_in_root_certs</span>: <span class="ident">bool</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">with_inner</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">inner</span>.<span class="ident">tls_built_in_root_certs</span>(<span class="ident">tls_built_in_root_certs</span>))
     }
 
@@ -1579,7 +1579,7 @@
     <span class="doccomment">/// enabled.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__rustls&quot;</span>))]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>))))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">identity</span>(<span class="self">self</span>, <span class="ident">identity</span>: <span class="ident">Identity</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">identity</span>(<span class="self">self</span>, <span class="ident">identity</span>: <span class="ident">Identity</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">with_inner</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">inner</span>.<span class="ident">identity</span>(<span class="ident">identity</span>))
     }
 
@@ -1599,7 +1599,7 @@
     <span class="doccomment">/// This requires the optional `native-tls` feature to be enabled.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>)))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">danger_accept_invalid_hostnames</span>(<span class="self">self</span>, <span class="ident">accept_invalid_hostname</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">danger_accept_invalid_hostnames</span>(<span class="self">self</span>, <span class="ident">accept_invalid_hostname</span>: <span class="ident">bool</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">with_inner</span>(<span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">inner</span>.<span class="ident">danger_accept_invalid_hostnames</span>(<span class="ident">accept_invalid_hostname</span>))
     }
 
@@ -1623,7 +1623,7 @@
             <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>
         )))
     )]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">danger_accept_invalid_certs</span>(<span class="self">self</span>, <span class="ident">accept_invalid_certs</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">danger_accept_invalid_certs</span>(<span class="self">self</span>, <span class="ident">accept_invalid_certs</span>: <span class="ident">bool</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">with_inner</span>(<span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">inner</span>.<span class="ident">danger_accept_invalid_certs</span>(<span class="ident">accept_invalid_certs</span>))
     }
 
@@ -1637,7 +1637,7 @@
     <span class="doccomment">/// This requires the optional `native-tls` feature to be enabled.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>)))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">use_native_tls</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">use_native_tls</span>(<span class="self">self</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">with_inner</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">inner</span>.<span class="ident">use_native_tls</span>())
     }
 
@@ -1651,7 +1651,7 @@
     <span class="doccomment">/// This requires the optional `rustls-tls(-...)` feature to be enabled.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__rustls&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>)))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">use_rustls_tls</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">use_rustls_tls</span>(<span class="self">self</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">with_inner</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">inner</span>.<span class="ident">use_rustls_tls</span>())
     }
 
@@ -1675,7 +1675,7 @@
     <span class="doccomment">/// `rustls-tls(-...)` to be enabled.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__rustls&quot;</span>,))]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>))))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">use_preconfigured_tls</span>(<span class="self">self</span>, <span class="ident">tls</span>: <span class="kw">impl</span> <span class="ident">Any</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">use_preconfigured_tls</span>(<span class="self">self</span>, <span class="ident">tls</span>: <span class="kw">impl</span> <span class="ident">Any</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">with_inner</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">inner</span>.<span class="ident">use_preconfigured_tls</span>(<span class="ident">tls</span>))
     }
 
@@ -1688,7 +1688,7 @@
     <span class="doccomment">/// This requires the optional `trust-dns` feature to be enabled</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;trust-dns&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;trust-dns&quot;</span>)))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trust_dns</span>(<span class="self">self</span>, <span class="ident">enable</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trust_dns</span>(<span class="self">self</span>, <span class="ident">enable</span>: <span class="ident">bool</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">with_inner</span>(<span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">inner</span>.<span class="ident">trust_dns</span>(<span class="ident">enable</span>))
     }
 
@@ -1697,22 +1697,22 @@
     <span class="doccomment">/// This method exists even if the optional `trust-dns` feature is not enabled.</span>
     <span class="doccomment">/// This can be used to ensure a `Client` doesn&#39;t use the trust-dns async resolver</span>
     <span class="doccomment">/// even if another dependency were to enable the optional `trust-dns` feature.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">no_trust_dns</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">no_trust_dns</span>(<span class="self">self</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">with_inner</span>(<span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">inner</span>.<span class="ident">no_trust_dns</span>())
     }
 
     <span class="doccomment">/// Restrict the Client to be used with HTTPS only requests.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Defaults to false.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">https_only</span>(<span class="self">self</span>, <span class="ident">enabled</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">https_only</span>(<span class="self">self</span>, <span class="ident">enabled</span>: <span class="ident">bool</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">with_inner</span>(<span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">inner</span>.<span class="ident">https_only</span>(<span class="ident">enabled</span>))
     }
 
     <span class="comment">// private</span>
 
-    <span class="kw">fn</span> <span class="ident">with_inner</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">func</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span>
+    <span class="kw">fn</span> <span class="ident">with_inner</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">func</span>: <span class="ident">F</span>) -&gt; <span class="ident">ClientBuilder</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">async_impl::ClientBuilder</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">async_impl::ClientBuilder</span>,
+        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">async_impl::ClientBuilder</span>) -&gt; <span class="ident">async_impl::ClientBuilder</span>,
     {
         <span class="self">self</span>.<span class="ident">inner</span> <span class="op">=</span> <span class="ident">func</span>(<span class="self">self</span>.<span class="ident">inner</span>);
         <span class="self">self</span>
@@ -1720,7 +1720,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">async_impl::ClientBuilder</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ClientBuilder</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">builder</span>: <span class="ident">async_impl::ClientBuilder</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">builder</span>: <span class="ident">async_impl::ClientBuilder</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">inner</span>: <span class="ident">builder</span>,
             <span class="ident">timeout</span>: <span class="ident">Timeout::default</span>(),
@@ -1729,7 +1729,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Client</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::new</span>()
     }
 }
@@ -1747,14 +1747,14 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This method also panics if called from within an async runtime. See docs</span>
     <span class="doccomment">/// on [`reqwest::blocking`][crate::blocking] for details.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Client</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">Client</span> {
         <span class="ident">ClientBuilder::new</span>().<span class="ident">build</span>().<span class="ident">expect</span>(<span class="string">&quot;Client::new()&quot;</span>)
     }
 
     <span class="doccomment">/// Creates a `ClientBuilder` to configure a `Client`.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is the same as `ClientBuilder::new()`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">builder</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">builder</span>() -&gt; <span class="ident">ClientBuilder</span> {
         <span class="ident">ClientBuilder::new</span>()
     }
 
@@ -1763,7 +1763,7 @@
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This method fails whenever supplied `Url` cannot be parsed.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">IntoUrl</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">url</span>: <span class="ident">U</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RequestBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">IntoUrl</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">url</span>: <span class="ident">U</span>) -&gt; <span class="ident">RequestBuilder</span> {
         <span class="self">self</span>.<span class="ident">request</span>(<span class="ident">Method::GET</span>, <span class="ident">url</span>)
     }
 
@@ -1772,7 +1772,7 @@
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This method fails whenever supplied `Url` cannot be parsed.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">post</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">IntoUrl</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">url</span>: <span class="ident">U</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RequestBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">post</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">IntoUrl</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">url</span>: <span class="ident">U</span>) -&gt; <span class="ident">RequestBuilder</span> {
         <span class="self">self</span>.<span class="ident">request</span>(<span class="ident">Method::POST</span>, <span class="ident">url</span>)
     }
 
@@ -1781,7 +1781,7 @@
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This method fails whenever supplied `Url` cannot be parsed.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">put</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">IntoUrl</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">url</span>: <span class="ident">U</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RequestBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">put</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">IntoUrl</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">url</span>: <span class="ident">U</span>) -&gt; <span class="ident">RequestBuilder</span> {
         <span class="self">self</span>.<span class="ident">request</span>(<span class="ident">Method::PUT</span>, <span class="ident">url</span>)
     }
 
@@ -1790,7 +1790,7 @@
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This method fails whenever supplied `Url` cannot be parsed.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">patch</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">IntoUrl</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">url</span>: <span class="ident">U</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RequestBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">patch</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">IntoUrl</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">url</span>: <span class="ident">U</span>) -&gt; <span class="ident">RequestBuilder</span> {
         <span class="self">self</span>.<span class="ident">request</span>(<span class="ident">Method::PATCH</span>, <span class="ident">url</span>)
     }
 
@@ -1799,7 +1799,7 @@
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This method fails whenever supplied `Url` cannot be parsed.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">IntoUrl</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">url</span>: <span class="ident">U</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RequestBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">IntoUrl</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">url</span>: <span class="ident">U</span>) -&gt; <span class="ident">RequestBuilder</span> {
         <span class="self">self</span>.<span class="ident">request</span>(<span class="ident">Method::DELETE</span>, <span class="ident">url</span>)
     }
 
@@ -1808,7 +1808,7 @@
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This method fails whenever supplied `Url` cannot be parsed.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">head</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">IntoUrl</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">url</span>: <span class="ident">U</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RequestBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">head</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">IntoUrl</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">url</span>: <span class="ident">U</span>) -&gt; <span class="ident">RequestBuilder</span> {
         <span class="self">self</span>.<span class="ident">request</span>(<span class="ident">Method::HEAD</span>, <span class="ident">url</span>)
     }
 
@@ -1820,7 +1820,7 @@
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This method fails whenever supplied `Url` cannot be parsed.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">request</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">IntoUrl</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">method</span>: <span class="ident">Method</span>, <span class="ident">url</span>: <span class="ident">U</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RequestBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">request</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">IntoUrl</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">method</span>: <span class="ident">Method</span>, <span class="ident">url</span>: <span class="ident">U</span>) -&gt; <span class="ident">RequestBuilder</span> {
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">into_url</span>().<span class="ident">map</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">url</span><span class="op">|</span> <span class="ident">Request::new</span>(<span class="ident">method</span>, <span class="ident">url</span>));
         <span class="ident">RequestBuilder::new</span>(<span class="self">self</span>.<span class="ident">clone</span>(), <span class="ident">req</span>)
     }
@@ -1837,13 +1837,13 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This method fails if there was an error while sending request,</span>
     <span class="doccomment">/// or redirect limit was exhausted.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">request</span>: <span class="ident">Request</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">request</span>: <span class="ident">Request</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">execute_request</span>(<span class="ident">request</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Client</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;Client&quot;</span>)
             <span class="comment">//.field(&quot;gzip&quot;, &amp;self.inner.gzip)</span>
             <span class="comment">//.field(&quot;redirect_policy&quot;, &amp;self.inner.redirect_policy)</span>
@@ -1853,7 +1853,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">ClientBuilder</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">fmt</span>(<span class="ident">f</span>)
     }
 }
@@ -1889,7 +1889,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">ClientHandle</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">builder</span>: <span class="ident">ClientBuilder</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">ClientHandle</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">builder</span>: <span class="ident">ClientBuilder</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">ClientHandle</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">timeout</span> <span class="op">=</span> <span class="ident">builder</span>.<span class="ident">timeout</span>;
         <span class="kw">let</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">builder</span>.<span class="ident">inner</span>;
         <span class="kw">let</span> (<span class="ident">tx</span>, <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">mpsc::unbounded_channel</span>::<span class="op">&lt;</span>(<span class="ident">async_impl::Request</span>, <span class="ident">OneshotResponse</span>)<span class="op">&gt;</span>();
@@ -1903,24 +1903,24 @@
                     .<span class="ident">build</span>()
                     .<span class="ident">map_err</span>(<span class="ident"><span class="kw">crate</span>::error::builder</span>)
                 {
-                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
                         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="ident">spawn_tx</span>.<span class="ident">send</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)) {
                             <span class="macro">error!</span>(<span class="string">&quot;Failed to communicate runtime creation failure: {:?}&quot;</span>, <span class="ident">e</span>);
                         }
                         <span class="kw">return</span>;
                     }
-                    <span class="prelude-val">Ok</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">v</span>,
+                    <span class="prelude-val">Ok</span>(<span class="ident">v</span>) =&gt; <span class="ident">v</span>,
                 };
 
                 <span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="kw">async</span> <span class="kw">move</span> {
                     <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">builder</span>.<span class="ident">build</span>() {
-                        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
                             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="ident">spawn_tx</span>.<span class="ident">send</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)) {
                                 <span class="macro">error!</span>(<span class="string">&quot;Failed to communicate client creation failure: {:?}&quot;</span>, <span class="ident">e</span>);
                             }
                             <span class="kw">return</span>;
                         }
-                        <span class="prelude-val">Ok</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">v</span>,
+                        <span class="prelude-val">Ok</span>(<span class="ident">v</span>) =&gt; <span class="ident">v</span>,
                     };
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="ident">spawn_tx</span>.<span class="ident">send</span>(<span class="prelude-val">Ok</span>(())) {
                         <span class="macro">error!</span>(<span class="string">&quot;Failed to communicate successful startup: {:?}&quot;</span>, <span class="ident">e</span>);
@@ -1947,9 +1947,9 @@
 
         <span class="comment">// Wait for the runtime thread to start up...</span>
         <span class="kw">match</span> <span class="ident">wait::timeout</span>(<span class="ident">spawn_rx</span>, <span class="prelude-val">None</span>) {
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(())) <span class="op">=</span><span class="op">&gt;</span> (),
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>),
-            <span class="prelude-val">Err</span>(<span class="ident">_canceled</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">event_loop_panicked</span>(),
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(())) =&gt; (),
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>)) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>),
+            <span class="prelude-val">Err</span>(<span class="ident">_canceled</span>) =&gt; <span class="ident">event_loop_panicked</span>(),
         }
 
         <span class="kw">let</span> <span class="ident">inner_handle</span> <span class="op">=</span> <span class="ident">Arc::new</span>(<span class="ident">InnerClientHandle</span> {
@@ -1963,7 +1963,7 @@
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">execute_request</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">Request</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">execute_request</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">Request</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="ident">tx</span>, <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">oneshot::channel</span>();
         <span class="kw">let</span> (<span class="ident">req</span>, <span class="ident">body</span>) <span class="op">=</span> <span class="ident">req</span>.<span class="ident">into_async</span>();
         <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">url</span>().<span class="ident">clone</span>();
@@ -1989,14 +1989,14 @@
             };
 
         <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>.<span class="ident">with_url</span>(<span class="ident">url</span>)),
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(<span class="ident">res</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Response::new</span>(
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>)) =&gt; <span class="prelude-val">Err</span>(<span class="ident">err</span>.<span class="ident">with_url</span>(<span class="ident">url</span>)),
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(<span class="ident">res</span>)) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Response::new</span>(
                 <span class="ident">res</span>,
                 <span class="self">self</span>.<span class="ident">timeout</span>.<span class="number">0</span>,
                 <span class="ident">KeepCoreThreadAlive</span>(<span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">clone</span>())),
             )),
-            <span class="prelude-val">Err</span>(<span class="ident">wait::Waited::TimedOut</span>(<span class="ident">e</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::error::request</span>(<span class="ident">e</span>).<span class="ident">with_url</span>(<span class="ident">url</span>)),
-            <span class="prelude-val">Err</span>(<span class="ident">wait::Waited::Inner</span>(<span class="ident">err</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>.<span class="ident">with_url</span>(<span class="ident">url</span>)),
+            <span class="prelude-val">Err</span>(<span class="ident">wait::Waited::TimedOut</span>(<span class="ident">e</span>)) =&gt; <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::error::request</span>(<span class="ident">e</span>).<span class="ident">with_url</span>(<span class="ident">url</span>)),
+            <span class="prelude-val">Err</span>(<span class="ident">wait::Waited::Inner</span>(<span class="ident">err</span>)) =&gt; <span class="prelude-val">Err</span>(<span class="ident">err</span>.<span class="ident">with_url</span>(<span class="ident">url</span>)),
         }
     }
 }
@@ -2012,8 +2012,8 @@
     <span class="comment">// &quot;select&quot; on the sender being canceled, and the future completing</span>
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">futures_util::future::poll_fn</span>(<span class="op">|</span><span class="ident">cx</span><span class="op">|</span> {
         <span class="kw">match</span> <span class="ident">fut</span>.<span class="ident">as_mut</span>().<span class="ident">poll</span>(<span class="ident">cx</span>) {
-            <span class="ident">Poll::Ready</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="ident">val</span>)),
-            <span class="ident">Poll::Pending</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Poll::Ready</span>(<span class="ident">val</span>) =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="ident">val</span>)),
+            <span class="ident">Poll::Pending</span> =&gt; {
                 <span class="comment">// check if the callback is canceled</span>
                 <span class="macro">futures_core::ready!</span>(<span class="ident">tx</span>.<span class="ident">poll_closed</span>(<span class="ident">cx</span>));
                 <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>)
@@ -2032,7 +2032,7 @@
 <span class="kw">struct</span> <span class="ident">Timeout</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>);
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Timeout</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Timeout</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">Timeout</span> {
         <span class="comment">// default mentioned in ClientBuilder::timeout() doc comment</span>
         <span class="ident">Timeout</span>(<span class="prelude-val">Some</span>(<span class="ident">Duration::from_secs</span>(<span class="number">30</span>)))
     }
@@ -2041,14 +2041,14 @@
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">KeepCoreThreadAlive</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">InnerClientHandle</span><span class="op">&gt;</span><span class="op">&gt;</span>);
 
 <span class="kw">impl</span> <span class="ident">KeepCoreThreadAlive</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">empty</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">KeepCoreThreadAlive</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">empty</span>() -&gt; <span class="ident">KeepCoreThreadAlive</span> {
         <span class="ident">KeepCoreThreadAlive</span>(<span class="prelude-val">None</span>)
     }
 }
 
 <span class="attribute">#[<span class="ident">cold</span>]</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">never</span>)]</span>
-<span class="kw">fn</span> <span class="ident">event_loop_panicked</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="op">!</span> {
+<span class="kw">fn</span> <span class="ident">event_loop_panicked</span>() -&gt; <span class="op">!</span> {
     <span class="comment">// The only possible reason there would be a Canceled error</span>
     <span class="comment">// is if the thread running the event loop panicked. We could return</span>
     <span class="comment">// an Err here, like a BrokenPipe, but the Client is not</span>

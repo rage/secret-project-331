@@ -222,16 +222,16 @@
     <span class="kw">pub</span> <span class="ident">comments</span>: <span class="ident">SingleThreadedComments</span>,
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_swc_ast</span>(<span class="ident">file_path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>, <span class="ident">file_text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ParsedSourceFile</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_swc_ast</span>(<span class="ident">file_path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>, <span class="ident">file_text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ParsedSourceFile</span>, <span class="ident">String</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="ident">parse_inner</span>(<span class="ident">file_path</span>, <span class="ident">file_text</span>) {
-        <span class="prelude-val">Ok</span>(<span class="ident">result</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">result</span>),
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="kw">if</span> <span class="ident">get_lowercase_extension</span>(<span class="ident">file_path</span>) <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">String::from</span>(<span class="string">&quot;ts&quot;</span>)) {
+        <span class="prelude-val">Ok</span>(<span class="ident">result</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">result</span>),
+        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
+            <span class="kw">if</span> <span class="ident">get_lowercase_extension</span>(<span class="ident">file_path</span>) <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">String::from</span>(<span class="string">&quot;ts&quot;</span>)) {
                 <span class="comment">// try to parse as jsx</span>
                 <span class="kw">let</span> <span class="ident">tsx_file_path</span> <span class="op">=</span> <span class="ident">file_path</span>.<span class="ident">with_extension</span>(<span class="string">&quot;tsx&quot;</span>);
                 <span class="kw">match</span> <span class="ident">parse_inner</span>(<span class="kw-2">&amp;</span><span class="ident">tsx_file_path</span>, <span class="ident">file_text</span>) {
-                    <span class="prelude-val">Ok</span>(<span class="ident">result</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">result</span>),
-                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>), <span class="comment">// return the original error</span>
+                    <span class="prelude-val">Ok</span>(<span class="ident">result</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">result</span>),
+                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">err</span>), <span class="comment">// return the original error</span>
                 }
             } <span class="kw">else</span> {
                 <span class="prelude-val">Err</span>(<span class="ident">err</span>)
@@ -240,7 +240,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">parse_inner</span>(<span class="ident">file_path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>, <span class="ident">file_text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ParsedSourceFile</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">parse_inner</span>(<span class="ident">file_path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>, <span class="ident">file_text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ParsedSourceFile</span>, <span class="ident">String</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">source_file</span> <span class="op">=</span> <span class="ident">SourceFile::new</span>(
         <span class="ident">FileName::Custom</span>(<span class="ident">file_path</span>.<span class="ident">to_string_lossy</span>().<span class="ident">into</span>()),
         <span class="bool-val">false</span>,
@@ -272,8 +272,8 @@
         <span class="kw">let</span> <span class="ident">tokens</span> <span class="op">=</span> <span class="ident">parser</span>.<span class="ident">input</span>().<span class="ident">take</span>();
 
         <span class="kw">match</span> <span class="ident">parse_module_result</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">format_swc_error</span>(<span class="ident">error</span>, <span class="ident">file_text</span>)),
-            <span class="prelude-val">Ok</span>(<span class="ident">module</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>((<span class="ident">module</span>, <span class="ident">tokens</span>))
+            <span class="prelude-val">Err</span>(<span class="ident">error</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">format_swc_error</span>(<span class="ident">error</span>, <span class="ident">file_text</span>)),
+            <span class="prelude-val">Ok</span>(<span class="ident">module</span>) =&gt; <span class="prelude-val">Ok</span>((<span class="ident">module</span>, <span class="ident">tokens</span>))
         }
     }<span class="question-mark">?</span>;
 
@@ -290,22 +290,22 @@
         <span class="ident">tokens</span>,
     });
 
-    <span class="kw">fn</span> <span class="ident">should_parse_as_jsx</span>(<span class="ident">file_path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">should_parse_as_jsx</span>(<span class="ident">file_path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">extension</span>) <span class="op">=</span> <span class="ident">get_lowercase_extension</span>(<span class="ident">file_path</span>) {
-            <span class="kw">return</span> <span class="ident">extension</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;tsx&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">extension</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;jsx&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">extension</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;js&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">extension</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;mjs&quot;</span>;
+            <span class="kw">return</span> <span class="ident">extension</span> <span class="op">==</span> <span class="string">&quot;tsx&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">extension</span> <span class="op">==</span> <span class="string">&quot;jsx&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">extension</span> <span class="op">==</span> <span class="string">&quot;js&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">extension</span> <span class="op">==</span> <span class="string">&quot;mjs&quot;</span>;
         }
         <span class="kw">return</span> <span class="bool-val">true</span>;
     }
 
-    <span class="kw">fn</span> <span class="ident">ensure_no_specific_syntax_errors</span>(<span class="ident">errors</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">SwcError</span><span class="op">&gt;</span>, <span class="ident">file_text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">ensure_no_specific_syntax_errors</span>(<span class="ident">errors</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">SwcError</span><span class="op">&gt;</span>, <span class="ident">file_text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">String</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">errors</span> <span class="op">=</span> <span class="ident">errors</span>.<span class="ident">into_iter</span>().<span class="ident">filter</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">e</span>.<span class="ident">kind</span>() {
             <span class="comment">// expected identifier</span>
-            <span class="ident">SyntaxError::TS1003</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="ident">SyntaxError::TS1003</span> =&gt; <span class="bool-val">true</span>,
             <span class="comment">// expected semi-colon</span>
-            <span class="ident">SyntaxError::TS1005</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="ident">SyntaxError::TS1005</span> =&gt; <span class="bool-val">true</span>,
             <span class="comment">// expected expression</span>
-            <span class="ident">SyntaxError::TS1109</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">SyntaxError::TS1109</span> =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
 
         <span class="kw">if</span> <span class="ident">errors</span>.<span class="ident">is_empty</span>() {
@@ -323,11 +323,11 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">get_lowercase_extension</span>(<span class="ident">file_path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">get_lowercase_extension</span>(<span class="ident">file_path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
     <span class="ident">file_path</span>.<span class="ident">extension</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">e</span>.<span class="ident">to_str</span>()).<span class="ident">map</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="ident">f</span>.<span class="ident">to_lowercase</span>())
 }
 
-<span class="kw">fn</span> <span class="ident">format_swc_error</span>(<span class="ident">error</span>: <span class="ident">SwcError</span>, <span class="ident">file_text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">fn</span> <span class="ident">format_swc_error</span>(<span class="ident">error</span>: <span class="ident">SwcError</span>, <span class="ident">file_text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">String</span> {
     <span class="kw">let</span> <span class="ident">error_span</span> <span class="op">=</span> <span class="ident">error</span>.<span class="ident">span</span>();
     <span class="ident">dprint_core::formatting::utils::string_utils::format_diagnostic</span>(
         <span class="prelude-val">Some</span>((<span class="ident">error_span</span>.<span class="ident">lo</span>().<span class="number">0</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">error_span</span>.<span class="ident">hi</span>().<span class="number">0</span> <span class="kw">as</span> <span class="ident">usize</span>)),

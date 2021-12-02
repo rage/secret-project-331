@@ -8722,36 +8722,36 @@
     <span class="doccomment">/// on it.)</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Available via the C wrapper.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">for_label</span>(<span class="ident">label</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Encoding</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">for_label</span>(<span class="ident">label</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Encoding</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trimmed</span> <span class="op">=</span> [<span class="number">0u8</span>; <span class="ident">LONGEST_LABEL_LENGTH</span>];
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trimmed_pos</span> <span class="op">=</span> <span class="number">0usize</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">iter</span> <span class="op">=</span> <span class="ident">label</span>.<span class="ident">into_iter</span>();
         <span class="comment">// before</span>
         <span class="kw">loop</span> {
             <span class="kw">match</span> <span class="ident">iter</span>.<span class="ident">next</span>() {
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">None</span> =&gt; {
                     <span class="kw">return</span> <span class="prelude-val">None</span>;
                 }
-                <span class="prelude-val">Some</span>(<span class="ident">byte</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">byte</span>) =&gt; {
                     <span class="comment">// The characters used in labels are:</span>
                     <span class="comment">// a-z (except q, but excluding it below seems excessive)</span>
                     <span class="comment">// 0-9</span>
                     <span class="comment">// . _ - :</span>
                     <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">byte</span> {
-                        <span class="number">0x09u8</span> <span class="op">|</span> <span class="number">0x0Au8</span> <span class="op">|</span> <span class="number">0x0Cu8</span> <span class="op">|</span> <span class="number">0x0Du8</span> <span class="op">|</span> <span class="number">0x20u8</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="number">0x09u8</span> <span class="op">|</span> <span class="number">0x0Au8</span> <span class="op">|</span> <span class="number">0x0Cu8</span> <span class="op">|</span> <span class="number">0x0Du8</span> <span class="op">|</span> <span class="number">0x20u8</span> =&gt; {
                             <span class="kw">continue</span>;
                         }
-                        <span class="string">b&#39;A&#39;</span>..<span class="op">=</span><span class="string">b&#39;Z&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="string">b&#39;A&#39;</span>..<span class="op">=</span><span class="string">b&#39;Z&#39;</span> =&gt; {
                             <span class="ident">trimmed</span>[<span class="ident">trimmed_pos</span>] <span class="op">=</span> <span class="kw-2">*</span><span class="ident">byte</span> <span class="op">+</span> <span class="number">0x20u8</span>;
                             <span class="ident">trimmed_pos</span> <span class="op">=</span> <span class="number">1usize</span>;
                             <span class="kw">break</span>;
                         }
-                        <span class="string">b&#39;a&#39;</span>..<span class="op">=</span><span class="string">b&#39;z&#39;</span> <span class="op">|</span> <span class="string">b&#39;0&#39;</span>..<span class="op">=</span><span class="string">b&#39;9&#39;</span> <span class="op">|</span> <span class="string">b&#39;-&#39;</span> <span class="op">|</span> <span class="string">b&#39;_&#39;</span> <span class="op">|</span> <span class="string">b&#39;:&#39;</span> <span class="op">|</span> <span class="string">b&#39;.&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="string">b&#39;a&#39;</span>..<span class="op">=</span><span class="string">b&#39;z&#39;</span> <span class="op">|</span> <span class="string">b&#39;0&#39;</span>..<span class="op">=</span><span class="string">b&#39;9&#39;</span> <span class="op">|</span> <span class="string">b&#39;-&#39;</span> <span class="op">|</span> <span class="string">b&#39;_&#39;</span> <span class="op">|</span> <span class="string">b&#39;:&#39;</span> <span class="op">|</span> <span class="string">b&#39;.&#39;</span> =&gt; {
                             <span class="ident">trimmed</span>[<span class="ident">trimmed_pos</span>] <span class="op">=</span> <span class="kw-2">*</span><span class="ident">byte</span>;
                             <span class="ident">trimmed_pos</span> <span class="op">=</span> <span class="number">1usize</span>;
                             <span class="kw">break</span>;
                         }
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="kw">_</span> =&gt; {
                             <span class="kw">return</span> <span class="prelude-val">None</span>;
                         }
                     }
@@ -8761,16 +8761,16 @@
         <span class="comment">// inside</span>
         <span class="kw">loop</span> {
             <span class="kw">match</span> <span class="ident">iter</span>.<span class="ident">next</span>() {
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">None</span> =&gt; {
                     <span class="kw">break</span>;
                 }
-                <span class="prelude-val">Some</span>(<span class="ident">byte</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">byte</span>) =&gt; {
                     <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">byte</span> {
-                        <span class="number">0x09u8</span> <span class="op">|</span> <span class="number">0x0Au8</span> <span class="op">|</span> <span class="number">0x0Cu8</span> <span class="op">|</span> <span class="number">0x0Du8</span> <span class="op">|</span> <span class="number">0x20u8</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="number">0x09u8</span> <span class="op">|</span> <span class="number">0x0Au8</span> <span class="op">|</span> <span class="number">0x0Cu8</span> <span class="op">|</span> <span class="number">0x0Du8</span> <span class="op">|</span> <span class="number">0x20u8</span> =&gt; {
                             <span class="kw">break</span>;
                         }
-                        <span class="string">b&#39;A&#39;</span>..<span class="op">=</span><span class="string">b&#39;Z&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="kw">if</span> <span class="ident">trimmed_pos</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LONGEST_LABEL_LENGTH</span> {
+                        <span class="string">b&#39;A&#39;</span>..<span class="op">=</span><span class="string">b&#39;Z&#39;</span> =&gt; {
+                            <span class="kw">if</span> <span class="ident">trimmed_pos</span> <span class="op">==</span> <span class="ident">LONGEST_LABEL_LENGTH</span> {
                                 <span class="comment">// There&#39;s no encoding with a label this long</span>
                                 <span class="kw">return</span> <span class="prelude-val">None</span>;
                             }
@@ -8778,8 +8778,8 @@
                             <span class="ident">trimmed_pos</span> <span class="op">+</span><span class="op">=</span> <span class="number">1usize</span>;
                             <span class="kw">continue</span>;
                         }
-                        <span class="string">b&#39;a&#39;</span>..<span class="op">=</span><span class="string">b&#39;z&#39;</span> <span class="op">|</span> <span class="string">b&#39;0&#39;</span>..<span class="op">=</span><span class="string">b&#39;9&#39;</span> <span class="op">|</span> <span class="string">b&#39;-&#39;</span> <span class="op">|</span> <span class="string">b&#39;_&#39;</span> <span class="op">|</span> <span class="string">b&#39;:&#39;</span> <span class="op">|</span> <span class="string">b&#39;.&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="kw">if</span> <span class="ident">trimmed_pos</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LONGEST_LABEL_LENGTH</span> {
+                        <span class="string">b&#39;a&#39;</span>..<span class="op">=</span><span class="string">b&#39;z&#39;</span> <span class="op">|</span> <span class="string">b&#39;0&#39;</span>..<span class="op">=</span><span class="string">b&#39;9&#39;</span> <span class="op">|</span> <span class="string">b&#39;-&#39;</span> <span class="op">|</span> <span class="string">b&#39;_&#39;</span> <span class="op">|</span> <span class="string">b&#39;:&#39;</span> <span class="op">|</span> <span class="string">b&#39;.&#39;</span> =&gt; {
+                            <span class="kw">if</span> <span class="ident">trimmed_pos</span> <span class="op">==</span> <span class="ident">LONGEST_LABEL_LENGTH</span> {
                                 <span class="comment">// There&#39;s no encoding with a label this long</span>
                                 <span class="kw">return</span> <span class="prelude-val">None</span>;
                             }
@@ -8787,7 +8787,7 @@
                             <span class="ident">trimmed_pos</span> <span class="op">+</span><span class="op">=</span> <span class="number">1usize</span>;
                             <span class="kw">continue</span>;
                         }
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="kw">_</span> =&gt; {
                             <span class="kw">return</span> <span class="prelude-val">None</span>;
                         }
                     }
@@ -8797,15 +8797,15 @@
         <span class="comment">// after</span>
         <span class="kw">loop</span> {
             <span class="kw">match</span> <span class="ident">iter</span>.<span class="ident">next</span>() {
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">None</span> =&gt; {
                     <span class="kw">break</span>;
                 }
-                <span class="prelude-val">Some</span>(<span class="ident">byte</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">byte</span>) =&gt; {
                     <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">byte</span> {
-                        <span class="number">0x09u8</span> <span class="op">|</span> <span class="number">0x0Au8</span> <span class="op">|</span> <span class="number">0x0Cu8</span> <span class="op">|</span> <span class="number">0x0Du8</span> <span class="op">|</span> <span class="number">0x20u8</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="number">0x09u8</span> <span class="op">|</span> <span class="number">0x0Au8</span> <span class="op">|</span> <span class="number">0x0Cu8</span> <span class="op">|</span> <span class="number">0x0Du8</span> <span class="op">|</span> <span class="number">0x20u8</span> =&gt; {
                             <span class="kw">continue</span>;
                         }
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="kw">_</span> =&gt; {
                             <span class="comment">// There&#39;s no label with space in the middle</span>
                             <span class="kw">return</span> <span class="prelude-val">None</span>;
                         }
@@ -8824,8 +8824,8 @@
             <span class="kw">let</span> <span class="ident">candidate_iter</span> <span class="op">=</span> <span class="ident">candidate</span>.<span class="ident">iter</span>().<span class="ident">rev</span>();
             <span class="ident">probe_iter</span>.<span class="ident">cmp</span>(<span class="ident">candidate_iter</span>)
         }) {
-            <span class="prelude-val">Ok</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">ENCODINGS_IN_LABEL_SORT</span>[<span class="ident">i</span>]),
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+            <span class="prelude-val">Ok</span>(<span class="ident">i</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ENCODINGS_IN_LABEL_SORT</span>[<span class="ident">i</span>]),
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
         }
     }
 
@@ -8844,11 +8844,11 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Available via the C wrapper.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">for_label_no_replacement</span>(<span class="ident">label</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Encoding</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">for_label_no_replacement</span>(<span class="ident">label</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Encoding</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">Encoding::for_label</span>(<span class="ident">label</span>) {
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">encoding</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="ident">encoding</span> <span class="op">=</span><span class="op">=</span> <span class="ident">REPLACEMENT</span> {
+            <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="prelude-val">Some</span>(<span class="ident">encoding</span>) =&gt; {
+                <span class="kw">if</span> <span class="ident">encoding</span> <span class="op">==</span> <span class="ident">REPLACEMENT</span> {
                     <span class="prelude-val">None</span>
                 } <span class="kw">else</span> {
                     <span class="prelude-val">Some</span>(<span class="ident">encoding</span>)
@@ -8869,7 +8869,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Available via the C wrapper.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">for_bom</span>(<span class="ident">buffer</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Encoding</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">for_bom</span>(<span class="ident">buffer</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Encoding</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">buffer</span>.<span class="ident">starts_with</span>(<span class="string">b&quot;\xEF\xBB\xBF&quot;</span>) {
             <span class="prelude-val">Some</span>((<span class="ident">UTF_8</span>, <span class="number">3</span>))
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">buffer</span>.<span class="ident">starts_with</span>(<span class="string">b&quot;\xFF\xFE&quot;</span>) {
@@ -8888,7 +8888,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Available via the C wrapper.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
         <span class="self">self</span>.<span class="ident">name</span>
     }
 
@@ -8897,8 +8897,8 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Available via the C wrapper.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">can_encode_everything</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">output_encoding</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_8</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">can_encode_everything</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">output_encoding</span>() <span class="op">==</span> <span class="ident">UTF_8</span>
     }
 
     <span class="doccomment">/// Checks whether the bytes 0x00...0x7F map exclusively to the characters</span>
@@ -8906,8 +8906,8 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Available via the C wrapper.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_ascii_compatible</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="op">!</span>(<span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">REPLACEMENT</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_16BE</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_16LE</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ISO_2022_JP</span>)
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_ascii_compatible</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="op">!</span>(<span class="self">self</span> <span class="op">==</span> <span class="ident">REPLACEMENT</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span> <span class="op">==</span> <span class="ident">UTF_16BE</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span> <span class="op">==</span> <span class="ident">UTF_16LE</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span> <span class="op">==</span> <span class="ident">ISO_2022_JP</span>)
     }
 
     <span class="doccomment">/// Checks whether this encoding maps one byte to one Basic Multilingual</span>
@@ -8920,15 +8920,15 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Available via the C wrapper.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_single_byte</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_single_byte</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">variant</span>.<span class="ident">is_single_byte</span>()
     }
 
     <span class="doccomment">/// Checks whether the bytes 0x00...0x7F map mostly to the characters</span>
     <span class="doccomment">/// U+0000...U+007F and vice versa.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">is_potentially_borrowable</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="op">!</span>(<span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">REPLACEMENT</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_16BE</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_16LE</span>)
+    <span class="kw">fn</span> <span class="ident">is_potentially_borrowable</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="op">!</span>(<span class="self">self</span> <span class="op">==</span> <span class="ident">REPLACEMENT</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span> <span class="op">==</span> <span class="ident">UTF_16BE</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span> <span class="op">==</span> <span class="ident">UTF_16LE</span>)
     }
 
     <span class="doccomment">/// Returns the _output encoding_ of this encoding. This is UTF-8 for</span>
@@ -8936,8 +8936,8 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Available via the C wrapper.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">output_encoding</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Encoding</span> {
-        <span class="kw">if</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">REPLACEMENT</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_16BE</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_16LE</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">output_encoding</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Encoding</span> {
+        <span class="kw">if</span> <span class="self">self</span> <span class="op">==</span> <span class="ident">REPLACEMENT</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span> <span class="op">==</span> <span class="ident">UTF_16BE</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span> <span class="op">==</span> <span class="ident">UTF_16LE</span> {
             <span class="ident">UTF_8</span>
         } <span class="kw">else</span> {
             <span class="self">self</span>
@@ -8979,10 +8979,10 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Available to Rust only.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="self">self</span>, <span class="ident">bytes</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Encoding</span>, <span class="ident">bool</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="self">self</span>, <span class="ident">bytes</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]) -&gt; (<span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Encoding</span>, <span class="ident">bool</span>) {
         <span class="kw">let</span> (<span class="ident">encoding</span>, <span class="ident">without_bom</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">Encoding::for_bom</span>(<span class="ident">bytes</span>) {
-            <span class="prelude-val">Some</span>((<span class="ident">encoding</span>, <span class="ident">bom_length</span>)) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">encoding</span>, <span class="kw-2">&amp;</span><span class="ident">bytes</span>[<span class="ident">bom_length</span>..]),
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="self">self</span>, <span class="ident">bytes</span>),
+            <span class="prelude-val">Some</span>((<span class="ident">encoding</span>, <span class="ident">bom_length</span>)) =&gt; (<span class="ident">encoding</span>, <span class="kw-2">&amp;</span><span class="ident">bytes</span>[<span class="ident">bom_length</span>..]),
+            <span class="prelude-val">None</span> =&gt; (<span class="self">self</span>, <span class="ident">bytes</span>),
         };
         <span class="kw">let</span> (<span class="ident">cow</span>, <span class="ident">had_errors</span>) <span class="op">=</span> <span class="ident">encoding</span>.<span class="ident">decode_without_bom_handling</span>(<span class="ident">without_bom</span>);
         (<span class="ident">cow</span>, <span class="ident">encoding</span>, <span class="ident">had_errors</span>)
@@ -9022,11 +9022,11 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Available to Rust only.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decode_with_bom_removal</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="self">self</span>, <span class="ident">bytes</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">bool</span>) {
-        <span class="kw">let</span> <span class="ident">without_bom</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_8</span> <span class="op">&amp;&amp;</span> <span class="ident">bytes</span>.<span class="ident">starts_with</span>(<span class="string">b&quot;\xEF\xBB\xBF&quot;</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decode_with_bom_removal</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="self">self</span>, <span class="ident">bytes</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]) -&gt; (<span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">bool</span>) {
+        <span class="kw">let</span> <span class="ident">without_bom</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span> <span class="op">==</span> <span class="ident">UTF_8</span> <span class="op">&amp;&amp;</span> <span class="ident">bytes</span>.<span class="ident">starts_with</span>(<span class="string">b&quot;\xEF\xBB\xBF&quot;</span>) {
             <span class="kw-2">&amp;</span><span class="ident">bytes</span>[<span class="number">3</span>..]
-        } <span class="kw">else</span> <span class="kw">if</span> (<span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_16LE</span> <span class="op">&amp;&amp;</span> <span class="ident">bytes</span>.<span class="ident">starts_with</span>(<span class="string">b&quot;\xFF\xFE&quot;</span>))
-            <span class="op">|</span><span class="op">|</span> (<span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_16BE</span> <span class="op">&amp;&amp;</span> <span class="ident">bytes</span>.<span class="ident">starts_with</span>(<span class="string">b&quot;\xFE\xFF&quot;</span>))
+        } <span class="kw">else</span> <span class="kw">if</span> (<span class="self">self</span> <span class="op">==</span> <span class="ident">UTF_16LE</span> <span class="op">&amp;&amp;</span> <span class="ident">bytes</span>.<span class="ident">starts_with</span>(<span class="string">b&quot;\xFF\xFE&quot;</span>))
+            <span class="op">|</span><span class="op">|</span> (<span class="self">self</span> <span class="op">==</span> <span class="ident">UTF_16BE</span> <span class="op">&amp;&amp;</span> <span class="ident">bytes</span>.<span class="ident">starts_with</span>(<span class="string">b&quot;\xFE\xFF&quot;</span>))
         {
             <span class="kw-2">&amp;</span><span class="ident">bytes</span>[<span class="number">2</span>..]
         } <span class="kw">else</span> {
@@ -9068,16 +9068,16 @@
     <span class="doccomment">/// `usize`.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Available to Rust only.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decode_without_bom_handling</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="self">self</span>, <span class="ident">bytes</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">bool</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decode_without_bom_handling</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="self">self</span>, <span class="ident">bytes</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]) -&gt; (<span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">bool</span>) {
         <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">decoder</span>, <span class="kw-2">mut</span> <span class="ident">string</span>, <span class="kw-2">mut</span> <span class="ident">total_read</span>) <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_potentially_borrowable</span>() {
-            <span class="kw">let</span> <span class="ident">valid_up_to</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_8</span> {
+            <span class="kw">let</span> <span class="ident">valid_up_to</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span> <span class="op">==</span> <span class="ident">UTF_8</span> {
                 <span class="ident">utf8_valid_up_to</span>(<span class="ident">bytes</span>)
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ISO_2022_JP</span> {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span> <span class="op">==</span> <span class="ident">ISO_2022_JP</span> {
                 <span class="ident">iso_2022_jp_ascii_valid_up_to</span>(<span class="ident">bytes</span>)
             } <span class="kw">else</span> {
                 <span class="ident">ascii_valid_up_to</span>(<span class="ident">bytes</span>)
             };
-            <span class="kw">if</span> <span class="ident">valid_up_to</span> <span class="op">=</span><span class="op">=</span> <span class="ident">bytes</span>.<span class="ident">len</span>() {
+            <span class="kw">if</span> <span class="ident">valid_up_to</span> <span class="op">==</span> <span class="ident">bytes</span>.<span class="ident">len</span>() {
                 <span class="kw">let</span> <span class="ident">str</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">core::str::from_utf8_unchecked</span>(<span class="ident">bytes</span>) };
                 <span class="kw">return</span> (<span class="ident">Cow::Borrowed</span>(<span class="ident">str</span>), <span class="bool-val">false</span>);
             }
@@ -9119,11 +9119,11 @@
             <span class="ident">total_read</span> <span class="op">+</span><span class="op">=</span> <span class="ident">read</span>;
             <span class="ident">total_had_errors</span> <span class="op">|</span><span class="op">=</span> <span class="ident">had_errors</span>;
             <span class="kw">match</span> <span class="ident">result</span> {
-                <span class="ident">CoderResult::InputEmpty</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">CoderResult::InputEmpty</span> =&gt; {
                     <span class="macro">debug_assert_eq!</span>(<span class="ident">total_read</span>, <span class="ident">bytes</span>.<span class="ident">len</span>());
                     <span class="kw">return</span> (<span class="ident">Cow::Owned</span>(<span class="ident">string</span>), <span class="ident">total_had_errors</span>);
                 }
-                <span class="ident">CoderResult::OutputFull</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">CoderResult::OutputFull</span> =&gt; {
                     <span class="comment">// Allocate for the worst case. That is, we should come</span>
                     <span class="comment">// here at most once per invocation of this method.</span>
                     <span class="kw">let</span> <span class="ident">needed</span> <span class="op">=</span> <span class="ident">decoder</span>.<span class="ident">max_utf8_buffer_length</span>(<span class="ident">bytes</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="ident">total_read</span>);
@@ -9166,22 +9166,22 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decode_without_bom_handling_and_without_replacement</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="self">self</span>,
         <span class="ident">bytes</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>],
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_8</span> {
+    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="self">self</span> <span class="op">==</span> <span class="ident">UTF_8</span> {
             <span class="kw">let</span> <span class="ident">valid_up_to</span> <span class="op">=</span> <span class="ident">utf8_valid_up_to</span>(<span class="ident">bytes</span>);
-            <span class="kw">if</span> <span class="ident">valid_up_to</span> <span class="op">=</span><span class="op">=</span> <span class="ident">bytes</span>.<span class="ident">len</span>() {
+            <span class="kw">if</span> <span class="ident">valid_up_to</span> <span class="op">==</span> <span class="ident">bytes</span>.<span class="ident">len</span>() {
                 <span class="kw">let</span> <span class="ident">str</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">core::str::from_utf8_unchecked</span>(<span class="ident">bytes</span>) };
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Cow::Borrowed</span>(<span class="ident">str</span>));
             }
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
         <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">decoder</span>, <span class="kw-2">mut</span> <span class="ident">string</span>, <span class="ident">input</span>) <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_potentially_borrowable</span>() {
-            <span class="kw">let</span> <span class="ident">valid_up_to</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ISO_2022_JP</span> {
+            <span class="kw">let</span> <span class="ident">valid_up_to</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span> <span class="op">==</span> <span class="ident">ISO_2022_JP</span> {
                 <span class="ident">iso_2022_jp_ascii_valid_up_to</span>(<span class="ident">bytes</span>)
             } <span class="kw">else</span> {
                 <span class="ident">ascii_valid_up_to</span>(<span class="ident">bytes</span>)
             };
-            <span class="kw">if</span> <span class="ident">valid_up_to</span> <span class="op">=</span><span class="op">=</span> <span class="ident">bytes</span>.<span class="ident">len</span>() {
+            <span class="kw">if</span> <span class="ident">valid_up_to</span> <span class="op">==</span> <span class="ident">bytes</span>.<span class="ident">len</span>() {
                 <span class="kw">let</span> <span class="ident">str</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">core::str::from_utf8_unchecked</span>(<span class="ident">bytes</span>) };
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Cow::Borrowed</span>(<span class="ident">str</span>));
             }
@@ -9210,12 +9210,12 @@
         };
         <span class="kw">let</span> (<span class="ident">result</span>, <span class="ident">read</span>) <span class="op">=</span> <span class="ident">decoder</span>.<span class="ident">decode_to_string_without_replacement</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">string</span>, <span class="bool-val">true</span>);
         <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="ident">DecoderResult::InputEmpty</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">DecoderResult::InputEmpty</span> =&gt; {
                 <span class="macro">debug_assert_eq!</span>(<span class="ident">read</span>, <span class="ident">input</span>.<span class="ident">len</span>());
                 <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">string</span>))
             }
-            <span class="ident">DecoderResult::Malformed</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-            <span class="ident">DecoderResult::OutputFull</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="ident">DecoderResult::Malformed</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">DecoderResult::OutputFull</span> =&gt; <span class="macro">unreachable!</span>(),
         }
     }
 
@@ -9258,19 +9258,19 @@
     <span class="doccomment">/// `usize`.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Available to Rust only.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="self">self</span>, <span class="ident">string</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, [<span class="ident">u8</span>]<span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Encoding</span>, <span class="ident">bool</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="self">self</span>, <span class="ident">string</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) -&gt; (<span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, [<span class="ident">u8</span>]<span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Encoding</span>, <span class="ident">bool</span>) {
         <span class="kw">let</span> <span class="ident">output_encoding</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">output_encoding</span>();
-        <span class="kw">if</span> <span class="ident">output_encoding</span> <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_8</span> {
+        <span class="kw">if</span> <span class="ident">output_encoding</span> <span class="op">==</span> <span class="ident">UTF_8</span> {
             <span class="kw">return</span> (<span class="ident">Cow::Borrowed</span>(<span class="ident">string</span>.<span class="ident">as_bytes</span>()), <span class="ident">output_encoding</span>, <span class="bool-val">false</span>);
         }
         <span class="macro">debug_assert!</span>(<span class="ident">output_encoding</span>.<span class="ident">is_potentially_borrowable</span>());
         <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">string</span>.<span class="ident">as_bytes</span>();
-        <span class="kw">let</span> <span class="ident">valid_up_to</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">output_encoding</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ISO_2022_JP</span> {
+        <span class="kw">let</span> <span class="ident">valid_up_to</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">output_encoding</span> <span class="op">==</span> <span class="ident">ISO_2022_JP</span> {
             <span class="ident">iso_2022_jp_ascii_valid_up_to</span>(<span class="ident">bytes</span>)
         } <span class="kw">else</span> {
             <span class="ident">ascii_valid_up_to</span>(<span class="ident">bytes</span>)
         };
-        <span class="kw">if</span> <span class="ident">valid_up_to</span> <span class="op">=</span><span class="op">=</span> <span class="ident">bytes</span>.<span class="ident">len</span>() {
+        <span class="kw">if</span> <span class="ident">valid_up_to</span> <span class="op">==</span> <span class="ident">bytes</span>.<span class="ident">len</span>() {
             <span class="kw">return</span> (<span class="ident">Cow::Borrowed</span>(<span class="ident">bytes</span>), <span class="ident">output_encoding</span>, <span class="bool-val">false</span>);
         }
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">encoder</span> <span class="op">=</span> <span class="ident">output_encoding</span>.<span class="ident">new_encoder</span>();
@@ -9294,11 +9294,11 @@
             <span class="ident">total_read</span> <span class="op">+</span><span class="op">=</span> <span class="ident">read</span>;
             <span class="ident">total_had_errors</span> <span class="op">|</span><span class="op">=</span> <span class="ident">had_errors</span>;
             <span class="kw">match</span> <span class="ident">result</span> {
-                <span class="ident">CoderResult::InputEmpty</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">CoderResult::InputEmpty</span> =&gt; {
                     <span class="macro">debug_assert_eq!</span>(<span class="ident">total_read</span>, <span class="ident">string</span>.<span class="ident">len</span>());
                     <span class="kw">return</span> (<span class="ident">Cow::Owned</span>(<span class="ident">vec</span>), <span class="ident">output_encoding</span>, <span class="ident">total_had_errors</span>);
                 }
-                <span class="ident">CoderResult::OutputFull</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">CoderResult::OutputFull</span> =&gt; {
                     <span class="comment">// reserve_exact wants to know how much more on top of current</span>
                     <span class="comment">// length--not current capacity.</span>
                     <span class="kw">let</span> <span class="ident">needed</span> <span class="op">=</span> <span class="ident">encoder</span>
@@ -9313,7 +9313,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">new_variant_decoder</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">VariantDecoder</span> {
+    <span class="kw">fn</span> <span class="ident">new_variant_decoder</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="self">self</span>) -&gt; <span class="ident">VariantDecoder</span> {
         <span class="self">self</span>.<span class="ident">variant</span>.<span class="ident">new_variant_decoder</span>()
     }
 
@@ -9324,7 +9324,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Available via the C wrapper.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_decoder</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Decoder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_decoder</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="self">self</span>) -&gt; <span class="ident">Decoder</span> {
         <span class="ident">Decoder::new</span>(<span class="self">self</span>, <span class="self">self</span>.<span class="ident">new_variant_decoder</span>(), <span class="ident">BomHandling::Sniff</span>)
     }
 
@@ -9338,7 +9338,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Available via the C wrapper.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_decoder_with_bom_removal</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Decoder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_decoder_with_bom_removal</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="self">self</span>) -&gt; <span class="ident">Decoder</span> {
         <span class="ident">Decoder::new</span>(<span class="self">self</span>, <span class="self">self</span>.<span class="ident">new_variant_decoder</span>(), <span class="ident">BomHandling::Remove</span>)
     }
 
@@ -9354,7 +9354,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Available via the C wrapper.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_decoder_without_bom_handling</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Decoder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_decoder_without_bom_handling</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="self">self</span>) -&gt; <span class="ident">Decoder</span> {
         <span class="ident">Decoder::new</span>(<span class="self">self</span>, <span class="self">self</span>.<span class="ident">new_variant_decoder</span>(), <span class="ident">BomHandling::Off</span>)
     }
 
@@ -9362,7 +9362,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Available via the C wrapper.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_encoder</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Encoder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_encoder</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="self">self</span>) -&gt; <span class="ident">Encoder</span> {
         <span class="kw">let</span> <span class="ident">enc</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">output_encoding</span>();
         <span class="ident">enc</span>.<span class="ident">variant</span>.<span class="ident">new_encoder</span>(<span class="ident">enc</span>)
     }
@@ -9377,7 +9377,7 @@
     <span class="doccomment">/// library, this method may be removed in the future.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Available via the C wrapper.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">utf8_valid_up_to</span>(<span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">utf8_valid_up_to</span>(<span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">usize</span> {
         <span class="ident">utf8_valid_up_to</span>(<span class="ident">bytes</span>)
     }
 
@@ -9387,7 +9387,7 @@
     <span class="doccomment">/// ASCII or the length of the slice if the slice is entirely valid.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Available via the C wrapper.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ascii_valid_up_to</span>(<span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ascii_valid_up_to</span>(<span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">usize</span> {
         <span class="ident">ascii_valid_up_to</span>(<span class="ident">bytes</span>)
     }
 
@@ -9399,15 +9399,15 @@
     <span class="doccomment">/// ISO-2022-JP.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Available via the C wrapper.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iso_2022_jp_ascii_valid_up_to</span>(<span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iso_2022_jp_ascii_valid_up_to</span>(<span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">usize</span> {
         <span class="ident">iso_2022_jp_ascii_valid_up_to</span>(<span class="ident">bytes</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">PartialEq</span> <span class="kw">for</span> <span class="ident">Encoding</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Encoding</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        (<span class="self">self</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">Encoding</span>) <span class="op">=</span><span class="op">=</span> (<span class="ident">other</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">Encoding</span>)
+    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Encoding</span>) -&gt; <span class="ident">bool</span> {
+        (<span class="self">self</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">Encoding</span>) <span class="op">==</span> (<span class="ident">other</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">Encoding</span>)
     }
 }
 
@@ -9415,14 +9415,14 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">impl</span> <span class="ident">PartialOrd</span> <span class="kw">for</span> <span class="ident">Encoding</span> {
-    <span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Ordering</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Ordering</span><span class="op">&gt;</span> {
         (<span class="self">self</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">Encoding</span> <span class="kw">as</span> <span class="ident">usize</span>).<span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span>(<span class="ident">other</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">Encoding</span> <span class="kw">as</span> <span class="ident">usize</span>))
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">impl</span> <span class="ident">Ord</span> <span class="kw">for</span> <span class="ident">Encoding</span> {
-    <span class="kw">fn</span> <span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ordering</span> {
+    <span class="kw">fn</span> <span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="ident">Ordering</span> {
         (<span class="self">self</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">Encoding</span> <span class="kw">as</span> <span class="ident">usize</span>).<span class="ident">cmp</span>(<span class="kw-2">&amp;</span>(<span class="ident">other</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">Encoding</span> <span class="kw">as</span> <span class="ident">usize</span>))
     }
 }
@@ -9436,7 +9436,7 @@
 
 <span class="kw">impl</span> <span class="ident">core::fmt::Debug</span> <span class="kw">for</span> <span class="ident">Encoding</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core::fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">core::fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Encoding {{ {} }}&quot;</span>, <span class="self">self</span>.<span class="ident">name</span>)
     }
 }
@@ -9444,7 +9444,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">Serialize</span> <span class="kw">for</span> <span class="ident">Encoding</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">serializer</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">S::Error</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">serializer</span>: <span class="ident">S</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">S::Error</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">S</span>: <span class="ident">Serializer</span>,
     {
@@ -9459,11 +9459,11 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">EncodingVisitor</span> {
     <span class="kw">type</span> <span class="ident">Value</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Encoding</span>;
 
-    <span class="kw">fn</span> <span class="ident">expecting</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">formatter</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core::fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">core::fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">expecting</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">formatter</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
         <span class="ident">formatter</span>.<span class="ident">write_str</span>(<span class="string">&quot;a valid encoding label&quot;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_str</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Encoding</span>, <span class="ident">E</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">visit_str</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Encoding</span>, <span class="ident">E</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">E</span>: <span class="ident">serde::de::Error</span>,
     {
@@ -9477,7 +9477,7 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>)]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Encoding</span> {
-    <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">deserializer</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Encoding</span>, <span class="ident">D::Error</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">deserializer</span>: <span class="ident">D</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Encoding</span>, <span class="ident">D::Error</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">D</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
     {
@@ -9686,19 +9686,19 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Decoder</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">enc</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Encoding</span>, <span class="ident">decoder</span>: <span class="ident">VariantDecoder</span>, <span class="ident">sniffing</span>: <span class="ident">BomHandling</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Decoder</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">enc</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Encoding</span>, <span class="ident">decoder</span>: <span class="ident">VariantDecoder</span>, <span class="ident">sniffing</span>: <span class="ident">BomHandling</span>) -&gt; <span class="ident">Decoder</span> {
         <span class="ident">Decoder</span> {
             <span class="ident">encoding</span>: <span class="ident">enc</span>,
             <span class="ident">variant</span>: <span class="ident">decoder</span>,
             <span class="ident">life_cycle</span>: <span class="kw">match</span> <span class="ident">sniffing</span> {
-                <span class="ident">BomHandling::Off</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DecoderLifeCycle::Converting</span>,
-                <span class="ident">BomHandling::Sniff</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DecoderLifeCycle::AtStart</span>,
-                <span class="ident">BomHandling::Remove</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">if</span> <span class="ident">enc</span> <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_8</span> {
+                <span class="ident">BomHandling::Off</span> =&gt; <span class="ident">DecoderLifeCycle::Converting</span>,
+                <span class="ident">BomHandling::Sniff</span> =&gt; <span class="ident">DecoderLifeCycle::AtStart</span>,
+                <span class="ident">BomHandling::Remove</span> =&gt; {
+                    <span class="kw">if</span> <span class="ident">enc</span> <span class="op">==</span> <span class="ident">UTF_8</span> {
                         <span class="ident">DecoderLifeCycle::AtUtf8Start</span>
-                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">enc</span> <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_16BE</span> {
+                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">enc</span> <span class="op">==</span> <span class="ident">UTF_16BE</span> {
                         <span class="ident">DecoderLifeCycle::AtUtf16BeStart</span>
-                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">enc</span> <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_16LE</span> {
+                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">enc</span> <span class="op">==</span> <span class="ident">UTF_16LE</span> {
                         <span class="ident">DecoderLifeCycle::AtUtf16LeStart</span>
                     } <span class="kw">else</span> {
                         <span class="ident">DecoderLifeCycle::Converting</span>
@@ -9715,7 +9715,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Available via the C wrapper.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encoding</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Encoding</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encoding</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Encoding</span> {
         <span class="self">self</span>.<span class="ident">encoding</span>
     }
 
@@ -9728,17 +9728,17 @@
     <span class="doccomment">/// sequence or `None` if `usize` would overflow.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Available via the C wrapper.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_utf8_buffer_length</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">byte_length</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_utf8_buffer_length</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">byte_length</span>: <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="comment">// Need to consider a) the decoder morphing due to the BOM and b) a partial</span>
         <span class="comment">// BOM getting pushed to the underlying decoder.</span>
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">life_cycle</span> {
             <span class="ident">DecoderLifeCycle::Converting</span>
             <span class="op">|</span> <span class="ident">DecoderLifeCycle::AtUtf8Start</span>
             <span class="op">|</span> <span class="ident">DecoderLifeCycle::AtUtf16LeStart</span>
-            <span class="op">|</span> <span class="ident">DecoderLifeCycle::AtUtf16BeStart</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="op">|</span> <span class="ident">DecoderLifeCycle::AtUtf16BeStart</span> =&gt; {
                 <span class="kw">return</span> <span class="self">self</span>.<span class="ident">variant</span>.<span class="ident">max_utf8_buffer_length</span>(<span class="ident">byte_length</span>);
             }
-            <span class="ident">DecoderLifeCycle::AtStart</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">DecoderLifeCycle::AtStart</span> =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">utf8_bom</span>) <span class="op">=</span> <span class="ident">checked_add</span>(<span class="number">3</span>, <span class="ident">byte_length</span>.<span class="ident">checked_mul</span>(<span class="number">3</span>)) {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">utf16_bom</span>) <span class="op">=</span> <span class="ident">checked_add</span>(
                         <span class="number">1</span>,
@@ -9746,7 +9746,7 @@
                     ) {
                         <span class="kw">let</span> <span class="ident">utf_bom</span> <span class="op">=</span> <span class="ident">core::cmp::max</span>(<span class="ident">utf8_bom</span>, <span class="ident">utf16_bom</span>);
                         <span class="kw">let</span> <span class="ident">encoding</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">encoding</span>();
-                        <span class="kw">if</span> <span class="ident">encoding</span> <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_8</span> <span class="op">|</span><span class="op">|</span> <span class="ident">encoding</span> <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_16LE</span> <span class="op">|</span><span class="op">|</span> <span class="ident">encoding</span> <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_16BE</span> {
+                        <span class="kw">if</span> <span class="ident">encoding</span> <span class="op">==</span> <span class="ident">UTF_8</span> <span class="op">|</span><span class="op">|</span> <span class="ident">encoding</span> <span class="op">==</span> <span class="ident">UTF_16LE</span> <span class="op">|</span><span class="op">|</span> <span class="ident">encoding</span> <span class="op">==</span> <span class="ident">UTF_16BE</span> {
                             <span class="comment">// No need to consider the internal state of the underlying decoder,</span>
                             <span class="comment">// because it is at start, because no data has reached it yet.</span>
                             <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">utf_bom</span>);
@@ -9758,7 +9758,7 @@
                     }
                 }
             }
-            <span class="ident">DecoderLifeCycle::SeenUtf8First</span> <span class="op">|</span> <span class="ident">DecoderLifeCycle::SeenUtf8Second</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">DecoderLifeCycle::SeenUtf8First</span> <span class="op">|</span> <span class="ident">DecoderLifeCycle::SeenUtf8Second</span> =&gt; {
                 <span class="comment">// Add two bytes even when only one byte has been seen,</span>
                 <span class="comment">// because the one byte can become a lead byte in multibyte</span>
                 <span class="comment">// decoders, but only after the decoder has been queried</span>
@@ -9766,7 +9766,7 @@
                 <span class="comment">// one for a pending lead cannot work.</span>
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">sum</span>) <span class="op">=</span> <span class="ident">byte_length</span>.<span class="ident">checked_add</span>(<span class="number">2</span>) {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">utf8_bom</span>) <span class="op">=</span> <span class="ident">checked_add</span>(<span class="number">3</span>, <span class="ident">sum</span>.<span class="ident">checked_mul</span>(<span class="number">3</span>)) {
-                        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">encoding</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_8</span> {
+                        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">encoding</span>() <span class="op">==</span> <span class="ident">UTF_8</span> {
                             <span class="comment">// No need to consider the internal state of the underlying decoder,</span>
                             <span class="comment">// because it is at start, because no data has reached it yet.</span>
                             <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">utf8_bom</span>);
@@ -9776,12 +9776,12 @@
                     }
                 }
             }
-            <span class="ident">DecoderLifeCycle::ConvertingWithPendingBB</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">DecoderLifeCycle::ConvertingWithPendingBB</span> =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">sum</span>) <span class="op">=</span> <span class="ident">byte_length</span>.<span class="ident">checked_add</span>(<span class="number">2</span>) {
                     <span class="kw">return</span> <span class="self">self</span>.<span class="ident">variant</span>.<span class="ident">max_utf8_buffer_length</span>(<span class="ident">sum</span>);
                 }
             }
-            <span class="ident">DecoderLifeCycle::SeenUtf16LeFirst</span> <span class="op">|</span> <span class="ident">DecoderLifeCycle::SeenUtf16BeFirst</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">DecoderLifeCycle::SeenUtf16LeFirst</span> <span class="op">|</span> <span class="ident">DecoderLifeCycle::SeenUtf16BeFirst</span> =&gt; {
                 <span class="comment">// Add two bytes even when only one byte has been seen,</span>
                 <span class="comment">// because the one byte can become a lead byte in multibyte</span>
                 <span class="comment">// decoders, but only after the decoder has been queried</span>
@@ -9792,7 +9792,7 @@
                         <span class="ident">checked_add</span>(<span class="number">1</span>, <span class="ident">checked_mul</span>(<span class="number">3</span>, <span class="ident">checked_div</span>(<span class="ident">sum</span>.<span class="ident">checked_add</span>(<span class="number">1</span>), <span class="number">2</span>)))
                     {
                         <span class="kw">let</span> <span class="ident">encoding</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">encoding</span>();
-                        <span class="kw">if</span> <span class="ident">encoding</span> <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_16LE</span> <span class="op">|</span><span class="op">|</span> <span class="ident">encoding</span> <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_16BE</span> {
+                        <span class="kw">if</span> <span class="ident">encoding</span> <span class="op">==</span> <span class="ident">UTF_16LE</span> <span class="op">|</span><span class="op">|</span> <span class="ident">encoding</span> <span class="op">==</span> <span class="ident">UTF_16BE</span> {
                             <span class="comment">// No need to consider the internal state of the underlying decoder,</span>
                             <span class="comment">// because it is at start, because no data has reached it yet.</span>
                             <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">utf16_bom</span>);
@@ -9802,7 +9802,7 @@
                     }
                 }
             }
-            <span class="ident">DecoderLifeCycle::Finished</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;Must not use a decoder that has finished.&quot;</span>),
+            <span class="ident">DecoderLifeCycle::Finished</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Must not use a decoder that has finished.&quot;</span>),
         }
         <span class="prelude-val">None</span>
     }
@@ -9818,19 +9818,19 @@
     <span class="doccomment">/// Use `max_utf8_buffer_length()` for that case.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Available via the C wrapper.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_utf8_buffer_length_without_replacement</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">byte_length</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_utf8_buffer_length_without_replacement</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">byte_length</span>: <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="comment">// Need to consider a) the decoder morphing due to the BOM and b) a partial</span>
         <span class="comment">// BOM getting pushed to the underlying decoder.</span>
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">life_cycle</span> {
             <span class="ident">DecoderLifeCycle::Converting</span>
             <span class="op">|</span> <span class="ident">DecoderLifeCycle::AtUtf8Start</span>
             <span class="op">|</span> <span class="ident">DecoderLifeCycle::AtUtf16LeStart</span>
-            <span class="op">|</span> <span class="ident">DecoderLifeCycle::AtUtf16BeStart</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="op">|</span> <span class="ident">DecoderLifeCycle::AtUtf16BeStart</span> =&gt; {
                 <span class="kw">return</span> <span class="self">self</span>
                     .<span class="ident">variant</span>
                     .<span class="ident">max_utf8_buffer_length_without_replacement</span>(<span class="ident">byte_length</span>);
             }
-            <span class="ident">DecoderLifeCycle::AtStart</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">DecoderLifeCycle::AtStart</span> =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">utf8_bom</span>) <span class="op">=</span> <span class="ident">byte_length</span>.<span class="ident">checked_add</span>(<span class="number">3</span>) {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">utf16_bom</span>) <span class="op">=</span> <span class="ident">checked_add</span>(
                         <span class="number">1</span>,
@@ -9838,7 +9838,7 @@
                     ) {
                         <span class="kw">let</span> <span class="ident">utf_bom</span> <span class="op">=</span> <span class="ident">core::cmp::max</span>(<span class="ident">utf8_bom</span>, <span class="ident">utf16_bom</span>);
                         <span class="kw">let</span> <span class="ident">encoding</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">encoding</span>();
-                        <span class="kw">if</span> <span class="ident">encoding</span> <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_8</span> <span class="op">|</span><span class="op">|</span> <span class="ident">encoding</span> <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_16LE</span> <span class="op">|</span><span class="op">|</span> <span class="ident">encoding</span> <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_16BE</span> {
+                        <span class="kw">if</span> <span class="ident">encoding</span> <span class="op">==</span> <span class="ident">UTF_8</span> <span class="op">|</span><span class="op">|</span> <span class="ident">encoding</span> <span class="op">==</span> <span class="ident">UTF_16LE</span> <span class="op">|</span><span class="op">|</span> <span class="ident">encoding</span> <span class="op">==</span> <span class="ident">UTF_16BE</span> {
                             <span class="comment">// No need to consider the internal state of the underlying decoder,</span>
                             <span class="comment">// because it is at start, because no data has reached it yet.</span>
                             <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">utf_bom</span>);
@@ -9851,7 +9851,7 @@
                     }
                 }
             }
-            <span class="ident">DecoderLifeCycle::SeenUtf8First</span> <span class="op">|</span> <span class="ident">DecoderLifeCycle::SeenUtf8Second</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">DecoderLifeCycle::SeenUtf8First</span> <span class="op">|</span> <span class="ident">DecoderLifeCycle::SeenUtf8Second</span> =&gt; {
                 <span class="comment">// Add two bytes even when only one byte has been seen,</span>
                 <span class="comment">// because the one byte can become a lead byte in multibyte</span>
                 <span class="comment">// decoders, but only after the decoder has been queried</span>
@@ -9859,7 +9859,7 @@
                 <span class="comment">// one for a pending lead cannot work.</span>
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">sum</span>) <span class="op">=</span> <span class="ident">byte_length</span>.<span class="ident">checked_add</span>(<span class="number">2</span>) {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">utf8_bom</span>) <span class="op">=</span> <span class="ident">sum</span>.<span class="ident">checked_add</span>(<span class="number">3</span>) {
-                        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">encoding</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_8</span> {
+                        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">encoding</span>() <span class="op">==</span> <span class="ident">UTF_8</span> {
                             <span class="comment">// No need to consider the internal state of the underlying decoder,</span>
                             <span class="comment">// because it is at start, because no data has reached it yet.</span>
                             <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">utf8_bom</span>);
@@ -9871,12 +9871,12 @@
                     }
                 }
             }
-            <span class="ident">DecoderLifeCycle::ConvertingWithPendingBB</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">DecoderLifeCycle::ConvertingWithPendingBB</span> =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">sum</span>) <span class="op">=</span> <span class="ident">byte_length</span>.<span class="ident">checked_add</span>(<span class="number">2</span>) {
                     <span class="kw">return</span> <span class="self">self</span>.<span class="ident">variant</span>.<span class="ident">max_utf8_buffer_length_without_replacement</span>(<span class="ident">sum</span>);
                 }
             }
-            <span class="ident">DecoderLifeCycle::SeenUtf16LeFirst</span> <span class="op">|</span> <span class="ident">DecoderLifeCycle::SeenUtf16BeFirst</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">DecoderLifeCycle::SeenUtf16LeFirst</span> <span class="op">|</span> <span class="ident">DecoderLifeCycle::SeenUtf16BeFirst</span> =&gt; {
                 <span class="comment">// Add two bytes even when only one byte has been seen,</span>
                 <span class="comment">// because the one byte can become a lead byte in multibyte</span>
                 <span class="comment">// decoders, but only after the decoder has been queried</span>
@@ -9887,7 +9887,7 @@
                         <span class="ident">checked_add</span>(<span class="number">1</span>, <span class="ident">checked_mul</span>(<span class="number">3</span>, <span class="ident">checked_div</span>(<span class="ident">sum</span>.<span class="ident">checked_add</span>(<span class="number">1</span>), <span class="number">2</span>)))
                     {
                         <span class="kw">let</span> <span class="ident">encoding</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">encoding</span>();
-                        <span class="kw">if</span> <span class="ident">encoding</span> <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_16LE</span> <span class="op">|</span><span class="op">|</span> <span class="ident">encoding</span> <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_16BE</span> {
+                        <span class="kw">if</span> <span class="ident">encoding</span> <span class="op">==</span> <span class="ident">UTF_16LE</span> <span class="op">|</span><span class="op">|</span> <span class="ident">encoding</span> <span class="op">==</span> <span class="ident">UTF_16BE</span> {
                             <span class="comment">// No need to consider the internal state of the underlying decoder,</span>
                             <span class="comment">// because it is at start, because no data has reached it yet.</span>
                             <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">utf16_bom</span>);
@@ -9899,7 +9899,7 @@
                     }
                 }
             }
-            <span class="ident">DecoderLifeCycle::Finished</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;Must not use a decoder that has finished.&quot;</span>),
+            <span class="ident">DecoderLifeCycle::Finished</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Must not use a decoder that has finished.&quot;</span>),
         }
         <span class="prelude-val">None</span>
     }
@@ -9916,7 +9916,7 @@
         <span class="ident">src</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">dst</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>],
         <span class="ident">last</span>: <span class="ident">bool</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">CoderResult</span>, <span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">bool</span>) {
+    ) -&gt; (<span class="ident">CoderResult</span>, <span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">bool</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">had_errors</span> <span class="op">=</span> <span class="bool-val">false</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_read</span> <span class="op">=</span> <span class="number">0usize</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_written</span> <span class="op">=</span> <span class="number">0usize</span>;
@@ -9929,7 +9929,7 @@
             <span class="ident">total_read</span> <span class="op">+</span><span class="op">=</span> <span class="ident">read</span>;
             <span class="ident">total_written</span> <span class="op">+</span><span class="op">=</span> <span class="ident">written</span>;
             <span class="kw">match</span> <span class="ident">result</span> {
-                <span class="ident">DecoderResult::InputEmpty</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">DecoderResult::InputEmpty</span> =&gt; {
                     <span class="kw">return</span> (
                         <span class="ident">CoderResult::InputEmpty</span>,
                         <span class="ident">total_read</span>,
@@ -9937,7 +9937,7 @@
                         <span class="ident">had_errors</span>,
                     );
                 }
-                <span class="ident">DecoderResult::OutputFull</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">DecoderResult::OutputFull</span> =&gt; {
                     <span class="kw">return</span> (
                         <span class="ident">CoderResult::OutputFull</span>,
                         <span class="ident">total_read</span>,
@@ -9945,7 +9945,7 @@
                         <span class="ident">had_errors</span>,
                     );
                 }
-                <span class="ident">DecoderResult::Malformed</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">DecoderResult::Malformed</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
                     <span class="ident">had_errors</span> <span class="op">=</span> <span class="bool-val">true</span>;
                     <span class="comment">// There should always be space for the U+FFFD, because</span>
                     <span class="comment">// otherwise we&#39;d have gotten OutputFull already.</span>
@@ -9979,7 +9979,7 @@
         <span class="ident">src</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">dst</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">str</span>,
         <span class="ident">last</span>: <span class="ident">bool</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">CoderResult</span>, <span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">bool</span>) {
+    ) -&gt; (<span class="ident">CoderResult</span>, <span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">bool</span>) {
         <span class="kw">let</span> <span class="ident">bytes</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>] <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">dst</span>.<span class="ident">as_bytes_mut</span>() };
         <span class="kw">let</span> (<span class="ident">result</span>, <span class="ident">read</span>, <span class="ident">written</span>, <span class="ident">replaced</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">decode_to_utf8</span>(<span class="ident">src</span>, <span class="ident">bytes</span>, <span class="ident">last</span>);
         <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">bytes</span>.<span class="ident">len</span>();
@@ -9994,7 +9994,7 @@
                 <span class="ident">trail</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             }
         }
-        <span class="kw">while</span> <span class="ident">trail</span> <span class="op">&lt;</span> <span class="ident">len</span> <span class="op">&amp;&amp;</span> ((<span class="ident">bytes</span>[<span class="ident">trail</span>] <span class="op">&amp;</span> <span class="number">0xC0</span>) <span class="op">=</span><span class="op">=</span> <span class="number">0x80</span>) {
+        <span class="kw">while</span> <span class="ident">trail</span> <span class="op">&lt;</span> <span class="ident">len</span> <span class="op">&amp;&amp;</span> ((<span class="ident">bytes</span>[<span class="ident">trail</span>] <span class="op">&amp;</span> <span class="number">0xC0</span>) <span class="op">==</span> <span class="number">0x80</span>) {
             <span class="ident">bytes</span>[<span class="ident">trail</span>] <span class="op">=</span> <span class="number">0</span>;
             <span class="ident">trail</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
         }
@@ -10023,7 +10023,7 @@
         <span class="ident">src</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">dst</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">String</span>,
         <span class="ident">last</span>: <span class="ident">bool</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">CoderResult</span>, <span class="ident">usize</span>, <span class="ident">bool</span>) {
+    ) -&gt; (<span class="ident">CoderResult</span>, <span class="ident">usize</span>, <span class="ident">bool</span>) {
         <span class="kw">unsafe</span> {
             <span class="kw">let</span> <span class="ident">vec</span> <span class="op">=</span> <span class="ident">dst</span>.<span class="ident">as_mut_vec</span>();
             <span class="kw">let</span> <span class="ident">old_len</span> <span class="op">=</span> <span class="ident">vec</span>.<span class="ident">len</span>();
@@ -10069,7 +10069,7 @@
         <span class="ident">src</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">dst</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">str</span>,
         <span class="ident">last</span>: <span class="ident">bool</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">DecoderResult</span>, <span class="ident">usize</span>, <span class="ident">usize</span>) {
+    ) -&gt; (<span class="ident">DecoderResult</span>, <span class="ident">usize</span>, <span class="ident">usize</span>) {
         <span class="kw">let</span> <span class="ident">bytes</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>] <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">dst</span>.<span class="ident">as_bytes_mut</span>() };
         <span class="kw">let</span> (<span class="ident">result</span>, <span class="ident">read</span>, <span class="ident">written</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">decode_to_utf8_without_replacement</span>(<span class="ident">src</span>, <span class="ident">bytes</span>, <span class="ident">last</span>);
         <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">bytes</span>.<span class="ident">len</span>();
@@ -10084,7 +10084,7 @@
                 <span class="ident">trail</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             }
         }
-        <span class="kw">while</span> <span class="ident">trail</span> <span class="op">&lt;</span> <span class="ident">len</span> <span class="op">&amp;&amp;</span> ((<span class="ident">bytes</span>[<span class="ident">trail</span>] <span class="op">&amp;</span> <span class="number">0xC0</span>) <span class="op">=</span><span class="op">=</span> <span class="number">0x80</span>) {
+        <span class="kw">while</span> <span class="ident">trail</span> <span class="op">&lt;</span> <span class="ident">len</span> <span class="op">&amp;&amp;</span> ((<span class="ident">bytes</span>[<span class="ident">trail</span>] <span class="op">&amp;</span> <span class="number">0xC0</span>) <span class="op">==</span> <span class="number">0x80</span>) {
             <span class="ident">bytes</span>[<span class="ident">trail</span>] <span class="op">=</span> <span class="number">0</span>;
             <span class="ident">trail</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
         }
@@ -10111,7 +10111,7 @@
         <span class="ident">src</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">dst</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">String</span>,
         <span class="ident">last</span>: <span class="ident">bool</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">DecoderResult</span>, <span class="ident">usize</span>) {
+    ) -&gt; (<span class="ident">DecoderResult</span>, <span class="ident">usize</span>) {
         <span class="kw">unsafe</span> {
             <span class="kw">let</span> <span class="ident">vec</span> <span class="op">=</span> <span class="ident">dst</span>.<span class="ident">as_mut_vec</span>();
             <span class="kw">let</span> <span class="ident">old_len</span> <span class="op">=</span> <span class="ident">vec</span>.<span class="ident">len</span>();
@@ -10136,24 +10136,24 @@
     <span class="doccomment">/// `_without_replacement` case.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Available via the C wrapper.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_utf16_buffer_length</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">byte_length</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_utf16_buffer_length</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">byte_length</span>: <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="comment">// Need to consider a) the decoder morphing due to the BOM and b) a partial</span>
         <span class="comment">// BOM getting pushed to the underlying decoder.</span>
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">life_cycle</span> {
             <span class="ident">DecoderLifeCycle::Converting</span>
             <span class="op">|</span> <span class="ident">DecoderLifeCycle::AtUtf8Start</span>
             <span class="op">|</span> <span class="ident">DecoderLifeCycle::AtUtf16LeStart</span>
-            <span class="op">|</span> <span class="ident">DecoderLifeCycle::AtUtf16BeStart</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="op">|</span> <span class="ident">DecoderLifeCycle::AtUtf16BeStart</span> =&gt; {
                 <span class="kw">return</span> <span class="self">self</span>.<span class="ident">variant</span>.<span class="ident">max_utf16_buffer_length</span>(<span class="ident">byte_length</span>);
             }
-            <span class="ident">DecoderLifeCycle::AtStart</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">DecoderLifeCycle::AtStart</span> =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">utf8_bom</span>) <span class="op">=</span> <span class="ident">byte_length</span>.<span class="ident">checked_add</span>(<span class="number">1</span>) {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">utf16_bom</span>) <span class="op">=</span>
                         <span class="ident">checked_add</span>(<span class="number">1</span>, <span class="ident">checked_div</span>(<span class="ident">byte_length</span>.<span class="ident">checked_add</span>(<span class="number">1</span>), <span class="number">2</span>))
                     {
                         <span class="kw">let</span> <span class="ident">utf_bom</span> <span class="op">=</span> <span class="ident">core::cmp::max</span>(<span class="ident">utf8_bom</span>, <span class="ident">utf16_bom</span>);
                         <span class="kw">let</span> <span class="ident">encoding</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">encoding</span>();
-                        <span class="kw">if</span> <span class="ident">encoding</span> <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_8</span> <span class="op">|</span><span class="op">|</span> <span class="ident">encoding</span> <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_16LE</span> <span class="op">|</span><span class="op">|</span> <span class="ident">encoding</span> <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_16BE</span> {
+                        <span class="kw">if</span> <span class="ident">encoding</span> <span class="op">==</span> <span class="ident">UTF_8</span> <span class="op">|</span><span class="op">|</span> <span class="ident">encoding</span> <span class="op">==</span> <span class="ident">UTF_16LE</span> <span class="op">|</span><span class="op">|</span> <span class="ident">encoding</span> <span class="op">==</span> <span class="ident">UTF_16BE</span> {
                             <span class="comment">// No need to consider the internal state of the underlying decoder,</span>
                             <span class="comment">// because it is at start, because no data has reached it yet.</span>
                             <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">utf_bom</span>);
@@ -10165,7 +10165,7 @@
                     }
                 }
             }
-            <span class="ident">DecoderLifeCycle::SeenUtf8First</span> <span class="op">|</span> <span class="ident">DecoderLifeCycle::SeenUtf8Second</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">DecoderLifeCycle::SeenUtf8First</span> <span class="op">|</span> <span class="ident">DecoderLifeCycle::SeenUtf8Second</span> =&gt; {
                 <span class="comment">// Add two bytes even when only one byte has been seen,</span>
                 <span class="comment">// because the one byte can become a lead byte in multibyte</span>
                 <span class="comment">// decoders, but only after the decoder has been queried</span>
@@ -10173,7 +10173,7 @@
                 <span class="comment">// one for a pending lead cannot work.</span>
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">sum</span>) <span class="op">=</span> <span class="ident">byte_length</span>.<span class="ident">checked_add</span>(<span class="number">2</span>) {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">utf8_bom</span>) <span class="op">=</span> <span class="ident">sum</span>.<span class="ident">checked_add</span>(<span class="number">1</span>) {
-                        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">encoding</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_8</span> {
+                        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">encoding</span>() <span class="op">==</span> <span class="ident">UTF_8</span> {
                             <span class="comment">// No need to consider the internal state of the underlying decoder,</span>
                             <span class="comment">// because it is at start, because no data has reached it yet.</span>
                             <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">utf8_bom</span>);
@@ -10183,12 +10183,12 @@
                     }
                 }
             }
-            <span class="ident">DecoderLifeCycle::ConvertingWithPendingBB</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">DecoderLifeCycle::ConvertingWithPendingBB</span> =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">sum</span>) <span class="op">=</span> <span class="ident">byte_length</span>.<span class="ident">checked_add</span>(<span class="number">2</span>) {
                     <span class="kw">return</span> <span class="self">self</span>.<span class="ident">variant</span>.<span class="ident">max_utf16_buffer_length</span>(<span class="ident">sum</span>);
                 }
             }
-            <span class="ident">DecoderLifeCycle::SeenUtf16LeFirst</span> <span class="op">|</span> <span class="ident">DecoderLifeCycle::SeenUtf16BeFirst</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">DecoderLifeCycle::SeenUtf16LeFirst</span> <span class="op">|</span> <span class="ident">DecoderLifeCycle::SeenUtf16BeFirst</span> =&gt; {
                 <span class="comment">// Add two bytes even when only one byte has been seen,</span>
                 <span class="comment">// because the one byte can become a lead byte in multibyte</span>
                 <span class="comment">// decoders, but only after the decoder has been queried</span>
@@ -10197,7 +10197,7 @@
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">sum</span>) <span class="op">=</span> <span class="ident">byte_length</span>.<span class="ident">checked_add</span>(<span class="number">2</span>) {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">utf16_bom</span>) <span class="op">=</span> <span class="ident">checked_add</span>(<span class="number">1</span>, <span class="ident">checked_div</span>(<span class="ident">sum</span>.<span class="ident">checked_add</span>(<span class="number">1</span>), <span class="number">2</span>)) {
                         <span class="kw">let</span> <span class="ident">encoding</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">encoding</span>();
-                        <span class="kw">if</span> <span class="ident">encoding</span> <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_16LE</span> <span class="op">|</span><span class="op">|</span> <span class="ident">encoding</span> <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_16BE</span> {
+                        <span class="kw">if</span> <span class="ident">encoding</span> <span class="op">==</span> <span class="ident">UTF_16LE</span> <span class="op">|</span><span class="op">|</span> <span class="ident">encoding</span> <span class="op">==</span> <span class="ident">UTF_16BE</span> {
                             <span class="comment">// No need to consider the internal state of the underlying decoder,</span>
                             <span class="comment">// because it is at start, because no data has reached it yet.</span>
                             <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">utf16_bom</span>);
@@ -10207,7 +10207,7 @@
                     }
                 }
             }
-            <span class="ident">DecoderLifeCycle::Finished</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;Must not use a decoder that has finished.&quot;</span>),
+            <span class="ident">DecoderLifeCycle::Finished</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Must not use a decoder that has finished.&quot;</span>),
         }
         <span class="prelude-val">None</span>
     }
@@ -10224,7 +10224,7 @@
         <span class="ident">src</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">dst</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u16</span>],
         <span class="ident">last</span>: <span class="ident">bool</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">CoderResult</span>, <span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">bool</span>) {
+    ) -&gt; (<span class="ident">CoderResult</span>, <span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">bool</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">had_errors</span> <span class="op">=</span> <span class="bool-val">false</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_read</span> <span class="op">=</span> <span class="number">0usize</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_written</span> <span class="op">=</span> <span class="number">0usize</span>;
@@ -10237,7 +10237,7 @@
             <span class="ident">total_read</span> <span class="op">+</span><span class="op">=</span> <span class="ident">read</span>;
             <span class="ident">total_written</span> <span class="op">+</span><span class="op">=</span> <span class="ident">written</span>;
             <span class="kw">match</span> <span class="ident">result</span> {
-                <span class="ident">DecoderResult::InputEmpty</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">DecoderResult::InputEmpty</span> =&gt; {
                     <span class="kw">return</span> (
                         <span class="ident">CoderResult::InputEmpty</span>,
                         <span class="ident">total_read</span>,
@@ -10245,7 +10245,7 @@
                         <span class="ident">had_errors</span>,
                     );
                 }
-                <span class="ident">DecoderResult::OutputFull</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">DecoderResult::OutputFull</span> =&gt; {
                     <span class="kw">return</span> (
                         <span class="ident">CoderResult::OutputFull</span>,
                         <span class="ident">total_read</span>,
@@ -10253,7 +10253,7 @@
                         <span class="ident">had_errors</span>,
                     );
                 }
-                <span class="ident">DecoderResult::Malformed</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">DecoderResult::Malformed</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
                     <span class="ident">had_errors</span> <span class="op">=</span> <span class="bool-val">true</span>;
                     <span class="comment">// There should always be space for the U+FFFD, because</span>
                     <span class="comment">// otherwise we&#39;d have gotten OutputFull already.</span>
@@ -10298,13 +10298,13 @@
     <span class="doccomment">/// storage optimizations.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Available via the C wrapper.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">latin1_byte_compatible_up_to</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">latin1_byte_compatible_up_to</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">life_cycle</span> {
-            <span class="ident">DecoderLifeCycle::Converting</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">DecoderLifeCycle::Converting</span> =&gt; {
                 <span class="kw">return</span> <span class="self">self</span>.<span class="ident">variant</span>.<span class="ident">latin1_byte_compatible_up_to</span>(<span class="ident">bytes</span>);
             }
-            <span class="ident">DecoderLifeCycle::Finished</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;Must not use a decoder that has finished.&quot;</span>),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+            <span class="ident">DecoderLifeCycle::Finished</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Must not use a decoder that has finished.&quot;</span>),
+            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
         }
     }
 }
@@ -10336,7 +10336,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">EncoderResult</span> {
-    <span class="kw">fn</span> <span class="ident">unmappable_from_bmp</span>(<span class="ident">bmp</span>: <span class="ident">u16</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">EncoderResult</span> {
+    <span class="kw">fn</span> <span class="ident">unmappable_from_bmp</span>(<span class="ident">bmp</span>: <span class="ident">u16</span>) -&gt; <span class="ident">EncoderResult</span> {
         <span class="ident">EncoderResult::Unmappable</span>(<span class="ident">::core::char::from_u32</span>(<span class="ident">u32::from</span>(<span class="ident">bmp</span>)).<span class="ident">unwrap</span>())
     }
 }
@@ -10457,7 +10457,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Encoder</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">enc</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Encoding</span>, <span class="ident">encoder</span>: <span class="ident">VariantEncoder</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Encoder</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">enc</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Encoding</span>, <span class="ident">encoder</span>: <span class="ident">VariantEncoder</span>) -&gt; <span class="ident">Encoder</span> {
         <span class="ident">Encoder</span> {
             <span class="ident">encoding</span>: <span class="ident">enc</span>,
             <span class="ident">variant</span>: <span class="ident">encoder</span>,
@@ -10466,14 +10466,14 @@
 
     <span class="doccomment">/// The `Encoding` this `Encoder` is for.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encoding</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Encoding</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encoding</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Encoding</span> {
         <span class="self">self</span>.<span class="ident">encoding</span>
     }
 
     <span class="doccomment">/// Returns `true` if this is an ISO-2022-JP encoder that&#39;s not in the</span>
     <span class="doccomment">/// ASCII state and `false` otherwise.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_pending_state</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_pending_state</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">variant</span>.<span class="ident">has_pending_state</span>()
     }
 
@@ -10489,7 +10489,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_buffer_length_from_utf8_if_no_unmappables</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">byte_length</span>: <span class="ident">usize</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="ident">checked_add</span>(
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">encoding</span>().<span class="ident">can_encode_everything</span>() {
                 <span class="number">0</span>
@@ -10511,7 +10511,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_buffer_length_from_utf8_without_replacement</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">byte_length</span>: <span class="ident">usize</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">variant</span>
             .<span class="ident">max_buffer_length_from_utf8_without_replacement</span>(<span class="ident">byte_length</span>)
     }
@@ -10528,7 +10528,7 @@
         <span class="ident">src</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">dst</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>],
         <span class="ident">last</span>: <span class="ident">bool</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">CoderResult</span>, <span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">bool</span>) {
+    ) -&gt; (<span class="ident">CoderResult</span>, <span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">bool</span>) {
         <span class="kw">let</span> <span class="ident">dst_len</span> <span class="op">=</span> <span class="ident">dst</span>.<span class="ident">len</span>();
         <span class="kw">let</span> <span class="ident">effective_dst_len</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">encoding</span>().<span class="ident">can_encode_everything</span>() {
             <span class="ident">dst_len</span>
@@ -10553,7 +10553,7 @@
             <span class="ident">total_read</span> <span class="op">+</span><span class="op">=</span> <span class="ident">read</span>;
             <span class="ident">total_written</span> <span class="op">+</span><span class="op">=</span> <span class="ident">written</span>;
             <span class="kw">match</span> <span class="ident">result</span> {
-                <span class="ident">EncoderResult::InputEmpty</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">EncoderResult::InputEmpty</span> =&gt; {
                     <span class="kw">return</span> (
                         <span class="ident">CoderResult::InputEmpty</span>,
                         <span class="ident">total_read</span>,
@@ -10561,7 +10561,7 @@
                         <span class="ident">had_unmappables</span>,
                     );
                 }
-                <span class="ident">EncoderResult::OutputFull</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">EncoderResult::OutputFull</span> =&gt; {
                     <span class="kw">return</span> (
                         <span class="ident">CoderResult::OutputFull</span>,
                         <span class="ident">total_read</span>,
@@ -10569,7 +10569,7 @@
                         <span class="ident">had_unmappables</span>,
                     );
                 }
-                <span class="ident">EncoderResult::Unmappable</span>(<span class="ident">unmappable</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">EncoderResult::Unmappable</span>(<span class="ident">unmappable</span>) =&gt; {
                     <span class="ident">had_unmappables</span> <span class="op">=</span> <span class="bool-val">true</span>;
                     <span class="macro">debug_assert!</span>(<span class="ident">dst</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="ident">total_written</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">NCR_EXTRA</span>);
                     <span class="macro">debug_assert_ne!</span>(<span class="self">self</span>.<span class="ident">encoding</span>(), <span class="ident">UTF_16BE</span>);
@@ -10578,7 +10578,7 @@
                     <span class="comment">// transitioning to ASCII when returning with Unmappable.</span>
                     <span class="ident">total_written</span> <span class="op">+</span><span class="op">=</span> <span class="ident">write_ncr</span>(<span class="ident">unmappable</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">dst</span>[<span class="ident">total_written</span>..]);
                     <span class="kw">if</span> <span class="ident">total_written</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">effective_dst_len</span> {
-                        <span class="kw">if</span> <span class="ident">total_read</span> <span class="op">=</span><span class="op">=</span> <span class="ident">src</span>.<span class="ident">len</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span>(<span class="ident">last</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">has_pending_state</span>()) {
+                        <span class="kw">if</span> <span class="ident">total_read</span> <span class="op">==</span> <span class="ident">src</span>.<span class="ident">len</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span>(<span class="ident">last</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">has_pending_state</span>()) {
                             <span class="kw">return</span> (
                                 <span class="ident">CoderResult::InputEmpty</span>,
                                 <span class="ident">total_read</span>,
@@ -10610,7 +10610,7 @@
         <span class="ident">src</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">dst</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
         <span class="ident">last</span>: <span class="ident">bool</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">CoderResult</span>, <span class="ident">usize</span>, <span class="ident">bool</span>) {
+    ) -&gt; (<span class="ident">CoderResult</span>, <span class="ident">usize</span>, <span class="ident">bool</span>) {
         <span class="kw">unsafe</span> {
             <span class="kw">let</span> <span class="ident">old_len</span> <span class="op">=</span> <span class="ident">dst</span>.<span class="ident">len</span>();
             <span class="kw">let</span> <span class="ident">capacity</span> <span class="op">=</span> <span class="ident">dst</span>.<span class="ident">capacity</span>();
@@ -10633,7 +10633,7 @@
         <span class="ident">src</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">dst</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>],
         <span class="ident">last</span>: <span class="ident">bool</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">EncoderResult</span>, <span class="ident">usize</span>, <span class="ident">usize</span>) {
+    ) -&gt; (<span class="ident">EncoderResult</span>, <span class="ident">usize</span>, <span class="ident">usize</span>) {
         <span class="self">self</span>.<span class="ident">variant</span>.<span class="ident">encode_from_utf8_raw</span>(<span class="ident">src</span>, <span class="ident">dst</span>, <span class="ident">last</span>)
     }
 
@@ -10648,7 +10648,7 @@
         <span class="ident">src</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">dst</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
         <span class="ident">last</span>: <span class="ident">bool</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">EncoderResult</span>, <span class="ident">usize</span>) {
+    ) -&gt; (<span class="ident">EncoderResult</span>, <span class="ident">usize</span>) {
         <span class="kw">unsafe</span> {
             <span class="kw">let</span> <span class="ident">old_len</span> <span class="op">=</span> <span class="ident">dst</span>.<span class="ident">len</span>();
             <span class="kw">let</span> <span class="ident">capacity</span> <span class="op">=</span> <span class="ident">dst</span>.<span class="ident">capacity</span>();
@@ -10672,7 +10672,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_buffer_length_from_utf16_if_no_unmappables</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">u16_length</span>: <span class="ident">usize</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="ident">checked_add</span>(
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">encoding</span>().<span class="ident">can_encode_everything</span>() {
                 <span class="number">0</span>
@@ -10694,7 +10694,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_buffer_length_from_utf16_without_replacement</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">u16_length</span>: <span class="ident">usize</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">variant</span>
             .<span class="ident">max_buffer_length_from_utf16_without_replacement</span>(<span class="ident">u16_length</span>)
     }
@@ -10711,7 +10711,7 @@
         <span class="ident">src</span>: <span class="kw-2">&amp;</span>[<span class="ident">u16</span>],
         <span class="ident">dst</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>],
         <span class="ident">last</span>: <span class="ident">bool</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">CoderResult</span>, <span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">bool</span>) {
+    ) -&gt; (<span class="ident">CoderResult</span>, <span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">bool</span>) {
         <span class="kw">let</span> <span class="ident">dst_len</span> <span class="op">=</span> <span class="ident">dst</span>.<span class="ident">len</span>();
         <span class="kw">let</span> <span class="ident">effective_dst_len</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">encoding</span>().<span class="ident">can_encode_everything</span>() {
             <span class="ident">dst_len</span>
@@ -10736,7 +10736,7 @@
             <span class="ident">total_read</span> <span class="op">+</span><span class="op">=</span> <span class="ident">read</span>;
             <span class="ident">total_written</span> <span class="op">+</span><span class="op">=</span> <span class="ident">written</span>;
             <span class="kw">match</span> <span class="ident">result</span> {
-                <span class="ident">EncoderResult::InputEmpty</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">EncoderResult::InputEmpty</span> =&gt; {
                     <span class="kw">return</span> (
                         <span class="ident">CoderResult::InputEmpty</span>,
                         <span class="ident">total_read</span>,
@@ -10744,7 +10744,7 @@
                         <span class="ident">had_unmappables</span>,
                     );
                 }
-                <span class="ident">EncoderResult::OutputFull</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">EncoderResult::OutputFull</span> =&gt; {
                     <span class="kw">return</span> (
                         <span class="ident">CoderResult::OutputFull</span>,
                         <span class="ident">total_read</span>,
@@ -10752,7 +10752,7 @@
                         <span class="ident">had_unmappables</span>,
                     );
                 }
-                <span class="ident">EncoderResult::Unmappable</span>(<span class="ident">unmappable</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">EncoderResult::Unmappable</span>(<span class="ident">unmappable</span>) =&gt; {
                     <span class="ident">had_unmappables</span> <span class="op">=</span> <span class="bool-val">true</span>;
                     <span class="macro">debug_assert!</span>(<span class="ident">dst</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="ident">total_written</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">NCR_EXTRA</span>);
                     <span class="comment">// There are no UTF-16 encoders and even if there were,</span>
@@ -10767,7 +10767,7 @@
                     <span class="comment">// printable ASCII excluding \ and ~.</span>
                     <span class="ident">total_written</span> <span class="op">+</span><span class="op">=</span> <span class="ident">write_ncr</span>(<span class="ident">unmappable</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">dst</span>[<span class="ident">total_written</span>..]);
                     <span class="kw">if</span> <span class="ident">total_written</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">effective_dst_len</span> {
-                        <span class="kw">if</span> <span class="ident">total_read</span> <span class="op">=</span><span class="op">=</span> <span class="ident">src</span>.<span class="ident">len</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span>(<span class="ident">last</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">has_pending_state</span>()) {
+                        <span class="kw">if</span> <span class="ident">total_read</span> <span class="op">==</span> <span class="ident">src</span>.<span class="ident">len</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span>(<span class="ident">last</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">has_pending_state</span>()) {
                             <span class="kw">return</span> (
                                 <span class="ident">CoderResult::InputEmpty</span>,
                                 <span class="ident">total_read</span>,
@@ -10798,13 +10798,13 @@
         <span class="ident">src</span>: <span class="kw-2">&amp;</span>[<span class="ident">u16</span>],
         <span class="ident">dst</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>],
         <span class="ident">last</span>: <span class="ident">bool</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">EncoderResult</span>, <span class="ident">usize</span>, <span class="ident">usize</span>) {
+    ) -&gt; (<span class="ident">EncoderResult</span>, <span class="ident">usize</span>, <span class="ident">usize</span>) {
         <span class="self">self</span>.<span class="ident">variant</span>.<span class="ident">encode_from_utf16_raw</span>(<span class="ident">src</span>, <span class="ident">dst</span>, <span class="ident">last</span>)
     }
 }
 
 <span class="doccomment">/// Format an unmappable as NCR without heap allocation.</span>
-<span class="kw">fn</span> <span class="ident">write_ncr</span>(<span class="ident">unmappable</span>: <span class="ident">char</span>, <span class="ident">dst</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+<span class="kw">fn</span> <span class="ident">write_ncr</span>(<span class="ident">unmappable</span>: <span class="ident">char</span>, <span class="ident">dst</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) -&gt; <span class="ident">usize</span> {
     <span class="comment">// len is the number of decimal digits needed to represent unmappable plus</span>
     <span class="comment">// 3 (the length of &quot;&amp;#&quot; and &quot;;&quot;).</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">number</span> <span class="op">=</span> <span class="ident">unmappable</span> <span class="kw">as</span> <span class="ident">u32</span>;
@@ -10843,37 +10843,37 @@
 }
 
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">in_range16</span>(<span class="ident">i</span>: <span class="ident">u16</span>, <span class="ident">start</span>: <span class="ident">u16</span>, <span class="ident">end</span>: <span class="ident">u16</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+<span class="kw">fn</span> <span class="ident">in_range16</span>(<span class="ident">i</span>: <span class="ident">u16</span>, <span class="ident">start</span>: <span class="ident">u16</span>, <span class="ident">end</span>: <span class="ident">u16</span>) -&gt; <span class="ident">bool</span> {
     <span class="ident">i</span>.<span class="ident">wrapping_sub</span>(<span class="ident">start</span>) <span class="op">&lt;</span> (<span class="ident">end</span> <span class="op">-</span> <span class="ident">start</span>)
 }
 
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">in_range32</span>(<span class="ident">i</span>: <span class="ident">u32</span>, <span class="ident">start</span>: <span class="ident">u32</span>, <span class="ident">end</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+<span class="kw">fn</span> <span class="ident">in_range32</span>(<span class="ident">i</span>: <span class="ident">u32</span>, <span class="ident">start</span>: <span class="ident">u32</span>, <span class="ident">end</span>: <span class="ident">u32</span>) -&gt; <span class="ident">bool</span> {
     <span class="ident">i</span>.<span class="ident">wrapping_sub</span>(<span class="ident">start</span>) <span class="op">&lt;</span> (<span class="ident">end</span> <span class="op">-</span> <span class="ident">start</span>)
 }
 
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">in_inclusive_range8</span>(<span class="ident">i</span>: <span class="ident">u8</span>, <span class="ident">start</span>: <span class="ident">u8</span>, <span class="ident">end</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+<span class="kw">fn</span> <span class="ident">in_inclusive_range8</span>(<span class="ident">i</span>: <span class="ident">u8</span>, <span class="ident">start</span>: <span class="ident">u8</span>, <span class="ident">end</span>: <span class="ident">u8</span>) -&gt; <span class="ident">bool</span> {
     <span class="ident">i</span>.<span class="ident">wrapping_sub</span>(<span class="ident">start</span>) <span class="op">&lt;</span><span class="op">=</span> (<span class="ident">end</span> <span class="op">-</span> <span class="ident">start</span>)
 }
 
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">in_inclusive_range16</span>(<span class="ident">i</span>: <span class="ident">u16</span>, <span class="ident">start</span>: <span class="ident">u16</span>, <span class="ident">end</span>: <span class="ident">u16</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+<span class="kw">fn</span> <span class="ident">in_inclusive_range16</span>(<span class="ident">i</span>: <span class="ident">u16</span>, <span class="ident">start</span>: <span class="ident">u16</span>, <span class="ident">end</span>: <span class="ident">u16</span>) -&gt; <span class="ident">bool</span> {
     <span class="ident">i</span>.<span class="ident">wrapping_sub</span>(<span class="ident">start</span>) <span class="op">&lt;</span><span class="op">=</span> (<span class="ident">end</span> <span class="op">-</span> <span class="ident">start</span>)
 }
 
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">in_inclusive_range32</span>(<span class="ident">i</span>: <span class="ident">u32</span>, <span class="ident">start</span>: <span class="ident">u32</span>, <span class="ident">end</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+<span class="kw">fn</span> <span class="ident">in_inclusive_range32</span>(<span class="ident">i</span>: <span class="ident">u32</span>, <span class="ident">start</span>: <span class="ident">u32</span>, <span class="ident">end</span>: <span class="ident">u32</span>) -&gt; <span class="ident">bool</span> {
     <span class="ident">i</span>.<span class="ident">wrapping_sub</span>(<span class="ident">start</span>) <span class="op">&lt;</span><span class="op">=</span> (<span class="ident">end</span> <span class="op">-</span> <span class="ident">start</span>)
 }
 
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">in_inclusive_range</span>(<span class="ident">i</span>: <span class="ident">usize</span>, <span class="ident">start</span>: <span class="ident">usize</span>, <span class="ident">end</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+<span class="kw">fn</span> <span class="ident">in_inclusive_range</span>(<span class="ident">i</span>: <span class="ident">usize</span>, <span class="ident">start</span>: <span class="ident">usize</span>, <span class="ident">end</span>: <span class="ident">usize</span>) -&gt; <span class="ident">bool</span> {
     <span class="ident">i</span>.<span class="ident">wrapping_sub</span>(<span class="ident">start</span>) <span class="op">&lt;</span><span class="op">=</span> (<span class="ident">end</span> <span class="op">-</span> <span class="ident">start</span>)
 }
 
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">checked_add</span>(<span class="ident">num</span>: <span class="ident">usize</span>, <span class="ident">opt</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">checked_add</span>(<span class="ident">num</span>: <span class="ident">usize</span>, <span class="ident">opt</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="op">=</span> <span class="ident">opt</span> {
         <span class="ident">n</span>.<span class="ident">checked_add</span>(<span class="ident">num</span>)
     } <span class="kw">else</span> {
@@ -10882,7 +10882,7 @@
 }
 
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">checked_add_opt</span>(<span class="ident">one</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>, <span class="ident">other</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">checked_add_opt</span>(<span class="ident">one</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>, <span class="ident">other</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="op">=</span> <span class="ident">one</span> {
         <span class="ident">checked_add</span>(<span class="ident">n</span>, <span class="ident">other</span>)
     } <span class="kw">else</span> {
@@ -10891,7 +10891,7 @@
 }
 
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">checked_mul</span>(<span class="ident">num</span>: <span class="ident">usize</span>, <span class="ident">opt</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">checked_mul</span>(<span class="ident">num</span>: <span class="ident">usize</span>, <span class="ident">opt</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="op">=</span> <span class="ident">opt</span> {
         <span class="ident">n</span>.<span class="ident">checked_mul</span>(<span class="ident">num</span>)
     } <span class="kw">else</span> {
@@ -10900,7 +10900,7 @@
 }
 
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">checked_div</span>(<span class="ident">opt</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>, <span class="ident">num</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">checked_div</span>(<span class="ident">opt</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>, <span class="ident">num</span>: <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="op">=</span> <span class="ident">opt</span> {
         <span class="ident">n</span>.<span class="ident">checked_div</span>(<span class="ident">num</span>)
     } <span class="kw">else</span> {
@@ -10909,12 +10909,12 @@
 }
 
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">checked_next_power_of_two</span>(<span class="ident">opt</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">checked_next_power_of_two</span>(<span class="ident">opt</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
     <span class="ident">opt</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">n</span><span class="op">|</span> <span class="ident">n</span>.<span class="ident">next_power_of_two</span>())
 }
 
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">checked_min</span>(<span class="ident">one</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>, <span class="ident">other</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">checked_min</span>(<span class="ident">one</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>, <span class="ident">other</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">a</span>) <span class="op">=</span> <span class="ident">one</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="ident">other</span> {
             <span class="prelude-val">Some</span>(<span class="ident">::core::cmp::min</span>(<span class="ident">a</span>, <span class="ident">b</span>))
@@ -10966,8 +10966,8 @@
             <span class="ident">total_written</span> <span class="op">+</span><span class="op">=</span> <span class="ident">written</span>;
             <span class="macro">assert_eq!</span>(<span class="ident">read</span>, <span class="kw-2">*</span><span class="ident">br</span> <span class="op">-</span> <span class="ident">start</span>);
             <span class="kw">match</span> <span class="ident">result</span> {
-                <span class="ident">CoderResult::InputEmpty</span> <span class="op">=</span><span class="op">&gt;</span> {}
-                <span class="ident">CoderResult::OutputFull</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">CoderResult::InputEmpty</span> =&gt; {}
+                <span class="ident">CoderResult::OutputFull</span> =&gt; {
                     <span class="macro">unreachable!</span>();
                 }
             }
@@ -10977,8 +10977,8 @@
             <span class="ident">decoder</span>.<span class="ident">decode_to_utf16</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>[<span class="ident">start</span>..], <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">dest</span>[<span class="ident">total_written</span>..], <span class="bool-val">true</span>);
         <span class="ident">total_written</span> <span class="op">+</span><span class="op">=</span> <span class="ident">written</span>;
         <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="ident">CoderResult::InputEmpty</span> <span class="op">=</span><span class="op">&gt;</span> {}
-            <span class="ident">CoderResult::OutputFull</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">CoderResult::InputEmpty</span> =&gt; {}
+            <span class="ident">CoderResult::OutputFull</span> =&gt; {
                 <span class="macro">unreachable!</span>();
             }
         }
@@ -11179,8 +11179,8 @@
     <span class="kw">fn</span> <span class="ident">test_decode_valid_windows_1257_to_cow</span>() {
         <span class="kw">let</span> (<span class="ident">cow</span>, <span class="ident">encoding</span>, <span class="ident">had_errors</span>) <span class="op">=</span> <span class="ident">WINDOWS_1257</span>.<span class="ident">decode</span>(<span class="string">b&quot;abc\x80\xE4&quot;</span>);
         <span class="kw">match</span> <span class="ident">cow</span> {
-            <span class="ident">Cow::Borrowed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
-            <span class="ident">Cow::Owned</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Cow::Borrowed</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+            <span class="ident">Cow::Owned</span>(<span class="ident">s</span>) =&gt; {
                 <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">&quot;abc\u{20AC}\u{00E4}&quot;</span>);
             }
         }
@@ -11192,8 +11192,8 @@
     <span class="kw">fn</span> <span class="ident">test_decode_invalid_windows_1257_to_cow</span>() {
         <span class="kw">let</span> (<span class="ident">cow</span>, <span class="ident">encoding</span>, <span class="ident">had_errors</span>) <span class="op">=</span> <span class="ident">WINDOWS_1257</span>.<span class="ident">decode</span>(<span class="string">b&quot;abc\x80\xA1\xE4&quot;</span>);
         <span class="kw">match</span> <span class="ident">cow</span> {
-            <span class="ident">Cow::Borrowed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
-            <span class="ident">Cow::Owned</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Cow::Borrowed</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+            <span class="ident">Cow::Owned</span>(<span class="ident">s</span>) =&gt; {
                 <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">&quot;abc\u{20AC}\u{FFFD}\u{00E4}&quot;</span>);
             }
         }
@@ -11205,10 +11205,10 @@
     <span class="kw">fn</span> <span class="ident">test_decode_ascii_only_windows_1257_to_cow</span>() {
         <span class="kw">let</span> (<span class="ident">cow</span>, <span class="ident">encoding</span>, <span class="ident">had_errors</span>) <span class="op">=</span> <span class="ident">WINDOWS_1257</span>.<span class="ident">decode</span>(<span class="string">b&quot;abc&quot;</span>);
         <span class="kw">match</span> <span class="ident">cow</span> {
-            <span class="ident">Cow::Borrowed</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Cow::Borrowed</span>(<span class="ident">s</span>) =&gt; {
                 <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">&quot;abc&quot;</span>);
             }
-            <span class="ident">Cow::Owned</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="ident">Cow::Owned</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
         }
         <span class="macro">assert_eq!</span>(<span class="ident">encoding</span>, <span class="ident">WINDOWS_1257</span>);
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">had_errors</span>);
@@ -11218,10 +11218,10 @@
     <span class="kw">fn</span> <span class="ident">test_decode_bomful_valid_utf8_as_windows_1257_to_cow</span>() {
         <span class="kw">let</span> (<span class="ident">cow</span>, <span class="ident">encoding</span>, <span class="ident">had_errors</span>) <span class="op">=</span> <span class="ident">WINDOWS_1257</span>.<span class="ident">decode</span>(<span class="string">b&quot;\xEF\xBB\xBF\xE2\x82\xAC\xC3\xA4&quot;</span>);
         <span class="kw">match</span> <span class="ident">cow</span> {
-            <span class="ident">Cow::Borrowed</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Cow::Borrowed</span>(<span class="ident">s</span>) =&gt; {
                 <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">&quot;\u{20AC}\u{00E4}&quot;</span>);
             }
-            <span class="ident">Cow::Owned</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="ident">Cow::Owned</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
         }
         <span class="macro">assert_eq!</span>(<span class="ident">encoding</span>, <span class="ident">UTF_8</span>);
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">had_errors</span>);
@@ -11232,8 +11232,8 @@
         <span class="kw">let</span> (<span class="ident">cow</span>, <span class="ident">encoding</span>, <span class="ident">had_errors</span>) <span class="op">=</span>
             <span class="ident">WINDOWS_1257</span>.<span class="ident">decode</span>(<span class="string">b&quot;\xEF\xBB\xBF\xE2\x82\xAC\x80\xC3\xA4&quot;</span>);
         <span class="kw">match</span> <span class="ident">cow</span> {
-            <span class="ident">Cow::Borrowed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
-            <span class="ident">Cow::Owned</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Cow::Borrowed</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+            <span class="ident">Cow::Owned</span>(<span class="ident">s</span>) =&gt; {
                 <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">&quot;\u{20AC}\u{FFFD}\u{00E4}&quot;</span>);
             }
         }
@@ -11245,10 +11245,10 @@
     <span class="kw">fn</span> <span class="ident">test_decode_bomful_valid_utf8_as_utf_8_to_cow</span>() {
         <span class="kw">let</span> (<span class="ident">cow</span>, <span class="ident">encoding</span>, <span class="ident">had_errors</span>) <span class="op">=</span> <span class="ident">UTF_8</span>.<span class="ident">decode</span>(<span class="string">b&quot;\xEF\xBB\xBF\xE2\x82\xAC\xC3\xA4&quot;</span>);
         <span class="kw">match</span> <span class="ident">cow</span> {
-            <span class="ident">Cow::Borrowed</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Cow::Borrowed</span>(<span class="ident">s</span>) =&gt; {
                 <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">&quot;\u{20AC}\u{00E4}&quot;</span>);
             }
-            <span class="ident">Cow::Owned</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="ident">Cow::Owned</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
         }
         <span class="macro">assert_eq!</span>(<span class="ident">encoding</span>, <span class="ident">UTF_8</span>);
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">had_errors</span>);
@@ -11258,8 +11258,8 @@
     <span class="kw">fn</span> <span class="ident">test_decode_bomful_invalid_utf8_as_utf_8_to_cow</span>() {
         <span class="kw">let</span> (<span class="ident">cow</span>, <span class="ident">encoding</span>, <span class="ident">had_errors</span>) <span class="op">=</span> <span class="ident">UTF_8</span>.<span class="ident">decode</span>(<span class="string">b&quot;\xEF\xBB\xBF\xE2\x82\xAC\x80\xC3\xA4&quot;</span>);
         <span class="kw">match</span> <span class="ident">cow</span> {
-            <span class="ident">Cow::Borrowed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
-            <span class="ident">Cow::Owned</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Cow::Borrowed</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+            <span class="ident">Cow::Owned</span>(<span class="ident">s</span>) =&gt; {
                 <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">&quot;\u{20AC}\u{FFFD}\u{00E4}&quot;</span>);
             }
         }
@@ -11271,10 +11271,10 @@
     <span class="kw">fn</span> <span class="ident">test_decode_bomful_valid_utf8_as_utf_8_to_cow_with_bom_removal</span>() {
         <span class="kw">let</span> (<span class="ident">cow</span>, <span class="ident">had_errors</span>) <span class="op">=</span> <span class="ident">UTF_8</span>.<span class="ident">decode_with_bom_removal</span>(<span class="string">b&quot;\xEF\xBB\xBF\xE2\x82\xAC\xC3\xA4&quot;</span>);
         <span class="kw">match</span> <span class="ident">cow</span> {
-            <span class="ident">Cow::Borrowed</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Cow::Borrowed</span>(<span class="ident">s</span>) =&gt; {
                 <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">&quot;\u{20AC}\u{00E4}&quot;</span>);
             }
-            <span class="ident">Cow::Owned</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="ident">Cow::Owned</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
         }
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">had_errors</span>);
     }
@@ -11284,8 +11284,8 @@
         <span class="kw">let</span> (<span class="ident">cow</span>, <span class="ident">had_errors</span>) <span class="op">=</span>
             <span class="ident">WINDOWS_1257</span>.<span class="ident">decode_with_bom_removal</span>(<span class="string">b&quot;\xEF\xBB\xBF\xE2\x82\xAC\xC3\xA4&quot;</span>);
         <span class="kw">match</span> <span class="ident">cow</span> {
-            <span class="ident">Cow::Borrowed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
-            <span class="ident">Cow::Owned</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Cow::Borrowed</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+            <span class="ident">Cow::Owned</span>(<span class="ident">s</span>) =&gt; {
                 <span class="macro">assert_eq!</span>(
                     <span class="ident">s</span>,
                     <span class="string">&quot;\u{013C}\u{00BB}\u{00E6}\u{0101}\u{201A}\u{00AC}\u{0106}\u{00A4}&quot;</span>
@@ -11299,8 +11299,8 @@
     <span class="kw">fn</span> <span class="ident">test_decode_valid_windows_1257_to_cow_with_bom_removal</span>() {
         <span class="kw">let</span> (<span class="ident">cow</span>, <span class="ident">had_errors</span>) <span class="op">=</span> <span class="ident">WINDOWS_1257</span>.<span class="ident">decode_with_bom_removal</span>(<span class="string">b&quot;abc\x80\xE4&quot;</span>);
         <span class="kw">match</span> <span class="ident">cow</span> {
-            <span class="ident">Cow::Borrowed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
-            <span class="ident">Cow::Owned</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Cow::Borrowed</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+            <span class="ident">Cow::Owned</span>(<span class="ident">s</span>) =&gt; {
                 <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">&quot;abc\u{20AC}\u{00E4}&quot;</span>);
             }
         }
@@ -11311,8 +11311,8 @@
     <span class="kw">fn</span> <span class="ident">test_decode_invalid_windows_1257_to_cow_with_bom_removal</span>() {
         <span class="kw">let</span> (<span class="ident">cow</span>, <span class="ident">had_errors</span>) <span class="op">=</span> <span class="ident">WINDOWS_1257</span>.<span class="ident">decode_with_bom_removal</span>(<span class="string">b&quot;abc\x80\xA1\xE4&quot;</span>);
         <span class="kw">match</span> <span class="ident">cow</span> {
-            <span class="ident">Cow::Borrowed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
-            <span class="ident">Cow::Owned</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Cow::Borrowed</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+            <span class="ident">Cow::Owned</span>(<span class="ident">s</span>) =&gt; {
                 <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">&quot;abc\u{20AC}\u{FFFD}\u{00E4}&quot;</span>);
             }
         }
@@ -11323,10 +11323,10 @@
     <span class="kw">fn</span> <span class="ident">test_decode_ascii_only_windows_1257_to_cow_with_bom_removal</span>() {
         <span class="kw">let</span> (<span class="ident">cow</span>, <span class="ident">had_errors</span>) <span class="op">=</span> <span class="ident">WINDOWS_1257</span>.<span class="ident">decode_with_bom_removal</span>(<span class="string">b&quot;abc&quot;</span>);
         <span class="kw">match</span> <span class="ident">cow</span> {
-            <span class="ident">Cow::Borrowed</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Cow::Borrowed</span>(<span class="ident">s</span>) =&gt; {
                 <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">&quot;abc&quot;</span>);
             }
-            <span class="ident">Cow::Owned</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="ident">Cow::Owned</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
         }
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">had_errors</span>);
     }
@@ -11336,10 +11336,10 @@
         <span class="kw">let</span> (<span class="ident">cow</span>, <span class="ident">had_errors</span>) <span class="op">=</span>
             <span class="ident">UTF_8</span>.<span class="ident">decode_without_bom_handling</span>(<span class="string">b&quot;\xEF\xBB\xBF\xE2\x82\xAC\xC3\xA4&quot;</span>);
         <span class="kw">match</span> <span class="ident">cow</span> {
-            <span class="ident">Cow::Borrowed</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Cow::Borrowed</span>(<span class="ident">s</span>) =&gt; {
                 <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">&quot;\u{FEFF}\u{20AC}\u{00E4}&quot;</span>);
             }
-            <span class="ident">Cow::Owned</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="ident">Cow::Owned</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
         }
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">had_errors</span>);
     }
@@ -11349,8 +11349,8 @@
         <span class="kw">let</span> (<span class="ident">cow</span>, <span class="ident">had_errors</span>) <span class="op">=</span>
             <span class="ident">UTF_8</span>.<span class="ident">decode_without_bom_handling</span>(<span class="string">b&quot;\xEF\xBB\xBF\xE2\x82\xAC\x80\xC3\xA4&quot;</span>);
         <span class="kw">match</span> <span class="ident">cow</span> {
-            <span class="ident">Cow::Borrowed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
-            <span class="ident">Cow::Owned</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Cow::Borrowed</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+            <span class="ident">Cow::Owned</span>(<span class="ident">s</span>) =&gt; {
                 <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">&quot;\u{FEFF}\u{20AC}\u{FFFD}\u{00E4}&quot;</span>);
             }
         }
@@ -11361,8 +11361,8 @@
     <span class="kw">fn</span> <span class="ident">test_decode_valid_windows_1257_to_cow_without_bom_handling</span>() {
         <span class="kw">let</span> (<span class="ident">cow</span>, <span class="ident">had_errors</span>) <span class="op">=</span> <span class="ident">WINDOWS_1257</span>.<span class="ident">decode_without_bom_handling</span>(<span class="string">b&quot;abc\x80\xE4&quot;</span>);
         <span class="kw">match</span> <span class="ident">cow</span> {
-            <span class="ident">Cow::Borrowed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
-            <span class="ident">Cow::Owned</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Cow::Borrowed</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+            <span class="ident">Cow::Owned</span>(<span class="ident">s</span>) =&gt; {
                 <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">&quot;abc\u{20AC}\u{00E4}&quot;</span>);
             }
         }
@@ -11373,8 +11373,8 @@
     <span class="kw">fn</span> <span class="ident">test_decode_invalid_windows_1257_to_cow_without_bom_handling</span>() {
         <span class="kw">let</span> (<span class="ident">cow</span>, <span class="ident">had_errors</span>) <span class="op">=</span> <span class="ident">WINDOWS_1257</span>.<span class="ident">decode_without_bom_handling</span>(<span class="string">b&quot;abc\x80\xA1\xE4&quot;</span>);
         <span class="kw">match</span> <span class="ident">cow</span> {
-            <span class="ident">Cow::Borrowed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
-            <span class="ident">Cow::Owned</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Cow::Borrowed</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+            <span class="ident">Cow::Owned</span>(<span class="ident">s</span>) =&gt; {
                 <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">&quot;abc\u{20AC}\u{FFFD}\u{00E4}&quot;</span>);
             }
         }
@@ -11385,10 +11385,10 @@
     <span class="kw">fn</span> <span class="ident">test_decode_ascii_only_windows_1257_to_cow_without_bom_handling</span>() {
         <span class="kw">let</span> (<span class="ident">cow</span>, <span class="ident">had_errors</span>) <span class="op">=</span> <span class="ident">WINDOWS_1257</span>.<span class="ident">decode_without_bom_handling</span>(<span class="string">b&quot;abc&quot;</span>);
         <span class="kw">match</span> <span class="ident">cow</span> {
-            <span class="ident">Cow::Borrowed</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Cow::Borrowed</span>(<span class="ident">s</span>) =&gt; {
                 <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">&quot;abc&quot;</span>);
             }
-            <span class="ident">Cow::Owned</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="ident">Cow::Owned</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
         }
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">had_errors</span>);
     }
@@ -11398,13 +11398,13 @@
         <span class="kw">match</span> <span class="ident">UTF_8</span>.<span class="ident">decode_without_bom_handling_and_without_replacement</span>(
             <span class="string">b&quot;\xEF\xBB\xBF\xE2\x82\xAC\xC3\xA4&quot;</span>,
         ) {
-            <span class="prelude-val">Some</span>(<span class="ident">cow</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">cow</span> {
-                <span class="ident">Cow::Borrowed</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">cow</span>) =&gt; <span class="kw">match</span> <span class="ident">cow</span> {
+                <span class="ident">Cow::Borrowed</span>(<span class="ident">s</span>) =&gt; {
                     <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">&quot;\u{FEFF}\u{20AC}\u{00E4}&quot;</span>);
                 }
-                <span class="ident">Cow::Owned</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                <span class="ident">Cow::Owned</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
             },
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="prelude-val">None</span> =&gt; <span class="macro">unreachable!</span>(),
         }
     }
 
@@ -11420,13 +11420,13 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_decode_valid_windows_1257_to_cow_without_bom_handling_and_without_replacement</span>() {
         <span class="kw">match</span> <span class="ident">WINDOWS_1257</span>.<span class="ident">decode_without_bom_handling_and_without_replacement</span>(<span class="string">b&quot;abc\x80\xE4&quot;</span>) {
-            <span class="prelude-val">Some</span>(<span class="ident">cow</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">cow</span> {
-                <span class="ident">Cow::Borrowed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
-                <span class="ident">Cow::Owned</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">cow</span>) =&gt; <span class="kw">match</span> <span class="ident">cow</span> {
+                <span class="ident">Cow::Borrowed</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+                <span class="ident">Cow::Owned</span>(<span class="ident">s</span>) =&gt; {
                     <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">&quot;abc\u{20AC}\u{00E4}&quot;</span>);
                 }
             },
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="prelude-val">None</span> =&gt; <span class="macro">unreachable!</span>(),
         }
     }
 
@@ -11440,13 +11440,13 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_decode_ascii_only_windows_1257_to_cow_without_bom_handling_and_without_replacement</span>() {
         <span class="kw">match</span> <span class="ident">WINDOWS_1257</span>.<span class="ident">decode_without_bom_handling_and_without_replacement</span>(<span class="string">b&quot;abc&quot;</span>) {
-            <span class="prelude-val">Some</span>(<span class="ident">cow</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">cow</span> {
-                <span class="ident">Cow::Borrowed</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">cow</span>) =&gt; <span class="kw">match</span> <span class="ident">cow</span> {
+                <span class="ident">Cow::Borrowed</span>(<span class="ident">s</span>) =&gt; {
                     <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">&quot;abc&quot;</span>);
                 }
-                <span class="ident">Cow::Owned</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                <span class="ident">Cow::Owned</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
             },
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="prelude-val">None</span> =&gt; <span class="macro">unreachable!</span>(),
         }
     }
 
@@ -11454,10 +11454,10 @@
     <span class="kw">fn</span> <span class="ident">test_encode_ascii_only_windows_1257_to_cow</span>() {
         <span class="kw">let</span> (<span class="ident">cow</span>, <span class="ident">encoding</span>, <span class="ident">had_errors</span>) <span class="op">=</span> <span class="ident">WINDOWS_1257</span>.<span class="ident">encode</span>(<span class="string">&quot;abc&quot;</span>);
         <span class="kw">match</span> <span class="ident">cow</span> {
-            <span class="ident">Cow::Borrowed</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Cow::Borrowed</span>(<span class="ident">s</span>) =&gt; {
                 <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">b&quot;abc&quot;</span>);
             }
-            <span class="ident">Cow::Owned</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="ident">Cow::Owned</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
         }
         <span class="macro">assert_eq!</span>(<span class="ident">encoding</span>, <span class="ident">WINDOWS_1257</span>);
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">had_errors</span>);
@@ -11467,8 +11467,8 @@
     <span class="kw">fn</span> <span class="ident">test_encode_valid_windows_1257_to_cow</span>() {
         <span class="kw">let</span> (<span class="ident">cow</span>, <span class="ident">encoding</span>, <span class="ident">had_errors</span>) <span class="op">=</span> <span class="ident">WINDOWS_1257</span>.<span class="ident">encode</span>(<span class="string">&quot;abc\u{20AC}\u{00E4}&quot;</span>);
         <span class="kw">match</span> <span class="ident">cow</span> {
-            <span class="ident">Cow::Borrowed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
-            <span class="ident">Cow::Owned</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Cow::Borrowed</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+            <span class="ident">Cow::Owned</span>(<span class="ident">s</span>) =&gt; {
                 <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">b&quot;abc\x80\xE4&quot;</span>);
             }
         }

@@ -150,7 +150,7 @@
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Pin</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
 <span class="macro">macro_rules!</span> <span class="ident">service_object</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="kw">type</span>: <span class="macro-nonterminal">tt</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fn_name</span>: <span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="kw">type</span>: <span class="macro-nonterminal">tt</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fn_name</span>: <span class="ident">ident</span>) =&gt; {
         <span class="macro">paste!</span> {
             <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;Type alias for service trait object using `&quot;</span> <span class="macro-nonterminal">$</span><span class="kw">type</span> <span class="string">&quot;`.&quot;</span>]</span>
             <span class="kw">pub</span> <span class="kw">type</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&lt;</span><span class="ident">Req</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">type</span><span class="op">&lt;</span>
@@ -158,7 +158,7 @@
             <span class="op">&gt;</span>;
 
             <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;Wraps service as a trait object using [`&quot;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> <span class="string">&quot;`].&quot;</span>]</span>
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fn_name</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>(<span class="ident">service</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&lt;</span><span class="ident">Req</span>, <span class="ident">S::Response</span>, <span class="ident">S::Error</span><span class="op">&gt;</span>
+            <span class="kw">pub</span> <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fn_name</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>(<span class="ident">service</span>: <span class="ident">S</span>) -&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&lt;</span><span class="ident">Req</span>, <span class="ident">S::Response</span>, <span class="ident">S::Error</span><span class="op">&gt;</span>
             <span class="kw">where</span>
                 <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
                 <span class="ident">Req</span>: <span class="lifetime">&#39;static</span>,
@@ -178,7 +178,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> <span class="ident">ServiceWrapper</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">inner</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">inner</span>: <span class="ident">S</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> { <span class="ident">inner</span> }
     }
 }
@@ -194,7 +194,7 @@
 
     <span class="macro">crate::forward_ready!</span>(<span class="ident">inner</span>);
 
-    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">Req</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Future</span> {
+    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">Req</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
         <span class="ident">Box::pin</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">call</span>(<span class="ident">req</span>))
     }
 }
@@ -205,7 +205,7 @@
 <span class="doccomment">/// Wraps a service factory that returns service trait objects.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">factory</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">Req</span><span class="op">&gt;</span>(
     <span class="ident">factory</span>: <span class="ident">SF</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoxServiceFactory</span><span class="op">&lt;</span><span class="ident">SF::Config</span>, <span class="ident">Req</span>, <span class="ident">SF::Response</span>, <span class="ident">SF::Error</span>, <span class="ident">SF::InitError</span><span class="op">&gt;</span>
+) -&gt; <span class="ident">BoxServiceFactory</span><span class="op">&lt;</span><span class="ident">SF::Config</span>, <span class="ident">Req</span>, <span class="ident">SF::Response</span>, <span class="ident">SF::Error</span>, <span class="ident">SF::InitError</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">SF</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     <span class="ident">Req</span>: <span class="lifetime">&#39;static</span>,
@@ -246,7 +246,7 @@
 
     <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Service</span>, <span class="ident">InitErr</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">new_service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cfg</span>: <span class="ident">C</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Future</span> {
+    <span class="kw">fn</span> <span class="ident">new_service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cfg</span>: <span class="ident">C</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
         <span class="self">self</span>.<span class="number">0</span>.<span class="ident">new_service</span>(<span class="ident">cfg</span>)
     }
 }
@@ -271,7 +271,7 @@
     <span class="kw">type</span> <span class="ident">InitError</span> <span class="op">=</span> <span class="ident">InitErr</span>;
     <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Service</span>, <span class="ident"><span class="self">Self</span>::InitError</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">new_service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cfg</span>: <span class="ident">Cfg</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Future</span> {
+    <span class="kw">fn</span> <span class="ident">new_service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cfg</span>: <span class="ident">Cfg</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
         <span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">new_service</span>(<span class="ident">cfg</span>);
         <span class="ident">Box::pin</span>(<span class="kw">async</span> { <span class="ident">f</span>.<span class="kw">await</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">Box::new</span>(<span class="ident">ServiceWrapper::new</span>(<span class="ident">s</span>)) <span class="kw">as</span> <span class="kw">_</span>) })
     }

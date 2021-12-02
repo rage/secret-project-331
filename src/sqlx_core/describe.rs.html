@@ -82,14 +82,14 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">Describe</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Gets all columns in this statement.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">columns</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">DB::Column</span>] {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">columns</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">DB::Column</span>] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">columns</span>
     }
 
     <span class="doccomment">/// Gets the column information at `index`.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Panics if `index` is out of bounds.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">column</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">DB::Column</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">column</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">usize</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">DB::Column</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">columns</span>[<span class="ident">index</span>]
     }
 
@@ -98,15 +98,15 @@
     <span class="doccomment">/// Some drivers may return more or less than others. As an example, **PostgreSQL** will</span>
     <span class="doccomment">/// return `Some(Either::Left(_))` with a full list of type information for each parameter.</span>
     <span class="doccomment">/// However, **MSSQL** will return `None` as there is no information available.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parameters</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Either</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">DB::TypeInfo</span>], <span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parameters</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Either</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">DB::TypeInfo</span>], <span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">parameters</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">p</span> {
-            <span class="ident">Either::Left</span>(<span class="ident">params</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Either::Left</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">params</span>),
-            <span class="ident">Either::Right</span>(<span class="ident">count</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Either::Right</span>(<span class="kw-2">*</span><span class="ident">count</span>),
+            <span class="ident">Either::Left</span>(<span class="ident">params</span>) =&gt; <span class="ident">Either::Left</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">params</span>),
+            <span class="ident">Either::Right</span>(<span class="ident">count</span>) =&gt; <span class="ident">Either::Right</span>(<span class="kw-2">*</span><span class="ident">count</span>),
         })
     }
 
     <span class="doccomment">/// Gets whether a column may be `NULL`, if this information is available.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">nullable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">column</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">nullable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">column</span>: <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">nullable</span>.<span class="ident">get</span>(<span class="ident">column</span>).<span class="ident">copied</span>().<span class="ident">and_then</span>(<span class="ident">identity</span>)
     }
 }

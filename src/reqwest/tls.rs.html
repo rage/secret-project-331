@@ -443,7 +443,7 @@
     <span class="doccomment">/// # Ok(())</span>
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_der</span>(<span class="ident">der</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Certificate</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_der</span>(<span class="ident">der</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Certificate</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">Certificate</span> {
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls-crate&quot;</span>)]</span>
             <span class="ident">native</span>: <span class="ident">native_tls_crate::Certificate::from_der</span>(<span class="ident">der</span>).<span class="ident">map_err</span>(<span class="ident"><span class="kw">crate</span>::error::builder</span>)<span class="question-mark">?</span>,
@@ -468,7 +468,7 @@
     <span class="doccomment">/// # Ok(())</span>
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_pem</span>(<span class="ident">pem</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Certificate</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_pem</span>(<span class="ident">pem</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Certificate</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">Certificate</span> {
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls-crate&quot;</span>)]</span>
             <span class="ident">native</span>: <span class="ident">native_tls_crate::Certificate::from_pem</span>(<span class="ident">pem</span>).<span class="ident">map_err</span>(<span class="ident"><span class="kw">crate</span>::error::builder</span>)<span class="question-mark">?</span>,
@@ -483,16 +483,16 @@
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__rustls&quot;</span>)]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">add_to_rustls</span>(<span class="self">self</span>, <span class="ident">tls</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rustls::ClientConfig</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">add_to_rustls</span>(<span class="self">self</span>, <span class="ident">tls</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rustls::ClientConfig</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">use</span> <span class="ident">rustls::internal::pemfile</span>;
         <span class="kw">use</span> <span class="ident">std::io::Cursor</span>;
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">original</span> {
-            <span class="ident">Cert::Der</span>(<span class="ident">buf</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">tls</span>
+            <span class="ident">Cert::Der</span>(<span class="ident">buf</span>) =&gt; <span class="ident">tls</span>
                 .<span class="ident">root_store</span>
                 .<span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="ident">::rustls::Certificate</span>(<span class="ident">buf</span>))
                 .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident"><span class="kw">crate</span>::error::builder</span>(<span class="ident">TLSError::WebPKIError</span>(<span class="ident">e</span>)))<span class="question-mark">?</span>,
-            <span class="ident">Cert::Pem</span>(<span class="ident">buf</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Cert::Pem</span>(<span class="ident">buf</span>) =&gt; {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pem</span> <span class="op">=</span> <span class="ident">Cursor::new</span>(<span class="ident">buf</span>);
                 <span class="kw">let</span> <span class="ident">certs</span> <span class="op">=</span> <span class="ident">pemfile::certs</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">pem</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
                     <span class="ident"><span class="kw">crate</span>::error::builder</span>(<span class="ident">TLSError::General</span>(<span class="ident">String::from</span>(
@@ -543,7 +543,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This requires the `native-tls` Cargo feature enabled.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_pkcs12_der</span>(<span class="ident">der</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">password</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Identity</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_pkcs12_der</span>(<span class="ident">der</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">password</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Identity</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">Identity</span> {
             <span class="ident">inner</span>: <span class="ident">ClientCert::Pkcs12</span>(
                 <span class="ident">native_tls_crate::Identity::from_pkcs12</span>(<span class="ident">der</span>, <span class="ident">password</span>)
@@ -576,7 +576,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This requires the `rustls-tls(-...)` Cargo feature enabled.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__rustls&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_pem</span>(<span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Identity</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_pem</span>(<span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Identity</span><span class="op">&gt;</span> {
         <span class="kw">use</span> <span class="ident">rustls::internal::pemfile</span>;
         <span class="kw">use</span> <span class="ident">std::io::Cursor</span>;
 
@@ -618,39 +618,39 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">add_to_native_tls</span>(
         <span class="self">self</span>,
         <span class="ident">tls</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">native_tls_crate::TlsConnectorBuilder</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    ) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">inner</span> {
-            <span class="ident">ClientCert::Pkcs12</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ClientCert::Pkcs12</span>(<span class="ident">id</span>) =&gt; {
                 <span class="ident">tls</span>.<span class="ident">identity</span>(<span class="ident">id</span>);
                 <span class="prelude-val">Ok</span>(())
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__rustls&quot;</span>)]</span>
-            <span class="ident">ClientCert::Pem</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::error::builder</span>(<span class="string">&quot;incompatible TLS identity type&quot;</span>)),
+            <span class="ident">ClientCert::Pem</span> { .. } =&gt; <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::error::builder</span>(<span class="string">&quot;incompatible TLS identity type&quot;</span>)),
         }
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__rustls&quot;</span>)]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">add_to_rustls</span>(<span class="self">self</span>, <span class="ident">tls</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rustls::ClientConfig</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">add_to_rustls</span>(<span class="self">self</span>, <span class="ident">tls</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rustls::ClientConfig</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">inner</span> {
-            <span class="ident">ClientCert::Pem</span> { <span class="ident">key</span>, <span class="ident">certs</span> } <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ClientCert::Pem</span> { <span class="ident">key</span>, <span class="ident">certs</span> } =&gt; {
                 <span class="ident">tls</span>.<span class="ident">set_single_client_cert</span>(<span class="ident">certs</span>, <span class="ident">key</span>)
                     .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident"><span class="kw">crate</span>::error::builder</span>(<span class="ident">e</span>))<span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>(())
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>)]</span>
-            <span class="ident">ClientCert::Pkcs12</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::error::builder</span>(<span class="string">&quot;incompatible TLS identity type&quot;</span>)),
+            <span class="ident">ClientCert::Pkcs12</span>(..) =&gt; <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::error::builder</span>(<span class="string">&quot;incompatible TLS identity type&quot;</span>)),
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Certificate</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;Certificate&quot;</span>).<span class="ident">finish</span>()
     }
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Identity</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;Identity&quot;</span>).<span class="ident">finish</span>()
     }
 }
@@ -669,24 +669,24 @@
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">TlsBackend</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;default-tls&quot;</span>)]</span>
-            <span class="ident">TlsBackend::Default</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Default&quot;</span>),
+            <span class="ident">TlsBackend::Default</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Default&quot;</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>)]</span>
-            <span class="ident">TlsBackend::BuiltNativeTls</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;BuiltNativeTls&quot;</span>),
+            <span class="ident">TlsBackend::BuiltNativeTls</span>(<span class="kw">_</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;BuiltNativeTls&quot;</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__rustls&quot;</span>)]</span>
-            <span class="ident">TlsBackend::Rustls</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Rustls&quot;</span>),
+            <span class="ident">TlsBackend::Rustls</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Rustls&quot;</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__rustls&quot;</span>)]</span>
-            <span class="ident">TlsBackend::BuiltRustls</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;BuiltRustls&quot;</span>),
+            <span class="ident">TlsBackend::BuiltRustls</span>(<span class="kw">_</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;BuiltRustls&quot;</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__rustls&quot;</span>,))]</span>
-            <span class="ident">TlsBackend::UnknownPreconfigured</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;UnknownPreconfigured&quot;</span>),
+            <span class="ident">TlsBackend::UnknownPreconfigured</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;UnknownPreconfigured&quot;</span>),
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">TlsBackend</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TlsBackend</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">TlsBackend</span> {
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;default-tls&quot;</span>)]</span>
         {
             <span class="ident">TlsBackend::Default</span>
@@ -710,7 +710,7 @@
         <span class="ident">_presented_certs</span>: <span class="kw-2">&amp;</span>[<span class="ident">rustls::Certificate</span>],
         <span class="ident">_dns_name</span>: <span class="ident">DNSNameRef</span>,
         <span class="ident">_ocsp_response</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ServerCertVerified</span>, <span class="ident">TLSError</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ServerCertVerified</span>, <span class="ident">TLSError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">ServerCertVerified::assertion</span>())
     }
 
@@ -719,7 +719,7 @@
         <span class="ident">_message</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">_cert</span>: <span class="kw-2">&amp;</span><span class="ident">rustls::Certificate</span>,
         <span class="ident">_dss</span>: <span class="kw-2">&amp;</span><span class="ident">DigitallySignedStruct</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HandshakeSignatureValid</span>, <span class="ident">TLSError</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HandshakeSignatureValid</span>, <span class="ident">TLSError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">HandshakeSignatureValid::assertion</span>())
     }
 
@@ -728,7 +728,7 @@
         <span class="ident">_message</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">_cert</span>: <span class="kw-2">&amp;</span><span class="ident">rustls::Certificate</span>,
         <span class="ident">_dss</span>: <span class="kw-2">&amp;</span><span class="ident">DigitallySignedStruct</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HandshakeSignatureValid</span>, <span class="ident">TLSError</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HandshakeSignatureValid</span>, <span class="ident">TLSError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">HandshakeSignatureValid::assertion</span>())
     }
 }

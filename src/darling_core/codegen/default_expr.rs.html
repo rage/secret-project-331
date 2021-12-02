@@ -62,7 +62,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">DefaultExpression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_declaration</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DefaultDeclaration</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_declaration</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) -&gt; <span class="ident">DefaultDeclaration</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="ident">DefaultDeclaration</span>(<span class="self">self</span>)
     }
 }
@@ -70,12 +70,12 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">DefaultExpression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TokenStream</span>) {
         <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">DefaultExpression::Inherit</span>(<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">DefaultExpression::Inherit</span>(<span class="ident">ident</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">dsn</span> <span class="op">=</span> <span class="ident">Ident::new</span>(<span class="ident">DEFAULT_STRUCT_NAME</span>, <span class="ident">::proc_macro2::Span::call_site</span>());
                 <span class="macro">quote!</span>(#<span class="ident">dsn</span>.#<span class="ident">ident</span>)
             }
-            <span class="ident">DefaultExpression::Explicit</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">quote!</span>(#<span class="ident">path</span>()),
-            <span class="ident">DefaultExpression::Trait</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">quote!</span>(<span class="ident">::darling::export::Default::default</span>()),
+            <span class="ident">DefaultExpression::Explicit</span>(<span class="ident">path</span>) =&gt; <span class="macro">quote!</span>(#<span class="ident">path</span>()),
+            <span class="ident">DefaultExpression::Trait</span> =&gt; <span class="macro">quote!</span>(<span class="ident">::darling::export::Default::default</span>()),
         });
     }
 }

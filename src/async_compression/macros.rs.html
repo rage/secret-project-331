@@ -115,7 +115,7 @@
 <span id="115">115</span>
 <span id="116">116</span>
 </pre><pre class="rust"><code><span class="macro">macro_rules!</span> <span class="ident">algos</span> {
-    (@<span class="ident">algo</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">algo</span>:<span class="ident">ident</span> [<span class="macro-nonterminal">$</span><span class="macro-nonterminal">algo_s</span>:<span class="ident">expr</span>] <span class="macro-nonterminal">$</span><span class="macro-nonterminal">decoder</span>:<span class="ident">ident</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">encoder</span>:<span class="ident">ident</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>:<span class="ident">ident</span><span class="op">&gt;</span> $({ $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">constructor</span>:<span class="ident">tt</span>)<span class="op">*</span> })<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (@<span class="ident">algo</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">algo</span>:<span class="ident">ident</span> [<span class="macro-nonterminal">$</span><span class="macro-nonterminal">algo_s</span>:<span class="ident">expr</span>] <span class="macro-nonterminal">$</span><span class="macro-nonterminal">decoder</span>:<span class="ident">ident</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">encoder</span>:<span class="ident">ident</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>:<span class="ident">ident</span><span class="op">&gt;</span> $({ $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">constructor</span>:<span class="ident">tt</span>)<span class="op">*</span> })<span class="kw-2">*</span>) =&gt; {
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">algo_s</span>)]</span>
         <span class="macro">decoder!</span> {
             <span class="doccomment">/// A</span>
@@ -132,16 +132,16 @@
             <span class="doccomment">/// encoder, or compressor.</span>
             <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">algo_s</span>)))]</span>
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">encoder</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span><span class="op">&gt;</span> {
-                <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">inner</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+                <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">inner</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>) -&gt; <span class="self">Self</span> {
                     <span class="ident"><span class="self">Self</span>::with_quality</span>(<span class="ident">inner</span>, <span class="ident"><span class="kw">crate</span>::Level::Default</span>)
                 }
             } $({ $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">constructor</span>)<span class="op">*</span> })<span class="op">*</span>
         }
     };
 
-    ($(<span class="macro-nonterminal">$</span><span class="kw">mod</span>:<span class="macro-nonterminal">ident</span>)::<span class="op">+</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>:<span class="ident">ident</span><span class="op">&gt;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    ($(<span class="macro-nonterminal">$</span><span class="kw">mod</span>:<span class="macro-nonterminal">ident</span>)::<span class="op">+</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>:<span class="ident">ident</span><span class="op">&gt;</span>) =&gt; {
         <span class="macro">algos!</span>(@<span class="ident">algo</span> <span class="ident">brotli</span> [<span class="string">&quot;brotli&quot;</span>] <span class="ident">BrotliDecoder</span> <span class="ident">BrotliEncoder</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span><span class="op">&gt;</span> {
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_quality</span>(<span class="ident">inner</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>, <span class="ident">level</span>: <span class="ident"><span class="kw">crate</span>::Level</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_quality</span>(<span class="ident">inner</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>, <span class="ident">level</span>: <span class="ident"><span class="kw">crate</span>::Level</span>) -&gt; <span class="self">Self</span> {
                 <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">brotli::enc::backward_references::BrotliEncoderParams::default</span>();
                 <span class="self">Self</span> {
                     <span class="ident">inner</span>: <span class="kw">crate</span>::$(<span class="macro-nonterminal">$</span><span class="kw">mod</span>::)<span class="op">+</span><span class="macro-nonterminal">generic::Encoder::new</span>(
@@ -153,7 +153,7 @@
         });
 
         <span class="macro">algos!</span>(@<span class="ident">algo</span> <span class="ident">bzip2</span> [<span class="string">&quot;bzip2&quot;</span>] <span class="ident">BzDecoder</span> <span class="ident">BzEncoder</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span><span class="op">&gt;</span> {
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_quality</span>(<span class="ident">inner</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>, <span class="ident">level</span>: <span class="ident"><span class="kw">crate</span>::Level</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_quality</span>(<span class="ident">inner</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>, <span class="ident">level</span>: <span class="ident"><span class="kw">crate</span>::Level</span>) -&gt; <span class="self">Self</span> {
                 <span class="self">Self</span> {
                     <span class="ident">inner</span>: <span class="kw">crate</span>::$(<span class="macro-nonterminal">$</span><span class="kw">mod</span>::)<span class="op">+</span><span class="macro-nonterminal">generic::Encoder::new</span>(
                         <span class="ident">inner</span>,
@@ -164,7 +164,7 @@
         });
 
         <span class="macro">algos!</span>(@<span class="ident">algo</span> <span class="ident">deflate</span> [<span class="string">&quot;deflate&quot;</span>] <span class="ident">DeflateDecoder</span> <span class="ident">DeflateEncoder</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span><span class="op">&gt;</span> {
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_quality</span>(<span class="ident">inner</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>, <span class="ident">level</span>: <span class="ident"><span class="kw">crate</span>::Level</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_quality</span>(<span class="ident">inner</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>, <span class="ident">level</span>: <span class="ident"><span class="kw">crate</span>::Level</span>) -&gt; <span class="self">Self</span> {
                 <span class="self">Self</span> {
                     <span class="ident">inner</span>: <span class="kw">crate</span>::$(<span class="macro-nonterminal">$</span><span class="kw">mod</span>::)<span class="op">+</span><span class="macro-nonterminal">generic::Encoder::new</span>(
                         <span class="ident">inner</span>,
@@ -175,7 +175,7 @@
         });
 
         <span class="macro">algos!</span>(@<span class="ident">algo</span> <span class="ident">gzip</span> [<span class="string">&quot;gzip&quot;</span>] <span class="ident">GzipDecoder</span> <span class="ident">GzipEncoder</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span><span class="op">&gt;</span> {
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_quality</span>(<span class="ident">inner</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>, <span class="ident">level</span>: <span class="ident"><span class="kw">crate</span>::Level</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_quality</span>(<span class="ident">inner</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>, <span class="ident">level</span>: <span class="ident"><span class="kw">crate</span>::Level</span>) -&gt; <span class="self">Self</span> {
                 <span class="self">Self</span> {
                     <span class="ident">inner</span>: <span class="kw">crate</span>::$(<span class="macro-nonterminal">$</span><span class="kw">mod</span>::)<span class="op">+</span><span class="macro-nonterminal">generic::Encoder::new</span>(
                         <span class="ident">inner</span>,
@@ -186,7 +186,7 @@
         });
 
         <span class="macro">algos!</span>(@<span class="ident">algo</span> <span class="ident">zlib</span> [<span class="string">&quot;zlib&quot;</span>] <span class="ident">ZlibDecoder</span> <span class="ident">ZlibEncoder</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span><span class="op">&gt;</span> {
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_quality</span>(<span class="ident">inner</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>, <span class="ident">level</span>: <span class="ident"><span class="kw">crate</span>::Level</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_quality</span>(<span class="ident">inner</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>, <span class="ident">level</span>: <span class="ident"><span class="kw">crate</span>::Level</span>) -&gt; <span class="self">Self</span> {
                 <span class="self">Self</span> {
                     <span class="ident">inner</span>: <span class="kw">crate</span>::$(<span class="macro-nonterminal">$</span><span class="kw">mod</span>::)<span class="op">+</span><span class="macro-nonterminal">generic::Encoder::new</span>(
                         <span class="ident">inner</span>,
@@ -197,7 +197,7 @@
         });
 
         <span class="macro">algos!</span>(@<span class="ident">algo</span> <span class="ident">zstd</span> [<span class="string">&quot;zstd&quot;</span>] <span class="ident">ZstdDecoder</span> <span class="ident">ZstdEncoder</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span><span class="op">&gt;</span> {
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_quality</span>(<span class="ident">inner</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>, <span class="ident">level</span>: <span class="ident"><span class="kw">crate</span>::Level</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_quality</span>(<span class="ident">inner</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>, <span class="ident">level</span>: <span class="ident"><span class="kw">crate</span>::Level</span>) -&gt; <span class="self">Self</span> {
                 <span class="self">Self</span> {
                     <span class="ident">inner</span>: <span class="kw">crate</span>::$(<span class="macro-nonterminal">$</span><span class="kw">mod</span>::)<span class="op">+</span><span class="macro-nonterminal">generic::Encoder::new</span>(
                         <span class="ident">inner</span>,
@@ -208,7 +208,7 @@
         });
 
         <span class="macro">algos!</span>(@<span class="ident">algo</span> <span class="ident">xz</span> [<span class="string">&quot;xz&quot;</span>] <span class="ident">XzDecoder</span> <span class="ident">XzEncoder</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span><span class="op">&gt;</span> {
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_quality</span>(<span class="ident">inner</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>, <span class="ident">level</span>: <span class="ident"><span class="kw">crate</span>::Level</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_quality</span>(<span class="ident">inner</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>, <span class="ident">level</span>: <span class="ident"><span class="kw">crate</span>::Level</span>) -&gt; <span class="self">Self</span> {
                 <span class="self">Self</span> {
                     <span class="ident">inner</span>: <span class="kw">crate</span>::$(<span class="macro-nonterminal">$</span><span class="kw">mod</span>::)<span class="op">+</span><span class="macro-nonterminal">generic::Encoder::new</span>(
                         <span class="ident">inner</span>,
@@ -219,7 +219,7 @@
         });
 
         <span class="macro">algos!</span>(@<span class="ident">algo</span> <span class="ident">lzma</span> [<span class="string">&quot;lzma&quot;</span>] <span class="ident">LzmaDecoder</span> <span class="ident">LzmaEncoder</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span><span class="op">&gt;</span> {
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_quality</span>(<span class="ident">inner</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>, <span class="ident">level</span>: <span class="ident"><span class="kw">crate</span>::Level</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_quality</span>(<span class="ident">inner</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>, <span class="ident">level</span>: <span class="ident"><span class="kw">crate</span>::Level</span>) -&gt; <span class="self">Self</span> {
                 <span class="self">Self</span> {
                     <span class="ident">inner</span>: <span class="kw">crate</span>::$(<span class="macro-nonterminal">$</span><span class="kw">mod</span>::)<span class="op">+</span><span class="macro-nonterminal">generic::Encoder::new</span>(
                         <span class="ident">inner</span>,

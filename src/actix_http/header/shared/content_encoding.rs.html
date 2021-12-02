@@ -154,25 +154,25 @@
 <span class="kw">impl</span> <span class="ident">ContentEncoding</span> {
     <span class="doccomment">/// Is the content compressed?</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_compression</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_compression</span>(<span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">ContentEncoding::Identity</span> <span class="op">|</span> <span class="ident">ContentEncoding::Auto</span>)
     }
 
     <span class="doccomment">/// Convert content encoding to string.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_str</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_str</span>(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ContentEncoding::Br</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;br&quot;</span>,
-            <span class="ident">ContentEncoding::Gzip</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;gzip&quot;</span>,
-            <span class="ident">ContentEncoding::Deflate</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;deflate&quot;</span>,
-            <span class="ident">ContentEncoding::Zstd</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;zstd&quot;</span>,
-            <span class="ident">ContentEncoding::Identity</span> <span class="op">|</span> <span class="ident">ContentEncoding::Auto</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;identity&quot;</span>,
+            <span class="ident">ContentEncoding::Br</span> =&gt; <span class="string">&quot;br&quot;</span>,
+            <span class="ident">ContentEncoding::Gzip</span> =&gt; <span class="string">&quot;gzip&quot;</span>,
+            <span class="ident">ContentEncoding::Deflate</span> =&gt; <span class="string">&quot;deflate&quot;</span>,
+            <span class="ident">ContentEncoding::Zstd</span> =&gt; <span class="string">&quot;zstd&quot;</span>,
+            <span class="ident">ContentEncoding::Identity</span> <span class="op">|</span> <span class="ident">ContentEncoding::Auto</span> =&gt; <span class="string">&quot;identity&quot;</span>,
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ContentEncoding</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::Identity</span>
     }
 }
@@ -180,7 +180,7 @@
 <span class="kw">impl</span> <span class="ident">FromStr</span> <span class="kw">for</span> <span class="ident">ContentEncoding</span> {
     <span class="kw">type</span> <span class="prelude-val">Err</span> <span class="op">=</span> <span class="ident">ContentEncodingParseError</span>;
 
-    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Err</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Err</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">val</span>.<span class="ident">trim</span>();
 
         <span class="kw">if</span> <span class="ident">val</span>.<span class="ident">eq_ignore_ascii_case</span>(<span class="string">&quot;br&quot;</span>) {
@@ -200,7 +200,7 @@
 <span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ContentEncoding</span> {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">ContentEncodingParseError</span>;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
         <span class="ident">val</span>.<span class="ident">parse</span>()
     }
 }
@@ -208,17 +208,17 @@
 <span class="kw">impl</span> <span class="ident">IntoHeaderValue</span> <span class="kw">for</span> <span class="ident">ContentEncoding</span> {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">InvalidHeaderValue</span>;
 
-    <span class="kw">fn</span> <span class="ident">try_into_value</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">http::HeaderValue</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">try_into_value</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">http::HeaderValue</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">HeaderValue::from_static</span>(<span class="self">self</span>.<span class="ident">as_str</span>()))
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Header</span> <span class="kw">for</span> <span class="ident">ContentEncoding</span> {
-    <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HeaderName</span> {
+    <span class="kw">fn</span> <span class="ident">name</span>() -&gt; <span class="ident">HeaderName</span> {
         <span class="ident">header::CONTENT_ENCODING</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">parse</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">HttpMessage</span><span class="op">&gt;</span>(<span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">ParseError</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">HttpMessage</span><span class="op">&gt;</span>(<span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">ParseError</span><span class="op">&gt;</span> {
         <span class="ident">from_one_raw_str</span>(<span class="ident">msg</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident"><span class="self">Self</span>::name</span>()))
     }
 }

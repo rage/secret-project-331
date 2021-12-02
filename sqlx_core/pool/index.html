@@ -16,7 +16,7 @@ your codebase:</p>
 <li><a href="../postgres/type.PgPool.html" title="crate::postgres::PgPool">PgPool</a> (PostgreSQL)</li>
 <li>[SqlitePool][crate::sqlite::SqlitePool] (SQLite)</li>
 </ul>
-<h1 id="opening-a-connection-pool" class="section-header"><a href="#opening-a-connection-pool">Opening a connection pool</a></h1>
+<h2 id="opening-a-connection-pool" class="section-header"><a href="#opening-a-connection-pool">Opening a connection pool</a></h2>
 <p>A new connection pool with a default configuration can be created by supplying <code>Pool</code>
 with the database driver and a connection string.</p>
 
@@ -29,7 +29,7 @@ with the database driver and a connection string.</p>
 <div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore"><code><span class="kw">use</span> <span class="ident">sqlx::mssql::MssqlPool</span>;
 
 <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">MssqlPool::connect</span>(<span class="string">&quot;mssql://&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;</code></pre></div>
-<h1 id="using-a-connection-pool" class="section-header"><a href="#using-a-connection-pool">Using a connection pool</a></h1>
+<h2 id="using-a-connection-pool" class="section-header"><a href="#using-a-connection-pool">Using a connection pool</a></h2>
 <p>A connection pool implements <a href="../executor/trait.Executor.html" title="crate::executor::Executor"><code>Executor</code></a> and can be used directly
 when executing a query. Notice that only an immutable reference (<code>&amp;Pool</code>) is needed.</p>
 
@@ -38,8 +38,8 @@ when executing a query. Notice that only an immutable reference (<code>&amp;Pool
 <a href="struct.Pool.html#method.acquire" title="Pool::acquire"><code>Pool::acquire</code></a> or
 <a href="struct.Pool.html#method.begin" title="Pool::begin"><code>Pool::begin</code></a>.</p>
 </div></details><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.Pool.html" title="sqlx_core::pool::Pool struct">Pool</a></div><div class="item-right docblock-short"><p>An asynchronous pool of SQLx database connections.</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.PoolConnection.html" title="sqlx_core::pool::PoolConnection struct">PoolConnection</a></div><div class="item-right docblock-short"><p>A connection managed by a <a href="struct.Pool.html" title="crate::pool::Pool"><code>Pool</code></a>.</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.PoolOptions.html" title="sqlx_core::pool::PoolOptions struct">PoolOptions</a></div><div class="item-right docblock-short"></div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Pool.html" title="sqlx_core::pool::Pool struct">Pool</a></div><div class="item-right docblock-short"><p>An asynchronous pool of SQLx database connections.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.PoolConnection.html" title="sqlx_core::pool::PoolConnection struct">PoolConnection</a></div><div class="item-right docblock-short"><p>A connection managed by a <a href="struct.Pool.html" title="crate::pool::Pool"><code>Pool</code></a>.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.PoolOptions.html" title="sqlx_core::pool::PoolOptions struct">PoolOptions</a></div><div class="item-right docblock-short"></div></div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script>
 </body></html>

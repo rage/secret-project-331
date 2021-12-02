@@ -356,7 +356,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">ColumnType</span> {
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">is_wildcard</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">is_wildcard</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="op">!</span><span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">ColumnType::Exact</span>(<span class="kw">_</span>))
     }
 }
@@ -364,9 +364,9 @@
 <span class="kw">impl</span> <span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">ColumnType</span> {
     <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TokenStream</span>) {
         <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span> {
-            <span class="ident">ColumnType::Exact</span>(<span class="ident">type_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">type_</span>.<span class="ident">clone</span>().<span class="ident">into_iter</span>(),
-            <span class="ident">ColumnType::Wildcard</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">quote!</span> { <span class="kw">_</span> }.<span class="ident">into_iter</span>(),
-            <span class="ident">ColumnType::OptWildcard</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">quote!</span> { <span class="ident">::std::option::Option</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> }.<span class="ident">into_iter</span>(),
+            <span class="ident">ColumnType::Exact</span>(<span class="ident">type_</span>) =&gt; <span class="ident">type_</span>.<span class="ident">clone</span>().<span class="ident">into_iter</span>(),
+            <span class="ident">ColumnType::Wildcard</span> =&gt; <span class="macro">quote!</span> { <span class="kw">_</span> }.<span class="ident">into_iter</span>(),
+            <span class="ident">ColumnType::OptWildcard</span> =&gt; <span class="macro">quote!</span> { <span class="ident">::std::option::Option</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> }.<span class="ident">into_iter</span>(),
         })
     }
 }
@@ -401,18 +401,18 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">DisplayColumn</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;column #{} ({:?})&quot;</span>, <span class="self">self</span>.<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="self">self</span>.<span class="ident">name</span>)
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">columns_to_rust</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">DatabaseExt</span><span class="op">&gt;</span>(<span class="ident">describe</span>: <span class="kw-2">&amp;</span><span class="ident">Describe</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RustColumn</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">columns_to_rust</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">DatabaseExt</span><span class="op">&gt;</span>(<span class="ident">describe</span>: <span class="kw-2">&amp;</span><span class="ident">Describe</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RustColumn</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     (<span class="number">0</span>..<span class="ident">describe</span>.<span class="ident">columns</span>().<span class="ident">len</span>())
         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">column_to_rust</span>(<span class="ident">describe</span>, <span class="ident">i</span>))
         .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>()
 }
 
-<span class="kw">fn</span> <span class="ident">column_to_rust</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">DatabaseExt</span><span class="op">&gt;</span>(<span class="ident">describe</span>: <span class="kw-2">&amp;</span><span class="ident">Describe</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>, <span class="ident">i</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">RustColumn</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">column_to_rust</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">DatabaseExt</span><span class="op">&gt;</span>(<span class="ident">describe</span>: <span class="kw-2">&amp;</span><span class="ident">Describe</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>, <span class="ident">i</span>: <span class="ident">usize</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">RustColumn</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">column</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">describe</span>.<span class="ident">columns</span>()[<span class="ident">i</span>];
 
     <span class="comment">// add raw prefix to all identifiers</span>
@@ -422,20 +422,20 @@
     <span class="kw">let</span> <span class="ident">ColumnOverride</span> { <span class="ident">nullability</span>, <span class="ident">type_</span> } <span class="op">=</span> <span class="ident">decl</span>.<span class="ident">r#override</span>;
 
     <span class="kw">let</span> <span class="ident">nullable</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">nullability</span> {
-        <span class="ident">ColumnNullabilityOverride::NonNull</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-        <span class="ident">ColumnNullabilityOverride::Nullable</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-        <span class="ident">ColumnNullabilityOverride::None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">describe</span>.<span class="ident">nullable</span>(<span class="ident">i</span>).<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>),
+        <span class="ident">ColumnNullabilityOverride::NonNull</span> =&gt; <span class="bool-val">false</span>,
+        <span class="ident">ColumnNullabilityOverride::Nullable</span> =&gt; <span class="bool-val">true</span>,
+        <span class="ident">ColumnNullabilityOverride::None</span> =&gt; <span class="ident">describe</span>.<span class="ident">nullable</span>(<span class="ident">i</span>).<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>),
     };
     <span class="kw">let</span> <span class="ident">type_</span> <span class="op">=</span> <span class="kw">match</span> (<span class="ident">type_</span>, <span class="ident">nullable</span>) {
-        (<span class="ident">ColumnTypeOverride::Exact</span>(<span class="ident">type_</span>), <span class="bool-val">false</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ColumnType::Exact</span>(<span class="ident">type_</span>.<span class="ident">to_token_stream</span>()),
-        (<span class="ident">ColumnTypeOverride::Exact</span>(<span class="ident">type_</span>), <span class="bool-val">true</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        (<span class="ident">ColumnTypeOverride::Exact</span>(<span class="ident">type_</span>), <span class="bool-val">false</span>) =&gt; <span class="ident">ColumnType::Exact</span>(<span class="ident">type_</span>.<span class="ident">to_token_stream</span>()),
+        (<span class="ident">ColumnTypeOverride::Exact</span>(<span class="ident">type_</span>), <span class="bool-val">true</span>) =&gt; {
             <span class="ident">ColumnType::Exact</span>(<span class="macro">quote!</span> { <span class="ident">::std::option::Option</span><span class="op">&lt;</span>#<span class="ident">type_</span><span class="op">&gt;</span> })
         }
 
-        (<span class="ident">ColumnTypeOverride::Wildcard</span>, <span class="bool-val">false</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ColumnType::Wildcard</span>,
-        (<span class="ident">ColumnTypeOverride::Wildcard</span>, <span class="bool-val">true</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ColumnType::OptWildcard</span>,
+        (<span class="ident">ColumnTypeOverride::Wildcard</span>, <span class="bool-val">false</span>) =&gt; <span class="ident">ColumnType::Wildcard</span>,
+        (<span class="ident">ColumnTypeOverride::Wildcard</span>, <span class="bool-val">true</span>) =&gt; <span class="ident">ColumnType::OptWildcard</span>,
 
-        (<span class="ident">ColumnTypeOverride::None</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        (<span class="ident">ColumnTypeOverride::None</span>, <span class="kw">_</span>) =&gt; {
             <span class="kw">let</span> <span class="ident">type_</span> <span class="op">=</span> <span class="ident">get_column_type</span>::<span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>(<span class="ident">i</span>, <span class="ident">column</span>);
             <span class="kw">if</span> <span class="op">!</span><span class="ident">nullable</span> {
                 <span class="ident">ColumnType::Exact</span>(<span class="ident">type_</span>)
@@ -459,7 +459,7 @@
     <span class="ident">out_ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>,
     <span class="ident">bind_args</span>: <span class="kw-2">&amp;</span><span class="ident">Ident</span>,
     <span class="ident">columns</span>: <span class="kw-2">&amp;</span>[<span class="ident">RustColumn</span>],
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream</span> {
+) -&gt; <span class="ident">TokenStream</span> {
     <span class="kw">let</span> <span class="ident">instantiations</span> <span class="op">=</span> <span class="ident">columns</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>().<span class="ident">map</span>(
         <span class="op">|</span>(
             <span class="ident">i</span>,
@@ -471,19 +471,19 @@
         )<span class="op">|</span> {
             <span class="kw">match</span> (<span class="ident">input</span>.<span class="ident">checked</span>, <span class="ident">type_</span>) {
                 <span class="comment">// we guarantee the type is valid so we can skip the runtime check</span>
-                (<span class="bool-val">true</span>, <span class="ident">ColumnType::Exact</span>(<span class="ident">type_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">quote!</span> {
+                (<span class="bool-val">true</span>, <span class="ident">ColumnType::Exact</span>(<span class="ident">type_</span>)) =&gt; <span class="macro">quote!</span> {
                     <span class="comment">// binding to a `let` avoids confusing errors about</span>
                     <span class="comment">// &quot;try expression alternatives have incompatible types&quot;</span>
                     <span class="comment">// it doesn&#39;t seem to hurt inference in the other branches</span>
                     <span class="kw">let</span> #<span class="ident">var_name</span> <span class="op">=</span> <span class="ident">row</span>.<span class="ident">try_get_unchecked</span>::<span class="op">&lt;</span>#<span class="ident">type_</span>, <span class="kw">_</span><span class="op">&gt;</span>(#<span class="ident">i</span>)<span class="question-mark">?</span>;
                 },
                 <span class="comment">// type was overridden to be a wildcard so we fallback to the runtime check</span>
-                (<span class="bool-val">true</span>, <span class="ident">ColumnType::Wildcard</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">quote!</span> ( <span class="kw">let</span> #<span class="ident">var_name</span> <span class="op">=</span> <span class="ident">row</span>.<span class="ident">try_get</span>(#<span class="ident">i</span>)<span class="question-mark">?</span>; ),
-                (<span class="bool-val">true</span>, <span class="ident">ColumnType::OptWildcard</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                (<span class="bool-val">true</span>, <span class="ident">ColumnType::Wildcard</span>) =&gt; <span class="macro">quote!</span> ( <span class="kw">let</span> #<span class="ident">var_name</span> <span class="op">=</span> <span class="ident">row</span>.<span class="ident">try_get</span>(#<span class="ident">i</span>)<span class="question-mark">?</span>; ),
+                (<span class="bool-val">true</span>, <span class="ident">ColumnType::OptWildcard</span>) =&gt; {
                     <span class="macro">quote!</span> ( <span class="kw">let</span> #<span class="ident">var_name</span> <span class="op">=</span> <span class="ident">row</span>.<span class="ident">try_get</span>::<span class="op">&lt;</span><span class="ident">::std::option::Option</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span>(#<span class="ident">i</span>)<span class="question-mark">?</span>; )
                 }
                 <span class="comment">// macro is the `_unchecked!()` variant so this will die in decoding if it&#39;s wrong</span>
-                (<span class="bool-val">false</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">quote!</span>( <span class="kw">let</span> #<span class="ident">var_name</span> <span class="op">=</span> <span class="ident">row</span>.<span class="ident">try_get_unchecked</span>(#<span class="ident">i</span>)<span class="question-mark">?</span>; ),
+                (<span class="bool-val">false</span>, <span class="kw">_</span>) =&gt; <span class="macro">quote!</span>( <span class="kw">let</span> #<span class="ident">var_name</span> <span class="op">=</span> <span class="ident">row</span>.<span class="ident">try_get_unchecked</span>(#<span class="ident">i</span>)<span class="question-mark">?</span>; ),
             }
         },
     );
@@ -496,7 +496,7 @@
 
     <span class="comment">// if this query came from a file, use `include_str!()` to tell the compiler where it came from</span>
     <span class="kw">let</span> <span class="ident">sql</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">path</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">file_path</span> {
-        <span class="macro">quote::quote_spanned!</span> { <span class="ident">input</span>.<span class="ident">src_span</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">include_str!</span>(#<span class="ident">path</span>) }
+        <span class="macro">quote::quote_spanned!</span> { <span class="ident">input</span>.<span class="ident">src_span</span> =&gt; <span class="macro">include_str!</span>(#<span class="ident">path</span>) }
     } <span class="kw">else</span> {
         <span class="kw">let</span> <span class="ident">sql</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">sql</span>;
         <span class="macro">quote!</span> { #<span class="ident">sql</span> }
@@ -517,7 +517,7 @@
     <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">QueryMacroInput</span>,
     <span class="ident">bind_args</span>: <span class="kw-2">&amp;</span><span class="ident">Ident</span>,
     <span class="ident">describe</span>: <span class="kw-2">&amp;</span><span class="ident">Describe</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">columns</span> <span class="op">=</span> <span class="ident">describe</span>.<span class="ident">columns</span>();
 
     <span class="kw">if</span> <span class="ident">columns</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">1</span> {
@@ -550,7 +550,7 @@
     })
 }
 
-<span class="kw">fn</span> <span class="ident">get_column_type</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">DatabaseExt</span><span class="op">&gt;</span>(<span class="ident">i</span>: <span class="ident">usize</span>, <span class="ident">column</span>: <span class="kw-2">&amp;</span><span class="ident">DB::Column</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream</span> {
+<span class="kw">fn</span> <span class="ident">get_column_type</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">DatabaseExt</span><span class="op">&gt;</span>(<span class="ident">i</span>: <span class="ident">usize</span>, <span class="ident">column</span>: <span class="kw-2">&amp;</span><span class="ident">DB::Column</span>) -&gt; <span class="ident">TokenStream</span> {
     <span class="kw">let</span> <span class="ident">type_info</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">column</span>.<span class="ident">type_info</span>();
 
     <span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">DatabaseExt</span><span class="op">&gt;</span><span class="ident">::return_type_for_id</span>(<span class="kw-2">&amp;</span><span class="ident">type_info</span>).<span class="ident">map_or_else</span>(
@@ -583,7 +583,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">ColumnDecl</span> {
-    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">col_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">col_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="comment">// find the end of the identifier because we want to use our own logic to parse it</span>
         <span class="comment">// if we tried to feed this into `syn::parse_str()` we might get an un-great error</span>
         <span class="comment">// for some kinds of invalid identifiers</span>
@@ -610,7 +610,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Parse</span> <span class="kw">for</span> <span class="ident">ColumnOverride</span> {
-    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) -&gt; <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">lookahead</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">lookahead1</span>();
 
         <span class="kw">let</span> <span class="ident">nullability</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">lookahead</span>.<span class="ident">peek</span>(<span class="macro">Token!</span>[<span class="op">!</span>]) {
@@ -643,13 +643,13 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">parse_ident</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Ident</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">parse_ident</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Ident</span><span class="op">&gt;</span> {
     <span class="comment">// workaround for the following issue (it&#39;s semi-fixed but still spits out extra diagnostics)</span>
     <span class="comment">// https://github.com/dtolnay/syn/issues/749#issuecomment-575451318</span>
 
     <span class="kw">let</span> <span class="ident">is_valid_ident</span> <span class="op">=</span> <span class="op">!</span><span class="ident">name</span>.<span class="ident">is_empty</span>()
-        <span class="op">&amp;&amp;</span> <span class="ident">name</span>.<span class="ident">starts_with</span>(<span class="op">|</span><span class="ident">c</span>: <span class="ident">char</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">is_alphabetic</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;_&#39;</span>)
-        <span class="op">&amp;&amp;</span> <span class="ident">name</span>.<span class="ident">chars</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">is_alphanumeric</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;_&#39;</span>);
+        <span class="op">&amp;&amp;</span> <span class="ident">name</span>.<span class="ident">starts_with</span>(<span class="op">|</span><span class="ident">c</span>: <span class="ident">char</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">is_alphabetic</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;_&#39;</span>)
+        <span class="op">&amp;&amp;</span> <span class="ident">name</span>.<span class="ident">chars</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">is_alphanumeric</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;_&#39;</span>);
 
     <span class="kw">if</span> <span class="ident">is_valid_ident</span> {
         <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">String::from</span>(<span class="string">&quot;r#&quot;</span>) <span class="op">+</span> <span class="ident">name</span>;

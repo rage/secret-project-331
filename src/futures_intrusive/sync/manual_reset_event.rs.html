@@ -351,7 +351,7 @@
 
 <span class="kw">impl</span> <span class="ident">WaitQueueEntry</span> {
     <span class="doccomment">/// Creates a new WaitQueueEntry</span>
-    <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">WaitQueueEntry</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">WaitQueueEntry</span> {
         <span class="ident">WaitQueueEntry</span> {
             <span class="ident">task</span>: <span class="prelude-val">None</span>,
             <span class="ident">state</span>: <span class="ident">PollState::New</span>,
@@ -366,7 +366,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">EventState</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">is_set</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">EventState</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">is_set</span>: <span class="ident">bool</span>) -&gt; <span class="ident">EventState</span> {
         <span class="ident">EventState</span> {
             <span class="ident">is_set</span>,
             <span class="ident">waiters</span>: <span class="ident">LinkedList::new</span>(),
@@ -400,7 +400,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">is_set</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_set</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">is_set</span>
     }
 
@@ -413,9 +413,9 @@
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">wait_node</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">WaitQueueEntry</span><span class="op">&gt;</span>,
         <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">wait_node</span>.<span class="ident">state</span> {
-            <span class="ident">PollState::New</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">PollState::New</span> =&gt; {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_set</span> {
                     <span class="comment">// The event is already signaled</span>
                     <span class="ident">wait_node</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">PollState::Done</span>;
@@ -428,7 +428,7 @@
                     <span class="ident">Poll::Pending</span>
                 }
             }
-            <span class="ident">PollState::Waiting</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">PollState::Waiting</span> =&gt; {
                 <span class="comment">// The WaitForEventFuture is already in the queue.</span>
                 <span class="comment">// The event can&#39;t have been set, since this would change the</span>
                 <span class="comment">// waitstate inside the mutex. However the caller might have</span>
@@ -436,7 +436,7 @@
                 <span class="ident">update_waker_ref</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">wait_node</span>.<span class="ident">task</span>, <span class="ident">cx</span>);
                 <span class="ident">Poll::Pending</span>
             }
-            <span class="ident">PollState::Done</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">PollState::Done</span> =&gt; {
                 <span class="comment">// We have been woken up by the event.</span>
                 <span class="comment">// This does not guarantee that the event is still set. It could</span>
                 <span class="comment">// have been reset it in the meantime.</span>
@@ -483,14 +483,14 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span>
     <span class="kw">for</span> <span class="ident">GenericManualResetEvent</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span>
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core::fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">core::fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
         <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;ManualResetEvent&quot;</span>).<span class="ident">finish</span>()
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span><span class="op">&gt;</span> <span class="ident">GenericManualResetEvent</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Creates a new ManualResetEvent in the given state</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">is_set</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GenericManualResetEvent</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">is_set</span>: <span class="ident">bool</span>) -&gt; <span class="ident">GenericManualResetEvent</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span> {
         <span class="ident">GenericManualResetEvent</span> {
             <span class="ident">inner</span>: <span class="ident">Mutex</span>::<span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">EventState</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="ident">EventState::new</span>(<span class="ident">is_set</span>)),
         }
@@ -509,12 +509,12 @@
     }
 
     <span class="doccomment">/// Returns whether the event is set</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_set</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_set</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">lock</span>().<span class="ident">is_set</span>()
     }
 
     <span class="doccomment">/// Returns a future that gets fulfilled when the event is set.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">wait</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GenericWaitForEventFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">wait</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">GenericWaitForEventFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span> {
         <span class="ident">GenericWaitForEventFuture</span> {
             <span class="ident">event</span>: <span class="prelude-val">Some</span>(<span class="self">self</span>),
             <span class="ident">wait_node</span>: <span class="ident">ListNode::new</span>(<span class="ident">WaitQueueEntry::new</span>()),
@@ -525,7 +525,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">wait_node</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">WaitQueueEntry</span><span class="op">&gt;</span>,
         <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">lock</span>().<span class="ident">try_wait</span>(<span class="ident">wait_node</span>, <span class="ident">cx</span>)
     }
 
@@ -554,7 +554,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>: <span class="ident">RawMutex</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span>
     <span class="kw">for</span> <span class="ident">GenericWaitForEventFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span><span class="op">&gt;</span>
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core::fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">core::fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
         <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;GenericWaitForEventFuture&quot;</span>).<span class="ident">finish</span>()
     }
 }
@@ -564,7 +564,7 @@
 {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> ();
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="comment">// It might be possible to use Pin::map_unchecked here instead of the two unsafe APIs.</span>
         <span class="comment">// However this didn&#39;t seem to work for some borrow checker reasons</span>
 
@@ -592,7 +592,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>: <span class="ident">RawMutex</span><span class="op">&gt;</span> <span class="ident">FusedFuture</span>
     <span class="kw">for</span> <span class="ident">GenericWaitForEventFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span><span class="op">&gt;</span>
 {
-    <span class="kw">fn</span> <span class="ident">is_terminated</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_terminated</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">event</span>.<span class="ident">is_none</span>()
     }
 }

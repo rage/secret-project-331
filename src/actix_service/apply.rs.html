@@ -292,11 +292,11 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">apply_fn</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">S</span>, <span class="ident">F</span>, <span class="ident">Fut</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>(
     <span class="ident">service</span>: <span class="ident">I</span>,
     <span class="ident">wrap_fn</span>: <span class="ident">F</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Apply</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>
+) -&gt; <span class="ident">Apply</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">I</span>: <span class="ident">IntoService</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">In</span><span class="op">&gt;</span>,
     <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">In</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="prelude-val">Err</span><span class="op">&gt;</span>,
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">Req</span>, <span class="kw-2">&amp;</span><span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Fut</span>,
+    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">Req</span>, <span class="kw-2">&amp;</span><span class="ident">S</span>) -&gt; <span class="ident">Fut</span>,
     <span class="ident">Fut</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 {
     <span class="ident">Apply::new</span>(<span class="ident">service</span>.<span class="ident">into_service</span>(), <span class="ident">wrap_fn</span>)
@@ -308,11 +308,11 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">apply_fn_factory</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Fut</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>(
     <span class="ident">service</span>: <span class="ident">I</span>,
     <span class="ident">f</span>: <span class="ident">F</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ApplyFactory</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>
+) -&gt; <span class="ident">ApplyFactory</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">I</span>: <span class="ident">IntoServiceFactory</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">In</span><span class="op">&gt;</span>,
     <span class="ident">SF</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">In</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="prelude-val">Err</span><span class="op">&gt;</span>,
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">Req</span>, <span class="kw-2">&amp;</span><span class="ident">SF::Service</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Fut</span> <span class="op">+</span> <span class="ident">Clone</span>,
+    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">Req</span>, <span class="kw-2">&amp;</span><span class="ident">SF::Service</span>) -&gt; <span class="ident">Fut</span> <span class="op">+</span> <span class="ident">Clone</span>,
     <span class="ident">Fut</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 {
     <span class="ident">ApplyFactory::new</span>(<span class="ident">service</span>.<span class="ident">into_factory</span>(), <span class="ident">f</span>)
@@ -333,11 +333,11 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">F</span>, <span class="ident">Fut</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span> <span class="ident">Apply</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">In</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="prelude-val">Err</span><span class="op">&gt;</span>,
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">Req</span>, <span class="kw-2">&amp;</span><span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Fut</span>,
+    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">Req</span>, <span class="kw-2">&amp;</span><span class="ident">S</span>) -&gt; <span class="ident">Fut</span>,
     <span class="ident">Fut</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 {
     <span class="doccomment">/// Create new `Apply` combinator</span>
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">service</span>: <span class="ident">S</span>, <span class="ident">wrap_fn</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">service</span>: <span class="ident">S</span>, <span class="ident">wrap_fn</span>: <span class="ident">F</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">service</span>,
             <span class="ident">wrap_fn</span>,
@@ -349,10 +349,10 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">F</span>, <span class="ident">Fut</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">Apply</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">In</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="prelude-val">Err</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span>,
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">Req</span>, <span class="kw-2">&amp;</span><span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Fut</span> <span class="op">+</span> <span class="ident">Clone</span>,
+    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">Req</span>, <span class="kw-2">&amp;</span><span class="ident">S</span>) -&gt; <span class="ident">Fut</span> <span class="op">+</span> <span class="ident">Clone</span>,
     <span class="ident">Fut</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 {
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">Apply</span> {
             <span class="ident">service</span>: <span class="self">self</span>.<span class="ident">service</span>.<span class="ident">clone</span>(),
             <span class="ident">wrap_fn</span>: <span class="self">self</span>.<span class="ident">wrap_fn</span>.<span class="ident">clone</span>(),
@@ -364,7 +364,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">F</span>, <span class="ident">Fut</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Apply</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">In</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="prelude-val">Err</span><span class="op">&gt;</span>,
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">Req</span>, <span class="kw-2">&amp;</span><span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Fut</span>,
+    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">Req</span>, <span class="kw-2">&amp;</span><span class="ident">S</span>) -&gt; <span class="ident">Fut</span>,
     <span class="ident">Fut</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 {
     <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Res</span>;
@@ -373,7 +373,7 @@
 
     <span class="macro">crate::forward_ready!</span>(<span class="ident">service</span>);
 
-    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">Req</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Future</span> {
+    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">Req</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
         (<span class="self">self</span>.<span class="ident">wrap_fn</span>)(<span class="ident">req</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">service</span>)
     }
 }
@@ -388,11 +388,11 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Fut</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span> <span class="ident">ApplyFactory</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">SF</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">In</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="prelude-val">Err</span><span class="op">&gt;</span>,
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">Req</span>, <span class="kw-2">&amp;</span><span class="ident">SF::Service</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Fut</span> <span class="op">+</span> <span class="ident">Clone</span>,
+    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">Req</span>, <span class="kw-2">&amp;</span><span class="ident">SF::Service</span>) -&gt; <span class="ident">Fut</span> <span class="op">+</span> <span class="ident">Clone</span>,
     <span class="ident">Fut</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 {
     <span class="doccomment">/// Create new `ApplyFactory` new service instance</span>
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">factory</span>: <span class="ident">SF</span>, <span class="ident">wrap_fn</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">factory</span>: <span class="ident">SF</span>, <span class="ident">wrap_fn</span>: <span class="ident">F</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">factory</span>,
             <span class="ident">wrap_fn</span>,
@@ -404,10 +404,10 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Fut</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">ApplyFactory</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">SF</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">In</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="prelude-val">Err</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span>,
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">Req</span>, <span class="kw-2">&amp;</span><span class="ident">SF::Service</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Fut</span> <span class="op">+</span> <span class="ident">Clone</span>,
+    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">Req</span>, <span class="kw-2">&amp;</span><span class="ident">SF::Service</span>) -&gt; <span class="ident">Fut</span> <span class="op">+</span> <span class="ident">Clone</span>,
     <span class="ident">Fut</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 {
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">factory</span>: <span class="self">self</span>.<span class="ident">factory</span>.<span class="ident">clone</span>(),
             <span class="ident">wrap_fn</span>: <span class="self">self</span>.<span class="ident">wrap_fn</span>.<span class="ident">clone</span>(),
@@ -420,7 +420,7 @@
     <span class="kw">for</span> <span class="ident">ApplyFactory</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">SF</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">In</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="prelude-val">Err</span><span class="op">&gt;</span>,
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">Req</span>, <span class="kw-2">&amp;</span><span class="ident">SF::Service</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Fut</span> <span class="op">+</span> <span class="ident">Clone</span>,
+    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">Req</span>, <span class="kw-2">&amp;</span><span class="ident">SF::Service</span>) -&gt; <span class="ident">Fut</span> <span class="op">+</span> <span class="ident">Clone</span>,
     <span class="ident">Fut</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 {
     <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Res</span>;
@@ -431,7 +431,7 @@
     <span class="kw">type</span> <span class="ident">InitError</span> <span class="op">=</span> <span class="ident">SF::InitError</span>;
     <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">ApplyServiceFactoryResponse</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Fut</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">new_service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cfg</span>: <span class="ident">SF::Config</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Future</span> {
+    <span class="kw">fn</span> <span class="ident">new_service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cfg</span>: <span class="ident">SF::Config</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
         <span class="kw">let</span> <span class="ident">svc</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">factory</span>.<span class="ident">new_service</span>(<span class="ident">cfg</span>);
         <span class="ident">ApplyServiceFactoryResponse::new</span>(<span class="ident">svc</span>, <span class="self">self</span>.<span class="ident">wrap_fn</span>.<span class="ident">clone</span>())
     }
@@ -441,7 +441,7 @@
     <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ApplyServiceFactoryResponse</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Fut</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">SF</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">In</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="prelude-val">Err</span><span class="op">&gt;</span>,
-        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">Req</span>, <span class="kw-2">&amp;</span><span class="ident">SF::Service</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Fut</span>,
+        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">Req</span>, <span class="kw-2">&amp;</span><span class="ident">SF::Service</span>) -&gt; <span class="ident">Fut</span>,
         <span class="ident">Fut</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="attribute">#[<span class="ident">pin</span>]</span>
@@ -454,10 +454,10 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Fut</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span> <span class="ident">ApplyServiceFactoryResponse</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Fut</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">SF</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">In</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="prelude-val">Err</span><span class="op">&gt;</span>,
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">Req</span>, <span class="kw-2">&amp;</span><span class="ident">SF::Service</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Fut</span>,
+    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">Req</span>, <span class="kw-2">&amp;</span><span class="ident">SF::Service</span>) -&gt; <span class="ident">Fut</span>,
     <span class="ident">Fut</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">fut</span>: <span class="ident">SF::Future</span>, <span class="ident">wrap_fn</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">fut</span>: <span class="ident">SF::Future</span>, <span class="ident">wrap_fn</span>: <span class="ident">F</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">fut</span>,
             <span class="ident">wrap_fn</span>: <span class="prelude-val">Some</span>(<span class="ident">wrap_fn</span>),
@@ -470,12 +470,12 @@
     <span class="kw">for</span> <span class="ident">ApplyServiceFactoryResponse</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Fut</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">SF</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">In</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="prelude-val">Err</span><span class="op">&gt;</span>,
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">Req</span>, <span class="kw-2">&amp;</span><span class="ident">SF::Service</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Fut</span>,
+    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">Req</span>, <span class="kw-2">&amp;</span><span class="ident">SF::Service</span>) -&gt; <span class="ident">Fut</span>,
     <span class="ident">Fut</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Apply</span><span class="op">&lt;</span><span class="ident">SF::Service</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>, <span class="ident">SF::InitError</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">project</span>();
 
         <span class="kw">let</span> <span class="ident">svc</span> <span class="op">=</span> <span class="macro">ready!</span>(<span class="ident">this</span>.<span class="ident">fut</span>.<span class="ident">poll</span>(<span class="ident">cx</span>))<span class="question-mark">?</span>;
@@ -506,7 +506,7 @@
 
         <span class="macro">crate::always_ready!</span>();
 
-        <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: ()) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Future</span> {
+        <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: ()) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
             <span class="ident">ok</span>(())
         }
     }

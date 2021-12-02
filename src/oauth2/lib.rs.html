@@ -3767,7 +3767,7 @@
         <span class="ident">client_secret</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ClientSecret</span><span class="op">&gt;</span>,
         <span class="ident">auth_url</span>: <span class="ident">AuthUrl</span>,
         <span class="ident">token_url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TokenUrl</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    ) -&gt; <span class="self">Self</span> {
         <span class="ident">Client</span> {
             <span class="ident">client_id</span>,
             <span class="ident">client_secret</span>,
@@ -3789,7 +3789,7 @@
     <span class="doccomment">/// The default is to use HTTP Basic authentication, as recommended in</span>
     <span class="doccomment">/// [Section 2.3.1 of RFC 6749](https://tools.ietf.org/html/rfc6749#section-2.3.1).</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_auth_type</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">auth_type</span>: <span class="ident">AuthType</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_auth_type</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">auth_type</span>: <span class="ident">AuthType</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">auth_type</span> <span class="op">=</span> <span class="ident">auth_type</span>;
 
         <span class="self">self</span>
@@ -3798,7 +3798,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Sets the the redirect URL used by the authorization endpoint.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_redirect_uri</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">redirect_url</span>: <span class="ident">RedirectUrl</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_redirect_uri</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">redirect_url</span>: <span class="ident">RedirectUrl</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">redirect_url</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">redirect_url</span>);
 
         <span class="self">self</span>
@@ -3808,7 +3808,7 @@
     <span class="doccomment">/// Sets the introspection URL for contacting the ([RFC 7662](https://tools.ietf.org/html/rfc7662))</span>
     <span class="doccomment">/// introspection endpoint.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_introspection_uri</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">introspection_url</span>: <span class="ident">IntrospectionUrl</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_introspection_uri</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">introspection_url</span>: <span class="ident">IntrospectionUrl</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">introspection_url</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">introspection_url</span>);
 
         <span class="self">self</span>
@@ -3819,7 +3819,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// See: [`revoke_token()`](Self::revoke_token())</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_revocation_uri</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">revocation_url</span>: <span class="ident">RevocationUrl</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_revocation_uri</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">revocation_url</span>: <span class="ident">RevocationUrl</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">revocation_url</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">revocation_url</span>);
 
         <span class="self">self</span>
@@ -3832,7 +3832,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_device_authorization_url</span>(
         <span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">device_authorization_url</span>: <span class="ident">DeviceAuthorizationUrl</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    ) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">device_authorization_url</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">device_authorization_url</span>);
 
         <span class="self">self</span>
@@ -3856,9 +3856,9 @@
     <span class="doccomment">///  attacks. To disable CSRF protections (NOT recommended), use `insecure::authorize_url`</span>
     <span class="doccomment">///  instead.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">authorize_url</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">state_fn</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">AuthorizationRequest</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">authorize_url</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">state_fn</span>: <span class="ident">S</span>) -&gt; <span class="ident">AuthorizationRequest</span>
     <span class="kw">where</span>
-        <span class="ident">S</span>: <span class="ident">FnOnce</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CsrfToken</span>,
+        <span class="ident">S</span>: <span class="ident">FnOnce</span>() -&gt; <span class="ident">CsrfToken</span>,
     {
         <span class="ident">AuthorizationRequest</span> {
             <span class="ident">auth_url</span>: <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">auth_url</span>,
@@ -3880,7 +3880,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// See https://tools.ietf.org/html/rfc6749#section-4.1.3</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exchange_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">code</span>: <span class="ident">AuthorizationCode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CodeTokenRequest</span><span class="op">&lt;</span><span class="ident">TE</span>, <span class="ident">TR</span>, <span class="ident">TT</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exchange_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">code</span>: <span class="ident">AuthorizationCode</span>) -&gt; <span class="ident">CodeTokenRequest</span><span class="op">&lt;</span><span class="ident">TE</span>, <span class="ident">TR</span>, <span class="ident">TT</span><span class="op">&gt;</span> {
         <span class="ident">CodeTokenRequest</span> {
             <span class="ident">auth_type</span>: <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">auth_type</span>,
             <span class="ident">client_id</span>: <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">client_id</span>,
@@ -3903,7 +3903,7 @@
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>,
         <span class="ident">username</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">ResourceOwnerUsername</span>,
         <span class="ident">password</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">ResourceOwnerPassword</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PasswordTokenRequest</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span>, <span class="ident">TE</span>, <span class="ident">TR</span>, <span class="ident">TT</span><span class="op">&gt;</span>
+    ) -&gt; <span class="ident">PasswordTokenRequest</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span>, <span class="ident">TE</span>, <span class="ident">TR</span>, <span class="ident">TT</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="lifetime">&#39;a</span>: <span class="lifetime">&#39;b</span>,
     {
@@ -3925,7 +3925,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// See https://tools.ietf.org/html/rfc6749#section-4.4.2</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exchange_client_credentials</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientCredentialsTokenRequest</span><span class="op">&lt;</span><span class="ident">TE</span>, <span class="ident">TR</span>, <span class="ident">TT</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exchange_client_credentials</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ClientCredentialsTokenRequest</span><span class="op">&lt;</span><span class="ident">TE</span>, <span class="ident">TR</span>, <span class="ident">TT</span><span class="op">&gt;</span> {
         <span class="ident">ClientCredentialsTokenRequest</span> {
             <span class="ident">auth_type</span>: <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">auth_type</span>,
             <span class="ident">client_id</span>: <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">client_id</span>,
@@ -3945,7 +3945,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exchange_refresh_token</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>,
         <span class="ident">refresh_token</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">RefreshToken</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RefreshTokenRequest</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span>, <span class="ident">TE</span>, <span class="ident">TR</span>, <span class="ident">TT</span><span class="op">&gt;</span>
+    ) -&gt; <span class="ident">RefreshTokenRequest</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span>, <span class="ident">TE</span>, <span class="ident">TR</span>, <span class="ident">TT</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="lifetime">&#39;a</span>: <span class="lifetime">&#39;b</span>,
     {
@@ -3967,7 +3967,7 @@
     <span class="doccomment">///</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exchange_device_code</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DeviceAuthorizationRequest</span><span class="op">&lt;</span><span class="ident">TE</span><span class="op">&gt;</span>, <span class="ident">ConfigurationError</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DeviceAuthorizationRequest</span><span class="op">&lt;</span><span class="ident">TE</span><span class="op">&gt;</span>, <span class="ident">ConfigurationError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">DeviceAuthorizationRequest</span> {
             <span class="ident">auth_type</span>: <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">auth_type</span>,
             <span class="ident">client_id</span>: <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">client_id</span>,
@@ -3989,7 +3989,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exchange_device_access_token</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="lifetime">&#39;c</span>, <span class="ident">EF</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>,
         <span class="ident">auth_response</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">DeviceAuthorizationResponse</span><span class="op">&lt;</span><span class="ident">EF</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DeviceAccessTokenRequest</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span>, <span class="lifetime">&#39;c</span>, <span class="ident">TR</span>, <span class="ident">TT</span>, <span class="ident">EF</span><span class="op">&gt;</span>
+    ) -&gt; <span class="ident">DeviceAccessTokenRequest</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span>, <span class="lifetime">&#39;c</span>, <span class="ident">TR</span>, <span class="ident">TT</span>, <span class="ident">EF</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="lifetime">&#39;a</span>: <span class="lifetime">&#39;b</span>,
         <span class="ident">EF</span>: <span class="ident">ExtraDeviceAuthorizationFields</span>,
@@ -4019,7 +4019,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">introspect</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>,
         <span class="ident">token</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">AccessToken</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">IntrospectionRequest</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">TE</span>, <span class="ident">TIR</span>, <span class="ident">TT</span><span class="op">&gt;</span>, <span class="ident">ConfigurationError</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">IntrospectionRequest</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">TE</span>, <span class="ident">TIR</span>, <span class="ident">TT</span><span class="op">&gt;</span>, <span class="ident">ConfigurationError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">IntrospectionRequest</span> {
             <span class="ident">auth_type</span>: <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">auth_type</span>,
             <span class="ident">client_id</span>: <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">client_id</span>,
@@ -4048,16 +4048,16 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">revoke_token</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">token</span>: <span class="ident">RT</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">RevocationRequest</span><span class="op">&lt;</span><span class="ident">RT</span>, <span class="ident">TRE</span><span class="op">&gt;</span>, <span class="ident">ConfigurationError</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">RevocationRequest</span><span class="op">&lt;</span><span class="ident">RT</span>, <span class="ident">TRE</span><span class="op">&gt;</span>, <span class="ident">ConfigurationError</span><span class="op">&gt;</span> {
         <span class="comment">// https://tools.ietf.org/html/rfc7009#section-2 states:</span>
         <span class="comment">//   &quot;The client requests the revocation of a particular token by making an</span>
         <span class="comment">//    HTTP POST request to the token revocation endpoint URL.  This URL</span>
         <span class="comment">//    MUST conform to the rules given in [RFC6749], Section 3.1.  Clients</span>
         <span class="comment">//    MUST verify that the URL is an HTTPS URL.&quot;</span>
         <span class="kw">let</span> <span class="ident">revocation_url</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">revocation_url</span>.<span class="ident">as_ref</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">url</span>) <span class="kw">if</span> <span class="ident">url</span>.<span class="ident">url</span>().<span class="ident">scheme</span>() <span class="op">=</span><span class="op">=</span> <span class="string">&quot;https&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">url</span>),
-            <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">ConfigurationError::InsecureUrl</span>(<span class="string">&quot;revocation&quot;</span>)),
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">ConfigurationError::MissingUrl</span>(<span class="string">&quot;revocation&quot;</span>)),
+            <span class="prelude-val">Some</span>(<span class="ident">url</span>) <span class="kw">if</span> <span class="ident">url</span>.<span class="ident">url</span>().<span class="ident">scheme</span>() <span class="op">==</span> <span class="string">&quot;https&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">url</span>),
+            <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">ConfigurationError::InsecureUrl</span>(<span class="string">&quot;revocation&quot;</span>)),
+            <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">ConfigurationError::MissingUrl</span>(<span class="string">&quot;revocation&quot;</span>)),
         }<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(<span class="ident">RevocationRequest</span> {
@@ -4090,7 +4090,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Appends a new scope to the authorization URL.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_scope</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scope</span>: <span class="ident">Scope</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_scope</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scope</span>: <span class="ident">Scope</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">scopes</span>.<span class="ident">push</span>(<span class="ident">Cow::Owned</span>(<span class="ident">scope</span>));
         <span class="self">self</span>
     }
@@ -4098,7 +4098,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Appends a collection of scopes to the token request.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_scopes</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scopes</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_scopes</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scopes</span>: <span class="ident">I</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">Scope</span><span class="op">&gt;</span>,
     {
@@ -4121,7 +4121,7 @@
     <span class="doccomment">/// this function, which are beyond the scope of</span>
     <span class="doccomment">/// [RFC 6749](https://tools.ietf.org/html/rfc6749).</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_extra_param</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident">N</span>, <span class="ident">value</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_extra_param</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident">N</span>, <span class="ident">value</span>: <span class="ident">V</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">N</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
@@ -4133,7 +4133,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Enables the [Implicit Grant](https://tools.ietf.org/html/rfc6749#section-4.2) flow.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">use_implicit_flow</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">use_implicit_flow</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">response_type</span> <span class="op">=</span> <span class="string">&quot;token&quot;</span>.<span class="ident">into</span>();
         <span class="self">self</span>
     }
@@ -4141,7 +4141,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Enables custom flows other than the `code` and `token` (implicit flow) grant.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_response_type</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">response_type</span>: <span class="kw-2">&amp;</span><span class="ident">ResponseType</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_response_type</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">response_type</span>: <span class="kw-2">&amp;</span><span class="ident">ResponseType</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">response_type</span> <span class="op">=</span> (<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">response_type</span>).<span class="ident">to_owned</span>().<span class="ident">into</span>();
         <span class="self">self</span>
     }
@@ -4154,7 +4154,7 @@
     <span class="doccomment">/// is no client secret or for which the client secret is distributed with the client,</span>
     <span class="doccomment">/// such as in a native, mobile app, or browser app).</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_pkce_challenge</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pkce_code_challenge</span>: <span class="ident">PkceCodeChallenge</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_pkce_challenge</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pkce_code_challenge</span>: <span class="ident">PkceCodeChallenge</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">pkce_challenge</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">pkce_code_challenge</span>);
         <span class="self">self</span>
     }
@@ -4162,7 +4162,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Overrides the `redirect_url` to the one specified.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_redirect_uri</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">redirect_url</span>: <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">RedirectUrl</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_redirect_uri</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">redirect_url</span>: <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">RedirectUrl</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">redirect_url</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">redirect_url</span>);
         <span class="self">self</span>
     }
@@ -4171,7 +4171,7 @@
     <span class="doccomment">/// Returns the full authorization URL and CSRF state for this authorization</span>
     <span class="doccomment">/// request.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">url</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Url</span>, <span class="ident">CsrfToken</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">url</span>(<span class="self">self</span>) -&gt; (<span class="ident">Url</span>, <span class="ident">CsrfToken</span>) {
         <span class="kw">let</span> <span class="ident">scopes</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">scopes</span>
             .<span class="ident">iter</span>()
@@ -4286,7 +4286,7 @@
     <span class="doccomment">/// this function, which are beyond the scope of</span>
     <span class="doccomment">/// [RFC 6749](https://tools.ietf.org/html/rfc6749).</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_extra_param</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident">N</span>, <span class="ident">value</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_extra_param</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident">N</span>, <span class="ident">value</span>: <span class="ident">V</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">N</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
@@ -4302,7 +4302,7 @@
     <span class="doccomment">/// This method must be called if `set_pkce_challenge` was used during the authorization</span>
     <span class="doccomment">/// request.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_pkce_verifier</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pkce_verifier</span>: <span class="ident">PkceCodeVerifier</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_pkce_verifier</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pkce_verifier</span>: <span class="ident">PkceCodeVerifier</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">pkce_verifier</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">pkce_verifier</span>);
         <span class="self">self</span>
     }
@@ -4310,12 +4310,12 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Overrides the `redirect_url` to the one specified.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_redirect_uri</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">redirect_url</span>: <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">RedirectUrl</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_redirect_uri</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">redirect_url</span>: <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">RedirectUrl</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">redirect_url</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">redirect_url</span>);
         <span class="self">self</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">prepare_request</span><span class="op">&lt;</span><span class="ident">RE</span><span class="op">&gt;</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpRequest</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">prepare_request</span><span class="op">&lt;</span><span class="ident">RE</span><span class="op">&gt;</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpRequest</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">RE</span>: <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
@@ -4344,9 +4344,9 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Synchronously sends the request to the authorization server and awaits a response.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">request</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">RE</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">http_client</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TR</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">request</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">RE</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">http_client</span>: <span class="ident">F</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TR</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">RE</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">RE</span><span class="op">&gt;</span>,
         <span class="ident">RE</span>: <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
         <span class="ident">http_client</span>(<span class="self">self</span>.<span class="ident">prepare_request</span>()<span class="question-mark">?</span>)
@@ -4360,9 +4360,9 @@
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">request_async</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">F</span>, <span class="ident">RE</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
         <span class="ident">http_client</span>: <span class="ident">C</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TR</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TR</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">C</span>: <span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">F</span>,
+        <span class="ident">C</span>: <span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) -&gt; <span class="ident">F</span>,
         <span class="ident">F</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">RE</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">RE</span>: <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
@@ -4416,7 +4416,7 @@
     <span class="doccomment">/// this function, which are beyond the scope of</span>
     <span class="doccomment">/// [RFC 6749](https://tools.ietf.org/html/rfc6749).</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_extra_param</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident">N</span>, <span class="ident">value</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_extra_param</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident">N</span>, <span class="ident">value</span>: <span class="ident">V</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">N</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
@@ -4428,7 +4428,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Appends a new scope to the token request.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_scope</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scope</span>: <span class="ident">Scope</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_scope</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scope</span>: <span class="ident">Scope</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">scopes</span>.<span class="ident">push</span>(<span class="ident">Cow::Owned</span>(<span class="ident">scope</span>));
         <span class="self">self</span>
     }
@@ -4436,7 +4436,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Appends a collection of scopes to the token request.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_scopes</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scopes</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_scopes</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scopes</span>: <span class="ident">I</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">Scope</span><span class="op">&gt;</span>,
     {
@@ -4447,9 +4447,9 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Synchronously sends the request to the authorization server and awaits a response.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">request</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">RE</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">http_client</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TR</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">request</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">RE</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">http_client</span>: <span class="ident">F</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TR</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">RE</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">RE</span><span class="op">&gt;</span>,
         <span class="ident">RE</span>: <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
         <span class="ident">http_client</span>(<span class="self">self</span>.<span class="ident">prepare_request</span>()<span class="question-mark">?</span>)
@@ -4462,9 +4462,9 @@
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">request_async</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">F</span>, <span class="ident">RE</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
         <span class="ident">http_client</span>: <span class="ident">C</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TR</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TR</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">C</span>: <span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">F</span>,
+        <span class="ident">C</span>: <span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) -&gt; <span class="ident">F</span>,
         <span class="ident">F</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">RE</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">RE</span>: <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
@@ -4475,7 +4475,7 @@
         <span class="ident">endpoint_response</span>(<span class="ident">http_response</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">prepare_request</span><span class="op">&lt;</span><span class="ident">RE</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpRequest</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">prepare_request</span><span class="op">&lt;</span><span class="ident">RE</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpRequest</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">RE</span>: <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
@@ -4540,7 +4540,7 @@
     <span class="doccomment">/// this function, which are beyond the scope of</span>
     <span class="doccomment">/// [RFC 6749](https://tools.ietf.org/html/rfc6749).</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_extra_param</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident">N</span>, <span class="ident">value</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_extra_param</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident">N</span>, <span class="ident">value</span>: <span class="ident">V</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">N</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
@@ -4552,7 +4552,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Appends a new scope to the token request.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_scope</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scope</span>: <span class="ident">Scope</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_scope</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scope</span>: <span class="ident">Scope</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">scopes</span>.<span class="ident">push</span>(<span class="ident">Cow::Owned</span>(<span class="ident">scope</span>));
         <span class="self">self</span>
     }
@@ -4560,7 +4560,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Appends a collection of scopes to the token request.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_scopes</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scopes</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_scopes</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scopes</span>: <span class="ident">I</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">Scope</span><span class="op">&gt;</span>,
     {
@@ -4571,9 +4571,9 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Synchronously sends the request to the authorization server and awaits a response.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">request</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">RE</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">http_client</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TR</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">request</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">RE</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">http_client</span>: <span class="ident">F</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TR</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">RE</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">RE</span><span class="op">&gt;</span>,
         <span class="ident">RE</span>: <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
         <span class="ident">http_client</span>(<span class="self">self</span>.<span class="ident">prepare_request</span>()<span class="question-mark">?</span>)
@@ -4587,9 +4587,9 @@
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">request_async</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">F</span>, <span class="ident">RE</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
         <span class="ident">http_client</span>: <span class="ident">C</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TR</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TR</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">C</span>: <span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">F</span>,
+        <span class="ident">C</span>: <span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) -&gt; <span class="ident">F</span>,
         <span class="ident">F</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">RE</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">RE</span>: <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
@@ -4600,7 +4600,7 @@
         <span class="ident">endpoint_response</span>(<span class="ident">http_response</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">prepare_request</span><span class="op">&lt;</span><span class="ident">RE</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpRequest</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">prepare_request</span><span class="op">&lt;</span><span class="ident">RE</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpRequest</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">RE</span>: <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
@@ -4664,7 +4664,7 @@
     <span class="doccomment">/// this function, which are beyond the scope of</span>
     <span class="doccomment">/// [RFC 6749](https://tools.ietf.org/html/rfc6749).</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_extra_param</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident">N</span>, <span class="ident">value</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_extra_param</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident">N</span>, <span class="ident">value</span>: <span class="ident">V</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">N</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
@@ -4676,7 +4676,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Appends a new scope to the token request.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_scope</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scope</span>: <span class="ident">Scope</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_scope</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scope</span>: <span class="ident">Scope</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">scopes</span>.<span class="ident">push</span>(<span class="ident">Cow::Owned</span>(<span class="ident">scope</span>));
         <span class="self">self</span>
     }
@@ -4684,7 +4684,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Appends a collection of scopes to the token request.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_scopes</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scopes</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_scopes</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scopes</span>: <span class="ident">I</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">Scope</span><span class="op">&gt;</span>,
     {
@@ -4695,9 +4695,9 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Synchronously sends the request to the authorization server and awaits a response.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">request</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">RE</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">http_client</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TR</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">request</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">RE</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">http_client</span>: <span class="ident">F</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TR</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">RE</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">RE</span><span class="op">&gt;</span>,
         <span class="ident">RE</span>: <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
         <span class="ident">http_client</span>(<span class="self">self</span>.<span class="ident">prepare_request</span>()<span class="question-mark">?</span>)
@@ -4711,9 +4711,9 @@
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">request_async</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">F</span>, <span class="ident">RE</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
         <span class="ident">http_client</span>: <span class="ident">C</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TR</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TR</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">C</span>: <span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">F</span>,
+        <span class="ident">C</span>: <span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) -&gt; <span class="ident">F</span>,
         <span class="ident">F</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">RE</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">RE</span>: <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
@@ -4724,7 +4724,7 @@
         <span class="ident">endpoint_response</span>(<span class="ident">http_response</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">prepare_request</span><span class="op">&lt;</span><span class="ident">RE</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpRequest</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">prepare_request</span><span class="op">&lt;</span><span class="ident">RE</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpRequest</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">RE</span>: <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
@@ -4788,7 +4788,7 @@
     <span class="doccomment">///      field are defined in the &quot;OAuth Token Type Hints&quot; registry defined</span>
     <span class="doccomment">///      in OAuth Token Revocation [RFC7009](https://tools.ietf.org/html/rfc7009).</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_token_type_hint</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_token_type_hint</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">V</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
@@ -4812,7 +4812,7 @@
     <span class="doccomment">/// this function, which are beyond the scope of</span>
     <span class="doccomment">/// [RFC 6749](https://tools.ietf.org/html/rfc6749).</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_extra_param</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident">N</span>, <span class="ident">value</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_extra_param</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident">N</span>, <span class="ident">value</span>: <span class="ident">V</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">N</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
@@ -4821,7 +4821,7 @@
         <span class="self">self</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">prepare_request</span><span class="op">&lt;</span><span class="ident">RE</span><span class="op">&gt;</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpRequest</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">prepare_request</span><span class="op">&lt;</span><span class="ident">RE</span><span class="op">&gt;</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpRequest</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">RE</span>: <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
@@ -4845,9 +4845,9 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Synchronously sends the request to the authorization server and awaits a response.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">request</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">RE</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">http_client</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TIR</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">request</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">RE</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">http_client</span>: <span class="ident">F</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TIR</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">RE</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">RE</span><span class="op">&gt;</span>,
         <span class="ident">RE</span>: <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
         <span class="ident">http_client</span>(<span class="self">self</span>.<span class="ident">prepare_request</span>()<span class="question-mark">?</span>)
@@ -4861,9 +4861,9 @@
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">request_async</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">F</span>, <span class="ident">RE</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
         <span class="ident">http_client</span>: <span class="ident">C</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TIR</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TIR</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">C</span>: <span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">F</span>,
+        <span class="ident">C</span>: <span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) -&gt; <span class="ident">F</span>,
         <span class="ident">F</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">RE</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">RE</span>: <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
@@ -4916,7 +4916,7 @@
     <span class="doccomment">/// this function, which are beyond the scope of</span>
     <span class="doccomment">/// [RFC 6749](https://tools.ietf.org/html/rfc6749).</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_extra_param</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident">N</span>, <span class="ident">value</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_extra_param</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident">N</span>, <span class="ident">value</span>: <span class="ident">V</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">N</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
@@ -4925,7 +4925,7 @@
         <span class="self">self</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">prepare_request</span><span class="op">&lt;</span><span class="ident">RE</span><span class="op">&gt;</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpRequest</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">prepare_request</span><span class="op">&lt;</span><span class="ident">RE</span><span class="op">&gt;</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpRequest</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">RE</span>: <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
@@ -4955,9 +4955,9 @@
     <span class="doccomment">/// Error [`UnsupportedTokenType`](crate::revocation::RevocationErrorResponseType::UnsupportedTokenType) will be returned if the</span>
     <span class="doccomment">/// type of token type given is not supported by the server.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">request</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">RE</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">http_client</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">request</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">RE</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">http_client</span>: <span class="ident">F</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">RE</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">RE</span><span class="op">&gt;</span>,
         <span class="ident">RE</span>: <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
         <span class="comment">// From https://tools.ietf.org/html/rfc7009#section-2.2:</span>
@@ -4974,9 +4974,9 @@
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">request_async</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">F</span>, <span class="ident">RE</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
         <span class="ident">http_client</span>: <span class="ident">C</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">C</span>: <span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">F</span>,
+        <span class="ident">C</span>: <span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) -&gt; <span class="ident">F</span>,
         <span class="ident">F</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">RE</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">RE</span>: <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
@@ -4998,7 +4998,7 @@
     <span class="ident">scopes</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Scope</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">url</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Url</span>,
     <span class="ident">params</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>)<span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HttpRequest</span> {
+) -&gt; <span class="ident">HttpRequest</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">HeaderMap::new</span>();
     <span class="ident">headers</span>.<span class="ident">append</span>(<span class="ident">ACCEPT</span>, <span class="ident">HeaderValue::from_static</span>(<span class="ident">CONTENT_TYPE_JSON</span>));
     <span class="ident">headers</span>.<span class="ident">append</span>(
@@ -5027,13 +5027,13 @@
 
     <span class="comment">// FIXME: add support for auth extensions? e.g., client_secret_jwt and private_key_jwt</span>
     <span class="kw">match</span> <span class="ident">auth_type</span> {
-        <span class="ident">AuthType::RequestBody</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">AuthType::RequestBody</span> =&gt; {
             <span class="ident">params</span>.<span class="ident">push</span>((<span class="string">&quot;client_id&quot;</span>, <span class="ident">client_id</span>));
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">client_secret</span>) <span class="op">=</span> <span class="ident">client_secret</span> {
                 <span class="ident">params</span>.<span class="ident">push</span>((<span class="string">&quot;client_secret&quot;</span>, <span class="ident">client_secret</span>.<span class="ident">secret</span>()));
             }
         }
-        <span class="ident">AuthType::BasicAuth</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">AuthType::BasicAuth</span> =&gt; {
             <span class="comment">// Section 2.3.1 of RFC 6749 requires separately url-encoding the id and secret</span>
             <span class="comment">// before using them as HTTP Basic auth username and password. Note that this is</span>
             <span class="comment">// not standard for ordinary Basic auth, so curl won&#39;t do it for us.</span>
@@ -5082,7 +5082,7 @@
 
 <span class="kw">fn</span> <span class="ident">endpoint_response</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span>, <span class="ident">DO</span><span class="op">&gt;</span>(
     <span class="ident">http_response</span>: <span class="ident">HttpResponse</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DO</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DO</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">RE</span>: <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     <span class="ident">TE</span>: <span class="ident">ErrorResponse</span>,
@@ -5099,7 +5099,7 @@
 
 <span class="kw">fn</span> <span class="ident">endpoint_response_status_only</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span>(
     <span class="ident">http_response</span>: <span class="ident">HttpResponse</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">RE</span>: <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     <span class="ident">TE</span>: <span class="ident">ErrorResponse</span>,
@@ -5109,7 +5109,7 @@
 
 <span class="kw">fn</span> <span class="ident">check_response_status</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span>(
     <span class="ident">http_response</span>: <span class="kw-2">&amp;</span><span class="ident">HttpResponse</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">RE</span>: <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     <span class="ident">TE</span>: <span class="ident">ErrorResponse</span>,
@@ -5124,8 +5124,8 @@
             <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">serde_path_to_error::deserialize</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">TE</span><span class="op">&gt;</span>(
                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">serde_json::Deserializer::from_slice</span>(<span class="ident">reason</span>),
             ) {
-                <span class="prelude-val">Ok</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">RequestTokenError::ServerResponse</span>(<span class="ident">error</span>),
-                <span class="prelude-val">Err</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">RequestTokenError::Parse</span>(<span class="ident">error</span>, <span class="ident">reason</span>.<span class="ident">to_vec</span>()),
+                <span class="prelude-val">Ok</span>(<span class="ident">error</span>) =&gt; <span class="ident">RequestTokenError::ServerResponse</span>(<span class="ident">error</span>),
+                <span class="prelude-val">Err</span>(<span class="ident">error</span>) =&gt; <span class="ident">RequestTokenError::Parse</span>(<span class="ident">error</span>, <span class="ident">reason</span>.<span class="ident">to_vec</span>()),
             };
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">error</span>);
         }
@@ -5136,7 +5136,7 @@
 
 <span class="kw">fn</span> <span class="ident">check_response_body</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span>(
     <span class="ident">http_response</span>: <span class="kw-2">&amp;</span><span class="ident">HttpResponse</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">RE</span>: <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     <span class="ident">TE</span>: <span class="ident">ErrorResponse</span>,
@@ -5211,7 +5211,7 @@
     <span class="doccomment">/// this function, which are beyond the scope of</span>
     <span class="doccomment">/// [RFC 6749](https://tools.ietf.org/html/rfc6749).</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_extra_param</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident">N</span>, <span class="ident">value</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_extra_param</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident">N</span>, <span class="ident">value</span>: <span class="ident">V</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">N</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
@@ -5223,7 +5223,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Appends a new scope to the token request.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_scope</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scope</span>: <span class="ident">Scope</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_scope</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scope</span>: <span class="ident">Scope</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">scopes</span>.<span class="ident">push</span>(<span class="ident">Cow::Owned</span>(<span class="ident">scope</span>));
         <span class="self">self</span>
     }
@@ -5231,7 +5231,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Appends a collection of scopes to the token request.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_scopes</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scopes</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_scopes</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scopes</span>: <span class="ident">I</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">Scope</span><span class="op">&gt;</span>,
     {
@@ -5239,7 +5239,7 @@
         <span class="self">self</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">prepare_request</span><span class="op">&lt;</span><span class="ident">RE</span><span class="op">&gt;</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpRequest</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">prepare_request</span><span class="op">&lt;</span><span class="ident">RE</span><span class="op">&gt;</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpRequest</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">RE</span>: <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
@@ -5261,9 +5261,9 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">request</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">RE</span>, <span class="ident">EF</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
         <span class="ident">http_client</span>: <span class="ident">F</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DeviceAuthorizationResponse</span><span class="op">&lt;</span><span class="ident">EF</span><span class="op">&gt;</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DeviceAuthorizationResponse</span><span class="op">&lt;</span><span class="ident">EF</span><span class="op">&gt;</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">RE</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">RE</span><span class="op">&gt;</span>,
         <span class="ident">RE</span>: <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
         <span class="ident">EF</span>: <span class="ident">ExtraDeviceAuthorizationFields</span>,
     {
@@ -5278,9 +5278,9 @@
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">request_async</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">F</span>, <span class="ident">RE</span>, <span class="ident">EF</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
         <span class="ident">http_client</span>: <span class="ident">C</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DeviceAuthorizationResponse</span><span class="op">&lt;</span><span class="ident">EF</span><span class="op">&gt;</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DeviceAuthorizationResponse</span><span class="op">&lt;</span><span class="ident">EF</span><span class="op">&gt;</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">C</span>: <span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">F</span>,
+        <span class="ident">C</span>: <span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) -&gt; <span class="ident">F</span>,
         <span class="ident">F</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">RE</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">RE</span>: <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
         <span class="ident">EF</span>: <span class="ident">ExtraDeviceAuthorizationFields</span>,
@@ -5311,7 +5311,7 @@
     <span class="ident">extra_params</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
     <span class="ident">token_url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">TokenUrl</span><span class="op">&gt;</span>,
     <span class="ident">dev_auth_resp</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">DeviceAuthorizationResponse</span><span class="op">&lt;</span><span class="ident">EF</span><span class="op">&gt;</span>,
-    <span class="ident">time_fn</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;b</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span>,
+    <span class="ident">time_fn</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>() -&gt; <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;b</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span>,
     <span class="ident">_phantom</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span>(<span class="ident">TR</span>, <span class="ident">TT</span>, <span class="ident">EF</span>)<span class="op">&gt;</span>,
 }
 
@@ -5336,7 +5336,7 @@
     <span class="doccomment">/// this function, which are beyond the scope of</span>
     <span class="doccomment">/// [RFC 6749](https://tools.ietf.org/html/rfc6749).</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_extra_param</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident">N</span>, <span class="ident">value</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_extra_param</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident">N</span>, <span class="ident">value</span>: <span class="ident">V</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">N</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
@@ -5350,9 +5350,9 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This function is used while polling the authorization server.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_time_fn</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">time_fn</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_time_fn</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">time_fn</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Fn</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;b</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span>,
+        <span class="ident">T</span>: <span class="ident">Fn</span>() -&gt; <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;b</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span>,
     {
         <span class="self">self</span>.<span class="ident">time_fn</span> <span class="op">=</span> <span class="ident">Arc::new</span>(<span class="ident">time_fn</span>);
         <span class="self">self</span>
@@ -5367,9 +5367,9 @@
         <span class="ident">http_client</span>: <span class="ident">F</span>,
         <span class="ident">sleep_fn</span>: <span class="ident">S</span>,
         <span class="ident">timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TR</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">DeviceCodeErrorResponse</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TR</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">DeviceCodeErrorResponse</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">HttpRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">RE</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">HttpRequest</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">RE</span><span class="op">&gt;</span>,
         <span class="ident">S</span>: <span class="ident">Fn</span>(<span class="ident">Duration</span>),
         <span class="ident">RE</span>: <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
@@ -5385,10 +5385,10 @@
             }
 
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">process_response</span>(<span class="ident">http_client</span>(<span class="self">self</span>.<span class="ident">prepare_request</span>()<span class="question-mark">?</span>), <span class="ident">interval</span>) {
-                <span class="ident">DeviceAccessTokenPollResult::ContinueWithNewPollInterval</span>(<span class="ident">new_interval</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">DeviceAccessTokenPollResult::ContinueWithNewPollInterval</span>(<span class="ident">new_interval</span>) =&gt; {
                     <span class="ident">interval</span> <span class="op">=</span> <span class="ident">new_interval</span>
                 }
-                <span class="ident">DeviceAccessTokenPollResult::Done</span>(<span class="ident">res</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">break</span> <span class="ident">res</span>,
+                <span class="ident">DeviceAccessTokenPollResult::Done</span>(<span class="ident">res</span>, <span class="kw">_</span>) =&gt; <span class="kw">break</span> <span class="ident">res</span>,
             }
 
             <span class="comment">// Sleep here using the provided sleep function.</span>
@@ -5404,11 +5404,11 @@
         <span class="ident">http_client</span>: <span class="ident">C</span>,
         <span class="ident">sleep_fn</span>: <span class="ident">S</span>,
         <span class="ident">timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TR</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">DeviceCodeErrorResponse</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TR</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">DeviceCodeErrorResponse</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">C</span>: <span class="ident">Fn</span>(<span class="ident">HttpRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">F</span>,
+        <span class="ident">C</span>: <span class="ident">Fn</span>(<span class="ident">HttpRequest</span>) -&gt; <span class="ident">F</span>,
         <span class="ident">F</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">RE</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">S</span>: <span class="ident">Fn</span>(<span class="ident">Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SF</span>,
+        <span class="ident">S</span>: <span class="ident">Fn</span>(<span class="ident">Duration</span>) -&gt; <span class="ident">SF</span>,
         <span class="ident">SF</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
         <span class="ident">RE</span>: <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
@@ -5424,10 +5424,10 @@
             }
 
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">process_response</span>(<span class="ident">http_client</span>(<span class="self">self</span>.<span class="ident">prepare_request</span>()<span class="question-mark">?</span>).<span class="kw">await</span>, <span class="ident">interval</span>) {
-                <span class="ident">DeviceAccessTokenPollResult::ContinueWithNewPollInterval</span>(<span class="ident">new_interval</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">DeviceAccessTokenPollResult::ContinueWithNewPollInterval</span>(<span class="ident">new_interval</span>) =&gt; {
                     <span class="ident">interval</span> <span class="op">=</span> <span class="ident">new_interval</span>
                 }
-                <span class="ident">DeviceAccessTokenPollResult::Done</span>(<span class="ident">res</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">break</span> <span class="ident">res</span>,
+                <span class="ident">DeviceAccessTokenPollResult::Done</span>(<span class="ident">res</span>, <span class="kw">_</span>) =&gt; <span class="kw">break</span> <span class="ident">res</span>,
             }
 
             <span class="comment">// Sleep here using the provided sleep function.</span>
@@ -5437,7 +5437,7 @@
 
     <span class="kw">fn</span> <span class="ident">prepare_request</span><span class="op">&lt;</span><span class="ident">RE</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpRequest</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">DeviceCodeErrorResponse</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpRequest</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">DeviceCodeErrorResponse</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">RE</span>: <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
@@ -5462,13 +5462,13 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">res</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">RE</span><span class="op">&gt;</span>,
         <span class="ident">current_interval</span>: <span class="ident">Duration</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DeviceAccessTokenPollResult</span><span class="op">&lt;</span><span class="ident">TR</span>, <span class="ident">RE</span>, <span class="ident">DeviceCodeErrorResponse</span>, <span class="ident">TT</span><span class="op">&gt;</span>
+    ) -&gt; <span class="ident">DeviceAccessTokenPollResult</span><span class="op">&lt;</span><span class="ident">TR</span>, <span class="ident">RE</span>, <span class="ident">DeviceCodeErrorResponse</span>, <span class="ident">TT</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">RE</span>: <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
         <span class="kw">let</span> <span class="ident">http_response</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">res</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">inner</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">inner</span>,
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Ok</span>(<span class="ident">inner</span>) =&gt; <span class="ident">inner</span>,
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
                 <span class="comment">// Try and double the current interval. If that fails, just use the current one.</span>
                 <span class="kw">let</span> <span class="ident">new_interval</span> <span class="op">=</span> <span class="ident">current_interval</span>.<span class="ident">checked_mul</span>(<span class="number">2</span>).<span class="ident">unwrap_or</span>(<span class="ident">current_interval</span>);
                 <span class="kw">return</span> <span class="ident">DeviceAccessTokenPollResult::ContinueWithNewPollInterval</span>(<span class="ident">new_interval</span>);
@@ -5480,21 +5480,21 @@
         <span class="kw">match</span> <span class="ident">res</span> {
             <span class="comment">// On a ServerResponse error, the error needs inspecting as a DeviceCodeErrorResponse</span>
             <span class="comment">// to work out whether a retry needs to happen.</span>
-            <span class="prelude-val">Err</span>(<span class="ident">RequestTokenError::ServerResponse</span>(<span class="ident">dcer</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">RequestTokenError::ServerResponse</span>(<span class="ident">dcer</span>)) =&gt; {
                 <span class="kw">match</span> <span class="ident">dcer</span>.<span class="ident">error</span>() {
                     <span class="comment">// On AuthorizationPending, a retry needs to happen with the same poll interval.</span>
-                    <span class="ident">DeviceCodeErrorResponseType::AuthorizationPending</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">DeviceCodeErrorResponseType::AuthorizationPending</span> =&gt; {
                         <span class="ident">DeviceAccessTokenPollResult::ContinueWithNewPollInterval</span>(<span class="ident">current_interval</span>)
                     }
                     <span class="comment">// On SlowDown, a retry needs to happen with a larger poll interval.</span>
-                    <span class="ident">DeviceCodeErrorResponseType::SlowDown</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">DeviceCodeErrorResponseType::SlowDown</span> =&gt; {
                         <span class="ident">DeviceAccessTokenPollResult::ContinueWithNewPollInterval</span>(
                             <span class="ident">current_interval</span> <span class="op">+</span> <span class="ident">Duration::from_secs</span>(<span class="number">5</span>),
                         )
                     }
 
                     <span class="comment">// On any other error, just return the error.</span>
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DeviceAccessTokenPollResult::Done</span>(
+                    <span class="kw">_</span> =&gt; <span class="ident">DeviceAccessTokenPollResult::Done</span>(
                         <span class="prelude-val">Err</span>(<span class="ident">RequestTokenError::ServerResponse</span>(<span class="ident">dcer</span>)),
                         <span class="ident">PhantomData</span>,
                     ),
@@ -5502,14 +5502,14 @@
             }
 
             <span class="comment">// On any other success or failure, return the failure.</span>
-            <span class="ident">res</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DeviceAccessTokenPollResult::Done</span>(<span class="ident">res</span>, <span class="ident">PhantomData</span>),
+            <span class="ident">res</span> =&gt; <span class="ident">DeviceAccessTokenPollResult::Done</span>(<span class="ident">res</span>, <span class="ident">PhantomData</span>),
         }
     }
 
     <span class="kw">fn</span> <span class="ident">compute_timeout</span><span class="op">&lt;</span><span class="ident">RE</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">DeviceCodeErrorResponse</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">DeviceCodeErrorResponse</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">RE</span>: <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
@@ -5561,26 +5561,26 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// REQUIRED. The access token issued by the authorization server.</span>
     <span class="doccomment">///</span>
-    <span class="kw">fn</span> <span class="ident">access_token</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">AccessToken</span>;
+    <span class="kw">fn</span> <span class="ident">access_token</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">AccessToken</span>;
     <span class="doccomment">///</span>
     <span class="doccomment">/// REQUIRED. The type of the token issued as described in</span>
     <span class="doccomment">/// [Section 7.1](https://tools.ietf.org/html/rfc6749#section-7.1).</span>
     <span class="doccomment">/// Value is case insensitive and deserialized to the generic `TokenType` parameter.</span>
     <span class="doccomment">///</span>
-    <span class="kw">fn</span> <span class="ident">token_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">TT</span>;
+    <span class="kw">fn</span> <span class="ident">token_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">TT</span>;
     <span class="doccomment">///</span>
     <span class="doccomment">/// RECOMMENDED. The lifetime in seconds of the access token. For example, the value 3600</span>
     <span class="doccomment">/// denotes that the access token will expire in one hour from the time the response was</span>
     <span class="doccomment">/// generated. If omitted, the authorization server SHOULD provide the expiration time via</span>
     <span class="doccomment">/// other means or document the default value.</span>
     <span class="doccomment">///</span>
-    <span class="kw">fn</span> <span class="ident">expires_in</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">expires_in</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>;
     <span class="doccomment">///</span>
     <span class="doccomment">/// OPTIONAL. The refresh token, which can be used to obtain new access tokens using the same</span>
     <span class="doccomment">/// authorization grant as described in</span>
     <span class="doccomment">/// [Section 6](https://tools.ietf.org/html/rfc6749#section-6).</span>
     <span class="doccomment">///</span>
-    <span class="kw">fn</span> <span class="ident">refresh_token</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">RefreshToken</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">refresh_token</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">RefreshToken</span><span class="op">&gt;</span>;
     <span class="doccomment">///</span>
     <span class="doccomment">/// OPTIONAL, if identical to the scope requested by the client; otherwise, REQUIRED. The</span>
     <span class="doccomment">/// scope of the access token as described by</span>
@@ -5588,7 +5588,7 @@
     <span class="doccomment">/// this space-delimited field is parsed into a `Vec` of individual scopes. If omitted from</span>
     <span class="doccomment">/// the response, this field is `None`.</span>
     <span class="doccomment">///</span>
-    <span class="kw">fn</span> <span class="ident">scopes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Scope</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">scopes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Scope</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 }
 
 <span class="doccomment">///</span>
@@ -5631,7 +5631,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Instantiate a new OAuth2 token response.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">access_token</span>: <span class="ident">AccessToken</span>, <span class="ident">token_type</span>: <span class="ident">TT</span>, <span class="ident">extra_fields</span>: <span class="ident">EF</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">access_token</span>: <span class="ident">AccessToken</span>, <span class="ident">token_type</span>: <span class="ident">TT</span>, <span class="ident">extra_fields</span>: <span class="ident">EF</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">access_token</span>,
             <span class="ident">token_type</span>,
@@ -5680,7 +5680,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Extra fields defined by the client application.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extra_fields</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">EF</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extra_fields</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">EF</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">extra_fields</span>
     }
 
@@ -5699,7 +5699,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// REQUIRED. The access token issued by the authorization server.</span>
     <span class="doccomment">///</span>
-    <span class="kw">fn</span> <span class="ident">access_token</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">AccessToken</span> {
+    <span class="kw">fn</span> <span class="ident">access_token</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">AccessToken</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">access_token</span>
     }
     <span class="doccomment">///</span>
@@ -5707,7 +5707,7 @@
     <span class="doccomment">/// [Section 7.1](https://tools.ietf.org/html/rfc6749#section-7.1).</span>
     <span class="doccomment">/// Value is case insensitive and deserialized to the generic `TokenType` parameter.</span>
     <span class="doccomment">///</span>
-    <span class="kw">fn</span> <span class="ident">token_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">TT</span> {
+    <span class="kw">fn</span> <span class="ident">token_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">TT</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">token_type</span>
     }
     <span class="doccomment">///</span>
@@ -5716,7 +5716,7 @@
     <span class="doccomment">/// generated. If omitted, the authorization server SHOULD provide the expiration time via</span>
     <span class="doccomment">/// other means or document the default value.</span>
     <span class="doccomment">///</span>
-    <span class="kw">fn</span> <span class="ident">expires_in</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">expires_in</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">expires_in</span>.<span class="ident">map</span>(<span class="ident">Duration::from_secs</span>)
     }
     <span class="doccomment">///</span>
@@ -5724,7 +5724,7 @@
     <span class="doccomment">/// authorization grant as described in</span>
     <span class="doccomment">/// [Section 6](https://tools.ietf.org/html/rfc6749#section-6).</span>
     <span class="doccomment">///</span>
-    <span class="kw">fn</span> <span class="ident">refresh_token</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">RefreshToken</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">refresh_token</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">RefreshToken</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">refresh_token</span>.<span class="ident">as_ref</span>()
     }
     <span class="doccomment">///</span>
@@ -5734,7 +5734,7 @@
     <span class="doccomment">/// this space-delimited field is parsed into a `Vec` of individual scopes. If omitted from</span>
     <span class="doccomment">/// the response, this field is `None`.</span>
     <span class="doccomment">///</span>
-    <span class="kw">fn</span> <span class="ident">scopes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Scope</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">scopes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Scope</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">scopes</span>.<span class="ident">as_ref</span>()
     }
 }
@@ -5762,7 +5762,7 @@
     <span class="doccomment">/// given time window of validity (e.g., after its issuance time and</span>
     <span class="doccomment">/// before its expiration time).</span>
     <span class="doccomment">///</span>
-    <span class="kw">fn</span> <span class="ident">active</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>;
+    <span class="kw">fn</span> <span class="ident">active</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
     <span class="doccomment">///</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// OPTIONAL.  A JSON string containing a space-separated list of</span>
@@ -5772,63 +5772,63 @@
     <span class="doccomment">/// this space-delimited field is parsed into a `Vec` of individual scopes. If omitted from</span>
     <span class="doccomment">/// the response, this field is `None`.</span>
     <span class="doccomment">///</span>
-    <span class="kw">fn</span> <span class="ident">scopes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Scope</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">scopes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Scope</span><span class="op">&gt;</span><span class="op">&gt;</span>;
     <span class="doccomment">///</span>
     <span class="doccomment">/// OPTIONAL.  Client identifier for the OAuth 2.0 client that</span>
     <span class="doccomment">/// requested this token.</span>
     <span class="doccomment">///</span>
-    <span class="kw">fn</span> <span class="ident">client_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ClientId</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">client_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ClientId</span><span class="op">&gt;</span>;
     <span class="doccomment">///</span>
     <span class="doccomment">/// OPTIONAL.  Human-readable identifier for the resource owner who</span>
     <span class="doccomment">/// authorized this token.</span>
     <span class="doccomment">///</span>
-    <span class="kw">fn</span> <span class="ident">username</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">username</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>;
     <span class="doccomment">///</span>
     <span class="doccomment">/// OPTIONAL.  Type of the token as defined in [Section 5.1](https://tools.ietf.org/html/rfc7662#section-5.1) of OAuth</span>
     <span class="doccomment">/// 2.0 [RFC6749].</span>
     <span class="doccomment">/// Value is case insensitive and deserialized to the generic `TokenType` parameter.</span>
     <span class="doccomment">///</span>
-    <span class="kw">fn</span> <span class="ident">token_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">TT</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">token_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">TT</span><span class="op">&gt;</span>;
     <span class="doccomment">///</span>
     <span class="doccomment">/// OPTIONAL.  Integer timestamp, measured in the number of seconds</span>
     <span class="doccomment">/// since January 1 1970 UTC, indicating when this token will expire,</span>
     <span class="doccomment">/// as defined in JWT [RFC7519](https://tools.ietf.org/html/rfc7519).</span>
     <span class="doccomment">///</span>
-    <span class="kw">fn</span> <span class="ident">exp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">exp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>;
     <span class="doccomment">///</span>
     <span class="doccomment">/// OPTIONAL.  Integer timestamp, measured in the number of seconds</span>
     <span class="doccomment">/// since January 1 1970 UTC, indicating when this token was</span>
     <span class="doccomment">/// originally issued, as defined in JWT [RFC7519](https://tools.ietf.org/html/rfc7519).</span>
     <span class="doccomment">///</span>
-    <span class="kw">fn</span> <span class="ident">iat</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">iat</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>;
     <span class="doccomment">///</span>
     <span class="doccomment">/// OPTIONAL.  Integer timestamp, measured in the number of seconds</span>
     <span class="doccomment">/// since January 1 1970 UTC, indicating when this token is not to be</span>
     <span class="doccomment">/// used before, as defined in JWT [RFC7519](https://tools.ietf.org/html/rfc7519).</span>
     <span class="doccomment">///</span>
-    <span class="kw">fn</span> <span class="ident">nbf</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">nbf</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>;
     <span class="doccomment">///</span>
     <span class="doccomment">/// OPTIONAL.  Subject of the token, as defined in JWT [RFC7519](https://tools.ietf.org/html/rfc7519).</span>
     <span class="doccomment">/// Usually a machine-readable identifier of the resource owner who</span>
     <span class="doccomment">/// authorized this token.</span>
     <span class="doccomment">///</span>
-    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>;
     <span class="doccomment">///</span>
     <span class="doccomment">/// OPTIONAL.  Service-specific string identifier or list of string</span>
     <span class="doccomment">/// identifiers representing the intended audience for this token, as</span>
     <span class="doccomment">/// defined in JWT [RFC7519](https://tools.ietf.org/html/rfc7519).</span>
     <span class="doccomment">///</span>
-    <span class="kw">fn</span> <span class="ident">aud</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">aud</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>;
     <span class="doccomment">///</span>
     <span class="doccomment">/// OPTIONAL.  String representing the issuer of this token, as</span>
     <span class="doccomment">/// defined in JWT [RFC7519](https://tools.ietf.org/html/rfc7519).</span>
     <span class="doccomment">///</span>
-    <span class="kw">fn</span> <span class="ident">iss</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">iss</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>;
     <span class="doccomment">///</span>
     <span class="doccomment">/// OPTIONAL.  String identifier for the token, as defined in JWT</span>
     <span class="doccomment">/// [RFC7519](https://tools.ietf.org/html/rfc7519).</span>
     <span class="doccomment">///</span>
-    <span class="kw">fn</span> <span class="ident">jti</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">jti</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>;
 }
 
 <span class="doccomment">///</span>
@@ -5890,7 +5890,7 @@
     <span class="ident">extra_fields</span>: <span class="ident">EF</span>,
 }
 
-<span class="kw">fn</span> <span class="ident">none_field</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">none_field</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="prelude-val">None</span>
 }
 
@@ -5902,7 +5902,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Instantiate a new OAuth2 token introspection response.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">active</span>: <span class="ident">bool</span>, <span class="ident">extra_fields</span>: <span class="ident">EF</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">active</span>: <span class="ident">bool</span>, <span class="ident">extra_fields</span>: <span class="ident">EF</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">active</span>,
 
@@ -5996,7 +5996,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Extra fields defined by the client application.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extra_fields</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">EF</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extra_fields</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">EF</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">extra_fields</span>
     }
     <span class="doccomment">///</span>
@@ -6011,51 +6011,51 @@
     <span class="ident">EF</span>: <span class="ident">ExtraTokenFields</span>,
     <span class="ident">TT</span>: <span class="ident">TokenType</span>,
 {
-    <span class="kw">fn</span> <span class="ident">active</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">active</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">active</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">scopes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Scope</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">scopes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Scope</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">scopes</span>.<span class="ident">as_ref</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">client_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ClientId</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">client_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ClientId</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">client_id</span>.<span class="ident">as_ref</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">username</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">username</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">username</span>.<span class="ident">as_deref</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">token_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">TT</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">token_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">TT</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">token_type</span>.<span class="ident">as_ref</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">exp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">exp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">exp</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">iat</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">iat</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">iat</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">nbf</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">nbf</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">nbf</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">sub</span>.<span class="ident">as_deref</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">aud</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">aud</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">aud</span>.<span class="ident">as_ref</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">iss</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">iss</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">iss</span>.<span class="ident">as_deref</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">jti</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">jti</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">jti</span>.<span class="ident">as_deref</span>()
     }
 }
@@ -6115,7 +6115,7 @@
     <span class="doccomment">///   the error. Values for the &quot;error_uri&quot; parameter MUST conform to the URI-reference</span>
     <span class="doccomment">///   syntax and thus MUST NOT include characters outside the set `%x21 / %x23-5B / %x5D-7E`.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">error</span>: <span class="ident">T</span>, <span class="ident">error_description</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">error_uri</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">error</span>: <span class="ident">T</span>, <span class="ident">error_description</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">error_uri</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">error</span>,
             <span class="ident">error_description</span>,
@@ -6127,7 +6127,7 @@
     <span class="doccomment">/// REQUIRED. A single ASCII error code deserialized to the generic parameter</span>
     <span class="doccomment">/// `ErrorResponseType`.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">error</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">T</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">error</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">T</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">error</span>
     }
     <span class="doccomment">///</span>
@@ -6135,7 +6135,7 @@
     <span class="doccomment">/// the client developer in understanding the error that occurred. Values for this</span>
     <span class="doccomment">/// parameter MUST NOT include characters outside the set `%x20-21 / %x23-5B / %x5D-7E`.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">error_description</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">error_description</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">String</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">error_description</span>.<span class="ident">as_ref</span>()
     }
     <span class="doccomment">///</span>
@@ -6144,7 +6144,7 @@
     <span class="doccomment">/// Values for the &quot;error_uri&quot; parameter MUST conform to the URI-reference syntax and</span>
     <span class="doccomment">/// thus MUST NOT include characters outside the set `%x21 / %x23-5B / %x5D-7E`.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">error_uri</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">error_uri</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">String</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">error_uri</span>.<span class="ident">as_ref</span>()
     }
 }
@@ -6155,7 +6155,7 @@
 <span class="kw">where</span>
     <span class="ident">TE</span>: <span class="ident">ErrorResponseType</span> <span class="op">+</span> <span class="ident">Display</span>,
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">FormatterError</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">FormatterError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">formatted</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">error</span>().<span class="ident">to_string</span>();
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">error_description</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">error_description</span>() {

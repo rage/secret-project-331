@@ -748,10 +748,10 @@
 }
 
 <span class="macro">macro_rules!</span> <span class="ident">compress</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">state</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">state</span>:<span class="ident">expr</span>) =&gt; {{
         <span class="macro">compress!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">state</span>.<span class="ident">v0</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">state</span>.<span class="ident">v1</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">state</span>.<span class="ident">v2</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">state</span>.<span class="ident">v3</span>)
     }};
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">v0</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">v1</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">v2</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">v3</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">v0</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">v1</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">v2</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">v3</span>:<span class="ident">expr</span>) =&gt; {{
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">v0</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">v0</span>.<span class="ident">wrapping_add</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">v1</span>);
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">v1</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">v1</span>.<span class="ident">rotate_left</span>(<span class="number">13</span>);
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">v1</span> <span class="op">^</span><span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">v0</span>;
@@ -775,7 +775,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// Unsafe because: unchecked indexing at i..i+size_of(int_ty)</span>
 <span class="macro">macro_rules!</span> <span class="ident">load_int_le</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">buf</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">int_ty</span>:<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">buf</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">int_ty</span>:<span class="ident">ident</span>) =&gt; {{
         <span class="macro">debug_assert!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span> <span class="op">+</span> <span class="ident">mem::size_of</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">int_ty</span><span class="op">&gt;</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">buf</span>.<span class="ident">len</span>());
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> <span class="number">0</span> <span class="kw">as</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">int_ty</span>;
         <span class="ident">ptr::copy_nonoverlapping</span>(
@@ -791,7 +791,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// Unsafe because: unchecked indexing at start..start+len</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">u8to64_le</span>(<span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">start</span>: <span class="ident">usize</span>, <span class="ident">len</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u64</span> {
+<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">u8to64_le</span>(<span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">start</span>: <span class="ident">usize</span>, <span class="ident">len</span>: <span class="ident">usize</span>) -&gt; <span class="ident">u64</span> {
     <span class="macro">debug_assert!</span>(<span class="ident">len</span> <span class="op">&lt;</span> <span class="number">8</span>);
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="number">0</span>; <span class="comment">// current byte index (from LSB) in the output u64</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span> <span class="op">=</span> <span class="number">0</span>;
@@ -813,7 +813,7 @@
 
 <span class="kw">impl</span> <span class="ident">SipHasher128</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_with_keys</span>(<span class="ident">key0</span>: <span class="ident">u64</span>, <span class="ident">key1</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SipHasher128</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_with_keys</span>(<span class="ident">key0</span>: <span class="ident">u64</span>, <span class="ident">key1</span>: <span class="ident">u64</span>) -&gt; <span class="ident">SipHasher128</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">SipHasher128</span> {
             <span class="ident">k0</span>: <span class="ident">key0</span>,
             <span class="ident">k1</span>: <span class="ident">key1</span>,
@@ -858,7 +858,7 @@
 
         <span class="kw">let</span> <span class="ident">needed</span> <span class="op">=</span> <span class="number">8</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">ntail</span>;
         <span class="kw">let</span> <span class="ident">fill</span> <span class="op">=</span> <span class="ident">cmp::min</span>(<span class="ident">length</span>, <span class="ident">needed</span>);
-        <span class="kw">if</span> <span class="ident">fill</span> <span class="op">=</span><span class="op">=</span> <span class="number">8</span> {
+        <span class="kw">if</span> <span class="ident">fill</span> <span class="op">==</span> <span class="number">8</span> {
             <span class="self">self</span>.<span class="ident">tail</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="macro">load_int_le!</span>(<span class="ident">msg</span>, <span class="number">0</span>, <span class="ident">u64</span>) };
         } <span class="kw">else</span> {
             <span class="self">self</span>.<span class="ident">tail</span> <span class="op">|</span><span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">u8to64_le</span>(<span class="ident">msg</span>, <span class="number">0</span>, <span class="ident">fill</span>) } <span class="op">&lt;</span><span class="op">&lt;</span> (<span class="number">8</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">ntail</span>);
@@ -884,7 +884,7 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">finish128</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">u64</span>, <span class="ident">u64</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">finish128</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; (<span class="ident">u64</span>, <span class="ident">u64</span>) {
         <span class="kw">let</span> <span class="ident">b</span>: <span class="ident">u64</span> <span class="op">=</span> ((<span class="self">self</span>.<span class="ident">length</span> <span class="kw">as</span> <span class="ident">u64</span> <span class="op">&amp;</span> <span class="number">0xff</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">56</span>) <span class="op">|</span> <span class="self">self</span>.<span class="ident">tail</span>;
 
         <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">v3</span> <span class="op">^</span><span class="op">=</span> <span class="ident">b</span>;
@@ -993,7 +993,7 @@
         <span class="self">self</span>.<span class="ident">ntail</span> <span class="op">=</span> <span class="ident">left</span>;
     }
 
-    <span class="kw">fn</span> <span class="ident">finish</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u64</span> {
+    <span class="kw">fn</span> <span class="ident">finish</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u64</span> {
         <span class="macro">panic!</span>(<span class="string">&quot;SipHasher128 cannot provide valid 64 bit hashes&quot;</span>)
     }
 }
@@ -1037,12 +1037,12 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">hash_with</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Hash</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">st</span>: <span class="ident">SipHasher128</span>, <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">u64</span>, <span class="ident">u64</span>) {
+    <span class="kw">fn</span> <span class="ident">hash_with</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Hash</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">st</span>: <span class="ident">SipHasher128</span>, <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; (<span class="ident">u64</span>, <span class="ident">u64</span>) {
         <span class="ident">x</span>.<span class="ident">hash</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">st</span>);
         <span class="ident">st</span>.<span class="ident">finish128</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">hash</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Hash</span><span class="op">&gt;</span>(<span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">u64</span>, <span class="ident">u64</span>) {
+    <span class="kw">fn</span> <span class="ident">hash</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Hash</span><span class="op">&gt;</span>(<span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; (<span class="ident">u64</span>, <span class="ident">u64</span>) {
         <span class="ident">hash_with</span>(<span class="ident">SipHasher128::new_with_keys</span>(<span class="number">0</span>, <span class="number">0</span>), <span class="ident">x</span>)
     }
 
@@ -1382,7 +1382,7 @@
         <span class="macro">assert!</span>(<span class="ident">hash</span>(<span class="kw-2">&amp;</span><span class="ident">val</span>) <span class="op">!</span><span class="op">=</span> <span class="ident">hash</span>(<span class="kw-2">&amp;</span><span class="ident">zero_byte</span>(<span class="ident">val</span>, <span class="number">6</span>)));
         <span class="macro">assert!</span>(<span class="ident">hash</span>(<span class="kw-2">&amp;</span><span class="ident">val</span>) <span class="op">!</span><span class="op">=</span> <span class="ident">hash</span>(<span class="kw-2">&amp;</span><span class="ident">zero_byte</span>(<span class="ident">val</span>, <span class="number">7</span>)));
 
-        <span class="kw">fn</span> <span class="ident">zero_byte</span>(<span class="ident">val</span>: <span class="ident">u64</span>, <span class="ident">byte</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u64</span> {
+        <span class="kw">fn</span> <span class="ident">zero_byte</span>(<span class="ident">val</span>: <span class="ident">u64</span>, <span class="ident">byte</span>: <span class="ident">usize</span>) -&gt; <span class="ident">u64</span> {
             <span class="macro">assert!</span>(<span class="ident">byte</span> <span class="op">&lt;</span> <span class="number">8</span>);
             <span class="ident">val</span> <span class="op">&amp;</span> <span class="op">!</span>(<span class="number">0xff</span> <span class="op">&lt;</span><span class="op">&lt;</span> (<span class="ident">byte</span> <span class="op">*</span> <span class="number">8</span>))
         }
@@ -1397,7 +1397,7 @@
         <span class="macro">assert!</span>(<span class="ident">hash</span>(<span class="kw-2">&amp;</span><span class="ident">val</span>) <span class="op">!</span><span class="op">=</span> <span class="ident">hash</span>(<span class="kw-2">&amp;</span><span class="ident">zero_byte</span>(<span class="ident">val</span>, <span class="number">2</span>)));
         <span class="macro">assert!</span>(<span class="ident">hash</span>(<span class="kw-2">&amp;</span><span class="ident">val</span>) <span class="op">!</span><span class="op">=</span> <span class="ident">hash</span>(<span class="kw-2">&amp;</span><span class="ident">zero_byte</span>(<span class="ident">val</span>, <span class="number">3</span>)));
 
-        <span class="kw">fn</span> <span class="ident">zero_byte</span>(<span class="ident">val</span>: <span class="ident">u32</span>, <span class="ident">byte</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+        <span class="kw">fn</span> <span class="ident">zero_byte</span>(<span class="ident">val</span>: <span class="ident">u32</span>, <span class="ident">byte</span>: <span class="ident">usize</span>) -&gt; <span class="ident">u32</span> {
             <span class="macro">assert!</span>(<span class="ident">byte</span> <span class="op">&lt;</span> <span class="number">4</span>);
             <span class="ident">val</span> <span class="op">&amp;</span> <span class="op">!</span>(<span class="number">0xff</span> <span class="op">&lt;</span><span class="op">&lt;</span> (<span class="ident">byte</span> <span class="op">*</span> <span class="number">8</span>))
         }

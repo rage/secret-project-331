@@ -1645,20 +1645,20 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Mode</span> {
-    <span class="kw">fn</span> <span class="ident">trait_name</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
+    <span class="kw">fn</span> <span class="ident">trait_name</span>(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Mode::Fold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Fold&quot;</span>,
-            <span class="ident">Mode::VisitAll</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;VisitAll&quot;</span>,
-            <span class="ident">Mode::Visit</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Visit&quot;</span>,
-            <span class="ident">Mode::VisitMut</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;VisitMut&quot;</span>,
+            <span class="ident">Mode::Fold</span> =&gt; <span class="string">&quot;Fold&quot;</span>,
+            <span class="ident">Mode::VisitAll</span> =&gt; <span class="string">&quot;VisitAll&quot;</span>,
+            <span class="ident">Mode::Visit</span> =&gt; <span class="string">&quot;Visit&quot;</span>,
+            <span class="ident">Mode::VisitMut</span> =&gt; <span class="string">&quot;VisitMut&quot;</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">prefix</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
+    <span class="kw">fn</span> <span class="ident">prefix</span>(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Mode::Fold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;fold&quot;</span>,
-            <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;visit&quot;</span>,
-            <span class="ident">Mode::VisitMut</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;visit_mut&quot;</span>,
+            <span class="ident">Mode::Fold</span> =&gt; <span class="string">&quot;fold&quot;</span>,
+            <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> =&gt; <span class="string">&quot;visit&quot;</span>,
+            <span class="ident">Mode::VisitMut</span> =&gt; <span class="string">&quot;visit_mut&quot;</span>,
         }
     }
 }
@@ -1671,7 +1671,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">///  - create `Visit`, `VisitAll`, `VisitMut`, `Fold`</span>
 <span class="attribute">#[<span class="ident">proc_macro</span>]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">define</span>(<span class="ident">tts</span>: <span class="ident">proc_macro::TokenStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">proc_macro::TokenStream</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">define</span>(<span class="ident">tts</span>: <span class="ident">proc_macro::TokenStream</span>) -&gt; <span class="ident">proc_macro::TokenStream</span> {
     <span class="kw">let</span> <span class="ident">block</span>: <span class="ident">Block</span> <span class="op">=</span> <span class="ident">parse</span>(<span class="ident">tts</span>.<span class="ident">into</span>());
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">q</span> <span class="op">=</span> <span class="ident">Quote::new_call_site</span>();
@@ -1683,20 +1683,20 @@
     <span class="ident">proc_macro2::TokenStream::from</span>(<span class="ident">q</span>).<span class="ident">into</span>()
 }
 
-<span class="kw">fn</span> <span class="ident">make</span>(<span class="ident">mode</span>: <span class="ident">Mode</span>, <span class="ident">stmts</span>: <span class="kw-2">&amp;</span>[<span class="ident">Stmt</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Quote</span> {
+<span class="kw">fn</span> <span class="ident">make</span>(<span class="ident">mode</span>: <span class="ident">Mode</span>, <span class="ident">stmts</span>: <span class="kw-2">&amp;</span>[<span class="ident">Stmt</span>]) -&gt; <span class="ident">Quote</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">types</span> <span class="op">=</span> <span class="macro">vec!</span>[];
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">methods</span> <span class="op">=</span> <span class="macro">vec!</span>[];
 
     <span class="kw">for</span> <span class="ident">stmts</span> <span class="kw">in</span> <span class="ident">stmts</span> {
         <span class="kw">let</span> <span class="ident">item</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">stmts</span> {
-            <span class="ident">Stmt::Item</span>(<span class="ident">item</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">item</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;error reporting for something other than Item&quot;</span>),
+            <span class="ident">Stmt::Item</span>(<span class="ident">item</span>) =&gt; <span class="ident">item</span>,
+            <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;error reporting for something other than Item&quot;</span>),
         };
 
         <span class="kw">let</span> <span class="ident">mtd</span> <span class="op">=</span> <span class="ident">make_method</span>(<span class="ident">mode</span>, <span class="ident">item</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">types</span>);
         <span class="kw">let</span> <span class="ident">mtd</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">mtd</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">v</span>,
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">continue</span>,
+            <span class="prelude-val">Some</span>(<span class="ident">v</span>) =&gt; <span class="ident">v</span>,
+            <span class="prelude-val">None</span> =&gt; <span class="kw">continue</span>,
         };
 
         <span class="ident">methods</span>.<span class="ident">push</span>(<span class="ident">mtd</span>);
@@ -1729,7 +1729,7 @@
         <span class="kw">let</span> <span class="ident">sig</span> <span class="op">=</span> <span class="ident">create_method_sig</span>(<span class="ident">mode</span>, <span class="ident">ty</span>);
         <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">sig</span>.<span class="ident">ident</span>.<span class="ident">clone</span>();
         <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">name</span>.<span class="ident">to_string</span>();
-        <span class="kw">if</span> <span class="ident">methods</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="ident">m</span>.<span class="ident">sig</span>.<span class="ident">ident</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">s</span>) {
+        <span class="kw">if</span> <span class="ident">methods</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="ident">m</span>.<span class="ident">sig</span>.<span class="ident">ident</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">s</span>) {
             <span class="kw">continue</span>;
         }
 
@@ -1750,10 +1750,10 @@
         {
             <span class="comment">// &amp;&#39;_ mut V, Box&lt;V&gt;</span>
             <span class="kw">let</span> <span class="ident">block</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">mode</span> {
-                <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> =&gt; {
                     <span class="macro">q!</span>(<span class="ident">Vars</span> { <span class="ident">visit</span>: <span class="kw-2">&amp;</span><span class="ident">name</span> }, ({ (<span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">visit</span>(<span class="ident">n</span>, <span class="ident">_parent</span>) })).<span class="ident">parse</span>()
                 }
-                <span class="ident">Mode::Fold</span> <span class="op">|</span> <span class="ident">Mode::VisitMut</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Mode::Fold</span> <span class="op">|</span> <span class="ident">Mode::VisitMut</span> =&gt; {
                     <span class="macro">q!</span>(<span class="ident">Vars</span> { <span class="ident">visit</span>: <span class="kw-2">&amp;</span><span class="ident">name</span> }, ({ (<span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">visit</span>(<span class="ident">n</span>) })).<span class="ident">parse</span>()
                 }
             };
@@ -1776,22 +1776,22 @@
                 <span class="ident">defaultness</span>: <span class="prelude-val">None</span>,
                 <span class="ident">sig</span>: <span class="ident">sig</span>.<span class="ident">clone</span>(),
                 <span class="ident">block</span>: <span class="kw">match</span> <span class="ident">mode</span> {
-                    <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">q!</span>(
+                    <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> =&gt; <span class="macro">q!</span>(
                         <span class="ident">Vars</span> { <span class="ident">visit</span>: <span class="kw-2">&amp;</span><span class="ident">name</span> },
                         ({
                             <span class="kw">match</span> <span class="self">self</span> {
-                                <span class="ident">swc_visit::Either::Left</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">v</span>.<span class="ident">visit</span>(<span class="ident">n</span>, <span class="ident">_parent</span>),
-                                <span class="ident">swc_visit::Either::Right</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">v</span>.<span class="ident">visit</span>(<span class="ident">n</span>, <span class="ident">_parent</span>),
+                                <span class="ident">swc_visit::Either::Left</span>(<span class="ident">v</span>) =&gt; <span class="ident">v</span>.<span class="ident">visit</span>(<span class="ident">n</span>, <span class="ident">_parent</span>),
+                                <span class="ident">swc_visit::Either::Right</span>(<span class="ident">v</span>) =&gt; <span class="ident">v</span>.<span class="ident">visit</span>(<span class="ident">n</span>, <span class="ident">_parent</span>),
                             }
                         })
                     )
                     .<span class="ident">parse</span>(),
-                    <span class="ident">Mode::Fold</span> <span class="op">|</span> <span class="ident">Mode::VisitMut</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">q!</span>(
+                    <span class="ident">Mode::Fold</span> <span class="op">|</span> <span class="ident">Mode::VisitMut</span> =&gt; <span class="macro">q!</span>(
                         <span class="ident">Vars</span> { <span class="ident">fold</span>: <span class="kw-2">&amp;</span><span class="ident">name</span> },
                         ({
                             <span class="kw">match</span> <span class="self">self</span> {
-                                <span class="ident">swc_visit::Either::Left</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">v</span>.<span class="ident">fold</span>(<span class="ident">n</span>),
-                                <span class="ident">swc_visit::Either::Right</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">v</span>.<span class="ident">fold</span>(<span class="ident">n</span>),
+                                <span class="ident">swc_visit::Either::Left</span>(<span class="ident">v</span>) =&gt; <span class="ident">v</span>.<span class="ident">fold</span>(<span class="ident">n</span>),
+                                <span class="ident">swc_visit::Either::Right</span>(<span class="ident">v</span>) =&gt; <span class="ident">v</span>.<span class="ident">fold</span>(<span class="ident">n</span>),
                             }
                         })
                     )
@@ -1809,7 +1809,7 @@
                 <span class="ident">defaultness</span>: <span class="prelude-val">None</span>,
                 <span class="ident">sig</span>: <span class="ident">sig</span>.<span class="ident">clone</span>(),
                 <span class="ident">block</span>: <span class="kw">match</span> <span class="ident">mode</span> {
-                    <span class="ident">Mode::VisitAll</span> <span class="op">|</span> <span class="ident">Mode::Visit</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">q!</span>(
+                    <span class="ident">Mode::VisitAll</span> <span class="op">|</span> <span class="ident">Mode::Visit</span> =&gt; <span class="macro">q!</span>(
                         <span class="ident">Vars</span> { <span class="ident">visit</span>: <span class="kw-2">&amp;</span><span class="ident">name</span> },
                         ({
                             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">enabled</span> {
@@ -1818,7 +1818,7 @@
                         })
                     )
                     .<span class="ident">parse</span>(),
-                    <span class="ident">Mode::VisitMut</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">q!</span>(
+                    <span class="ident">Mode::VisitMut</span> =&gt; <span class="macro">q!</span>(
                         <span class="ident">Vars</span> { <span class="ident">visit</span>: <span class="kw-2">&amp;</span><span class="ident">name</span> },
                         ({
                             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">enabled</span> {
@@ -1827,7 +1827,7 @@
                         })
                     )
                     .<span class="ident">parse</span>(),
-                    <span class="ident">Mode::Fold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">q!</span>(
+                    <span class="ident">Mode::Fold</span> =&gt; <span class="macro">q!</span>(
                         <span class="ident">Vars</span> { <span class="ident">fold</span>: <span class="kw-2">&amp;</span><span class="ident">name</span> },
                         ({
                             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">enabled</span> {
@@ -1875,19 +1875,19 @@
         <span class="kw">let</span> <span class="ident">default_body</span> <span class="op">=</span> <span class="ident">replace</span>(
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">v</span>.<span class="ident">default</span>,
             <span class="prelude-val">Some</span>(<span class="kw">match</span> <span class="ident">mode</span> {
-                <span class="ident">Mode::Fold</span> <span class="op">|</span> <span class="ident">Mode::VisitMut</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">q!</span>(<span class="ident">Vars</span> { <span class="ident">fn_name</span>: <span class="kw-2">&amp;</span><span class="ident">fn_name</span> }, {
+                <span class="ident">Mode::Fold</span> <span class="op">|</span> <span class="ident">Mode::VisitMut</span> =&gt; <span class="macro">q!</span>(<span class="ident">Vars</span> { <span class="ident">fn_name</span>: <span class="kw-2">&amp;</span><span class="ident">fn_name</span> }, {
                     {
                         <span class="ident">fn_name</span>(<span class="self">self</span>, <span class="ident">n</span>)
                     }
                 })
                 .<span class="ident">parse</span>(),
-                <span class="ident">Mode::Visit</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">q!</span>(<span class="ident">Vars</span> { <span class="ident">fn_name</span>: <span class="kw-2">&amp;</span><span class="ident">fn_name</span> }, {
+                <span class="ident">Mode::Visit</span> =&gt; <span class="macro">q!</span>(<span class="ident">Vars</span> { <span class="ident">fn_name</span>: <span class="kw-2">&amp;</span><span class="ident">fn_name</span> }, {
                     {
                         <span class="ident">fn_name</span>(<span class="self">self</span>, <span class="ident">n</span>, <span class="ident">_parent</span>)
                     }
                 })
                 .<span class="ident">parse</span>(),
-                <span class="ident">Mode::VisitAll</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Block</span> {
+                <span class="ident">Mode::VisitAll</span> =&gt; <span class="ident">Block</span> {
                     <span class="ident">brace_token</span>: <span class="ident">def_site</span>(),
                     <span class="ident">stmts</span>: <span class="ident">Default::default</span>(),
                 },
@@ -1902,13 +1902,13 @@
             .<span class="ident">skip</span>(<span class="number">1</span>)
             .<span class="ident">next</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">v</span> {
-                <span class="ident">FnArg::Typed</span>(<span class="kw-2">ref</span> <span class="ident">pat</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">pat</span>.<span class="ident">ty</span>,
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                <span class="ident">FnArg::Typed</span>(<span class="kw-2">ref</span> <span class="ident">pat</span>) =&gt; <span class="kw-2">&amp;</span><span class="ident">pat</span>.<span class="ident">ty</span>,
+                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
             })
             .<span class="ident">unwrap</span>();
 
         <span class="kw">match</span> <span class="ident">mode</span> {
-            <span class="ident">Mode::Fold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">tokens</span>.<span class="ident">push_tokens</span>(<span class="kw-2">&amp;</span><span class="macro">q!</span>(
+            <span class="ident">Mode::Fold</span> =&gt; <span class="ident">tokens</span>.<span class="ident">push_tokens</span>(<span class="kw-2">&amp;</span><span class="macro">q!</span>(
                 <span class="ident">Vars</span> {
                     <span class="ident">fn_name</span>,
                     <span class="ident">default_body</span>,
@@ -1917,13 +1917,13 @@
                 },
                 {
                     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
-                    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fn_name</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Trait</span><span class="op">&gt;</span>(<span class="ident">_visitor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">V</span>, <span class="ident">n</span>: <span class="ident">Type</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
+                    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fn_name</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Trait</span><span class="op">&gt;</span>(<span class="ident">_visitor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">V</span>, <span class="ident">n</span>: <span class="ident">Type</span>) -&gt; <span class="ident">Type</span> {
                         <span class="ident">default_body</span>
                     }
                 }
             )),
 
-            <span class="ident">Mode::VisitMut</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">tokens</span>.<span class="ident">push_tokens</span>(<span class="kw-2">&amp;</span><span class="macro">q!</span>(
+            <span class="ident">Mode::VisitMut</span> =&gt; <span class="ident">tokens</span>.<span class="ident">push_tokens</span>(<span class="kw-2">&amp;</span><span class="macro">q!</span>(
                 <span class="ident">Vars</span> {
                     <span class="ident">fn_name</span>,
                     <span class="ident">default_body</span>,
@@ -1938,7 +1938,7 @@
                 }
             )),
 
-            <span class="ident">Mode::Visit</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">tokens</span>.<span class="ident">push_tokens</span>(<span class="kw-2">&amp;</span><span class="macro">q!</span>(
+            <span class="ident">Mode::Visit</span> =&gt; <span class="ident">tokens</span>.<span class="ident">push_tokens</span>(<span class="kw-2">&amp;</span><span class="macro">q!</span>(
                 <span class="ident">Vars</span> {
                     <span class="ident">fn_name</span>,
                     <span class="ident">default_body</span>,
@@ -1957,7 +1957,7 @@
                 }
             )),
 
-            <span class="ident">Mode::VisitAll</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            <span class="ident">Mode::VisitAll</span> =&gt; {}
         }
     });
 
@@ -2054,7 +2054,7 @@
     }
 
     <span class="comment">// impl Visit for swc_visit::All&lt;V&gt; where V: VisitAll</span>
-    <span class="kw">if</span> <span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Mode::VisitAll</span> {
+    <span class="kw">if</span> <span class="ident">mode</span> <span class="op">==</span> <span class="ident">Mode::VisitAll</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">item</span> <span class="op">=</span> <span class="macro">q!</span>(
             <span class="ident">Vars</span> {
                 <span class="ident">Trait</span>: <span class="ident">Ident::new</span>(<span class="ident">mode</span>.<span class="ident">trait_name</span>(), <span class="ident">call_site</span>()),
@@ -2078,7 +2078,7 @@
         <span class="comment">// Add FoldWith, VisitWith</span>
 
         <span class="kw">let</span> <span class="ident">trait_decl</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">mode</span> {
-            <span class="ident">Mode::Visit</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">q!</span>({
+            <span class="ident">Mode::Visit</span> =&gt; <span class="macro">q!</span>({
                 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">VisitWith</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">Visit</span><span class="op">&gt;</span> {
                     <span class="kw">fn</span> <span class="ident">visit_with</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_parent</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Node</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">V</span>);
 
@@ -2102,7 +2102,7 @@
                     }
                 }
             }),
-            <span class="ident">Mode::VisitAll</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">q!</span>({
+            <span class="ident">Mode::VisitAll</span> =&gt; <span class="macro">q!</span>({
                 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">VisitAllWith</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">VisitAll</span><span class="op">&gt;</span> {
                     <span class="kw">fn</span> <span class="ident">visit_all_with</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_parent</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Node</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">V</span>);
 
@@ -2126,12 +2126,12 @@
                     }
                 }
             }),
-            <span class="ident">Mode::Fold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">q!</span>({
+            <span class="ident">Mode::Fold</span> =&gt; <span class="macro">q!</span>({
                 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">FoldWith</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">Fold</span><span class="op">&gt;</span> {
-                    <span class="kw">fn</span> <span class="ident">fold_with</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
+                    <span class="kw">fn</span> <span class="ident">fold_with</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">V</span>) -&gt; <span class="self">Self</span>;
 
                     <span class="doccomment">/// Visit children nodes of self with `v`</span>
-                    <span class="kw">fn</span> <span class="ident">fold_children_with</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
+                    <span class="kw">fn</span> <span class="ident">fold_children_with</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">V</span>) -&gt; <span class="self">Self</span>;
                 }
 
                 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">V</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">FoldWith</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
@@ -2139,17 +2139,17 @@
                     <span class="ident">V</span>: <span class="ident">Fold</span>,
                     <span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">FoldWith</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>,
                 {
-                    <span class="kw">fn</span> <span class="ident">fold_with</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+                    <span class="kw">fn</span> <span class="ident">fold_with</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">V</span>) -&gt; <span class="self">Self</span> {
                         <span class="ident">swc_visit::util::map::Map::map</span>(<span class="self">self</span>, <span class="op">|</span><span class="ident">value</span><span class="op">|</span> <span class="ident">value</span>.<span class="ident">fold_with</span>(<span class="ident">v</span>))
                     }
 
                     <span class="doccomment">/// Visit children nodes of self with `v`</span>
-                    <span class="kw">fn</span> <span class="ident">fold_children_with</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+                    <span class="kw">fn</span> <span class="ident">fold_children_with</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">V</span>) -&gt; <span class="self">Self</span> {
                         <span class="ident">swc_visit::util::map::Map::map</span>(<span class="self">self</span>, <span class="op">|</span><span class="ident">value</span><span class="op">|</span> <span class="ident">value</span>.<span class="ident">fold_children_with</span>(<span class="ident">v</span>))
                     }
                 }
             }),
-            <span class="ident">Mode::VisitMut</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">q!</span>({
+            <span class="ident">Mode::VisitMut</span> =&gt; <span class="macro">q!</span>({
                 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">VisitMutWith</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">VisitMut</span><span class="op">&gt;</span> {
                     <span class="kw">fn</span> <span class="ident">visit_mut_with</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">V</span>);
 
@@ -2194,7 +2194,7 @@
             <span class="kw">let</span> <span class="ident">expr</span> <span class="op">=</span> <span class="ident">visit_expr</span>(<span class="ident">mode</span>, <span class="ident">ty</span>, <span class="kw-2">&amp;</span><span class="macro">q!</span>({ <span class="ident">v</span> }).<span class="ident">parse</span>(), <span class="macro">q!</span>({ <span class="self">self</span> }).<span class="ident">parse</span>());
 
             <span class="kw">match</span> <span class="ident">mode</span> {
-                <span class="ident">Mode::Visit</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Mode::Visit</span> =&gt; {
                     <span class="kw">let</span> <span class="ident">default_body</span> <span class="op">=</span> <span class="ident">adjust_expr</span>(<span class="ident">mode</span>, <span class="ident">ty</span>, <span class="macro">q!</span>({ <span class="self">self</span> }).<span class="ident">parse</span>(), <span class="op">|</span><span class="ident">expr</span><span class="op">|</span> {
                         <span class="macro">q!</span>(
                             <span class="ident">Vars</span> {
@@ -2228,7 +2228,7 @@
                     ));
                 }
 
-                <span class="ident">Mode::VisitAll</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Mode::VisitAll</span> =&gt; {
                     <span class="kw">let</span> <span class="ident">default_body</span> <span class="op">=</span> <span class="ident">adjust_expr</span>(<span class="ident">mode</span>, <span class="ident">ty</span>, <span class="macro">q!</span>({ <span class="self">self</span> }).<span class="ident">parse</span>(), <span class="op">|</span><span class="ident">expr</span><span class="op">|</span> {
                         <span class="macro">q!</span>(
                             <span class="ident">Vars</span> {
@@ -2266,7 +2266,7 @@
                     ));
                 }
 
-                <span class="ident">Mode::VisitMut</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Mode::VisitMut</span> =&gt; {
                     <span class="kw">let</span> <span class="ident">default_body</span> <span class="op">=</span> <span class="ident">adjust_expr</span>(<span class="ident">mode</span>, <span class="ident">ty</span>, <span class="macro">q!</span>({ <span class="self">self</span> }).<span class="ident">parse</span>(), <span class="op">|</span><span class="ident">expr</span><span class="op">|</span> {
                         <span class="macro">q!</span>(
                             <span class="ident">Vars</span> {
@@ -2298,7 +2298,7 @@
                     ));
                 }
 
-                <span class="ident">Mode::Fold</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Mode::Fold</span> =&gt; {
                     <span class="ident">tokens</span>.<span class="ident">push_tokens</span>(<span class="kw-2">&amp;</span><span class="macro">q!</span>(
                         <span class="ident">Vars</span> {
                             <span class="ident">method_name</span>,
@@ -2307,11 +2307,11 @@
                         },
                         {
                             <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">Fold</span><span class="op">&gt;</span> <span class="ident">FoldWith</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Type</span> {
-                                <span class="kw">fn</span> <span class="ident">fold_with</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+                                <span class="kw">fn</span> <span class="ident">fold_with</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">V</span>) -&gt; <span class="self">Self</span> {
                                     <span class="ident">expr</span>
                                 }
 
-                                <span class="kw">fn</span> <span class="ident">fold_children_with</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+                                <span class="kw">fn</span> <span class="ident">fold_children_with</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">V</span>) -&gt; <span class="self">Self</span> {
                                     <span class="ident">method_name</span>(<span class="ident">v</span>, <span class="self">self</span>)
                                 }
                             }
@@ -2325,36 +2325,36 @@
     <span class="ident">tokens</span>
 }
 
-<span class="kw">fn</span> <span class="ident">adjust_expr</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="ident">mode</span>: <span class="ident">Mode</span>, <span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>, <span class="kw-2">mut</span> <span class="ident">expr</span>: <span class="ident">Expr</span>, <span class="ident">visit</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Expr</span>
+<span class="kw">fn</span> <span class="ident">adjust_expr</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="ident">mode</span>: <span class="ident">Mode</span>, <span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>, <span class="kw-2">mut</span> <span class="ident">expr</span>: <span class="ident">Expr</span>, <span class="ident">visit</span>: <span class="ident">F</span>) -&gt; <span class="ident">Expr</span>
 <span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">Expr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Expr</span>,
+    <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">Expr</span>) -&gt; <span class="ident">Expr</span>,
 {
     <span class="kw">if</span> <span class="ident">is_option</span>(<span class="kw-2">&amp;</span><span class="ident">ty</span>) {
         <span class="ident">expr</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">is_opt_vec</span>(<span class="ident">ty</span>) {
             <span class="kw">match</span> <span class="ident">mode</span> {
-                <span class="ident">Mode::Fold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">expr</span>,
-                <span class="ident">Mode::VisitMut</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">expr</span>,
-                <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Mode::Fold</span> =&gt; <span class="ident">expr</span>,
+                <span class="ident">Mode::VisitMut</span> =&gt; <span class="ident">expr</span>,
+                <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> =&gt; {
                     <span class="macro">q!</span>(<span class="ident">Vars</span> { <span class="ident">expr</span> }, { <span class="ident">expr</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">v</span>) }).<span class="ident">parse</span>()
                 }
             }
         } <span class="kw">else</span> {
             <span class="kw">match</span> <span class="ident">mode</span> {
-                <span class="ident">Mode::Fold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">expr</span>,
-                <span class="ident">Mode::VisitMut</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">expr</span>,
-                <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">q!</span>(<span class="ident">Vars</span> { <span class="ident">expr</span> }, { <span class="ident">expr</span>.<span class="ident">as_ref</span>() }).<span class="ident">parse</span>(),
+                <span class="ident">Mode::Fold</span> =&gt; <span class="ident">expr</span>,
+                <span class="ident">Mode::VisitMut</span> =&gt; <span class="ident">expr</span>,
+                <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> =&gt; <span class="macro">q!</span>(<span class="ident">Vars</span> { <span class="ident">expr</span> }, { <span class="ident">expr</span>.<span class="ident">as_ref</span>() }).<span class="ident">parse</span>(),
             }
         };
     }
 
     <span class="kw">if</span> <span class="ident">as_box</span>(<span class="ident">ty</span>).<span class="ident">is_some</span>() {
         <span class="ident">expr</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">mode</span> {
-            <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">expr</span>,
-            <span class="ident">Mode::VisitMut</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> =&gt; <span class="ident">expr</span>,
+            <span class="ident">Mode::VisitMut</span> =&gt; {
                 <span class="comment">// TODO</span>
                 <span class="ident">expr</span>
             }
-            <span class="ident">Mode::Fold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">q!</span>(<span class="ident">Vars</span> { <span class="ident">expr</span> }, { <span class="kw-2">*</span><span class="ident">expr</span> }).<span class="ident">parse</span>(),
+            <span class="ident">Mode::Fold</span> =&gt; <span class="macro">q!</span>(<span class="ident">Vars</span> { <span class="ident">expr</span> }, { <span class="kw-2">*</span><span class="ident">expr</span> }).<span class="ident">parse</span>(),
         };
     }
 
@@ -2362,12 +2362,12 @@
 
     <span class="kw">if</span> <span class="ident">as_box</span>(<span class="ident">ty</span>).<span class="ident">is_some</span>() {
         <span class="ident">expr</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">mode</span> {
-            <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">expr</span>,
-            <span class="ident">Mode::VisitMut</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> =&gt; <span class="ident">expr</span>,
+            <span class="ident">Mode::VisitMut</span> =&gt; {
                 <span class="comment">// TODO</span>
                 <span class="ident">expr</span>
             }
-            <span class="ident">Mode::Fold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">q!</span>(<span class="ident">Vars</span> { <span class="ident">expr</span> }, { <span class="ident">Box::new</span>(<span class="ident">expr</span>) }).<span class="ident">parse</span>(),
+            <span class="ident">Mode::Fold</span> =&gt; <span class="macro">q!</span>(<span class="ident">Vars</span> { <span class="ident">expr</span> }, { <span class="ident">Box::new</span>(<span class="ident">expr</span>) }).<span class="ident">parse</span>(),
         };
     }
 
@@ -2378,11 +2378,11 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// - `Box&lt;Expr&gt;` =&gt; visit(&amp;node) or Box::new(visit(*node))</span>
 <span class="doccomment">/// - `Vec&lt;Expr&gt;` =&gt; &amp;*node or</span>
-<span class="kw">fn</span> <span class="ident">visit_expr</span>(<span class="ident">mode</span>: <span class="ident">Mode</span>, <span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>, <span class="ident">visitor</span>: <span class="kw-2">&amp;</span><span class="ident">Expr</span>, <span class="ident">expr</span>: <span class="ident">Expr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Expr</span> {
+<span class="kw">fn</span> <span class="ident">visit_expr</span>(<span class="ident">mode</span>: <span class="ident">Mode</span>, <span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>, <span class="ident">visitor</span>: <span class="kw-2">&amp;</span><span class="ident">Expr</span>, <span class="ident">expr</span>: <span class="ident">Expr</span>) -&gt; <span class="ident">Expr</span> {
     <span class="kw">let</span> <span class="ident">visit_name</span> <span class="op">=</span> <span class="ident">method_name</span>(<span class="ident">mode</span>, <span class="ident">ty</span>);
 
     <span class="ident">adjust_expr</span>(<span class="ident">mode</span>, <span class="ident">ty</span>, <span class="ident">expr</span>, <span class="op">|</span><span class="ident">expr</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">mode</span> {
-        <span class="ident">Mode::Fold</span> <span class="op">|</span> <span class="ident">Mode::VisitMut</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">q!</span>(
+        <span class="ident">Mode::Fold</span> <span class="op">|</span> <span class="ident">Mode::VisitMut</span> =&gt; <span class="macro">q!</span>(
             <span class="ident">Vars</span> {
                 <span class="ident">visitor</span>,
                 <span class="ident">expr</span>,
@@ -2392,7 +2392,7 @@
         )
         .<span class="ident">parse</span>(),
 
-        <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">q!</span>(
+        <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> =&gt; <span class="macro">q!</span>(
             <span class="ident">Vars</span> {
                 <span class="ident">visitor</span>,
                 <span class="ident">expr</span>,
@@ -2404,7 +2404,7 @@
     })
 }
 
-<span class="kw">fn</span> <span class="ident">make_arm_from_struct</span>(<span class="ident">mode</span>: <span class="ident">Mode</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>, <span class="ident">variant</span>: <span class="kw-2">&amp;</span><span class="ident">Fields</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Arm</span> {
+<span class="kw">fn</span> <span class="ident">make_arm_from_struct</span>(<span class="ident">mode</span>: <span class="ident">Mode</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>, <span class="ident">variant</span>: <span class="kw-2">&amp;</span><span class="ident">Fields</span>) -&gt; <span class="ident">Arm</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stmts</span> <span class="op">=</span> <span class="macro">vec!</span>[];
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fields</span>: <span class="ident">Punctuated</span><span class="op">&lt;</span><span class="ident">FieldValue</span>, <span class="macro">Token!</span>[,]<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Default::default</span>();
 
@@ -2427,8 +2427,8 @@
 
             <span class="kw">let</span> <span class="ident">expr</span> <span class="op">=</span> <span class="ident">visit_expr</span>(<span class="ident">mode</span>, <span class="ident">ty</span>, <span class="kw-2">&amp;</span><span class="macro">q!</span>({ <span class="ident">_visitor</span> }).<span class="ident">parse</span>(), <span class="ident">expr</span>);
             <span class="ident">stmts</span>.<span class="ident">push</span>(<span class="kw">match</span> <span class="ident">mode</span> {
-                <span class="ident">Mode::VisitAll</span> <span class="op">|</span> <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitMut</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Stmt::Semi</span>(<span class="ident">expr</span>, <span class="ident">call_site</span>()),
-                <span class="ident">Mode::Fold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">q!</span>(
+                <span class="ident">Mode::VisitAll</span> <span class="op">|</span> <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitMut</span> =&gt; <span class="ident">Stmt::Semi</span>(<span class="ident">expr</span>, <span class="ident">call_site</span>()),
+                <span class="ident">Mode::Fold</span> =&gt; <span class="macro">q!</span>(
                     <span class="ident">Vars</span> {
                         <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">binding_ident</span>,
                         <span class="ident">expr</span>
@@ -2465,7 +2465,7 @@
     }
 
     <span class="kw">match</span> <span class="ident">mode</span> {
-        <span class="ident">Mode::Fold</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">Mode::Fold</span> =&gt; {
             <span class="comment">// Append return statement</span>
             <span class="ident">stmts</span>.<span class="ident">push</span>(
                 <span class="macro">q!</span>(
@@ -2481,7 +2481,7 @@
                 .<span class="ident">parse</span>(),
             )
         }
-        <span class="ident">Mode::VisitAll</span> <span class="op">|</span> <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitMut</span> <span class="op">=</span><span class="op">&gt;</span> {}
+        <span class="ident">Mode::VisitAll</span> <span class="op">|</span> <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitMut</span> =&gt; {}
     }
 
     <span class="kw">let</span> <span class="ident">block</span> <span class="op">=</span> <span class="ident">Block</span> {
@@ -2503,7 +2503,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">method_sig</span>(<span class="ident">mode</span>: <span class="ident">Mode</span>, <span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Signature</span> {
+<span class="kw">fn</span> <span class="ident">method_sig</span>(<span class="ident">mode</span>: <span class="ident">Mode</span>, <span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) -&gt; <span class="ident">Signature</span> {
     <span class="ident">Signature</span> {
         <span class="ident">constness</span>: <span class="prelude-val">None</span>,
         <span class="ident">asyncness</span>: <span class="prelude-val">None</span>,
@@ -2518,24 +2518,24 @@
             <span class="ident">p</span>.<span class="ident">push_value</span>(<span class="macro">q!</span>(<span class="ident">Vars</span> {}, { <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span> }).<span class="ident">parse</span>());
             <span class="ident">p</span>.<span class="ident">push_punct</span>(<span class="ident">def_site</span>());
             <span class="kw">match</span> <span class="ident">mode</span> {
-                <span class="ident">Mode::Fold</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Mode::Fold</span> =&gt; {
                     <span class="ident">p</span>.<span class="ident">push_value</span>(<span class="macro">q!</span>(<span class="ident">Vars</span> { <span class="ident">Type</span>: <span class="ident">ty</span> }, { <span class="ident">n</span>: <span class="ident">Type</span> }).<span class="ident">parse</span>());
                 }
 
-                <span class="ident">Mode::VisitMut</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Mode::VisitMut</span> =&gt; {
                     <span class="ident">p</span>.<span class="ident">push_value</span>(<span class="macro">q!</span>(<span class="ident">Vars</span> { <span class="ident">Type</span>: <span class="ident">ty</span> }, { <span class="ident">n</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Type</span> }).<span class="ident">parse</span>());
                 }
 
-                <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> =&gt; {
                     <span class="ident">p</span>.<span class="ident">push_value</span>(<span class="macro">q!</span>(<span class="ident">Vars</span> { <span class="ident">Type</span>: <span class="ident">ty</span> }, { <span class="ident">n</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span> }).<span class="ident">parse</span>());
                 }
             }
             <span class="kw">match</span> <span class="ident">mode</span> {
-                <span class="ident">Mode::Fold</span> <span class="op">|</span> <span class="ident">Mode::VisitMut</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Mode::Fold</span> <span class="op">|</span> <span class="ident">Mode::VisitMut</span> =&gt; {
                     <span class="comment">// We can not provide parent node because it&#39;s child node is</span>
                     <span class="comment">// part of the parent node.</span>
                 }
-                <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> =&gt; {
                     <span class="ident">p</span>.<span class="ident">push_punct</span>(<span class="ident">def_site</span>());
                     <span class="ident">p</span>.<span class="ident">push_value</span>(<span class="macro">q!</span>(<span class="ident">Vars</span> {}, { <span class="ident">_parent</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Node</span> }).<span class="ident">parse</span>());
                 }
@@ -2545,13 +2545,13 @@
         },
         <span class="ident">variadic</span>: <span class="prelude-val">None</span>,
         <span class="ident">output</span>: <span class="kw">match</span> <span class="ident">mode</span> {
-            <span class="ident">Mode::Fold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">q!</span>(<span class="ident">Vars</span> { <span class="ident">ty</span> }, { <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ty</span> }).<span class="ident">parse</span>(),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ReturnType::Default</span>,
+            <span class="ident">Mode::Fold</span> =&gt; <span class="macro">q!</span>(<span class="ident">Vars</span> { <span class="ident">ty</span> }, { -&gt; <span class="ident">ty</span> }).<span class="ident">parse</span>(),
+            <span class="kw">_</span> =&gt; <span class="ident">ReturnType::Default</span>,
         },
     }
 }
 
-<span class="kw">fn</span> <span class="ident">method_sig_from_ident</span>(<span class="ident">mode</span>: <span class="ident">Mode</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="ident">Ident</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Signature</span> {
+<span class="kw">fn</span> <span class="ident">method_sig_from_ident</span>(<span class="ident">mode</span>: <span class="ident">Mode</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="ident">Ident</span>) -&gt; <span class="ident">Signature</span> {
     <span class="ident">method_sig</span>(
         <span class="ident">mode</span>,
         <span class="kw-2">&amp;</span><span class="ident">Type::Path</span>(<span class="ident">TypePath</span> {
@@ -2562,9 +2562,9 @@
 }
 
 <span class="doccomment">/// Returns None if it&#39;s skipped.</span>
-<span class="kw">fn</span> <span class="ident">make_method</span>(<span class="ident">mode</span>: <span class="ident">Mode</span>, <span class="ident">e</span>: <span class="kw-2">&amp;</span><span class="ident">Item</span>, <span class="ident">types</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TraitItemMethod</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">make_method</span>(<span class="ident">mode</span>: <span class="ident">Mode</span>, <span class="ident">e</span>: <span class="kw-2">&amp;</span><span class="ident">Item</span>, <span class="ident">types</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TraitItemMethod</span><span class="op">&gt;</span> {
     <span class="prelude-val">Some</span>(<span class="kw">match</span> <span class="ident">e</span> {
-        <span class="ident">Item::Struct</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">Item::Struct</span>(<span class="ident">s</span>) =&gt; {
             <span class="kw">let</span> <span class="ident">type_name</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">s</span>.<span class="ident">ident</span>;
             <span class="ident">types</span>.<span class="ident">push</span>(<span class="ident">Type::Path</span>(<span class="ident">TypePath</span> {
                 <span class="ident">qself</span>: <span class="prelude-val">None</span>,
@@ -2599,7 +2599,7 @@
                 <span class="ident">semi_token</span>: <span class="prelude-val">None</span>,
             }
         }
-        <span class="ident">Item::Enum</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">Item::Enum</span>(<span class="ident">e</span>) =&gt; {
             <span class="comment">//</span>
             <span class="kw">let</span> <span class="ident">type_name</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">e</span>.<span class="ident">ident</span>;
 
@@ -2659,15 +2659,15 @@
             }
         }
 
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(
+        <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(
             <span class="string">&quot;proper error reporting for item other than struct / enum: {:?}&quot;</span>,
             <span class="ident">e</span>
         ),
     })
 }
 
-<span class="kw">fn</span> <span class="ident">create_method_sig</span>(<span class="ident">mode</span>: <span class="ident">Mode</span>, <span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Signature</span> {
-    <span class="kw">fn</span> <span class="ident">mk_exact</span>(<span class="ident">mode</span>: <span class="ident">Mode</span>, <span class="ident">ident</span>: <span class="ident">Ident</span>, <span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Signature</span> {
+<span class="kw">fn</span> <span class="ident">create_method_sig</span>(<span class="ident">mode</span>: <span class="ident">Mode</span>, <span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) -&gt; <span class="ident">Signature</span> {
+    <span class="kw">fn</span> <span class="ident">mk_exact</span>(<span class="ident">mode</span>: <span class="ident">Mode</span>, <span class="ident">ident</span>: <span class="ident">Ident</span>, <span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) -&gt; <span class="ident">Signature</span> {
         <span class="ident">Signature</span> {
             <span class="ident">constness</span>: <span class="prelude-val">None</span>,
             <span class="ident">asyncness</span>: <span class="prelude-val">None</span>,
@@ -2683,8 +2683,8 @@
                 <span class="ident">p</span>.<span class="ident">push_punct</span>(<span class="ident">def_site</span>());
                 <span class="ident">p</span>.<span class="ident">push_value</span>(<span class="macro">q!</span>(<span class="ident">Vars</span> { <span class="ident">Type</span>: <span class="ident">ty</span> }, { <span class="ident">n</span>: <span class="ident">Type</span> }).<span class="ident">parse</span>());
                 <span class="kw">match</span> <span class="ident">mode</span> {
-                    <span class="ident">Mode::Fold</span> <span class="op">|</span> <span class="ident">Mode::VisitMut</span> <span class="op">=</span><span class="op">&gt;</span> {}
-                    <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">Mode::Fold</span> <span class="op">|</span> <span class="ident">Mode::VisitMut</span> =&gt; {}
+                    <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> =&gt; {
                         <span class="ident">p</span>.<span class="ident">push_punct</span>(<span class="ident">def_site</span>());
                         <span class="ident">p</span>.<span class="ident">push_value</span>(<span class="macro">q!</span>(<span class="ident">Vars</span> {}, { <span class="ident">_parent</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Node</span> }).<span class="ident">parse</span>());
                     }
@@ -2694,13 +2694,13 @@
             },
             <span class="ident">variadic</span>: <span class="prelude-val">None</span>,
             <span class="ident">output</span>: <span class="kw">match</span> <span class="ident">mode</span> {
-                <span class="ident">Mode::Fold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">q!</span>(<span class="ident">Vars</span> { <span class="ident">ty</span> }, { <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ty</span> }).<span class="ident">parse</span>(),
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ReturnType::Default</span>,
+                <span class="ident">Mode::Fold</span> =&gt; <span class="macro">q!</span>(<span class="ident">Vars</span> { <span class="ident">ty</span> }, { -&gt; <span class="ident">ty</span> }).<span class="ident">parse</span>(),
+                <span class="kw">_</span> =&gt; <span class="ident">ReturnType::Default</span>,
             },
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">mk_ref</span>(<span class="ident">mode</span>: <span class="ident">Mode</span>, <span class="ident">ident</span>: <span class="ident">Ident</span>, <span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>, <span class="ident">mutable</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Signature</span> {
+    <span class="kw">fn</span> <span class="ident">mk_ref</span>(<span class="ident">mode</span>: <span class="ident">Mode</span>, <span class="ident">ident</span>: <span class="ident">Ident</span>, <span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>, <span class="ident">mutable</span>: <span class="ident">bool</span>) -&gt; <span class="ident">Signature</span> {
         <span class="ident">mk_exact</span>(
             <span class="ident">mode</span>,
             <span class="ident">ident</span>,
@@ -2714,15 +2714,15 @@
     }
 
     <span class="kw">match</span> <span class="ident">ty</span> {
-        <span class="ident">Type::Array</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;type: array type&quot;</span>),
-        <span class="ident">Type::BareFn</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;type: fn type&quot;</span>),
-        <span class="ident">Type::Group</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;type: group type&quot;</span>),
-        <span class="ident">Type::ImplTrait</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;type: impl trait&quot;</span>),
-        <span class="ident">Type::Infer</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(<span class="string">&quot;infer type&quot;</span>),
-        <span class="ident">Type::Macro</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;type: macro&quot;</span>),
-        <span class="ident">Type::Never</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(<span class="string">&quot;never type&quot;</span>),
-        <span class="ident">Type::Paren</span>(<span class="ident">ty</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">create_method_sig</span>(<span class="ident">mode</span>, <span class="kw-2">&amp;</span><span class="ident">ty</span>.<span class="ident">elem</span>),
-        <span class="ident">Type::Path</span>(<span class="ident">p</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">Type::Array</span>(<span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;type: array type&quot;</span>),
+        <span class="ident">Type::BareFn</span>(<span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;type: fn type&quot;</span>),
+        <span class="ident">Type::Group</span>(<span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;type: group type&quot;</span>),
+        <span class="ident">Type::ImplTrait</span>(<span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;type: impl trait&quot;</span>),
+        <span class="ident">Type::Infer</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;infer type&quot;</span>),
+        <span class="ident">Type::Macro</span>(<span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;type: macro&quot;</span>),
+        <span class="ident">Type::Never</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;never type&quot;</span>),
+        <span class="ident">Type::Paren</span>(<span class="ident">ty</span>) =&gt; <span class="kw">return</span> <span class="ident">create_method_sig</span>(<span class="ident">mode</span>, <span class="kw-2">&amp;</span><span class="ident">ty</span>.<span class="ident">elem</span>),
+        <span class="ident">Type::Path</span>(<span class="ident">p</span>) =&gt; {
             <span class="kw">let</span> <span class="ident">last</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">path</span>.<span class="ident">segments</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>();
             <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">method_name</span>(<span class="ident">mode</span>, <span class="ident">ty</span>);
 
@@ -2730,15 +2730,15 @@
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">arg</span>) <span class="op">=</span> <span class="ident">as_box</span>(<span class="kw-2">&amp;</span><span class="ident">ty</span>) {
                     <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">method_name</span>(<span class="ident">mode</span>, <span class="kw-2">&amp;</span><span class="ident">arg</span>);
                     <span class="kw">match</span> <span class="ident">mode</span> {
-                        <span class="ident">Mode::Fold</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">Mode::Fold</span> =&gt; {
                             <span class="kw">return</span> <span class="ident">mk_exact</span>(<span class="ident">mode</span>, <span class="ident">ident</span>, <span class="kw-2">&amp;</span><span class="ident">arg</span>);
                         }
 
-                        <span class="ident">Mode::VisitMut</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">Mode::VisitMut</span> =&gt; {
                             <span class="kw">return</span> <span class="ident">mk_ref</span>(<span class="ident">mode</span>, <span class="ident">ident</span>, <span class="kw-2">&amp;</span><span class="ident">arg</span>, <span class="bool-val">true</span>);
                         }
 
-                        <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> =&gt; {
                             <span class="kw">return</span> <span class="ident">mk_ref</span>(<span class="ident">mode</span>, <span class="ident">ident</span>, <span class="kw-2">&amp;</span><span class="ident">arg</span>, <span class="bool-val">false</span>);
                         }
                     }
@@ -2749,21 +2749,21 @@
 
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">item</span>) <span class="op">=</span> <span class="ident">extract_vec</span>(<span class="ident">arg</span>) {
                         <span class="kw">match</span> <span class="ident">mode</span> {
-                            <span class="ident">Mode::Fold</span> <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="ident">Mode::Fold</span> =&gt; {
                                 <span class="kw">return</span> <span class="ident">mk_exact</span>(
                                     <span class="ident">mode</span>,
                                     <span class="ident">ident</span>,
                                     <span class="kw-2">&amp;</span><span class="macro">q!</span>(<span class="ident">Vars</span> { <span class="ident">item</span> }, { <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">item</span><span class="op">&gt;</span><span class="op">&gt;</span> }).<span class="ident">parse</span>(),
                                 );
                             }
-                            <span class="ident">Mode::VisitMut</span> <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="ident">Mode::VisitMut</span> =&gt; {
                                 <span class="kw">return</span> <span class="ident">mk_exact</span>(
                                     <span class="ident">mode</span>,
                                     <span class="ident">ident</span>,
                                     <span class="kw-2">&amp;</span><span class="macro">q!</span>(<span class="ident">Vars</span> { <span class="ident">item</span> }, { <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">item</span><span class="op">&gt;</span><span class="op">&gt;</span> }).<span class="ident">parse</span>(),
                                 );
                             }
-                            <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> =&gt; {
                                 <span class="kw">return</span> <span class="ident">mk_exact</span>(
                                     <span class="ident">mode</span>,
                                     <span class="ident">ident</span>,
@@ -2774,21 +2774,21 @@
                     }
 
                     <span class="kw">match</span> <span class="ident">mode</span> {
-                        <span class="ident">Mode::Fold</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">Mode::Fold</span> =&gt; {
                             <span class="kw">return</span> <span class="ident">mk_exact</span>(
                                 <span class="ident">mode</span>,
                                 <span class="ident">ident</span>,
                                 <span class="kw-2">&amp;</span><span class="macro">q!</span>(<span class="ident">Vars</span> { <span class="ident">arg</span> }, { <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">arg</span><span class="op">&gt;</span> }).<span class="ident">parse</span>(),
                             );
                         }
-                        <span class="ident">Mode::VisitMut</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">Mode::VisitMut</span> =&gt; {
                             <span class="kw">return</span> <span class="ident">mk_exact</span>(
                                 <span class="ident">mode</span>,
                                 <span class="ident">ident</span>,
                                 <span class="kw-2">&amp;</span><span class="macro">q!</span>(<span class="ident">Vars</span> { <span class="ident">arg</span> }, { <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">arg</span><span class="op">&gt;</span> }).<span class="ident">parse</span>(),
                             );
                         }
-                        <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> =&gt; {
                             <span class="kw">return</span> <span class="ident">mk_exact</span>(
                                 <span class="ident">mode</span>,
                                 <span class="ident">ident</span>,
@@ -2798,24 +2798,24 @@
                     }
                 }
 
-                <span class="kw">if</span> <span class="ident">last</span>.<span class="ident">ident</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Vec&quot;</span> {
+                <span class="kw">if</span> <span class="ident">last</span>.<span class="ident">ident</span> <span class="op">==</span> <span class="string">&quot;Vec&quot;</span> {
                     <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">last</span>.<span class="ident">arguments</span> {
-                        <span class="ident">PathArguments::AngleBracketed</span>(<span class="ident">tps</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">PathArguments::AngleBracketed</span>(<span class="ident">tps</span>) =&gt; {
                             <span class="kw">let</span> <span class="ident">arg</span> <span class="op">=</span> <span class="ident">tps</span>.<span class="ident">args</span>.<span class="ident">first</span>().<span class="ident">unwrap</span>();
 
                             <span class="kw">match</span> <span class="ident">arg</span> {
-                                <span class="ident">GenericArgument::Type</span>(<span class="ident">arg</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="ident">GenericArgument::Type</span>(<span class="ident">arg</span>) =&gt; {
                                     <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">method_name</span>(<span class="ident">mode</span>, <span class="ident">ty</span>);
 
                                     <span class="kw">match</span> <span class="ident">mode</span> {
-                                        <span class="ident">Mode::Fold</span> <span class="op">=</span><span class="op">&gt;</span> {
+                                        <span class="ident">Mode::Fold</span> =&gt; {
                                             <span class="kw">return</span> <span class="ident">mk_exact</span>(
                                                 <span class="ident">mode</span>,
                                                 <span class="ident">ident</span>,
                                                 <span class="kw-2">&amp;</span><span class="macro">q!</span>(<span class="ident">Vars</span> { <span class="ident">arg</span> }, { <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">arg</span><span class="op">&gt;</span> }).<span class="ident">parse</span>(),
                                             );
                                         }
-                                        <span class="ident">Mode::VisitMut</span> <span class="op">=</span><span class="op">&gt;</span> {
+                                        <span class="ident">Mode::VisitMut</span> =&gt; {
                                             <span class="kw">return</span> <span class="ident">mk_ref</span>(
                                                 <span class="ident">mode</span>,
                                                 <span class="ident">ident</span>,
@@ -2823,7 +2823,7 @@
                                                 <span class="bool-val">true</span>,
                                             );
                                         }
-                                        <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> <span class="op">=</span><span class="op">&gt;</span> {
+                                        <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> =&gt; {
                                             <span class="kw">return</span> <span class="ident">mk_ref</span>(
                                                 <span class="ident">mode</span>,
                                                 <span class="ident">ident</span>,
@@ -2833,70 +2833,70 @@
                                         }
                                     }
                                 }
-                                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;generic parameter other than type&quot;</span>),
+                                <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;generic parameter other than type&quot;</span>),
                             }
                         }
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;Vec() -&gt; Ret or Vec without a type parameter&quot;</span>),
+                        <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;Vec() -&gt; Ret or Vec without a type parameter&quot;</span>),
                     }
                 }
             }
 
             <span class="kw">match</span> <span class="ident">mode</span> {
-                <span class="ident">Mode::Fold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">mk_exact</span>(<span class="ident">mode</span>, <span class="ident">ident</span>, <span class="ident">ty</span>),
-                <span class="ident">Mode::VisitMut</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Mode::Fold</span> =&gt; <span class="kw">return</span> <span class="ident">mk_exact</span>(<span class="ident">mode</span>, <span class="ident">ident</span>, <span class="ident">ty</span>),
+                <span class="ident">Mode::VisitMut</span> =&gt; {
                     <span class="kw">return</span> <span class="ident">mk_ref</span>(<span class="ident">mode</span>, <span class="ident">ident</span>, <span class="ident">ty</span>, <span class="bool-val">true</span>);
                 }
-                <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> =&gt; {
                     <span class="kw">return</span> <span class="ident">mk_ref</span>(<span class="ident">mode</span>, <span class="ident">ident</span>, <span class="ident">ty</span>, <span class="bool-val">false</span>);
                 }
             }
         }
-        <span class="ident">Type::Ptr</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;type: pointer&quot;</span>),
-        <span class="ident">Type::Reference</span>(<span class="ident">ty</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">Type::Ptr</span>(<span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;type: pointer&quot;</span>),
+        <span class="ident">Type::Reference</span>(<span class="ident">ty</span>) =&gt; {
             <span class="kw">return</span> <span class="ident">create_method_sig</span>(<span class="ident">mode</span>, <span class="kw-2">&amp;</span><span class="ident">ty</span>.<span class="ident">elem</span>);
         }
-        <span class="ident">Type::Slice</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;type: slice&quot;</span>),
-        <span class="ident">Type::TraitObject</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;type: trait object&quot;</span>),
-        <span class="ident">Type::Tuple</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;type: trait tuple&quot;</span>),
-        <span class="ident">Type::Verbatim</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;type: verbatim&quot;</span>),
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;Unknown type: {:?}&quot;</span>, <span class="ident">ty</span>),
+        <span class="ident">Type::Slice</span>(<span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;type: slice&quot;</span>),
+        <span class="ident">Type::TraitObject</span>(<span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;type: trait object&quot;</span>),
+        <span class="ident">Type::Tuple</span>(<span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;type: trait tuple&quot;</span>),
+        <span class="ident">Type::Verbatim</span>(<span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;type: verbatim&quot;</span>),
+        <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;Unknown type: {:?}&quot;</span>, <span class="ident">ty</span>),
     }
 }
 
-<span class="kw">fn</span> <span class="ident">create_method_body</span>(<span class="ident">mode</span>: <span class="ident">Mode</span>, <span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Block</span> {
+<span class="kw">fn</span> <span class="ident">create_method_body</span>(<span class="ident">mode</span>: <span class="ident">Mode</span>, <span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) -&gt; <span class="ident">Block</span> {
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ty</span>) <span class="op">=</span> <span class="ident">extract_generic</span>(<span class="string">&quot;Arc&quot;</span>, <span class="ident">ty</span>) {
         <span class="kw">match</span> <span class="ident">mode</span> {
-            <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> =&gt; {
                 <span class="kw">let</span> <span class="ident">visit</span> <span class="op">=</span> <span class="ident">method_name</span>(<span class="ident">mode</span>, <span class="ident">ty</span>);
 
                 <span class="kw">return</span> <span class="macro">q!</span>(<span class="ident">Vars</span> { <span class="ident">visit</span> }, ({ <span class="ident">_visitor</span>.<span class="ident">visit</span>(<span class="ident">n</span>, <span class="ident">_parent</span>) })).<span class="ident">parse</span>();
             }
-            <span class="ident">Mode::VisitMut</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Mode::VisitMut</span> =&gt; {
                 <span class="kw">return</span> <span class="ident">Block</span> {
                     <span class="ident">brace_token</span>: <span class="ident">def_site</span>(),
                     <span class="ident">stmts</span>: <span class="macro">vec!</span>[],
                 }
             }
-            <span class="ident">Mode::Fold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="macro">q!</span>(({ <span class="ident">n</span> })).<span class="ident">parse</span>(),
+            <span class="ident">Mode::Fold</span> =&gt; <span class="kw">return</span> <span class="macro">q!</span>(({ <span class="ident">n</span> })).<span class="ident">parse</span>(),
         }
     }
 
     <span class="kw">match</span> <span class="ident">ty</span> {
-        <span class="ident">Type::Array</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;type: array type&quot;</span>),
-        <span class="ident">Type::BareFn</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;type: fn type&quot;</span>),
-        <span class="ident">Type::Group</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;type: group type&quot;</span>),
-        <span class="ident">Type::ImplTrait</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;type: impl trait&quot;</span>),
-        <span class="ident">Type::Infer</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(<span class="string">&quot;infer type&quot;</span>),
-        <span class="ident">Type::Macro</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;type: macro&quot;</span>),
-        <span class="ident">Type::Never</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(<span class="string">&quot;never type&quot;</span>),
-        <span class="ident">Type::Paren</span>(<span class="ident">ty</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">create_method_body</span>(<span class="ident">mode</span>, <span class="kw-2">&amp;</span><span class="ident">ty</span>.<span class="ident">elem</span>),
-        <span class="ident">Type::Path</span>(<span class="ident">p</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">Type::Array</span>(<span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;type: array type&quot;</span>),
+        <span class="ident">Type::BareFn</span>(<span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;type: fn type&quot;</span>),
+        <span class="ident">Type::Group</span>(<span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;type: group type&quot;</span>),
+        <span class="ident">Type::ImplTrait</span>(<span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;type: impl trait&quot;</span>),
+        <span class="ident">Type::Infer</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;infer type&quot;</span>),
+        <span class="ident">Type::Macro</span>(<span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;type: macro&quot;</span>),
+        <span class="ident">Type::Never</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;never type&quot;</span>),
+        <span class="ident">Type::Paren</span>(<span class="ident">ty</span>) =&gt; <span class="kw">return</span> <span class="ident">create_method_body</span>(<span class="ident">mode</span>, <span class="kw-2">&amp;</span><span class="ident">ty</span>.<span class="ident">elem</span>),
+        <span class="ident">Type::Path</span>(<span class="ident">p</span>) =&gt; {
             <span class="kw">let</span> <span class="ident">last</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">path</span>.<span class="ident">segments</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>();
 
             <span class="kw">if</span> <span class="op">!</span><span class="ident">last</span>.<span class="ident">arguments</span>.<span class="ident">is_empty</span>() {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">arg</span>) <span class="op">=</span> <span class="ident">as_box</span>(<span class="ident">ty</span>) {
                     <span class="kw">match</span> <span class="ident">mode</span> {
-                        <span class="ident">Mode::Fold</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">Mode::Fold</span> =&gt; {
                             <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">method_name</span>(<span class="ident">mode</span>, <span class="ident">arg</span>);
 
                             <span class="kw">return</span> <span class="macro">q!</span>(
@@ -2905,97 +2905,97 @@
                             )
                             .<span class="ident">parse</span>();
                         }
-                        <span class="ident">Mode::VisitAll</span> <span class="op">|</span> <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitMut</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">Mode::VisitAll</span> <span class="op">|</span> <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitMut</span> =&gt; {
                             <span class="kw">return</span> <span class="ident">create_method_body</span>(<span class="ident">mode</span>, <span class="ident">arg</span>);
                         }
                     }
                 }
 
-                <span class="kw">if</span> <span class="ident">last</span>.<span class="ident">ident</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Option&quot;</span> {
+                <span class="kw">if</span> <span class="ident">last</span>.<span class="ident">ident</span> <span class="op">==</span> <span class="string">&quot;Option&quot;</span> {
                     <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">last</span>.<span class="ident">arguments</span> {
-                        <span class="ident">PathArguments::AngleBracketed</span>(<span class="ident">tps</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">PathArguments::AngleBracketed</span>(<span class="ident">tps</span>) =&gt; {
                             <span class="kw">let</span> <span class="ident">arg</span> <span class="op">=</span> <span class="ident">tps</span>.<span class="ident">args</span>.<span class="ident">first</span>().<span class="ident">unwrap</span>();
 
                             <span class="kw">match</span> <span class="ident">arg</span> {
-                                <span class="ident">GenericArgument::Type</span>(<span class="ident">arg</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="ident">GenericArgument::Type</span>(<span class="ident">arg</span>) =&gt; {
                                     <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">method_name</span>(<span class="ident">mode</span>, <span class="ident">arg</span>);
 
                                     <span class="kw">match</span> <span class="ident">mode</span> {
-                                        <span class="ident">Mode::Fold</span> <span class="op">=</span><span class="op">&gt;</span> {
+                                        <span class="ident">Mode::Fold</span> =&gt; {
                                             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(..) <span class="op">=</span> <span class="ident">as_box</span>(<span class="ident">arg</span>) {
                                                 <span class="kw">return</span> <span class="macro">q!</span>(
                                                     <span class="ident">Vars</span> { <span class="ident">ident</span> },
                                                     ({
                                                         <span class="kw">match</span> <span class="ident">n</span> {
-                                                            <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(
+                                                            <span class="prelude-val">Some</span>(<span class="ident">n</span>) =&gt; <span class="prelude-val">Some</span>(
                                                                 <span class="ident">swc_visit::util::map::Map::map</span>(
                                                                     <span class="ident">n</span>,
                                                                     <span class="op">|</span><span class="ident">n</span><span class="op">|</span> <span class="ident">_visitor</span>.<span class="ident">ident</span>(<span class="ident">n</span>),
                                                                 ),
                                                             ),
-                                                            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+                                                            <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
                                                         }
                                                     })
                                                 )
                                                 .<span class="ident">parse</span>();
                                             }
                                         }
-                                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+                                        <span class="kw">_</span> =&gt; {}
                                     }
 
                                     <span class="kw">return</span> <span class="kw">match</span> <span class="ident">mode</span> {
-                                        <span class="ident">Mode::Fold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">q!</span>(
+                                        <span class="ident">Mode::Fold</span> =&gt; <span class="macro">q!</span>(
                                             <span class="ident">Vars</span> { <span class="ident">ident</span> },
                                             ({
                                                 <span class="kw">match</span> <span class="ident">n</span> {
-                                                    <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">_visitor</span>.<span class="ident">ident</span>(<span class="ident">n</span>)),
-                                                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+                                                    <span class="prelude-val">Some</span>(<span class="ident">n</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">_visitor</span>.<span class="ident">ident</span>(<span class="ident">n</span>)),
+                                                    <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
                                                 }
                                             })
                                         )
                                         .<span class="ident">parse</span>(),
 
-                                        <span class="ident">Mode::VisitMut</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">q!</span>(
+                                        <span class="ident">Mode::VisitMut</span> =&gt; <span class="macro">q!</span>(
                                             <span class="ident">Vars</span> { <span class="ident">ident</span> },
                                             ({
                                                 <span class="kw">match</span> <span class="ident">n</span> {
-                                                    <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">_visitor</span>.<span class="ident">ident</span>(<span class="ident">n</span>),
-                                                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {}
+                                                    <span class="prelude-val">Some</span>(<span class="ident">n</span>) =&gt; <span class="ident">_visitor</span>.<span class="ident">ident</span>(<span class="ident">n</span>),
+                                                    <span class="prelude-val">None</span> =&gt; {}
                                                 }
                                             })
                                         )
                                         .<span class="ident">parse</span>(),
 
-                                        <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">q!</span>(
+                                        <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> =&gt; <span class="macro">q!</span>(
                                             <span class="ident">Vars</span> { <span class="ident">ident</span> },
                                             ({
                                                 <span class="kw">match</span> <span class="ident">n</span> {
-                                                    <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">_visitor</span>.<span class="ident">ident</span>(<span class="ident">n</span>, <span class="ident">_parent</span>),
-                                                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {}
+                                                    <span class="prelude-val">Some</span>(<span class="ident">n</span>) =&gt; <span class="ident">_visitor</span>.<span class="ident">ident</span>(<span class="ident">n</span>, <span class="ident">_parent</span>),
+                                                    <span class="prelude-val">None</span> =&gt; {}
                                                 }
                                             })
                                         )
                                         .<span class="ident">parse</span>(),
                                     };
                                 }
-                                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;generic parameter other than type&quot;</span>),
+                                <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;generic parameter other than type&quot;</span>),
                             }
                         }
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;Box() -&gt; T or Box without a type parameter&quot;</span>),
+                        <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;Box() -&gt; T or Box without a type parameter&quot;</span>),
                     }
                 }
 
-                <span class="kw">if</span> <span class="ident">last</span>.<span class="ident">ident</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Vec&quot;</span> {
+                <span class="kw">if</span> <span class="ident">last</span>.<span class="ident">ident</span> <span class="op">==</span> <span class="string">&quot;Vec&quot;</span> {
                     <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">last</span>.<span class="ident">arguments</span> {
-                        <span class="ident">PathArguments::AngleBracketed</span>(<span class="ident">tps</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">PathArguments::AngleBracketed</span>(<span class="ident">tps</span>) =&gt; {
                             <span class="kw">let</span> <span class="ident">arg</span> <span class="op">=</span> <span class="ident">tps</span>.<span class="ident">args</span>.<span class="ident">first</span>().<span class="ident">unwrap</span>();
 
                             <span class="kw">match</span> <span class="ident">arg</span> {
-                                <span class="ident">GenericArgument::Type</span>(<span class="ident">arg</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="ident">GenericArgument::Type</span>(<span class="ident">arg</span>) =&gt; {
                                     <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">method_name</span>(<span class="ident">mode</span>, <span class="ident">arg</span>);
 
                                     <span class="kw">match</span> <span class="ident">mode</span> {
-                                        <span class="ident">Mode::Fold</span> <span class="op">=</span><span class="op">&gt;</span> {
+                                        <span class="ident">Mode::Fold</span> =&gt; {
                                             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(..) <span class="op">=</span> <span class="ident">as_box</span>(<span class="ident">arg</span>) {
                                                 <span class="kw">return</span> <span class="macro">q!</span>(
                                                     <span class="ident">Vars</span> { <span class="ident">ident</span> },
@@ -3009,13 +3009,13 @@
                                                 .<span class="ident">parse</span>();
                                             }
                                         }
-                                        <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> <span class="op">=</span><span class="op">&gt;</span> {}
-                                        <span class="ident">Mode::VisitMut</span> <span class="op">=</span><span class="op">&gt;</span> {}
+                                        <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> =&gt; {}
+                                        <span class="ident">Mode::VisitMut</span> =&gt; {}
                                     }
 
                                     <span class="kw">return</span> <span class="kw">if</span> <span class="ident">is_option</span>(<span class="ident">arg</span>) {
                                         <span class="kw">match</span> <span class="ident">mode</span> {
-                                            <span class="ident">Mode::Fold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">q!</span>(
+                                            <span class="ident">Mode::Fold</span> =&gt; <span class="macro">q!</span>(
                                                 <span class="ident">Vars</span> { <span class="ident">ident</span> },
                                                 ({
                                                     <span class="ident">swc_visit::util::move_map::MoveMap::move_map</span>(
@@ -3025,12 +3025,12 @@
                                                 })
                                             )
                                             .<span class="ident">parse</span>(),
-                                            <span class="ident">Mode::VisitMut</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">q!</span>(
+                                            <span class="ident">Mode::VisitMut</span> =&gt; <span class="macro">q!</span>(
                                                 <span class="ident">Vars</span> { <span class="ident">ident</span> },
                                                 ({ <span class="ident">n</span>.<span class="ident">iter_mut</span>().<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="ident">_visitor</span>.<span class="ident">ident</span>(<span class="ident">v</span>)) })
                                             )
                                             .<span class="ident">parse</span>(),
-                                            <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">q!</span>(
+                                            <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> =&gt; <span class="macro">q!</span>(
                                                 <span class="ident">Vars</span> { <span class="ident">ident</span> },
                                                 ({
                                                     <span class="ident">n</span>.<span class="ident">iter</span>().<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> {
@@ -3042,7 +3042,7 @@
                                         }
                                     } <span class="kw">else</span> {
                                         <span class="kw">match</span> <span class="ident">mode</span> {
-                                            <span class="ident">Mode::Fold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">q!</span>(
+                                            <span class="ident">Mode::Fold</span> =&gt; <span class="macro">q!</span>(
                                                 <span class="ident">Vars</span> { <span class="ident">ident</span> },
                                                 ({
                                                     <span class="ident">swc_visit::util::move_map::MoveMap::move_map</span>(
@@ -3053,13 +3053,13 @@
                                             )
                                             .<span class="ident">parse</span>(),
 
-                                            <span class="ident">Mode::VisitMut</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">q!</span>(
+                                            <span class="ident">Mode::VisitMut</span> =&gt; <span class="macro">q!</span>(
                                                 <span class="ident">Vars</span> { <span class="ident">ident</span> },
                                                 ({ <span class="ident">n</span>.<span class="ident">iter_mut</span>().<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="ident">_visitor</span>.<span class="ident">ident</span>(<span class="ident">v</span>)) })
                                             )
                                             .<span class="ident">parse</span>(),
 
-                                            <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">q!</span>(
+                                            <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitAll</span> =&gt; <span class="macro">q!</span>(
                                                 <span class="ident">Vars</span> { <span class="ident">ident</span> },
                                                 ({
                                                     <span class="ident">n</span>.<span class="ident">iter</span>()
@@ -3070,28 +3070,28 @@
                                         }
                                     };
                                 }
-                                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;generic parameter other than type&quot;</span>),
+                                <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;generic parameter other than type&quot;</span>),
                             }
                         }
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;Vec() -&gt; Ret or Vec without a type parameter&quot;</span>),
+                        <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;Vec() -&gt; Ret or Vec without a type parameter&quot;</span>),
                     }
                 }
             }
 
             <span class="kw">match</span> <span class="ident">mode</span> {
-                <span class="ident">Mode::Fold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">q!</span>(({ <span class="kw">return</span> <span class="ident">n</span> })).<span class="ident">parse</span>(),
-                <span class="ident">Mode::VisitAll</span> <span class="op">|</span> <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitMut</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">q!</span>(({})).<span class="ident">parse</span>(),
+                <span class="ident">Mode::Fold</span> =&gt; <span class="macro">q!</span>(({ <span class="kw">return</span> <span class="ident">n</span> })).<span class="ident">parse</span>(),
+                <span class="ident">Mode::VisitAll</span> <span class="op">|</span> <span class="ident">Mode::Visit</span> <span class="op">|</span> <span class="ident">Mode::VisitMut</span> =&gt; <span class="macro">q!</span>(({})).<span class="ident">parse</span>(),
             }
         }
-        <span class="ident">Type::Ptr</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;type: pointer&quot;</span>),
-        <span class="ident">Type::Reference</span>(<span class="ident">ty</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">Type::Ptr</span>(<span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;type: pointer&quot;</span>),
+        <span class="ident">Type::Reference</span>(<span class="ident">ty</span>) =&gt; {
             <span class="kw">return</span> <span class="ident">create_method_body</span>(<span class="ident">mode</span>, <span class="kw-2">&amp;</span><span class="ident">ty</span>.<span class="ident">elem</span>);
         }
-        <span class="ident">Type::Slice</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;type: slice&quot;</span>),
-        <span class="ident">Type::TraitObject</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;type: trait object&quot;</span>),
-        <span class="ident">Type::Tuple</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;type: trait tuple&quot;</span>),
-        <span class="ident">Type::Verbatim</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;type: verbatim&quot;</span>),
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;Unknown type: {:?}&quot;</span>, <span class="ident">ty</span>),
+        <span class="ident">Type::Slice</span>(<span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;type: slice&quot;</span>),
+        <span class="ident">Type::TraitObject</span>(<span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;type: trait object&quot;</span>),
+        <span class="ident">Type::Tuple</span>(<span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;type: trait tuple&quot;</span>),
+        <span class="ident">Type::Verbatim</span>(<span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;type: verbatim&quot;</span>),
+        <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;Unknown type: {:?}&quot;</span>, <span class="ident">ty</span>),
     }
 }
 
@@ -3113,59 +3113,59 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">is_option</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+<span class="kw">fn</span> <span class="ident">is_option</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) -&gt; <span class="ident">bool</span> {
     <span class="kw">match</span> <span class="ident">ty</span> {
-        <span class="ident">Type::Path</span>(<span class="ident">p</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">Type::Path</span>(<span class="ident">p</span>) =&gt; {
             <span class="kw">let</span> <span class="ident">last</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">path</span>.<span class="ident">segments</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>();
 
             <span class="kw">if</span> <span class="op">!</span><span class="ident">last</span>.<span class="ident">arguments</span>.<span class="ident">is_empty</span>() {
-                <span class="kw">if</span> <span class="ident">last</span>.<span class="ident">ident</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Option&quot;</span> {
+                <span class="kw">if</span> <span class="ident">last</span>.<span class="ident">ident</span> <span class="op">==</span> <span class="string">&quot;Option&quot;</span> {
                     <span class="kw">return</span> <span class="bool-val">true</span>;
                 }
             }
         }
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+        <span class="kw">_</span> =&gt; {}
     }
 
     <span class="bool-val">false</span>
 }
 
-<span class="kw">fn</span> <span class="ident">as_box</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Type</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">as_box</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Type</span><span class="op">&gt;</span> {
     <span class="ident">extract_generic</span>(<span class="string">&quot;Box&quot;</span>, <span class="ident">ty</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">extract_generic</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Type</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Type</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">extract_generic</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Type</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Type</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="ident">ty</span> {
-        <span class="ident">Type::Path</span>(<span class="ident">p</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">Type::Path</span>(<span class="ident">p</span>) =&gt; {
             <span class="kw">let</span> <span class="ident">last</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">path</span>.<span class="ident">segments</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>();
 
             <span class="kw">if</span> <span class="op">!</span><span class="ident">last</span>.<span class="ident">arguments</span>.<span class="ident">is_empty</span>() {
-                <span class="kw">if</span> <span class="ident">last</span>.<span class="ident">ident</span> <span class="op">=</span><span class="op">=</span> <span class="ident">name</span> {
+                <span class="kw">if</span> <span class="ident">last</span>.<span class="ident">ident</span> <span class="op">==</span> <span class="ident">name</span> {
                     <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">last</span>.<span class="ident">arguments</span> {
-                        <span class="ident">PathArguments::AngleBracketed</span>(<span class="ident">tps</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">PathArguments::AngleBracketed</span>(<span class="ident">tps</span>) =&gt; {
                             <span class="kw">let</span> <span class="ident">arg</span> <span class="op">=</span> <span class="ident">tps</span>.<span class="ident">args</span>.<span class="ident">first</span>().<span class="ident">unwrap</span>();
 
                             <span class="kw">match</span> <span class="ident">arg</span> {
-                                <span class="ident">GenericArgument::Type</span>(<span class="ident">arg</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">arg</span>),
-                                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;generic parameter other than type&quot;</span>),
+                                <span class="ident">GenericArgument::Type</span>(<span class="ident">arg</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">arg</span>),
+                                <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;generic parameter other than type&quot;</span>),
                             }
                         }
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;Box() -&gt; T or Box without a type parameter&quot;</span>),
+                        <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;Box() -&gt; T or Box without a type parameter&quot;</span>),
                     }
                 }
             }
         }
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+        <span class="kw">_</span> =&gt; {}
     }
 
     <span class="prelude-val">None</span>
 }
 
-<span class="kw">fn</span> <span class="ident">extract_vec</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Type</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">extract_vec</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Type</span><span class="op">&gt;</span> {
     <span class="ident">extract_generic</span>(<span class="string">&quot;Vec&quot;</span>, <span class="ident">ty</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">is_opt_vec</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+<span class="kw">fn</span> <span class="ident">is_opt_vec</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) -&gt; <span class="ident">bool</span> {
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">inner</span>) <span class="op">=</span> <span class="ident">extract_generic</span>(<span class="string">&quot;Option&quot;</span>, <span class="ident">ty</span>) {
         <span class="ident">extract_vec</span>(<span class="ident">inner</span>).<span class="ident">is_some</span>()
     } <span class="kw">else</span> {
@@ -3173,8 +3173,8 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">method_name_as_str</span>(<span class="ident">mode</span>: <span class="ident">Mode</span>, <span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-    <span class="kw">fn</span> <span class="ident">suffix</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">fn</span> <span class="ident">method_name_as_str</span>(<span class="ident">mode</span>: <span class="ident">Mode</span>, <span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) -&gt; <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">suffix</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) -&gt; <span class="ident">String</span> {
         <span class="comment">// Box&lt;T&gt; has same name as T</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ty</span>) <span class="op">=</span> <span class="ident">extract_generic</span>(<span class="string">&quot;Box&quot;</span>, <span class="ident">ty</span>) {
             <span class="kw">return</span> <span class="ident">suffix</span>(<span class="ident">ty</span>);
@@ -3190,7 +3190,7 @@
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ty</span>) <span class="op">=</span> <span class="ident">extract_generic</span>(<span class="string">&quot;Option&quot;</span>, <span class="ident">ty</span>) {
                 <span class="kw">return</span> <span class="macro">format!</span>(<span class="string">&quot;opt_vec_{}&quot;</span>, <span class="ident">suffix</span>(<span class="ident">ty</span>).<span class="ident">to_plural</span>());
             }
-            <span class="kw">if</span> <span class="ident">suffix</span>(<span class="ident">ty</span>).<span class="ident">to_plural</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">suffix</span>(<span class="ident">ty</span>) {
+            <span class="kw">if</span> <span class="ident">suffix</span>(<span class="ident">ty</span>).<span class="ident">to_plural</span>() <span class="op">==</span> <span class="ident">suffix</span>(<span class="ident">ty</span>) {
                 <span class="kw">return</span> <span class="macro">format!</span>(<span class="string">&quot;{}_vec&quot;</span>, <span class="ident">suffix</span>(<span class="ident">ty</span>).<span class="ident">to_plural</span>());
             }
             <span class="kw">return</span> <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">suffix</span>(<span class="ident">ty</span>).<span class="ident">to_plural</span>());
@@ -3201,47 +3201,47 @@
     <span class="macro">format!</span>(<span class="string">&quot;{}_{}&quot;</span>, <span class="ident">mode</span>.<span class="ident">prefix</span>(), <span class="ident">suffix</span>(<span class="ident">ty</span>))
 }
 
-<span class="kw">fn</span> <span class="ident">method_name</span>(<span class="ident">mode</span>: <span class="ident">Mode</span>, <span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ident</span> {
+<span class="kw">fn</span> <span class="ident">method_name</span>(<span class="ident">mode</span>: <span class="ident">Mode</span>, <span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) -&gt; <span class="ident">Ident</span> {
     <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">ty</span>.<span class="ident">span</span>();
     <span class="ident">Ident::new</span>(<span class="kw-2">&amp;</span><span class="ident">method_name_as_str</span>(<span class="ident">mode</span>, <span class="ident">ty</span>), <span class="ident">span</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">type_to_name</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">fn</span> <span class="ident">type_to_name</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) -&gt; <span class="ident">String</span> {
     <span class="kw">match</span> <span class="ident">ty</span> {
-        <span class="ident">Type::Path</span>(<span class="ident">ty</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ty</span>.<span class="ident">path</span>.<span class="ident">segments</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">ident</span>.<span class="ident">to_string</span>(),
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;type_to_name for type other than path: {:?}&quot;</span>, <span class="ident">ty</span>),
+        <span class="ident">Type::Path</span>(<span class="ident">ty</span>) =&gt; <span class="ident">ty</span>.<span class="ident">path</span>.<span class="ident">segments</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">ident</span>.<span class="ident">to_string</span>(),
+        <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;type_to_name for type other than path: {:?}&quot;</span>, <span class="ident">ty</span>),
     }
 }
 
-<span class="kw">fn</span> <span class="ident">skip</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+<span class="kw">fn</span> <span class="ident">skip</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) -&gt; <span class="ident">bool</span> {
     <span class="kw">match</span> <span class="ident">ty</span> {
-        <span class="ident">Type::Path</span>(<span class="ident">p</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">Type::Path</span>(<span class="ident">p</span>) =&gt; {
             <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">p</span>.<span class="ident">path</span>.<span class="ident">segments</span>.<span class="ident">last</span>().<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">ident</span>;
 
-            <span class="kw">if</span> <span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;bool&quot;</span>
-                <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;u128&quot;</span>
-                <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;u128&quot;</span>
-                <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;u64&quot;</span>
-                <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;u32&quot;</span>
-                <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;u16&quot;</span>
-                <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;u8&quot;</span>
-                <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;isize&quot;</span>
-                <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;i128&quot;</span>
-                <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;i128&quot;</span>
-                <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;i64&quot;</span>
-                <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;i32&quot;</span>
-                <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;i16&quot;</span>
-                <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;i8&quot;</span>
-                <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;isize&quot;</span>
-                <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;f64&quot;</span>
-                <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;f32&quot;</span>
+            <span class="kw">if</span> <span class="ident">i</span> <span class="op">==</span> <span class="string">&quot;bool&quot;</span>
+                <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">==</span> <span class="string">&quot;u128&quot;</span>
+                <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">==</span> <span class="string">&quot;u128&quot;</span>
+                <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">==</span> <span class="string">&quot;u64&quot;</span>
+                <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">==</span> <span class="string">&quot;u32&quot;</span>
+                <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">==</span> <span class="string">&quot;u16&quot;</span>
+                <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">==</span> <span class="string">&quot;u8&quot;</span>
+                <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">==</span> <span class="string">&quot;isize&quot;</span>
+                <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">==</span> <span class="string">&quot;i128&quot;</span>
+                <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">==</span> <span class="string">&quot;i128&quot;</span>
+                <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">==</span> <span class="string">&quot;i64&quot;</span>
+                <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">==</span> <span class="string">&quot;i32&quot;</span>
+                <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">==</span> <span class="string">&quot;i16&quot;</span>
+                <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">==</span> <span class="string">&quot;i8&quot;</span>
+                <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">==</span> <span class="string">&quot;isize&quot;</span>
+                <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">==</span> <span class="string">&quot;f64&quot;</span>
+                <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">==</span> <span class="string">&quot;f32&quot;</span>
             {
                 <span class="kw">return</span> <span class="bool-val">true</span>;
             }
 
             <span class="bool-val">false</span>
         }
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+        <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
     }
 }
 </code></pre></div>

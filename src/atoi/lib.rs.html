@@ -748,13 +748,13 @@
 <span class="doccomment">/// # Return</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Returns a a number if the slice started with a number, otherwise `None` is returned.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">atoi</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">atoi</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">I</span>: <span class="ident">FromRadix10SignedChecked</span>,
 {
     <span class="kw">match</span> <span class="ident">I::from_radix_10_signed_checked</span>(<span class="ident">text</span>) {
-        (<span class="kw">_</span>, <span class="number">0</span>) <span class="op">|</span> (<span class="prelude-val">None</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-        (<span class="prelude-val">Some</span>(<span class="ident">n</span>), <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">n</span>),
+        (<span class="kw">_</span>, <span class="number">0</span>) <span class="op">|</span> (<span class="prelude-val">None</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
+        (<span class="prelude-val">Some</span>(<span class="ident">n</span>), <span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">n</span>),
     }
 }
 
@@ -785,7 +785,7 @@
     <span class="doccomment">/// Returns a tuple with two numbers. The first is the integer parsed or zero, the second is the</span>
     <span class="doccomment">/// index of the byte right after the parsed number. If the second element is zero the slice</span>
     <span class="doccomment">/// did not start with an ASCII digit.</span>
-    <span class="kw">fn</span> <span class="ident">from_radix_10</span>(<span class="kw">_</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> (<span class="self">Self</span>, <span class="ident">usize</span>);
+    <span class="kw">fn</span> <span class="ident">from_radix_10</span>(<span class="kw">_</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; (<span class="self">Self</span>, <span class="ident">usize</span>);
 }
 
 <span class="doccomment">/// Types implementing this trait can be parsed from a positional numeral system with radix 10.</span>
@@ -819,7 +819,7 @@
     <span class="doccomment">/// been found. None, if there were too many, or too high dighits and the parsing overflowed.</span>
     <span class="doccomment">/// The second is the index of the byte right after the parsed number. If the second element is</span>
     <span class="doccomment">/// zero the slice did not start with an ASCII digit.</span>
-    <span class="kw">fn</span> <span class="ident">from_radix_10_checked</span>(<span class="kw">_</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> (<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">usize</span>);
+    <span class="kw">fn</span> <span class="ident">from_radix_10_checked</span>(<span class="kw">_</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; (<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">usize</span>);
 }
 
 <span class="doccomment">/// Types implementing this trait can be parsed from a positional numeral system with radix 16</span>
@@ -851,7 +851,7 @@
     <span class="doccomment">/// Returns a tuple with two numbers. The first is the integer parsed or zero, the second is the</span>
     <span class="doccomment">/// index of the byte right after the parsed number. If the second element is zero the slice</span>
     <span class="doccomment">/// did not start with an ASCII digit.</span>
-    <span class="kw">fn</span> <span class="ident">from_radix_16</span>(<span class="kw">_</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> (<span class="self">Self</span>, <span class="ident">usize</span>);
+    <span class="kw">fn</span> <span class="ident">from_radix_16</span>(<span class="kw">_</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; (<span class="self">Self</span>, <span class="ident">usize</span>);
 }
 
 <span class="doccomment">/// Types implementing this trait can be parsed from a positional numeral system with radix 16.</span>
@@ -886,7 +886,7 @@
     <span class="doccomment">/// been found. None, if there were too many, or too high dighits and the parsing overflowed.</span>
     <span class="doccomment">/// The second is the index of the byte right after the parsed number. If the second element is</span>
     <span class="doccomment">/// zero the slice did not start with an ASCII digit.</span>
-    <span class="kw">fn</span> <span class="ident">from_radix_16_checked</span>(<span class="kw">_</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> (<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">usize</span>);
+    <span class="kw">fn</span> <span class="ident">from_radix_16_checked</span>(<span class="kw">_</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; (<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">usize</span>);
 }
 
 <span class="doccomment">/// Types implementing this trait can be parsed from a positional numeral system with radix 10. This</span>
@@ -920,7 +920,7 @@
     <span class="doccomment">/// Returns a tuple with two numbers. The first is the integer parsed or zero, the second is the</span>
     <span class="doccomment">/// index of the byte right after the parsed number. If the second element is zero the slice</span>
     <span class="doccomment">/// did not start with an ASCII digit.</span>
-    <span class="kw">fn</span> <span class="ident">from_radix_10_signed</span>(<span class="kw">_</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> (<span class="self">Self</span>, <span class="ident">usize</span>);
+    <span class="kw">fn</span> <span class="ident">from_radix_10_signed</span>(<span class="kw">_</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; (<span class="self">Self</span>, <span class="ident">usize</span>);
 }
 
 <span class="doccomment">/// Types implementing this trait can be parsed from a positional numeral system with radix 10.</span>
@@ -962,7 +962,7 @@
     <span class="doccomment">/// been found. None, if there were too many, or too high dighits and the parsing overflowed.</span>
     <span class="doccomment">/// The second is the index of the byte right after the parsed number. If the second element is</span>
     <span class="doccomment">/// zero the slice did not start with an ASCII digit.</span>
-    <span class="kw">fn</span> <span class="ident">from_radix_10_signed_checked</span>(<span class="kw">_</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> (<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">usize</span>);
+    <span class="kw">fn</span> <span class="ident">from_radix_10_signed_checked</span>(<span class="kw">_</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; (<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">usize</span>);
 }
 
 <span class="doccomment">/// A bounded integer, whose representation can overflow and therefore can only store a maximum</span>
@@ -970,11 +970,11 @@
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MaxNumDigits</span> {
     <span class="doccomment">/// Given a representation with a radix character I, what is the maximum number of digits we can</span>
     <span class="doccomment">/// parse without the integer overflowing for sure?</span>
-    <span class="kw">fn</span> <span class="ident">max_num_digits</span>(<span class="ident">radix</span>: <span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    <span class="kw">fn</span> <span class="ident">max_num_digits</span>(<span class="ident">radix</span>: <span class="self">Self</span>) -&gt; <span class="ident">usize</span>;
 
     <span class="doccomment">/// Returns the maximum number of digits a negative representation of `I` can have depending on</span>
     <span class="doccomment">/// `radix`.</span>
-    <span class="kw">fn</span> <span class="ident">max_num_digits_negative</span>(<span class="ident">radix</span>: <span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    <span class="kw">fn</span> <span class="ident">max_num_digits_negative</span>(<span class="ident">radix</span>: <span class="self">Self</span>) -&gt; <span class="ident">usize</span>;
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> <span class="ident">MaxNumDigits</span> <span class="kw">for</span> <span class="ident">I</span>
@@ -983,7 +983,7 @@
 {
     <span class="doccomment">/// Returns the maximum number of digits a nonnegative representation of `I` can have depending</span>
     <span class="doccomment">/// on `radix`.</span>
-    <span class="kw">fn</span> <span class="ident">max_num_digits</span>(<span class="ident">radix</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">fn</span> <span class="ident">max_num_digits</span>(<span class="ident">radix</span>: <span class="ident">I</span>) -&gt; <span class="ident">usize</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">max</span> <span class="op">=</span> <span class="ident">I::max_value</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">d</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">while</span> <span class="ident">max</span> <span class="op">&gt;</span> <span class="ident">I::zero</span>() {
@@ -995,7 +995,7 @@
 
     <span class="doccomment">/// Returns the maximum number of digits a negative representation of `I` can have depending</span>
     <span class="doccomment">/// on `radix`.</span>
-    <span class="kw">fn</span> <span class="ident">max_num_digits_negative</span>(<span class="ident">radix</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">fn</span> <span class="ident">max_num_digits_negative</span>(<span class="ident">radix</span>: <span class="ident">I</span>) -&gt; <span class="ident">usize</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">min</span> <span class="op">=</span> <span class="ident">I::min_value</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">d</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">while</span> <span class="ident">min</span> <span class="op">&lt;</span> <span class="ident">I::zero</span>() {
@@ -1015,22 +1015,22 @@
 <span class="doccomment">/// assert_eq!(Some(5), ascii_to_digit(b&#39;5&#39;));</span>
 <span class="doccomment">/// assert_eq!(None, ascii_to_digit::&lt;u32&gt;(b&#39;x&#39;));</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ascii_to_digit</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">character</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ascii_to_digit</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">character</span>: <span class="ident">u8</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">I</span>: <span class="ident">Zero</span> <span class="op">+</span> <span class="ident">One</span>,
 {
     <span class="kw">match</span> <span class="ident">character</span> {
-        <span class="string">b&#39;0&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">0</span>)),
-        <span class="string">b&#39;1&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">1</span>)),
-        <span class="string">b&#39;2&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">2</span>)),
-        <span class="string">b&#39;3&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">3</span>)),
-        <span class="string">b&#39;4&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">4</span>)),
-        <span class="string">b&#39;5&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">5</span>)),
-        <span class="string">b&#39;6&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">6</span>)),
-        <span class="string">b&#39;7&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">7</span>)),
-        <span class="string">b&#39;8&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">8</span>)),
-        <span class="string">b&#39;9&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">9</span>)),
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+        <span class="string">b&#39;0&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">0</span>)),
+        <span class="string">b&#39;1&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">1</span>)),
+        <span class="string">b&#39;2&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">2</span>)),
+        <span class="string">b&#39;3&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">3</span>)),
+        <span class="string">b&#39;4&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">4</span>)),
+        <span class="string">b&#39;5&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">5</span>)),
+        <span class="string">b&#39;6&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">6</span>)),
+        <span class="string">b&#39;7&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">7</span>)),
+        <span class="string">b&#39;8&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">8</span>)),
+        <span class="string">b&#39;9&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">9</span>)),
+        <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
     }
 }
 
@@ -1038,7 +1038,7 @@
 <span class="kw">where</span>
     <span class="ident">I</span>: <span class="ident">Zero</span> <span class="op">+</span> <span class="ident">One</span> <span class="op">+</span> <span class="ident">AddAssign</span> <span class="op">+</span> <span class="ident">MulAssign</span>,
 {
-    <span class="kw">fn</span> <span class="ident">from_radix_10</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> (<span class="self">Self</span>, <span class="ident">usize</span>) {
+    <span class="kw">fn</span> <span class="ident">from_radix_10</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; (<span class="self">Self</span>, <span class="ident">usize</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">index</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">number</span> <span class="op">=</span> <span class="ident">I::zero</span>();
         <span class="kw">while</span> <span class="ident">index</span> <span class="op">!</span><span class="op">=</span> <span class="ident">text</span>.<span class="ident">len</span>() {
@@ -1058,7 +1058,7 @@
 <span class="kw">where</span>
     <span class="ident">I</span>: <span class="ident">Zero</span> <span class="op">+</span> <span class="ident">One</span> <span class="op">+</span> <span class="ident">AddAssign</span> <span class="op">+</span> <span class="ident">SubAssign</span> <span class="op">+</span> <span class="ident">MulAssign</span>,
 {
-    <span class="kw">fn</span> <span class="ident">from_radix_10_signed</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> (<span class="self">Self</span>, <span class="ident">usize</span>) {
+    <span class="kw">fn</span> <span class="ident">from_radix_10_signed</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; (<span class="self">Self</span>, <span class="ident">usize</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">index</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">number</span> <span class="op">=</span> <span class="ident">I::zero</span>();
 
@@ -1075,7 +1075,7 @@
         <span class="comment">// `number += digit * signum`.</span>
 
         <span class="kw">match</span> <span class="ident">sign</span> {
-            <span class="ident">Sign::Plus</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Sign::Plus</span> =&gt; {
                 <span class="kw">while</span> <span class="ident">index</span> <span class="op">!</span><span class="op">=</span> <span class="ident">text</span>.<span class="ident">len</span>() {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">digit</span>) <span class="op">=</span> <span class="ident">ascii_to_digit</span>::<span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">text</span>[<span class="ident">index</span>]) {
                         <span class="ident">number</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">nth</span>(<span class="number">10</span>);
@@ -1086,7 +1086,7 @@
                     }
                 }
             }
-            <span class="ident">Sign::Minus</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Sign::Minus</span> =&gt; {
                 <span class="kw">while</span> <span class="ident">index</span> <span class="op">!</span><span class="op">=</span> <span class="ident">text</span>.<span class="ident">len</span>() {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">digit</span>) <span class="op">=</span> <span class="ident">ascii_to_digit</span>::<span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">text</span>[<span class="ident">index</span>]) {
                         <span class="ident">number</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">nth</span>(<span class="number">10</span>);
@@ -1115,7 +1115,7 @@
         <span class="op">+</span> <span class="ident">CheckedMul</span>
         <span class="op">+</span> <span class="ident">MaxNumDigits</span>,
 {
-    <span class="kw">fn</span> <span class="ident">from_radix_10_signed_checked</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> (<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">usize</span>) {
+    <span class="kw">fn</span> <span class="ident">from_radix_10_signed_checked</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; (<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">usize</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">index</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">number</span> <span class="op">=</span> <span class="ident">I::zero</span>();
 
@@ -1132,7 +1132,7 @@
         <span class="comment">// `number += digit * signum`.</span>
 
         <span class="kw">match</span> <span class="ident">sign</span> {
-            <span class="ident">Sign::Plus</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Sign::Plus</span> =&gt; {
                 <span class="kw">let</span> <span class="ident">max_safe_digits</span> <span class="op">=</span> <span class="ident">max</span>(<span class="number">1</span>, <span class="ident">I::max_num_digits</span>(<span class="ident">nth</span>(<span class="number">10</span>))) <span class="op">-</span> <span class="number">1</span>;
                 <span class="kw">let</span> <span class="ident">max_safe_index</span> <span class="op">=</span> <span class="ident">min</span>(<span class="ident">text</span>.<span class="ident">len</span>(), <span class="ident">max_safe_digits</span> <span class="op">+</span> <span class="ident">offset</span>);
                 <span class="kw">while</span> <span class="ident">index</span> <span class="op">!</span><span class="op">=</span> <span class="ident">max_safe_index</span> {
@@ -1157,7 +1157,7 @@
                 }
                 (<span class="ident">number</span>, <span class="ident">index</span>)
             }
-            <span class="ident">Sign::Minus</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Sign::Minus</span> =&gt; {
                 <span class="kw">let</span> <span class="ident">max_safe_digits</span> <span class="op">=</span> <span class="ident">max</span>(<span class="number">1</span>, <span class="ident">I::max_num_digits_negative</span>(<span class="ident">nth</span>(<span class="number">10</span>))) <span class="op">-</span> <span class="number">1</span>;
                 <span class="kw">let</span> <span class="ident">max_safe_index</span> <span class="op">=</span> <span class="ident">min</span>(<span class="ident">text</span>.<span class="ident">len</span>(), <span class="ident">max_safe_digits</span> <span class="op">+</span> <span class="ident">offset</span>);
                 <span class="kw">while</span> <span class="ident">index</span> <span class="op">!</span><span class="op">=</span> <span class="ident">max_safe_index</span> {
@@ -1190,7 +1190,7 @@
 <span class="kw">where</span>
     <span class="ident">I</span>: <span class="ident">Zero</span> <span class="op">+</span> <span class="ident">One</span> <span class="op">+</span> <span class="ident">FromRadix10</span> <span class="op">+</span> <span class="ident">CheckedMul</span> <span class="op">+</span> <span class="ident">CheckedAdd</span> <span class="op">+</span> <span class="ident">MaxNumDigits</span>,
 {
-    <span class="kw">fn</span> <span class="ident">from_radix_10_checked</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> (<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>, <span class="ident">usize</span>) {
+    <span class="kw">fn</span> <span class="ident">from_radix_10_checked</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; (<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>, <span class="ident">usize</span>) {
         <span class="kw">let</span> <span class="ident">max_safe_digits</span> <span class="op">=</span> <span class="ident">max</span>(<span class="number">1</span>, <span class="ident">I::max_num_digits_negative</span>(<span class="ident">nth</span>(<span class="number">10</span>))) <span class="op">-</span> <span class="number">1</span>;
         <span class="kw">let</span> (<span class="ident">number</span>, <span class="kw-2">mut</span> <span class="ident">index</span>) <span class="op">=</span> <span class="ident">I::from_radix_10</span>(<span class="kw-2">&amp;</span><span class="ident">text</span>[..<span class="ident">min</span>(<span class="ident">text</span>.<span class="ident">len</span>(), <span class="ident">max_safe_digits</span>)]);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">number</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">number</span>);
@@ -1209,28 +1209,28 @@
 }
 
 <span class="doccomment">/// Converts an ascii character to digit</span>
-<span class="kw">fn</span> <span class="ident">ascii_to_hexdigit</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">character</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>
+<span class="kw">fn</span> <span class="ident">ascii_to_hexdigit</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">character</span>: <span class="ident">u8</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">I</span>: <span class="ident">Zero</span> <span class="op">+</span> <span class="ident">One</span>,
 {
     <span class="kw">match</span> <span class="ident">character</span> {
-        <span class="string">b&#39;0&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">0</span>)),
-        <span class="string">b&#39;1&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">1</span>)),
-        <span class="string">b&#39;2&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">2</span>)),
-        <span class="string">b&#39;3&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">3</span>)),
-        <span class="string">b&#39;4&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">4</span>)),
-        <span class="string">b&#39;5&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">5</span>)),
-        <span class="string">b&#39;6&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">6</span>)),
-        <span class="string">b&#39;7&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">7</span>)),
-        <span class="string">b&#39;8&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">8</span>)),
-        <span class="string">b&#39;9&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">9</span>)),
-        <span class="string">b&#39;a&#39;</span> <span class="op">|</span> <span class="string">b&#39;A&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">10</span>)),
-        <span class="string">b&#39;b&#39;</span> <span class="op">|</span> <span class="string">b&#39;B&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">11</span>)),
-        <span class="string">b&#39;c&#39;</span> <span class="op">|</span> <span class="string">b&#39;C&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">12</span>)),
-        <span class="string">b&#39;d&#39;</span> <span class="op">|</span> <span class="string">b&#39;D&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">13</span>)),
-        <span class="string">b&#39;e&#39;</span> <span class="op">|</span> <span class="string">b&#39;E&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">14</span>)),
-        <span class="string">b&#39;f&#39;</span> <span class="op">|</span> <span class="string">b&#39;F&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">15</span>)),
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+        <span class="string">b&#39;0&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">0</span>)),
+        <span class="string">b&#39;1&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">1</span>)),
+        <span class="string">b&#39;2&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">2</span>)),
+        <span class="string">b&#39;3&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">3</span>)),
+        <span class="string">b&#39;4&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">4</span>)),
+        <span class="string">b&#39;5&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">5</span>)),
+        <span class="string">b&#39;6&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">6</span>)),
+        <span class="string">b&#39;7&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">7</span>)),
+        <span class="string">b&#39;8&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">8</span>)),
+        <span class="string">b&#39;9&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">9</span>)),
+        <span class="string">b&#39;a&#39;</span> <span class="op">|</span> <span class="string">b&#39;A&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">10</span>)),
+        <span class="string">b&#39;b&#39;</span> <span class="op">|</span> <span class="string">b&#39;B&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">11</span>)),
+        <span class="string">b&#39;c&#39;</span> <span class="op">|</span> <span class="string">b&#39;C&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">12</span>)),
+        <span class="string">b&#39;d&#39;</span> <span class="op">|</span> <span class="string">b&#39;D&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">13</span>)),
+        <span class="string">b&#39;e&#39;</span> <span class="op">|</span> <span class="string">b&#39;E&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">14</span>)),
+        <span class="string">b&#39;f&#39;</span> <span class="op">|</span> <span class="string">b&#39;F&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">nth</span>(<span class="number">15</span>)),
+        <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
     }
 }
 
@@ -1238,7 +1238,7 @@
 <span class="kw">where</span>
     <span class="ident">I</span>: <span class="ident">Zero</span> <span class="op">+</span> <span class="ident">One</span> <span class="op">+</span> <span class="ident">AddAssign</span> <span class="op">+</span> <span class="ident">MulAssign</span>,
 {
-    <span class="kw">fn</span> <span class="ident">from_radix_16</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> (<span class="self">Self</span>, <span class="ident">usize</span>) {
+    <span class="kw">fn</span> <span class="ident">from_radix_16</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; (<span class="self">Self</span>, <span class="ident">usize</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">index</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">number</span> <span class="op">=</span> <span class="ident">I::zero</span>();
         <span class="kw">while</span> <span class="ident">index</span> <span class="op">!</span><span class="op">=</span> <span class="ident">text</span>.<span class="ident">len</span>() {
@@ -1258,7 +1258,7 @@
 <span class="kw">where</span>
     <span class="ident">I</span>: <span class="ident">Zero</span> <span class="op">+</span> <span class="ident">One</span> <span class="op">+</span> <span class="ident">FromRadix16</span> <span class="op">+</span> <span class="ident">CheckedMul</span> <span class="op">+</span> <span class="ident">CheckedAdd</span> <span class="op">+</span> <span class="ident">MaxNumDigits</span>,
 {
-    <span class="kw">fn</span> <span class="ident">from_radix_16_checked</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> (<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>, <span class="ident">usize</span>) {
+    <span class="kw">fn</span> <span class="ident">from_radix_16_checked</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; (<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>, <span class="ident">usize</span>) {
         <span class="kw">let</span> <span class="ident">max_safe_digits</span> <span class="op">=</span> <span class="ident">max</span>(<span class="number">1</span>, <span class="ident">I::max_num_digits_negative</span>(<span class="ident">nth</span>(<span class="number">10</span>))) <span class="op">-</span> <span class="number">1</span>;
         <span class="kw">let</span> (<span class="ident">number</span>, <span class="kw-2">mut</span> <span class="ident">index</span>) <span class="op">=</span> <span class="ident">I::from_radix_16</span>(<span class="kw-2">&amp;</span><span class="ident">text</span>[..<span class="ident">min</span>(<span class="ident">text</span>.<span class="ident">len</span>(), <span class="ident">max_safe_digits</span>)]);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">number</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">number</span>);
@@ -1294,29 +1294,29 @@
     <span class="doccomment">/// assert_eq!(Some(Sign::Minus), Sign::try_from(b&#39;-&#39;));</span>
     <span class="doccomment">/// assert_eq!(None, Sign::try_from(b&#39;1&#39;));</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">byte</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Sign</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">byte</span>: <span class="ident">u8</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Sign</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">byte</span> {
-            <span class="string">b&#39;+&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Sign::Plus</span>),
-            <span class="string">b&#39;-&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Sign::Minus</span>),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+            <span class="string">b&#39;+&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Sign::Plus</span>),
+            <span class="string">b&#39;-&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Sign::Minus</span>),
+            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
         }
     }
 
     <span class="doccomment">/// Returns either `+1` or `-1`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">signum</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">I</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">signum</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="self">self</span>) -&gt; <span class="ident">I</span>
     <span class="kw">where</span>
         <span class="ident">I</span>: <span class="ident">Signed</span>,
     {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Sign::Plus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">I::one</span>(),
-            <span class="ident">Sign::Minus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="op">-</span><span class="ident">I::one</span>(),
+            <span class="ident">Sign::Plus</span> =&gt; <span class="ident">I::one</span>(),
+            <span class="ident">Sign::Minus</span> =&gt; <span class="op">-</span><span class="ident">I::one</span>(),
         }
     }
 }
 
 <span class="comment">// At least for primitive types this function does not incur runtime costs, since it is only called</span>
 <span class="comment">// with constants</span>
-<span class="kw">fn</span> <span class="ident">nth</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">n</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">I</span>
+<span class="kw">fn</span> <span class="ident">nth</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">n</span>: <span class="ident">u8</span>) -&gt; <span class="ident">I</span>
 <span class="kw">where</span>
     <span class="ident">I</span>: <span class="ident">Zero</span> <span class="op">+</span> <span class="ident">One</span>,
 {

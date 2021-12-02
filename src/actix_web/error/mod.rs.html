@@ -344,12 +344,12 @@
 }
 
 <span class="kw">impl</span> <span class="ident">ResponseError</span> <span class="kw">for</span> <span class="ident">UrlencodedError</span> {
-    <span class="kw">fn</span> <span class="ident">status_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">StatusCode</span> {
+    <span class="kw">fn</span> <span class="ident">status_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">StatusCode</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Overflow</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">StatusCode::PAYLOAD_TOO_LARGE</span>,
-            <span class="ident"><span class="self">Self</span>::UnknownLength</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">StatusCode::LENGTH_REQUIRED</span>,
-            <span class="ident"><span class="self">Self</span>::Payload</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">err</span>.<span class="ident">status_code</span>(),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">StatusCode::BAD_REQUEST</span>,
+            <span class="ident"><span class="self">Self</span>::Overflow</span> { .. } =&gt; <span class="ident">StatusCode::PAYLOAD_TOO_LARGE</span>,
+            <span class="ident"><span class="self">Self</span>::UnknownLength</span> =&gt; <span class="ident">StatusCode::LENGTH_REQUIRED</span>,
+            <span class="ident"><span class="self">Self</span>::Payload</span>(<span class="ident">err</span>) =&gt; <span class="ident">err</span>.<span class="ident">status_code</span>(),
+            <span class="kw">_</span> =&gt; <span class="ident">StatusCode::BAD_REQUEST</span>,
         }
     }
 }
@@ -388,22 +388,22 @@
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">PayloadError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">JsonPayloadError</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">PayloadError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">PayloadError</span>) -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::Payload</span>(<span class="ident">err</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">ResponseError</span> <span class="kw">for</span> <span class="ident">JsonPayloadError</span> {
-    <span class="kw">fn</span> <span class="ident">status_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">StatusCode</span> {
+    <span class="kw">fn</span> <span class="ident">status_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">StatusCode</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident"><span class="self">Self</span>::OverflowKnownLength</span> {
                 <span class="ident">length</span>: <span class="kw">_</span>,
                 <span class="ident">limit</span>: <span class="kw">_</span>,
-            } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">StatusCode::PAYLOAD_TOO_LARGE</span>,
-            <span class="ident"><span class="self">Self</span>::Overflow</span> { <span class="ident">limit</span>: <span class="kw">_</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">StatusCode::PAYLOAD_TOO_LARGE</span>,
-            <span class="ident"><span class="self">Self</span>::Serialize</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">StatusCode::INTERNAL_SERVER_ERROR</span>,
-            <span class="ident"><span class="self">Self</span>::Payload</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">err</span>.<span class="ident">status_code</span>(),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">StatusCode::BAD_REQUEST</span>,
+            } =&gt; <span class="ident">StatusCode::PAYLOAD_TOO_LARGE</span>,
+            <span class="ident"><span class="self">Self</span>::Overflow</span> { <span class="ident">limit</span>: <span class="kw">_</span> } =&gt; <span class="ident">StatusCode::PAYLOAD_TOO_LARGE</span>,
+            <span class="ident"><span class="self">Self</span>::Serialize</span>(<span class="kw">_</span>) =&gt; <span class="ident">StatusCode::INTERNAL_SERVER_ERROR</span>,
+            <span class="ident"><span class="self">Self</span>::Payload</span>(<span class="ident">err</span>) =&gt; <span class="ident">err</span>.<span class="ident">status_code</span>(),
+            <span class="kw">_</span> =&gt; <span class="ident">StatusCode::BAD_REQUEST</span>,
         }
     }
 }
@@ -419,7 +419,7 @@
 
 <span class="doccomment">/// Return `BadRequest` for `PathError`</span>
 <span class="kw">impl</span> <span class="ident">ResponseError</span> <span class="kw">for</span> <span class="ident">PathError</span> {
-    <span class="kw">fn</span> <span class="ident">status_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">StatusCode</span> {
+    <span class="kw">fn</span> <span class="ident">status_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">StatusCode</span> {
         <span class="ident">StatusCode::BAD_REQUEST</span>
     }
 }
@@ -434,7 +434,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">ResponseError</span> <span class="kw">for</span> <span class="ident">QueryPayloadError</span> {
-    <span class="kw">fn</span> <span class="ident">status_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">StatusCode</span> {
+    <span class="kw">fn</span> <span class="ident">status_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">StatusCode</span> {
         <span class="ident">StatusCode::BAD_REQUEST</span>
     }
 }
@@ -461,10 +461,10 @@
 }
 
 <span class="kw">impl</span> <span class="ident">ResponseError</span> <span class="kw">for</span> <span class="ident">ReadlinesError</span> {
-    <span class="kw">fn</span> <span class="ident">status_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">StatusCode</span> {
+    <span class="kw">fn</span> <span class="ident">status_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">StatusCode</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">ReadlinesError::LimitOverflow</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">StatusCode::PAYLOAD_TOO_LARGE</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">StatusCode::BAD_REQUEST</span>,
+            <span class="ident">ReadlinesError::LimitOverflow</span> =&gt; <span class="ident">StatusCode::PAYLOAD_TOO_LARGE</span>,
+            <span class="kw">_</span> =&gt; <span class="ident">StatusCode::BAD_REQUEST</span>,
         }
     }
 }

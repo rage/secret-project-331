@@ -457,7 +457,7 @@
     }
 
     <span class="kw">let</span> <span class="ident">offline</span> <span class="op">=</span> <span class="ident">env</span>(<span class="string">&quot;SQLX_OFFLINE&quot;</span>)
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">eq_ignore_ascii_case</span>(<span class="string">&quot;true&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">s</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;1&quot;</span>)
+        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">eq_ignore_ascii_case</span>(<span class="string">&quot;true&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">s</span> <span class="op">==</span> <span class="string">&quot;1&quot;</span>)
         .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>);
 
     <span class="kw">let</span> <span class="ident">database_url</span> <span class="op">=</span> <span class="ident">env</span>(<span class="string">&quot;DATABASE_URL&quot;</span>).<span class="ident">ok</span>();
@@ -498,16 +498,16 @@
     }
 });
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">expand_input</span>(<span class="ident">input</span>: <span class="ident">QueryMacroInput</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">expand_input</span>(<span class="ident">input</span>: <span class="ident">QueryMacroInput</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">METADATA</span> {
         <span class="ident">Metadata</span> {
             <span class="ident">offline</span>: <span class="bool-val">false</span>,
             <span class="ident">database_url</span>: <span class="prelude-val">Some</span>(<span class="ident">db_url</span>),
             ..
-        } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">expand_from_db</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">db_url</span>),
+        } =&gt; <span class="ident">expand_from_db</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">db_url</span>),
 
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;offline&quot;</span>)]</span>
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw">_</span> =&gt; {
             <span class="kw">let</span> <span class="ident">data_file_path</span> <span class="op">=</span> <span class="ident">METADATA</span>.<span class="ident">manifest_dir</span>.<span class="ident">join</span>(<span class="string">&quot;sqlx-data.json&quot;</span>);
             <span class="kw">let</span> <span class="ident">workspace_data_file_path</span> <span class="op">=</span> <span class="ident">METADATA</span>.<span class="ident">workspace_root</span>.<span class="ident">join</span>(<span class="string">&quot;sqlx-data.json&quot;</span>);
 
@@ -525,7 +525,7 @@
         }
 
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;offline&quot;</span>))]</span>
-        <span class="ident">Metadata</span> { <span class="ident">offline</span>: <span class="bool-val">true</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">Metadata</span> { <span class="ident">offline</span>: <span class="bool-val">true</span>, .. } =&gt; {
             <span class="prelude-val">Err</span>(<span class="string">&quot;The cargo feature `offline` has to be enabled to use `SQLX_OFFLINE`&quot;</span>.<span class="ident">into</span>())
         }
 
@@ -534,19 +534,19 @@
             <span class="ident">offline</span>: <span class="bool-val">false</span>,
             <span class="ident">database_url</span>: <span class="prelude-val">None</span>,
             ..
-        } <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="string">&quot;`DATABASE_URL` must be set to use query macros&quot;</span>.<span class="ident">into</span>()),
+        } =&gt; <span class="prelude-val">Err</span>(<span class="string">&quot;`DATABASE_URL` must be set to use query macros&quot;</span>.<span class="ident">into</span>()),
     }
 }
 
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
-<span class="kw">fn</span> <span class="ident">expand_from_db</span>(<span class="ident">input</span>: <span class="ident">QueryMacroInput</span>, <span class="ident">db_url</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">expand_from_db</span>(<span class="ident">input</span>: <span class="ident">QueryMacroInput</span>, <span class="ident">db_url</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
     <span class="comment">// FIXME: Introduce [sqlx::any::AnyConnection] and [sqlx::any::AnyDatabase] to support</span>
     <span class="comment">//        runtime determinism here</span>
 
     <span class="kw">let</span> <span class="ident">db_url</span> <span class="op">=</span> <span class="ident">Url::parse</span>(<span class="ident">db_url</span>)<span class="question-mark">?</span>;
     <span class="kw">match</span> <span class="ident">db_url</span>.<span class="ident">scheme</span>() {
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>)]</span>
-        <span class="string">&quot;postgres&quot;</span> <span class="op">|</span> <span class="string">&quot;postgresql&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="string">&quot;postgres&quot;</span> <span class="op">|</span> <span class="string">&quot;postgresql&quot;</span> =&gt; {
             <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">block_on</span>(<span class="kw">async</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">sqlx_core::postgres::PgConnection::connect</span>(<span class="ident">db_url</span>.<span class="ident">as_str</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
                 <span class="ident">QueryData::from_db</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">sql</span>).<span class="kw">await</span>
@@ -556,10 +556,10 @@
         },
 
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>))]</span>
-        <span class="string">&quot;postgres&quot;</span> <span class="op">|</span> <span class="string">&quot;postgresql&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="string">&quot;database URL has the scheme of a PostgreSQL database but the `postgres` feature is not enabled&quot;</span>.<span class="ident">into</span>()),
+        <span class="string">&quot;postgres&quot;</span> <span class="op">|</span> <span class="string">&quot;postgresql&quot;</span> =&gt; <span class="prelude-val">Err</span>(<span class="string">&quot;database URL has the scheme of a PostgreSQL database but the `postgres` feature is not enabled&quot;</span>.<span class="ident">into</span>()),
 
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
-        <span class="string">&quot;mssql&quot;</span> <span class="op">|</span> <span class="string">&quot;sqlserver&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="string">&quot;mssql&quot;</span> <span class="op">|</span> <span class="string">&quot;sqlserver&quot;</span> =&gt; {
             <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">block_on</span>(<span class="kw">async</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">sqlx_core::mssql::MssqlConnection::connect</span>(<span class="ident">db_url</span>.<span class="ident">as_str</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
                 <span class="ident">QueryData::from_db</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">sql</span>).<span class="kw">await</span>
@@ -569,10 +569,10 @@
         },
 
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>))]</span>
-        <span class="string">&quot;mssql&quot;</span> <span class="op">|</span> <span class="string">&quot;sqlserver&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="string">&quot;database URL has the scheme of a MSSQL database but the `mssql` feature is not enabled&quot;</span>.<span class="ident">into</span>()),
+        <span class="string">&quot;mssql&quot;</span> <span class="op">|</span> <span class="string">&quot;sqlserver&quot;</span> =&gt; <span class="prelude-val">Err</span>(<span class="string">&quot;database URL has the scheme of a MSSQL database but the `mssql` feature is not enabled&quot;</span>.<span class="ident">into</span>()),
 
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
-        <span class="string">&quot;mysql&quot;</span> <span class="op">|</span> <span class="string">&quot;mariadb&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="string">&quot;mysql&quot;</span> <span class="op">|</span> <span class="string">&quot;mariadb&quot;</span> =&gt; {
             <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">block_on</span>(<span class="kw">async</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">sqlx_core::mysql::MySqlConnection::connect</span>(<span class="ident">db_url</span>.<span class="ident">as_str</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
                 <span class="ident">QueryData::from_db</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">sql</span>).<span class="kw">await</span>
@@ -582,10 +582,10 @@
         },
 
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>))]</span>
-        <span class="string">&quot;mysql&quot;</span> <span class="op">|</span> <span class="string">&quot;mariadb&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="string">&quot;database URL has the scheme of a MySQL/MariaDB database but the `mysql` feature is not enabled&quot;</span>.<span class="ident">into</span>()),
+        <span class="string">&quot;mysql&quot;</span> <span class="op">|</span> <span class="string">&quot;mariadb&quot;</span> =&gt; <span class="prelude-val">Err</span>(<span class="string">&quot;database URL has the scheme of a MySQL/MariaDB database but the `mysql` feature is not enabled&quot;</span>.<span class="ident">into</span>()),
 
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-        <span class="string">&quot;sqlite&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="string">&quot;sqlite&quot;</span> =&gt; {
             <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">block_on</span>(<span class="kw">async</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">sqlx_core::sqlite::SqliteConnection::connect</span>(<span class="ident">db_url</span>.<span class="ident">as_str</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
                 <span class="ident">QueryData::from_db</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">sql</span>).<span class="kw">await</span>
@@ -595,14 +595,14 @@
         },
 
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>))]</span>
-        <span class="string">&quot;sqlite&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="string">&quot;database URL has the scheme of a SQLite database but the `sqlite` feature is not enabled&quot;</span>.<span class="ident">into</span>()),
+        <span class="string">&quot;sqlite&quot;</span> =&gt; <span class="prelude-val">Err</span>(<span class="string">&quot;database URL has the scheme of a SQLite database but the `sqlite` feature is not enabled&quot;</span>.<span class="ident">into</span>()),
 
-        <span class="ident">scheme</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;unknown database URL scheme {:?}&quot;</span>, <span class="ident">scheme</span>).<span class="ident">into</span>())
+        <span class="ident">scheme</span> =&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;unknown database URL scheme {:?}&quot;</span>, <span class="ident">scheme</span>).<span class="ident">into</span>())
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;offline&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">expand_from_file</span>(<span class="ident">input</span>: <span class="ident">QueryMacroInput</span>, <span class="ident">file</span>: <span class="ident">PathBuf</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">expand_from_file</span>(<span class="ident">input</span>: <span class="ident">QueryMacroInput</span>, <span class="ident">file</span>: <span class="ident">PathBuf</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
     <span class="kw">use</span> <span class="ident">data::offline::DynQueryData</span>;
 
     <span class="kw">let</span> <span class="ident">query_data</span> <span class="op">=</span> <span class="ident">DynQueryData::from_data_file</span>(<span class="ident">file</span>, <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">sql</span>)<span class="question-mark">?</span>;
@@ -610,24 +610,24 @@
 
     <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">query_data</span>.<span class="ident">db_name</span> {
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>)]</span>
-        <span class="ident">sqlx_core::postgres::Postgres::NAME</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">expand_with_data</span>(
+        <span class="ident">sqlx_core::postgres::Postgres::NAME</span> =&gt; <span class="ident">expand_with_data</span>(
             <span class="ident">input</span>,
             <span class="ident">QueryData</span>::<span class="op">&lt;</span><span class="ident">sqlx_core::postgres::Postgres</span><span class="op">&gt;</span><span class="ident">::from_dyn_data</span>(<span class="ident">query_data</span>)<span class="question-mark">?</span>,
             <span class="bool-val">true</span>,
         ),
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
-        <span class="ident">sqlx_core::mysql::MySql::NAME</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">expand_with_data</span>(
+        <span class="ident">sqlx_core::mysql::MySql::NAME</span> =&gt; <span class="ident">expand_with_data</span>(
             <span class="ident">input</span>,
             <span class="ident">QueryData</span>::<span class="op">&lt;</span><span class="ident">sqlx_core::mysql::MySql</span><span class="op">&gt;</span><span class="ident">::from_dyn_data</span>(<span class="ident">query_data</span>)<span class="question-mark">?</span>,
             <span class="bool-val">true</span>,
         ),
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-        <span class="ident">sqlx_core::sqlite::Sqlite::NAME</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">expand_with_data</span>(
+        <span class="ident">sqlx_core::sqlite::Sqlite::NAME</span> =&gt; <span class="ident">expand_with_data</span>(
             <span class="ident">input</span>,
             <span class="ident">QueryData</span>::<span class="op">&lt;</span><span class="ident">sqlx_core::sqlite::Sqlite</span><span class="op">&gt;</span><span class="ident">::from_dyn_data</span>(<span class="ident">query_data</span>)<span class="question-mark">?</span>,
             <span class="bool-val">true</span>,
         ),
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(
+        <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(
             <span class="string">&quot;found query data for {} but the feature for that database was not enabled&quot;</span>,
             <span class="ident">query_data</span>.<span class="ident">db_name</span>
         )
@@ -655,16 +655,16 @@
     <span class="ident">input</span>: <span class="ident">QueryMacroInput</span>,
     <span class="ident">data</span>: <span class="ident">QueryData</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>,
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span> <span class="ident">offline</span>: <span class="ident">bool</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span>
+) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">Describe</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>: <span class="ident">DescribeExt</span>,
 {
     <span class="comment">// validate at the minimum that our args match the query&#39;s input parameters</span>
     <span class="kw">let</span> <span class="ident">num_parameters</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">data</span>.<span class="ident">describe</span>.<span class="ident">parameters</span>() {
-        <span class="prelude-val">Some</span>(<span class="ident">Either::Left</span>(<span class="ident">params</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">params</span>.<span class="ident">len</span>()),
-        <span class="prelude-val">Some</span>(<span class="ident">Either::Right</span>(<span class="ident">num</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">num</span>),
+        <span class="prelude-val">Some</span>(<span class="ident">Either::Left</span>(<span class="ident">params</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">params</span>.<span class="ident">len</span>()),
+        <span class="prelude-val">Some</span>(<span class="ident">Either::Right</span>(<span class="ident">num</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">num</span>),
 
-        <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+        <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
     };
 
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">num</span>) <span class="op">=</span> <span class="ident">num_parameters</span> {
@@ -693,7 +693,7 @@
         }
     } <span class="kw">else</span> {
         <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">record_type</span> {
-            <span class="ident">RecordType::Generated</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">RecordType::Generated</span> =&gt; {
                 <span class="kw">let</span> <span class="ident">columns</span> <span class="op">=</span> <span class="ident">output::columns_to_rust</span>::<span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>.<span class="ident">describe</span>)<span class="question-mark">?</span>;
 
                 <span class="kw">let</span> <span class="ident">record_name</span>: <span class="ident">Type</span> <span class="op">=</span> <span class="ident">syn::parse_str</span>(<span class="string">&quot;Record&quot;</span>).<span class="ident">unwrap</span>();
@@ -732,12 +732,12 @@
 
                 <span class="ident">record_tokens</span>
             }
-            <span class="ident">RecordType::Given</span>(<span class="kw-2">ref</span> <span class="ident">out_ty</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">RecordType::Given</span>(<span class="kw-2">ref</span> <span class="ident">out_ty</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">columns</span> <span class="op">=</span> <span class="ident">output::columns_to_rust</span>::<span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>.<span class="ident">describe</span>)<span class="question-mark">?</span>;
 
                 <span class="ident">output::quote_query_as</span>::<span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>, <span class="ident">out_ty</span>, <span class="kw-2">&amp;</span><span class="ident">query_args</span>, <span class="kw-2">&amp;</span><span class="ident">columns</span>)
             }
-            <span class="ident">RecordType::Scalar</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">RecordType::Scalar</span> =&gt; {
                 <span class="ident">output::quote_query_scalar</span>::<span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">query_args</span>, <span class="kw-2">&amp;</span><span class="ident">data</span>.<span class="ident">describe</span>)<span class="question-mark">?</span>
             }
         }
@@ -769,7 +769,7 @@
 }
 
 <span class="doccomment">/// Get the value of an environment variable, telling the compiler about it if applicable.</span>
-<span class="kw">fn</span> <span class="ident">env</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">std::env::VarError</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">env</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">std::env::VarError</span><span class="op">&gt;</span> {
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">procmacro2_semver_exempt</span>)]</span>
     {
         <span class="ident">proc_macro::tracked_env::var</span>(<span class="ident">name</span>)

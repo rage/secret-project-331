@@ -120,7 +120,7 @@
     <span class="doccomment">///     ])</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    (<span class="ident">IfMatch</span>, <span class="ident">IF_MATCH</span>) <span class="op">=</span><span class="op">&gt;</span> {<span class="ident">Any</span> <span class="op">/</span> (<span class="ident">EntityTag</span>)<span class="op">+</span>}
+    (<span class="ident">IfMatch</span>, <span class="ident">IF_MATCH</span>) =&gt; {<span class="ident">Any</span> <span class="op">/</span> (<span class="ident">EntityTag</span>)<span class="op">+</span>}
 
     <span class="ident">test_if_match</span> {
         <span class="macro">crate::http::header::common_header_test!</span>(

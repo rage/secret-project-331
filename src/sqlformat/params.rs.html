@@ -51,23 +51,23 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Params</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">QueryParams</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">QueryParams</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">Params</span> { <span class="ident">index</span>: <span class="number">0</span>, <span class="ident">params</span> }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">token</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Token</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">token</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Token</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">params</span> {
-            <span class="ident">QueryParams::Named</span>(<span class="ident">params</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">token</span>
+            <span class="ident">QueryParams::Named</span>(<span class="ident">params</span>) =&gt; <span class="ident">token</span>
                 .<span class="ident">key</span>
                 .<span class="ident">as_ref</span>()
                 .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">key</span><span class="op">|</span> {
                     <span class="ident">params</span>
                         .<span class="ident">iter</span>()
-                        .<span class="ident">find</span>(<span class="op">|</span><span class="ident">param</span><span class="op">|</span> <span class="ident">param</span>.<span class="number">0</span> <span class="op">=</span><span class="op">=</span> <span class="ident">key</span>.<span class="ident">named</span>())
+                        .<span class="ident">find</span>(<span class="op">|</span><span class="ident">param</span><span class="op">|</span> <span class="ident">param</span>.<span class="number">0</span> <span class="op">==</span> <span class="ident">key</span>.<span class="ident">named</span>())
                         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">param</span><span class="op">|</span> <span class="ident">param</span>.<span class="number">1</span>.<span class="ident">as_str</span>())
                 })
                 .<span class="ident">unwrap_or</span>(<span class="ident">token</span>.<span class="ident">value</span>),
-            <span class="ident">QueryParams::Indexed</span>(<span class="ident">params</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">QueryParams::Indexed</span>(<span class="ident">params</span>) =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">key</span>) <span class="op">=</span> <span class="ident">token</span>.<span class="ident">key</span>.<span class="ident">as_ref</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">key</span><span class="op">|</span> <span class="ident">key</span>.<span class="ident">indexed</span>()) {
                     <span class="ident">params</span>
                         .<span class="ident">get</span>(<span class="ident">key</span>)
@@ -82,7 +82,7 @@
                     <span class="ident">value</span>
                 }
             }
-            <span class="ident">QueryParams::None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">token</span>.<span class="ident">value</span>,
+            <span class="ident">QueryParams::None</span> =&gt; <span class="ident">token</span>.<span class="ident">value</span>,
         }
     }
 }

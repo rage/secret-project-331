@@ -612,33 +612,33 @@
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">QuotedPrintableError</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">QuotedPrintableError::InvalidByte</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">QuotedPrintableError::InvalidByte</span> =&gt; {
                 <span class="macro">write!</span>(
                     <span class="ident">f</span>,
                     <span class="string">&quot;A unallowed byte was found in the quoted-printable input&quot;</span>
                 )
             }
-            <span class="ident">QuotedPrintableError::LineTooLong</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">QuotedPrintableError::LineTooLong</span> =&gt; {
                 <span class="macro">write!</span>(
                     <span class="ident">f</span>,
                     <span class="string">&quot;A line length in the quoted-printed input exceeded 76 bytes&quot;</span>
                 )
             }
-            <span class="ident">QuotedPrintableError::IncompleteHexOctet</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">QuotedPrintableError::IncompleteHexOctet</span> =&gt; {
                 <span class="macro">write!</span>(
                     <span class="ident">f</span>,
                     <span class="string">&quot;A &#39;=&#39; followed by only one character was found in the input&quot;</span>
                 )
             }
-            <span class="ident">QuotedPrintableError::InvalidHexOctet</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">QuotedPrintableError::InvalidHexOctet</span> =&gt; {
                 <span class="macro">write!</span>(
                     <span class="ident">f</span>,
                     <span class="string">&quot;A &#39;=&#39; followed by non-hex characters was found in the input&quot;</span>
                 )
             }
-            <span class="ident">QuotedPrintableError::LowercaseHexOctet</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">QuotedPrintableError::LowercaseHexOctet</span> =&gt; {
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;A &#39;=&#39; was followed by lowercase hex characters&quot;</span>)
             }
         }
@@ -646,11 +646,11 @@
 }
 
 <span class="kw">impl</span> <span class="ident">error::Error</span> <span class="kw">for</span> <span class="ident">QuotedPrintableError</span> {
-    <span class="kw">fn</span> <span class="ident">description</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+    <span class="kw">fn</span> <span class="ident">description</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="string">&quot;invalid quoted-printable input&quot;</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">cause</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">error::Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">cause</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">error::Error</span><span class="op">&gt;</span> {
         <span class="prelude-val">None</span>
     }
 }
@@ -684,19 +684,19 @@
 <span class="doccomment">/// invalid input, and what a &quot;robust&quot; implementation would do in the face of</span>
 <span class="doccomment">/// invalid input.</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decode</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">R</span>, <span class="ident">mode</span>: <span class="ident">ParseMode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">QuotedPrintableError</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decode</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">R</span>, <span class="ident">mode</span>: <span class="ident">ParseMode</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">QuotedPrintableError</span><span class="op">&gt;</span> {
     <span class="ident">_decode</span>(<span class="ident">input</span>.<span class="ident">as_ref</span>(), <span class="ident">mode</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">_decode</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mode</span>: <span class="ident">ParseMode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">QuotedPrintableError</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">_decode</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mode</span>: <span class="ident">ParseMode</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">QuotedPrintableError</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">filtered</span> <span class="op">=</span> <span class="ident">input</span>
         .<span class="ident">into_iter</span>()
         .<span class="ident">filter_map</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">c</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">c</span> {
-            <span class="string">b&#39;\t&#39;</span> <span class="op">|</span> <span class="string">b&#39;\r&#39;</span> <span class="op">|</span> <span class="string">b&#39;\n&#39;</span> <span class="op">|</span> <span class="string">b&#39; &#39;</span>..<span class="op">=</span><span class="string">b&#39;~&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">c</span> <span class="kw">as</span> <span class="ident">char</span>),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+            <span class="string">b&#39;\t&#39;</span> <span class="op">|</span> <span class="string">b&#39;\r&#39;</span> <span class="op">|</span> <span class="string">b&#39;\n&#39;</span> <span class="op">|</span> <span class="string">b&#39; &#39;</span>..<span class="op">=</span><span class="string">b&#39;~&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">c</span> <span class="kw">as</span> <span class="ident">char</span>),
+            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
         })
         .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>();
-    <span class="kw">if</span> <span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ParseMode::Strict</span> <span class="op">&amp;&amp;</span> <span class="ident">filtered</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">input</span>.<span class="ident">len</span>() {
+    <span class="kw">if</span> <span class="ident">mode</span> <span class="op">==</span> <span class="ident">ParseMode::Strict</span> <span class="op">&amp;&amp;</span> <span class="ident">filtered</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">input</span>.<span class="ident">len</span>() {
         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">QuotedPrintableError::InvalidByte</span>);
     }
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">decoded</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
@@ -704,20 +704,20 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">add_line_break</span> <span class="op">=</span> <span class="prelude-val">None</span>;
     <span class="kw">loop</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">lines</span>.<span class="ident">next</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">v</span>.<span class="ident">trim_end</span>().<span class="ident">bytes</span>(),
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ParseMode::Strict</span> <span class="op">&amp;&amp;</span> <span class="ident">add_line_break</span> <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="bool-val">false</span>) {
+            <span class="prelude-val">Some</span>(<span class="ident">v</span>) =&gt; <span class="ident">v</span>.<span class="ident">trim_end</span>().<span class="ident">bytes</span>(),
+            <span class="prelude-val">None</span> =&gt; {
+                <span class="kw">if</span> <span class="ident">mode</span> <span class="op">==</span> <span class="ident">ParseMode::Strict</span> <span class="op">&amp;&amp;</span> <span class="ident">add_line_break</span> <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="bool-val">false</span>) {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">QuotedPrintableError::IncompleteHexOctet</span>);
                 }
                 <span class="kw">break</span>;
             }
         };
 
-        <span class="kw">if</span> <span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ParseMode::Strict</span> <span class="op">&amp;&amp;</span> <span class="ident">bytes</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="ident">LINE_LENGTH_LIMIT</span> {
+        <span class="kw">if</span> <span class="ident">mode</span> <span class="op">==</span> <span class="ident">ParseMode::Strict</span> <span class="op">&amp;&amp;</span> <span class="ident">bytes</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="ident">LINE_LENGTH_LIMIT</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">QuotedPrintableError::LineTooLong</span>);
         }
 
-        <span class="kw">if</span> <span class="ident">add_line_break</span> <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="bool-val">true</span>) {
+        <span class="kw">if</span> <span class="ident">add_line_break</span> <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="bool-val">true</span>) {
             <span class="ident">decoded</span>.<span class="ident">push</span>(<span class="string">b&#39;\r&#39;</span>);
             <span class="ident">decoded</span>.<span class="ident">push</span>(<span class="string">b&#39;\n&#39;</span>);
             <span class="ident">add_line_break</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="bool-val">false</span>);
@@ -725,22 +725,22 @@
 
         <span class="kw">loop</span> {
             <span class="kw">let</span> <span class="ident">byte</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">bytes</span>.<span class="ident">next</span>() {
-                <span class="prelude-val">Some</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">v</span>,
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">v</span>) =&gt; <span class="ident">v</span>,
+                <span class="prelude-val">None</span> =&gt; {
                     <span class="ident">add_line_break</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="bool-val">true</span>);
                     <span class="kw">break</span>;
                 }
             };
 
-            <span class="kw">if</span> <span class="ident">byte</span> <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;=&#39;</span> {
+            <span class="kw">if</span> <span class="ident">byte</span> <span class="op">==</span> <span class="string">b&#39;=&#39;</span> {
                 <span class="kw">let</span> <span class="ident">upper</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">bytes</span>.<span class="ident">next</span>() {
-                    <span class="prelude-val">Some</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">v</span>,
-                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">break</span>,
+                    <span class="prelude-val">Some</span>(<span class="ident">v</span>) =&gt; <span class="ident">v</span>,
+                    <span class="prelude-val">None</span> =&gt; <span class="kw">break</span>,
                 };
                 <span class="kw">let</span> <span class="ident">lower</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">bytes</span>.<span class="ident">next</span>() {
-                    <span class="prelude-val">Some</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">v</span>,
-                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="kw">if</span> <span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ParseMode::Strict</span> {
+                    <span class="prelude-val">Some</span>(<span class="ident">v</span>) =&gt; <span class="ident">v</span>,
+                    <span class="prelude-val">None</span> =&gt; {
+                        <span class="kw">if</span> <span class="ident">mode</span> <span class="op">==</span> <span class="ident">ParseMode::Strict</span> {
                             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">QuotedPrintableError::IncompleteHexOctet</span>);
                         }
                         <span class="ident">decoded</span>.<span class="ident">push</span>(<span class="ident">byte</span>);
@@ -752,7 +752,7 @@
                 <span class="kw">let</span> <span class="ident">upper_char</span> <span class="op">=</span> <span class="ident">upper</span> <span class="kw">as</span> <span class="ident">char</span>;
                 <span class="kw">let</span> <span class="ident">lower_char</span> <span class="op">=</span> <span class="ident">lower</span> <span class="kw">as</span> <span class="ident">char</span>;
                 <span class="kw">if</span> <span class="ident">upper_char</span>.<span class="ident">is_digit</span>(<span class="number">16</span>) <span class="op">&amp;&amp;</span> <span class="ident">lower_char</span>.<span class="ident">is_digit</span>(<span class="number">16</span>) {
-                    <span class="kw">if</span> <span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ParseMode::Strict</span> {
+                    <span class="kw">if</span> <span class="ident">mode</span> <span class="op">==</span> <span class="ident">ParseMode::Strict</span> {
                         <span class="kw">if</span> <span class="ident">upper_char</span>.<span class="ident">to_uppercase</span>().<span class="ident">next</span>() <span class="op">!</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">upper_char</span>) <span class="op">|</span><span class="op">|</span>
                             <span class="ident">lower_char</span>.<span class="ident">to_uppercase</span>().<span class="ident">next</span>() <span class="op">!</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">lower_char</span>)
                         {
@@ -763,7 +763,7 @@
                         <span class="ident">lower_char</span>.<span class="ident">to_digit</span>(<span class="number">16</span>).<span class="ident">unwrap</span>();
                     <span class="ident">decoded</span>.<span class="ident">push</span>(<span class="ident">combined</span> <span class="kw">as</span> <span class="ident">u8</span>);
                 } <span class="kw">else</span> {
-                    <span class="kw">if</span> <span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ParseMode::Strict</span> {
+                    <span class="kw">if</span> <span class="ident">mode</span> <span class="op">==</span> <span class="ident">ParseMode::Strict</span> {
                         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">QuotedPrintableError::InvalidHexOctet</span>);
                     }
                     <span class="ident">decoded</span>.<span class="ident">push</span>(<span class="ident">byte</span>);
@@ -785,7 +785,7 @@
     <span class="ident">backup_pos</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
 ) {
     <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">bytes_on_line</span> <span class="op">+</span> <span class="ident">to_append</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="ident">LINE_LENGTH_LIMIT</span> {
-        <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">bytes_on_line</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LINE_LENGTH_LIMIT</span> {
+        <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">bytes_on_line</span> <span class="op">==</span> <span class="ident">LINE_LENGTH_LIMIT</span> {
             <span class="comment">// We&#39;re already at the max length, so inserting the &#39;=&#39; in the soft</span>
             <span class="comment">// line break would put us over. Instead, we insert the soft line</span>
             <span class="comment">// break at the backup pos, which is just before the last thing</span>
@@ -817,12 +817,12 @@
 <span class="doccomment">///     assert_eq!(&quot;hello, =E2=82=AC zone!&quot;, String::from_utf8(encoded).unwrap());</span>
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encode</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">R</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encode</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">R</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">encoded_as_string</span> <span class="op">=</span> <span class="ident">_encode</span>(<span class="ident">input</span>.<span class="ident">as_ref</span>());
     <span class="ident">encoded_as_string</span>.<span class="ident">into</span>()
 }
 
-<span class="kw">fn</span> <span class="ident">_encode</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">fn</span> <span class="ident">_encode</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">String</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">String::new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">on_line</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">backup_pos</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
@@ -831,7 +831,7 @@
 
     <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">byte</span>) <span class="op">=</span> <span class="ident">it</span>.<span class="ident">next</span>() {
         <span class="kw">if</span> <span class="ident">was_cr</span> {
-            <span class="kw">if</span> <span class="ident">byte</span> <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;\n&#39;</span> {
+            <span class="kw">if</span> <span class="ident">byte</span> <span class="op">==</span> <span class="string">b&#39;\n&#39;</span> {
                 <span class="ident">result</span>.<span class="ident">push_str</span>(<span class="string">&quot;\r\n&quot;</span>);
                 <span class="ident">on_line</span> <span class="op">=</span> <span class="number">0</span>;
                 <span class="ident">was_cr</span> <span class="op">=</span> <span class="bool-val">false</span>;
@@ -840,7 +840,7 @@
             <span class="comment">// encode the CR (&#39;\r&#39;) we skipped over before</span>
             <span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">result</span>, <span class="kw-2">&amp;</span>[<span class="string">&#39;=&#39;</span>, <span class="string">&#39;0&#39;</span>, <span class="string">&#39;D&#39;</span>], <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">on_line</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">backup_pos</span>);
         }
-        <span class="kw">if</span> <span class="ident">byte</span> <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;\r&#39;</span> {
+        <span class="kw">if</span> <span class="ident">byte</span> <span class="op">==</span> <span class="string">b&#39;\r&#39;</span> {
             <span class="comment">// remember we had a CR (&#39;\r&#39;) but do not encode it yet</span>
             <span class="ident">was_cr</span> <span class="op">=</span> <span class="bool-val">true</span>;
             <span class="kw">continue</span>;
@@ -875,21 +875,21 @@
 <span class="doccomment">///     assert_eq!(&quot;hello, =E2=82=AC zone!&quot;, encoded);</span>
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encode_to_str</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">R</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encode_to_str</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">R</span>) -&gt; <span class="ident">String</span> {
     <span class="ident">_encode</span>(<span class="ident">input</span>.<span class="ident">as_ref</span>())
 }
 
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="kw">fn</span> <span class="ident">encode_byte</span>(<span class="ident">result</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">String</span>, <span class="ident">to_append</span>: <span class="ident">u8</span>, <span class="ident">on_line</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>, <span class="ident">backup_pos</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>) {
     <span class="kw">match</span> <span class="ident">to_append</span> {
-        <span class="string">b&#39;=&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">append</span>(<span class="ident">result</span>, <span class="kw-2">&amp;</span>[<span class="string">&#39;=&#39;</span>, <span class="string">&#39;3&#39;</span>, <span class="string">&#39;D&#39;</span>], <span class="ident">on_line</span>, <span class="ident">backup_pos</span>),
-        <span class="string">b&#39;\t&#39;</span> <span class="op">|</span> <span class="string">b&#39; &#39;</span>..<span class="op">=</span><span class="string">b&#39;~&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">append</span>(<span class="ident">result</span>, <span class="kw-2">&amp;</span>[<span class="ident">char::from</span>(<span class="ident">to_append</span>)], <span class="ident">on_line</span>, <span class="ident">backup_pos</span>),
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">append</span>(<span class="ident">result</span>, <span class="kw-2">&amp;</span><span class="ident">hex_encode_byte</span>(<span class="ident">to_append</span>), <span class="ident">on_line</span>, <span class="ident">backup_pos</span>),
+        <span class="string">b&#39;=&#39;</span> =&gt; <span class="ident">append</span>(<span class="ident">result</span>, <span class="kw-2">&amp;</span>[<span class="string">&#39;=&#39;</span>, <span class="string">&#39;3&#39;</span>, <span class="string">&#39;D&#39;</span>], <span class="ident">on_line</span>, <span class="ident">backup_pos</span>),
+        <span class="string">b&#39;\t&#39;</span> <span class="op">|</span> <span class="string">b&#39; &#39;</span>..<span class="op">=</span><span class="string">b&#39;~&#39;</span> =&gt; <span class="ident">append</span>(<span class="ident">result</span>, <span class="kw-2">&amp;</span>[<span class="ident">char::from</span>(<span class="ident">to_append</span>)], <span class="ident">on_line</span>, <span class="ident">backup_pos</span>),
+        <span class="kw">_</span> =&gt; <span class="ident">append</span>(<span class="ident">result</span>, <span class="kw-2">&amp;</span><span class="ident">hex_encode_byte</span>(<span class="ident">to_append</span>), <span class="ident">on_line</span>, <span class="ident">backup_pos</span>),
     }
 }
 
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">hex_encode_byte</span>(<span class="ident">byte</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> [<span class="ident">char</span>; <span class="number">3</span>] {
+<span class="kw">fn</span> <span class="ident">hex_encode_byte</span>(<span class="ident">byte</span>: <span class="ident">u8</span>) -&gt; [<span class="ident">char</span>; <span class="number">3</span>] {
     [
         <span class="string">&#39;=&#39;</span>,
         <span class="ident">lower_nibble_to_hex</span>(<span class="ident">byte</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">4</span>),
@@ -898,7 +898,7 @@
 }
 
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">lower_nibble_to_hex</span>(<span class="ident">half_byte</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">char</span> {
+<span class="kw">fn</span> <span class="ident">lower_nibble_to_hex</span>(<span class="ident">half_byte</span>: <span class="ident">u8</span>) -&gt; <span class="ident">char</span> {
     <span class="ident">HEX_CHARS</span>[(<span class="ident">half_byte</span> <span class="op">&amp;</span> <span class="number">0x0F</span>) <span class="kw">as</span> <span class="ident">usize</span>]
 }
 

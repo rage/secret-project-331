@@ -122,13 +122,13 @@
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">readwritecommon</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">readwrite</span>:<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">readwrite</span>:<span class="ident">ident</span>) =&gt; {
         <span class="doccomment">/// Controls whether zstd should include a content checksum at the end</span>
         <span class="doccomment">/// of each frame.</span>
         <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">include_checksum</span>(
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
             <span class="ident">include_checksum</span>: <span class="ident">bool</span>,
-        ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
             <span class="self">self</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">readwrite</span>.<span class="ident">operation_mut</span>().<span class="ident">set_parameter</span>(
                 <span class="ident">zstd_safe::CParameter::ChecksumFlag</span>(<span class="ident">include_checksum</span>),
             )
@@ -143,7 +143,7 @@
         <span class="doccomment">///</span>
         <span class="doccomment">/// So even `n_workers = 1` may increase performance by separating</span>
         <span class="doccomment">/// IO and compression.</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">multithread</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">n_workers</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">multithread</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">n_workers</span>: <span class="ident">u32</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
             <span class="self">self</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">readwrite</span>
                 .<span class="ident">operation_mut</span>()
                 .<span class="ident">set_parameter</span>(<span class="ident">zstd_safe::CParameter::NbWorkers</span>(<span class="ident">n_workers</span>))
@@ -156,7 +156,7 @@
         <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">include_dictid</span>(
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
             <span class="ident">include_dictid</span>: <span class="ident">bool</span>,
-        ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
             <span class="self">self</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">readwrite</span>.<span class="ident">operation_mut</span>().<span class="ident">set_parameter</span>(
                 <span class="ident">zstd_safe::CParameter::DictIdFlag</span>(<span class="ident">include_dictid</span>),
             )
@@ -166,7 +166,7 @@
         <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">include_contentsize</span>(
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
             <span class="ident">include_contentsize</span>: <span class="ident">bool</span>,
-        ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
             <span class="self">self</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">readwrite</span>.<span class="ident">operation_mut</span>().<span class="ident">set_parameter</span>(
                 <span class="ident">zstd_safe::CParameter::ContentSizeFlag</span>(<span class="ident">include_contentsize</span>),
             )
@@ -181,7 +181,7 @@
         <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">include_magicbytes</span>(
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
             <span class="ident">include_magicbytes</span>: <span class="ident">bool</span>,
-        ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
             <span class="self">self</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">readwrite</span>.<span class="ident">operation_mut</span>().<span class="ident">set_parameter</span>(
                 <span class="kw">if</span> <span class="ident">include_magicbytes</span> {
                     <span class="ident">zstd_safe::CParameter::Format</span>(<span class="ident">zstd_safe::FrameFormat::One</span>)

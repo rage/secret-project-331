@@ -23,7 +23,7 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">attr::StructAttr</span>, <span class="ident">deps::Dependencies</span>, <span class="ident">DerivedTS</span>};
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">unit</span>(<span class="ident">attr</span>: <span class="kw-2">&amp;</span><span class="ident">StructAttr</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DerivedTS</span><span class="op">&gt;</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">unit</span>(<span class="ident">attr</span>: <span class="kw-2">&amp;</span><span class="ident">StructAttr</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DerivedTS</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="ident">attr</span>.<span class="ident">rename_all</span>.<span class="ident">is_some</span>() {
         <span class="macro">syn_err!</span>(<span class="string">&quot;`rename_all` is not applicable to unit structs&quot;</span>);
     }

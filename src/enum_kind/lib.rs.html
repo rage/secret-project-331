@@ -289,7 +289,7 @@
 <span class="doccomment">/// # fn main() {}</span>
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">proc_macro_derive</span>(<span class="ident">Kind</span>, <span class="ident">attributes</span>(<span class="ident">kind</span>))]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">derive_kind</span>(<span class="ident">input</span>: <span class="ident">proc_macro::TokenStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">proc_macro::TokenStream</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">derive_kind</span>(<span class="ident">input</span>: <span class="ident">proc_macro::TokenStream</span>) -&gt; <span class="ident">proc_macro::TokenStream</span> {
     <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">syn::parse</span>::<span class="op">&lt;</span><span class="ident">syn::DeriveInput</span><span class="op">&gt;</span>(<span class="ident">input</span>)
         .<span class="ident">map</span>(<span class="ident">From::from</span>)
         .<span class="ident">expect</span>(<span class="string">&quot;failed to parse derive input&quot;</span>);

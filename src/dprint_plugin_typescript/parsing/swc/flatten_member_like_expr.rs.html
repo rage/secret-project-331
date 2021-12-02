@@ -122,11 +122,11 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Spanned</span> <span class="kw">for</span> <span class="ident">MemberLikeExprItem</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
+    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">MemberLikeExprItem::Computed</span>(<span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">node</span>.<span class="ident">span</span>,
-            <span class="ident">MemberLikeExprItem::Node</span>(<span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">node</span>.<span class="ident">span</span>(),
-            <span class="ident">MemberLikeExprItem::CallExpr</span>(<span class="ident">call_expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">MemberLikeExprItem::Computed</span>(<span class="ident">node</span>) =&gt; <span class="ident">node</span>.<span class="ident">span</span>,
+            <span class="ident">MemberLikeExprItem::Node</span>(<span class="ident">node</span>) =&gt; <span class="ident">node</span>.<span class="ident">span</span>(),
+            <span class="ident">MemberLikeExprItem::CallExpr</span>(<span class="ident">call_expr</span>) =&gt; {
                 <span class="ident">Span::new</span>(<span class="ident">call_expr</span>.<span class="ident">callee</span>.<span class="ident">span</span>().<span class="ident">lo</span>(), <span class="ident">call_expr</span>.<span class="ident">original_call_expr</span>.<span class="ident">hi</span>(), <span class="ident">Default::default</span>())
             }
         }
@@ -134,19 +134,19 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">MemberLikeExprItem</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_computed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_computed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">MemberLikeExprItem::Computed</span>(<span class="kw">_</span>))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_optional</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">get_top_node</span>().<span class="ident">parent</span>().<span class="ident">unwrap</span>().<span class="ident">parent</span>().<span class="ident">unwrap</span>().<span class="ident">kind</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">NodeKind::OptChainExpr</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_optional</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">get_top_node</span>().<span class="ident">parent</span>().<span class="ident">unwrap</span>().<span class="ident">parent</span>().<span class="ident">unwrap</span>().<span class="ident">kind</span>() <span class="op">==</span> <span class="ident">NodeKind::OptChainExpr</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">get_top_node</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_top_node</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">MemberLikeExprItem::Computed</span>(<span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">node</span>.<span class="ident">inner_node</span>,
-            <span class="ident">MemberLikeExprItem::Node</span>(<span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="ident">node</span>,
-            <span class="ident">MemberLikeExprItem::CallExpr</span>(<span class="ident">call_expr</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">call_expr</span>.<span class="ident">original_call_expr</span>.<span class="ident">into</span>(),
+            <span class="ident">MemberLikeExprItem::Computed</span>(<span class="ident">node</span>) =&gt; <span class="ident">node</span>.<span class="ident">inner_node</span>,
+            <span class="ident">MemberLikeExprItem::Node</span>(<span class="ident">node</span>) =&gt; <span class="kw-2">*</span><span class="ident">node</span>,
+            <span class="ident">MemberLikeExprItem::CallExpr</span>(<span class="ident">call_expr</span>) =&gt; <span class="ident">call_expr</span>.<span class="ident">original_call_expr</span>.<span class="ident">into</span>(),
         }
     }
 }
@@ -163,7 +163,7 @@
 
 <span class="doccomment">/// Takes a member expression and flattens it out.</span>
 <span class="doccomment">/// This is done to prevent a stack overflow when someone has many chained member expressions.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">flatten_member_like_expr</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">node</span>: <span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">module</span>: <span class="kw-2">&amp;</span><span class="ident">Module</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">FlattenedMemberLikeExpr</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">flatten_member_like_expr</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">node</span>: <span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">module</span>: <span class="kw-2">&amp;</span><span class="ident">Module</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="ident">FlattenedMemberLikeExpr</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nodes</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="ident">push_descendant_nodes</span>(<span class="ident">node</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">nodes</span>, <span class="ident">module</span>);
 
@@ -175,7 +175,7 @@
 
 <span class="kw">fn</span> <span class="ident">push_descendant_nodes</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">node</span>: <span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">nodes</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MemberLikeExprItem</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">module</span>: <span class="kw-2">&amp;</span><span class="ident">Module</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) {
     <span class="kw">match</span> <span class="ident">node</span> {
-        <span class="ident">Node::MemberExpr</span>(<span class="ident">member_expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">Node::MemberExpr</span>(<span class="ident">member_expr</span>) =&gt; {
             <span class="ident">push_descendant_nodes</span>(<span class="ident">member_expr</span>.<span class="ident">obj</span>.<span class="ident">into</span>(), <span class="ident">nodes</span>, <span class="ident">module</span>);
             <span class="kw">if</span> <span class="ident">member_expr</span>.<span class="ident">computed</span>() {
                 <span class="comment">// get the &#39;[&#39; and &#39;]&#39; tokens for the span</span>
@@ -189,14 +189,14 @@
                 <span class="ident">push_descendant_nodes</span>(<span class="ident">member_expr</span>.<span class="ident">prop</span>.<span class="ident">into</span>(), <span class="ident">nodes</span>, <span class="ident">module</span>);
             }
         }
-        <span class="ident">Node::MetaPropExpr</span>(<span class="ident">meta_prop_expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">Node::MetaPropExpr</span>(<span class="ident">meta_prop_expr</span>) =&gt; {
             <span class="ident">push_descendant_nodes</span>(<span class="ident">meta_prop_expr</span>.<span class="ident">meta</span>.<span class="ident">into</span>(), <span class="ident">nodes</span>, <span class="ident">module</span>);
             <span class="ident">push_descendant_nodes</span>(<span class="ident">meta_prop_expr</span>.<span class="ident">prop</span>.<span class="ident">into</span>(), <span class="ident">nodes</span>, <span class="ident">module</span>);
         }
-        <span class="ident">Node::OptChainExpr</span>(<span class="ident">opt_chain_expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">Node::OptChainExpr</span>(<span class="ident">opt_chain_expr</span>) =&gt; {
             <span class="ident">push_descendant_nodes</span>(<span class="ident">opt_chain_expr</span>.<span class="ident">expr</span>.<span class="ident">into</span>(), <span class="ident">nodes</span>, <span class="ident">module</span>);
         }
-        <span class="ident">Node::CallExpr</span>(<span class="ident">call_expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">Node::CallExpr</span>(<span class="ident">call_expr</span>) =&gt; {
             <span class="comment">// leave test library call expressions as-is</span>
             <span class="kw">if</span> <span class="ident">node_helpers::is_test_library_call_expr</span>(<span class="ident">call_expr</span>, <span class="ident">module</span>) {
                 <span class="ident">nodes</span>.<span class="ident">push</span>(<span class="ident">MemberLikeExprItem::Node</span>(<span class="ident">node</span>));
@@ -209,7 +209,7 @@
                 })));
             }
         }
-        <span class="ident">node</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">node</span> =&gt; {
             <span class="ident">nodes</span>.<span class="ident">push</span>(<span class="ident">MemberLikeExprItem::Node</span>(<span class="ident">node</span>));
         },
     }

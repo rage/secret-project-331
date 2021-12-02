@@ -211,7 +211,7 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::<span class="kw">super</span>::conditions</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::<span class="kw">super</span>::condition_resolvers</span>;
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">surround_with_new_lines</span>(<span class="ident">item</span>: <span class="ident">PrintItems</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PrintItems</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">surround_with_new_lines</span>(<span class="ident">item</span>: <span class="ident">PrintItems</span>) -&gt; <span class="ident">PrintItems</span> {
     <span class="kw">if</span> <span class="ident">item</span>.<span class="ident">is_empty</span>() { <span class="kw">return</span> <span class="ident">item</span>; }
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">items</span> <span class="op">=</span> <span class="ident">PrintItems::new</span>();
@@ -221,11 +221,11 @@
     <span class="ident">items</span>
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_indent</span>(<span class="ident">item</span>: <span class="ident">PrintItems</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PrintItems</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_indent</span>(<span class="ident">item</span>: <span class="ident">PrintItems</span>) -&gt; <span class="ident">PrintItems</span> {
     <span class="ident">with_indent_times</span>(<span class="ident">item</span>, <span class="number">1</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_queued_indent</span>(<span class="ident">item</span>: <span class="ident">PrintItems</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PrintItems</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_queued_indent</span>(<span class="ident">item</span>: <span class="ident">PrintItems</span>) -&gt; <span class="ident">PrintItems</span> {
     <span class="kw">if</span> <span class="ident">item</span>.<span class="ident">is_empty</span>() { <span class="kw">return</span> <span class="ident">item</span>; }
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">items</span> <span class="op">=</span> <span class="ident">PrintItems::new</span>();
@@ -235,7 +235,7 @@
     <span class="ident">items</span>
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_indent_times</span>(<span class="ident">item</span>: <span class="ident">PrintItems</span>, <span class="ident">times</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PrintItems</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_indent_times</span>(<span class="ident">item</span>: <span class="ident">PrintItems</span>, <span class="ident">times</span>: <span class="ident">u32</span>) -&gt; <span class="ident">PrintItems</span> {
     <span class="kw">if</span> <span class="ident">item</span>.<span class="ident">is_empty</span>() { <span class="kw">return</span> <span class="ident">item</span>; }
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">items</span> <span class="op">=</span> <span class="ident">PrintItems::new</span>();
@@ -245,7 +245,7 @@
     <span class="ident">items</span>
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_no_new_lines</span>(<span class="ident">item</span>: <span class="ident">PrintItems</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PrintItems</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_no_new_lines</span>(<span class="ident">item</span>: <span class="ident">PrintItems</span>) -&gt; <span class="ident">PrintItems</span> {
     <span class="kw">if</span> <span class="ident">item</span>.<span class="ident">is_empty</span>() { <span class="kw">return</span> <span class="ident">item</span>; }
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">items</span> <span class="op">=</span> <span class="ident">PrintItems::new</span>();
@@ -255,7 +255,7 @@
     <span class="ident">items</span>
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_line_group</span>(<span class="ident">item</span>: <span class="ident">PrintItems</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PrintItems</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_line_group</span>(<span class="ident">item</span>: <span class="ident">PrintItems</span>) -&gt; <span class="ident">PrintItems</span> {
     <span class="kw">if</span> <span class="ident">item</span>.<span class="ident">is_empty</span>() { <span class="kw">return</span> <span class="ident">item</span>; }
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">items</span> <span class="op">=</span> <span class="ident">PrintItems::new</span>();
@@ -266,7 +266,7 @@
 }
 
 <span class="doccomment">/// Parses a string as is and ignores its indent.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_raw_string</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PrintItems</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_raw_string</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">PrintItems</span> {
     <span class="kw">let</span> <span class="ident">add_ignore_indent</span> <span class="op">=</span> <span class="ident">text</span>.<span class="ident">find</span>(<span class="string">&quot;\n&quot;</span>).<span class="ident">is_some</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">items</span> <span class="op">=</span> <span class="ident">PrintItems::new</span>();
     <span class="kw">if</span> <span class="ident">add_ignore_indent</span> { <span class="ident">items</span>.<span class="ident">push_signal</span>(<span class="ident">Signal::StartIgnoringIndent</span>); }
@@ -277,7 +277,7 @@
 }
 
 <span class="doccomment">/// Parses a string to a series of PrintItems.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_string</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PrintItems</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_string</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">PrintItems</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">items</span> <span class="op">=</span> <span class="ident">PrintItems::new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lines</span> <span class="op">=</span> <span class="ident">text</span>.<span class="ident">lines</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>();
 
@@ -297,7 +297,7 @@
 
     <span class="kw">return</span> <span class="ident">items</span>;
 
-    <span class="kw">fn</span> <span class="ident">parse_line</span>(<span class="ident">line</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PrintItems</span> {
+    <span class="kw">fn</span> <span class="ident">parse_line</span>(<span class="ident">line</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">PrintItems</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">items</span> <span class="op">=</span> <span class="ident">PrintItems::new</span>();
         <span class="kw">let</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">line</span>.<span class="ident">split</span>(<span class="string">&quot;\t&quot;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>();
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">parts</span>.<span class="ident">len</span>() {
@@ -315,7 +315,7 @@
 <span class="doccomment">/// Surrounds the items with newlines and indentation if its on multiple lines.</span>
 <span class="doccomment">/// Note: This currently inserts a possible newline at the start, but that might change or be made</span>
 <span class="doccomment">/// conditional in the future.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">surround_with_newlines_indented_if_multi_line</span>(<span class="ident">inner_items</span>: <span class="ident">PrintItems</span>, <span class="ident">indent_width</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PrintItems</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">surround_with_newlines_indented_if_multi_line</span>(<span class="ident">inner_items</span>: <span class="ident">PrintItems</span>, <span class="ident">indent_width</span>: <span class="ident">u8</span>) -&gt; <span class="ident">PrintItems</span> {
     <span class="kw">if</span> <span class="ident">inner_items</span>.<span class="ident">is_empty</span>() { <span class="kw">return</span> <span class="ident">inner_items</span>; }
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">items</span> <span class="op">=</span> <span class="ident">PrintItems::new</span>();
@@ -348,15 +348,15 @@
     <span class="ident">items</span>
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_js_like_comment_line</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">force_space_after_slashes</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PrintItems</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_js_like_comment_line</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">force_space_after_slashes</span>: <span class="ident">bool</span>) -&gt; <span class="ident">PrintItems</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">items</span> <span class="op">=</span> <span class="ident">PrintItems::new</span>();
     <span class="ident">items</span>.<span class="ident">extend</span>(<span class="ident">parse_raw_string</span>(<span class="kw-2">&amp;</span><span class="ident">get_comment_text</span>(<span class="ident">text</span>, <span class="ident">force_space_after_slashes</span>)));
     <span class="ident">items</span>.<span class="ident">push_signal</span>(<span class="ident">Signal::ExpectNewLine</span>);
     <span class="kw">return</span> <span class="ident">with_no_new_lines</span>(<span class="ident">items</span>);
 
-    <span class="kw">fn</span> <span class="ident">get_comment_text</span>(<span class="ident">original_text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">force_space_after_slashes</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">get_comment_text</span>(<span class="ident">original_text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">force_space_after_slashes</span>: <span class="ident">bool</span>) -&gt; <span class="ident">String</span> {
         <span class="kw">let</span> <span class="ident">non_slash_index</span> <span class="op">=</span> <span class="ident">get_first_non_slash_index</span>(<span class="kw-2">&amp;</span><span class="ident">original_text</span>);
-        <span class="kw">let</span> <span class="ident">skip_space</span> <span class="op">=</span> <span class="ident">force_space_after_slashes</span> <span class="op">&amp;&amp;</span> <span class="ident">original_text</span>.<span class="ident">chars</span>().<span class="ident">skip</span>(<span class="ident">non_slash_index</span>).<span class="ident">next</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&#39; &#39;</span>);
+        <span class="kw">let</span> <span class="ident">skip_space</span> <span class="op">=</span> <span class="ident">force_space_after_slashes</span> <span class="op">&amp;&amp;</span> <span class="ident">original_text</span>.<span class="ident">chars</span>().<span class="ident">skip</span>(<span class="ident">non_slash_index</span>).<span class="ident">next</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="string">&#39; &#39;</span>);
         <span class="kw">let</span> <span class="ident">start_text_index</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">skip_space</span> { <span class="ident">non_slash_index</span> <span class="op">+</span> <span class="number">1</span> } <span class="kw">else</span> { <span class="ident">non_slash_index</span> };
         <span class="kw">let</span> <span class="ident">comment_text_original</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">original_text</span>[<span class="ident">start_text_index</span>..]; <span class="comment">// pref: ok to index here since slashes are 1 byte each</span>
         <span class="kw">let</span> <span class="ident">comment_text</span> <span class="op">=</span> <span class="ident">comment_text_original</span>.<span class="ident">trim_end</span>();
@@ -373,7 +373,7 @@
             )
         };
 
-        <span class="kw">fn</span> <span class="ident">get_first_non_slash_index</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+        <span class="kw">fn</span> <span class="ident">get_first_non_slash_index</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">usize</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
             <span class="kw">for</span> <span class="ident">c</span> <span class="kw">in</span> <span class="ident">text</span>.<span class="ident">chars</span>() {
                 <span class="kw">if</span> <span class="ident">c</span> <span class="op">!</span><span class="op">=</span> <span class="string">&#39;/&#39;</span> {
@@ -388,7 +388,7 @@
 }
 
 <span class="doccomment">/// Gets if the provided text has the provided searching text in it (ex. &quot;dprint-ignore&quot;).</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">text_has_dprint_ignore</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">searching_text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">text_has_dprint_ignore</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">searching_text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
     <span class="kw">let</span> <span class="ident">pos</span> <span class="op">=</span> <span class="ident">text</span>.<span class="ident">find</span>(<span class="ident">searching_text</span>);
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pos</span>) <span class="op">=</span> <span class="ident">pos</span> {
         <span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="ident">pos</span> <span class="op">+</span> <span class="ident">searching_text</span>.<span class="ident">len</span>();
@@ -403,7 +403,7 @@
         <span class="kw">return</span> <span class="bool-val">false</span>;
     }
 
-    <span class="kw">fn</span> <span class="ident">is_alpha_numeric_at_pos</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">pos</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_alpha_numeric_at_pos</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">pos</span>: <span class="ident">usize</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">chars_after</span>) <span class="op">=</span> <span class="ident">text</span>.<span class="ident">get</span>(<span class="ident">pos</span>..) {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">char_after</span>) <span class="op">=</span> <span class="ident">chars_after</span>.<span class="ident">chars</span>().<span class="ident">next</span>() {
                 <span class="kw">return</span> <span class="ident">char_after</span>.<span class="ident">is_alphanumeric</span>();

@@ -189,7 +189,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">StyledBuffer</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">StyledBuffer</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">StyledBuffer</span> {
         <span class="ident">StyledBuffer</span> {
             <span class="ident">text</span>: <span class="macro">vec!</span>[],
             <span class="ident">styles</span>: <span class="macro">vec!</span>[],
@@ -200,7 +200,7 @@
         <span class="kw">for</span> (<span class="ident">line_pos</span>, <span class="ident">line</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">text</span>.<span class="ident">iter_mut</span>().<span class="ident">enumerate</span>() {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tab_pos</span> <span class="op">=</span> <span class="macro">vec!</span>[];
             <span class="kw">for</span> (<span class="ident">pos</span>, <span class="ident">c</span>) <span class="kw">in</span> <span class="ident">line</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;\t&#39;</span> {
+                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;\t&#39;</span> {
                     <span class="ident">tab_pos</span>.<span class="ident">push</span>(<span class="ident">pos</span>);
                 }
             }
@@ -217,7 +217,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">render</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">StyledString</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">render</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">StyledString</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">StyledString</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[];
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">styled_vec</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">StyledString</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[];
 
@@ -311,7 +311,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">num_lines</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">num_lines</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">text</span>.<span class="ident">len</span>()
     }
 
@@ -331,7 +331,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_style</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">line</span>: <span class="ident">usize</span>, <span class="ident">col</span>: <span class="ident">usize</span>, <span class="ident">style</span>: <span class="ident">Style</span>, <span class="ident">overwrite</span>: <span class="ident">bool</span>) {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">line</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">styles</span>.<span class="ident">get_mut</span>(<span class="ident">line</span>) {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">s</span>) <span class="op">=</span> <span class="ident">line</span>.<span class="ident">get_mut</span>(<span class="ident">col</span>) {
-                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">s</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Style::NoStyle</span> <span class="op">|</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">s</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Style::Quotation</span> <span class="op">|</span><span class="op">|</span> <span class="ident">overwrite</span> {
+                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">s</span> <span class="op">==</span> <span class="ident">Style::NoStyle</span> <span class="op">|</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">s</span> <span class="op">==</span> <span class="ident">Style::Quotation</span> <span class="op">|</span><span class="op">|</span> <span class="ident">overwrite</span> {
                     <span class="kw-2">*</span><span class="ident">s</span> <span class="op">=</span> <span class="ident">style</span>;
                 }
             }

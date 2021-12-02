@@ -2885,44 +2885,44 @@
 }
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">MAX_SIMPLE_DISTANCE_ALPHABET_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">140</span>;
 
-<span class="kw">fn</span> <span class="ident">window_size_from_lgwin</span>(<span class="ident">lgwin</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>{
+<span class="kw">fn</span> <span class="ident">window_size_from_lgwin</span>(<span class="ident">lgwin</span>: <span class="ident">i32</span>) -&gt; <span class="ident">usize</span>{
     (<span class="number">1usize</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">lgwin</span>) <span class="op">-</span> <span class="number">16usize</span>
 }
 
-<span class="kw">fn</span> <span class="ident">context_type_str</span>(<span class="ident">context_type</span>:<span class="ident">ContextType</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
+<span class="kw">fn</span> <span class="ident">context_type_str</span>(<span class="ident">context_type</span>:<span class="ident">ContextType</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
    <span class="kw">match</span> <span class="ident">context_type</span> {
-         <span class="ident">ContextType::CONTEXT_LSB6</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;lsb6&quot;</span>,
-         <span class="ident">ContextType::CONTEXT_MSB6</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;msb6&quot;</span>,
-         <span class="ident">ContextType::CONTEXT_UTF8</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;utf8&quot;</span>,
-         <span class="ident">ContextType::CONTEXT_SIGNED</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;sign&quot;</span>,
+         <span class="ident">ContextType::CONTEXT_LSB6</span> =&gt; <span class="string">&quot;lsb6&quot;</span>,
+         <span class="ident">ContextType::CONTEXT_MSB6</span> =&gt; <span class="string">&quot;msb6&quot;</span>,
+         <span class="ident">ContextType::CONTEXT_UTF8</span> =&gt; <span class="string">&quot;utf8&quot;</span>,
+         <span class="ident">ContextType::CONTEXT_SIGNED</span> =&gt; <span class="string">&quot;sign&quot;</span>,
    }
 }
 
-<span class="kw">fn</span> <span class="ident">prediction_mode_str</span>(<span class="ident">prediction_mode_nibble</span>:<span class="ident">interface::LiteralPredictionModeNibble</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
+<span class="kw">fn</span> <span class="ident">prediction_mode_str</span>(<span class="ident">prediction_mode_nibble</span>:<span class="ident">interface::LiteralPredictionModeNibble</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
    <span class="kw">match</span> <span class="ident">prediction_mode_nibble</span>.<span class="ident">prediction_mode</span>() {
-         <span class="ident">interface::LITERAL_PREDICTION_MODE_SIGN</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;sign&quot;</span>,
-         <span class="ident">interface::LITERAL_PREDICTION_MODE_LSB6</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;lsb6&quot;</span>,
-         <span class="ident">interface::LITERAL_PREDICTION_MODE_MSB6</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;msb6&quot;</span>,
-         <span class="ident">interface::LITERAL_PREDICTION_MODE_UTF8</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;utf8&quot;</span>,
-         <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;unknown&quot;</span>,
+         <span class="ident">interface::LITERAL_PREDICTION_MODE_SIGN</span> =&gt; <span class="string">&quot;sign&quot;</span>,
+         <span class="ident">interface::LITERAL_PREDICTION_MODE_LSB6</span> =&gt; <span class="string">&quot;lsb6&quot;</span>,
+         <span class="ident">interface::LITERAL_PREDICTION_MODE_MSB6</span> =&gt; <span class="string">&quot;msb6&quot;</span>,
+         <span class="ident">interface::LITERAL_PREDICTION_MODE_UTF8</span> =&gt; <span class="string">&quot;utf8&quot;</span>,
+         <span class="kw">_</span> =&gt; <span class="string">&quot;unknown&quot;</span>,
    }
 }
 
-<span class="kw">fn</span> <span class="ident">is_long_enough_to_be_random</span>(<span class="ident">len</span>: <span class="ident">usize</span>, <span class="ident">high_entropy_detection_quality</span>:<span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>{
+<span class="kw">fn</span> <span class="ident">is_long_enough_to_be_random</span>(<span class="ident">len</span>: <span class="ident">usize</span>, <span class="ident">high_entropy_detection_quality</span>:<span class="ident">u8</span>) -&gt; <span class="ident">bool</span>{
     <span class="kw">return</span> <span class="kw">match</span> <span class="ident">high_entropy_detection_quality</span> {
-        <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-        <span class="number">1</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-        <span class="number">2</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">len</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">128</span>,
-        <span class="number">3</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">len</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">96</span>,
-        <span class="number">4</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">len</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">64</span>,
-        <span class="number">5</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">len</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">48</span>,
-        <span class="number">6</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">len</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">32</span>,
-        <span class="number">7</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">len</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">24</span>,
-        <span class="number">8</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">len</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">16</span>,
-        <span class="number">9</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">len</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">8</span>,
-        <span class="number">10</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">len</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">4</span>,
-        <span class="number">11</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">len</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">1</span>,
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">len</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">8</span>,
+        <span class="number">0</span> =&gt; <span class="bool-val">false</span>,
+        <span class="number">1</span> =&gt; <span class="bool-val">false</span>,
+        <span class="number">2</span> =&gt; <span class="ident">len</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">128</span>,
+        <span class="number">3</span> =&gt; <span class="ident">len</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">96</span>,
+        <span class="number">4</span> =&gt; <span class="ident">len</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">64</span>,
+        <span class="number">5</span> =&gt; <span class="ident">len</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">48</span>,
+        <span class="number">6</span> =&gt; <span class="ident">len</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">32</span>,
+        <span class="number">7</span> =&gt; <span class="ident">len</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">24</span>,
+        <span class="number">8</span> =&gt; <span class="ident">len</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">16</span>,
+        <span class="number">9</span> =&gt; <span class="ident">len</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">8</span>,
+        <span class="number">10</span> =&gt; <span class="ident">len</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">4</span>,
+        <span class="number">11</span> =&gt; <span class="ident">len</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">1</span>,
+        <span class="kw">_</span> =&gt; <span class="ident">len</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">8</span>,
     }
 }
 <span class="kw">const</span> <span class="ident">COMMAND_BUFFER_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">4096</span>;
@@ -2957,7 +2957,7 @@
            <span class="ident">best_strides</span>: <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>,
            <span class="ident">entropy_tally_scratch</span>: <span class="ident">find_stride::EntropyTally</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>,
            <span class="ident">entropy_pyramid</span>: <span class="ident">find_stride::EntropyPyramid</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>,
-           ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CommandQueue</span> <span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Alloc</span><span class="op">&gt;</span> {
+           ) -&gt; <span class="ident">CommandQueue</span> <span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Alloc</span><span class="op">&gt;</span> {
 
         <span class="comment">// assume no more than 1/16 of the stream is block_types which may chop up literals</span>
         <span class="comment">// also there&#39;s the first btypel and a potential wrap around the ring buffer</span>
@@ -2980,15 +2980,15 @@
             <span class="ident">overfull</span>: <span class="bool-val">false</span>,
         }
     }
-    <span class="kw">fn</span> <span class="ident">full</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">loc</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">queue</span>.<span class="ident">len</span>()
+    <span class="kw">fn</span> <span class="ident">full</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">loc</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">queue</span>.<span class="ident">len</span>()
     }
     <span class="kw">fn</span> <span class="ident">error_if_full</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">full</span>() {
             <span class="self">self</span>.<span class="ident">overfull</span> <span class="op">=</span> <span class="bool-val">true</span>;
         }
     }
-    <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">loc</span>
     }
     <span class="kw">fn</span> <span class="ident">clear</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
@@ -2996,7 +2996,7 @@
         <span class="self">self</span>.<span class="ident">block_type_literal</span> <span class="op">=</span> <span class="number">0</span>;
     }
     <span class="kw">fn</span> <span class="ident">free</span><span class="op">&lt;</span><span class="ident">Cb</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
-                <span class="ident">callback</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Cb</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), ()<span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">Cb</span>:<span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">interface::PredictionModeContextMap</span><span class="op">&lt;</span><span class="ident">InputReferenceMut</span><span class="op">&gt;</span>,
+                <span class="ident">callback</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Cb</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), ()<span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">Cb</span>:<span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">interface::PredictionModeContextMap</span><span class="op">&lt;</span><span class="ident">InputReferenceMut</span><span class="op">&gt;</span>,
                                                                     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">interface::StaticCommand</span>],
                                                                     <span class="ident">InputPair</span>,
                                                                     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Alloc</span>) {
@@ -3094,16 +3094,16 @@
     <span class="ident">block_type</span>: <span class="kw-2">&amp;</span><span class="ident">MetaBlockSplitRefs</span>,
     <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">BrotliEncoderParams</span>,
     <span class="ident">context_type</span>:<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ContextType</span><span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RecoderState</span> {
+) -&gt; <span class="ident">RecoderState</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">input_iter</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">clone</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">local_dist_cache</span> <span class="op">=</span> [<span class="number">0i32</span>;<span class="ident">kNumDistanceCacheEntries</span>];
     <span class="ident">local_dist_cache</span>.<span class="ident">clone_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">dist_cache</span>[..]);
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">btypel_counter</span> <span class="op">=</span> <span class="number">0usize</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">btypec_counter</span> <span class="op">=</span> <span class="number">0usize</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">btyped_counter</span> <span class="op">=</span> <span class="number">0usize</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">btypel_sub</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">block_type</span>.<span class="ident">btypel</span>.<span class="ident">num_types</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span> { <span class="number">1u32</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="number">31</span> } <span class="kw">else</span> {<span class="ident">block_type</span>.<span class="ident">btypel</span>.<span class="ident">lengths</span>[<span class="number">0</span>]};
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">btypec_sub</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">block_type</span>.<span class="ident">btypec</span>.<span class="ident">num_types</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span> { <span class="number">1u32</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="number">31</span> } <span class="kw">else</span> {<span class="ident">block_type</span>.<span class="ident">btypec</span>.<span class="ident">lengths</span>[<span class="number">0</span>]};
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">btyped_sub</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">block_type</span>.<span class="ident">btyped</span>.<span class="ident">num_types</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span> { <span class="number">1u32</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="number">31</span> } <span class="kw">else</span> {<span class="ident">block_type</span>.<span class="ident">btyped</span>.<span class="ident">lengths</span>[<span class="number">0</span>]};
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">btypel_sub</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">block_type</span>.<span class="ident">btypel</span>.<span class="ident">num_types</span> <span class="op">==</span> <span class="number">1</span> { <span class="number">1u32</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="number">31</span> } <span class="kw">else</span> {<span class="ident">block_type</span>.<span class="ident">btypel</span>.<span class="ident">lengths</span>[<span class="number">0</span>]};
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">btypec_sub</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">block_type</span>.<span class="ident">btypec</span>.<span class="ident">num_types</span> <span class="op">==</span> <span class="number">1</span> { <span class="number">1u32</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="number">31</span> } <span class="kw">else</span> {<span class="ident">block_type</span>.<span class="ident">btypec</span>.<span class="ident">lengths</span>[<span class="number">0</span>]};
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">btyped_sub</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">block_type</span>.<span class="ident">btyped</span>.<span class="ident">num_types</span> <span class="op">==</span> <span class="number">1</span> { <span class="number">1u32</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="number">31</span> } <span class="kw">else</span> {<span class="ident">block_type</span>.<span class="ident">btyped</span>.<span class="ident">lengths</span>[<span class="number">0</span>]};
     {
         <span class="ident">command_queue</span>.<span class="ident">push_block_switch_literal</span>(<span class="number">0</span>);
     }
@@ -3118,7 +3118,7 @@
 
         <span class="kw">let</span> (<span class="ident">prev_dist_index</span>, <span class="ident">dist_offset</span>) <span class="op">=</span> <span class="ident">CommandDistanceIndexAndOffset</span>(<span class="ident">cmd</span>, <span class="kw-2">&amp;</span><span class="ident">params</span>.<span class="ident">dist</span>);
         <span class="kw">let</span> <span class="ident">final_distance</span>: <span class="ident">usize</span>;
-        <span class="kw">if</span> <span class="ident">prev_dist_index</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+        <span class="kw">if</span> <span class="ident">prev_dist_index</span> <span class="op">==</span> <span class="number">0</span> {
             <span class="ident">final_distance</span> <span class="op">=</span> <span class="ident">dist_offset</span> <span class="kw">as</span> <span class="ident">usize</span>;
         } <span class="kw">else</span> {
             <span class="ident">final_distance</span> <span class="op">=</span> (<span class="ident">local_dist_cache</span>[<span class="ident">prev_dist_index</span> <span class="op">-</span> <span class="number">1</span>] <span class="kw">as</span> <span class="ident">isize</span> <span class="op">+</span> <span class="ident">dist_offset</span>) <span class="kw">as</span> <span class="ident">usize</span>;
@@ -3135,7 +3135,7 @@
                 <span class="kw">if</span> <span class="ident">in_a</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">context_type</span> {
                         <span class="ident">command_queue</span>.<span class="ident">push_literals</span>(<span class="kw-2">&amp;</span><span class="ident">in_a</span>);
-                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">params</span>.<span class="ident">high_entropy_detection_quality</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">params</span>.<span class="ident">high_entropy_detection_quality</span> <span class="op">==</span> <span class="number">0</span> {
                         <span class="ident">command_queue</span>.<span class="ident">push_literals</span>(<span class="kw-2">&amp;</span><span class="ident">in_a</span>);
                     } <span class="kw">else</span> {
                         <span class="ident">command_queue</span>.<span class="ident">push_rand_literals</span>(<span class="kw-2">&amp;</span><span class="ident">in_a</span>);
@@ -3153,7 +3153,7 @@
             }
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">context_type</span> {
                 <span class="ident">command_queue</span>.<span class="ident">push_literals</span>(<span class="kw-2">&amp;</span><span class="ident">tmp_inserts</span>);
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">params</span>.<span class="ident">high_entropy_detection_quality</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">params</span>.<span class="ident">high_entropy_detection_quality</span> <span class="op">==</span> <span class="number">0</span> {
                 <span class="ident">command_queue</span>.<span class="ident">push_literals</span>(<span class="kw-2">&amp;</span><span class="ident">tmp_inserts</span>);
             }<span class="kw">else</span> {
                 <span class="ident">command_queue</span>.<span class="ident">push_rand_literals</span>(<span class="kw-2">&amp;</span><span class="ident">tmp_inserts</span>);
@@ -3219,7 +3219,7 @@
         }
         {
             <span class="ident">btypec_sub</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-            <span class="kw">if</span> <span class="ident">btypec_sub</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+            <span class="kw">if</span> <span class="ident">btypec_sub</span> <span class="op">==</span> <span class="number">0</span> {
                 <span class="ident">btypec_counter</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                 <span class="kw">if</span> <span class="ident">block_type</span>.<span class="ident">btypec</span>.<span class="ident">types</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="ident">btypec_counter</span> {
                     <span class="ident">btypec_sub</span> <span class="op">=</span> <span class="ident">block_type</span>.<span class="ident">btypec</span>.<span class="ident">lengths</span>[<span class="ident">btypec_counter</span>];
@@ -3232,7 +3232,7 @@
         }
         <span class="kw">if</span> <span class="ident">copy_len</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">cmd</span>.<span class="ident">cmd_prefix_</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">128</span> {
             <span class="ident">btyped_sub</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-            <span class="kw">if</span> <span class="ident">btyped_sub</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+            <span class="kw">if</span> <span class="ident">btyped_sub</span> <span class="op">==</span> <span class="number">0</span> {
                 <span class="ident">btyped_counter</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                 <span class="kw">if</span> <span class="ident">block_type</span>.<span class="ident">btyped</span>.<span class="ident">types</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="ident">btyped_counter</span> {
                     <span class="ident">btyped_sub</span> <span class="op">=</span> <span class="ident">block_type</span>.<span class="ident">btyped</span>.<span class="ident">lengths</span>[<span class="ident">btyped_counter</span>];
@@ -3301,7 +3301,7 @@
     <span class="ident">prediction_mode</span>.<span class="ident">set_literal_prediction_mode</span>(<span class="ident">interface::LiteralPredictionModeNibble</span>(<span class="ident">context_type</span>.<span class="ident">unwrap_or</span>(<span class="ident">ContextType::CONTEXT_LSB6</span>) <span class="kw">as</span> <span class="ident">u8</span>));
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">entropy_tally_scratch</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">entropy_pyramid</span>;
-    <span class="kw">if</span> <span class="ident">params</span>.<span class="ident">stride_detection_quality</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span> <span class="op">|</span><span class="op">|</span> <span class="ident">params</span>.<span class="ident">stride_detection_quality</span> <span class="op">=</span><span class="op">=</span> <span class="number">2</span> {
+    <span class="kw">if</span> <span class="ident">params</span>.<span class="ident">stride_detection_quality</span> <span class="op">==</span> <span class="number">1</span> <span class="op">|</span><span class="op">|</span> <span class="ident">params</span>.<span class="ident">stride_detection_quality</span> <span class="op">==</span> <span class="number">2</span> {
         <span class="ident">entropy_tally_scratch</span> <span class="op">=</span> <span class="ident">find_stride::EntropyTally</span>::<span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="ident">alloc</span>, <span class="prelude-val">None</span>);
         <span class="ident">entropy_pyramid</span> <span class="op">=</span> <span class="ident">find_stride::EntropyPyramid</span>::<span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="ident">alloc</span>);
         <span class="ident">entropy_pyramid</span>.<span class="ident">populate</span>(<span class="ident">input0</span>, <span class="ident">input1</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">entropy_tally_scratch</span>);
@@ -3513,7 +3513,7 @@
    }];
 
 <span class="kw">fn</span> <span class="ident">BrotliWriteBits</span>(<span class="ident">n_bits</span>: <span class="ident">u8</span>, <span class="ident">bits</span>: <span class="ident">u64</span>, <span class="ident">pos</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>, <span class="ident">array</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) {
-  <span class="macro">assert!</span>((<span class="ident">bits</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">n_bits</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">=</span><span class="op">=</span> <span class="number">0</span>);
+  <span class="macro">assert!</span>((<span class="ident">bits</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">n_bits</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">==</span> <span class="number">0</span>);
   <span class="macro">assert!</span>(<span class="ident">n_bits</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">56</span>);
   <span class="kw">let</span> <span class="ident">ptr_offset</span>: <span class="ident">usize</span> <span class="op">=</span> ((<span class="kw-2">*</span><span class="ident">pos</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">3</span>) <span class="kw">as</span> <span class="ident">u32</span>) <span class="kw">as</span> <span class="ident">usize</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">array</span>[<span class="ident">ptr_offset</span>] <span class="kw">as</span> <span class="ident">u64</span>;
@@ -3575,10 +3575,10 @@
       <span class="ident">codes_to_store</span> <span class="op">=</span> <span class="ident">codes_to_store</span>.<span class="ident">wrapping_sub</span>(<span class="number">1</span>);
     }
   }
-  <span class="kw">if</span> <span class="ident">code_length_bitdepth</span>[(<span class="ident">kStorageOrder</span>[<span class="number">0usize</span>] <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">=</span><span class="op">=</span> <span class="number">0i32</span> <span class="op">&amp;&amp;</span>
-     (<span class="ident">code_length_bitdepth</span>[(<span class="ident">kStorageOrder</span>[<span class="number">1usize</span>] <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">=</span><span class="op">=</span> <span class="number">0i32</span>) {
+  <span class="kw">if</span> <span class="ident">code_length_bitdepth</span>[(<span class="ident">kStorageOrder</span>[<span class="number">0usize</span>] <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">==</span> <span class="number">0i32</span> <span class="op">&amp;&amp;</span>
+     (<span class="ident">code_length_bitdepth</span>[(<span class="ident">kStorageOrder</span>[<span class="number">1usize</span>] <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">==</span> <span class="number">0i32</span>) {
     <span class="ident">skip_some</span> <span class="op">=</span> <span class="number">2</span>;
-    <span class="kw">if</span> <span class="ident">code_length_bitdepth</span>[(<span class="ident">kStorageOrder</span>[<span class="number">2usize</span>] <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">=</span><span class="op">=</span> <span class="number">0i32</span> {
+    <span class="kw">if</span> <span class="ident">code_length_bitdepth</span>[(<span class="ident">kStorageOrder</span>[<span class="number">2usize</span>] <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">==</span> <span class="number">0i32</span> {
       <span class="ident">skip_some</span> <span class="op">=</span> <span class="number">3</span>;
     }
   }
@@ -3616,12 +3616,12 @@
                       <span class="ident">code_length_bitdepth_symbols</span>[(<span class="ident">ix</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">u64</span>),
                       <span class="ident">storage_ix</span>,
                       <span class="ident">storage</span>);
-      <span class="kw">if</span> <span class="ident">ix</span> <span class="op">=</span><span class="op">=</span> <span class="number">16usize</span> {
+      <span class="kw">if</span> <span class="ident">ix</span> <span class="op">==</span> <span class="number">16usize</span> {
         <span class="ident">BrotliWriteBits</span>(<span class="number">2</span>,
                         <span class="ident">huffman_tree_extra_bits</span>[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">u64</span>),
                         <span class="ident">storage_ix</span>,
                         <span class="ident">storage</span>);
-      } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ix</span> <span class="op">=</span><span class="op">=</span> <span class="number">17usize</span> {
+      } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ix</span> <span class="op">==</span> <span class="number">17usize</span> {
         <span class="ident">BrotliWriteBits</span>(<span class="number">3</span>,
                         <span class="ident">huffman_tree_extra_bits</span>[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">u64</span>),
                         <span class="ident">storage_ix</span>,
@@ -3684,10 +3684,10 @@
   <span class="lifetime">&#39;break3</span>: <span class="kw">while</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="number">18usize</span> {
     {
       <span class="kw">if</span> <span class="ident">huffman_tree_histogram</span>[<span class="ident">i</span>] <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-        <span class="kw">if</span> <span class="ident">num_codes</span> <span class="op">=</span><span class="op">=</span> <span class="number">0i32</span> {
+        <span class="kw">if</span> <span class="ident">num_codes</span> <span class="op">==</span> <span class="number">0i32</span> {
           <span class="ident">code</span> <span class="op">=</span> <span class="ident">i</span>;
           <span class="ident">num_codes</span> <span class="op">=</span> <span class="number">1i32</span>;
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">num_codes</span> <span class="op">=</span><span class="op">=</span> <span class="number">1i32</span> {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">num_codes</span> <span class="op">==</span> <span class="number">1i32</span> {
           <span class="ident">num_codes</span> <span class="op">=</span> <span class="number">2i32</span>;
           {
             {
@@ -3711,7 +3711,7 @@
                                                <span class="kw-2">&amp;</span><span class="ident">code_length_bitdepth</span>,
                                                <span class="ident">storage_ix</span>,
                                                <span class="ident">storage</span>);
-  <span class="kw">if</span> <span class="ident">num_codes</span> <span class="op">=</span><span class="op">=</span> <span class="number">1i32</span> {
+  <span class="kw">if</span> <span class="ident">num_codes</span> <span class="op">==</span> <span class="number">1i32</span> {
     <span class="ident">code_length_bitdepth</span>[<span class="ident">code</span>] <span class="op">=</span> <span class="number">0i32</span> <span class="kw">as</span> (<span class="ident">u8</span>);
   }
   <span class="ident">BrotliStoreHuffmanTreeToBitMask</span>(<span class="ident">huffman_tree_size</span>,
@@ -3733,7 +3733,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SimpleSortHuffmanTree</span> {}
 
 <span class="kw">impl</span> <span class="ident">HuffmanComparator</span> <span class="kw">for</span> <span class="ident">SimpleSortHuffmanTree</span> {
-  <span class="kw">fn</span> <span class="ident">Cmp</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>, <span class="ident">v0</span>: <span class="kw-2">&amp;</span><span class="ident">HuffmanTree</span>, <span class="ident">v1</span>: <span class="kw-2">&amp;</span><span class="ident">HuffmanTree</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+  <span class="kw">fn</span> <span class="ident">Cmp</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>, <span class="ident">v0</span>: <span class="kw-2">&amp;</span><span class="ident">HuffmanTree</span>, <span class="ident">v1</span>: <span class="kw-2">&amp;</span><span class="ident">HuffmanTree</span>) -&gt; <span class="ident">bool</span> {
     <span class="kw">return</span> (<span class="kw-2">*</span><span class="ident">v0</span>).<span class="ident">total_count_</span> <span class="op">&lt;</span> (<span class="kw-2">*</span><span class="ident">v1</span>).<span class="ident">total_count_</span>;
   }
 }
@@ -3780,7 +3780,7 @@
       <span class="ident">AllocHT::AllocatedMemory::default</span>() <span class="comment">// null</span>
     };
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count_limit</span>: <span class="ident">u32</span>;
-    <span class="kw">if</span> <span class="op">!</span>(<span class="number">0i32</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>) {
+    <span class="kw">if</span> <span class="op">!</span>(<span class="number">0i32</span> <span class="op">==</span> <span class="number">0</span>) {
       <span class="kw">return</span>;
     }
     <span class="ident">count_limit</span> <span class="op">=</span> <span class="number">1u32</span>;
@@ -3887,10 +3887,10 @@
       }
       <span class="ident">i</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span>);
     }
-    <span class="kw">if</span> <span class="ident">count</span> <span class="op">=</span><span class="op">=</span> <span class="number">2</span> {
+    <span class="kw">if</span> <span class="ident">count</span> <span class="op">==</span> <span class="number">2</span> {
       <span class="ident">BrotliWriteBits</span>(<span class="ident">max_bits</span> <span class="kw">as</span> <span class="ident">u8</span>, <span class="ident">symbols</span>[<span class="number">0usize</span>], <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
       <span class="ident">BrotliWriteBits</span>(<span class="ident">max_bits</span> <span class="kw">as</span> <span class="ident">u8</span>, <span class="ident">symbols</span>[<span class="number">1usize</span>], <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">count</span> <span class="op">=</span><span class="op">=</span> <span class="number">3</span> {
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">count</span> <span class="op">==</span> <span class="number">3</span> {
       <span class="ident">BrotliWriteBits</span>(<span class="ident">max_bits</span> <span class="kw">as</span> <span class="ident">u8</span>, <span class="ident">symbols</span>[<span class="number">0usize</span>], <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
       <span class="ident">BrotliWriteBits</span>(<span class="ident">max_bits</span> <span class="kw">as</span> <span class="ident">u8</span>, <span class="ident">symbols</span>[<span class="number">1usize</span>], <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
       <span class="ident">BrotliWriteBits</span>(<span class="ident">max_bits</span> <span class="kw">as</span> <span class="ident">u8</span>, <span class="ident">symbols</span>[<span class="number">2usize</span>], <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
@@ -3900,7 +3900,7 @@
       <span class="ident">BrotliWriteBits</span>(<span class="ident">max_bits</span> <span class="kw">as</span> <span class="ident">u8</span>, <span class="ident">symbols</span>[<span class="number">2usize</span>], <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
       <span class="ident">BrotliWriteBits</span>(<span class="ident">max_bits</span> <span class="kw">as</span> <span class="ident">u8</span>, <span class="ident">symbols</span>[<span class="number">3usize</span>], <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
       <span class="ident">BrotliWriteBits</span>(<span class="number">1</span>,
-                      <span class="kw">if</span> <span class="ident">depth</span>[(<span class="ident">symbols</span>[<span class="number">0usize</span>] <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">=</span><span class="op">=</span> <span class="number">1i32</span> {
+                      <span class="kw">if</span> <span class="ident">depth</span>[(<span class="ident">symbols</span>[<span class="number">0usize</span>] <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">==</span> <span class="number">1i32</span> {
                         <span class="number">1i32</span>
                       } <span class="kw">else</span> {
                         <span class="number">0i32</span>
@@ -3918,14 +3918,14 @@
       <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">reps</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">1</span>;
       <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">k</span>: <span class="ident">u64</span>;
       <span class="ident">k</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span>);
-      <span class="kw">while</span> <span class="ident">k</span> <span class="op">&lt;</span> <span class="ident">length</span> <span class="op">&amp;&amp;</span> (<span class="ident">depth</span>[(<span class="ident">k</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">value</span> <span class="kw">as</span> (<span class="ident">i32</span>)) {
+      <span class="kw">while</span> <span class="ident">k</span> <span class="op">&lt;</span> <span class="ident">length</span> <span class="op">&amp;&amp;</span> (<span class="ident">depth</span>[(<span class="ident">k</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">==</span> <span class="ident">value</span> <span class="kw">as</span> (<span class="ident">i32</span>)) {
         {
           <span class="ident">reps</span> <span class="op">=</span> <span class="ident">reps</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span>);
         }
         <span class="ident">k</span> <span class="op">=</span> <span class="ident">k</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span>);
       }
       <span class="ident">i</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">wrapping_add</span>(<span class="ident">reps</span>);
-      <span class="kw">if</span> <span class="ident">value</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">=</span><span class="op">=</span> <span class="number">0i32</span> {
+      <span class="kw">if</span> <span class="ident">value</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">==</span> <span class="number">0i32</span> {
         <span class="ident">BrotliWriteBits</span>(<span class="ident">kZeroRepsDepth</span>[<span class="ident">reps</span> <span class="kw">as</span> <span class="ident">usize</span>] <span class="kw">as</span> (<span class="ident">u8</span>),
                         <span class="ident">kZeroRepsBits</span>[<span class="ident">reps</span> <span class="kw">as</span> <span class="ident">usize</span>] <span class="kw">as</span> <span class="ident">u64</span>,
                         <span class="ident">storage_ix</span>,
@@ -3977,7 +3977,7 @@
 }
 <span class="kw">impl</span> <span class="op">&lt;</span><span class="ident">Alloc</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">HistogramLiteral</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">HistogramCommand</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">HistogramDistance</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="ident">MetaBlockSplit</span> <span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
         <span class="kw">return</span> <span class="ident">MetaBlockSplit</span> {
             <span class="ident">literal_split</span>:<span class="ident">BlockSplit</span>::<span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span><span class="ident">::new</span>(),
             <span class="ident">command_split</span>:<span class="ident">BlockSplit</span>::<span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span><span class="ident">::new</span>(),
@@ -4049,7 +4049,7 @@
   <span class="kw">pub</span> <span class="ident">bits_</span>: <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>,
 }
 
-<span class="kw">fn</span> <span class="ident">Log2FloorNonZero</span>(<span class="kw-2">mut</span> <span class="ident">n</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+<span class="kw">fn</span> <span class="ident">Log2FloorNonZero</span>(<span class="kw-2">mut</span> <span class="ident">n</span>: <span class="ident">u64</span>) -&gt; <span class="ident">u32</span> {
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0u32</span>;
   <span class="lifetime">&#39;loop1</span>: <span class="kw">loop</span> {
     <span class="kw">if</span> {
@@ -4069,7 +4069,7 @@
                     <span class="ident">bits</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">u64</span>,
                     <span class="ident">numbits</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">u32</span>,
                     <span class="ident">nibblesbits</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">u32</span>) {
-  <span class="kw">let</span> <span class="ident">lg</span>: <span class="ident">u32</span> <span class="op">=</span> (<span class="kw">if</span> <span class="ident">length</span> <span class="op">=</span><span class="op">=</span> <span class="number">1u32</span> {
+  <span class="kw">let</span> <span class="ident">lg</span>: <span class="ident">u32</span> <span class="op">=</span> (<span class="kw">if</span> <span class="ident">length</span> <span class="op">==</span> <span class="number">1u32</span> {
                    <span class="number">1u32</span>
                  } <span class="kw">else</span> {
                    <span class="ident">Log2FloorNonZero</span>(<span class="ident">length</span>.<span class="ident">wrapping_sub</span>(<span class="number">1u32</span>) <span class="kw">as</span> (<span class="ident">u32</span>) <span class="kw">as</span> (<span class="ident">u64</span>)).<span class="ident">wrapping_add</span>(<span class="number">1u32</span>)
@@ -4103,12 +4103,12 @@
   <span class="ident">BrotliEncodeMlen</span>(<span class="ident">length</span> <span class="kw">as</span> <span class="ident">u32</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lenbits</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">nlenbits</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">nibblesbits</span>);
   <span class="ident">BrotliWriteBits</span>(<span class="number">2</span>, <span class="ident">nibblesbits</span> <span class="kw">as</span> <span class="ident">u64</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
   <span class="ident">BrotliWriteBits</span>(<span class="ident">nlenbits</span> <span class="kw">as</span> <span class="ident">u8</span>, <span class="ident">lenbits</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
-  <span class="kw">if</span> <span class="ident">is_final_block</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+  <span class="kw">if</span> <span class="ident">is_final_block</span> <span class="op">==</span> <span class="number">0</span> {
     <span class="ident">BrotliWriteBits</span>(<span class="number">1</span>, <span class="number">0</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
   }
 }
 
-<span class="kw">fn</span> <span class="ident">NewBlockTypeCodeCalculator</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BlockTypeCodeCalculator</span> {
+<span class="kw">fn</span> <span class="ident">NewBlockTypeCodeCalculator</span>() -&gt; <span class="ident">BlockTypeCodeCalculator</span> {
   <span class="kw">return</span> <span class="ident">BlockTypeCodeCalculator</span> {
            <span class="ident">last_type</span>: <span class="number">1</span>,
            <span class="ident">second_last_type</span>: <span class="number">0</span>,
@@ -4121,7 +4121,7 @@
    <span class="ident">block_types</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>],
    <span class="ident">block_lengths</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u32</span>],
    <span class="ident">num_blocks</span>: <span class="ident">usize</span>)
-   <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BlockEncoder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Alloc</span><span class="op">&gt;</span> {
+   -&gt; <span class="ident">BlockEncoder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Alloc</span><span class="op">&gt;</span> {
   <span class="kw">let</span> <span class="ident">block_len</span>: <span class="ident">usize</span>;
   <span class="kw">if</span> <span class="ident">num_blocks</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">block_lengths</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
     <span class="ident">block_len</span> <span class="op">=</span> <span class="ident">block_lengths</span>[<span class="number">0</span>] <span class="kw">as</span> <span class="ident">usize</span>;
@@ -4153,11 +4153,11 @@
 
 
 
-<span class="kw">fn</span> <span class="ident">NextBlockTypeCode</span>(<span class="ident">calculator</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BlockTypeCodeCalculator</span>, <span class="ident">type_</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
-  <span class="kw">let</span> <span class="ident">type_code</span>: <span class="ident">usize</span> <span class="op">=</span> (<span class="kw">if</span> <span class="ident">type_</span> <span class="kw">as</span> (<span class="ident">usize</span>) <span class="op">=</span><span class="op">=</span>
+<span class="kw">fn</span> <span class="ident">NextBlockTypeCode</span>(<span class="ident">calculator</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BlockTypeCodeCalculator</span>, <span class="ident">type_</span>: <span class="ident">u8</span>) -&gt; <span class="ident">usize</span> {
+  <span class="kw">let</span> <span class="ident">type_code</span>: <span class="ident">usize</span> <span class="op">=</span> (<span class="kw">if</span> <span class="ident">type_</span> <span class="kw">as</span> (<span class="ident">usize</span>) <span class="op">==</span>
                              (<span class="kw-2">*</span><span class="ident">calculator</span>).<span class="ident">last_type</span>.<span class="ident">wrapping_add</span>(<span class="number">1usize</span>) {
                             <span class="number">1u32</span>
-                          } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">type_</span> <span class="kw">as</span> (<span class="ident">usize</span>) <span class="op">=</span><span class="op">=</span> (<span class="kw-2">*</span><span class="ident">calculator</span>).<span class="ident">second_last_type</span> {
+                          } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">type_</span> <span class="kw">as</span> (<span class="ident">usize</span>) <span class="op">==</span> (<span class="kw-2">*</span><span class="ident">calculator</span>).<span class="ident">second_last_type</span> {
     <span class="number">0u32</span>
   } <span class="kw">else</span> {
     (<span class="ident">type_</span> <span class="kw">as</span> (<span class="ident">u32</span>)).<span class="ident">wrapping_add</span>(<span class="number">2u32</span>)
@@ -4167,7 +4167,7 @@
   <span class="ident">type_code</span>
 }
 
-<span class="kw">fn</span> <span class="ident">BlockLengthPrefixCode</span>(<span class="ident">len</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+<span class="kw">fn</span> <span class="ident">BlockLengthPrefixCode</span>(<span class="ident">len</span>: <span class="ident">u32</span>) -&gt; <span class="ident">u32</span> {
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">code</span>: <span class="ident">u32</span> <span class="op">=</span> (<span class="kw">if</span> <span class="ident">len</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">177u32</span> {
                          <span class="kw">if</span> <span class="ident">len</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">753u32</span> { <span class="number">20i32</span> } <span class="kw">else</span> { <span class="number">14i32</span> }
                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">len</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">41u32</span> {
@@ -4183,7 +4183,7 @@
 }
 
 <span class="kw">fn</span> <span class="ident">StoreVarLenUint8</span>(<span class="ident">n</span>: <span class="ident">u64</span>, <span class="ident">storage_ix</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>, <span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) {
-  <span class="kw">if</span> <span class="ident">n</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+  <span class="kw">if</span> <span class="ident">n</span> <span class="op">==</span> <span class="number">0</span> {
     <span class="ident">BrotliWriteBits</span>(<span class="number">1</span>, <span class="number">0</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
   } <span class="kw">else</span> {
     <span class="kw">let</span> <span class="ident">nbits</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="ident">Log2FloorNonZero</span>(<span class="ident">n</span>) <span class="kw">as</span> (<span class="ident">u8</span>);
@@ -4224,7 +4224,7 @@
       <span class="ident">i</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">usize</span>));
     }
   }
-  <span class="kw">if</span> <span class="ident">num_symbols</span> <span class="op">=</span><span class="op">=</span> <span class="number">2usize</span> {
+  <span class="kw">if</span> <span class="ident">num_symbols</span> <span class="op">==</span> <span class="number">2usize</span> {
     <span class="ident">BrotliWriteBits</span>(<span class="ident">max_bits</span> <span class="kw">as</span> <span class="ident">u8</span>,
                     <span class="ident">symbols</span>[(<span class="number">0usize</span>)] <span class="kw">as</span> <span class="ident">u64</span>,
                     <span class="ident">storage_ix</span>,
@@ -4233,7 +4233,7 @@
                     <span class="ident">symbols</span>[(<span class="number">1usize</span>)] <span class="kw">as</span> <span class="ident">u64</span>,
                     <span class="ident">storage_ix</span>,
                     <span class="ident">storage</span>);
-  } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">num_symbols</span> <span class="op">=</span><span class="op">=</span> <span class="number">3usize</span> {
+  } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">num_symbols</span> <span class="op">==</span> <span class="number">3usize</span> {
     <span class="ident">BrotliWriteBits</span>(<span class="ident">max_bits</span> <span class="kw">as</span> <span class="ident">u8</span>,
                     <span class="ident">symbols</span>[(<span class="number">0usize</span>)] <span class="kw">as</span> <span class="ident">u64</span>,
                     <span class="ident">storage_ix</span>,
@@ -4264,7 +4264,7 @@
                     <span class="ident">storage_ix</span>,
                     <span class="ident">storage</span>);
     <span class="ident">BrotliWriteBits</span>(<span class="number">1</span>,
-                    <span class="kw">if</span> <span class="ident">depths</span>[(<span class="ident">symbols</span>[(<span class="number">0usize</span>)] <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">=</span><span class="op">=</span> <span class="number">1i32</span> {
+                    <span class="kw">if</span> <span class="ident">depths</span>[(<span class="ident">symbols</span>[(<span class="number">0usize</span>)] <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">==</span> <span class="number">1i32</span> {
                       <span class="number">1i32</span>
                     } <span class="kw">else</span> {
                       <span class="number">0i32</span>
@@ -4348,7 +4348,7 @@
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lencode</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">len_nextra</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">len_extra</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0</span>;
-  <span class="kw">if</span> <span class="ident">is_first_block</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+  <span class="kw">if</span> <span class="ident">is_first_block</span> <span class="op">==</span> <span class="number">0</span> {
     <span class="ident">BrotliWriteBits</span>((<span class="kw-2">*</span><span class="ident">code</span>).<span class="ident">type_depths</span>[<span class="ident">typecode</span>] <span class="kw">as</span> (<span class="ident">u8</span>),
                     (<span class="kw-2">*</span><span class="ident">code</span>).<span class="ident">type_bits</span>[<span class="ident">typecode</span>] <span class="kw">as</span> (<span class="ident">u64</span>),
                     <span class="ident">storage_ix</span>,
@@ -4473,7 +4473,7 @@
     <span class="ident">i</span> <span class="op">=</span> <span class="number">0usize</span>;
     <span class="kw">while</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="ident">num_types</span> {
       {
-        <span class="kw">let</span> <span class="ident">code</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="number">0usize</span> {
+        <span class="kw">let</span> <span class="ident">code</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">i</span> <span class="op">==</span> <span class="number">0usize</span> {
           <span class="number">0usize</span>
         } <span class="kw">else</span> {
           <span class="ident">i</span>.<span class="ident">wrapping_add</span>(<span class="ident">context_bits</span>).<span class="ident">wrapping_sub</span>(<span class="number">1usize</span>)
@@ -4494,11 +4494,11 @@
   }
 }
 
-<span class="kw">fn</span> <span class="ident">IndexOf</span>(<span class="ident">v</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">v_size</span>: <span class="ident">usize</span>, <span class="ident">value</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+<span class="kw">fn</span> <span class="ident">IndexOf</span>(<span class="ident">v</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">v_size</span>: <span class="ident">usize</span>, <span class="ident">value</span>: <span class="ident">u8</span>) -&gt; <span class="ident">usize</span> {
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0usize</span>;
   <span class="kw">while</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="ident">v_size</span> {
     {
-      <span class="kw">if</span> <span class="ident">v</span>[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">value</span> <span class="kw">as</span> (<span class="ident">i32</span>) {
+      <span class="kw">if</span> <span class="ident">v</span>[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">==</span> <span class="ident">value</span> <span class="kw">as</span> (<span class="ident">i32</span>) {
         <span class="kw">return</span> <span class="ident">i</span>;
       }
     }
@@ -4524,7 +4524,7 @@
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span>: <span class="ident">usize</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mtf</span>: [<span class="ident">u8</span>; <span class="number">256</span>] <span class="op">=</span> [<span class="number">0</span>; <span class="number">256</span>];
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">max_value</span>: <span class="ident">u32</span>;
-  <span class="kw">if</span> <span class="ident">v_size</span> <span class="op">=</span><span class="op">=</span> <span class="number">0usize</span> {
+  <span class="kw">if</span> <span class="ident">v_size</span> <span class="op">==</span> <span class="number">0usize</span> {
     <span class="kw">return</span>;
   }
   <span class="ident">max_value</span> <span class="op">=</span> <span class="ident">v_in</span>[(<span class="number">0usize</span>)];
@@ -4560,11 +4560,11 @@
   }
 }
 
-<span class="kw">fn</span> <span class="ident">brotli_max_uint32_t</span>(<span class="ident">a</span>: <span class="ident">u32</span>, <span class="ident">b</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+<span class="kw">fn</span> <span class="ident">brotli_max_uint32_t</span>(<span class="ident">a</span>: <span class="ident">u32</span>, <span class="ident">b</span>: <span class="ident">u32</span>) -&gt; <span class="ident">u32</span> {
   <span class="kw">if</span> <span class="ident">a</span> <span class="op">&gt;</span> <span class="ident">b</span> { <span class="ident">a</span> } <span class="kw">else</span> { <span class="ident">b</span> }
 }
 
-<span class="kw">fn</span> <span class="ident">brotli_min_uint32_t</span>(<span class="ident">a</span>: <span class="ident">u32</span>, <span class="ident">b</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+<span class="kw">fn</span> <span class="ident">brotli_min_uint32_t</span>(<span class="ident">a</span>: <span class="ident">u32</span>, <span class="ident">b</span>: <span class="ident">u32</span>) -&gt; <span class="ident">u32</span> {
   <span class="kw">if</span> <span class="ident">a</span> <span class="op">&lt;</span> <span class="ident">b</span> { <span class="ident">a</span> } <span class="kw">else</span> { <span class="ident">b</span> }
 }
 
@@ -4581,7 +4581,7 @@
     <span class="kw">while</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="ident">in_size</span> <span class="op">&amp;&amp;</span> (<span class="ident">v</span>[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="op">!</span><span class="op">=</span> <span class="number">0u32</span>) {
       <span class="ident">i</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">usize</span>));
     }
-    <span class="kw">while</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="ident">in_size</span> <span class="op">&amp;&amp;</span> (<span class="ident">v</span>[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="op">=</span><span class="op">=</span> <span class="number">0u32</span>) {
+    <span class="kw">while</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="ident">in_size</span> <span class="op">&amp;&amp;</span> (<span class="ident">v</span>[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="op">==</span> <span class="number">0u32</span>) {
       {
         <span class="ident">reps</span> <span class="op">=</span> <span class="ident">reps</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">u32</span>));
       }
@@ -4608,7 +4608,7 @@
       <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">reps</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">1u32</span>;
       <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">k</span>: <span class="ident">usize</span>;
       <span class="ident">k</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">wrapping_add</span>(<span class="number">1usize</span>);
-      <span class="kw">while</span> <span class="ident">k</span> <span class="op">&lt;</span> <span class="ident">in_size</span> <span class="op">&amp;&amp;</span> (<span class="ident">v</span>[(<span class="ident">k</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="op">=</span><span class="op">=</span> <span class="number">0u32</span>) {
+      <span class="kw">while</span> <span class="ident">k</span> <span class="op">&lt;</span> <span class="ident">in_size</span> <span class="op">&amp;&amp;</span> (<span class="ident">v</span>[(<span class="ident">k</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="op">==</span> <span class="number">0u32</span>) {
         {
           <span class="ident">reps</span> <span class="op">=</span> <span class="ident">reps</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">u32</span>));
         }
@@ -4654,7 +4654,7 @@
   <span class="ident">StoreVarLenUint8</span>(<span class="ident">num_clusters</span>.<span class="ident">wrapping_sub</span>(<span class="number">1usize</span>) <span class="kw">as</span> <span class="ident">u64</span>,
                    <span class="ident">storage_ix</span>,
                    <span class="ident">storage</span>);
-  <span class="kw">if</span> <span class="ident">num_clusters</span> <span class="op">=</span><span class="op">=</span> <span class="number">1usize</span> {
+  <span class="kw">if</span> <span class="ident">num_clusters</span> <span class="op">==</span> <span class="number">1usize</span> {
     <span class="kw">return</span>;
   }
   <span class="ident">rle_symbols</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">context_map_size</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
@@ -4767,7 +4767,7 @@
                <span class="ident">symbol</span>: <span class="ident">usize</span>,
                <span class="ident">storage_ix</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
                <span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]){
-  <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">block_len_</span> <span class="op">=</span><span class="op">=</span> <span class="number">0usize</span> {
+  <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">block_len_</span> <span class="op">==</span> <span class="number">0usize</span> {
     <span class="kw">let</span> <span class="ident">block_ix</span>: <span class="ident">usize</span> <span class="op">=</span> {
       (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">block_ix_</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">block_ix_</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">usize</span>));
       (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">block_ix_</span>
@@ -4793,24 +4793,24 @@
   }
 }
 
-<span class="kw">fn</span> <span class="ident">CommandCopyLenCode</span>(<span class="ident">xself</span>: <span class="kw-2">&amp;</span><span class="ident">Command</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+<span class="kw">fn</span> <span class="ident">CommandCopyLenCode</span>(<span class="ident">xself</span>: <span class="kw-2">&amp;</span><span class="ident">Command</span>) -&gt; <span class="ident">u32</span> {
     <span class="kw">let</span> <span class="ident">modifier</span> <span class="op">=</span> <span class="ident">xself</span>.<span class="ident">copy_len_</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">25</span>;
     <span class="kw">let</span> <span class="ident">delta</span>: <span class="ident">i32</span> <span class="op">=</span> ((<span class="ident">modifier</span> <span class="op">|</span> ((<span class="ident">modifier</span> <span class="op">&amp;</span> <span class="number">0x40</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">1</span>)) <span class="kw">as</span> <span class="ident">u8</span>) <span class="kw">as</span> <span class="ident">i8</span> <span class="kw">as</span> <span class="ident">i32</span>;
     ((<span class="ident">xself</span>.<span class="ident">copy_len_</span> <span class="op">&amp;</span> <span class="number">0x1ffffff</span>) <span class="kw">as</span> <span class="ident">i32</span> <span class="op">+</span> <span class="ident">delta</span>) <span class="kw">as</span> <span class="ident">u32</span>
 }
-<span class="kw">fn</span> <span class="ident">GetInsertExtra</span>(<span class="ident">inscode</span>: <span class="ident">u16</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+<span class="kw">fn</span> <span class="ident">GetInsertExtra</span>(<span class="ident">inscode</span>: <span class="ident">u16</span>) -&gt; <span class="ident">u32</span> {
   <span class="ident">kInsExtra</span>[<span class="ident">inscode</span> <span class="kw">as</span> (<span class="ident">usize</span>)]
 }
 
-<span class="kw">fn</span> <span class="ident">GetInsertBase</span>(<span class="ident">inscode</span>: <span class="ident">u16</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+<span class="kw">fn</span> <span class="ident">GetInsertBase</span>(<span class="ident">inscode</span>: <span class="ident">u16</span>) -&gt; <span class="ident">u32</span> {
   <span class="ident">kInsBase</span>[<span class="ident">inscode</span> <span class="kw">as</span> (<span class="ident">usize</span>)]
 }
 
-<span class="kw">fn</span> <span class="ident">GetCopyBase</span>(<span class="ident">copycode</span>: <span class="ident">u16</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+<span class="kw">fn</span> <span class="ident">GetCopyBase</span>(<span class="ident">copycode</span>: <span class="ident">u16</span>) -&gt; <span class="ident">u32</span> {
   <span class="ident">kCopyBase</span>[<span class="ident">copycode</span> <span class="kw">as</span> (<span class="ident">usize</span>)]
 }
 
-<span class="kw">fn</span> <span class="ident">GetCopyExtra</span>(<span class="ident">copycode</span>: <span class="ident">u16</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+<span class="kw">fn</span> <span class="ident">GetCopyExtra</span>(<span class="ident">copycode</span>: <span class="ident">u16</span>) -&gt; <span class="ident">u32</span> {
   <span class="ident">kCopyExtra</span>[<span class="ident">copycode</span> <span class="kw">as</span> (<span class="ident">usize</span>)]
 }
 
@@ -4828,19 +4828,19 @@
                   <span class="ident">storage</span>);
 }
 
-<span class="kw">fn</span> <span class="ident">Context</span>(<span class="ident">p1</span>: <span class="ident">u8</span>, <span class="ident">p2</span>: <span class="ident">u8</span>, <span class="ident">mode</span>: <span class="ident">ContextType</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u8</span> {
+<span class="kw">fn</span> <span class="ident">Context</span>(<span class="ident">p1</span>: <span class="ident">u8</span>, <span class="ident">p2</span>: <span class="ident">u8</span>, <span class="ident">mode</span>: <span class="ident">ContextType</span>) -&gt; <span class="ident">u8</span> {
   <span class="kw">match</span> <span class="ident">mode</span> {
-    <span class="ident">ContextType::CONTEXT_LSB6</span> <span class="op">=</span><span class="op">&gt;</span> {
+    <span class="ident">ContextType::CONTEXT_LSB6</span> =&gt; {
       <span class="kw">return</span> (<span class="ident">p1</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">&amp;</span> <span class="number">0x3fi32</span>) <span class="kw">as</span> (<span class="ident">u8</span>);
     }
-    <span class="ident">ContextType::CONTEXT_MSB6</span> <span class="op">=</span><span class="op">&gt;</span> {
+    <span class="ident">ContextType::CONTEXT_MSB6</span> =&gt; {
       <span class="kw">return</span> (<span class="ident">p1</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">2i32</span>) <span class="kw">as</span> (<span class="ident">u8</span>);
     }
-    <span class="ident">ContextType::CONTEXT_UTF8</span> <span class="op">=</span><span class="op">&gt;</span> {
+    <span class="ident">ContextType::CONTEXT_UTF8</span> =&gt; {
       <span class="kw">return</span> (<span class="ident">kUTF8ContextLookup</span>[<span class="ident">p1</span> <span class="kw">as</span> (<span class="ident">usize</span>)] <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">|</span>
               <span class="ident">kUTF8ContextLookup</span>[(<span class="ident">p2</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">+</span> <span class="number">256i32</span>) <span class="kw">as</span> (<span class="ident">usize</span>)] <span class="kw">as</span> (<span class="ident">i32</span>)) <span class="kw">as</span> (<span class="ident">u8</span>);
     }
-    <span class="ident">ContextType::CONTEXT_SIGNED</span> <span class="op">=</span><span class="op">&gt;</span> {
+    <span class="ident">ContextType::CONTEXT_SIGNED</span> =&gt; {
       <span class="kw">return</span> ((<span class="ident">kSigned3BitContextLookup</span>[<span class="ident">p1</span> <span class="kw">as</span> (<span class="ident">usize</span>)] <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">3i32</span>) <span class="op">+</span>
               <span class="ident">kSigned3BitContextLookup</span>[<span class="ident">p2</span> <span class="kw">as</span> (<span class="ident">usize</span>)] <span class="kw">as</span> (<span class="ident">i32</span>)) <span class="kw">as</span> (<span class="ident">u8</span>);
     }
@@ -4855,7 +4855,7 @@
                                                            <span class="ident">storage_ix</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
                                                            <span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>],
 <span class="ident">context_bits</span>: <span class="ident">usize</span>){
-  <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">block_len_</span> <span class="op">=</span><span class="op">=</span> <span class="number">0usize</span> {
+  <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">block_len_</span> <span class="op">==</span> <span class="number">0usize</span> {
     <span class="kw">let</span> <span class="ident">block_ix</span>: <span class="ident">usize</span> <span class="op">=</span> {
       (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">block_ix_</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">block_ix_</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">usize</span>));
       (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">block_ix_</span>
@@ -4883,14 +4883,14 @@
   }
 }
 
-<span class="kw">fn</span> <span class="ident">CommandCopyLen</span>(<span class="ident">xself</span>: <span class="kw-2">&amp;</span><span class="ident">Command</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+<span class="kw">fn</span> <span class="ident">CommandCopyLen</span>(<span class="ident">xself</span>: <span class="kw-2">&amp;</span><span class="ident">Command</span>) -&gt; <span class="ident">u32</span> {
   (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">copy_len_</span> <span class="op">&amp;</span> <span class="number">0xffffffu32</span>
 }
 
-<span class="kw">fn</span> <span class="ident">CommandDistanceContext</span>(<span class="ident">xself</span>: <span class="kw-2">&amp;</span><span class="ident">Command</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+<span class="kw">fn</span> <span class="ident">CommandDistanceContext</span>(<span class="ident">xself</span>: <span class="kw-2">&amp;</span><span class="ident">Command</span>) -&gt; <span class="ident">u32</span> {
   <span class="kw">let</span> <span class="ident">r</span>: <span class="ident">u32</span> <span class="op">=</span> ((<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">cmd_prefix_</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">6i32</span>) <span class="kw">as</span> (<span class="ident">u32</span>);
   <span class="kw">let</span> <span class="ident">c</span>: <span class="ident">u32</span> <span class="op">=</span> ((<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">cmd_prefix_</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">&amp;</span> <span class="number">7i32</span>) <span class="kw">as</span> (<span class="ident">u32</span>);
-  <span class="kw">if</span> (<span class="ident">r</span> <span class="op">=</span><span class="op">=</span> <span class="number">0u32</span> <span class="op">|</span><span class="op">|</span> <span class="ident">r</span> <span class="op">=</span><span class="op">=</span> <span class="number">2u32</span> <span class="op">|</span><span class="op">|</span> <span class="ident">r</span> <span class="op">=</span><span class="op">=</span> <span class="number">4u32</span> <span class="op">|</span><span class="op">|</span> <span class="ident">r</span> <span class="op">=</span><span class="op">=</span> <span class="number">7u32</span>) <span class="op">&amp;&amp;</span> (<span class="ident">c</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">2u32</span>) {
+  <span class="kw">if</span> (<span class="ident">r</span> <span class="op">==</span> <span class="number">0u32</span> <span class="op">|</span><span class="op">|</span> <span class="ident">r</span> <span class="op">==</span> <span class="number">2u32</span> <span class="op">|</span><span class="op">|</span> <span class="ident">r</span> <span class="op">==</span> <span class="number">4u32</span> <span class="op">|</span><span class="op">|</span> <span class="ident">r</span> <span class="op">==</span> <span class="number">7u32</span>) <span class="op">&amp;&amp;</span> (<span class="ident">c</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">2u32</span>) {
     <span class="kw">return</span> <span class="ident">c</span>;
   }
   <span class="number">3u32</span>
@@ -4988,7 +4988,7 @@
     }
     <span class="ident">i</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">usize</span>));
   }
-  <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">mb</span>).<span class="ident">literal_context_map_size</span> <span class="op">=</span><span class="op">=</span> <span class="number">0usize</span> {
+  <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">mb</span>).<span class="ident">literal_context_map_size</span> <span class="op">==</span> <span class="number">0usize</span> {
     <span class="ident">StoreTrivialContextMap</span>((<span class="kw-2">*</span><span class="ident">mb</span>).<span class="ident">literal_histograms_size</span>,
                            <span class="number">6</span>,
                            <span class="ident">tree</span>.<span class="ident">slice_mut</span>(),
@@ -5003,7 +5003,7 @@
                      <span class="ident">storage_ix</span>,
                      <span class="ident">storage</span>);
   }
-  <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">mb</span>).<span class="ident">distance_context_map_size</span> <span class="op">=</span><span class="op">=</span> <span class="number">0usize</span> {
+  <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">mb</span>).<span class="ident">distance_context_map_size</span> <span class="op">==</span> <span class="number">0usize</span> {
     <span class="ident">StoreTrivialContextMap</span>((<span class="kw-2">*</span><span class="ident">mb</span>).<span class="ident">distance_histograms_size</span>,
                            <span class="number">2usize</span>,
                            <span class="ident">tree</span>.<span class="ident">slice_mut</span>(),
@@ -5052,7 +5052,7 @@
       <span class="kw">let</span> <span class="ident">cmd_code</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">cmd</span>.<span class="ident">cmd_prefix_</span> <span class="kw">as</span> (<span class="ident">usize</span>);
       <span class="ident">StoreSymbol</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">command_enc</span>, <span class="ident">cmd_code</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
       <span class="ident">StoreCommandExtra</span>(<span class="kw-2">&amp;</span><span class="ident">cmd</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
-      <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">mb</span>).<span class="ident">literal_context_map_size</span> <span class="op">=</span><span class="op">=</span> <span class="number">0usize</span> {
+      <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">mb</span>).<span class="ident">literal_context_map_size</span> <span class="op">==</span> <span class="number">0usize</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">j</span>: <span class="ident">usize</span>;
         <span class="ident">j</span> <span class="op">=</span> <span class="ident">cmd</span>.<span class="ident">insert_len_</span> <span class="kw">as</span> (<span class="ident">usize</span>);
         <span class="kw">while</span> <span class="ident">j</span> <span class="op">!</span><span class="op">=</span> <span class="number">0usize</span> {
@@ -5094,7 +5094,7 @@
           <span class="kw">let</span> <span class="ident">dist_code</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">cmd</span>.<span class="ident">dist_prefix_</span> <span class="kw">as</span> (<span class="ident">usize</span>) <span class="op">&amp;</span> <span class="number">0x3ff</span>;
           <span class="kw">let</span> <span class="ident">distnumextra</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="ident">u32::from</span>(<span class="ident">cmd</span>.<span class="ident">dist_prefix_</span>) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">10i32</span>; <span class="comment">//FIXME: from command</span>
           <span class="kw">let</span> <span class="ident">distextra</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="ident">cmd</span>.<span class="ident">dist_extra_</span> <span class="kw">as</span> (<span class="ident">u64</span>);
-          <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">mb</span>).<span class="ident">distance_context_map_size</span> <span class="op">=</span><span class="op">=</span> <span class="number">0usize</span> {
+          <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">mb</span>).<span class="ident">distance_context_map_size</span> <span class="op">==</span> <span class="number">0usize</span> {
             <span class="ident">StoreSymbol</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">distance_enc</span>, <span class="ident">dist_code</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
           } <span class="kw">else</span> {
             <span class="kw">let</span> <span class="ident">context</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">CommandDistanceContext</span>(<span class="kw-2">&amp;</span><span class="ident">cmd</span>) <span class="kw">as</span> (<span class="ident">usize</span>);
@@ -5328,7 +5328,7 @@
     <span class="ident">num_types</span>: <span class="ident">u32</span>,
 }
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">BlockSplitRef</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">BlockSplitRef</span> {
             <span class="ident">types</span>:<span class="kw-2">&amp;</span>[],
             <span class="ident">lengths</span>:<span class="kw-2">&amp;</span>[],
@@ -5347,14 +5347,14 @@
     <span class="ident">distance_context_map</span>:<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u32</span>],
 }
 
-<span class="kw">fn</span> <span class="ident">block_split_nop</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MetaBlockSplitRefs</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">block_split_nop</span>() -&gt; <span class="ident">MetaBlockSplitRefs</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span> {
     <span class="kw">return</span> <span class="ident">MetaBlockSplitRefs::default</span>()
 
 }
 
 <span class="kw">fn</span> <span class="ident">block_split_reference</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>,
                          <span class="ident">Alloc</span>: <span class="ident">BrotliAlloc</span><span class="op">&gt;</span>
-    (<span class="ident">mb</span>:<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">MetaBlockSplit</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MetaBlockSplitRefs</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    (<span class="ident">mb</span>:<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">MetaBlockSplit</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>) -&gt; <span class="ident">MetaBlockSplitRefs</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="kw">return</span> <span class="ident">MetaBlockSplitRefs</span>::<span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
             <span class="ident">btypel</span>:<span class="ident">BlockSplitRef</span> {
                 <span class="ident">types</span>: <span class="ident">mb</span>.<span class="ident">literal_split</span>.<span class="ident">types</span>.<span class="ident">slice</span>().<span class="ident">split_at</span>(<span class="ident">mb</span>.<span class="ident">literal_split</span>.<span class="ident">num_blocks</span>).<span class="number">0</span>,
@@ -5382,7 +5382,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">RecoderState</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">RecoderState</span>{
             <span class="ident">num_bytes_encoded</span>:<span class="number">0</span>,
         }
@@ -5548,7 +5548,7 @@
   <span class="ident">BrotliWriteBits</span>(<span class="number">1</span>, <span class="number">1</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
 }
 
-<span class="kw">fn</span> <span class="ident">InputPairFromMaskedInput</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">input</span>:<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>], <span class="ident">position</span>: <span class="ident">usize</span>, <span class="ident">len</span>: <span class="ident">usize</span>, <span class="ident">mask</span>:<span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>], <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]) {
+<span class="kw">fn</span> <span class="ident">InputPairFromMaskedInput</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">input</span>:<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>], <span class="ident">position</span>: <span class="ident">usize</span>, <span class="ident">len</span>: <span class="ident">usize</span>, <span class="ident">mask</span>:<span class="ident">usize</span>) -&gt; (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>], <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]) {
   <span class="kw">let</span> <span class="ident">masked_pos</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">position</span> <span class="op">&amp;</span> <span class="ident">mask</span>;
   <span class="kw">if</span> <span class="ident">masked_pos</span>.<span class="ident">wrapping_add</span>(<span class="ident">len</span>) <span class="op">&gt;</span> <span class="ident">mask</span>.<span class="ident">wrapping_add</span>(<span class="number">1usize</span>) {
     <span class="kw">let</span> <span class="ident">len1</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">mask</span>.<span class="ident">wrapping_add</span>(<span class="number">1usize</span>).<span class="ident">wrapping_sub</span>(<span class="ident">masked_pos</span>);
@@ -5618,7 +5618,7 @@
 
 <span class="kw">const</span> <span class="ident">MAX_SIZE_ENCODING</span>:<span class="ident">usize</span> <span class="op">=</span> <span class="number">10</span>;
 
-<span class="kw">fn</span> <span class="ident">encode_base_128</span>(<span class="kw-2">mut</span> <span class="ident">value</span>: <span class="ident">u64</span>)<span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, [<span class="ident">u8</span>;<span class="ident">MAX_SIZE_ENCODING</span>]) {
+<span class="kw">fn</span> <span class="ident">encode_base_128</span>(<span class="kw-2">mut</span> <span class="ident">value</span>: <span class="ident">u64</span>)-&gt; (<span class="ident">usize</span>, [<span class="ident">u8</span>;<span class="ident">MAX_SIZE_ENCODING</span>]) {
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> [<span class="number">0u8</span>; <span class="ident">MAX_SIZE_ENCODING</span>];
   <span class="kw">for</span> <span class="ident">index</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">ret</span>.<span class="ident">len</span>() {
     <span class="ident">ret</span>[<span class="ident">index</span>] <span class="op">=</span> (<span class="ident">value</span> <span class="op">&amp;</span> <span class="number">0x7f</span>) <span class="kw">as</span> <span class="ident">u8</span>;

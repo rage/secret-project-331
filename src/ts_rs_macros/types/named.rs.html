@@ -147,7 +147,7 @@
     <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
     <span class="ident">fields</span>: <span class="kw-2">&amp;</span><span class="ident">FieldsNamed</span>,
     <span class="ident">generics</span>: <span class="kw-2">&amp;</span><span class="ident">Generics</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DerivedTS</span><span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DerivedTS</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">formatted_fields</span> <span class="op">=</span> <span class="macro">vec!</span>[];
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dependencies</span> <span class="op">=</span> <span class="ident">Dependencies::default</span>();
     <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">fields</span>.<span class="ident">named</span> {
@@ -186,7 +186,7 @@
     <span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>,
     <span class="ident">rename_all</span>: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Inflection</span><span class="op">&gt;</span>,
     <span class="ident">generics</span>: <span class="kw-2">&amp;</span><span class="ident">Generics</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">FieldAttr</span> {
         <span class="ident">type_override</span>,
         <span class="ident">rename</span>,
@@ -201,16 +201,16 @@
     }
 
     <span class="kw">let</span> (<span class="ident">ty</span>, <span class="ident">optional_annotation</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">optional</span> {
-        <span class="bool-val">true</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">extract_option_argument</span>(<span class="kw-2">&amp;</span><span class="ident">field</span>.<span class="ident">ty</span>)<span class="question-mark">?</span>, <span class="string">&quot;?&quot;</span>),
-        <span class="bool-val">false</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="kw-2">&amp;</span><span class="ident">field</span>.<span class="ident">ty</span>, <span class="string">&quot;&quot;</span>),
+        <span class="bool-val">true</span> =&gt; (<span class="ident">extract_option_argument</span>(<span class="kw-2">&amp;</span><span class="ident">field</span>.<span class="ident">ty</span>)<span class="question-mark">?</span>, <span class="string">&quot;?&quot;</span>),
+        <span class="bool-val">false</span> =&gt; (<span class="kw-2">&amp;</span><span class="ident">field</span>.<span class="ident">ty</span>, <span class="string">&quot;&quot;</span>),
     };
 
     <span class="kw">if</span> <span class="ident">flatten</span> {
         <span class="kw">match</span> (<span class="kw-2">&amp;</span><span class="ident">type_override</span>, <span class="kw-2">&amp;</span><span class="ident">rename</span>, <span class="ident">inline</span>) {
-            (<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">syn_err!</span>(<span class="string">&quot;`type` is not compatible with `flatten`&quot;</span>),
-            (<span class="kw">_</span>, <span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">syn_err!</span>(<span class="string">&quot;`rename` is not compatible with `flatten`&quot;</span>),
-            (<span class="kw">_</span>, <span class="kw">_</span>, <span class="bool-val">true</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">syn_err!</span>(<span class="string">&quot;`inline` is not compatible with `flatten`&quot;</span>),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            (<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">syn_err!</span>(<span class="string">&quot;`type` is not compatible with `flatten`&quot;</span>),
+            (<span class="kw">_</span>, <span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="kw">_</span>) =&gt; <span class="macro">syn_err!</span>(<span class="string">&quot;`rename` is not compatible with `flatten`&quot;</span>),
+            (<span class="kw">_</span>, <span class="kw">_</span>, <span class="bool-val">true</span>) =&gt; <span class="macro">syn_err!</span>(<span class="string">&quot;`inline` is not compatible with `flatten`&quot;</span>),
+            <span class="kw">_</span> =&gt; {}
         }
 
         <span class="ident">formatted_fields</span>.<span class="ident">push</span>(<span class="macro">quote!</span>(<span class="op">&lt;</span>#<span class="ident">ty</span> <span class="kw">as</span> <span class="ident">ts_rs::TS</span><span class="op">&gt;</span><span class="ident">::inline_flattened</span>()));
@@ -228,9 +228,9 @@
     });
     <span class="kw">let</span> <span class="ident">field_name</span> <span class="op">=</span> <span class="ident">to_ts_ident</span>(<span class="ident">field</span>.<span class="ident">ident</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>());
     <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="kw">match</span> (<span class="ident">rename</span>, <span class="ident">rename_all</span>) {
-        (<span class="prelude-val">Some</span>(<span class="ident">rn</span>), <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">rn</span>,
-        (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">rn</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">rn</span>.<span class="ident">apply</span>(<span class="kw-2">&amp;</span><span class="ident">field_name</span>),
-        (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">field_name</span>,
+        (<span class="prelude-val">Some</span>(<span class="ident">rn</span>), <span class="kw">_</span>) =&gt; <span class="ident">rn</span>,
+        (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">rn</span>)) =&gt; <span class="ident">rn</span>.<span class="ident">apply</span>(<span class="kw-2">&amp;</span><span class="ident">field_name</span>),
+        (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; <span class="ident">field_name</span>,
     };
 
     <span class="ident">formatted_fields</span>.<span class="ident">push</span>(<span class="macro">quote!</span> {
@@ -240,26 +240,26 @@
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">fn</span> <span class="ident">extract_option_argument</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Type</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">extract_option_argument</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Type</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="ident">ty</span> {
         <span class="ident">Type::Path</span>(<span class="ident">type_path</span>)
             <span class="kw">if</span> <span class="ident">type_path</span>.<span class="ident">qself</span>.<span class="ident">is_none</span>()
                 <span class="op">&amp;&amp;</span> <span class="ident">type_path</span>.<span class="ident">path</span>.<span class="ident">leading_colon</span>.<span class="ident">is_none</span>()
-                <span class="op">&amp;&amp;</span> <span class="ident">type_path</span>.<span class="ident">path</span>.<span class="ident">segments</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span>
-                <span class="op">&amp;&amp;</span> <span class="ident">type_path</span>.<span class="ident">path</span>.<span class="ident">segments</span>[<span class="number">0</span>].<span class="ident">ident</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Option&quot;</span> <span class="op">=</span><span class="op">&gt;</span>
+                <span class="op">&amp;&amp;</span> <span class="ident">type_path</span>.<span class="ident">path</span>.<span class="ident">segments</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span>
+                <span class="op">&amp;&amp;</span> <span class="ident">type_path</span>.<span class="ident">path</span>.<span class="ident">segments</span>[<span class="number">0</span>].<span class="ident">ident</span> <span class="op">==</span> <span class="string">&quot;Option&quot;</span> =&gt;
         {
             <span class="kw">let</span> <span class="ident">segment</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">type_path</span>.<span class="ident">path</span>.<span class="ident">segments</span>[<span class="number">0</span>];
             <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">segment</span>.<span class="ident">arguments</span> {
-                <span class="ident">PathArguments::AngleBracketed</span>(<span class="ident">args</span>) <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">args</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">PathArguments::AngleBracketed</span>(<span class="ident">args</span>) <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">args</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> =&gt; {
                     <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">args</span>.<span class="ident">args</span>[<span class="number">0</span>] {
-                        <span class="ident">GenericArgument::Type</span>(<span class="ident">inner_ty</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">inner_ty</span>),
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">syn_err!</span>(<span class="string">&quot;`Option` argument must be a type&quot;</span>),
+                        <span class="ident">GenericArgument::Type</span>(<span class="ident">inner_ty</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">inner_ty</span>),
+                        <span class="kw">_</span> =&gt; <span class="macro">syn_err!</span>(<span class="string">&quot;`Option` argument must be a type&quot;</span>),
                     }
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">syn_err!</span>(<span class="string">&quot;`Option` type must have a single generic argument&quot;</span>),
+                <span class="kw">_</span> =&gt; <span class="macro">syn_err!</span>(<span class="string">&quot;`Option` type must have a single generic argument&quot;</span>),
             }
         }
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">syn_err!</span>(<span class="string">&quot;`optional` can only be used on an Option&lt;T&gt; type&quot;</span>),
+        <span class="kw">_</span> =&gt; <span class="macro">syn_err!</span>(<span class="string">&quot;`optional` can only be used on an Option&lt;T&gt; type&quot;</span>),
     }
 }
 </code></pre></div>

@@ -424,28 +424,28 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">I</span>: <span class="ident">Tokens</span><span class="op">&gt;</span> <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Name from spec: &#39;LogicalORExpression&#39;</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_bin_expr</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expr</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_bin_expr</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expr</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="macro">trace_cur!</span>(<span class="self">self</span>, <span class="ident">parse_bin_expr</span>);
 
         <span class="kw">let</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">ctx</span>();
 
         <span class="kw">let</span> <span class="ident">left</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">parse_unary_expr</span>() {
-            <span class="prelude-val">Ok</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">v</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Ok</span>(<span class="ident">v</span>) =&gt; <span class="ident">v</span>,
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
                 <span class="macro">trace_cur!</span>(<span class="self">self</span>, <span class="ident">parse_bin_expr__recovery_unary_err</span>);
 
                 <span class="kw">match</span> <span class="macro">cur!</span>(<span class="self">self</span>, <span class="bool-val">true</span>)<span class="question-mark">?</span> {
-                    <span class="kw-2">&amp;</span><span class="ident">Word</span>(<span class="ident">Word::Keyword</span>(<span class="ident">Keyword::In</span>)) <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">include_in_expr</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw-2">&amp;</span><span class="ident">Word</span>(<span class="ident">Word::Keyword</span>(<span class="ident">Keyword::In</span>)) <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">include_in_expr</span> =&gt; {
                         <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">cur_span</span>(), <span class="ident">SyntaxError::TS1109</span>);
 
                         <span class="ident">Box::new</span>(<span class="ident">Expr::Invalid</span>(<span class="ident">Invalid</span> { <span class="ident">span</span>: <span class="ident">err</span>.<span class="ident">span</span>() }))
                     }
-                    <span class="kw-2">&amp;</span><span class="ident">Word</span>(<span class="ident">Word::Keyword</span>(<span class="ident">Keyword::InstanceOf</span>)) <span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">Token::BinOp</span>(..) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw-2">&amp;</span><span class="ident">Word</span>(<span class="ident">Word::Keyword</span>(<span class="ident">Keyword::InstanceOf</span>)) <span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">Token::BinOp</span>(..) =&gt; {
                         <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">cur_span</span>(), <span class="ident">SyntaxError::TS1109</span>);
 
                         <span class="ident">Box::new</span>(<span class="ident">Expr::Invalid</span>(<span class="ident">Invalid</span> { <span class="ident">span</span>: <span class="ident">err</span>.<span class="ident">span</span>() }))
                     }
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>),
+                    <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>),
                 }
             }
         };
@@ -465,7 +465,7 @@
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="kw-2">mut</span> <span class="ident">left</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expr</span><span class="op">&gt;</span>,
         <span class="kw-2">mut</span> <span class="ident">min_prec</span>: <span class="ident">u8</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expr</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expr</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">loop</span> {
             <span class="kw">let</span> (<span class="ident">next_left</span>, <span class="ident">next_prec</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_bin_op_recursively_inner</span>(<span class="ident">left</span>, <span class="ident">min_prec</span>)<span class="question-mark">?</span>;
 
@@ -481,19 +481,19 @@
                     <span class="ident">left</span>,
                     <span class="ident">op</span>: <span class="macro">op!</span>(<span class="string">&quot;||&quot;</span>),
                     ..
-                }) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">left</span> {
-                    <span class="ident">Expr::Bin</span>(<span class="ident">BinExpr</span> { <span class="ident">op</span>: <span class="macro">op!</span>(<span class="string">&quot;??&quot;</span>), .. }) <span class="op">=</span><span class="op">&gt;</span> {
+                }) =&gt; <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">left</span> {
+                    <span class="ident">Expr::Bin</span>(<span class="ident">BinExpr</span> { <span class="ident">op</span>: <span class="macro">op!</span>(<span class="string">&quot;??&quot;</span>), .. }) =&gt; {
                         <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="kw-2">*</span><span class="ident">span</span>, <span class="ident">SyntaxError::NullishCoalescingWithLogicalOp</span>);
                     }
 
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+                    <span class="kw">_</span> =&gt; {}
                 },
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+                <span class="kw">_</span> =&gt; {}
             }
 
             <span class="ident">min_prec</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">next_prec</span> {
-                <span class="prelude-val">Some</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">v</span>,
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">next_left</span>),
+                <span class="prelude-val">Some</span>(<span class="ident">v</span>) =&gt; <span class="ident">v</span>,
+                <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">next_left</span>),
             };
 
             <span class="ident">left</span> <span class="op">=</span> <span class="ident">next_left</span>;
@@ -505,7 +505,7 @@
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">left</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expr</span><span class="op">&gt;</span>,
         <span class="ident">min_prec</span>: <span class="ident">u8</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PResult</span><span class="op">&lt;</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expr</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expr</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
         <span class="kw">const</span> <span class="ident">PREC_OF_IN</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">7</span>;
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>()
@@ -538,19 +538,19 @@
         <span class="kw">let</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">ctx</span>();
         <span class="comment">// Return left on eof</span>
         <span class="kw">let</span> <span class="ident">word</span> <span class="op">=</span> <span class="kw">match</span> <span class="macro">cur!</span>(<span class="self">self</span>, <span class="bool-val">false</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">cur</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">cur</span>,
-            <span class="prelude-val">Err</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">left</span>, <span class="prelude-val">None</span>)),
+            <span class="prelude-val">Ok</span>(<span class="ident">cur</span>) =&gt; <span class="ident">cur</span>,
+            <span class="prelude-val">Err</span>(..) =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">left</span>, <span class="prelude-val">None</span>)),
         };
         <span class="kw">let</span> <span class="ident">op</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">word</span> {
-            <span class="ident">Word</span>(<span class="ident">Word::Keyword</span>(<span class="ident">Keyword::In</span>)) <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">include_in_expr</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">op!</span>(<span class="string">&quot;in&quot;</span>),
-            <span class="ident">Word</span>(<span class="ident">Word::Keyword</span>(<span class="ident">Keyword::InstanceOf</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">op!</span>(<span class="string">&quot;instanceof&quot;</span>),
-            <span class="ident">Token::BinOp</span>(<span class="ident">op</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">op</span>.<span class="ident">into</span>(),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Word</span>(<span class="ident">Word::Keyword</span>(<span class="ident">Keyword::In</span>)) <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">include_in_expr</span> =&gt; <span class="macro">op!</span>(<span class="string">&quot;in&quot;</span>),
+            <span class="ident">Word</span>(<span class="ident">Word::Keyword</span>(<span class="ident">Keyword::InstanceOf</span>)) =&gt; <span class="macro">op!</span>(<span class="string">&quot;instanceof&quot;</span>),
+            <span class="ident">Token::BinOp</span>(<span class="ident">op</span>) =&gt; <span class="ident">op</span>.<span class="ident">into</span>(),
+            <span class="kw">_</span> =&gt; {
                 <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">left</span>, <span class="prelude-val">None</span>));
             }
         };
 
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">syntax</span>().<span class="ident">nullish_coalescing</span>() <span class="op">&amp;&amp;</span> <span class="ident">op</span> <span class="op">=</span><span class="op">=</span> <span class="macro">op!</span>(<span class="string">&quot;??&quot;</span>) {
+        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">syntax</span>().<span class="ident">nullish_coalescing</span>() <span class="op">&amp;&amp;</span> <span class="ident">op</span> <span class="op">==</span> <span class="macro">op!</span>(<span class="string">&quot;??&quot;</span>) {
             <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">left</span>.<span class="ident">span</span>(), <span class="ident">SyntaxError::NullishCoalescingNotEnabled</span>);
         }
 
@@ -575,7 +575,7 @@
 
         <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">left</span> {
             <span class="comment">// This is invalid syntax.</span>
-            <span class="ident">Expr::Unary</span> { .. } <span class="kw">if</span> <span class="ident">op</span> <span class="op">=</span><span class="op">=</span> <span class="macro">op!</span>(<span class="string">&quot;**&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Expr::Unary</span> { .. } <span class="kw">if</span> <span class="ident">op</span> <span class="op">==</span> <span class="macro">op!</span>(<span class="string">&quot;**&quot;</span>) =&gt; {
                 <span class="comment">// Correct implementation would be returning Ok(left) and</span>
                 <span class="comment">// returning &quot;unexpected token &#39;**&#39;&quot; on next.</span>
                 <span class="comment">// But it&#39;s not useful error message.</span>
@@ -589,14 +589,14 @@
                     }
                 )
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            <span class="kw">_</span> =&gt; {}
         }
 
         <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> {
             <span class="kw">let</span> <span class="ident">left_of_right</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_unary_expr</span>()<span class="question-mark">?</span>;
             <span class="self">self</span>.<span class="ident">parse_bin_op_recursively</span>(
                 <span class="ident">left_of_right</span>,
-                <span class="kw">if</span> <span class="ident">op</span> <span class="op">=</span><span class="op">=</span> <span class="macro">op!</span>(<span class="string">&quot;**&quot;</span>) {
+                <span class="kw">if</span> <span class="ident">op</span> <span class="op">==</span> <span class="macro">op!</span>(<span class="string">&quot;**&quot;</span>) {
                     <span class="comment">// exponential operator is right associative</span>
                     <span class="ident">op</span>.<span class="ident">precedence</span>() <span class="op">-</span> <span class="number">1</span>
                 } <span class="kw">else</span> {
@@ -616,19 +616,19 @@
          * parenthesis if the parenthesis is missing we raise an error and
          * throw it
          */</span>
-        <span class="kw">if</span> <span class="ident">op</span> <span class="op">=</span><span class="op">=</span> <span class="macro">op!</span>(<span class="string">&quot;??&quot;</span>) {
+        <span class="kw">if</span> <span class="ident">op</span> <span class="op">==</span> <span class="macro">op!</span>(<span class="string">&quot;??&quot;</span>) {
             <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">left</span> {
-                <span class="ident">Expr::Bin</span>(<span class="ident">BinExpr</span> { <span class="ident">span</span>, <span class="ident">op</span>, .. }) <span class="kw">if</span> <span class="ident">op</span> <span class="op">=</span><span class="op">=</span> <span class="macro">op!</span>(<span class="string">&quot;&amp;&amp;&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">op</span> <span class="op">=</span><span class="op">=</span> <span class="macro">op!</span>(<span class="string">&quot;||&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Expr::Bin</span>(<span class="ident">BinExpr</span> { <span class="ident">span</span>, <span class="ident">op</span>, .. }) <span class="kw">if</span> <span class="ident">op</span> <span class="op">==</span> <span class="macro">op!</span>(<span class="string">&quot;&amp;&amp;&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">op</span> <span class="op">==</span> <span class="macro">op!</span>(<span class="string">&quot;||&quot;</span>) =&gt; {
                     <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">span</span>, <span class="ident">SyntaxError::NullishCoalescingWithLogicalOp</span>);
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+                <span class="kw">_</span> =&gt; {}
             }
 
             <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">right</span> {
-                <span class="ident">Expr::Bin</span>(<span class="ident">BinExpr</span> { <span class="ident">span</span>, <span class="ident">op</span>, .. }) <span class="kw">if</span> <span class="ident">op</span> <span class="op">=</span><span class="op">=</span> <span class="macro">op!</span>(<span class="string">&quot;&amp;&amp;&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">op</span> <span class="op">=</span><span class="op">=</span> <span class="macro">op!</span>(<span class="string">&quot;||&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Expr::Bin</span>(<span class="ident">BinExpr</span> { <span class="ident">span</span>, <span class="ident">op</span>, .. }) <span class="kw">if</span> <span class="ident">op</span> <span class="op">==</span> <span class="macro">op!</span>(<span class="string">&quot;&amp;&amp;&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">op</span> <span class="op">==</span> <span class="macro">op!</span>(<span class="string">&quot;||&quot;</span>) =&gt; {
                     <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">span</span>, <span class="ident">SyntaxError::NullishCoalescingWithLogicalOp</span>);
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+                <span class="kw">_</span> =&gt; {}
             }
         }
 
@@ -645,7 +645,7 @@
     <span class="doccomment">/// Parse unary expression and update expression.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// spec: &#39;UnaryExpression&#39;</span>
-    <span class="kw">pub</span>(<span class="kw">in</span> <span class="ident"><span class="kw">crate</span>::parser</span>) <span class="kw">fn</span> <span class="ident">parse_unary_expr</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expr</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">in</span> <span class="ident"><span class="kw">crate</span>::parser</span>) <span class="kw">fn</span> <span class="ident">parse_unary_expr</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expr</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="macro">trace_cur!</span>(<span class="self">self</span>, <span class="ident">parse_unary_expr</span>);
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
 
@@ -667,7 +667,7 @@
 
         <span class="comment">// Parse update expression</span>
         <span class="kw">if</span> <span class="macro">is!</span>(<span class="self">self</span>, <span class="string">&quot;++&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="macro">is!</span>(<span class="self">self</span>, <span class="string">&quot;--&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">op</span> <span class="op">=</span> <span class="kw">if</span> <span class="macro">bump!</span>(<span class="self">self</span>) <span class="op">=</span><span class="op">=</span> <span class="macro">tok!</span>(<span class="string">&quot;++&quot;</span>) {
+            <span class="kw">let</span> <span class="ident">op</span> <span class="op">=</span> <span class="kw">if</span> <span class="macro">bump!</span>(<span class="self">self</span>) <span class="op">==</span> <span class="macro">tok!</span>(<span class="string">&quot;++&quot;</span>) {
                 <span class="macro">op!</span>(<span class="string">&quot;++&quot;</span>)
             } <span class="kw">else</span> {
                 <span class="macro">op!</span>(<span class="string">&quot;--&quot;</span>)
@@ -688,19 +688,19 @@
         <span class="comment">// Parse unary expression</span>
         <span class="kw">if</span> <span class="macro">is_one_of!</span>(<span class="self">self</span>, <span class="string">&quot;delete&quot;</span>, <span class="string">&quot;void&quot;</span>, <span class="string">&quot;typeof&quot;</span>, <span class="string">&#39;+&#39;</span>, <span class="string">&#39;-&#39;</span>, <span class="string">&#39;~&#39;</span>, <span class="string">&#39;!&#39;</span>) {
             <span class="kw">let</span> <span class="ident">op</span> <span class="op">=</span> <span class="kw">match</span> <span class="macro">bump!</span>(<span class="self">self</span>) {
-                <span class="macro">tok!</span>(<span class="string">&quot;delete&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">op!</span>(<span class="string">&quot;delete&quot;</span>),
-                <span class="macro">tok!</span>(<span class="string">&quot;void&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">op!</span>(<span class="string">&quot;void&quot;</span>),
-                <span class="macro">tok!</span>(<span class="string">&quot;typeof&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">op!</span>(<span class="string">&quot;typeof&quot;</span>),
-                <span class="macro">tok!</span>(<span class="string">&#39;+&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">op!</span>(<span class="ident">unary</span>, <span class="string">&quot;+&quot;</span>),
-                <span class="macro">tok!</span>(<span class="string">&#39;-&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">op!</span>(<span class="ident">unary</span>, <span class="string">&quot;-&quot;</span>),
-                <span class="macro">tok!</span>(<span class="string">&#39;~&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">op!</span>(<span class="string">&quot;~&quot;</span>),
-                <span class="macro">tok!</span>(<span class="string">&#39;!&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">op!</span>(<span class="string">&quot;!&quot;</span>),
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                <span class="macro">tok!</span>(<span class="string">&quot;delete&quot;</span>) =&gt; <span class="macro">op!</span>(<span class="string">&quot;delete&quot;</span>),
+                <span class="macro">tok!</span>(<span class="string">&quot;void&quot;</span>) =&gt; <span class="macro">op!</span>(<span class="string">&quot;void&quot;</span>),
+                <span class="macro">tok!</span>(<span class="string">&quot;typeof&quot;</span>) =&gt; <span class="macro">op!</span>(<span class="string">&quot;typeof&quot;</span>),
+                <span class="macro">tok!</span>(<span class="string">&#39;+&#39;</span>) =&gt; <span class="macro">op!</span>(<span class="ident">unary</span>, <span class="string">&quot;+&quot;</span>),
+                <span class="macro">tok!</span>(<span class="string">&#39;-&#39;</span>) =&gt; <span class="macro">op!</span>(<span class="ident">unary</span>, <span class="string">&quot;-&quot;</span>),
+                <span class="macro">tok!</span>(<span class="string">&#39;~&#39;</span>) =&gt; <span class="macro">op!</span>(<span class="string">&quot;~&quot;</span>),
+                <span class="macro">tok!</span>(<span class="string">&#39;!&#39;</span>) =&gt; <span class="macro">op!</span>(<span class="string">&quot;!&quot;</span>),
+                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
             };
             <span class="kw">let</span> <span class="ident">arg_start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>) <span class="op">-</span> <span class="ident">BytePos</span>(<span class="number">1</span>);
             <span class="kw">let</span> <span class="ident">arg</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">parse_unary_expr</span>() {
-                <span class="prelude-val">Ok</span>(<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">expr</span>,
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Ok</span>(<span class="ident">expr</span>) =&gt; <span class="ident">expr</span>,
+                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
                     <span class="self">self</span>.<span class="ident">emit_error</span>(<span class="ident">err</span>);
                     <span class="ident">Box::new</span>(<span class="ident">Expr::Invalid</span>(<span class="ident">Invalid</span> {
                         <span class="ident">span</span>: <span class="ident">Span::new</span>(<span class="ident">arg_start</span>, <span class="ident">arg_start</span>, <span class="ident">Default::default</span>()),
@@ -709,28 +709,28 @@
             };
             <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">Span::new</span>(<span class="ident">start</span>, <span class="ident">arg</span>.<span class="ident">span</span>().<span class="ident">hi</span>(), <span class="ident">Default::default</span>());
 
-            <span class="kw">if</span> <span class="ident">op</span> <span class="op">=</span><span class="op">=</span> <span class="macro">op!</span>(<span class="string">&quot;delete&quot;</span>) {
+            <span class="kw">if</span> <span class="ident">op</span> <span class="op">==</span> <span class="macro">op!</span>(<span class="string">&quot;delete&quot;</span>) {
                 <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">arg</span> {
-                    <span class="ident">Expr::Ident</span>(<span class="kw-2">ref</span> <span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">emit_strict_mode_err</span>(<span class="ident">i</span>.<span class="ident">span</span>, <span class="ident">SyntaxError::TS1102</span>),
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+                    <span class="ident">Expr::Ident</span>(<span class="kw-2">ref</span> <span class="ident">i</span>) =&gt; <span class="self">self</span>.<span class="ident">emit_strict_mode_err</span>(<span class="ident">i</span>.<span class="ident">span</span>, <span class="ident">SyntaxError::TS1102</span>),
+                    <span class="kw">_</span> =&gt; {}
                 }
             }
 
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>() <span class="op">&amp;&amp;</span> <span class="ident">op</span> <span class="op">=</span><span class="op">=</span> <span class="macro">op!</span>(<span class="string">&quot;delete&quot;</span>) {
-                <span class="kw">fn</span> <span class="ident">unwrap_paren</span>(<span class="ident">e</span>: <span class="kw-2">&amp;</span><span class="ident">Expr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Expr</span> {
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>() <span class="op">&amp;&amp;</span> <span class="ident">op</span> <span class="op">==</span> <span class="macro">op!</span>(<span class="string">&quot;delete&quot;</span>) {
+                <span class="kw">fn</span> <span class="ident">unwrap_paren</span>(<span class="ident">e</span>: <span class="kw-2">&amp;</span><span class="ident">Expr</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Expr</span> {
                     <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">e</span> {
-                        <span class="ident">Expr::Paren</span>(<span class="kw-2">ref</span> <span class="ident">p</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">unwrap_paren</span>(<span class="kw-2">&amp;</span><span class="ident">p</span>.<span class="ident">expr</span>),
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">e</span>,
+                        <span class="ident">Expr::Paren</span>(<span class="kw-2">ref</span> <span class="ident">p</span>) =&gt; <span class="ident">unwrap_paren</span>(<span class="kw-2">&amp;</span><span class="ident">p</span>.<span class="ident">expr</span>),
+                        <span class="kw">_</span> =&gt; <span class="ident">e</span>,
                     }
                 }
                 <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">arg</span> {
-                    <span class="ident">Expr::Member</span>(..) <span class="op">=</span><span class="op">&gt;</span> {}
+                    <span class="ident">Expr::Member</span>(..) =&gt; {}
                     <span class="ident">Expr::OptChain</span>(<span class="ident">e</span>)
                         <span class="kw">if</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">e</span>.<span class="ident">expr</span> {
-                            <span class="ident">Expr::Member</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-                            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-                        } <span class="op">=</span><span class="op">&gt;</span> {}
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">unwrap_paren</span>(<span class="kw-2">&amp;</span><span class="ident">arg</span>).<span class="ident">span</span>(), <span class="ident">SyntaxError::TS2703</span>),
+                            <span class="ident">Expr::Member</span>(..) =&gt; <span class="bool-val">true</span>,
+                            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
+                        } =&gt; {}
+                    <span class="kw">_</span> =&gt; <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">unwrap_paren</span>(<span class="kw-2">&amp;</span><span class="ident">arg</span>).<span class="ident">span</span>(), <span class="ident">SyntaxError::TS2703</span>),
                 }
             }
 
@@ -758,7 +758,7 @@
             <span class="self">self</span>.<span class="ident">check_assign_target</span>(<span class="kw-2">&amp;</span><span class="ident">expr</span>, <span class="bool-val">false</span>);
 
             <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
-            <span class="kw">let</span> <span class="ident">op</span> <span class="op">=</span> <span class="kw">if</span> <span class="macro">bump!</span>(<span class="self">self</span>) <span class="op">=</span><span class="op">=</span> <span class="macro">tok!</span>(<span class="string">&quot;++&quot;</span>) {
+            <span class="kw">let</span> <span class="ident">op</span> <span class="op">=</span> <span class="kw">if</span> <span class="macro">bump!</span>(<span class="self">self</span>) <span class="op">==</span> <span class="macro">tok!</span>(<span class="string">&quot;++&quot;</span>) {
                 <span class="macro">op!</span>(<span class="string">&quot;++&quot;</span>)
             } <span class="kw">else</span> {
                 <span class="macro">op!</span>(<span class="string">&quot;--&quot;</span>)
@@ -774,7 +774,7 @@
         <span class="prelude-val">Ok</span>(<span class="ident">expr</span>)
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">parse_await_expr</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expr</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">parse_await_expr</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expr</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
 
         <span class="macro">assert_and_bump!</span>(<span class="self">self</span>, <span class="string">&quot;await&quot;</span>);
@@ -804,7 +804,7 @@
     <span class="kw">use</span> <span class="ident">swc_common::DUMMY_SP</span> <span class="kw">as</span> <span class="ident">span</span>;
     <span class="kw">use</span> <span class="ident">swc_ecma_visit::assert_eq_ignore_span</span>;
 
-    <span class="kw">fn</span> <span class="ident">bin</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expr</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">bin</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expr</span><span class="op">&gt;</span> {
         <span class="ident">test_parser</span>(<span class="ident">s</span>, <span class="ident">Syntax::default</span>(), <span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">parse_bin_expr</span>())
     }
 

@@ -469,25 +469,25 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">I</span>: <span class="ident">Tokens</span><span class="op">&gt;</span> <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Parse next token as JSX identifier</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_jsx_ident</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Ident</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_jsx_ident</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Ident</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">jsx</span>());
 
         <span class="kw">let</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">ctx</span>();
         <span class="kw">match</span> <span class="kw-2">*</span><span class="macro">cur!</span>(<span class="self">self</span>, <span class="bool-val">true</span>)<span class="question-mark">?</span> {
-            <span class="ident">Token::JSXName</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="macro">bump!</span>(<span class="self">self</span>) {
-                <span class="ident">Token::JSXName</span> { <span class="ident">name</span> } <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Token::JSXName</span> { .. } =&gt; <span class="kw">match</span> <span class="macro">bump!</span>(<span class="self">self</span>) {
+                <span class="ident">Token::JSXName</span> { <span class="ident">name</span> } =&gt; {
                     <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">prev_span</span>();
                     <span class="prelude-val">Ok</span>(<span class="ident">Ident::new</span>(<span class="ident">name</span>, <span class="ident">span</span>))
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
             },
-            <span class="kw">_</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">in_forced_jsx_context</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">parse_ident_ref</span>(),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unexpected!</span>(<span class="self">self</span>, <span class="string">&quot;jsx identifier&quot;</span>),
+            <span class="kw">_</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">in_forced_jsx_context</span> =&gt; <span class="self">self</span>.<span class="ident">parse_ident_ref</span>(),
+            <span class="kw">_</span> =&gt; <span class="macro">unexpected!</span>(<span class="self">self</span>, <span class="string">&quot;jsx identifier&quot;</span>),
         }
     }
 
     <span class="doccomment">/// Parse namespaced identifier.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_jsx_namespaced_name</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">JSXAttrName</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_jsx_namespaced_name</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">JSXAttrName</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">jsx</span>());
 
         <span class="kw">let</span> <span class="ident">ns</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_jsx_ident</span>()<span class="question-mark">?</span>;
@@ -504,21 +504,21 @@
 
     <span class="doccomment">/// Parses element name in any form - namespaced, member or single</span>
     <span class="doccomment">/// identifier.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_jsx_element_name</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">JSXElementName</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_jsx_element_name</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">JSXElementName</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">jsx</span>());
 
         <span class="kw">let</span> <span class="ident">start_pos</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">node</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">parse_jsx_namespaced_name</span>()<span class="question-mark">?</span> {
-            <span class="ident">JSXAttrName::Ident</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">JSXElementName::Ident</span>(<span class="ident">i</span>),
-            <span class="ident">JSXAttrName::JSXNamespacedName</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">JSXElementName::JSXNamespacedName</span>(<span class="ident">i</span>),
+            <span class="ident">JSXAttrName::Ident</span>(<span class="ident">i</span>) =&gt; <span class="ident">JSXElementName::Ident</span>(<span class="ident">i</span>),
+            <span class="ident">JSXAttrName::JSXNamespacedName</span>(<span class="ident">i</span>) =&gt; <span class="ident">JSXElementName::JSXNamespacedName</span>(<span class="ident">i</span>),
         };
         <span class="kw">while</span> <span class="macro">eat!</span>(<span class="self">self</span>, <span class="string">&#39;.&#39;</span>) {
             <span class="kw">let</span> <span class="ident">prop</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_jsx_ident</span>()<span class="question-mark">?</span>;
             <span class="kw">let</span> <span class="ident">new_node</span> <span class="op">=</span> <span class="ident">JSXElementName::JSXMemberExpr</span>(<span class="ident">JSXMemberExpr</span> {
                 <span class="ident">obj</span>: <span class="kw">match</span> <span class="ident">node</span> {
-                    <span class="ident">JSXElementName::Ident</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">JSXObject::Ident</span>(<span class="ident">i</span>),
-                    <span class="ident">JSXElementName::JSXMemberExpr</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">JSXObject::JSXMemberExpr</span>(<span class="ident">Box::new</span>(<span class="ident">i</span>)),
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;JSXNamespacedName -&gt; JSXObject&quot;</span>),
+                    <span class="ident">JSXElementName::Ident</span>(<span class="ident">i</span>) =&gt; <span class="ident">JSXObject::Ident</span>(<span class="ident">i</span>),
+                    <span class="ident">JSXElementName::JSXMemberExpr</span>(<span class="ident">i</span>) =&gt; <span class="ident">JSXObject::JSXMemberExpr</span>(<span class="ident">Box::new</span>(<span class="ident">i</span>)),
+                    <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;JSXNamespacedName -&gt; JSXObject&quot;</span>),
                 },
                 <span class="ident">prop</span>,
             });
@@ -530,42 +530,42 @@
     <span class="doccomment">/// Parses any type of JSX attribute value.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// TODO(kdy1): Change return type to JSXAttrValue</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_jsx_attr_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">JSXAttrValue</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_jsx_attr_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">JSXAttrValue</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">jsx</span>());
 
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
 
         <span class="kw">match</span> <span class="kw-2">*</span><span class="macro">cur!</span>(<span class="self">self</span>, <span class="bool-val">true</span>)<span class="question-mark">?</span> {
-            <span class="macro">tok!</span>(<span class="string">&#39;{&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="macro">tok!</span>(<span class="string">&#39;{&#39;</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_jsx_expr_container</span>(<span class="ident">start</span>)<span class="question-mark">?</span>;
 
                 <span class="kw">match</span> <span class="ident">node</span>.<span class="ident">expr</span> {
-                    <span class="ident">JSXExpr::JSXEmptyExpr</span>(..) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">JSXExpr::JSXEmptyExpr</span>(..) =&gt; {
                         <span class="macro">syntax_error!</span>(<span class="self">self</span>, <span class="macro">span!</span>(<span class="self">self</span>, <span class="ident">start</span>), <span class="ident">SyntaxError::EmptyJSXAttr</span>)
                     }
-                    <span class="ident">JSXExpr::Expr</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">node</span>.<span class="ident">into</span>()),
+                    <span class="ident">JSXExpr::Expr</span>(..) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">node</span>.<span class="ident">into</span>()),
                 }
             }
-            <span class="ident">Token::Str</span> { .. } <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Token::Str</span> { .. } =&gt; {
                 <span class="kw">let</span> <span class="ident">lit</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_lit</span>()<span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>(<span class="ident">JSXAttrValue::Lit</span>(<span class="ident">lit</span>))
             }
-            <span class="ident">Token::JSXTagStart</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Token::JSXTagStart</span> =&gt; {
                 <span class="kw">let</span> <span class="ident">expr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_jsx_element</span>()<span class="question-mark">?</span>;
                 <span class="kw">match</span> <span class="ident">expr</span> {
-                    <span class="ident">Either::Left</span>(<span class="ident">n</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">JSXAttrValue::JSXFragment</span>(<span class="ident">n</span>)),
-                    <span class="ident">Either::Right</span>(<span class="ident">n</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">JSXAttrValue::JSXElement</span>(<span class="ident">Box::new</span>(<span class="ident">n</span>))),
+                    <span class="ident">Either::Left</span>(<span class="ident">n</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">JSXAttrValue::JSXFragment</span>(<span class="ident">n</span>)),
+                    <span class="ident">Either::Right</span>(<span class="ident">n</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">JSXAttrValue::JSXElement</span>(<span class="ident">Box::new</span>(<span class="ident">n</span>))),
                 }
             }
 
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">syntax_error!</span>(<span class="self">self</span>, <span class="macro">span!</span>(<span class="self">self</span>, <span class="ident">start</span>), <span class="ident">SyntaxError::InvalidJSXValue</span>),
+            <span class="kw">_</span> =&gt; <span class="macro">syntax_error!</span>(<span class="self">self</span>, <span class="macro">span!</span>(<span class="self">self</span>, <span class="ident">start</span>), <span class="ident">SyntaxError::InvalidJSXValue</span>),
         }
     }
 
     <span class="doccomment">/// JSXEmptyExpression is unique type since it doesn&#39;t actually parse</span>
     <span class="doccomment">/// anything, and so it should start at the end of last read token (left</span>
     <span class="doccomment">/// brace) and finish at the beginning of the next one (right brace).</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_jsx_empty_expr</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">JSXEmptyExpr</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_jsx_empty_expr</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">JSXEmptyExpr</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">jsx</span>());
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
 
@@ -575,7 +575,7 @@
     }
 
     <span class="doccomment">/// Parse JSX spread child</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_jsx_spread_child</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">JSXSpreadChild</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_jsx_spread_child</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">JSXSpreadChild</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">jsx</span>());
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
         <span class="macro">expect!</span>(<span class="self">self</span>, <span class="string">&#39;{&#39;</span>);
@@ -590,7 +590,7 @@
     }
 
     <span class="doccomment">/// Parses JSX expression enclosed into curly brackets.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_jsx_expr_container</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">start</span>: <span class="ident">BytePos</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">JSXExprContainer</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_jsx_expr_container</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">start</span>: <span class="ident">BytePos</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">JSXExprContainer</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">jsx</span>());
 
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
@@ -608,7 +608,7 @@
     }
 
     <span class="doccomment">/// Parses following JSX attribute name-value pair.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_jsx_attr</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">JSXAttrOrSpread</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_jsx_attr</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">JSXAttrOrSpread</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">jsx</span>());
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
 
@@ -640,7 +640,7 @@
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_jsx_opening_element_at</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">start</span>: <span class="ident">BytePos</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Either</span><span class="op">&lt;</span><span class="ident">JSXOpeningFragment</span>, <span class="ident">JSXOpeningElement</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Either</span><span class="op">&lt;</span><span class="ident">JSXOpeningFragment</span>, <span class="ident">JSXOpeningElement</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">jsx</span>());
 
         <span class="kw">if</span> <span class="macro">eat!</span>(<span class="self">self</span>, <span class="ident">JSXTagEnd</span>) {
@@ -659,7 +659,7 @@
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">start</span>: <span class="ident">BytePos</span>,
         <span class="ident">name</span>: <span class="ident">JSXElementName</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">JSXOpeningElement</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">JSXOpeningElement</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">jsx</span>());
 
         <span class="kw">let</span> <span class="ident">type_args</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>() <span class="op">&amp;&amp;</span> <span class="macro">is!</span>(<span class="self">self</span>, <span class="string">&#39;&lt;&#39;</span>) {
@@ -694,7 +694,7 @@
     <span class="kw">fn</span> <span class="ident">parse_jsx_closing_element_at</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">start</span>: <span class="ident">BytePos</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Either</span><span class="op">&lt;</span><span class="ident">JSXClosingFragment</span>, <span class="ident">JSXClosingElement</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Either</span><span class="op">&lt;</span><span class="ident">JSXClosingFragment</span>, <span class="ident">JSXClosingElement</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">jsx</span>());
 
         <span class="kw">if</span> <span class="macro">eat!</span>(<span class="self">self</span>, <span class="ident">JSXTagEnd</span>) {
@@ -718,15 +718,15 @@
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_jsx_element_at</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">start_pos</span>: <span class="ident">BytePos</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Either</span><span class="op">&lt;</span><span class="ident">JSXFragment</span>, <span class="ident">JSXElement</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Either</span><span class="op">&lt;</span><span class="ident">JSXFragment</span>, <span class="ident">JSXElement</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">jsx</span>());
 
         <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="macro">cur!</span>(<span class="self">self</span>, <span class="bool-val">true</span>);
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
         <span class="kw">let</span> <span class="ident">forced_jsx_context</span> <span class="op">=</span> <span class="kw">match</span> <span class="macro">bump!</span>(<span class="self">self</span>) {
-            <span class="macro">tok!</span>(<span class="string">&#39;&lt;&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="ident">Token::JSXTagStart</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="macro">tok!</span>(<span class="string">&#39;&lt;&#39;</span>) =&gt; <span class="bool-val">true</span>,
+            <span class="ident">Token::JSXTagStart</span> =&gt; <span class="bool-val">false</span>,
+            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
         };
 
         <span class="kw">let</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">Context</span> {
@@ -739,14 +739,14 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">closing_element</span> <span class="op">=</span> <span class="prelude-val">None</span>;
 
             <span class="kw">let</span> <span class="ident">self_closing</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">opening_element</span> {
-                <span class="ident">Either::Right</span>(<span class="kw-2">ref</span> <span class="ident">el</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">el</span>.<span class="ident">self_closing</span>,
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+                <span class="ident">Either::Right</span>(<span class="kw-2">ref</span> <span class="ident">el</span>) =&gt; <span class="ident">el</span>.<span class="ident">self_closing</span>,
+                <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
             };
 
             <span class="kw">if</span> <span class="op">!</span><span class="ident">self_closing</span> {
                 <span class="lifetime">&#39;contents</span>: <span class="kw">loop</span> {
                     <span class="kw">match</span> <span class="kw-2">*</span><span class="macro">cur!</span>(<span class="ident">p</span>, <span class="bool-val">true</span>)<span class="question-mark">?</span> {
-                        <span class="ident">Token::JSXTagStart</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">Token::JSXTagStart</span> =&gt; {
                             <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="ident">p</span>);
 
                             <span class="kw">if</span> <span class="macro">peeked_is!</span>(<span class="ident">p</span>, <span class="string">&#39;/&#39;</span>) {
@@ -760,14 +760,14 @@
                             }
 
                             <span class="ident">children</span>.<span class="ident">push</span>(<span class="ident">p</span>.<span class="ident">parse_jsx_element_at</span>(<span class="ident">start</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">e</span> {
-                                <span class="ident">Either::Left</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">JSXElementChild::from</span>(<span class="ident">e</span>),
-                                <span class="ident">Either::Right</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">JSXElementChild::from</span>(<span class="ident">Box::new</span>(<span class="ident">e</span>)),
+                                <span class="ident">Either::Left</span>(<span class="ident">e</span>) =&gt; <span class="ident">JSXElementChild::from</span>(<span class="ident">e</span>),
+                                <span class="ident">Either::Right</span>(<span class="ident">e</span>) =&gt; <span class="ident">JSXElementChild::from</span>(<span class="ident">Box::new</span>(<span class="ident">e</span>)),
                             })<span class="question-mark">?</span>);
                         }
-                        <span class="ident">Token::JSXText</span> { .. } <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">Token::JSXText</span> { .. } =&gt; {
                             <span class="ident">children</span>.<span class="ident">push</span>(<span class="ident">p</span>.<span class="ident">parse_jsx_text</span>().<span class="ident">map</span>(<span class="ident">JSXElementChild::from</span>)<span class="question-mark">?</span>)
                         }
-                        <span class="macro">tok!</span>(<span class="string">&#39;{&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="macro">tok!</span>(<span class="string">&#39;{&#39;</span>) =&gt; {
                             <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="ident">p</span>);
                             <span class="kw">if</span> <span class="macro">peeked_is!</span>(<span class="ident">p</span>, <span class="string">&quot;...&quot;</span>) {
                                 <span class="ident">children</span>
@@ -779,17 +779,17 @@
                                 );
                             }
                         }
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unexpected!</span>(<span class="ident">p</span>, <span class="string">&quot;&lt; (jsx tag start), jsx text or {&quot;</span>),
+                        <span class="kw">_</span> =&gt; <span class="macro">unexpected!</span>(<span class="ident">p</span>, <span class="string">&quot;&lt; (jsx tag start), jsx text or {&quot;</span>),
                     }
                 }
             }
             <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="macro">span!</span>(<span class="ident">p</span>, <span class="ident">start</span>);
 
             <span class="prelude-val">Ok</span>(<span class="kw">match</span> (<span class="ident">opening_element</span>, <span class="ident">closing_element</span>) {
-                (<span class="ident">Either::Left</span>(<span class="ident">opening</span>), <span class="prelude-val">Some</span>(<span class="ident">Either::Right</span>(<span class="ident">closing</span>))) <span class="op">=</span><span class="op">&gt;</span> {
+                (<span class="ident">Either::Left</span>(<span class="ident">opening</span>), <span class="prelude-val">Some</span>(<span class="ident">Either::Right</span>(<span class="ident">closing</span>))) =&gt; {
                     <span class="macro">syntax_error!</span>(<span class="ident">p</span>, <span class="ident">closing</span>.<span class="ident">span</span>(), <span class="ident">SyntaxError::JSXExpectedClosingTagForLtGt</span>);
                 }
-                (<span class="ident">Either::Right</span>(<span class="ident">opening</span>), <span class="prelude-val">Some</span>(<span class="ident">Either::Left</span>(<span class="ident">closing</span>))) <span class="op">=</span><span class="op">&gt;</span> {
+                (<span class="ident">Either::Right</span>(<span class="ident">opening</span>), <span class="prelude-val">Some</span>(<span class="ident">Either::Left</span>(<span class="ident">closing</span>))) =&gt; {
                     <span class="macro">syntax_error!</span>(
                         <span class="ident">p</span>,
                         <span class="ident">closing</span>.<span class="ident">span</span>(),
@@ -798,19 +798,19 @@
                         }
                     );
                 }
-                (<span class="ident">Either::Left</span>(<span class="ident">opening</span>), <span class="prelude-val">Some</span>(<span class="ident">Either::Left</span>(<span class="ident">closing</span>))) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Either::Left</span>(<span class="ident">JSXFragment</span> {
+                (<span class="ident">Either::Left</span>(<span class="ident">opening</span>), <span class="prelude-val">Some</span>(<span class="ident">Either::Left</span>(<span class="ident">closing</span>))) =&gt; <span class="ident">Either::Left</span>(<span class="ident">JSXFragment</span> {
                     <span class="ident">span</span>,
                     <span class="ident">opening</span>,
                     <span class="ident">children</span>,
                     <span class="ident">closing</span>,
                 }),
-                (<span class="ident">Either::Right</span>(<span class="ident">opening</span>), <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Either::Right</span>(<span class="ident">JSXElement</span> {
+                (<span class="ident">Either::Right</span>(<span class="ident">opening</span>), <span class="prelude-val">None</span>) =&gt; <span class="ident">Either::Right</span>(<span class="ident">JSXElement</span> {
                     <span class="ident">span</span>,
                     <span class="ident">opening</span>,
                     <span class="ident">children</span>,
                     <span class="ident">closing</span>: <span class="prelude-val">None</span>,
                 }),
-                (<span class="ident">Either::Right</span>(<span class="ident">opening</span>), <span class="prelude-val">Some</span>(<span class="ident">Either::Right</span>(<span class="ident">closing</span>))) <span class="op">=</span><span class="op">&gt;</span> {
+                (<span class="ident">Either::Right</span>(<span class="ident">opening</span>), <span class="prelude-val">Some</span>(<span class="ident">Either::Right</span>(<span class="ident">closing</span>))) =&gt; {
                     <span class="kw">if</span> <span class="ident">get_qualified_jsx_name</span>(<span class="kw-2">&amp;</span><span class="ident">closing</span>.<span class="ident">name</span>)
                         <span class="op">!</span><span class="op">=</span> <span class="ident">get_qualified_jsx_name</span>(<span class="kw-2">&amp;</span><span class="ident">opening</span>.<span class="ident">name</span>)
                     {
@@ -829,7 +829,7 @@
                         <span class="ident">closing</span>: <span class="prelude-val">Some</span>(<span class="ident">closing</span>),
                     })
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
             })
         })
     }
@@ -837,12 +837,12 @@
     <span class="doccomment">/// Parses entire JSX element from current position.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// babel: `jsxParseElement`</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_jsx_element</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Either</span><span class="op">&lt;</span><span class="ident">JSXFragment</span>, <span class="ident">JSXElement</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_jsx_element</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Either</span><span class="op">&lt;</span><span class="ident">JSXFragment</span>, <span class="ident">JSXElement</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">jsx</span>());
         <span class="macro">debug_assert!</span>({
             <span class="kw">match</span> <span class="kw-2">*</span><span class="macro">cur!</span>(<span class="self">self</span>, <span class="bool-val">true</span>)<span class="question-mark">?</span> {
-                <span class="ident">Token::JSXTagStart</span> <span class="op">|</span> <span class="macro">tok!</span>(<span class="string">&#39;&lt;&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+                <span class="ident">Token::JSXTagStart</span> <span class="op">|</span> <span class="macro">tok!</span>(<span class="string">&#39;&lt;&#39;</span>) =&gt; <span class="bool-val">true</span>,
+                <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
             }
         });
 
@@ -851,60 +851,60 @@
         <span class="self">self</span>.<span class="ident">parse_jsx_element_at</span>(<span class="ident">start_pos</span>)
     }
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_jsx_text</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">JSXText</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_jsx_text</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">JSXText</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">jsx</span>());
         <span class="macro">debug_assert!</span>({
             <span class="kw">match</span> <span class="macro">cur!</span>(<span class="self">self</span>, <span class="bool-val">false</span>) {
-                <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span><span class="ident">Token::JSXText</span> { .. }) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+                <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span><span class="ident">Token::JSXText</span> { .. }) =&gt; <span class="bool-val">true</span>,
+                <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
             }
         });
         <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="macro">bump!</span>(<span class="self">self</span>);
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">prev_span</span>();
         <span class="kw">match</span> <span class="ident">token</span> {
-            <span class="ident">Token::JSXText</span> { <span class="ident">raw</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">JSXText</span> {
+            <span class="ident">Token::JSXText</span> { <span class="ident">raw</span> } =&gt; <span class="prelude-val">Ok</span>(<span class="ident">JSXText</span> {
                 <span class="ident">span</span>,
                 <span class="comment">// TODO</span>
                 <span class="ident">value</span>: <span class="ident">raw</span>.<span class="ident">clone</span>(),
                 <span class="ident">raw</span>,
             }),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
         }
     }
 }
 
 <span class="kw">trait</span> <span class="ident">IsFragment</span> {
-    <span class="kw">fn</span> <span class="ident">is_fragment</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>;
+    <span class="kw">fn</span> <span class="ident">is_fragment</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
 }
 
 <span class="kw">impl</span> <span class="ident">IsFragment</span> <span class="kw">for</span> <span class="ident">Either</span><span class="op">&lt;</span><span class="ident">JSXOpeningFragment</span>, <span class="ident">JSXOpeningElement</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">is_fragment</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_fragment</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">Either::Left</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">Either::Left</span>(..) =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">IsFragment</span> <span class="kw">for</span> <span class="ident">Either</span><span class="op">&lt;</span><span class="ident">JSXClosingFragment</span>, <span class="ident">JSXClosingElement</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">is_fragment</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_fragment</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">Either::Left</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">Either::Left</span>(..) =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }
 }
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IsFragment</span><span class="op">&gt;</span> <span class="ident">IsFragment</span> <span class="kw">for</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">is_fragment</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_fragment</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">is_fragment</span>()).<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
     }
 }
 
-<span class="kw">fn</span> <span class="ident">get_qualified_jsx_name</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">JSXElementName</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">JsWord</span> {
-    <span class="kw">fn</span> <span class="ident">get_qualified_obj_name</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="ident">JSXObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">JsWord</span> {
+<span class="kw">fn</span> <span class="ident">get_qualified_jsx_name</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">JSXElementName</span>) -&gt; <span class="ident">JsWord</span> {
+    <span class="kw">fn</span> <span class="ident">get_qualified_obj_name</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="ident">JSXObject</span>) -&gt; <span class="ident">JsWord</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">obj</span> {
-            <span class="ident">JSXObject::Ident</span>(<span class="kw-2">ref</span> <span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">i</span>.<span class="ident">sym</span>.<span class="ident">clone</span>(),
-            <span class="ident">JSXObject::JSXMemberExpr</span>(<span class="kw-2">ref</span> <span class="ident">member</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(
+            <span class="ident">JSXObject::Ident</span>(<span class="kw-2">ref</span> <span class="ident">i</span>) =&gt; <span class="ident">i</span>.<span class="ident">sym</span>.<span class="ident">clone</span>(),
+            <span class="ident">JSXObject::JSXMemberExpr</span>(<span class="kw-2">ref</span> <span class="ident">member</span>) =&gt; <span class="macro">format!</span>(
                 <span class="string">&quot;{}.{}&quot;</span>,
                 <span class="ident">get_qualified_obj_name</span>(<span class="kw-2">&amp;</span><span class="ident">member</span>.<span class="ident">obj</span>),
                 <span class="ident">member</span>.<span class="ident">prop</span>.<span class="ident">sym</span>
@@ -913,11 +913,11 @@
         }
     }
     <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">name</span> {
-        <span class="ident">JSXElementName::Ident</span>(<span class="kw-2">ref</span> <span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">i</span>.<span class="ident">sym</span>.<span class="ident">clone</span>(),
-        <span class="ident">JSXElementName::JSXNamespacedName</span>(<span class="ident">JSXNamespacedName</span> { <span class="kw-2">ref</span> <span class="ident">ns</span>, <span class="kw-2">ref</span> <span class="ident">name</span> }) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">JSXElementName::Ident</span>(<span class="kw-2">ref</span> <span class="ident">i</span>) =&gt; <span class="ident">i</span>.<span class="ident">sym</span>.<span class="ident">clone</span>(),
+        <span class="ident">JSXElementName::JSXNamespacedName</span>(<span class="ident">JSXNamespacedName</span> { <span class="kw-2">ref</span> <span class="ident">ns</span>, <span class="kw-2">ref</span> <span class="ident">name</span> }) =&gt; {
             <span class="macro">format!</span>(<span class="string">&quot;{}:{}&quot;</span>, <span class="ident">ns</span>.<span class="ident">sym</span>, <span class="ident">name</span>.<span class="ident">sym</span>).<span class="ident">into</span>()
         }
-        <span class="ident">JSXElementName::JSXMemberExpr</span>(<span class="ident">JSXMemberExpr</span> { <span class="kw-2">ref</span> <span class="ident">obj</span>, <span class="kw-2">ref</span> <span class="ident">prop</span> }) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">JSXElementName::JSXMemberExpr</span>(<span class="ident">JSXMemberExpr</span> { <span class="kw-2">ref</span> <span class="ident">obj</span>, <span class="kw-2">ref</span> <span class="ident">prop</span> }) =&gt; {
             <span class="macro">format!</span>(<span class="string">&quot;{}.{}&quot;</span>, <span class="ident">get_qualified_obj_name</span>(<span class="ident">obj</span>), <span class="ident">prop</span>.<span class="ident">sym</span>).<span class="ident">into</span>()
         }
     }

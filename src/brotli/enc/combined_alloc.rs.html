@@ -574,7 +574,7 @@ impl &lt;T1, T2, AllocT1:Allocator&lt;T1&gt;, AllocT2:Allocator&lt;T2&gt;&gt; Al
          <span class="ident">alloc_hp</span>: <span class="ident">AllocHistogramPair</span>,
          <span class="ident">alloc_ct</span>: <span class="ident">AllocContextType</span>,
          <span class="ident">alloc_ht</span>: <span class="ident">AllocHuffmanTree</span>,
-         <span class="ident">alloc_zn</span>: <span class="ident">AllocZopfliNode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+         <span class="ident">alloc_zn</span>: <span class="ident">AllocZopfliNode</span>) -&gt; <span class="self">Self</span> {
     <span class="ident">CombiningAllocator</span>{
       <span class="ident">alloc_u8</span>:     <span class="ident">alloc_u8</span>,
       <span class="ident">alloc_u16</span>:    <span class="ident">alloc_u16</span>,  
@@ -676,7 +676,7 @@ impl &lt;T1, T2, AllocT1:Allocator&lt;T1&gt;, AllocT2:Allocator&lt;T2&gt;&gt; Al
                           <span class="ident">AllocHuffmanTree</span>,
                           <span class="ident">AllocZopfliNode</span>,
                           <span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
     <span class="ident">CombiningAllocator</span>{
       <span class="ident">alloc_u8</span>:  <span class="ident">AllocU8::default</span>(),
       <span class="ident">alloc_u16</span>: <span class="ident">AllocU16::default</span>(),  
@@ -738,7 +738,7 @@ impl &lt;T1, T2, AllocT1:Allocator&lt;T1&gt;, AllocT2:Allocator&lt;T2&gt;&gt; Al
                           <span class="ident">AllocHuffmanTree</span>,
                           <span class="ident">AllocZopfliNode</span>,
                                     <span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
     <span class="ident">CombiningAllocator</span>{
       <span class="ident">alloc_u8</span>:  <span class="self">self</span>.<span class="ident">alloc_u8</span>.<span class="ident">clone</span>(),
       <span class="ident">alloc_u16</span>: <span class="self">self</span>.<span class="ident">alloc_u16</span>.<span class="ident">clone</span>(),  
@@ -806,7 +806,7 @@ impl &lt;T1, T2, AllocT1:Allocator&lt;T1&gt;, AllocT2:Allocator&lt;T2&gt;&gt; Al
   (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">bound_name</span>: <span class="ident">ty</span>,
    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">type_name</span>: <span class="ident">ty</span>,
    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">sub_type_name</span>: <span class="ident">ty</span>,
-   <span class="macro-nonterminal">$</span><span class="macro-nonterminal">local_name</span>: <span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
+   <span class="macro-nonterminal">$</span><span class="macro-nonterminal">local_name</span>: <span class="ident">ident</span>) =&gt; {
     <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">AllocU8</span>:<span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
          <span class="ident">AllocU16</span>:<span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span>,
          <span class="ident">AllocI32</span>:<span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
@@ -845,7 +845,7 @@ impl &lt;T1, T2, AllocT1:Allocator&lt;T1&gt;, AllocT2:Allocator&lt;T2&gt;&gt; Al
                                                  <span class="ident">AllocZopfliNode</span>,
                                                  <span class="op">&gt;</span> {
       <span class="kw">type</span> <span class="ident">AllocatedMemory</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">sub_type_name</span>;
-      <span class="kw">fn</span> <span class="ident">alloc_cell</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">size</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">type_name</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span> {
+      <span class="kw">fn</span> <span class="ident">alloc_cell</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">size</span>: <span class="ident">usize</span>) -&gt; <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">type_name</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span> {
         <span class="self">self</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">local_name</span>.<span class="ident">alloc_cell</span>(<span class="ident">size</span>)
       }
       <span class="kw">fn</span> <span class="ident">free_cell</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">type_name</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>) {

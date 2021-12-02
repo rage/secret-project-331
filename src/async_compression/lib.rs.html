@@ -467,54 +467,54 @@
 
 <span class="kw">impl</span> <span class="ident">Level</span> {
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;brotli&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">into_brotli</span>(<span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">params</span>: <span class="ident">BrotliEncoderParams</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BrotliEncoderParams</span> {
+    <span class="kw">fn</span> <span class="ident">into_brotli</span>(<span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">params</span>: <span class="ident">BrotliEncoderParams</span>) -&gt; <span class="ident">BrotliEncoderParams</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Fastest</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">params</span>.<span class="ident">quality</span> <span class="op">=</span> <span class="number">0</span>,
-            <span class="ident"><span class="self">Self</span>::Best</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">params</span>.<span class="ident">quality</span> <span class="op">=</span> <span class="number">11</span>,
-            <span class="ident"><span class="self">Self</span>::Precise</span>(<span class="ident">quality</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">params</span>.<span class="ident">quality</span> <span class="op">=</span> <span class="ident">quality</span>.<span class="ident">min</span>(<span class="number">11</span>) <span class="kw">as</span> <span class="ident">i32</span>,
-            <span class="ident"><span class="self">Self</span>::Default</span> <span class="op">=</span><span class="op">&gt;</span> (),
+            <span class="ident"><span class="self">Self</span>::Fastest</span> =&gt; <span class="ident">params</span>.<span class="ident">quality</span> <span class="op">=</span> <span class="number">0</span>,
+            <span class="ident"><span class="self">Self</span>::Best</span> =&gt; <span class="ident">params</span>.<span class="ident">quality</span> <span class="op">=</span> <span class="number">11</span>,
+            <span class="ident"><span class="self">Self</span>::Precise</span>(<span class="ident">quality</span>) =&gt; <span class="ident">params</span>.<span class="ident">quality</span> <span class="op">=</span> <span class="ident">quality</span>.<span class="ident">min</span>(<span class="number">11</span>) <span class="kw">as</span> <span class="ident">i32</span>,
+            <span class="ident"><span class="self">Self</span>::Default</span> =&gt; (),
         }
 
         <span class="ident">params</span>
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bzip2&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">into_bzip2</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bzip2::Compression</span> {
+    <span class="kw">fn</span> <span class="ident">into_bzip2</span>(<span class="self">self</span>) -&gt; <span class="ident">bzip2::Compression</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Fastest</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">bzip2::Compression::fast</span>(),
-            <span class="ident"><span class="self">Self</span>::Best</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">bzip2::Compression::best</span>(),
-            <span class="ident"><span class="self">Self</span>::Precise</span>(<span class="ident">quality</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">bzip2::Compression::new</span>(<span class="ident">quality</span>.<span class="ident">max</span>(<span class="number">1</span>).<span class="ident">min</span>(<span class="number">9</span>)),
-            <span class="ident"><span class="self">Self</span>::Default</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">bzip2::Compression::default</span>(),
+            <span class="ident"><span class="self">Self</span>::Fastest</span> =&gt; <span class="ident">bzip2::Compression::fast</span>(),
+            <span class="ident"><span class="self">Self</span>::Best</span> =&gt; <span class="ident">bzip2::Compression::best</span>(),
+            <span class="ident"><span class="self">Self</span>::Precise</span>(<span class="ident">quality</span>) =&gt; <span class="ident">bzip2::Compression::new</span>(<span class="ident">quality</span>.<span class="ident">max</span>(<span class="number">1</span>).<span class="ident">min</span>(<span class="number">9</span>)),
+            <span class="ident"><span class="self">Self</span>::Default</span> =&gt; <span class="ident">bzip2::Compression::default</span>(),
         }
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;flate2&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">into_flate2</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">flate2::Compression</span> {
+    <span class="kw">fn</span> <span class="ident">into_flate2</span>(<span class="self">self</span>) -&gt; <span class="ident">flate2::Compression</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Fastest</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">flate2::Compression::fast</span>(),
-            <span class="ident"><span class="self">Self</span>::Best</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">flate2::Compression::best</span>(),
-            <span class="ident"><span class="self">Self</span>::Precise</span>(<span class="ident">quality</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">flate2::Compression::new</span>(<span class="ident">quality</span>.<span class="ident">min</span>(<span class="number">10</span>)),
-            <span class="ident"><span class="self">Self</span>::Default</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">flate2::Compression::default</span>(),
+            <span class="ident"><span class="self">Self</span>::Fastest</span> =&gt; <span class="ident">flate2::Compression::fast</span>(),
+            <span class="ident"><span class="self">Self</span>::Best</span> =&gt; <span class="ident">flate2::Compression::best</span>(),
+            <span class="ident"><span class="self">Self</span>::Precise</span>(<span class="ident">quality</span>) =&gt; <span class="ident">flate2::Compression::new</span>(<span class="ident">quality</span>.<span class="ident">min</span>(<span class="number">10</span>)),
+            <span class="ident"><span class="self">Self</span>::Default</span> =&gt; <span class="ident">flate2::Compression::default</span>(),
         }
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;zstd&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">into_zstd</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span> {
+    <span class="kw">fn</span> <span class="ident">into_zstd</span>(<span class="self">self</span>) -&gt; <span class="ident">i32</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Fastest</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">1</span>,
-            <span class="ident"><span class="self">Self</span>::Best</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">21</span>,
-            <span class="ident"><span class="self">Self</span>::Precise</span>(<span class="ident">quality</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">quality</span>.<span class="ident">min</span>(<span class="number">21</span>) <span class="kw">as</span> <span class="ident">i32</span>,
-            <span class="ident"><span class="self">Self</span>::Default</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">0</span>,
+            <span class="ident"><span class="self">Self</span>::Fastest</span> =&gt; <span class="number">1</span>,
+            <span class="ident"><span class="self">Self</span>::Best</span> =&gt; <span class="number">21</span>,
+            <span class="ident"><span class="self">Self</span>::Precise</span>(<span class="ident">quality</span>) =&gt; <span class="ident">quality</span>.<span class="ident">min</span>(<span class="number">21</span>) <span class="kw">as</span> <span class="ident">i32</span>,
+            <span class="ident"><span class="self">Self</span>::Default</span> =&gt; <span class="number">0</span>,
         }
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;xz2&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">into_xz2</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+    <span class="kw">fn</span> <span class="ident">into_xz2</span>(<span class="self">self</span>) -&gt; <span class="ident">u32</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Fastest</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">0</span>,
-            <span class="ident"><span class="self">Self</span>::Best</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">9</span>,
-            <span class="ident"><span class="self">Self</span>::Precise</span>(<span class="ident">quality</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">quality</span>.<span class="ident">min</span>(<span class="number">9</span>),
-            <span class="ident"><span class="self">Self</span>::Default</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">5</span>,
+            <span class="ident"><span class="self">Self</span>::Fastest</span> =&gt; <span class="number">0</span>,
+            <span class="ident"><span class="self">Self</span>::Best</span> =&gt; <span class="number">9</span>,
+            <span class="ident"><span class="self">Self</span>::Precise</span>(<span class="ident">quality</span>) =&gt; <span class="ident">quality</span>.<span class="ident">min</span>(<span class="number">9</span>),
+            <span class="ident"><span class="self">Self</span>::Default</span> =&gt; <span class="number">5</span>,
         }
     }
 }

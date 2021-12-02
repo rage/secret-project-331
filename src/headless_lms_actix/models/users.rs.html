@@ -164,7 +164,7 @@
     <span class="kw">pub</span> <span class="ident">email</span>: <span class="ident">String</span>,
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">email</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">email</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 INSERT INTO users (email)
@@ -178,7 +178,7 @@ RETURNING id
     <span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">id</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert_with_id</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">email</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert_with_id</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">email</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 INSERT INTO users (id, email)
@@ -197,7 +197,7 @@ RETURNING id
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">email</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
     <span class="ident">upstream_id</span>: <span class="ident">i32</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">User</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">User</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">user</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">User</span>,
         <span class="string">r#&quot;
@@ -214,7 +214,7 @@ RETURNING *;
     <span class="prelude-val">Ok</span>(<span class="ident">user</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_id</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">User</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_id</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">User</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">user</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">User</span>,
         <span class="string">&quot;
@@ -232,7 +232,7 @@ WHERE id = $1
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">find_by_upstream_id</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">upstream_id</span>: <span class="ident">i32</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">User</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">User</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">user</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">User</span>,
         <span class="string">&quot;SELECT * FROM users WHERE upstream_id = $1&quot;</span>,
@@ -249,38 +249,38 @@ WHERE id = $1
     <span class="ident">email</span>: <span class="ident">String</span>,
     <span class="ident">password</span>: <span class="ident">String</span>,
     <span class="ident">application_configuration</span>: <span class="kw-2">&amp;</span><span class="ident">ApplicationConfiguration</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">User</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">User</span><span class="op">&gt;</span> {
     <span class="comment">// Sanity check to ensure this is not called outside of test mode. The whole application configuration is passed to this function instead of just the boolean to make mistakes harder.</span>
     <span class="macro">assert!</span>(<span class="ident">application_configuration</span>.<span class="ident">test_mode</span>);
-    <span class="kw">let</span> <span class="ident">user</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">email</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;admin@example.com&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">password</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;admin&quot;</span> {
+    <span class="kw">let</span> <span class="ident">user</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">email</span> <span class="op">==</span> <span class="string">&quot;admin@example.com&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">password</span> <span class="op">==</span> <span class="string">&quot;admin&quot;</span> {
         <span class="ident"><span class="kw">crate</span>::models::users::get_by_id</span>(
             <span class="ident">conn</span>,
             <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;02c79854-da22-4cfc-95c4-13038af25d2e&quot;</span>)
                 .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">ModelError::Generic</span>(<span class="ident">o</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">email</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;teacher@example.com&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">password</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;teacher&quot;</span> {
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">email</span> <span class="op">==</span> <span class="string">&quot;teacher@example.com&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">password</span> <span class="op">==</span> <span class="string">&quot;teacher&quot;</span> {
         <span class="ident"><span class="kw">crate</span>::models::users::get_by_id</span>(
             <span class="ident">conn</span>,
             <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;90643204-7656-4570-bdd9-aad5d297f9ce&quot;</span>)
                 .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">ModelError::Generic</span>(<span class="ident">o</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">email</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;language.teacher@example.com&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">password</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;language.teacher&quot;</span> {
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">email</span> <span class="op">==</span> <span class="string">&quot;language.teacher@example.com&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">password</span> <span class="op">==</span> <span class="string">&quot;language.teacher&quot;</span> {
         <span class="ident"><span class="kw">crate</span>::models::users::get_by_id</span>(
             <span class="ident">conn</span>,
             <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;0fd8bd2d-cb4e-4035-b7db-89e798fe4df0&quot;</span>)
                 .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">ModelError::Generic</span>(<span class="ident">o</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">email</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;user@example.com&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">password</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;user&quot;</span> {
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">email</span> <span class="op">==</span> <span class="string">&quot;user@example.com&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">password</span> <span class="op">==</span> <span class="string">&quot;user&quot;</span> {
         <span class="ident"><span class="kw">crate</span>::models::users::get_by_id</span>(
             <span class="ident">conn</span>,
             <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;849b8d32-d5f8-4994-9d21-5aa6259585b1&quot;</span>)
                 .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">ModelError::Generic</span>(<span class="ident">o</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">email</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;assistant@example.com&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">password</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;assistant&quot;</span> {
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">email</span> <span class="op">==</span> <span class="string">&quot;assistant@example.com&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">password</span> <span class="op">==</span> <span class="string">&quot;assistant&quot;</span> {
         <span class="ident"><span class="kw">crate</span>::models::users::get_by_id</span>(
             <span class="ident">conn</span>,
             <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;24342539-f1ba-453e-ae13-14aa418db921&quot;</span>)

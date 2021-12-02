@@ -248,13 +248,13 @@
 <span class="kw">impl</span> <span class="ident">EsVersion</span> {
     <span class="doccomment">/// Get the latest version. This is `es2020` for now, but it will be changed</span>
     <span class="doccomment">/// if a new version of specification is released.</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">latest</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">latest</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">EsVersion::Es2020</span>
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">EsVersion</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">EsVersion::Es5</span>
     }
 }

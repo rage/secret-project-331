@@ -582,17 +582,17 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Spanned</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
+    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
         (<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">error</span>).<span class="number">0</span>
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Error</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">kind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">SyntaxError</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">kind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">SyntaxError</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">error</span>.<span class="number">1</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_kind</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SyntaxError</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_kind</span>(<span class="self">self</span>) -&gt; <span class="ident">SyntaxError</span> {
         <span class="self">self</span>.<span class="ident">error</span>.<span class="number">1</span>
     }
 }
@@ -791,310 +791,310 @@
 <span class="kw">impl</span> <span class="ident">SyntaxError</span> {
     <span class="attribute">#[<span class="ident">cold</span>]</span>
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">never</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">msg</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">msg</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">SyntaxError::PrivateNameInInterface</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::PrivateNameInInterface</span> =&gt; {
                 <span class="string">&quot;private names are now allowed in interface&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::TopLevelAwait</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;top level await requires target to es2017 or higher \
+            <span class="ident">SyntaxError::TopLevelAwait</span> =&gt; <span class="string">&quot;top level await requires target to es2017 or higher \
                                            and topLevelAwait:true for ecmascript&quot;</span>
                 .<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::LegacyDecimal</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::LegacyDecimal</span> =&gt; {
                 <span class="string">&quot;Legacy decimal escape is not permitted in strict mode&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::LegacyOctal</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::LegacyOctal</span> =&gt; {
                 <span class="string">&quot;Legacy octal escape is not permitted in strict mode&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::InvalidIdentChar</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Invalid character in identifier&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::ExpectedDigit</span> { <span class="ident">radix</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(
+            <span class="ident">SyntaxError::InvalidIdentChar</span> =&gt; <span class="string">&quot;Invalid character in identifier&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::ExpectedDigit</span> { <span class="ident">radix</span> } =&gt; <span class="macro">format!</span>(
                 <span class="string">&quot;Expected {} digit&quot;</span>,
                 <span class="kw">match</span> <span class="ident">radix</span> {
-                    <span class="number">2</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;a binary&quot;</span>,
-                    <span class="number">8</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;an octal&quot;</span>,
-                    <span class="number">10</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;a decimal&quot;</span>,
-                    <span class="number">16</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;a hexadecimal&quot;</span>,
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                    <span class="number">2</span> =&gt; <span class="string">&quot;a binary&quot;</span>,
+                    <span class="number">8</span> =&gt; <span class="string">&quot;an octal&quot;</span>,
+                    <span class="number">10</span> =&gt; <span class="string">&quot;a decimal&quot;</span>,
+                    <span class="number">16</span> =&gt; <span class="string">&quot;a hexadecimal&quot;</span>,
+                    <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
                 }
             )
             .<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::UnterminatedBlockComment</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Unterminated block comment&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::UnterminatedStrLit</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Unterminated string constant&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::ExpectedUnicodeEscape</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Expected unicode escape&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::EscapeInReservedWord</span> { <span class="kw-2">ref</span> <span class="ident">word</span> } <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::UnterminatedBlockComment</span> =&gt; <span class="string">&quot;Unterminated block comment&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::UnterminatedStrLit</span> =&gt; <span class="string">&quot;Unterminated string constant&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::ExpectedUnicodeEscape</span> =&gt; <span class="string">&quot;Expected unicode escape&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::EscapeInReservedWord</span> { <span class="kw-2">ref</span> <span class="ident">word</span> } =&gt; {
                 <span class="macro">format!</span>(<span class="string">&quot;Unexpected escape sequence in reserved word: {}&quot;</span>, <span class="ident">word</span>).<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::UnterminatedRegxp</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Unterminated regexp literal&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::UnterminatedTpl</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Unterminated template&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::IdentAfterNum</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Identifier cannot follow number&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::UnexpectedChar</span> { <span class="ident">c</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(<span class="string">&quot;Unexpected character {:?}&quot;</span>, <span class="ident">c</span>).<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::InvalidStrEscape</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Invalid string escape&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::InvalidUnicodeEscape</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Invalid unicode escape&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::InvalidCodePoint</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Invalid unicode code point&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::ExpectedHexChars</span> { <span class="ident">count</span> } <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::UnterminatedRegxp</span> =&gt; <span class="string">&quot;Unterminated regexp literal&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::UnterminatedTpl</span> =&gt; <span class="string">&quot;Unterminated template&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::IdentAfterNum</span> =&gt; <span class="string">&quot;Identifier cannot follow number&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::UnexpectedChar</span> { <span class="ident">c</span> } =&gt; <span class="macro">format!</span>(<span class="string">&quot;Unexpected character {:?}&quot;</span>, <span class="ident">c</span>).<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::InvalidStrEscape</span> =&gt; <span class="string">&quot;Invalid string escape&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::InvalidUnicodeEscape</span> =&gt; <span class="string">&quot;Invalid unicode escape&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::InvalidCodePoint</span> =&gt; <span class="string">&quot;Invalid unicode code point&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::ExpectedHexChars</span> { <span class="ident">count</span> } =&gt; {
                 <span class="macro">format!</span>(<span class="string">&quot;Expected {} hex characters&quot;</span>, <span class="ident">count</span>).<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::LegacyCommentInModule</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::LegacyCommentInModule</span> =&gt; {
                 <span class="string">&quot;Legacy comments cannot be used in module code&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::NumLitTerminatedWithExp</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Expected +, - or decimal digit after e&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::NumLitTerminatedWithExp</span> =&gt; <span class="string">&quot;Expected +, - or decimal digit after e&quot;</span>.<span class="ident">into</span>(),
 
-            <span class="ident">SyntaxError::InvalidIdentInStrict</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::InvalidIdentInStrict</span> =&gt; {
                 <span class="string">&quot;&#39;implements&#39;, &#39;interface&#39;, &#39;let&#39;, &#39;package&#39;, &#39;private&#39;, &#39;protected&#39;,  &#39;public&#39;, \
                  &#39;static&#39;, or &#39;yield&#39; cannot be used as an identifier in strict mode&quot;</span>
                     .<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::EvalAndArgumentsInStrict</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;&#39;eval&#39; and &#39;arguments&#39; cannot be used as a \
+            <span class="ident">SyntaxError::EvalAndArgumentsInStrict</span> =&gt; <span class="string">&quot;&#39;eval&#39; and &#39;arguments&#39; cannot be used as a \
                                                       binding identifier in strict mode&quot;</span>
                 .<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::UnaryInExp</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;** cannot be applied to unary expression&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::Hash</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Unexpected token &#39;#&#39;&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::LineBreakInThrow</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;LineBreak cannot follow &#39;throw&#39;&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::LineBreakBeforeArrow</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::UnaryInExp</span> { .. } =&gt; <span class="string">&quot;** cannot be applied to unary expression&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::Hash</span> =&gt; <span class="string">&quot;Unexpected token &#39;#&#39;&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::LineBreakInThrow</span> =&gt; <span class="string">&quot;LineBreak cannot follow &#39;throw&#39;&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::LineBreakBeforeArrow</span> =&gt; {
                 <span class="string">&quot;Unexpected line break between arrow head and arrow&quot;</span>.<span class="ident">into</span>()
             }
             <span class="ident">SyntaxError::Unexpected</span> {
                 <span class="kw-2">ref</span> <span class="ident">got</span>,
                 <span class="kw-2">ref</span> <span class="ident">expected</span>,
-            } <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(<span class="string">&quot;Unexpected token `{}`. Expected {}&quot;</span>, <span class="ident">got</span>, <span class="ident">expected</span>).<span class="ident">into</span>(),
+            } =&gt; <span class="macro">format!</span>(<span class="string">&quot;Unexpected token `{}`. Expected {}&quot;</span>, <span class="ident">got</span>, <span class="ident">expected</span>).<span class="ident">into</span>(),
 
-            <span class="ident">SyntaxError::ReservedWordInImport</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;cannot import as reserved word&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::AssignProperty</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;assignment property is invalid syntax&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::Expected</span>(<span class="ident">token</span>, <span class="kw-2">ref</span> <span class="ident">got</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::ReservedWordInImport</span> =&gt; <span class="string">&quot;cannot import as reserved word&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::AssignProperty</span> =&gt; <span class="string">&quot;assignment property is invalid syntax&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::Expected</span>(<span class="ident">token</span>, <span class="kw-2">ref</span> <span class="ident">got</span>) =&gt; {
                 <span class="macro">format!</span>(<span class="string">&quot;Expected {:?}, got {}&quot;</span>, <span class="ident">token</span>, <span class="ident">got</span>).<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::ExpectedSemiForExprStmt</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Expected &#39;;&#39;, &#39;}&#39; or &lt;eof&gt;&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::ExpectedSemiForExprStmt</span> { .. } =&gt; <span class="string">&quot;Expected &#39;;&#39;, &#39;}&#39; or &lt;eof&gt;&quot;</span>.<span class="ident">into</span>(),
 
-            <span class="ident">SyntaxError::AwaitStar</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;await* has been removed from the async functions proposal. \
+            <span class="ident">SyntaxError::AwaitStar</span> =&gt; <span class="string">&quot;await* has been removed from the async functions proposal. \
                                        Use Promise.all() instead.&quot;</span>
                 .<span class="ident">into</span>(),
 
-            <span class="ident">SyntaxError::ReservedWordInObjShorthandOrPat</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::ReservedWordInObjShorthandOrPat</span> =&gt; {
                 <span class="string">&quot;Cannot use a reserved word as a shorthand property&quot;</span>.<span class="ident">into</span>()
             }
 
-            <span class="ident">SyntaxError::MultipleDefault</span> { .. } <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::MultipleDefault</span> { .. } =&gt; {
                 <span class="string">&quot;A switch block cannot have multiple defaults&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::CommaAfterRestElement</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::CommaAfterRestElement</span> =&gt; {
                 <span class="string">&quot;Trailing comma isn&#39;t permitted after a rest element&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::NonLastRestParam</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Rest element must be final element&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::SpreadInParenExpr</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::NonLastRestParam</span> =&gt; <span class="string">&quot;Rest element must be final element&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::SpreadInParenExpr</span> =&gt; {
                 <span class="string">&quot;Parenthesized expression cannot contain spread operator&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::EmptyParenExpr</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Parenthesized expression cannot be empty&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::InvalidPat</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Not a pattern&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::InvalidExpr</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Not an expression&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::EmptyParenExpr</span> =&gt; <span class="string">&quot;Parenthesized expression cannot be empty&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::InvalidPat</span> =&gt; <span class="string">&quot;Not a pattern&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::InvalidExpr</span> =&gt; <span class="string">&quot;Not an expression&quot;</span>.<span class="ident">into</span>(),
             <span class="comment">// TODO</span>
-            <span class="ident">SyntaxError::NotSimpleAssign</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Cannot assign to this&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::ExpectedIdent</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Expected ident&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::ExpctedSemi</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Expected &#39;;&#39; or line break&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::DuplicateLabel</span>(<span class="kw-2">ref</span> <span class="ident">label</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::NotSimpleAssign</span> =&gt; <span class="string">&quot;Cannot assign to this&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::ExpectedIdent</span> =&gt; <span class="string">&quot;Expected ident&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::ExpctedSemi</span> =&gt; <span class="string">&quot;Expected &#39;;&#39; or line break&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::DuplicateLabel</span>(<span class="kw-2">ref</span> <span class="ident">label</span>) =&gt; {
                 <span class="macro">format!</span>(<span class="string">&quot;Label {} is already declared&quot;</span>, <span class="ident">label</span>).<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::AsyncGenerator</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;An async function cannot be generator&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::NonTopLevelImportExport</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::AsyncGenerator</span> =&gt; <span class="string">&quot;An async function cannot be generator&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::NonTopLevelImportExport</span> =&gt; {
                 <span class="string">&quot;&#39;import&#39;, and &#39;export&#39; are not permitted here&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::ImportExportInScript</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::ImportExportInScript</span> =&gt; {
                 <span class="string">&quot;&#39;import&#39;, and &#39;export&#39; cannot be used outside of module code&quot;</span>.<span class="ident">into</span>()
             }
 
-            <span class="ident">SyntaxError::PatVarWithoutInit</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Destructuring bindings require initializers&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::WithInStrict</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;With statement are not allowed in strict mode&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::ReturnNotAllowed</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Return statement is not allowed here&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TooManyVarInForInHead</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Expected one variable binding&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::VarInitializerInForInHead</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::PatVarWithoutInit</span> =&gt; <span class="string">&quot;Destructuring bindings require initializers&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::WithInStrict</span> =&gt; <span class="string">&quot;With statement are not allowed in strict mode&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::ReturnNotAllowed</span> =&gt; <span class="string">&quot;Return statement is not allowed here&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::TooManyVarInForInHead</span> =&gt; <span class="string">&quot;Expected one variable binding&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::VarInitializerInForInHead</span> =&gt; {
                 <span class="string">&quot;Unexpected initializer in for in/of loop&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::LabelledGenerator</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Generator cannot be labelled&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::YieldParamInGen</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::LabelledGenerator</span> =&gt; <span class="string">&quot;Generator cannot be labelled&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::YieldParamInGen</span> =&gt; {
                 <span class="string">&quot;&#39;yield&#39; cannot be used as a parameter within generator&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::AwaitForStmt</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::AwaitForStmt</span> =&gt; {
                 <span class="string">&quot;for await syntax is valid only for for-of statement&quot;</span>.<span class="ident">into</span>()
             }
 
-            <span class="ident">SyntaxError::UnterminatedJSXContents</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Unterminated JSX contents&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::EmptyJSXAttr</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::UnterminatedJSXContents</span> =&gt; <span class="string">&quot;Unterminated JSX contents&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::EmptyJSXAttr</span> =&gt; {
                 <span class="string">&quot;JSX attributes must only be assigned a non-empty expression&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::InvalidJSXValue</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::InvalidJSXValue</span> =&gt; {
                 <span class="string">&quot;JSX value should be either an expression or a quoted JSX text&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::JSXExpectedClosingTagForLtGt</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::JSXExpectedClosingTagForLtGt</span> =&gt; {
                 <span class="string">&quot;Expected corresponding JSX closing tag for &lt;&gt;&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::JSXExpectedClosingTag</span> { <span class="kw-2">ref</span> <span class="ident">tag</span> } <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::JSXExpectedClosingTag</span> { <span class="kw-2">ref</span> <span class="ident">tag</span> } =&gt; {
                 <span class="macro">format!</span>(<span class="string">&quot;Expected corresponding JSX closing tag for &lt;{}&gt;&quot;</span>, <span class="ident">tag</span>).<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::InvalidLeadingDecorator</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::InvalidLeadingDecorator</span> =&gt; {
                 <span class="string">&quot;Leading decorators must be attached to a class declaration&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::DecoratorOnExport</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Using the export keyword between a decorator and a \
+            <span class="ident">SyntaxError::DecoratorOnExport</span> =&gt; <span class="string">&quot;Using the export keyword between a decorator and a \
                                                class is not allowed. Please use `export @dec \
                                                class` instead.&quot;</span>
                 .<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TsRequiredAfterOptional</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::TsRequiredAfterOptional</span> =&gt; {
                 <span class="string">&quot;A required element cannot follow an optional element.&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::TsInvalidParamPropPat</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::TsInvalidParamPropPat</span> =&gt; {
                 <span class="string">&quot;Typescript parameter property must be identifer or assignment pattern&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::SpaceBetweenHashAndIdent</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::SpaceBetweenHashAndIdent</span> =&gt; {
                 <span class="string">&quot;Unexpected space between # and identifier&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::AsyncConstructor</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Constructor can&#39;t be an async function&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::PropertyNamedConstructor</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::AsyncConstructor</span> =&gt; <span class="string">&quot;Constructor can&#39;t be an async function&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::PropertyNamedConstructor</span> =&gt; {
                 <span class="string">&quot;Classes may not have a non-static field named &#39;constructor&#39;&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::DeclarePrivateIdentifier</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::DeclarePrivateIdentifier</span> =&gt; {
                 <span class="string">&quot;&#39;declare&#39; modifier cannot be used with a private identifier&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::ClassProperty</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::ClassProperty</span> =&gt; {
                 <span class="string">&quot;Class property requires `jsc.parser.classProperty` to be true&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::ReadOnlyMethod</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;A method cannot be readonly&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TsBindingPatCannotBeOptional</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;A binding pattern parameter cannot be \
+            <span class="ident">SyntaxError::ReadOnlyMethod</span> =&gt; <span class="string">&quot;A method cannot be readonly&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::TsBindingPatCannotBeOptional</span> =&gt; <span class="string">&quot;A binding pattern parameter cannot be \
                                                           optional in an implementation signature.&quot;</span>
                 .<span class="ident">into</span>(),
 
-            <span class="ident">SyntaxError::TrailingCommaInsideImport</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::TrailingCommaInsideImport</span> =&gt; {
                 <span class="string">&quot;Trailing comma is disallowed inside import(...) arguments&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::DynamicImport</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::DynamicImport</span> =&gt; {
                 <span class="string">&quot;import(...) expressions requires `jsc.parser.dynamicImport` to be true&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::ExportDefaultWithOutFrom</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::ExportDefaultWithOutFrom</span> =&gt; {
                 <span class="string">&quot;export default statements required from &#39;...&#39;;&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::ExportNamespaceFrom</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;export * as Foo from &#39;foo&#39;; requires \
+            <span class="ident">SyntaxError::ExportNamespaceFrom</span> =&gt; <span class="string">&quot;export * as Foo from &#39;foo&#39;; requires \
                                                  `jsc.parser.exportNamespaceFrom` to be true&quot;</span>
                 .<span class="ident">into</span>(),
 
-            <span class="ident">SyntaxError::DotsWithoutIdentifier</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::DotsWithoutIdentifier</span> =&gt; {
                 <span class="string">&quot;`...` must be followed by an identifier in declaration contexts&quot;</span>.<span class="ident">into</span>()
             }
 
-            <span class="ident">SyntaxError::NumericSeparatorIsAllowedOnlyBetweenTwoDigits</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::NumericSeparatorIsAllowedOnlyBetweenTwoDigits</span> =&gt; {
                 <span class="string">&quot;A numeric separator is only allowed between two digits&quot;</span>.<span class="ident">into</span>()
             }
 
-            <span class="ident">SyntaxError::NullishCoalescingWithLogicalOp</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::NullishCoalescingWithLogicalOp</span> =&gt; {
                 <span class="string">&quot;Nullish coalescing operator(??) requires parens when mixing with logical operators&quot;</span>
                     .<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::NullishCoalescingNotEnabled</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::NullishCoalescingNotEnabled</span> =&gt; {
                 <span class="string">&quot;Nullish coalescing operator(??) requires jsc.parser.nullishCoalescing&quot;</span>.<span class="ident">into</span>()
             }
 
-            <span class="ident">SyntaxError::TS1056</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::TS1056</span> =&gt; {
                 <span class="string">&quot;jsc.target should be es5 or upper to use getter / setter&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::TS1110</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;type expected&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TS1141</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;literal in an import type should be string literal&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::TS1110</span> =&gt; <span class="string">&quot;type expected&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::TS1141</span> =&gt; <span class="string">&quot;literal in an import type should be string literal&quot;</span>.<span class="ident">into</span>(),
 
-            <span class="ident">SyntaxError::Eof</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Unexpected eof&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::Eof</span> =&gt; <span class="string">&quot;Unexpected eof&quot;</span>.<span class="ident">into</span>(),
 
-            <span class="ident">SyntaxError::TS2703</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::TS2703</span> =&gt; {
                 <span class="string">&quot;The operand of a delete operator must be a property reference.&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::DeclNotAllowed</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Declaration is now allowed&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::InvalidSuperCall</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Invalid `super()`&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::InvalidSuper</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Invalid access to super&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::ArrowNotAllowed</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;An arrow function is not allowed here&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::ExportNotAllowed</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;`export` is not allowed here&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::GetterSetterCannotBeReadonly</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::DeclNotAllowed</span> =&gt; <span class="string">&quot;Declaration is now allowed&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::InvalidSuperCall</span> =&gt; <span class="string">&quot;Invalid `super()`&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::InvalidSuper</span> =&gt; <span class="string">&quot;Invalid access to super&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::ArrowNotAllowed</span> =&gt; <span class="string">&quot;An arrow function is not allowed here&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::ExportNotAllowed</span> =&gt; <span class="string">&quot;`export` is not allowed here&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::GetterSetterCannotBeReadonly</span> =&gt; {
                 <span class="string">&quot;A getter or a setter cannot be readonly&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::RestPatInSetter</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Rest pattern is not allowed in setter&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::RestPatInSetter</span> =&gt; <span class="string">&quot;Rest pattern is not allowed in setter&quot;</span>.<span class="ident">into</span>(),
 
-            <span class="ident">SyntaxError::GeneratorConstructor</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;A constructor cannot be generator&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::GeneratorConstructor</span> =&gt; <span class="string">&quot;A constructor cannot be generator&quot;</span>.<span class="ident">into</span>(),
 
-            <span class="ident">SyntaxError::TS1003</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Expected an identifier&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TS1005</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Expected a semicolon&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TS1009</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Trailing comma is not allowed&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TS1014</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;A rest parameter must be last in a parameter list&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TS1015</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Parameter cannot have question mark and initializer&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TS1031</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;`declare` modifier cannot appear on a class element&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TS1038</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::TS1003</span> =&gt; <span class="string">&quot;Expected an identifier&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::TS1005</span> =&gt; <span class="string">&quot;Expected a semicolon&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::TS1009</span> =&gt; <span class="string">&quot;Trailing comma is not allowed&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::TS1014</span> =&gt; <span class="string">&quot;A rest parameter must be last in a parameter list&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::TS1015</span> =&gt; <span class="string">&quot;Parameter cannot have question mark and initializer&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::TS1031</span> =&gt; <span class="string">&quot;`declare` modifier cannot appear on a class element&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::TS1038</span> =&gt; {
                 <span class="string">&quot;`declare` modifier not allowed for code already in an ambient context&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::TS1042</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;`async` modifier cannot be used here&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TS1047</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;A rest parameter cannot be optional&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TS1048</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;A rest parameter cannot have an initializer&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TS1085</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Legacy octal literals are not available when targeting \
+            <span class="ident">SyntaxError::TS1042</span> =&gt; <span class="string">&quot;`async` modifier cannot be used here&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::TS1047</span> =&gt; <span class="string">&quot;A rest parameter cannot be optional&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::TS1048</span> =&gt; <span class="string">&quot;A rest parameter cannot have an initializer&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::TS1085</span> =&gt; <span class="string">&quot;Legacy octal literals are not available when targeting \
                                     ECMAScript 5 and higher&quot;</span>
                 .<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TS1089</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::TS1089</span> =&gt; {
                 <span class="string">&quot;&#39;private&#39; modifier cannot appear on a constructor declaration&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::TS1092</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::TS1092</span> =&gt; {
                 <span class="string">&quot;Type parameters cannot appear on a constructor declaration&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::TS1096</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;An index signature must have exactly one parameter&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TS1098</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Type parameter list cannot be empty&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TS1100</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Invalid use of &#39;arguments&#39; in strict mode&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TS1102</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::TS1096</span> =&gt; <span class="string">&quot;An index signature must have exactly one parameter&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::TS1098</span> =&gt; <span class="string">&quot;Type parameter list cannot be empty&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::TS1100</span> =&gt; <span class="string">&quot;Invalid use of &#39;arguments&#39; in strict mode&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::TS1102</span> =&gt; {
                 <span class="string">&quot;&#39;delete&#39; cannot be called on an identifier in strict mode&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::TS1105</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;A &#39;break&#39; statement can only be used within an enclosing \
+            <span class="ident">SyntaxError::TS1105</span> =&gt; <span class="string">&quot;A &#39;break&#39; statement can only be used within an enclosing \
                                     iteration or switch statement&quot;</span>
                 .<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TS1107</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Jump target cannot cross function boundary&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TS1109</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Expression expected&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TS1114</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Duplicate label&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TS1115</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;A &#39;continue&#39; statement can only jump to a label of an \
+            <span class="ident">SyntaxError::TS1107</span> =&gt; <span class="string">&quot;Jump target cannot cross function boundary&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::TS1109</span> =&gt; <span class="string">&quot;Expression expected&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::TS1114</span> =&gt; <span class="string">&quot;Duplicate label&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::TS1115</span> =&gt; <span class="string">&quot;A &#39;continue&#39; statement can only jump to a label of an \
                                     enclosing iteration statement&quot;</span>
                 .<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TS1116</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::TS1116</span> =&gt; {
                 <span class="string">&quot;A &#39;break&#39; statement can only jump to a label of an enclosing statement&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::TS1123</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Variable declaration list cannot be empty&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TS1162</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;An object member cannot be declared optional&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TS1164</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Computed property names are not allowed in enums&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TS1171</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::TS1123</span> =&gt; <span class="string">&quot;Variable declaration list cannot be empty&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::TS1162</span> =&gt; <span class="string">&quot;An object member cannot be declared optional&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::TS1164</span> =&gt; <span class="string">&quot;Computed property names are not allowed in enums&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::TS1171</span> =&gt; {
                 <span class="string">&quot;A comma expression is not allowed in a computed property name&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::TS1172</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;`extends` clause already seen.&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TS1174</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Classes can only extend a single class&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TS1175</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;`implements` clause already seen&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TS1183</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::TS1172</span> =&gt; <span class="string">&quot;`extends` clause already seen.&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::TS1174</span> =&gt; <span class="string">&quot;Classes can only extend a single class&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::TS1175</span> =&gt; <span class="string">&quot;`implements` clause already seen&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::TS1183</span> =&gt; {
                 <span class="string">&quot;An implementation cannot be declared in ambient contexts&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::TS1093</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::TS1093</span> =&gt; {
                 <span class="string">&quot;Type annotation cannot appear on a constructor declaration&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::TS1094</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::TS1094</span> =&gt; {
                 <span class="string">&quot;A `set` accessor must have a corresponding `get` accessor&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::TS1196</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Catch clause variable cannot have a type annotation&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TS1242</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::TS1196</span> =&gt; <span class="string">&quot;Catch clause variable cannot have a type annotation&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::TS1242</span> =&gt; {
                 <span class="string">&quot;`abstract` modifier can only appear on a class or method declaration&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::TS2369</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::TS2369</span> =&gt; {
                 <span class="string">&quot;A parameter property is only allowed in a constructor implementation&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::TS2371</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;A parameter initializer is only allowed in a function or \
+            <span class="ident">SyntaxError::TS2371</span> =&gt; <span class="string">&quot;A parameter initializer is only allowed in a function or \
                                     constructor implementation&quot;</span>
                 .<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TS2406</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Invalid left-hand side in &#39;for...in&#39; statement&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TS2410</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;The &#39;with&#39; statement is not supported. All symbols in a \
+            <span class="ident">SyntaxError::TS2406</span> =&gt; <span class="string">&quot;Invalid left-hand side in &#39;for...in&#39; statement&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::TS2410</span> =&gt; <span class="string">&quot;The &#39;with&#39; statement is not supported. All symbols in a \
                                     &#39;with&#39; block will have type &#39;any&#39;.&quot;</span>
                 .<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TS2414</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Invalid class name&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TS2427</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;interface name is invalid&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TS2452</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;An enum member cannot have a numeric name&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TS2483</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::TS2414</span> =&gt; <span class="string">&quot;Invalid class name&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::TS2427</span> =&gt; <span class="string">&quot;interface name is invalid&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::TS2452</span> =&gt; <span class="string">&quot;An enum member cannot have a numeric name&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::TS2483</span> =&gt; {
                 <span class="string">&quot;The left-hand side of a &#39;for...of&#39; statement cannot use a type annotation&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::TS2491</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;The left-hand side of a &#39;for...in&#39; statement cannot be a \
+            <span class="ident">SyntaxError::TS2491</span> =&gt; <span class="string">&quot;The left-hand side of a &#39;for...in&#39; statement cannot be a \
                                     destructuring pattern&quot;</span>
                 .<span class="ident">into</span>(),
-            <span class="ident">SyntaxError::TSTypeAnnotationAfterAssign</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::TSTypeAnnotationAfterAssign</span> =&gt; {
                 <span class="string">&quot;Type annotations must come before default assignments&quot;</span>.<span class="ident">into</span>()
             }
-            <span class="ident">SyntaxError::SetterParamRequired</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Setter should have exactly one parameter&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">SyntaxError::SetterParamRequired</span> =&gt; <span class="string">&quot;Setter should have exactly one parameter&quot;</span>.<span class="ident">into</span>(),
         }
     }
 }
@@ -1102,7 +1102,7 @@
 <span class="kw">impl</span> <span class="ident">Error</span> {
     <span class="attribute">#[<span class="ident">cold</span>]</span>
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">never</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_diagnostic</span>(<span class="self">self</span>, <span class="ident">handler</span>: <span class="kw-2">&amp;</span><span class="ident">Handler</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DiagnosticBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_diagnostic</span>(<span class="self">self</span>, <span class="ident">handler</span>: <span class="kw-2">&amp;</span><span class="ident">Handler</span>) -&gt; <span class="ident">DiagnosticBuilder</span> {
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">span</span>();
 
         <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into_kind</span>();
@@ -1112,16 +1112,16 @@
         <span class="ident">db</span>.<span class="ident">set_span</span>(<span class="ident">span</span>);
 
         <span class="kw">match</span> <span class="ident">kind</span> {
-            <span class="ident">SyntaxError::ExpectedSemiForExprStmt</span> { <span class="ident">expr</span> } <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::ExpectedSemiForExprStmt</span> { <span class="ident">expr</span> } =&gt; {
                 <span class="ident">db</span>.<span class="ident">span_note</span>(
                     <span class="ident">expr</span>,
                     <span class="string">&quot;This is the expression part of an expression statement&quot;</span>,
                 );
             }
-            <span class="ident">SyntaxError::MultipleDefault</span> { <span class="ident">previous</span> } <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SyntaxError::MultipleDefault</span> { <span class="ident">previous</span> } =&gt; {
                 <span class="ident">db</span>.<span class="ident">span_note</span>(<span class="ident">previous</span>, <span class="string">&quot;previous default case is declared at here&quot;</span>);
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            <span class="kw">_</span> =&gt; {}
         }
 
         <span class="ident">db</span>

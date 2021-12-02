@@ -451,7 +451,7 @@
 <span class="comment">// pub const PARAGRAPH_SEPARATOR: char = &#39;\u{2029}&#39;;</span>
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">I</span>: <span class="ident">Input</span><span class="op">&gt;</span> <span class="ident">Lexer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">I</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">start</span>: <span class="ident">BytePos</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">start</span>: <span class="ident">BytePos</span>) -&gt; <span class="ident">Span</span> {
         <span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">last_pos</span>();
         <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">debug_assertions</span>) <span class="op">&amp;&amp;</span> <span class="ident">start</span> <span class="op">&gt;</span> <span class="ident">end</span> {
             <span class="macro">unreachable!</span>(
@@ -471,42 +471,42 @@
         <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">bump</span>()
     }
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">is</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">c</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">is</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">c</span>: <span class="ident">u8</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">is_byte</span>(<span class="ident">c</span>)
     }
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">eat</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">c</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">eat</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">c</span>: <span class="ident">u8</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">eat_byte</span>(<span class="ident">c</span>)
     }
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">cur</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">char</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">cur</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">char</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">cur</span>()
     }
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">peek</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">char</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">peek</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">char</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">peek</span>()
     }
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">peek_ahead</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">char</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">peek_ahead</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">char</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">peek_ahead</span>()
     }
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">cur_pos</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BytePos</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">cur_pos</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">BytePos</span> {
         <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">cur_pos</span>()
     }
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">last_pos</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BytePos</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">last_pos</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BytePos</span> {
         <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">last_pos</span>()
     }
 
     <span class="doccomment">/// Shorthand for `let span = self.span(start); self.error_span(span)`</span>
     <span class="attribute">#[<span class="ident">cold</span>]</span>
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">never</span>)]</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">error</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">start</span>: <span class="ident">BytePos</span>, <span class="ident">kind</span>: <span class="ident">SyntaxError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">LexResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">error</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">start</span>: <span class="ident">BytePos</span>, <span class="ident">kind</span>: <span class="ident">SyntaxError</span>) -&gt; <span class="ident">LexResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">span</span>(<span class="ident">start</span>);
         <span class="self">self</span>.<span class="ident">error_span</span>(<span class="ident">Span::new</span>(<span class="ident">span</span>.<span class="ident">lo</span>, <span class="ident">span</span>.<span class="ident">hi</span>, <span class="ident">span</span>.<span class="ident">ctxt</span>), <span class="ident">kind</span>)
     }
 
     <span class="attribute">#[<span class="ident">cold</span>]</span>
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">never</span>)]</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">error_span</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">span</span>: <span class="ident">Span</span>, <span class="ident">kind</span>: <span class="ident">SyntaxError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">LexResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">error_span</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">span</span>: <span class="ident">Span</span>, <span class="ident">kind</span>: <span class="ident">SyntaxError</span>) -&gt; <span class="ident">LexResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="prelude-val">Err</span>(<span class="ident">Error</span> {
             <span class="ident">error</span>: <span class="ident">Box::new</span>((<span class="ident">span</span>, <span class="ident">kind</span>)),
         })
@@ -572,30 +572,30 @@
     <span class="doccomment">/// Skip comments or whitespaces.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// See https://tc39.github.io/ecma262/#sec-white-space</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">skip_space</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">LexResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">skip_space</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">LexResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">cur</span>() {
             <span class="kw">match</span> <span class="ident">c</span> {
                 <span class="comment">// white spaces</span>
-                <span class="string">&#39;\u{0009}&#39;</span> <span class="op">|</span> <span class="string">&#39;\u{000b}&#39;</span> <span class="op">|</span> <span class="string">&#39;\u{000c}&#39;</span> <span class="op">|</span> <span class="string">&#39;\u{0020}&#39;</span> <span class="op">|</span> <span class="string">&#39;\u{00a0}&#39;</span> <span class="op">|</span> <span class="string">&#39;\u{feff}&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {}
+                <span class="string">&#39;\u{0009}&#39;</span> <span class="op">|</span> <span class="string">&#39;\u{000b}&#39;</span> <span class="op">|</span> <span class="string">&#39;\u{000c}&#39;</span> <span class="op">|</span> <span class="string">&#39;\u{0020}&#39;</span> <span class="op">|</span> <span class="string">&#39;\u{00a0}&#39;</span> <span class="op">|</span> <span class="string">&#39;\u{feff}&#39;</span> =&gt; {}
                 <span class="comment">// line breaks</span>
-                <span class="string">&#39;\r&#39;</span> <span class="op">|</span> <span class="string">&#39;\n&#39;</span> <span class="op">|</span> <span class="string">&#39;\u{2028}&#39;</span> <span class="op">|</span> <span class="string">&#39;\u{2029}&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&#39;\r&#39;</span> <span class="op">|</span> <span class="string">&#39;\n&#39;</span> <span class="op">|</span> <span class="string">&#39;\u{2028}&#39;</span> <span class="op">|</span> <span class="string">&#39;\u{2029}&#39;</span> =&gt; {
                     <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">had_line_break</span> <span class="op">=</span> <span class="bool-val">true</span>;
                 }
 
-                <span class="string">&#39;/&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">peek</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&#39;/&#39;</span>) {
+                <span class="string">&#39;/&#39;</span> =&gt; {
+                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">peek</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="string">&#39;/&#39;</span>) {
                         <span class="self">self</span>.<span class="ident">skip_line_comment</span>(<span class="number">2</span>);
                         <span class="kw">continue</span>;
-                    } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">peek</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&#39;*&#39;</span>) {
+                    } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">peek</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="string">&#39;*&#39;</span>) {
                         <span class="self">self</span>.<span class="ident">skip_block_comment</span>()<span class="question-mark">?</span>;
                         <span class="kw">continue</span>;
                     }
                     <span class="kw">break</span>;
                 }
 
-                <span class="kw">_</span> <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">is_whitespace</span>() <span class="op">=</span><span class="op">&gt;</span> {}
+                <span class="kw">_</span> <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">is_whitespace</span>() =&gt; {}
 
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">break</span>,
+                <span class="kw">_</span> =&gt; <span class="kw">break</span>,
             }
 
             <span class="self">self</span>.<span class="ident">bump</span>();
@@ -627,10 +627,10 @@
                 <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">had_line_break</span> <span class="op">=</span> <span class="bool-val">true</span>;
             }
             <span class="kw">match</span> <span class="ident">c</span> {
-                <span class="string">&#39;\n&#39;</span> <span class="op">|</span> <span class="string">&#39;\r&#39;</span> <span class="op">|</span> <span class="string">&#39;\u{2028}&#39;</span> <span class="op">|</span> <span class="string">&#39;\u{2029}&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&#39;\n&#39;</span> <span class="op">|</span> <span class="string">&#39;\r&#39;</span> <span class="op">|</span> <span class="string">&#39;\u{2028}&#39;</span> <span class="op">|</span> <span class="string">&#39;\u{2029}&#39;</span> =&gt; {
                     <span class="kw">break</span>;
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">_</span> =&gt; {
                     <span class="ident">end</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cur_pos</span>();
                 }
             }
@@ -661,7 +661,7 @@
     }
 
     <span class="doccomment">/// Expects current char to be &#39;/&#39; and next char to be &#39;*&#39;.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">skip_block_comment</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">LexResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">skip_block_comment</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">LexResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cur_pos</span>();
 
         <span class="macro">debug_assert_eq!</span>(<span class="self">self</span>.<span class="ident">cur</span>(), <span class="prelude-val">Some</span>(<span class="string">&#39;/&#39;</span>));
@@ -672,7 +672,7 @@
 
         <span class="comment">// jsdoc</span>
         <span class="kw">let</span> <span class="ident">slice_start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cur_pos</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">was_star</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">cur</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&#39;*&#39;</span>) {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">was_star</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">cur</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="string">&#39;*&#39;</span>) {
             <span class="self">self</span>.<span class="ident">bump</span>();
             <span class="bool-val">true</span>
         } <span class="kw">else</span> {
@@ -682,7 +682,7 @@
         <span class="kw">let</span> <span class="ident">is_for_next</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">had_line_break</span> <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">state</span>.<span class="ident">can_have_trailing_comment</span>();
 
         <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">cur</span>() {
-            <span class="kw">if</span> <span class="ident">was_star</span> <span class="op">&amp;&amp;</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;/&#39;</span> {
+            <span class="kw">if</span> <span class="ident">was_star</span> <span class="op">&amp;&amp;</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;/&#39;</span> {
                 <span class="macro">debug_assert_eq!</span>(<span class="self">self</span>.<span class="ident">cur</span>(), <span class="prelude-val">Some</span>(<span class="string">&#39;/&#39;</span>));
                 <span class="self">self</span>.<span class="ident">bump</span>(); <span class="comment">// &#39;/&#39;</span>
 
@@ -715,7 +715,7 @@
                 <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">had_line_break</span> <span class="op">=</span> <span class="bool-val">true</span>;
             }
 
-            <span class="ident">was_star</span> <span class="op">=</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;*&#39;</span>;
+            <span class="ident">was_star</span> <span class="op">=</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;*&#39;</span>;
             <span class="self">self</span>.<span class="ident">bump</span>();
         }
 
@@ -725,19 +725,19 @@
 
 <span class="doccomment">/// Implemented for `char`.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">CharExt</span>: <span class="ident">Copy</span> {
-    <span class="kw">fn</span> <span class="ident">to_char</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">char</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">to_char</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">char</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Test whether a given character code starts an identifier.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// https://tc39.github.io/ecma262/#prod-IdentifierStart</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">is_ident_start</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_ident_start</span>(<span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">to_char</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">c</span>,
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="bool-val">false</span>,
+            <span class="prelude-val">Some</span>(<span class="ident">c</span>) =&gt; <span class="ident">c</span>,
+            <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="bool-val">false</span>,
         };
         <span class="comment">// TODO: Use Unicode ID instead of XID.</span>
-        <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;$&#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;_&#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">is_ascii_alphabetic</span>() <span class="op">|</span><span class="op">|</span> {
+        <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;$&#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;_&#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">is_ascii_alphabetic</span>() <span class="op">|</span><span class="op">|</span> {
             <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">is_ascii</span>() {
                 <span class="bool-val">false</span>
             } <span class="kw">else</span> {
@@ -748,13 +748,13 @@
 
     <span class="doccomment">/// Test whether a given character is part of an identifier.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">is_ident_part</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_ident_part</span>(<span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">to_char</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">c</span>,
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="bool-val">false</span>,
+            <span class="prelude-val">Some</span>(<span class="ident">c</span>) =&gt; <span class="ident">c</span>,
+            <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="bool-val">false</span>,
         };
         <span class="comment">// TODO: Use Unicode ID instead of XID.</span>
-        <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;$&#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;_&#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;\u{200c}&#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;\u{200d}&#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">is_ascii_alphanumeric</span>() <span class="op">|</span><span class="op">|</span> {
+        <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;$&#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;_&#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;\u{200c}&#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;\u{200d}&#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">is_ascii_alphanumeric</span>() <span class="op">|</span><span class="op">|</span> {
             <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">is_ascii</span>() {
                 <span class="bool-val">false</span>
             } <span class="kw">else</span> {
@@ -765,27 +765,27 @@
 
     <span class="doccomment">/// See https://tc39.github.io/ecma262/#sec-line-terminators</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">is_line_break</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_line_break</span>(<span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">to_char</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">c</span>,
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="bool-val">false</span>,
+            <span class="prelude-val">Some</span>(<span class="ident">c</span>) =&gt; <span class="ident">c</span>,
+            <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="bool-val">false</span>,
         };
         <span class="kw">match</span> <span class="ident">c</span> {
-            <span class="string">&#39;\r&#39;</span> <span class="op">|</span> <span class="string">&#39;\n&#39;</span> <span class="op">|</span> <span class="string">&#39;\u{2028}&#39;</span> <span class="op">|</span> <span class="string">&#39;\u{2029}&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="string">&#39;\r&#39;</span> <span class="op">|</span> <span class="string">&#39;\n&#39;</span> <span class="op">|</span> <span class="string">&#39;\u{2028}&#39;</span> <span class="op">|</span> <span class="string">&#39;\u{2029}&#39;</span> =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }
 
     <span class="doccomment">/// See https://tc39.github.io/ecma262/#sec-white-space</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">is_ws</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_ws</span>(<span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">to_char</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">c</span>,
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="bool-val">false</span>,
+            <span class="prelude-val">Some</span>(<span class="ident">c</span>) =&gt; <span class="ident">c</span>,
+            <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="bool-val">false</span>,
         };
         <span class="kw">match</span> <span class="ident">c</span> {
-            <span class="string">&#39;\u{0009}&#39;</span> <span class="op">|</span> <span class="string">&#39;\u{000b}&#39;</span> <span class="op">|</span> <span class="string">&#39;\u{000c}&#39;</span> <span class="op">|</span> <span class="string">&#39;\u{0020}&#39;</span> <span class="op">|</span> <span class="string">&#39;\u{00a0}&#39;</span> <span class="op">|</span> <span class="string">&#39;\u{feff}&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">&#39;\u{0009}&#39;</span> <span class="op">|</span> <span class="string">&#39;\u{000b}&#39;</span> <span class="op">|</span> <span class="string">&#39;\u{000c}&#39;</span> <span class="op">|</span> <span class="string">&#39;\u{0020}&#39;</span> <span class="op">|</span> <span class="string">&#39;\u{00a0}&#39;</span> <span class="op">|</span> <span class="string">&#39;\u{feff}&#39;</span> =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_</span> =&gt; {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_line_break</span>() {
                     <span class="comment">// NOTE: Line terminator is not whitespace.</span>
                     <span class="bool-val">false</span>
@@ -799,14 +799,14 @@
 
 <span class="kw">impl</span> <span class="ident">CharExt</span> <span class="kw">for</span> <span class="ident">Char</span> {
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">to_char</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">char</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">to_char</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">char</span><span class="op">&gt;</span> {
         <span class="ident">char::from_u32</span>(<span class="self">self</span>.<span class="number">0</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">CharExt</span> <span class="kw">for</span> <span class="ident">char</span> {
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">to_char</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">char</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">to_char</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">char</span><span class="op">&gt;</span> {
         <span class="prelude-val">Some</span>(<span class="self">self</span>)
     }
 }

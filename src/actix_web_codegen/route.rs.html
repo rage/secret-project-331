@@ -397,7 +397,7 @@
 <span class="macro">macro_rules!</span> <span class="ident">method_type</span> {
     (
         $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">variant</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">upper</span>:<span class="ident">ident</span>,)<span class="op">+</span>
-    ) <span class="op">=</span><span class="op">&gt;</span> {
+    ) =&gt; {
         <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>)]</span>
         <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">MethodType</span> {
             $(
@@ -406,16 +406,16 @@
         }
 
         <span class="kw">impl</span> <span class="ident">MethodType</span> {
-            <span class="kw">fn</span> <span class="ident">as_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
+            <span class="kw">fn</span> <span class="ident">as_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
                 <span class="kw">match</span> <span class="self">self</span> {
-                    $(<span class="self">Self</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">variant</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">variant</span>),)<span class="op">+</span>
+                    $(<span class="self">Self</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">variant</span> =&gt; <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">variant</span>),)<span class="op">+</span>
                 }
             }
 
-            <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">method</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+            <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">method</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">String</span><span class="op">&gt;</span> {
                 <span class="kw">match</span> <span class="ident">method</span> {
-                    $(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">upper</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="self">Self</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">variant</span>),)<span class="op">+</span>
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Unexpected HTTP method: `{}`&quot;</span>, <span class="ident">method</span>)),
+                    $(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">upper</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">variant</span>),)<span class="op">+</span>
+                    <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Unexpected HTTP method: `{}`&quot;</span>, <span class="ident">method</span>)),
                 }
             }
         }
@@ -444,7 +444,7 @@
 <span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">syn::LitStr</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MethodType</span> {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">syn::Error</span>;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">syn::LitStr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">syn::LitStr</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
         <span class="ident"><span class="self">Self</span>::parse</span>(<span class="ident">value</span>.<span class="ident">value</span>().<span class="ident">as_str</span>())
             .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">message</span><span class="op">|</span> <span class="ident">syn::Error::new_spanned</span>(<span class="ident">value</span>, <span class="ident">message</span>))
     }
@@ -459,7 +459,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Args</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">args</span>: <span class="ident">AttributeArgs</span>, <span class="ident">method</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MethodType</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">args</span>: <span class="ident">AttributeArgs</span>, <span class="ident">method</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MethodType</span><span class="op">&gt;</span>) -&gt; <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">resource_name</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">guards</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
@@ -473,19 +473,19 @@
 
         <span class="kw">for</span> <span class="ident">arg</span> <span class="kw">in</span> <span class="ident">args</span> {
             <span class="kw">match</span> <span class="ident">arg</span> {
-                <span class="ident">NestedMeta::Lit</span>(<span class="ident">syn::Lit::Str</span>(<span class="ident">lit</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">path</span> {
-                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">NestedMeta::Lit</span>(<span class="ident">syn::Lit::Str</span>(<span class="ident">lit</span>)) =&gt; <span class="kw">match</span> <span class="ident">path</span> {
+                    <span class="prelude-val">None</span> =&gt; {
                         <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">ResourceDef::new</span>(<span class="ident">lit</span>.<span class="ident">value</span>());
                         <span class="ident">path</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">lit</span>);
                     }
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">_</span> =&gt; {
                         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new_spanned</span>(
                             <span class="ident">lit</span>,
                             <span class="string">&quot;Multiple paths specified! Should be only one!&quot;</span>,
                         ));
                     }
                 },
-                <span class="ident">NestedMeta::Meta</span>(<span class="ident">syn::Meta::NameValue</span>(<span class="ident">nv</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">NestedMeta::Meta</span>(<span class="ident">syn::Meta::NameValue</span>(<span class="ident">nv</span>)) =&gt; {
                     <span class="kw">if</span> <span class="ident">nv</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;name&quot;</span>) {
                         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn::Lit::Str</span>(<span class="ident">lit</span>) <span class="op">=</span> <span class="ident">nv</span>.<span class="ident">lit</span> {
                             <span class="ident">resource_name</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">lit</span>);
@@ -543,7 +543,7 @@
                         ));
                     }
                 }
-                <span class="ident">arg</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">arg</span> =&gt; {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new_spanned</span>(<span class="ident">arg</span>, <span class="string">&quot;Unknown attribute.&quot;</span>));
                 }
             }
@@ -568,17 +568,17 @@
     <span class="ident">doc_attributes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::Attribute</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">fn</span> <span class="ident">guess_resource_type</span>(<span class="ident">typ</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Type</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ResourceType</span> {
+<span class="kw">fn</span> <span class="ident">guess_resource_type</span>(<span class="ident">typ</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Type</span>) -&gt; <span class="ident">ResourceType</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">guess</span> <span class="op">=</span> <span class="ident">ResourceType::Sync</span>;
 
     <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn::Type::ImplTrait</span>(<span class="ident">typ</span>) <span class="op">=</span> <span class="ident">typ</span> {
         <span class="kw">for</span> <span class="ident">bound</span> <span class="kw">in</span> <span class="ident">typ</span>.<span class="ident">bounds</span>.<span class="ident">iter</span>() {
             <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn::TypeParamBound::Trait</span>(<span class="ident">bound</span>) <span class="op">=</span> <span class="ident">bound</span> {
                 <span class="kw">for</span> <span class="ident">bound</span> <span class="kw">in</span> <span class="ident">bound</span>.<span class="ident">path</span>.<span class="ident">segments</span>.<span class="ident">iter</span>() {
-                    <span class="kw">if</span> <span class="ident">bound</span>.<span class="ident">ident</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Future&quot;</span> {
+                    <span class="kw">if</span> <span class="ident">bound</span>.<span class="ident">ident</span> <span class="op">==</span> <span class="string">&quot;Future&quot;</span> {
                         <span class="ident">guess</span> <span class="op">=</span> <span class="ident">ResourceType::Async</span>;
                         <span class="kw">break</span>;
-                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">bound</span>.<span class="ident">ident</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Responder&quot;</span> {
+                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">bound</span>.<span class="ident">ident</span> <span class="op">==</span> <span class="string">&quot;Responder&quot;</span> {
                         <span class="ident">guess</span> <span class="op">=</span> <span class="ident">ResourceType::Sync</span>;
                         <span class="kw">break</span>;
                     }
@@ -595,7 +595,7 @@
         <span class="ident">args</span>: <span class="ident">AttributeArgs</span>,
         <span class="ident">ast</span>: <span class="ident">syn::ItemFn</span>,
         <span class="ident">method</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MethodType</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">is_empty</span>() {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new</span>(
                 <span class="ident">Span::call_site</span>(),
@@ -631,13 +631,13 @@
             <span class="ident">ResourceType::Async</span>
         } <span class="kw">else</span> {
             <span class="kw">match</span> <span class="ident">ast</span>.<span class="ident">sig</span>.<span class="ident">output</span> {
-                <span class="ident">syn::ReturnType::Default</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">syn::ReturnType::Default</span> =&gt; {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new_spanned</span>(
                         <span class="ident">ast</span>,
                         <span class="string">&quot;Function has no return type. Cannot be used as handler&quot;</span>,
                     ));
                 }
-                <span class="ident">syn::ReturnType::Type</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">typ</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">guess_resource_type</span>(<span class="ident">typ</span>.<span class="ident">as_ref</span>()),
+                <span class="ident">syn::ReturnType::Type</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">typ</span>) =&gt; <span class="ident">guess_resource_type</span>(<span class="ident">typ</span>.<span class="ident">as_ref</span>()),
             }
         };
 
@@ -717,19 +717,19 @@
     <span class="ident">method</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MethodType</span><span class="op">&gt;</span>,
     <span class="ident">args</span>: <span class="ident">TokenStream</span>,
     <span class="ident">input</span>: <span class="ident">TokenStream</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream</span> {
+) -&gt; <span class="ident">TokenStream</span> {
     <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="macro">parse_macro_input!</span>(<span class="ident">args</span> <span class="kw">as</span> <span class="ident">syn::AttributeArgs</span>);
 
     <span class="kw">let</span> <span class="ident">ast</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">syn::parse</span>::<span class="op">&lt;</span><span class="ident">syn::ItemFn</span><span class="op">&gt;</span>(<span class="ident">input</span>.<span class="ident">clone</span>()) {
-        <span class="prelude-val">Ok</span>(<span class="ident">ast</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ast</span>,
+        <span class="prelude-val">Ok</span>(<span class="ident">ast</span>) =&gt; <span class="ident">ast</span>,
         <span class="comment">// on parse error, make IDEs happy; see fn docs</span>
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">input_and_compile_error</span>(<span class="ident">input</span>, <span class="ident">err</span>),
+        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="kw">return</span> <span class="ident">input_and_compile_error</span>(<span class="ident">input</span>, <span class="ident">err</span>),
     };
 
     <span class="kw">match</span> <span class="ident">Route::new</span>(<span class="ident">args</span>, <span class="ident">ast</span>, <span class="ident">method</span>) {
-        <span class="prelude-val">Ok</span>(<span class="ident">route</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">route</span>.<span class="ident">into_token_stream</span>().<span class="ident">into</span>(),
+        <span class="prelude-val">Ok</span>(<span class="ident">route</span>) =&gt; <span class="ident">route</span>.<span class="ident">into_token_stream</span>().<span class="ident">into</span>(),
         <span class="comment">// on macro related error, make IDEs happy; see fn docs</span>
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">input_and_compile_error</span>(<span class="ident">input</span>, <span class="ident">err</span>),
+        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="ident">input_and_compile_error</span>(<span class="ident">input</span>, <span class="ident">err</span>),
     }
 }
 
@@ -739,7 +739,7 @@
 <span class="doccomment">/// recover and show more precise errors within the macro body.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// See &lt;https://github.com/rust-analyzer/rust-analyzer/issues/10468&gt; for more info.</span>
-<span class="kw">fn</span> <span class="ident">input_and_compile_error</span>(<span class="kw-2">mut</span> <span class="ident">item</span>: <span class="ident">TokenStream</span>, <span class="ident">err</span>: <span class="ident">syn::Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream</span> {
+<span class="kw">fn</span> <span class="ident">input_and_compile_error</span>(<span class="kw-2">mut</span> <span class="ident">item</span>: <span class="ident">TokenStream</span>, <span class="ident">err</span>: <span class="ident">syn::Error</span>) -&gt; <span class="ident">TokenStream</span> {
     <span class="kw">let</span> <span class="ident">compile_err</span> <span class="op">=</span> <span class="ident">TokenStream::from</span>(<span class="ident">err</span>.<span class="ident">to_compile_error</span>());
     <span class="ident">item</span>.<span class="ident">extend</span>(<span class="ident">compile_err</span>);
     <span class="ident">item</span>

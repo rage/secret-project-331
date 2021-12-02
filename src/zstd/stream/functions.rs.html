@@ -64,7 +64,7 @@
 <span class="doccomment">/// Decompress from the given source as if using a `Decoder`.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// The input data must be in the zstd frame format.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decode_all</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">io::Read</span><span class="op">&gt;</span>(<span class="ident">source</span>: <span class="ident">R</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decode_all</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">io::Read</span><span class="op">&gt;</span>(<span class="ident">source</span>: <span class="ident">R</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="ident">copy_decode</span>(<span class="ident">source</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">result</span>)<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
@@ -73,7 +73,7 @@
 <span class="doccomment">/// Decompress from the given source as if using a `Decoder`.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Decompressed data will be appended to `destination`.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">copy_decode</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">W</span><span class="op">&gt;</span>(<span class="ident">source</span>: <span class="ident">R</span>, <span class="kw-2">mut</span> <span class="ident">destination</span>: <span class="ident">W</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">copy_decode</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">W</span><span class="op">&gt;</span>(<span class="ident">source</span>: <span class="ident">R</span>, <span class="kw-2">mut</span> <span class="ident">destination</span>: <span class="ident">W</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">R</span>: <span class="ident">io::Read</span>,
     <span class="ident">W</span>: <span class="ident">io::Write</span>,
@@ -88,7 +88,7 @@
 <span class="doccomment">/// Result will be in the zstd frame format.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// A level of `0` uses zstd&#39;s default (currently `3`).</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encode_all</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">io::Read</span><span class="op">&gt;</span>(<span class="ident">source</span>: <span class="ident">R</span>, <span class="ident">level</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encode_all</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">io::Read</span><span class="op">&gt;</span>(<span class="ident">source</span>: <span class="ident">R</span>, <span class="ident">level</span>: <span class="ident">i32</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="ident">::new</span>();
     <span class="ident">copy_encode</span>(<span class="ident">source</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">result</span>, <span class="ident">level</span>)<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
@@ -103,7 +103,7 @@
     <span class="kw-2">mut</span> <span class="ident">source</span>: <span class="ident">R</span>,
     <span class="ident">destination</span>: <span class="ident">W</span>,
     <span class="ident">level</span>: <span class="ident">i32</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">R</span>: <span class="ident">io::Read</span>,
     <span class="ident">W</span>: <span class="ident">io::Write</span>,

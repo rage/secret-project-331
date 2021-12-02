@@ -86,18 +86,18 @@
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">maybe_upgrade</span>(
     <span class="ident">stream</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgStream</span>,
     <span class="ident">options</span>: <span class="kw-2">&amp;</span><span class="ident">PgConnectOptions</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="comment">// https://www.postgresql.org/docs/12/libpq-ssl.html#LIBPQ-SSL-SSLMODE-STATEMENTS</span>
     <span class="kw">match</span> <span class="ident">options</span>.<span class="ident">ssl_mode</span> {
         <span class="comment">// FIXME: Implement ALLOW</span>
-        <span class="ident">PgSslMode::Allow</span> <span class="op">|</span> <span class="ident">PgSslMode::Disable</span> <span class="op">=</span><span class="op">&gt;</span> {}
+        <span class="ident">PgSslMode::Allow</span> <span class="op">|</span> <span class="ident">PgSslMode::Disable</span> =&gt; {}
 
-        <span class="ident">PgSslMode::Prefer</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">PgSslMode::Prefer</span> =&gt; {
             <span class="comment">// try upgrade, but its okay if we fail</span>
             <span class="ident">upgrade</span>(<span class="ident">stream</span>, <span class="ident">options</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         }
 
-        <span class="ident">PgSslMode::Require</span> <span class="op">|</span> <span class="ident">PgSslMode::VerifyFull</span> <span class="op">|</span> <span class="ident">PgSslMode::VerifyCa</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">PgSslMode::Require</span> <span class="op">|</span> <span class="ident">PgSslMode::VerifyFull</span> <span class="op">|</span> <span class="ident">PgSslMode::VerifyCa</span> =&gt; {
             <span class="kw">if</span> <span class="op">!</span><span class="ident">upgrade</span>(<span class="ident">stream</span>, <span class="ident">options</span>).<span class="kw">await</span><span class="question-mark">?</span> {
                 <span class="comment">// upgrade failed, die</span>
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::Tls</span>(<span class="string">&quot;server does not support TLS&quot;</span>.<span class="ident">into</span>()));
@@ -108,7 +108,7 @@
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upgrade</span>(<span class="ident">stream</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgStream</span>, <span class="ident">options</span>: <span class="kw-2">&amp;</span><span class="ident">PgConnectOptions</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upgrade</span>(<span class="ident">stream</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgStream</span>, <span class="ident">options</span>: <span class="kw-2">&amp;</span><span class="ident">PgConnectOptions</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="comment">// https://www.postgresql.org/docs/current/protocol-flow.html#id-1.10.5.7.11</span>
 
     <span class="comment">// To initiate an SSL-encrypted connection, the frontend initially sends an</span>
@@ -120,16 +120,16 @@
     <span class="comment">// it is willing or unwilling to perform SSL, respectively.</span>
 
     <span class="kw">match</span> <span class="ident">stream</span>.<span class="ident">read</span>::<span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span>(<span class="number">1</span>).<span class="kw">await</span><span class="question-mark">?</span>[<span class="number">0</span>] {
-        <span class="string">b&#39;S&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="string">b&#39;S&#39;</span> =&gt; {
             <span class="comment">// The server is ready and willing to accept an SSL connection</span>
         }
 
-        <span class="string">b&#39;N&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="string">b&#39;N&#39;</span> =&gt; {
             <span class="comment">// The server is _unwilling_ to perform SSL</span>
             <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>);
         }
 
-        <span class="ident">other</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">other</span> =&gt; {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">err_protocol!</span>(
                 <span class="string">&quot;unexpected response from SSLRequest: 0x{:02x}&quot;</span>,
                 <span class="ident">other</span>

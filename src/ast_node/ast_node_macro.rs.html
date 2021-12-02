@@ -183,12 +183,12 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Parse</span> <span class="kw">for</span> <span class="ident">Args</span> {
-    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">i</span>: <span class="ident">ParseStream</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">i</span>: <span class="ident">ParseStream</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">Args</span> { <span class="ident">ty</span>: <span class="ident">i</span>.<span class="ident">parse</span>()<span class="question-mark">?</span> })
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">expand_struct</span>(<span class="ident">args</span>: <span class="ident">Args</span>, <span class="ident">i</span>: <span class="ident">DeriveInput</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ItemImpl</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">expand_struct</span>(<span class="ident">args</span>: <span class="ident">Args</span>, <span class="ident">i</span>: <span class="ident">DeriveInput</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ItemImpl</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">items</span> <span class="op">=</span> <span class="macro">vec!</span>[];
     <span class="kw">let</span> <span class="ident">generics</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">generics</span>.<span class="ident">clone</span>();
     <span class="comment">// let item_ident = Ident::new(&quot;Item&quot;, i.ident.span());</span>

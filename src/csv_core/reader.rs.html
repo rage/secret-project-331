@@ -2134,7 +2134,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Reader</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Reader</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">Reader</span> {
         <span class="ident">Reader</span> {
             <span class="ident">dfa</span>: <span class="ident">Dfa::new</span>(),
             <span class="ident">dfa_state</span>: <span class="ident">DfaState::start</span>(),
@@ -2166,12 +2166,12 @@
 
 <span class="kw">impl</span> <span class="ident">ReaderBuilder</span> {
     <span class="doccomment">/// Create a new builder.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ReaderBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">ReaderBuilder</span> {
         <span class="ident">ReaderBuilder::default</span>()
     }
 
     <span class="doccomment">/// Build a CSV parser from this configuration.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Reader</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Reader</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rdr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">clone</span>();
         <span class="ident">rdr</span>.<span class="ident">build_dfa</span>();
         <span class="ident">rdr</span>
@@ -2180,7 +2180,7 @@
     <span class="doccomment">/// The field delimiter to use when parsing CSV.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The default is `b&#39;,&#39;`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delimiter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">delimiter</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ReaderBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delimiter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">delimiter</span>: <span class="ident">u8</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ReaderBuilder</span> {
         <span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">delimiter</span> <span class="op">=</span> <span class="ident">delimiter</span>;
         <span class="self">self</span>
     }
@@ -2190,7 +2190,7 @@
     <span class="doccomment">/// A record terminator can be any single byte. The default is a special</span>
     <span class="doccomment">/// value, `Terminator::CRLF`, which treats any occurrence of `\r`, `\n`</span>
     <span class="doccomment">/// or `\r\n` as a single record terminator.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">terminator</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">term</span>: <span class="ident">Terminator</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ReaderBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">terminator</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">term</span>: <span class="ident">Terminator</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ReaderBuilder</span> {
         <span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">term</span> <span class="op">=</span> <span class="ident">term</span>;
         <span class="self">self</span>
     }
@@ -2198,7 +2198,7 @@
     <span class="doccomment">/// The quote character to use when parsing CSV.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The default is `b&#39;&quot;&#39;`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">quote</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">quote</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ReaderBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">quote</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">quote</span>: <span class="ident">u8</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ReaderBuilder</span> {
         <span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">quote</span> <span class="op">=</span> <span class="ident">quote</span>;
         <span class="self">self</span>
     }
@@ -2209,7 +2209,7 @@
     <span class="doccomment">/// character like `\` (instead of escaping quotes by doubling them).</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// By default, recognizing these idiosyncratic escapes is disabled.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">escape</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">escape</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ReaderBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">escape</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">escape</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ReaderBuilder</span> {
         <span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">escape</span> <span class="op">=</span> <span class="ident">escape</span>;
         <span class="self">self</span>
     }
@@ -2218,7 +2218,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is enabled by default, but it may be disabled. When disabled,</span>
     <span class="doccomment">/// doubled quotes are not interpreted as escapes.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">double_quote</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">yes</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ReaderBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">double_quote</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">yes</span>: <span class="ident">bool</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ReaderBuilder</span> {
         <span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">double_quote</span> <span class="op">=</span> <span class="ident">yes</span>;
         <span class="self">self</span>
     }
@@ -2227,7 +2227,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is enabled by default, but it may be disabled. When disabled,</span>
     <span class="doccomment">/// quotes are not treated specially.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">quoting</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">yes</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ReaderBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">quoting</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">yes</span>: <span class="ident">bool</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ReaderBuilder</span> {
         <span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">quoting</span> <span class="op">=</span> <span class="ident">yes</span>;
         <span class="self">self</span>
     }
@@ -2238,7 +2238,7 @@
     <span class="doccomment">/// line is ignored by the CSV parser.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is disabled by default.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">comment</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">comment</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ReaderBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">comment</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">comment</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ReaderBuilder</span> {
         <span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">comment</span> <span class="op">=</span> <span class="ident">comment</span>;
         <span class="self">self</span>
     }
@@ -2248,7 +2248,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This sets the delimiter and record terminator to the ASCII unit</span>
     <span class="doccomment">/// separator (`\x1F`) and record separator (`\x1E`), respectively.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ascii</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ReaderBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ascii</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ReaderBuilder</span> {
         <span class="self">self</span>.<span class="ident">delimiter</span>(<span class="string">b&#39;\x1F&#39;</span>).<span class="ident">terminator</span>(<span class="ident">Terminator::Any</span>(<span class="string">b&#39;\x1E&#39;</span>))
     }
 
@@ -2257,7 +2257,7 @@
     <span class="doccomment">/// This is intended to be a debug option useful for debugging. The NFA</span>
     <span class="doccomment">/// is always slower than the DFA.</span>
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">nfa</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">yes</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ReaderBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">nfa</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">yes</span>: <span class="ident">bool</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ReaderBuilder</span> {
         <span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">use_nfa</span> <span class="op">=</span> <span class="ident">yes</span>;
         <span class="self">self</span>
     }
@@ -2292,16 +2292,16 @@
         <span class="ident">state</span>: <span class="ident">NfaState</span>,
         <span class="ident">inpdone</span>: <span class="ident">bool</span>,
         <span class="ident">outdone</span>: <span class="ident">bool</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ReadFieldResult</span> {
+    ) -&gt; <span class="ident">ReadFieldResult</span> {
         <span class="kw">match</span> <span class="ident">state</span> {
-            <span class="ident">NfaState::End</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ReadFieldResult::End</span>,
-            <span class="ident">NfaState::EndRecord</span> <span class="op">|</span> <span class="ident">NfaState::CRLF</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">NfaState::End</span> =&gt; <span class="ident">ReadFieldResult::End</span>,
+            <span class="ident">NfaState::EndRecord</span> <span class="op">|</span> <span class="ident">NfaState::CRLF</span> =&gt; {
                 <span class="ident">ReadFieldResult::Field</span> { <span class="ident">record_end</span>: <span class="bool-val">true</span> }
             }
-            <span class="ident">NfaState::EndFieldDelim</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">NfaState::EndFieldDelim</span> =&gt; {
                 <span class="ident">ReadFieldResult::Field</span> { <span class="ident">record_end</span>: <span class="bool-val">false</span> }
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="kw">_</span> =&gt; {
                 <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">state</span>.<span class="ident">is_field_final</span>());
                 <span class="kw">if</span> <span class="op">!</span><span class="ident">inpdone</span> <span class="op">&amp;&amp;</span> <span class="ident">outdone</span> {
                     <span class="ident">ReadFieldResult::OutputFull</span>
@@ -2357,8 +2357,8 @@
 }
 
 <span class="kw">impl</span> <span class="ident">ReadRecordResult</span> {
-    <span class="kw">fn</span> <span class="ident">is_record</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ReadRecordResult::Record</span>
+    <span class="kw">fn</span> <span class="ident">is_record</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="kw-2">*</span><span class="self">self</span> <span class="op">==</span> <span class="ident">ReadRecordResult::Record</span>
     }
 
     <span class="kw">fn</span> <span class="ident">from_nfa</span>(
@@ -2366,11 +2366,11 @@
         <span class="ident">inpdone</span>: <span class="ident">bool</span>,
         <span class="ident">outdone</span>: <span class="ident">bool</span>,
         <span class="ident">endsdone</span>: <span class="ident">bool</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ReadRecordResult</span> {
+    ) -&gt; <span class="ident">ReadRecordResult</span> {
         <span class="kw">match</span> <span class="ident">state</span> {
-            <span class="ident">NfaState::End</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ReadRecordResult::End</span>,
-            <span class="ident">NfaState::EndRecord</span> <span class="op">|</span> <span class="ident">NfaState::CRLF</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ReadRecordResult::Record</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">NfaState::End</span> =&gt; <span class="ident">ReadRecordResult::End</span>,
+            <span class="ident">NfaState::EndRecord</span> <span class="op">|</span> <span class="ident">NfaState::CRLF</span> =&gt; <span class="ident">ReadRecordResult::Record</span>,
+            <span class="kw">_</span> =&gt; {
                 <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">state</span>.<span class="ident">is_record_final</span>());
                 <span class="kw">if</span> <span class="op">!</span><span class="ident">inpdone</span> <span class="op">&amp;&amp;</span> <span class="ident">outdone</span> {
                     <span class="ident">ReadRecordResult::OutputFull</span>
@@ -2459,28 +2459,28 @@
 
 <span class="kw">impl</span> <span class="ident">NfaState</span> {
     <span class="doccomment">/// Returns true if this state indicates that a field has been parsed.</span>
-    <span class="kw">fn</span> <span class="ident">is_field_final</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_field_final</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
             <span class="ident">NfaState::End</span>
             <span class="op">|</span> <span class="ident">NfaState::EndRecord</span>
             <span class="op">|</span> <span class="ident">NfaState::CRLF</span>
-            <span class="op">|</span> <span class="ident">NfaState::EndFieldDelim</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="op">|</span> <span class="ident">NfaState::EndFieldDelim</span> =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }
 
     <span class="doccomment">/// Returns true if this state indicates that a record has been parsed.</span>
-    <span class="kw">fn</span> <span class="ident">is_record_final</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_record_final</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">NfaState::End</span> <span class="op">|</span> <span class="ident">NfaState::EndRecord</span> <span class="op">|</span> <span class="ident">NfaState::CRLF</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">NfaState::End</span> <span class="op">|</span> <span class="ident">NfaState::EndRecord</span> <span class="op">|</span> <span class="ident">NfaState::CRLF</span> =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Reader</span> {
     <span class="doccomment">/// Create a new CSV reader with a default parser configuration.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Reader</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">Reader</span> {
         <span class="ident">ReaderBuilder::new</span>().<span class="ident">build</span>()
     }
 
@@ -2498,7 +2498,7 @@
     <span class="doccomment">/// of `\n`.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Line numbers starts at `1` and are reset when `reset` is called.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u64</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u64</span> {
         <span class="self">self</span>.<span class="ident">line</span>
     }
 
@@ -2543,7 +2543,7 @@
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>],
-    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">ReadFieldResult</span>, <span class="ident">usize</span>, <span class="ident">usize</span>) {
+    ) -&gt; (<span class="ident">ReadFieldResult</span>, <span class="ident">usize</span>, <span class="ident">usize</span>) {
         <span class="kw">let</span> (<span class="ident">input</span>, <span class="ident">bom_nin</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">strip_utf8_bom</span>(<span class="ident">input</span>);
         <span class="kw">let</span> (<span class="ident">res</span>, <span class="ident">nin</span>, <span class="ident">nout</span>) <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">use_nfa</span> {
             <span class="self">self</span>.<span class="ident">read_field_nfa</span>(<span class="ident">input</span>, <span class="ident">output</span>)
@@ -2600,7 +2600,7 @@
         <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>],
         <span class="ident">ends</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">usize</span>],
-    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">ReadRecordResult</span>, <span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">usize</span>) {
+    ) -&gt; (<span class="ident">ReadRecordResult</span>, <span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">usize</span>) {
         <span class="kw">let</span> (<span class="ident">input</span>, <span class="ident">bom_nin</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">strip_utf8_bom</span>(<span class="ident">input</span>);
         <span class="kw">let</span> (<span class="ident">res</span>, <span class="ident">nin</span>, <span class="ident">nout</span>, <span class="ident">nend</span>) <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">use_nfa</span> {
             <span class="self">self</span>.<span class="ident">read_record_nfa</span>(<span class="ident">input</span>, <span class="ident">output</span>, <span class="ident">ends</span>)
@@ -2614,11 +2614,11 @@
     <span class="doccomment">/// Strip off a possible UTF-8 BOM at the start of a file. Quick note that</span>
     <span class="doccomment">/// this method will fail to strip off the BOM if only part of the BOM is</span>
     <span class="doccomment">/// buffered. Hopefully that won&#39;t happen very often.</span>
-    <span class="kw">fn</span> <span class="ident">strip_utf8_bom</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>], <span class="ident">usize</span>) {
+    <span class="kw">fn</span> <span class="ident">strip_utf8_bom</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]) -&gt; (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>], <span class="ident">usize</span>) {
         <span class="kw">let</span> (<span class="ident">input</span>, <span class="ident">nin</span>) <span class="op">=</span> <span class="kw">if</span> {
             <span class="op">!</span><span class="self">self</span>.<span class="ident">has_read</span>
                 <span class="op">&amp;&amp;</span> <span class="ident">input</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">3</span>
-                <span class="op">&amp;&amp;</span> <span class="kw-2">&amp;</span><span class="ident">input</span>[<span class="number">0</span>..<span class="number">3</span>] <span class="op">=</span><span class="op">=</span> <span class="string">b&quot;\xef\xbb\xbf&quot;</span>
+                <span class="op">&amp;&amp;</span> <span class="kw-2">&amp;</span><span class="ident">input</span>[<span class="number">0</span>..<span class="number">3</span>] <span class="op">==</span> <span class="string">b&quot;\xef\xbb\xbf&quot;</span>
         } {
             (<span class="kw-2">&amp;</span><span class="ident">input</span>[<span class="number">3</span>..], <span class="number">3</span>)
         } <span class="kw">else</span> {
@@ -2633,7 +2633,7 @@
         <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>],
         <span class="ident">ends</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">usize</span>],
-    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">ReadRecordResult</span>, <span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">usize</span>) {
+    ) -&gt; (<span class="ident">ReadRecordResult</span>, <span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">usize</span>) {
         <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">is_empty</span>() {
             <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">transition_final_dfa</span>(<span class="self">self</span>.<span class="ident">dfa_state</span>);
             <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span>
@@ -2646,7 +2646,7 @@
             <span class="comment">// where `ends` doesn&#39;t have enough space. If it doesn&#39;t have</span>
             <span class="comment">// enough space, then we also can&#39;t transition to the next state.</span>
             <span class="kw">return</span> <span class="kw">match</span> <span class="ident">res</span> {
-                <span class="ident">ReadRecordResult::Record</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">ReadRecordResult::Record</span> =&gt; {
                     <span class="kw">if</span> <span class="ident">ends</span>.<span class="ident">is_empty</span>() {
                         <span class="kw">return</span> (<span class="ident">ReadRecordResult::OutputEndsFull</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>);
                     }
@@ -2655,7 +2655,7 @@
                     <span class="self">self</span>.<span class="ident">output_pos</span> <span class="op">=</span> <span class="number">0</span>;
                     (<span class="ident">res</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>)
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">_</span> =&gt; {
                     <span class="self">self</span>.<span class="ident">dfa_state</span> <span class="op">=</span> <span class="ident">s</span>;
                     (<span class="ident">res</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>)
                 }
@@ -2671,7 +2671,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">dfa_state</span>;
         <span class="kw">while</span> <span class="ident">nin</span> <span class="op">&lt;</span> <span class="ident">input</span>.<span class="ident">len</span>() <span class="op">&amp;&amp;</span> <span class="ident">nout</span> <span class="op">&lt;</span> <span class="ident">output</span>.<span class="ident">len</span>() <span class="op">&amp;&amp;</span> <span class="ident">nend</span> <span class="op">&lt;</span> <span class="ident">ends</span>.<span class="ident">len</span>() {
             <span class="kw">let</span> (<span class="ident">s</span>, <span class="ident">has_out</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">dfa</span>.<span class="ident">get_output</span>(<span class="ident">state</span>, <span class="ident">input</span>[<span class="ident">nin</span>]);
-            <span class="self">self</span>.<span class="ident">line</span> <span class="op">+</span><span class="op">=</span> (<span class="ident">input</span>[<span class="ident">nin</span>] <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;\n&#39;</span>) <span class="kw">as</span> <span class="ident">u64</span>;
+            <span class="self">self</span>.<span class="ident">line</span> <span class="op">+</span><span class="op">=</span> (<span class="ident">input</span>[<span class="ident">nin</span>] <span class="op">==</span> <span class="string">b&#39;\n&#39;</span>) <span class="kw">as</span> <span class="ident">u64</span>;
             <span class="ident">state</span> <span class="op">=</span> <span class="ident">s</span>;
             <span class="kw">if</span> <span class="ident">has_out</span> {
                 <span class="ident">output</span>[<span class="ident">nout</span>] <span class="op">=</span> <span class="ident">input</span>[<span class="ident">nin</span>];
@@ -2685,7 +2685,7 @@
                     <span class="kw">break</span>;
                 }
             }
-            <span class="kw">if</span> <span class="ident">state</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">dfa</span>.<span class="ident">in_field</span> <span class="op">|</span><span class="op">|</span> <span class="ident">state</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">dfa</span>.<span class="ident">in_quoted</span> {
+            <span class="kw">if</span> <span class="ident">state</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">dfa</span>.<span class="ident">in_field</span> <span class="op">|</span><span class="op">|</span> <span class="ident">state</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">dfa</span>.<span class="ident">in_quoted</span> {
                 <span class="self">self</span>.<span class="ident">dfa</span>
                     .<span class="ident">classes</span>
                     .<span class="ident">scan_and_copy</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">nin</span>, <span class="ident">output</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">nout</span>);
@@ -2712,7 +2712,7 @@
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>],
-    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">ReadFieldResult</span>, <span class="ident">usize</span>, <span class="ident">usize</span>) {
+    ) -&gt; (<span class="ident">ReadFieldResult</span>, <span class="ident">usize</span>, <span class="ident">usize</span>) {
         <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">is_empty</span>() {
             <span class="self">self</span>.<span class="ident">dfa_state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">transition_final_dfa</span>(<span class="self">self</span>.<span class="ident">dfa_state</span>);
             <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">dfa</span>.<span class="ident">new_read_field_result</span>(
@@ -2730,7 +2730,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">dfa_state</span>;
         <span class="kw">while</span> <span class="ident">nin</span> <span class="op">&lt;</span> <span class="ident">input</span>.<span class="ident">len</span>() <span class="op">&amp;&amp;</span> <span class="ident">nout</span> <span class="op">&lt;</span> <span class="ident">output</span>.<span class="ident">len</span>() {
             <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">input</span>[<span class="ident">nin</span>];
-            <span class="self">self</span>.<span class="ident">line</span> <span class="op">+</span><span class="op">=</span> (<span class="ident">b</span> <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;\n&#39;</span>) <span class="kw">as</span> <span class="ident">u64</span>;
+            <span class="self">self</span>.<span class="ident">line</span> <span class="op">+</span><span class="op">=</span> (<span class="ident">b</span> <span class="op">==</span> <span class="string">b&#39;\n&#39;</span>) <span class="kw">as</span> <span class="ident">u64</span>;
             <span class="kw">let</span> (<span class="ident">s</span>, <span class="ident">has_out</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">dfa</span>.<span class="ident">get_output</span>(<span class="ident">state</span>, <span class="ident">b</span>);
             <span class="ident">state</span> <span class="op">=</span> <span class="ident">s</span>;
             <span class="kw">if</span> <span class="ident">has_out</span> {
@@ -2754,7 +2754,7 @@
 
     <span class="doccomment">/// Perform the final state transition, i.e., when the caller indicates</span>
     <span class="doccomment">/// that the input has been exhausted.</span>
-    <span class="kw">fn</span> <span class="ident">transition_final_dfa</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">state</span>: <span class="ident">DfaState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DfaState</span> {
+    <span class="kw">fn</span> <span class="ident">transition_final_dfa</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">state</span>: <span class="ident">DfaState</span>) -&gt; <span class="ident">DfaState</span> {
         <span class="comment">// If we&#39;&#39;ve already emitted a record or think we&#39;re ready to start</span>
         <span class="comment">// parsing a new record, then we should sink into the final state</span>
         <span class="comment">// and never move from there. (pro-tip: the start state doubles as</span>
@@ -2818,12 +2818,12 @@
             <span class="self">self</span>.<span class="ident">dfa</span>.<span class="ident">classes</span>.<span class="ident">add</span>(<span class="ident">comment</span>);
         }
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">term</span> {
-            <span class="ident">Terminator::Any</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">dfa</span>.<span class="ident">classes</span>.<span class="ident">add</span>(<span class="ident">b</span>),
-            <span class="ident">Terminator::CRLF</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Terminator::Any</span>(<span class="ident">b</span>) =&gt; <span class="self">self</span>.<span class="ident">dfa</span>.<span class="ident">classes</span>.<span class="ident">add</span>(<span class="ident">b</span>),
+            <span class="ident">Terminator::CRLF</span> =&gt; {
                 <span class="self">self</span>.<span class="ident">dfa</span>.<span class="ident">classes</span>.<span class="ident">add</span>(<span class="string">b&#39;\r&#39;</span>);
                 <span class="self">self</span>.<span class="ident">dfa</span>.<span class="ident">classes</span>.<span class="ident">add</span>(<span class="string">b&#39;\n&#39;</span>);
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
         }
         <span class="comment">// Build the DFA transition table by computing the DFA state for all</span>
         <span class="comment">// possible combinations of state and input byte.</span>
@@ -2832,7 +2832,7 @@
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nfa_result</span> <span class="op">=</span> (<span class="ident">state</span>, <span class="ident">NfaInputAction::Epsilon</span>);
                 <span class="comment">// Consume NFA states until we hit a non-epsilon transition.</span>
                 <span class="kw">while</span> <span class="ident">nfa_result</span>.<span class="number">0</span> <span class="op">!</span><span class="op">=</span> <span class="ident">NfaState::End</span>
-                    <span class="op">&amp;&amp;</span> <span class="ident">nfa_result</span>.<span class="number">1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">NfaInputAction::Epsilon</span>
+                    <span class="op">&amp;&amp;</span> <span class="ident">nfa_result</span>.<span class="number">1</span> <span class="op">==</span> <span class="ident">NfaInputAction::Epsilon</span>
                 {
                     <span class="ident">nfa_result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">transition_nfa</span>(<span class="ident">nfa_result</span>.<span class="number">0</span>, <span class="ident">c</span>);
                 }
@@ -2842,7 +2842,7 @@
                     <span class="ident">from</span>,
                     <span class="ident">c</span>,
                     <span class="ident">to</span>,
-                    <span class="ident">nfa_result</span>.<span class="number">1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">NfaInputAction::CopyToOutput</span>,
+                    <span class="ident">nfa_result</span>.<span class="number">1</span> <span class="op">==</span> <span class="ident">NfaInputAction::CopyToOutput</span>,
                 );
             }
         }
@@ -2861,12 +2861,12 @@
         <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>],
         <span class="ident">ends</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">usize</span>],
-    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">ReadRecordResult</span>, <span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">usize</span>) {
+    ) -&gt; (<span class="ident">ReadRecordResult</span>, <span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">usize</span>) {
         <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">is_empty</span>() {
             <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">transition_final_nfa</span>(<span class="self">self</span>.<span class="ident">nfa_state</span>);
             <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">ReadRecordResult::from_nfa</span>(<span class="ident">s</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>);
             <span class="kw">return</span> <span class="kw">match</span> <span class="ident">res</span> {
-                <span class="ident">ReadRecordResult::Record</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">ReadRecordResult::Record</span> =&gt; {
                     <span class="kw">if</span> <span class="ident">ends</span>.<span class="ident">is_empty</span>() {
                         <span class="kw">return</span> (<span class="ident">ReadRecordResult::OutputEndsFull</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>);
                     }
@@ -2875,7 +2875,7 @@
                     <span class="self">self</span>.<span class="ident">output_pos</span> <span class="op">=</span> <span class="number">0</span>;
                     (<span class="ident">res</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>)
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">_</span> =&gt; {
                     <span class="self">self</span>.<span class="ident">nfa_state</span> <span class="op">=</span> <span class="ident">s</span>;
                     (<span class="ident">res</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>)
                 }
@@ -2892,15 +2892,15 @@
         <span class="kw">while</span> <span class="ident">nin</span> <span class="op">&lt;</span> <span class="ident">input</span>.<span class="ident">len</span>() <span class="op">&amp;&amp;</span> <span class="ident">nout</span> <span class="op">&lt;</span> <span class="ident">output</span>.<span class="ident">len</span>() <span class="op">&amp;&amp;</span> <span class="ident">nend</span> <span class="op">&lt;</span> <span class="ident">ends</span>.<span class="ident">len</span>() {
             <span class="kw">let</span> (<span class="ident">s</span>, <span class="ident">io</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">transition_nfa</span>(<span class="ident">state</span>, <span class="ident">input</span>[<span class="ident">nin</span>]);
             <span class="kw">match</span> <span class="ident">io</span> {
-                <span class="ident">NfaInputAction::CopyToOutput</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">NfaInputAction::CopyToOutput</span> =&gt; {
                     <span class="ident">output</span>[<span class="ident">nout</span>] <span class="op">=</span> <span class="ident">input</span>[<span class="ident">nin</span>];
                     <span class="ident">nout</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                     <span class="ident">nin</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                 }
-                <span class="ident">NfaInputAction::Discard</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">NfaInputAction::Discard</span> =&gt; {
                     <span class="ident">nin</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                 }
-                <span class="ident">NfaInputAction::Epsilon</span> <span class="op">=</span><span class="op">&gt;</span> {}
+                <span class="ident">NfaInputAction::Epsilon</span> =&gt; {}
             }
             <span class="ident">state</span> <span class="op">=</span> <span class="ident">s</span>;
             <span class="kw">if</span> <span class="ident">state</span>.<span class="ident">is_field_final</span>() {
@@ -2927,7 +2927,7 @@
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>],
-    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">ReadFieldResult</span>, <span class="ident">usize</span>, <span class="ident">usize</span>) {
+    ) -&gt; (<span class="ident">ReadFieldResult</span>, <span class="ident">usize</span>, <span class="ident">usize</span>) {
         <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">is_empty</span>() {
             <span class="self">self</span>.<span class="ident">nfa_state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">transition_final_nfa</span>(<span class="self">self</span>.<span class="ident">nfa_state</span>);
             <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">ReadFieldResult::from_nfa</span>(<span class="self">self</span>.<span class="ident">nfa_state</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>);
@@ -2943,15 +2943,15 @@
         <span class="kw">while</span> <span class="ident">nin</span> <span class="op">&lt;</span> <span class="ident">input</span>.<span class="ident">len</span>() <span class="op">&amp;&amp;</span> <span class="ident">nout</span> <span class="op">&lt;</span> <span class="ident">output</span>.<span class="ident">len</span>() {
             <span class="kw">let</span> (<span class="ident">s</span>, <span class="ident">io</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">transition_nfa</span>(<span class="ident">state</span>, <span class="ident">input</span>[<span class="ident">nin</span>]);
             <span class="kw">match</span> <span class="ident">io</span> {
-                <span class="ident">NfaInputAction::CopyToOutput</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">NfaInputAction::CopyToOutput</span> =&gt; {
                     <span class="ident">output</span>[<span class="ident">nout</span>] <span class="op">=</span> <span class="ident">input</span>[<span class="ident">nin</span>];
                     <span class="ident">nout</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                     <span class="ident">nin</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                 }
-                <span class="ident">NfaInputAction::Discard</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">NfaInputAction::Discard</span> =&gt; {
                     <span class="ident">nin</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                 }
-                <span class="ident">NfaInputAction::Epsilon</span> <span class="op">=</span><span class="op">&gt;</span> (),
+                <span class="ident">NfaInputAction::Epsilon</span> =&gt; (),
             }
             <span class="ident">state</span> <span class="op">=</span> <span class="ident">s</span>;
             <span class="kw">if</span> <span class="ident">state</span>.<span class="ident">is_field_final</span>() {
@@ -2970,13 +2970,13 @@
     <span class="doccomment">/// Compute the final NFA transition after all caller-provided input has</span>
     <span class="doccomment">/// been exhausted.</span>
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">transition_final_nfa</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">state</span>: <span class="ident">NfaState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">NfaState</span> {
+    <span class="kw">fn</span> <span class="ident">transition_final_nfa</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">state</span>: <span class="ident">NfaState</span>) -&gt; <span class="ident">NfaState</span> {
         <span class="kw">use</span> <span class="ident"><span class="self">self</span>::NfaState</span>::<span class="kw-2">*</span>;
         <span class="kw">match</span> <span class="ident">state</span> {
-            <span class="ident">End</span> <span class="op">|</span> <span class="ident">StartRecord</span> <span class="op">|</span> <span class="ident">EndRecord</span> <span class="op">|</span> <span class="ident">InComment</span> <span class="op">|</span> <span class="ident">CRLF</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">End</span>,
+            <span class="ident">End</span> <span class="op">|</span> <span class="ident">StartRecord</span> <span class="op">|</span> <span class="ident">EndRecord</span> <span class="op">|</span> <span class="ident">InComment</span> <span class="op">|</span> <span class="ident">CRLF</span> =&gt; <span class="ident">End</span>,
             <span class="ident">StartField</span> <span class="op">|</span> <span class="ident">EndFieldDelim</span> <span class="op">|</span> <span class="ident">EndFieldTerm</span> <span class="op">|</span> <span class="ident">InField</span>
             <span class="op">|</span> <span class="ident">InQuotedField</span> <span class="op">|</span> <span class="ident">InEscapedQuote</span> <span class="op">|</span> <span class="ident">InDoubleEscapedQuote</span>
-            <span class="op">|</span> <span class="ident">InRecordTerm</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">EndRecord</span>,
+            <span class="op">|</span> <span class="ident">InRecordTerm</span> =&gt; <span class="ident">EndRecord</span>,
         }
     }
 
@@ -2991,24 +2991,24 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">state</span>: <span class="ident">NfaState</span>,
         <span class="ident">c</span>: <span class="ident">u8</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">NfaState</span>, <span class="ident">NfaInputAction</span>) {
+    ) -&gt; (<span class="ident">NfaState</span>, <span class="ident">NfaInputAction</span>) {
         <span class="kw">use</span> <span class="ident"><span class="self">self</span>::NfaState</span>::<span class="kw-2">*</span>;
         <span class="kw">match</span> <span class="ident">state</span> {
-            <span class="ident">End</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">End</span>, <span class="ident">NfaInputAction::Epsilon</span>),
-            <span class="ident">StartRecord</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">End</span> =&gt; (<span class="ident">End</span>, <span class="ident">NfaInputAction::Epsilon</span>),
+            <span class="ident">StartRecord</span> =&gt; {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">term</span>.<span class="ident">equals</span>(<span class="ident">c</span>) {
                     (<span class="ident">StartRecord</span>, <span class="ident">NfaInputAction::Discard</span>)
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">comment</span> <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) {
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">comment</span> <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) {
                     (<span class="ident">InComment</span>, <span class="ident">NfaInputAction::Discard</span>)
                 } <span class="kw">else</span> {
                     (<span class="ident">StartField</span>, <span class="ident">NfaInputAction::Epsilon</span>)
                 }
             }
-            <span class="ident">EndRecord</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">StartRecord</span>, <span class="ident">NfaInputAction::Epsilon</span>),
-            <span class="ident">StartField</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">quoting</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">quote</span> <span class="op">=</span><span class="op">=</span> <span class="ident">c</span> {
+            <span class="ident">EndRecord</span> =&gt; (<span class="ident">StartRecord</span>, <span class="ident">NfaInputAction::Epsilon</span>),
+            <span class="ident">StartField</span> =&gt; {
+                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">quoting</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">quote</span> <span class="op">==</span> <span class="ident">c</span> {
                     (<span class="ident">InQuotedField</span>, <span class="ident">NfaInputAction::Discard</span>)
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">delimiter</span> <span class="op">=</span><span class="op">=</span> <span class="ident">c</span> {
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">delimiter</span> <span class="op">==</span> <span class="ident">c</span> {
                     (<span class="ident">EndFieldDelim</span>, <span class="ident">NfaInputAction::Discard</span>)
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">term</span>.<span class="ident">equals</span>(<span class="ident">c</span>) {
                     (<span class="ident">EndFieldTerm</span>, <span class="ident">NfaInputAction::Epsilon</span>)
@@ -3016,10 +3016,10 @@
                     (<span class="ident">InField</span>, <span class="ident">NfaInputAction::CopyToOutput</span>)
                 }
             }
-            <span class="ident">EndFieldDelim</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">StartField</span>, <span class="ident">NfaInputAction::Epsilon</span>),
-            <span class="ident">EndFieldTerm</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">InRecordTerm</span>, <span class="ident">NfaInputAction::Epsilon</span>),
-            <span class="ident">InField</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">delimiter</span> <span class="op">=</span><span class="op">=</span> <span class="ident">c</span> {
+            <span class="ident">EndFieldDelim</span> =&gt; (<span class="ident">StartField</span>, <span class="ident">NfaInputAction::Epsilon</span>),
+            <span class="ident">EndFieldTerm</span> =&gt; (<span class="ident">InRecordTerm</span>, <span class="ident">NfaInputAction::Epsilon</span>),
+            <span class="ident">InField</span> =&gt; {
+                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">delimiter</span> <span class="op">==</span> <span class="ident">c</span> {
                     (<span class="ident">EndFieldDelim</span>, <span class="ident">NfaInputAction::Discard</span>)
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">term</span>.<span class="ident">equals</span>(<span class="ident">c</span>) {
                     (<span class="ident">EndFieldTerm</span>, <span class="ident">NfaInputAction::Epsilon</span>)
@@ -3027,20 +3027,20 @@
                     (<span class="ident">InField</span>, <span class="ident">NfaInputAction::CopyToOutput</span>)
                 }
             }
-            <span class="ident">InQuotedField</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">quoting</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">quote</span> <span class="op">=</span><span class="op">=</span> <span class="ident">c</span> {
+            <span class="ident">InQuotedField</span> =&gt; {
+                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">quoting</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">quote</span> <span class="op">==</span> <span class="ident">c</span> {
                     (<span class="ident">InDoubleEscapedQuote</span>, <span class="ident">NfaInputAction::Discard</span>)
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">quoting</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">escape</span> <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) {
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">quoting</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">escape</span> <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) {
                     (<span class="ident">InEscapedQuote</span>, <span class="ident">NfaInputAction::Discard</span>)
                 } <span class="kw">else</span> {
                     (<span class="ident">InQuotedField</span>, <span class="ident">NfaInputAction::CopyToOutput</span>)
                 }
             }
-            <span class="ident">InEscapedQuote</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">InQuotedField</span>, <span class="ident">NfaInputAction::CopyToOutput</span>),
-            <span class="ident">InDoubleEscapedQuote</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">quoting</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">double_quote</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">quote</span> <span class="op">=</span><span class="op">=</span> <span class="ident">c</span> {
+            <span class="ident">InEscapedQuote</span> =&gt; (<span class="ident">InQuotedField</span>, <span class="ident">NfaInputAction::CopyToOutput</span>),
+            <span class="ident">InDoubleEscapedQuote</span> =&gt; {
+                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">quoting</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">double_quote</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">quote</span> <span class="op">==</span> <span class="ident">c</span> {
                     (<span class="ident">InQuotedField</span>, <span class="ident">NfaInputAction::CopyToOutput</span>)
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">delimiter</span> <span class="op">=</span><span class="op">=</span> <span class="ident">c</span> {
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">delimiter</span> <span class="op">==</span> <span class="ident">c</span> {
                     (<span class="ident">EndFieldDelim</span>, <span class="ident">NfaInputAction::Discard</span>)
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">term</span>.<span class="ident">equals</span>(<span class="ident">c</span>) {
                     (<span class="ident">EndFieldTerm</span>, <span class="ident">NfaInputAction::Epsilon</span>)
@@ -3048,22 +3048,22 @@
                     (<span class="ident">InField</span>, <span class="ident">NfaInputAction::CopyToOutput</span>)
                 }
             }
-            <span class="ident">InComment</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="string">b&#39;\n&#39;</span> <span class="op">=</span><span class="op">=</span> <span class="ident">c</span> {
+            <span class="ident">InComment</span> =&gt; {
+                <span class="kw">if</span> <span class="string">b&#39;\n&#39;</span> <span class="op">==</span> <span class="ident">c</span> {
                     (<span class="ident">StartRecord</span>, <span class="ident">NfaInputAction::Discard</span>)
                 } <span class="kw">else</span> {
                     (<span class="ident">InComment</span>, <span class="ident">NfaInputAction::Discard</span>)
                 }
             }
-            <span class="ident">InRecordTerm</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">term</span>.<span class="ident">is_crlf</span>() <span class="op">&amp;&amp;</span> <span class="string">b&#39;\r&#39;</span> <span class="op">=</span><span class="op">=</span> <span class="ident">c</span> {
+            <span class="ident">InRecordTerm</span> =&gt; {
+                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">term</span>.<span class="ident">is_crlf</span>() <span class="op">&amp;&amp;</span> <span class="string">b&#39;\r&#39;</span> <span class="op">==</span> <span class="ident">c</span> {
                     (<span class="ident">CRLF</span>, <span class="ident">NfaInputAction::Discard</span>)
                 } <span class="kw">else</span> {
                     (<span class="ident">EndRecord</span>, <span class="ident">NfaInputAction::Discard</span>)
                 }
             }
-            <span class="ident">CRLF</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="string">b&#39;\n&#39;</span> <span class="op">=</span><span class="op">=</span> <span class="ident">c</span> {
+            <span class="ident">CRLF</span> =&gt; {
+                <span class="kw">if</span> <span class="string">b&#39;\n&#39;</span> <span class="op">==</span> <span class="ident">c</span> {
                     (<span class="ident">StartRecord</span>, <span class="ident">NfaInputAction::Discard</span>)
                 } <span class="kw">else</span> {
                     (<span class="ident">StartRecord</span>, <span class="ident">NfaInputAction::Epsilon</span>)
@@ -3133,7 +3133,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Dfa</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Dfa</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">Dfa</span> {
         <span class="ident">Dfa</span> {
             <span class="ident">trans</span>: [<span class="ident">DfaState</span>(<span class="number">0</span>); <span class="ident">TRANS_SIZE</span>],
             <span class="ident">has_output</span>: [<span class="bool-val">false</span>; <span class="ident">TRANS_SIZE</span>],
@@ -3145,21 +3145,21 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">nfa_state</span>: <span class="ident">NfaState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DfaState</span> {
+    <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">nfa_state</span>: <span class="ident">NfaState</span>) -&gt; <span class="ident">DfaState</span> {
         <span class="kw">let</span> <span class="ident">nclasses</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">classes</span>.<span class="ident">num_classes</span>() <span class="kw">as</span> <span class="ident">u8</span>;
         <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> (<span class="ident">nfa_state</span> <span class="kw">as</span> <span class="ident">u8</span>).<span class="ident">checked_mul</span>(<span class="ident">nclasses</span>).<span class="ident">unwrap</span>();
         <span class="ident">DfaState</span>(<span class="ident">idx</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">new_state_final_end</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DfaState</span> {
+    <span class="kw">fn</span> <span class="ident">new_state_final_end</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">DfaState</span> {
         <span class="self">self</span>.<span class="ident">new_state</span>(<span class="ident">NfaState::StartRecord</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">new_state_final_record</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DfaState</span> {
+    <span class="kw">fn</span> <span class="ident">new_state_final_record</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">DfaState</span> {
         <span class="self">self</span>.<span class="ident">new_state</span>(<span class="ident">NfaState::EndRecord</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">get_output</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">state</span>: <span class="ident">DfaState</span>, <span class="ident">c</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">DfaState</span>, <span class="ident">bool</span>) {
+    <span class="kw">fn</span> <span class="ident">get_output</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">state</span>: <span class="ident">DfaState</span>, <span class="ident">c</span>: <span class="ident">u8</span>) -&gt; (<span class="ident">DfaState</span>, <span class="ident">bool</span>) {
         <span class="kw">let</span> <span class="ident">cls</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">classes</span>.<span class="ident">classes</span>[<span class="ident">c</span> <span class="kw">as</span> <span class="ident">usize</span>];
         <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">state</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">+</span> <span class="ident">cls</span> <span class="kw">as</span> <span class="ident">usize</span>;
         (<span class="self">self</span>.<span class="ident">trans</span>[<span class="ident">idx</span>], <span class="self">self</span>.<span class="ident">has_output</span>[<span class="ident">idx</span>])
@@ -3185,10 +3185,10 @@
         <span class="ident">is_final_trans</span>: <span class="ident">bool</span>,
         <span class="ident">inpdone</span>: <span class="ident">bool</span>,
         <span class="ident">outdone</span>: <span class="ident">bool</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ReadFieldResult</span> {
+    ) -&gt; <span class="ident">ReadFieldResult</span> {
         <span class="kw">if</span> <span class="ident">state</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">final_record</span> {
             <span class="ident">ReadFieldResult::Field</span> { <span class="ident">record_end</span>: <span class="bool-val">true</span> }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">state</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">final_field</span> {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">state</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">final_field</span> {
             <span class="ident">ReadFieldResult::Field</span> { <span class="ident">record_end</span>: <span class="bool-val">false</span> }
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">is_final_trans</span> <span class="op">&amp;&amp;</span> <span class="ident">state</span>.<span class="ident">is_start</span>() {
             <span class="ident">ReadFieldResult::End</span>
@@ -3209,7 +3209,7 @@
         <span class="ident">inpdone</span>: <span class="ident">bool</span>,
         <span class="ident">outdone</span>: <span class="ident">bool</span>,
         <span class="ident">endsdone</span>: <span class="ident">bool</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ReadRecordResult</span> {
+    ) -&gt; <span class="ident">ReadRecordResult</span> {
         <span class="kw">if</span> <span class="ident">state</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">final_record</span> {
             <span class="ident">ReadRecordResult::Record</span>
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">is_final_trans</span> <span class="op">&amp;&amp;</span> <span class="ident">state</span>.<span class="ident">is_start</span>() {
@@ -3234,7 +3234,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">DfaClasses</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DfaClasses</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">DfaClasses</span> {
         <span class="ident">DfaClasses</span> { <span class="ident">classes</span>: [<span class="number">0</span>; <span class="ident">CLASS_SIZE</span>], <span class="ident">next_class</span>: <span class="number">1</span> }
     }
 
@@ -3246,7 +3246,7 @@
         <span class="self">self</span>.<span class="ident">next_class</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">next_class</span> <span class="op">+</span> <span class="number">1</span>;
     }
 
-    <span class="kw">fn</span> <span class="ident">num_classes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">fn</span> <span class="ident">num_classes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">next_class</span> <span class="kw">as</span> <span class="ident">usize</span>
     }
 
@@ -3270,7 +3270,7 @@
     ) {
         <span class="kw">while</span> <span class="kw-2">*</span><span class="ident">nin</span> <span class="op">&lt;</span> <span class="ident">input</span>.<span class="ident">len</span>()
             <span class="op">&amp;&amp;</span> <span class="kw-2">*</span><span class="ident">nout</span> <span class="op">&lt;</span> <span class="ident">output</span>.<span class="ident">len</span>()
-            <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">classes</span>[<span class="ident">input</span>[<span class="kw-2">*</span><span class="ident">nin</span>] <span class="kw">as</span> <span class="ident">usize</span>] <span class="op">=</span><span class="op">=</span> <span class="number">0</span>
+            <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">classes</span>[<span class="ident">input</span>[<span class="kw-2">*</span><span class="ident">nin</span>] <span class="kw">as</span> <span class="ident">usize</span>] <span class="op">==</span> <span class="number">0</span>
         {
             <span class="ident">output</span>[<span class="kw-2">*</span><span class="ident">nout</span>] <span class="op">=</span> <span class="ident">input</span>[<span class="kw-2">*</span><span class="ident">nin</span>];
             <span class="kw-2">*</span><span class="ident">nin</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
@@ -3289,23 +3289,23 @@
 <span class="kw">struct</span> <span class="ident">DfaState</span>(<span class="ident">u8</span>);
 
 <span class="kw">impl</span> <span class="ident">DfaState</span> {
-    <span class="kw">fn</span> <span class="ident">start</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DfaState</span> {
+    <span class="kw">fn</span> <span class="ident">start</span>() -&gt; <span class="ident">DfaState</span> {
         <span class="ident">DfaState</span>(<span class="number">0</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">is_start</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="number">0</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>
+    <span class="kw">fn</span> <span class="ident">is_start</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="number">0</span> <span class="op">==</span> <span class="number">0</span>
     }
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Dfa</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Dfa(N/A)&quot;</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">DfaClasses</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="macro">write!</span>(
             <span class="ident">f</span>,
             <span class="string">&quot;DfaClasses {{ classes: N/A, next_class: {:?} }}&quot;</span>,
@@ -3315,7 +3315,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">Dfa</span> {
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Dfa</span> {
+    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Dfa</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dfa</span> <span class="op">=</span> <span class="ident">Dfa::new</span>();
         <span class="ident">dfa</span>.<span class="ident">trans</span>.<span class="ident">copy_from_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">trans</span>);
         <span class="ident">dfa</span>
@@ -3323,7 +3323,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">DfaClasses</span> {
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DfaClasses</span> {
+    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">DfaClasses</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">DfaClasses::new</span>();
         <span class="ident">x</span>.<span class="ident">classes</span>.<span class="ident">copy_from_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">classes</span>);
         <span class="ident">x</span>
@@ -3343,14 +3343,14 @@
     <span class="kw">type</span> <span class="ident">Field</span> <span class="op">=</span> <span class="ident">ArrayString</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">10</span>]<span class="op">&gt;</span>;
 
     <span class="comment">// OMG I HATE BYTE STRING LITERALS SO MUCH.</span>
-    <span class="kw">fn</span> <span class="ident">b</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
+    <span class="kw">fn</span> <span class="ident">b</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
         <span class="ident">s</span>.<span class="ident">as_bytes</span>()
     }
 
     <span class="macro">macro_rules!</span> <span class="ident">csv</span> {
-        ($([$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">field</span>:<span class="ident">expr</span>),<span class="kw-2">*</span>]),<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+        ($([$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">field</span>:<span class="ident">expr</span>),<span class="kw-2">*</span>]),<span class="kw-2">*</span>) =&gt; {{
             <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_mut</span>)]</span>
-            <span class="kw">fn</span> <span class="ident">x</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Csv</span> {
+            <span class="kw">fn</span> <span class="ident">x</span>() -&gt; <span class="ident">Csv</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">csv</span> <span class="op">=</span> <span class="ident">Csv::new</span>();
                 $(
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Row::new</span>();
@@ -3366,10 +3366,10 @@
     }
 
     <span class="macro">macro_rules!</span> <span class="ident">parses_to</span> {
-        (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">data</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">expected</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">data</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">expected</span>:<span class="ident">expr</span>) =&gt; {
             <span class="macro">parses_to!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">data</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">expected</span>, <span class="op">|</span><span class="ident">builder</span><span class="op">|</span> <span class="ident">builder</span>);
         };
-        (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">data</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">expected</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">config</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">data</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">expected</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">config</span>:<span class="ident">expr</span>) =&gt; {
             <span class="attribute">#[<span class="ident">test</span>]</span>
             <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>() {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">ReaderBuilder::new</span>();
@@ -3405,7 +3405,7 @@
         };
     }
 
-    <span class="kw">fn</span> <span class="ident">parse_by_field</span>(<span class="ident">rdr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Reader</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Csv</span> {
+    <span class="kw">fn</span> <span class="ident">parse_by_field</span>(<span class="ident">rdr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Reader</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Csv</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">as_bytes</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">field</span> <span class="op">=</span> [<span class="number">0u8</span>; <span class="number">10</span>];
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">csv</span> <span class="op">=</span> <span class="ident">Csv::new</span>();
@@ -3417,13 +3417,13 @@
             <span class="ident">outpos</span> <span class="op">+</span><span class="op">=</span> <span class="ident">nout</span>;
 
             <span class="kw">match</span> <span class="ident">res</span> {
-                <span class="ident">ReadFieldResult::InputEmpty</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">ReadFieldResult::InputEmpty</span> =&gt; {
                     <span class="kw">if</span> <span class="op">!</span><span class="ident">data</span>.<span class="ident">is_empty</span>() {
                         <span class="macro">panic!</span>(<span class="string">&quot;missing input data&quot;</span>)
                     }
                 }
-                <span class="ident">ReadFieldResult::OutputFull</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;field too large&quot;</span>),
-                <span class="ident">ReadFieldResult::Field</span> { <span class="ident">record_end</span> } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">ReadFieldResult::OutputFull</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;field too large&quot;</span>),
+                <span class="ident">ReadFieldResult::Field</span> { <span class="ident">record_end</span> } =&gt; {
                     <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">str::from_utf8</span>(<span class="kw-2">&amp;</span><span class="ident">field</span>[..<span class="ident">outpos</span>]).<span class="ident">unwrap</span>();
                     <span class="ident">row</span>.<span class="ident">push</span>(<span class="ident">Field::from</span>(<span class="ident">s</span>).<span class="ident">unwrap</span>());
                     <span class="ident">outpos</span> <span class="op">=</span> <span class="number">0</span>;
@@ -3432,14 +3432,14 @@
                         <span class="ident">row</span> <span class="op">=</span> <span class="ident">Row::new</span>();
                     }
                 }
-                <span class="ident">ReadFieldResult::End</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">ReadFieldResult::End</span> =&gt; {
                     <span class="kw">return</span> <span class="ident">csv</span>;
                 }
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">parse_by_record</span>(<span class="ident">rdr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Reader</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Csv</span> {
+    <span class="kw">fn</span> <span class="ident">parse_by_record</span>(<span class="ident">rdr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Reader</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Csv</span> {
         <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ReadRecordResult</span>::<span class="kw-2">*</span>;
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">as_bytes</span>();
@@ -3459,14 +3459,14 @@
             <span class="ident">endpos</span> <span class="op">+</span><span class="op">=</span> <span class="ident">nend</span>;
 
             <span class="kw">match</span> <span class="ident">res</span> {
-                <span class="ident">InputEmpty</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">InputEmpty</span> =&gt; {
                     <span class="kw">if</span> <span class="op">!</span><span class="ident">data</span>.<span class="ident">is_empty</span>() {
                         <span class="macro">panic!</span>(<span class="string">&quot;missing input data&quot;</span>)
                     }
                 }
-                <span class="ident">OutputFull</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;record too large (out buffer)&quot;</span>),
-                <span class="ident">OutputEndsFull</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;record too large (end buffer)&quot;</span>),
-                <span class="ident">Record</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">OutputFull</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;record too large (out buffer)&quot;</span>),
+                <span class="ident">OutputEndsFull</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;record too large (end buffer)&quot;</span>),
+                <span class="ident">Record</span> =&gt; {
                     <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">str::from_utf8</span>(<span class="kw-2">&amp;</span><span class="ident">record</span>[..<span class="ident">outpos</span>]).<span class="ident">unwrap</span>();
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">start</span> <span class="op">=</span> <span class="number">0</span>;
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Row::new</span>();
@@ -3478,7 +3478,7 @@
                     <span class="ident">outpos</span> <span class="op">=</span> <span class="number">0</span>;
                     <span class="ident">endpos</span> <span class="op">=</span> <span class="number">0</span>;
                 }
-                <span class="ident">End</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">csv</span>,
+                <span class="ident">End</span> =&gt; <span class="kw">return</span> <span class="ident">csv</span>,
             }
         }
     }
@@ -3735,7 +3735,7 @@
         (
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rdr</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">input</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">output</span>:<span class="ident">expr</span>,
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">expect_in</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">expect_out</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">expect_res</span>:<span class="ident">expr</span>
-        ) <span class="op">=</span><span class="op">&gt;</span> {{
+        ) =&gt; {{
             <span class="kw">let</span> (<span class="ident">res</span>, <span class="ident">nin</span>, <span class="ident">nout</span>) <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rdr</span>.<span class="ident">read_field</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">input</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">output</span>);
             <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">expect_in</span>, <span class="ident">nin</span>);
             <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">expect_out</span>, <span class="ident">nout</span>);
@@ -3948,7 +3948,7 @@
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rdr</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">input</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">output</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ends</span>:<span class="ident">expr</span>,
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">expect_in</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">expect_out</span>:<span class="ident">expr</span>,
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">expect_end</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">expect_res</span>:<span class="ident">expr</span>
-        ) <span class="op">=</span><span class="op">&gt;</span> {{
+        ) =&gt; {{
             <span class="kw">let</span> (<span class="ident">res</span>, <span class="ident">nin</span>, <span class="ident">nout</span>, <span class="ident">nend</span>) <span class="op">=</span>
                 <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rdr</span>.<span class="ident">read_record</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">input</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">output</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ends</span>);
             <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">expect_res</span>, <span class="ident">res</span>, <span class="string">&quot;result&quot;</span>);

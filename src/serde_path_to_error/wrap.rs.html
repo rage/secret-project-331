@@ -50,7 +50,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">X</span><span class="op">&gt;</span> <span class="ident">Wrap</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">X</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">delegate</span>: <span class="ident">X</span>, <span class="ident">chain</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Chain</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">track</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">Track</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">delegate</span>: <span class="ident">X</span>, <span class="ident">chain</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Chain</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">track</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">Track</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">Wrap</span> {
             <span class="ident">delegate</span>,
             <span class="ident">chain</span>,
@@ -60,7 +60,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">X</span><span class="op">&gt;</span> <span class="ident">WrapVariant</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">X</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">delegate</span>: <span class="ident">X</span>, <span class="ident">chain</span>: <span class="ident">Chain</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">track</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">Track</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">delegate</span>: <span class="ident">X</span>, <span class="ident">chain</span>: <span class="ident">Chain</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">track</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">Track</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">WrapVariant</span> {
             <span class="ident">delegate</span>,
             <span class="ident">chain</span>,

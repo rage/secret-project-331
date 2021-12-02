@@ -523,7 +523,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">TrailingSlash</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">TrailingSlash::Trim</span>
     }
 }
@@ -578,7 +578,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NormalizePath</span>(<span class="ident">TrailingSlash</span>);
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">NormalizePath</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="macro">log::warn!</span>(
             <span class="string">&quot;`NormalizePath::default()` is deprecated. The default trailing slash behavior changed \
             in v4 from `Always` to `Trim`. Update your call to `NormalizePath::new(...)`.&quot;</span>
@@ -590,14 +590,14 @@
 
 <span class="kw">impl</span> <span class="ident">NormalizePath</span> {
     <span class="doccomment">/// Create new `NormalizePath` middleware with the specified trailing slash style.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">trailing_slash_style</span>: <span class="ident">TrailingSlash</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">trailing_slash_style</span>: <span class="ident">TrailingSlash</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span>(<span class="ident">trailing_slash_style</span>)
     }
 
     <span class="doccomment">/// Constructs a new `NormalizePath` middleware with [trim](TrailingSlash::Trim) semantics.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Use this instead of `NormalizePath::default()` to avoid deprecation warning.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trim</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trim</span>() -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">TrailingSlash::Trim</span>)
     }
 }
@@ -613,7 +613,7 @@
     <span class="kw">type</span> <span class="ident">InitError</span> <span class="op">=</span> ();
     <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">Ready</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Transform</span>, <span class="ident"><span class="self">Self</span>::InitError</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">new_transform</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">service</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Future</span> {
+    <span class="kw">fn</span> <span class="ident">new_transform</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">service</span>: <span class="ident">S</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
         <span class="ident">ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">NormalizePathNormalization</span> {
             <span class="ident">service</span>,
             <span class="ident">merge_slash</span>: <span class="ident">Regex::new</span>(<span class="string">&quot;//+&quot;</span>).<span class="ident">unwrap</span>(),
@@ -639,7 +639,7 @@
 
     <span class="macro">actix_service::forward_ready!</span>(<span class="ident">service</span>);
 
-    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">req</span>: <span class="ident">ServiceRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Future</span> {
+    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">req</span>: <span class="ident">ServiceRequest</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
         <span class="kw">let</span> <span class="ident">head</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">head_mut</span>();
 
         <span class="kw">let</span> <span class="ident">original_path</span> <span class="op">=</span> <span class="ident">head</span>.<span class="ident">uri</span>.<span class="ident">path</span>();
@@ -650,9 +650,9 @@
             <span class="comment">// Either adds a string to the end (duplicates will be removed anyways) or trims all</span>
             <span class="comment">// slashes from the end</span>
             <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">trailing_slash_behavior</span> {
-                <span class="ident">TrailingSlash::Always</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(<span class="string">&quot;{}/&quot;</span>, <span class="ident">original_path</span>),
-                <span class="ident">TrailingSlash::MergeOnly</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">original_path</span>.<span class="ident">to_string</span>(),
-                <span class="ident">TrailingSlash::Trim</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">original_path</span>.<span class="ident">trim_end_matches</span>(<span class="string">&#39;/&#39;</span>).<span class="ident">to_string</span>(),
+                <span class="ident">TrailingSlash::Always</span> =&gt; <span class="macro">format!</span>(<span class="string">&quot;{}/&quot;</span>, <span class="ident">original_path</span>),
+                <span class="ident">TrailingSlash::MergeOnly</span> =&gt; <span class="ident">original_path</span>.<span class="ident">to_string</span>(),
+                <span class="ident">TrailingSlash::Trim</span> =&gt; <span class="ident">original_path</span>.<span class="ident">trim_end_matches</span>(<span class="string">&#39;/&#39;</span>).<span class="ident">to_string</span>(),
             };
 
             <span class="comment">// normalize multiple /&#39;s to one /</span>
@@ -678,8 +678,8 @@
                 <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">parts</span>.<span class="ident">path_and_query</span>.<span class="ident">as_ref</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">pq</span><span class="op">|</span> <span class="ident">pq</span>.<span class="ident">query</span>());
 
                 <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">query</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">q</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Bytes::from</span>(<span class="macro">format!</span>(<span class="string">&quot;{}?{}&quot;</span>, <span class="ident">path</span>, <span class="ident">q</span>)),
-                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Bytes::copy_from_slice</span>(<span class="ident">path</span>.<span class="ident">as_bytes</span>()),
+                    <span class="prelude-val">Some</span>(<span class="ident">q</span>) =&gt; <span class="ident">Bytes::from</span>(<span class="macro">format!</span>(<span class="string">&quot;{}?{}&quot;</span>, <span class="ident">path</span>, <span class="ident">q</span>)),
+                    <span class="prelude-val">None</span> =&gt; <span class="ident">Bytes::copy_from_slice</span>(<span class="ident">path</span>.<span class="ident">as_bytes</span>()),
                 };
                 <span class="ident">parts</span>.<span class="ident">path_and_query</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">PathAndQuery::from_maybe_shared</span>(<span class="ident">path</span>).<span class="ident">unwrap</span>());
 
@@ -714,7 +714,7 @@
                 .<span class="ident">service</span>(<span class="ident">web::resource</span>(<span class="string">&quot;/v1/something&quot;</span>).<span class="ident">to</span>(<span class="ident">HttpResponse::Ok</span>))
                 .<span class="ident">service</span>(
                     <span class="ident">web::resource</span>(<span class="string">&quot;/v2/something&quot;</span>)
-                        .<span class="ident">guard</span>(<span class="ident">fn_guard</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">req</span>.<span class="ident">uri</span>.<span class="ident">query</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&quot;query=test&quot;</span>)))
+                        .<span class="ident">guard</span>(<span class="ident">fn_guard</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">req</span>.<span class="ident">uri</span>.<span class="ident">query</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="string">&quot;query=test&quot;</span>)))
                         .<span class="ident">to</span>(<span class="ident">HttpResponse::Ok</span>),
                 ),
         )
@@ -750,7 +750,7 @@
                 .<span class="ident">service</span>(<span class="ident">web::resource</span>(<span class="string">&quot;/v1/something&quot;</span>).<span class="ident">to</span>(<span class="ident">HttpResponse::Ok</span>))
                 .<span class="ident">service</span>(
                     <span class="ident">web::resource</span>(<span class="string">&quot;/v2/something&quot;</span>)
-                        .<span class="ident">guard</span>(<span class="ident">fn_guard</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">req</span>.<span class="ident">uri</span>.<span class="ident">query</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&quot;query=test&quot;</span>)))
+                        .<span class="ident">guard</span>(<span class="ident">fn_guard</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">req</span>.<span class="ident">uri</span>.<span class="ident">query</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="string">&quot;query=test&quot;</span>)))
                         .<span class="ident">to</span>(<span class="ident">HttpResponse::Ok</span>),
                 ),
         )
@@ -783,7 +783,7 @@
         <span class="kw">let</span> <span class="ident">app</span> <span class="op">=</span> <span class="ident">init_service</span>(
             <span class="ident">App::new</span>().<span class="ident">wrap</span>(<span class="ident">NormalizePath</span>(<span class="ident">TrailingSlash::Trim</span>)).<span class="ident">service</span>(
                 <span class="ident">web::resource</span>(<span class="string">&quot;/&quot;</span>)
-                    .<span class="ident">guard</span>(<span class="ident">fn_guard</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">req</span>.<span class="ident">uri</span>.<span class="ident">query</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&quot;query=test&quot;</span>)))
+                    .<span class="ident">guard</span>(<span class="ident">fn_guard</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">req</span>.<span class="ident">uri</span>.<span class="ident">query</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="string">&quot;query=test&quot;</span>)))
                     .<span class="ident">to</span>(<span class="ident">HttpResponse::Ok</span>),
             ),
         )
@@ -807,7 +807,7 @@
                 .<span class="ident">service</span>(<span class="ident">web::resource</span>(<span class="string">&quot;/v1/something/&quot;</span>).<span class="ident">to</span>(<span class="ident">HttpResponse::Ok</span>))
                 .<span class="ident">service</span>(
                     <span class="ident">web::resource</span>(<span class="string">&quot;/v2/something/&quot;</span>)
-                        .<span class="ident">guard</span>(<span class="ident">fn_guard</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">req</span>.<span class="ident">uri</span>.<span class="ident">query</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&quot;query=test&quot;</span>)))
+                        .<span class="ident">guard</span>(<span class="ident">fn_guard</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">req</span>.<span class="ident">uri</span>.<span class="ident">query</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="string">&quot;query=test&quot;</span>)))
                         .<span class="ident">to</span>(<span class="ident">HttpResponse::Ok</span>),
                 ),
         )
@@ -842,7 +842,7 @@
                 .<span class="ident">wrap</span>(<span class="ident">NormalizePath</span>(<span class="ident">TrailingSlash::Always</span>))
                 .<span class="ident">service</span>(
                     <span class="ident">web::resource</span>(<span class="string">&quot;/&quot;</span>)
-                        .<span class="ident">guard</span>(<span class="ident">fn_guard</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">req</span>.<span class="ident">uri</span>.<span class="ident">query</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&quot;query=test&quot;</span>)))
+                        .<span class="ident">guard</span>(<span class="ident">fn_guard</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">req</span>.<span class="ident">uri</span>.<span class="ident">query</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="string">&quot;query=test&quot;</span>)))
                         .<span class="ident">to</span>(<span class="ident">HttpResponse::Ok</span>),
                 ),
         )
@@ -867,7 +867,7 @@
                 .<span class="ident">service</span>(<span class="ident">web::resource</span>(<span class="string">&quot;/v1/&quot;</span>).<span class="ident">to</span>(<span class="ident">HttpResponse::Ok</span>))
                 .<span class="ident">service</span>(
                     <span class="ident">web::resource</span>(<span class="string">&quot;/v2/something&quot;</span>)
-                        .<span class="ident">guard</span>(<span class="ident">fn_guard</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">req</span>.<span class="ident">uri</span>.<span class="ident">query</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&quot;query=test&quot;</span>)))
+                        .<span class="ident">guard</span>(<span class="ident">fn_guard</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">req</span>.<span class="ident">uri</span>.<span class="ident">query</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="string">&quot;query=test&quot;</span>)))
                         .<span class="ident">to</span>(<span class="ident">HttpResponse::Ok</span>),
                 ),
         )

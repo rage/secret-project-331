@@ -109,12 +109,12 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::interface::LiteralPredictionModeNibble</span>;
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IRInterpreter</span> {
     <span class="kw">fn</span> <span class="ident">inc_local_byte_offset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">inc</span>:<span class="ident">usize</span>);
-    <span class="kw">fn</span> <span class="ident">local_byte_offset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    <span class="kw">fn</span> <span class="ident">local_byte_offset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span>;
     <span class="kw">fn</span> <span class="ident">update_block_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_type</span>: <span class="ident">u8</span>, <span class="ident">new_stride</span>: <span class="ident">u8</span>);
-    <span class="kw">fn</span> <span class="ident">block_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u8</span>;
-    <span class="kw">fn</span> <span class="ident">literal_data_at_offset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u8</span>;
-    <span class="kw">fn</span> <span class="ident">literal_context_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">u8</span>];
-    <span class="kw">fn</span> <span class="ident">prediction_mode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">::interface::LiteralPredictionModeNibble</span>;
+    <span class="kw">fn</span> <span class="ident">block_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u8</span>;
+    <span class="kw">fn</span> <span class="ident">literal_data_at_offset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">usize</span>) -&gt; <span class="ident">u8</span>;
+    <span class="kw">fn</span> <span class="ident">literal_context_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>];
+    <span class="kw">fn</span> <span class="ident">prediction_mode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">::interface::LiteralPredictionModeNibble</span>;
     <span class="kw">fn</span> <span class="ident">update_cost</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">stride_prior</span>: [<span class="ident">u8</span>;<span class="number">8</span>], <span class="ident">stride_byte_offset</span>: <span class="ident">usize</span>, <span class="ident">selected_bits</span>:<span class="ident">u8</span>, <span class="ident">cm_prior</span>: <span class="ident">usize</span>, <span class="ident">literal</span>: <span class="ident">u8</span>);
 }
 
@@ -125,16 +125,16 @@
         <span class="kw">match</span> <span class="ident">val</span> {
            <span class="ident">interface::Command::BlockSwitchCommand</span>(<span class="kw">_</span>) <span class="op">|</span>
            <span class="ident">interface::Command::BlockSwitchDistance</span>(<span class="kw">_</span>) <span class="op">|</span>
-           <span class="ident">interface::Command::PredictionMode</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {}
-           <span class="ident">interface::Command::Copy</span>(<span class="kw-2">ref</span> <span class="ident">copy</span>) <span class="op">=</span><span class="op">&gt;</span> {
+           <span class="ident">interface::Command::PredictionMode</span>(<span class="kw">_</span>) =&gt; {}
+           <span class="ident">interface::Command::Copy</span>(<span class="kw-2">ref</span> <span class="ident">copy</span>) =&gt; {
                <span class="ident">xself</span>.<span class="ident">inc_local_byte_offset</span>(<span class="ident">copy</span>.<span class="ident">num_bytes</span> <span class="kw">as</span> <span class="ident">usize</span>);
            },
-           <span class="ident">interface::Command::Dict</span>(<span class="kw-2">ref</span> <span class="ident">dict</span>) <span class="op">=</span><span class="op">&gt;</span> {
+           <span class="ident">interface::Command::Dict</span>(<span class="kw-2">ref</span> <span class="ident">dict</span>) =&gt; {
                <span class="ident">xself</span>.<span class="ident">inc_local_byte_offset</span>(<span class="ident">dict</span>.<span class="ident">final_size</span> <span class="kw">as</span> <span class="ident">usize</span>);
            },
-            <span class="ident">interface::Command::BlockSwitchLiteral</span>(<span class="ident">block_type</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">xself</span>.<span class="ident">update_block_type</span>(<span class="ident">block_type</span>.<span class="ident">block_type</span>(),
+            <span class="ident">interface::Command::BlockSwitchLiteral</span>(<span class="ident">block_type</span>) =&gt; <span class="ident">xself</span>.<span class="ident">update_block_type</span>(<span class="ident">block_type</span>.<span class="ident">block_type</span>(),
                                                                                           <span class="ident">block_type</span>.<span class="ident">stride</span>()),
-           <span class="ident">interface::Command::Literal</span>(<span class="kw-2">ref</span> <span class="ident">lit</span>) <span class="op">=</span><span class="op">&gt;</span> {
+           <span class="ident">interface::Command::Literal</span>(<span class="kw-2">ref</span> <span class="ident">lit</span>) =&gt; {
                <span class="comment">//let stride = xself.get_stride(xself.local_byte_offset()) as usize;</span>
                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">priors</span><span class="op">=</span> [<span class="number">0u8</span>; <span class="number">8</span>];
                <span class="kw">for</span> <span class="ident">poffset</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">8</span> {
@@ -174,7 +174,7 @@
     <span class="ident">literal_context_map</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],<span class="comment">//interface::PredictionModeContextMap&lt;SliceType&gt;,</span>
     <span class="ident">prediction_mode</span>: <span class="ident">LiteralPredictionModeNibble</span>,
     <span class="ident">block_type</span>: <span class="ident">u8</span>,
-) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, <span class="ident">u8</span>) {
+) -&gt; (<span class="ident">usize</span>, <span class="ident">u8</span>) {
     <span class="kw">let</span> <span class="ident">prior</span> <span class="op">=</span> <span class="ident">Context</span>(<span class="ident">prev_byte</span>, <span class="ident">prev_prev_byte</span>, <span class="ident">prediction_mode</span>.<span class="ident">to_context_enum</span>().<span class="ident">unwrap</span>());
     <span class="macro">assert!</span>(<span class="ident">prior</span> <span class="op">&lt;</span> <span class="number">64</span>);
     <span class="kw">let</span> <span class="ident">context_map_index</span> <span class="op">=</span> ((<span class="ident">block_type</span> <span class="kw">as</span> <span class="ident">usize</span>)<span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">6</span>) <span class="op">|</span> <span class="ident">prior</span> <span class="kw">as</span> <span class="ident">usize</span>;
@@ -185,19 +185,19 @@
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">Context</span>(<span class="ident">p1</span>: <span class="ident">u8</span>, <span class="ident">p2</span>: <span class="ident">u8</span>, <span class="ident">mode</span>: <span class="ident">ContextType</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u8</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">Context</span>(<span class="ident">p1</span>: <span class="ident">u8</span>, <span class="ident">p2</span>: <span class="ident">u8</span>, <span class="ident">mode</span>: <span class="ident">ContextType</span>) -&gt; <span class="ident">u8</span> {
   <span class="kw">match</span> <span class="ident">mode</span> {
-    <span class="ident">ContextType::CONTEXT_LSB6</span> <span class="op">=</span><span class="op">&gt;</span> {
+    <span class="ident">ContextType::CONTEXT_LSB6</span> =&gt; {
       <span class="kw">return</span> (<span class="ident">p1</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">&amp;</span> <span class="number">0x3fi32</span>) <span class="kw">as</span> (<span class="ident">u8</span>);
     }
-    <span class="ident">ContextType::CONTEXT_MSB6</span> <span class="op">=</span><span class="op">&gt;</span> {
+    <span class="ident">ContextType::CONTEXT_MSB6</span> =&gt; {
       <span class="kw">return</span> (<span class="ident">p1</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">2i32</span>) <span class="kw">as</span> (<span class="ident">u8</span>);
     }
-    <span class="ident">ContextType::CONTEXT_UTF8</span> <span class="op">=</span><span class="op">&gt;</span> {
+    <span class="ident">ContextType::CONTEXT_UTF8</span> =&gt; {
       <span class="kw">return</span> (<span class="ident">kUTF8ContextLookup</span>[<span class="ident">p1</span> <span class="kw">as</span> (<span class="ident">usize</span>)] <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">|</span>
               <span class="ident">kUTF8ContextLookup</span>[(<span class="ident">p2</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">+</span> <span class="number">256i32</span>) <span class="kw">as</span> (<span class="ident">usize</span>)] <span class="kw">as</span> (<span class="ident">i32</span>)) <span class="kw">as</span> (<span class="ident">u8</span>);
     }
-    <span class="ident">ContextType::CONTEXT_SIGNED</span> <span class="op">=</span><span class="op">&gt;</span> {
+    <span class="ident">ContextType::CONTEXT_SIGNED</span> =&gt; {
       <span class="kw">return</span> ((<span class="ident">kSigned3BitContextLookup</span>[<span class="ident">p1</span> <span class="kw">as</span> (<span class="ident">usize</span>)] <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">3i32</span>) <span class="op">+</span>
               <span class="ident">kSigned3BitContextLookup</span>[<span class="ident">p2</span> <span class="kw">as</span> (<span class="ident">usize</span>)] <span class="kw">as</span> (<span class="ident">i32</span>)) <span class="kw">as</span> (<span class="ident">u8</span>);
     }

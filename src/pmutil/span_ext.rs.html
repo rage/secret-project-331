@@ -41,7 +41,7 @@
 <span class="doccomment">///[Span]:../proc_macro2/struct.Span.html</span>
 <span class="doccomment">///[syn::Span]:../syn/struct.Span.html</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">SpanExt</span>: <span class="ident">Copy</span> {
-    <span class="kw">fn</span> <span class="ident">new_ident</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">s</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">syn::Ident</span>
+    <span class="kw">fn</span> <span class="ident">new_ident</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">s</span>: <span class="ident">S</span>) -&gt; <span class="ident">syn::Ident</span>
     <span class="kw">where</span>
         <span class="ident">S</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
     {
@@ -49,18 +49,18 @@
     }
 
     <span class="doccomment">/// Creates `Token` from `self`.</span>
-    <span class="kw">fn</span> <span class="ident">as_token</span><span class="op">&lt;</span><span class="ident">Token</span><span class="op">&gt;</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Token</span>
+    <span class="kw">fn</span> <span class="ident">as_token</span><span class="op">&lt;</span><span class="ident">Token</span><span class="op">&gt;</span>(<span class="self">self</span>) -&gt; <span class="ident">Token</span>
     <span class="kw">where</span>
         <span class="ident">Token</span>: <span class="ident">FromSpan</span>,
     {
         <span class="ident">Token::from_span</span>(<span class="self">self</span>.<span class="ident">into_pm2_span</span>())
     }
 
-    <span class="kw">fn</span> <span class="ident">into_pm2_span</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span>;
+    <span class="kw">fn</span> <span class="ident">into_pm2_span</span>(<span class="self">self</span>) -&gt; <span class="ident">Span</span>;
 }
 
 <span class="kw">impl</span> <span class="ident">SpanExt</span> <span class="kw">for</span> <span class="ident">Span</span> {
-    <span class="kw">fn</span> <span class="ident">into_pm2_span</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">into_pm2_span</span>(<span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>
     }
 }

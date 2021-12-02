@@ -332,7 +332,7 @@
 <span class="doccomment">/// let asserted_string: String = to_table_case(mock_string);</span>
 <span class="doccomment">/// assert!(asserted_string == expected_string);</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_table_case</span>(<span class="ident">non_table_case_string</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_table_case</span>(<span class="ident">non_table_case_string</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">String</span> {
     <span class="kw">let</span> <span class="ident">snaked</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">to_case_snake_like</span>(<span class="ident">non_table_case_string</span>, <span class="string">&quot;_&quot;</span>, <span class="string">&quot;lower&quot;</span>);
     <span class="kw">let</span> <span class="ident">split</span>: (<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">=</span> <span class="ident">snaked</span>.<span class="ident">split_at</span>(<span class="ident">snaked</span>.<span class="ident">rfind</span>(<span class="string">&#39;_&#39;</span>).<span class="ident">unwrap_or</span>(<span class="number">0</span>));
     <span class="macro">format!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="ident">split</span>.<span class="number">0</span>, <span class="ident">to_plural</span>(<span class="ident">split</span>.<span class="number">1</span>))
@@ -396,8 +396,8 @@
 <span class="doccomment">///     let asserted_bool: bool = is_table_case(mock_string);</span>
 <span class="doccomment">///     assert!(asserted_bool == false);</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_table_case</span>(<span class="ident">test_string</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-     <span class="ident">to_table_case</span>(<span class="kw-2">&amp;</span><span class="ident">test_string</span>.<span class="ident">clone</span>()) <span class="op">=</span><span class="op">=</span> <span class="ident">test_string</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_table_case</span>(<span class="ident">test_string</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
+     <span class="ident">to_table_case</span>(<span class="kw-2">&amp;</span><span class="ident">test_string</span>.<span class="ident">clone</span>()) <span class="op">==</span> <span class="ident">test_string</span>
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;unstable&quot;</span>, <span class="ident">test</span>))]</span>

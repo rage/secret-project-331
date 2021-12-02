@@ -300,7 +300,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// // check config_result.diagnostics here and use config_result.config</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resolve_config</span>(<span class="ident">config</span>: <span class="ident">ConfigKeyMap</span>, <span class="ident">global_config</span>: <span class="kw-2">&amp;</span><span class="ident">GlobalConfiguration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ResolveConfigurationResult</span><span class="op">&lt;</span><span class="ident">Configuration</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resolve_config</span>(<span class="ident">config</span>: <span class="ident">ConfigKeyMap</span>, <span class="ident">global_config</span>: <span class="kw-2">&amp;</span><span class="ident">GlobalConfiguration</span>) -&gt; <span class="ident">ResolveConfigurationResult</span><span class="op">&lt;</span><span class="ident">Configuration</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">diagnostics</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">config</span>;
 
@@ -520,7 +520,7 @@
         <span class="kw">let</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">config_builder</span>.<span class="ident">global_config</span>(<span class="ident">global_config</span>).<span class="ident">build</span>();
         <span class="macro">assert_eq!</span>(<span class="ident">config</span>.<span class="ident">line_width</span>, <span class="number">80</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">config</span>.<span class="ident">indent_width</span>, <span class="number">8</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">config</span>.<span class="ident">new_line_kind</span> <span class="op">=</span><span class="op">=</span> <span class="ident">NewLineKind::CarriageReturnLineFeed</span>, <span class="bool-val">true</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">config</span>.<span class="ident">new_line_kind</span> <span class="op">==</span> <span class="ident">NewLineKind::CarriageReturnLineFeed</span>, <span class="bool-val">true</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">config</span>.<span class="ident">use_tabs</span>, <span class="bool-val">true</span>);
     }
 

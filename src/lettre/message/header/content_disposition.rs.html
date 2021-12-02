@@ -98,34 +98,34 @@
 
 <span class="kw">impl</span> <span class="ident">ContentDisposition</span> {
     <span class="doccomment">/// An attachment which should be displayed inline into the message</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inline</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inline</span>() -&gt; <span class="self">Self</span> {
         <span class="self">Self</span>(<span class="string">&quot;inline&quot;</span>.<span class="ident">into</span>())
     }
 
     <span class="doccomment">/// An attachment which should be displayed inline into the message, but that also</span>
     <span class="doccomment">/// species the filename in case it were to be downloaded</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inline_with_name</span>(<span class="ident">file_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inline_with_name</span>(<span class="ident">file_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="self">Self</span> {
         <span class="macro">debug_assert!</span>(<span class="op">!</span><span class="ident">file_name</span>.<span class="ident">contains</span>(<span class="string">&#39;&quot;&#39;</span>), <span class="string">&quot;file_name shouldn&#39;t contain &#39;\&quot;&#39;&quot;</span>);
         <span class="self">Self</span>(<span class="macro">format!</span>(<span class="string">&quot;inline; filename=\&quot;{}\&quot;&quot;</span>, <span class="ident">file_name</span>))
     }
 
     <span class="doccomment">/// An attachment which is separate from the body of the message, and can be downloaded separately</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">attachment</span>(<span class="ident">file_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">attachment</span>(<span class="ident">file_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="self">Self</span> {
         <span class="macro">debug_assert!</span>(<span class="op">!</span><span class="ident">file_name</span>.<span class="ident">contains</span>(<span class="string">&#39;&quot;&#39;</span>), <span class="string">&quot;file_name shouldn&#39;t contain &#39;\&quot;&#39;&quot;</span>);
         <span class="self">Self</span>(<span class="macro">format!</span>(<span class="string">&quot;attachment; filename=\&quot;{}\&quot;&quot;</span>, <span class="ident">file_name</span>))
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Header</span> <span class="kw">for</span> <span class="ident">ContentDisposition</span> {
-    <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HeaderName</span> {
+    <span class="kw">fn</span> <span class="ident">name</span>() -&gt; <span class="ident">HeaderName</span> {
         <span class="ident">HeaderName::new_from_ascii_str</span>(<span class="string">&quot;Content-Disposition&quot;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">BoxError</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">BoxError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="ident">s</span>.<span class="ident">into</span>()))
     }
 
-    <span class="kw">fn</span> <span class="ident">display</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">display</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
         <span class="self">self</span>.<span class="number">0</span>.<span class="ident">clone</span>()
     }
 }

@@ -281,7 +281,7 @@
     }
 }
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
-<span class="kw">fn</span> <span class="ident">stride_lookup_lin</span>(<span class="ident">stride_byte</span>:<span class="ident">u8</span>, <span class="ident">selected_context</span>:<span class="ident">u8</span>, <span class="ident">actual_context</span>:<span class="ident">usize</span>, <span class="ident">high_nibble</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+<span class="kw">fn</span> <span class="ident">stride_lookup_lin</span>(<span class="ident">stride_byte</span>:<span class="ident">u8</span>, <span class="ident">selected_context</span>:<span class="ident">u8</span>, <span class="ident">actual_context</span>:<span class="ident">usize</span>, <span class="ident">high_nibble</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="ident">usize</span> {
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">nibble</span>) <span class="op">=</span> <span class="ident">high_nibble</span> {
         <span class="number">1</span> <span class="op">+</span> <span class="number">2</span> <span class="op">*</span> (<span class="ident">actual_context</span> <span class="kw">as</span> <span class="ident">usize</span>
                  <span class="op">|</span> ((<span class="ident">stride_byte</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">&amp;</span> <span class="number">0xf</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">8</span>)
@@ -297,10 +297,10 @@
 <span class="kw">struct</span> <span class="ident">Stride1Prior</span>{
 }
 <span class="kw">impl</span> <span class="ident">Stride1Prior</span> {
-    <span class="kw">fn</span> <span class="ident">lookup_lin</span>(<span class="ident">stride_byte</span>:<span class="ident">u8</span>, <span class="ident">selected_context</span>:<span class="ident">u8</span>, <span class="ident">actual_context</span>:<span class="ident">usize</span>, <span class="ident">high_nibble</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">fn</span> <span class="ident">lookup_lin</span>(<span class="ident">stride_byte</span>:<span class="ident">u8</span>, <span class="ident">selected_context</span>:<span class="ident">u8</span>, <span class="ident">actual_context</span>:<span class="ident">usize</span>, <span class="ident">high_nibble</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="ident">usize</span> {
         <span class="ident">stride_lookup_lin</span>(<span class="ident">stride_byte</span>, <span class="ident">selected_context</span>, <span class="ident">actual_context</span>, <span class="ident">high_nibble</span>)
     }
-    <span class="kw">fn</span> <span class="ident">lookup_mut</span>(<span class="ident">data</span>:<span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u16</span>], <span class="ident">stride_byte</span>: <span class="ident">u8</span>, <span class="ident">selected_context</span>:<span class="ident">u8</span>, <span class="ident">actual_context</span>:<span class="ident">usize</span>, <span class="ident">high_nibble</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CDF</span> {
+    <span class="kw">fn</span> <span class="ident">lookup_mut</span>(<span class="ident">data</span>:<span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u16</span>], <span class="ident">stride_byte</span>: <span class="ident">u8</span>, <span class="ident">selected_context</span>:<span class="ident">u8</span>, <span class="ident">actual_context</span>:<span class="ident">usize</span>, <span class="ident">high_nibble</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="ident">CDF</span> {
         <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::lookup_lin</span>(<span class="ident">stride_byte</span>, <span class="ident">selected_context</span>, <span class="ident">actual_context</span>,
                              <span class="ident">high_nibble</span>) <span class="op">*</span> <span class="ident">NIBBLE_PRIOR_SIZE</span>;
         <span class="ident">CDF::from</span>(<span class="ident">data</span>.<span class="ident">split_at_mut</span>(<span class="ident">index</span>).<span class="number">1</span>.<span class="ident">split_at_mut</span>(<span class="number">16</span>).<span class="number">0</span>)
@@ -308,7 +308,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">CDF</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cost</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">nibble_u8</span>:<span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">floatX</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cost</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">nibble_u8</span>:<span class="ident">u8</span>) -&gt; <span class="ident">floatX</span> {
         <span class="macro">assert_eq!</span>(<span class="self">self</span>.<span class="ident">cdf</span>.<span class="ident">len</span>(), <span class="number">16</span>);
         <span class="kw">let</span> <span class="ident">nibble</span> <span class="op">=</span> <span class="ident">nibble_u8</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">&amp;</span> <span class="number">0xf</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pdf</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cdf</span>[<span class="ident">nibble</span>];
@@ -334,7 +334,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span>[<span class="ident">u16</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CDF</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">cdf</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span>[<span class="ident">u16</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CDF</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">cdf</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span>[<span class="ident">u16</span>]) -&gt; <span class="ident">CDF</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="macro">assert_eq!</span>(<span class="ident">cdf</span>.<span class="ident">len</span>(), <span class="number">16</span>);
         <span class="ident">CDF</span> {
             <span class="ident">cdf</span>:<span class="ident">cdf</span>,
@@ -365,19 +365,19 @@
               <span class="ident">input</span>: <span class="ident">InputPair</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
               <span class="ident">prediction_mode</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">interface::PredictionModeContextMap</span><span class="op">&lt;</span><span class="ident">InputReferenceMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
               <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">BrotliEncoderParams</span>,
-              ) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+              ) -&gt; <span class="self">Self</span> {
       <span class="kw">let</span> <span class="ident">do_alloc</span> <span class="op">=</span> <span class="bool-val">true</span>;
       <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stride_speed</span> <span class="op">=</span> <span class="ident">prediction_mode</span>.<span class="ident">stride_context_speed</span>();
-      <span class="kw">if</span> <span class="ident">stride_speed</span>[<span class="number">0</span>] <span class="op">=</span><span class="op">=</span> (<span class="number">0</span>, <span class="number">0</span>) {
+      <span class="kw">if</span> <span class="ident">stride_speed</span>[<span class="number">0</span>] <span class="op">==</span> (<span class="number">0</span>, <span class="number">0</span>) {
           <span class="ident">stride_speed</span>[<span class="number">0</span>] <span class="op">=</span> <span class="ident">params</span>.<span class="ident">literal_adaptation</span>[<span class="number">0</span>]
       }
-      <span class="kw">if</span> <span class="ident">stride_speed</span>[<span class="number">0</span>] <span class="op">=</span><span class="op">=</span> (<span class="number">0</span>, <span class="number">0</span>) {
+      <span class="kw">if</span> <span class="ident">stride_speed</span>[<span class="number">0</span>] <span class="op">==</span> (<span class="number">0</span>, <span class="number">0</span>) {
           <span class="ident">stride_speed</span>[<span class="number">0</span>] <span class="op">=</span> <span class="ident">DEFAULT_SPEED</span>;
       }
-      <span class="kw">if</span> <span class="ident">stride_speed</span>[<span class="number">1</span>] <span class="op">=</span><span class="op">=</span> (<span class="number">0</span>, <span class="number">0</span>) {
+      <span class="kw">if</span> <span class="ident">stride_speed</span>[<span class="number">1</span>] <span class="op">==</span> (<span class="number">0</span>, <span class="number">0</span>) {
           <span class="ident">stride_speed</span>[<span class="number">1</span>] <span class="op">=</span> <span class="ident">params</span>.<span class="ident">literal_adaptation</span>[<span class="number">1</span>]
       }
-      <span class="kw">if</span> <span class="ident">stride_speed</span>[<span class="number">1</span>] <span class="op">=</span><span class="op">=</span> (<span class="number">0</span>, <span class="number">0</span>) {
+      <span class="kw">if</span> <span class="ident">stride_speed</span>[<span class="number">1</span>] <span class="op">==</span> (<span class="number">0</span>, <span class="number">0</span>) {
           <span class="ident">stride_speed</span>[<span class="number">1</span>] <span class="op">=</span> <span class="ident">stride_speed</span>[<span class="number">0</span>];
       }
       <span class="kw">let</span> <span class="ident">score</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">do_alloc</span> {
@@ -423,7 +423,7 @@
       }
       <span class="ident">ret</span>
    }
-   <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">alloc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Alloc</span> {
+   <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">alloc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Alloc</span> {
        <span class="self">self</span>.<span class="ident">alloc</span>
    }
    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">choose_stride</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">stride_data</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span>[<span class="ident">u8</span>]) {
@@ -443,7 +443,7 @@
            <span class="kw-2">*</span><span class="ident">choice</span> <span class="op">=</span> <span class="ident">best_choice</span>;
        }
    }
-   <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">num_types</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+   <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">num_types</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
        <span class="self">self</span>.<span class="ident">cur_score_epoch</span>
    }
    <span class="kw">fn</span> <span class="ident">update_cost_base</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">stride_prior</span>: [<span class="ident">u8</span>;<span class="number">8</span>], <span class="ident">selected_bits</span>: <span class="ident">u8</span>, <span class="ident">cm_prior</span>: <span class="ident">usize</span>, <span class="ident">literal</span>: <span class="ident">u8</span>) {
@@ -479,7 +479,7 @@
     <span class="kw">fn</span> <span class="ident">inc_local_byte_offset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">inc</span>: <span class="ident">usize</span>) {
         <span class="self">self</span>.<span class="ident">local_byte_offset</span> <span class="op">+</span><span class="op">=</span> <span class="ident">inc</span>;
     }
-    <span class="kw">fn</span> <span class="ident">local_byte_offset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">fn</span> <span class="ident">local_byte_offset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">local_byte_offset</span>
     }
     <span class="kw">fn</span> <span class="ident">update_block_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_type</span>: <span class="ident">u8</span>, <span class="ident">stride</span>: <span class="ident">u8</span>) {
@@ -495,16 +495,16 @@
             <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">floatX</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="self">self</span>.<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">score</span>, <span class="ident">new_score</span>));
         }
     }
-    <span class="kw">fn</span> <span class="ident">block_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u8</span> {
+    <span class="kw">fn</span> <span class="ident">block_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u8</span> {
         <span class="self">self</span>.<span class="ident">block_type</span>
     }
-    <span class="kw">fn</span> <span class="ident">literal_data_at_offset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>:<span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u8</span> {
+    <span class="kw">fn</span> <span class="ident">literal_data_at_offset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>:<span class="ident">usize</span>) -&gt; <span class="ident">u8</span> {
         <span class="self">self</span>.<span class="ident">input</span>[<span class="ident">index</span>]
     }
-    <span class="kw">fn</span> <span class="ident">literal_context_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
+    <span class="kw">fn</span> <span class="ident">literal_context_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
         <span class="self">self</span>.<span class="ident">context_map</span>.<span class="ident">literal_context_map</span>.<span class="ident">slice</span>()
     }
-    <span class="kw">fn</span> <span class="ident">prediction_mode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">::interface::LiteralPredictionModeNibble</span> {
+    <span class="kw">fn</span> <span class="ident">prediction_mode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">::interface::LiteralPredictionModeNibble</span> {
         <span class="self">self</span>.<span class="ident">context_map</span>.<span class="ident">literal_prediction_mode</span>()
     }
     <span class="kw">fn</span> <span class="ident">update_cost</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">stride_prior</span>: [<span class="ident">u8</span>;<span class="number">8</span>], <span class="ident">stride_prior_offset</span>: <span class="ident">usize</span> , <span class="ident">selected_bits</span>: <span class="ident">u8</span>, <span class="ident">cm_prior</span>: <span class="ident">usize</span>, <span class="ident">literal</span>: <span class="ident">u8</span>) {

@@ -468,7 +468,7 @@
 
 <span class="kw">impl</span> <span class="ident">ResourceMap</span> {
     <span class="doccomment">/// Creates a _container_ node in the `ResourceMap` tree.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">root</span>: <span class="ident">ResourceDef</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">root</span>: <span class="ident">ResourceDef</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">ResourceMap</span> {
             <span class="ident">pattern</span>: <span class="ident">root</span>,
             <span class="ident">named</span>: <span class="ident">AHashMap::default</span>(),
@@ -502,8 +502,8 @@
             }
 
             <span class="kw">let</span> <span class="ident">is_external</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">pattern</span>.<span class="ident">pattern</span>() {
-                <span class="prelude-val">Some</span>(<span class="ident">p</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="op">!</span><span class="ident">p</span>.<span class="ident">is_empty</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">p</span>.<span class="ident">starts_with</span>(<span class="string">&#39;/&#39;</span>),
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+                <span class="prelude-val">Some</span>(<span class="ident">p</span>) =&gt; <span class="op">!</span><span class="ident">p</span>.<span class="ident">is_empty</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">p</span>.<span class="ident">starts_with</span>(<span class="string">&#39;/&#39;</span>),
+                <span class="prelude-val">None</span> =&gt; <span class="bool-val">false</span>,
             };
 
             <span class="comment">// Don&#39;t add external resources to the tree</span>
@@ -528,7 +528,7 @@
         <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>,
         <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">elements</span>: <span class="ident">U</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Url</span>, <span class="ident">UrlGenerationError</span><span class="op">&gt;</span>
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Url</span>, <span class="ident">UrlGenerationError</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">U</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">I</span><span class="op">&gt;</span>,
         <span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
@@ -559,19 +559,19 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_resource</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_resource</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">find_matching_node</span>(<span class="ident">path</span>).<span class="ident">is_some</span>()
     }
 
     <span class="doccomment">/// Returns the name of the route that matches the given path or None if no full match</span>
     <span class="doccomment">/// is possible or the matching resource is not named.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">match_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">match_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">find_matching_node</span>(<span class="ident">path</span>)<span class="question-mark">?</span>.<span class="ident">pattern</span>.<span class="ident">name</span>()
     }
 
     <span class="doccomment">/// Returns the full resource pattern matched against a path or None if no full match</span>
     <span class="doccomment">/// is possible.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">match_pattern</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">match_pattern</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">find_matching_node</span>(<span class="ident">path</span>)<span class="question-mark">?</span>.<span class="ident">root_rmap_fn</span>(
             <span class="ident">String::with_capacity</span>(<span class="number">24</span>),
             <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">acc</span>, <span class="ident">node</span><span class="op">|</span> {
@@ -581,46 +581,46 @@
         )
     }
 
-    <span class="kw">fn</span> <span class="ident">find_matching_node</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ResourceMap</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">find_matching_node</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ResourceMap</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">_find_matching_node</span>(<span class="ident">path</span>).<span class="ident">flatten</span>()
     }
 
     <span class="doccomment">/// Returns `None` if root pattern doesn&#39;t match;</span>
     <span class="doccomment">/// `Some(None)` if root pattern matches but there is no matching child pattern.</span>
     <span class="doccomment">/// Don&#39;t search sideways when `Some(none)` is returned.</span>
-    <span class="kw">fn</span> <span class="ident">_find_matching_node</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ResourceMap</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">_find_matching_node</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ResourceMap</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">matched_len</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pattern</span>.<span class="ident">find_match</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">path</span>[<span class="ident">matched_len</span>..];
 
         <span class="prelude-val">Some</span>(<span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">nodes</span> {
             <span class="comment">// find first sub-node to match remaining path</span>
-            <span class="prelude-val">Some</span>(<span class="ident">nodes</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">nodes</span>
+            <span class="prelude-val">Some</span>(<span class="ident">nodes</span>) =&gt; <span class="ident">nodes</span>
                 .<span class="ident">iter</span>()
                 .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">node</span><span class="op">|</span> <span class="ident">node</span>.<span class="ident">_find_matching_node</span>(<span class="ident">path</span>))
                 .<span class="ident">next</span>()
                 .<span class="ident">flatten</span>(),
 
             <span class="comment">// only terminate at edge nodes</span>
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="self">self</span>),
+            <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Some</span>(<span class="self">self</span>),
         })
     }
 
     <span class="doccomment">/// Find `self`&#39;s highest ancestor and then run `F`, providing `B`, in that rmap context.</span>
-    <span class="kw">fn</span> <span class="ident">root_rmap_fn</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">B</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">init</span>: <span class="ident">B</span>, <span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">root_rmap_fn</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">B</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">init</span>: <span class="ident">B</span>, <span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">B</span>, <span class="kw-2">&amp;</span><span class="ident">ResourceMap</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">B</span>, <span class="kw-2">&amp;</span><span class="ident">ResourceMap</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>,
     {
         <span class="self">self</span>.<span class="ident">_root_rmap_fn</span>(<span class="ident">init</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">f</span>)
     }
 
     <span class="doccomment">/// Run `F`, providing `B`, if `self` is top-level resource map, else recurse to parent map.</span>
-    <span class="kw">fn</span> <span class="ident">_root_rmap_fn</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">B</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">init</span>: <span class="ident">B</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">_root_rmap_fn</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">B</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">init</span>: <span class="ident">B</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">F</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">B</span>, <span class="kw-2">&amp;</span><span class="ident">ResourceMap</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">B</span>, <span class="kw-2">&amp;</span><span class="ident">ResourceMap</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>,
     {
         <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">parent</span>.<span class="ident">borrow</span>().<span class="ident">upgrade</span>() {
-            <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">parent</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">parent</span>.<span class="ident">_root_rmap_fn</span>(<span class="ident">init</span>, <span class="ident">f</span>)<span class="question-mark">?</span>,
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">init</span>,
+            <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">parent</span>) =&gt; <span class="ident">parent</span>.<span class="ident">_root_rmap_fn</span>(<span class="ident">init</span>, <span class="ident">f</span>)<span class="question-mark">?</span>,
+            <span class="prelude-val">None</span> =&gt; <span class="ident">init</span>,
         };
 
         <span class="ident">f</span>(<span class="ident">data</span>, <span class="self">self</span>)

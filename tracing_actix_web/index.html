@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="`tracing-actix-web` provides [`TracingLogger`], a middleware to collect telemetry data from applications built on top of the `actix-web` framework."><meta name="keywords" content="rust, rustlang, rust-lang, tracing_actix_web"><title>tracing_actix_web - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../favicon.svg"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../tracing_actix_web/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><h2 class="location">Crate tracing_actix_web</h2><div class="block version"><div class="narrow-helper"></div><p>Version 0.5.0-beta.1</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all tracing_actix_web's items</p></a><div class="block items"><ul><li><a href="#macros">Macros</a></li><li><a href="#structs">Structs</a></li><li><a href="#traits">Traits</a></li></ul></div><div id="sidebar-vars" data-name="tracing_actix_web" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">tracing_actix_web</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/tracing_actix_web/lib.rs.html#1-268" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><code>tracing-actix-web</code> provides <a href="struct.TracingLogger.html" title="TracingLogger"><code>TracingLogger</code></a>, a middleware to collect telemetry data from applications
 built on top of the <a href="https://docs.rs/actix-web/4.0.0-beta.6/actix_web/index.html"><code>actix-web</code></a> framework.</p>
-<h1 id="how-to-install" class="section-header"><a href="#how-to-install">How to install</a></h1>
+<h2 id="how-to-install" class="section-header"><a href="#how-to-install">How to install</a></h2>
 <p>Add <code>tracing-actix-web</code> to your dependencies:</p>
 <div class="example-wrap"><pre class="language-toml"><code>[dependencies]
 tracing-actix-web = &quot;0.5.0-beta.1&quot;
@@ -15,7 +15,7 @@ actix-web = &quot;4.0.0-beta.10&quot;</code></pre></div>
 <li><code>emit_event_on_error</code>: emit a <a href="../tracing/index.html" title="tracing"><code>tracing</code></a> event when request processing fails with an error (enabled by default).</li>
 </ul>
 <p><code>tracing-actix-web</code> will release <code>0.5.0</code>, going out of beta, as soon as <code>actix-web</code> releases a stable <code>4.0.0</code>.</p>
-<h1 id="getting-started" class="section-header"><a href="#getting-started">Getting started</a></h1>
+<h2 id="getting-started" class="section-header"><a href="#getting-started">Getting started</a></h2>
 <div class='information'><div class='tooltip compile_fail'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered compile_fail"><code><span class="kw">use</span> <span class="ident">actix_web</span>::{<span class="ident">App</span>, <span class="ident">web</span>, <span class="ident">HttpServer</span>};
 <span class="kw">use</span> <span class="ident">tracing_actix_web::TracingLogger</span>;
 
@@ -27,13 +27,13 @@ actix-web = &quot;4.0.0-beta.10&quot;</code></pre></div>
 });</code></pre></div>
 <p>Check out <a href="https://github.com/LukeMathWalker/tracing-actix-web/tree/main/examples">the examples on GitHub</a> to get a taste of how <a href="struct.TracingLogger.html" title="TracingLogger"><code>TracingLogger</code></a> can be used to observe and monitor your
 application.</p>
-<h1 id="tracing-who-art-thou" class="section-header"><a href="#tracing-who-art-thou"><code>tracing</code>: who art thou?</a></h1>
+<h2 id="tracing-who-art-thou" class="section-header"><a href="#tracing-who-art-thou"><code>tracing</code>: who art thou?</a></h2>
 <p><a href="struct.TracingLogger.html" title="TracingLogger"><code>TracingLogger</code></a> is built on top of <a href="../tracing/index.html" title="tracing"><code>tracing</code></a>, a modern instrumentation framework with
 <a href="https://github.com/tokio-rs/tracing#related-crates">a vibrant ecosystem</a>.</p>
 <p><code>tracing-actix-web</code>’s documentation provides a crash course in how to use <a href="../tracing/index.html" title="tracing"><code>tracing</code></a> to instrument an <code>actix-web</code> application.<br />
 If you want to learn more check out <a href="https://www.lpalmieri.com/posts/2020-09-27-zero-to-production-4-are-we-observable-yet/">“Are we observable yet?”</a> -
 it provides an in-depth introduction to the crate and the problems it solves within the bigger picture of <a href="https://docs.honeycomb.io/learning-about-observability/">observability</a>.</p>
-<h1 id="the-root-span" class="section-header"><a href="#the-root-span">The root span</a></h1>
+<h2 id="the-root-span" class="section-header"><a href="#the-root-span">The root span</a></h2>
 <p><a href="../tracing/span/struct.Span.html" title="tracing::Span"><code>tracing::Span</code></a> is the key abstraction in <a href="../tracing/index.html" title="tracing"><code>tracing</code></a>: it represents a unit of work in your system.<br />
 A <a href="../tracing/span/struct.Span.html" title="tracing::Span"><code>tracing::Span</code></a> has a beginning and an end. It can include one or more <strong>child spans</strong> to represent sub-unit
 of works within a larger task.</p>
@@ -42,7 +42,7 @@ All the spans created <em>while</em> processing the request will be children of 
 <p><a href="../tracing/index.html" title="tracing"><code>tracing</code></a> empowers us to attach structured properties to a span as a collection of key-value pairs.<br />
 Those properties can then be queried in a variety of tools (e.g. ElasticSearch, Honeycomb, DataDog) to
 understand what is happening in your system.</p>
-<h1 id="customisation-via-rootspanbuilder" class="section-header"><a href="#customisation-via-rootspanbuilder">Customisation via <code>RootSpanBuilder</code></a></h1>
+<h2 id="customisation-via-rootspanbuilder" class="section-header"><a href="#customisation-via-rootspanbuilder">Customisation via <code>RootSpanBuilder</code></a></h2>
 <p>Troubleshooting becomes much easier when the root span has a <em>rich context</em> - e.g. you can understand most of what
 happened when processing the request just by looking at the properties attached to the corresponding root span.</p>
 <p>You might have heard of this technique as the <a href="https://stripe.com/blog/canonical-log-lines">canonical log line pattern</a>,
@@ -72,7 +72,7 @@ We could add a <code>client_id</code> property to the root span using a custom b
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DomainRootSpanBuilder</span>;
 
 <span class="kw">impl</span> <span class="ident">RootSpanBuilder</span> <span class="kw">for</span> <span class="ident">DomainRootSpanBuilder</span> {
-    <span class="kw">fn</span> <span class="ident">on_request_start</span>(<span class="ident">request</span>: <span class="kw-2">&amp;</span><span class="ident">ServiceRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
+    <span class="kw">fn</span> <span class="ident">on_request_start</span>(<span class="ident">request</span>: <span class="kw-2">&amp;</span><span class="ident">ServiceRequest</span>) -&gt; <span class="ident">Span</span> {
         <span class="kw">let</span> <span class="ident">client_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="macro">todo!</span>(<span class="string">&quot;Somehow extract it from the authorization header&quot;</span>);
         <span class="macro">tracing::info_span!</span>(<span class="string">&quot;Request&quot;</span>, <span class="ident">client_id</span>)
     }
@@ -94,7 +94,7 @@ With <code>DomainRootSpanBuilder</code>, as it is, we do not get any of that use
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DomainRootSpanBuilder</span>;
 
 <span class="kw">impl</span> <span class="ident">RootSpanBuilder</span> <span class="kw">for</span> <span class="ident">DomainRootSpanBuilder</span> {
-    <span class="kw">fn</span> <span class="ident">on_request_start</span>(<span class="ident">request</span>: <span class="kw-2">&amp;</span><span class="ident">ServiceRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
+    <span class="kw">fn</span> <span class="ident">on_request_start</span>(<span class="ident">request</span>: <span class="kw-2">&amp;</span><span class="ident">ServiceRequest</span>) -&gt; <span class="ident">Span</span> {
         <span class="kw">let</span> <span class="ident">client_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="macro">todo!</span>(<span class="string">&quot;Somehow extract it from the authorization header&quot;</span>);
         <span class="macro">tracing_actix_web::root_span!</span>(<span class="ident">request</span>, <span class="ident">client_id</span>)
     }
@@ -110,7 +110,7 @@ by <a href="struct.DefaultRootSpanBuilder.html" title="DefaultRootSpanBuilder"><
 <p>We need to use a macro because <code>tracing</code> requires all the properties attached to a span to be declared upfront, when the span is created.<br />
 You cannot add new ones afterwards. This makes it extremely fast, but it pushes us to reach for macros when we need some level of
 composition.</p>
-<h1 id="the-rootspan-extractor" class="section-header"><a href="#the-rootspan-extractor">The <code>RootSpan</code> extractor</a></h1>
+<h2 id="the-rootspan-extractor" class="section-header"><a href="#the-rootspan-extractor">The <code>RootSpan</code> extractor</a></h2>
 <p>It often happens that not all information about a task is known upfront, encoded in the incoming request.<br />
 You can use the <a href="struct.RootSpan.html" title="RootSpan"><code>RootSpan</code></a> extractor to grab the root span in your handlers and attach more information
 to your root span as it becomes available:</p>
@@ -124,7 +124,7 @@ to your root span as it becomes available:</p>
 <span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
 
 <span class="attribute">#[<span class="ident">get</span>(<span class="string">&quot;/&quot;</span>)]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">handler</span>(<span class="ident">root_span</span>: <span class="ident">RootSpan</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HttpResponse</span> {
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">handler</span>(<span class="ident">root_span</span>: <span class="ident">RootSpan</span>) -&gt; <span class="ident">HttpResponse</span> {
     <span class="kw">let</span> <span class="ident">application_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="macro">todo!</span>(<span class="string">&quot;Some domain logic&quot;</span>);
     <span class="comment">// Record the property value against the root span</span>
     <span class="ident">root_span</span>.<span class="ident">record</span>(<span class="string">&quot;application_id&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">application_id</span>);
@@ -135,7 +135,7 @@ to your root span as it becomes available:</p>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DomainRootSpanBuilder</span>;
 
 <span class="kw">impl</span> <span class="ident">RootSpanBuilder</span> <span class="kw">for</span> <span class="ident">DomainRootSpanBuilder</span> {
-    <span class="kw">fn</span> <span class="ident">on_request_start</span>(<span class="ident">request</span>: <span class="kw-2">&amp;</span><span class="ident">ServiceRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
+    <span class="kw">fn</span> <span class="ident">on_request_start</span>(<span class="ident">request</span>: <span class="kw-2">&amp;</span><span class="ident">ServiceRequest</span>) -&gt; <span class="ident">Span</span> {
         <span class="kw">let</span> <span class="ident">client_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="macro">todo!</span>(<span class="string">&quot;Somehow extract it from the authorization header&quot;</span>);
         <span class="comment">// All fields you want to capture must be declared upfront.</span>
         <span class="comment">// If you don&#39;t know the value (yet), use tracing&#39;s `Empty`</span>
@@ -149,7 +149,7 @@ to your root span as it becomes available:</p>
         <span class="ident">DefaultRootSpanBuilder::on_request_end</span>(<span class="ident">span</span>, <span class="ident">response</span>);
     }
 }</code></pre></div>
-<h1 id="the-requestid-extractor" class="section-header"><a href="#the-requestid-extractor">The <code>RequestId</code> extractor</a></h1>
+<h2 id="the-requestid-extractor" class="section-header"><a href="#the-requestid-extractor">The <code>RequestId</code> extractor</a></h2>
 <p><code>tracing-actix-web</code> generates a unique identifier for each incoming request, the <strong>request id</strong>.</p>
 <p>You can extract the request id using the <a href="struct.RequestId.html" title="RequestId"><code>RequestId</code></a> extractor:</p>
 
@@ -158,10 +158,10 @@ to your root span as it becomes available:</p>
 <span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
 
 <span class="attribute">#[<span class="ident">get</span>(<span class="string">&quot;/&quot;</span>)]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">index</span>(<span class="ident">request_id</span>: <span class="ident">RequestId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">index</span>(<span class="ident">request_id</span>: <span class="ident">RequestId</span>) -&gt; <span class="ident">String</span> {
   <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">request_id</span>)
 }</code></pre></div>
-<h1 id="opentelemetry-integration" class="section-header"><a href="#opentelemetry-integration">OpenTelemetry integration</a></h1>
+<h2 id="opentelemetry-integration" class="section-header"><a href="#opentelemetry-integration">OpenTelemetry integration</a></h2>
 <p><code>tracing-actix-web</code> follows <a href="https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/overview.md#spancontext">OpenTelemetry’s semantic convention</a>
 for field names.<br />
 Furthermore, if you have not disabled the <code>opentelemetry_0_13</code> or <code>opentelemetry_0_14</code> or <code>opentelemetry_0_15</code> feature flags, <code>tracing-actix-web</code> automatically
@@ -175,18 +175,18 @@ in your <code>tracing::Subscriber</code> you will be able to export the root spa
 Parts of this project were heavily inspired by their implementation. They provide support for metrics
 and instrumentation for the <code>awc</code> HTTP client, both out of scope for <code>tracing-actix-web</code>.</p>
 </div></details><h2 id="macros" class="section-header"><a href="#macros">Macros</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="macro" href="macro.root_span.html" title="tracing_actix_web::root_span macro">root_span</a></div><div class="item-right docblock-short"><p><a href="macro.root_span.html" title="root_span!"><code>root_span!</code></a> creates a new <a href="../tracing/span/struct.Span.html" title="tracing::Span"><code>tracing::Span</code></a>.
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="macro" href="macro.root_span.html" title="tracing_actix_web::root_span macro">root_span</a></div><div class="item-right docblock-short"><p><a href="macro.root_span.html" title="root_span!"><code>root_span!</code></a> creates a new <a href="../tracing/span/struct.Span.html" title="tracing::Span"><code>tracing::Span</code></a>.
 It empowers you to add custom properties to the root span on top of the HTTP properties tracked
 by <a href="struct.DefaultRootSpanBuilder.html"><code>DefaultRootSpanBuilder</code></a>.</p>
-</div></div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.DefaultRootSpanBuilder.html" title="tracing_actix_web::DefaultRootSpanBuilder struct">DefaultRootSpanBuilder</a></div><div class="item-right docblock-short"><p>The default <a href="trait.RootSpanBuilder.html" title="RootSpanBuilder"><code>RootSpanBuilder</code></a> for <a href="struct.TracingLogger.html"><code>TracingLogger</code></a>.</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.RequestId.html" title="tracing_actix_web::RequestId struct">RequestId</a></div><div class="item-right docblock-short"><p>A unique identifier generated for each incoming request.</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.RootSpan.html" title="tracing_actix_web::RootSpan struct">RootSpan</a></div><div class="item-right docblock-short"><p>The root span associated to the in-flight current request.</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.TracingLogger.html" title="tracing_actix_web::TracingLogger struct">TracingLogger</a></div><div class="item-right docblock-short"><p><code>TracingLogger</code> is a middleware to capture structured diagnostic when processing an HTTP request.
+</div></div></div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.DefaultRootSpanBuilder.html" title="tracing_actix_web::DefaultRootSpanBuilder struct">DefaultRootSpanBuilder</a></div><div class="item-right docblock-short"><p>The default <a href="trait.RootSpanBuilder.html" title="RootSpanBuilder"><code>RootSpanBuilder</code></a> for <a href="struct.TracingLogger.html"><code>TracingLogger</code></a>.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.RequestId.html" title="tracing_actix_web::RequestId struct">RequestId</a></div><div class="item-right docblock-short"><p>A unique identifier generated for each incoming request.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.RootSpan.html" title="tracing_actix_web::RootSpan struct">RootSpan</a></div><div class="item-right docblock-short"><p>The root span associated to the in-flight current request.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.TracingLogger.html" title="tracing_actix_web::TracingLogger struct">TracingLogger</a></div><div class="item-right docblock-short"><p><code>TracingLogger</code> is a middleware to capture structured diagnostic when processing an HTTP request.
 Check the crate-level documentation for an in-depth introduction.</p>
-</div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="trait" href="trait.RootSpanBuilder.html" title="tracing_actix_web::RootSpanBuilder trait">RootSpanBuilder</a></div><div class="item-right docblock-short"><p><code>RootSpanBuilder</code> allows you to customise the root span attached by
+</div></div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.RootSpanBuilder.html" title="tracing_actix_web::RootSpanBuilder trait">RootSpanBuilder</a></div><div class="item-right docblock-short"><p><code>RootSpanBuilder</code> allows you to customise the root span attached by
 <a href="struct.TracingLogger.html"><code>TracingLogger</code></a> to incoming requests.</p>
-</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="tracing_actix_web" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+</div></div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="tracing_actix_web" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
     <script src="../main.js"></script>
 </body></html>

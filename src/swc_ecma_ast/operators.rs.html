@@ -236,40 +236,40 @@
 }
 
 <span class="kw">impl</span> <span class="ident">BinaryOp</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">precedence</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u8</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">precedence</span>(<span class="self">self</span>) -&gt; <span class="ident">u8</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">BinaryOp::EqEq</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">6</span>,
-            <span class="ident">BinaryOp::NotEq</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">6</span>,
-            <span class="ident">BinaryOp::EqEqEq</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">6</span>,
-            <span class="ident">BinaryOp::NotEqEq</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">6</span>,
-            <span class="ident">BinaryOp::Lt</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">7</span>,
-            <span class="ident">BinaryOp::LtEq</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">7</span>,
-            <span class="ident">BinaryOp::Gt</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">7</span>,
-            <span class="ident">BinaryOp::GtEq</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">7</span>,
-            <span class="ident">BinaryOp::LShift</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">8</span>,
-            <span class="ident">BinaryOp::RShift</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">8</span>,
-            <span class="ident">BinaryOp::ZeroFillRShift</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">8</span>,
+            <span class="ident">BinaryOp::EqEq</span> =&gt; <span class="number">6</span>,
+            <span class="ident">BinaryOp::NotEq</span> =&gt; <span class="number">6</span>,
+            <span class="ident">BinaryOp::EqEqEq</span> =&gt; <span class="number">6</span>,
+            <span class="ident">BinaryOp::NotEqEq</span> =&gt; <span class="number">6</span>,
+            <span class="ident">BinaryOp::Lt</span> =&gt; <span class="number">7</span>,
+            <span class="ident">BinaryOp::LtEq</span> =&gt; <span class="number">7</span>,
+            <span class="ident">BinaryOp::Gt</span> =&gt; <span class="number">7</span>,
+            <span class="ident">BinaryOp::GtEq</span> =&gt; <span class="number">7</span>,
+            <span class="ident">BinaryOp::LShift</span> =&gt; <span class="number">8</span>,
+            <span class="ident">BinaryOp::RShift</span> =&gt; <span class="number">8</span>,
+            <span class="ident">BinaryOp::ZeroFillRShift</span> =&gt; <span class="number">8</span>,
 
-            <span class="ident">BinaryOp::Add</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">9</span>,
-            <span class="ident">BinaryOp::Sub</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">9</span>,
-            <span class="ident">BinaryOp::Mul</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">10</span>,
-            <span class="ident">BinaryOp::Div</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">10</span>,
-            <span class="ident">BinaryOp::Mod</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">10</span>,
+            <span class="ident">BinaryOp::Add</span> =&gt; <span class="number">9</span>,
+            <span class="ident">BinaryOp::Sub</span> =&gt; <span class="number">9</span>,
+            <span class="ident">BinaryOp::Mul</span> =&gt; <span class="number">10</span>,
+            <span class="ident">BinaryOp::Div</span> =&gt; <span class="number">10</span>,
+            <span class="ident">BinaryOp::Mod</span> =&gt; <span class="number">10</span>,
 
-            <span class="ident">BinaryOp::BitOr</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">3</span>,
-            <span class="ident">BinaryOp::BitXor</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">4</span>,
+            <span class="ident">BinaryOp::BitOr</span> =&gt; <span class="number">3</span>,
+            <span class="ident">BinaryOp::BitXor</span> =&gt; <span class="number">4</span>,
 
-            <span class="ident">BinaryOp::BitAnd</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">5</span>,
+            <span class="ident">BinaryOp::BitAnd</span> =&gt; <span class="number">5</span>,
 
-            <span class="ident">BinaryOp::LogicalOr</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">1</span>,
+            <span class="ident">BinaryOp::LogicalOr</span> =&gt; <span class="number">1</span>,
 
-            <span class="ident">BinaryOp::LogicalAnd</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">2</span>,
-            <span class="ident">BinaryOp::In</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">7</span>,
-            <span class="ident">BinaryOp::InstanceOf</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">7</span>,
+            <span class="ident">BinaryOp::LogicalAnd</span> =&gt; <span class="number">2</span>,
+            <span class="ident">BinaryOp::In</span> =&gt; <span class="number">7</span>,
+            <span class="ident">BinaryOp::InstanceOf</span> =&gt; <span class="number">7</span>,
 
-            <span class="ident">BinaryOp::Exp</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">11</span>,
+            <span class="ident">BinaryOp::Exp</span> =&gt; <span class="number">11</span>,
 
-            <span class="ident">BinaryOp::NullishCoalescing</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">1</span>,
+            <span class="ident">BinaryOp::NullishCoalescing</span> =&gt; <span class="number">1</span>,
         }
     }
 }

@@ -245,7 +245,7 @@
     <span class="doccomment">/// Creates a prepared dictionary for compression.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This will copy the dictionary internally.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">copy</span>(<span class="ident">dictionary</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">level</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">copy</span>(<span class="ident">dictionary</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">level</span>: <span class="ident">i32</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">cdict</span>: <span class="ident">zstd_safe::create_cdict</span>(<span class="ident">dictionary</span>, <span class="ident">level</span>),
         }
@@ -259,14 +259,14 @@
     <span class="doccomment">/// A level of `0` uses zstd&#39;s default (currently `3`).</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Only available with the `experimental` feature. Use `EncoderDictionary::copy` otherwise.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">dictionary</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>], <span class="ident">level</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">dictionary</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>], <span class="ident">level</span>: <span class="ident">i32</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">cdict</span>: <span class="ident">zstd_safe::create_cdict_by_reference</span>(<span class="ident">dictionary</span>, <span class="ident">level</span>),
         }
     }
 
     <span class="doccomment">/// Returns reference to `CDict` inner object</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_cdict</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">CDict</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_cdict</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">CDict</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cdict</span>
     }
 }
@@ -280,7 +280,7 @@
     <span class="doccomment">/// Create a prepared dictionary for decompression.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This will copy the dictionary internally.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">copy</span>(<span class="ident">dictionary</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">copy</span>(<span class="ident">dictionary</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">ddict</span>: <span class="ident">zstd_safe::DDict::create</span>(<span class="ident">dictionary</span>),
         }
@@ -292,14 +292,14 @@
     <span class="doccomment">/// Create prepared dictionary for decompression</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Only available with the `experimental` feature. Use `DecoderDictionary::copy` otherwise.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">dict</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">dict</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">ddict</span>: <span class="ident">zstd_safe::create_ddict_by_reference</span>(<span class="ident">dict</span>),
         }
     }
 
     <span class="doccomment">/// Returns reference to `DDict` inner object</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_ddict</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">DDict</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_ddict</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">DDict</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">ddict</span>
     }
 }
@@ -312,7 +312,7 @@
     <span class="ident">sample_data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
     <span class="ident">sample_sizes</span>: <span class="kw-2">&amp;</span>[<span class="ident">usize</span>],
     <span class="ident">max_size</span>: <span class="ident">usize</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="comment">// Complain if the lengths don&#39;t add up to the entire data.</span>
     <span class="kw">if</span> <span class="ident">sample_sizes</span>.<span class="ident">iter</span>().<span class="ident">sum</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">sample_data</span>.<span class="ident">len</span>() {
         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
@@ -347,7 +347,7 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_samples</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span><span class="op">&gt;</span>(
     <span class="ident">samples</span>: <span class="kw-2">&amp;</span>[<span class="ident">S</span>],
     <span class="ident">max_size</span>: <span class="ident">usize</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="comment">// Copy every sample to a big chunk of memory</span>
     <span class="kw">let</span> <span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span>
         <span class="ident">samples</span>.<span class="ident">iter</span>().<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">as_ref</span>()).<span class="ident">cloned</span>().<span class="ident">collect</span>();
@@ -357,7 +357,7 @@
 }
 
 <span class="doccomment">/// Train a dict from a list of files.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_files</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">P</span><span class="op">&gt;</span>(<span class="ident">filenames</span>: <span class="ident">I</span>, <span class="ident">max_size</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_files</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">P</span><span class="op">&gt;</span>(<span class="ident">filenames</span>: <span class="ident">I</span>, <span class="ident">max_size</span>: <span class="ident">usize</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">path::Path</span><span class="op">&gt;</span>,
     <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">P</span><span class="op">&gt;</span>,

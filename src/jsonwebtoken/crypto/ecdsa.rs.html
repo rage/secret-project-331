@@ -45,20 +45,20 @@
 <span class="doccomment">/// Only used internally when validating EC, to map from our enum to the Ring EcdsaVerificationAlgorithm structs.</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">alg_to_ec_verification</span>(
     <span class="ident">alg</span>: <span class="ident">Algorithm</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">signature::EcdsaVerificationAlgorithm</span> {
+) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">signature::EcdsaVerificationAlgorithm</span> {
     <span class="kw">match</span> <span class="ident">alg</span> {
-        <span class="ident">Algorithm::ES256</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">signature::ECDSA_P256_SHA256_FIXED</span>,
-        <span class="ident">Algorithm::ES384</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">signature::ECDSA_P384_SHA384_FIXED</span>,
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(<span class="string">&quot;Tried to get EC alg for a non-EC algorithm&quot;</span>),
+        <span class="ident">Algorithm::ES256</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">signature::ECDSA_P256_SHA256_FIXED</span>,
+        <span class="ident">Algorithm::ES384</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">signature::ECDSA_P384_SHA384_FIXED</span>,
+        <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Tried to get EC alg for a non-EC algorithm&quot;</span>),
     }
 }
 
 <span class="doccomment">/// Only used internally when signing EC, to map from our enum to the Ring EcdsaVerificationAlgorithm structs.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">alg_to_ec_signing</span>(<span class="ident">alg</span>: <span class="ident">Algorithm</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">signature::EcdsaSigningAlgorithm</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">alg_to_ec_signing</span>(<span class="ident">alg</span>: <span class="ident">Algorithm</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">signature::EcdsaSigningAlgorithm</span> {
     <span class="kw">match</span> <span class="ident">alg</span> {
-        <span class="ident">Algorithm::ES256</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">signature::ECDSA_P256_SHA256_FIXED_SIGNING</span>,
-        <span class="ident">Algorithm::ES384</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">signature::ECDSA_P384_SHA384_FIXED_SIGNING</span>,
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(<span class="string">&quot;Tried to get EC alg for a non-EC algorithm&quot;</span>),
+        <span class="ident">Algorithm::ES256</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">signature::ECDSA_P256_SHA256_FIXED_SIGNING</span>,
+        <span class="ident">Algorithm::ES384</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">signature::ECDSA_P384_SHA384_FIXED_SIGNING</span>,
+        <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Tried to get EC alg for a non-EC algorithm&quot;</span>),
     }
 }
 
@@ -68,7 +68,7 @@
     <span class="ident">alg</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">signature::EcdsaSigningAlgorithm</span>,
     <span class="ident">key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
     <span class="ident">message</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">signing_key</span> <span class="op">=</span> <span class="ident">signature::EcdsaKeyPair::from_pkcs8</span>(<span class="ident">alg</span>, <span class="ident">key</span>)<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">rand::SystemRandom::new</span>();
     <span class="kw">let</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">signing_key</span>.<span class="ident">sign</span>(<span class="kw-2">&amp;</span><span class="ident">rng</span>, <span class="ident">message</span>.<span class="ident">as_bytes</span>())<span class="question-mark">?</span>;

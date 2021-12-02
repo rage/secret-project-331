@@ -128,12 +128,12 @@
 
 <span class="kw">impl</span> <span class="ident">ListenFd</span> {
     <span class="doccomment">/// Creates the listenfd manager object from the environment.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_env</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ListenFd</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_env</span>() -&gt; <span class="ident">ListenFd</span> {
         <span class="kw">match</span> <span class="ident">imp::get_fds</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">fds</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ListenFd</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">fds</span>) =&gt; <span class="ident">ListenFd</span> {
                 <span class="ident">fds</span>: <span class="ident">fds</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="prelude-val">Some</span>).<span class="ident">collect</span>(),
             },
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ListenFd::empty</span>(),
+            <span class="prelude-val">None</span> =&gt; <span class="ident">ListenFd::empty</span>(),
         }
     }
 
@@ -143,7 +143,7 @@
     <span class="doccomment">/// descriptors should be disabled in certain code paths.  This</span>
     <span class="doccomment">/// way the functions on the object will just never return</span>
     <span class="doccomment">/// sockets.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ListenFd</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>() -&gt; <span class="ident">ListenFd</span> {
         <span class="ident">ListenFd</span> { <span class="ident">fds</span>: <span class="macro">vec!</span>[] }
     }
 
@@ -151,18 +151,18 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Note that even if fds are taken out of the manager this count</span>
     <span class="doccomment">/// does not change.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">fds</span>.<span class="ident">len</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">with_fd</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">imp::FdType</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span>(
+    <span class="kw">fn</span> <span class="ident">with_fd</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">imp::FdType</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">idx</span>: <span class="ident">usize</span>,
         <span class="ident">f</span>: <span class="ident">F</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">fds</span>.<span class="ident">get_mut</span>(<span class="ident">idx</span>) {
-            <span class="prelude-val">Some</span>(<span class="prelude-val">None</span>) <span class="op">|</span> <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
-            <span class="prelude-val">Some</span>(<span class="ident">bucket</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">bucket</span>,
+            <span class="prelude-val">Some</span>(<span class="prelude-val">None</span>) <span class="op">|</span> <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
+            <span class="prelude-val">Some</span>(<span class="ident">bucket</span>) =&gt; <span class="ident">bucket</span>,
         };
         <span class="ident">f</span>(<span class="kw-2">*</span><span class="ident">bucket</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>()).<span class="ident">map</span>(<span class="op">|</span><span class="ident">rv</span><span class="op">|</span> {
             <span class="ident">bucket</span>.<span class="ident">take</span>();
@@ -176,7 +176,7 @@
     <span class="doccomment">/// otherwise the fd at that index is returned as `TcpListener`.  If</span>
     <span class="doccomment">/// the fd at that position is not a tcp socket then an error is</span>
     <span class="doccomment">/// returned and the fd is left at its place.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take_tcp_listener</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TcpListener</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take_tcp_listener</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TcpListener</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">with_fd</span>(<span class="ident">idx</span>, <span class="ident">imp::make_tcp_listener</span>)
     }
 
@@ -189,7 +189,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This function is only available on unix platforms.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">windows</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take_unix_listener</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UnixListener</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take_unix_listener</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UnixListener</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">with_fd</span>(<span class="ident">idx</span>, <span class="ident">imp::make_unix_listener</span>)
     }
 
@@ -199,14 +199,14 @@
     <span class="doccomment">/// otherwise the fd at that index is returned as `UdpSocket`.  If</span>
     <span class="doccomment">/// the fd at that position is not a tcp socket then an error is</span>
     <span class="doccomment">/// returned and the fd is left at its place.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take_udp_socket</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UdpSocket</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take_udp_socket</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UdpSocket</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">_idx</span> <span class="op">=</span> <span class="ident">idx</span>;
         <span class="self">self</span>.<span class="ident">with_fd</span>(<span class="ident">idx</span>, <span class="ident">imp::make_udp_socket</span>)
     }
 
     <span class="doccomment">/// Takes the `RawFd` on unix platforms.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">windows</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take_raw_fd</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">imp::FdType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take_raw_fd</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">imp::FdType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">_idx</span> <span class="op">=</span> <span class="ident">idx</span>;
         <span class="self">self</span>.<span class="ident">with_fd</span>(<span class="ident">idx</span>, <span class="op">|</span><span class="ident">fd</span><span class="op">|</span> <span class="prelude-val">Ok</span>(<span class="ident">fd</span>))
     }
@@ -215,7 +215,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This will error if the fd at this position is not a socket (but a handle).</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">windows</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take_raw_socket</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">imp::RawSocket</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take_raw_socket</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">imp::RawSocket</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">_idx</span> <span class="op">=</span> <span class="ident">idx</span>;
         <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
     }

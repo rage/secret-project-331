@@ -234,9 +234,9 @@
 
 <span class="comment">// Statically ensure the numbers above are in-sync.</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;signed&quot;</span>)]</span>
-<span class="macro">const_assert!</span>(<span class="ident"><span class="kw">crate</span>::secure::signed::KEY_LEN</span> <span class="op">=</span><span class="op">=</span> <span class="ident">SIGNING_KEY_LEN</span>);
+<span class="macro">const_assert!</span>(<span class="ident"><span class="kw">crate</span>::secure::signed::KEY_LEN</span> <span class="op">==</span> <span class="ident">SIGNING_KEY_LEN</span>);
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;private&quot;</span>)]</span>
-<span class="macro">const_assert!</span>(<span class="ident"><span class="kw">crate</span>::secure::private::KEY_LEN</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ENCRYPTION_KEY_LEN</span>);
+<span class="macro">const_assert!</span>(<span class="ident"><span class="kw">crate</span>::secure::private::KEY_LEN</span> <span class="op">==</span> <span class="ident">ENCRYPTION_KEY_LEN</span>);
 
 <span class="doccomment">/// A cryptographic master key for use with `Signed` and/or `Private` jars.</span>
 <span class="doccomment">///</span>
@@ -249,7 +249,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Key</span>([<span class="ident">u8</span>; <span class="ident">COMBINED_KEY_LENGTH</span> <span class="comment">/* SIGNING | ENCRYPTION */</span>]);
 
 <span class="kw">impl</span> <span class="ident">PartialEq</span> <span class="kw">for</span> <span class="ident">Key</span> {
-    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">use</span> <span class="ident">subtle::ConstantTimeEq</span>;
 
         <span class="self">self</span>.<span class="number">0</span>.<span class="ident">ct_eq</span>(<span class="kw-2">&amp;</span><span class="ident">other</span>.<span class="number">0</span>).<span class="ident">into</span>()
@@ -258,7 +258,7 @@
 
 <span class="kw">impl</span> <span class="ident">Key</span> {
     <span class="comment">// An empty key structure, to be filled.</span>
-    <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">zero</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">zero</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">Key</span>([<span class="number">0</span>; <span class="ident">COMBINED_KEY_LENGTH</span>])
     }
 
@@ -283,7 +283,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// let key = Key::from(key);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Key</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">Key</span> {
         <span class="kw">if</span> <span class="ident">key</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">64</span> {
             <span class="macro">panic!</span>(<span class="string">&quot;bad key length: expected &gt;= 64 bytes, found {}&quot;</span>, <span class="ident">key</span>.<span class="ident">len</span>());
         }
@@ -317,7 +317,7 @@
     <span class="doccomment">/// ```</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;key-expansion&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">nightly</span>, <span class="ident">doc</span>), <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;key-expansion&quot;</span>)))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">derive_from</span>(<span class="ident">master_key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">derive_from</span>(<span class="ident">master_key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="self">Self</span> {
         <span class="kw">if</span> <span class="ident">master_key</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">32</span> {
             <span class="macro">panic!</span>(<span class="string">&quot;bad master key length: expected &gt;= 32 bytes, found {}&quot;</span>, <span class="ident">master_key</span>.<span class="ident">len</span>());
         }
@@ -345,7 +345,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// let key = Key::generate();</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">generate</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Key</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">generate</span>() -&gt; <span class="ident">Key</span> {
         <span class="ident"><span class="self">Self</span>::try_generate</span>().<span class="ident">expect</span>(<span class="string">&quot;failed to generate `Key` from randomness&quot;</span>)
     }
 
@@ -360,7 +360,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// let key = Key::try_generate();</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_generate</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Key</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_generate</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Key</span><span class="op">&gt;</span> {
         <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::secure::rand::RngCore</span>;
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::secure::rand::thread_rng</span>();
@@ -380,7 +380,7 @@
     <span class="doccomment">/// let key = Key::generate();</span>
     <span class="doccomment">/// let signing_key = key.signing();</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">signing</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">signing</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>[..<span class="ident">SIGNING_KEY_LEN</span>]
     }
 
@@ -395,7 +395,7 @@
     <span class="doccomment">/// let key = Key::generate();</span>
     <span class="doccomment">/// let encryption_key = key.encryption();</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encryption</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encryption</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>[<span class="ident">SIGNING_KEY_LEN</span>..]
     }
 
@@ -410,7 +410,7 @@
     <span class="doccomment">/// let key = Key::generate();</span>
     <span class="doccomment">/// let master_key = key.master();</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">master</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">master</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>
     }
 }

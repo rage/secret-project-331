@@ -655,14 +655,14 @@
 }
 
 <span class="kw">impl</span> <span class="ident">PrintItems</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PrintItems</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">PrintItems</span> {
         <span class="ident">PrintItems</span> {
             <span class="ident">first_node</span>: <span class="prelude-val">None</span>,
             <span class="ident">last_node</span>: <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_rc_path</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PrintItemPath</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_rc_path</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PrintItemPath</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">first_node</span>
     }
 
@@ -739,26 +739,26 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">first_node</span>.<span class="ident">is_none</span>()
     }
 
     <span class="comment">// todo: clean this up</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">debug_assertions</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_as_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_as_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
         <span class="kw">return</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">first_node</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">first_node</span> {
             <span class="ident">get_items_as_text</span>(<span class="ident">first_node</span>.<span class="ident">clone</span>(), <span class="ident">String::from</span>(<span class="string">&quot;&quot;</span>))
         } <span class="kw">else</span> {
             <span class="ident">String::new</span>()
         };
 
-        <span class="kw">fn</span> <span class="ident">get_items_as_text</span>(<span class="ident">items</span>: <span class="ident">PrintItemPath</span>, <span class="ident">indent_text</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+        <span class="kw">fn</span> <span class="ident">get_items_as_text</span>(<span class="ident">items</span>: <span class="ident">PrintItemPath</span>, <span class="ident">indent_text</span>: <span class="ident">String</span>) -&gt; <span class="ident">String</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">text</span> <span class="op">=</span> <span class="ident">String::new</span>();
             <span class="kw">for</span> <span class="ident">item</span> <span class="kw">in</span> <span class="ident">PrintItemsIterator::new</span>(<span class="ident">items</span>) {
                 <span class="kw">match</span> <span class="ident">item</span> {
-                    <span class="ident">PrintItem::Signal</span>(<span class="ident">signal</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">text</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">get_line</span>(<span class="macro">format!</span>(<span class="string">&quot;Signal::{:?}&quot;</span>, <span class="ident">signal</span>), <span class="kw-2">&amp;</span><span class="ident">indent_text</span>)),
-                    <span class="ident">PrintItem::Info</span>(<span class="ident">info</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">text</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">get_line</span>(<span class="macro">format!</span>(<span class="string">&quot;Info: {}&quot;</span>, <span class="ident">info</span>.<span class="ident">name</span>), <span class="kw-2">&amp;</span><span class="ident">indent_text</span>)),
-                    <span class="ident">PrintItem::Condition</span>(<span class="ident">condition</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">PrintItem::Signal</span>(<span class="ident">signal</span>) =&gt; <span class="ident">text</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">get_line</span>(<span class="macro">format!</span>(<span class="string">&quot;Signal::{:?}&quot;</span>, <span class="ident">signal</span>), <span class="kw-2">&amp;</span><span class="ident">indent_text</span>)),
+                    <span class="ident">PrintItem::Info</span>(<span class="ident">info</span>) =&gt; <span class="ident">text</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">get_line</span>(<span class="macro">format!</span>(<span class="string">&quot;Info: {}&quot;</span>, <span class="ident">info</span>.<span class="ident">name</span>), <span class="kw-2">&amp;</span><span class="ident">indent_text</span>)),
+                    <span class="ident">PrintItem::Condition</span>(<span class="ident">condition</span>) =&gt; {
                         <span class="ident">text</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">get_line</span>(<span class="macro">format!</span>(<span class="string">&quot;Condition: {}&quot;</span>, <span class="ident">condition</span>.<span class="ident">name</span>), <span class="kw-2">&amp;</span><span class="ident">indent_text</span>));
                         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">true_path</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">condition</span>.<span class="ident">true_path</span> {
                             <span class="ident">text</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">get_line</span>(<span class="ident">String::from</span>(<span class="string">&quot;  true:&quot;</span>), <span class="kw-2">&amp;</span><span class="ident">indent_text</span>));
@@ -769,20 +769,20 @@
                             <span class="ident">text</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">get_items_as_text</span>(<span class="ident">false_path</span>.<span class="ident">clone</span>(), <span class="macro">format!</span>(<span class="string">&quot;{}    &quot;</span>, <span class="kw-2">&amp;</span><span class="ident">indent_text</span>)));
                         }
                     },
-                    <span class="ident">PrintItem::String</span>(<span class="ident">str_text</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">text</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">get_line</span>(<span class="macro">format!</span>(<span class="string">&quot;`{}`&quot;</span>, <span class="ident">str_text</span>.<span class="ident">text</span>.<span class="ident">to_string</span>()), <span class="kw-2">&amp;</span><span class="ident">indent_text</span>)),
-                    <span class="ident">PrintItem::RcPath</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">text</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">get_items_as_text</span>(<span class="ident">path</span>.<span class="ident">clone</span>(), <span class="ident">indent_text</span>.<span class="ident">clone</span>())),
+                    <span class="ident">PrintItem::String</span>(<span class="ident">str_text</span>) =&gt; <span class="ident">text</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">get_line</span>(<span class="macro">format!</span>(<span class="string">&quot;`{}`&quot;</span>, <span class="ident">str_text</span>.<span class="ident">text</span>.<span class="ident">to_string</span>()), <span class="kw-2">&amp;</span><span class="ident">indent_text</span>)),
+                    <span class="ident">PrintItem::RcPath</span>(<span class="ident">path</span>) =&gt; <span class="ident">text</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">get_items_as_text</span>(<span class="ident">path</span>.<span class="ident">clone</span>(), <span class="ident">indent_text</span>.<span class="ident">clone</span>())),
                 }
             }
 
             <span class="kw">return</span> <span class="ident">text</span>;
 
-            <span class="kw">fn</span> <span class="ident">get_line</span>(<span class="ident">text</span>: <span class="ident">String</span>, <span class="ident">indent_text</span>: <span class="kw-2">&amp;</span><span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+            <span class="kw">fn</span> <span class="ident">get_line</span>(<span class="ident">text</span>: <span class="ident">String</span>, <span class="ident">indent_text</span>: <span class="kw-2">&amp;</span><span class="ident">String</span>) -&gt; <span class="ident">String</span> {
                 <span class="macro">format!</span>(<span class="string">&quot;{}{}\n&quot;</span>, <span class="ident">indent_text</span>, <span class="ident">text</span>)
             }
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PrintItemsIterator</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PrintItemsIterator</span> {
         <span class="ident">PrintItemsIterator</span> {
             <span class="ident">node</span>: <span class="self">self</span>.<span class="ident">first_node</span>.<span class="ident">clone</span>(),
         }
@@ -794,7 +794,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">PrintItemsIterator</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">path</span>: <span class="ident">PrintItemPath</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PrintItemsIterator</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">path</span>: <span class="ident">PrintItemPath</span>) -&gt; <span class="ident">PrintItemsIterator</span> {
         <span class="ident">PrintItemsIterator</span> {
             <span class="ident">node</span>: <span class="prelude-val">Some</span>(<span class="ident">path</span>),
         }
@@ -804,21 +804,21 @@
 <span class="kw">impl</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">PrintItemsIterator</span> {
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">PrintItem</span>;
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PrintItem</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PrintItem</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">node</span>.<span class="ident">take</span>();
 
         <span class="kw">match</span> <span class="ident">node</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">node</span>) =&gt; {
                 <span class="self">self</span>.<span class="ident">node</span> <span class="op">=</span> <span class="ident">node</span>.<span class="ident">get_next</span>();
                 <span class="prelude-val">Some</span>(<span class="ident">node</span>.<span class="ident">get_item</span>())
             },
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>
+            <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">PrintItems</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
-    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PrintItems</span> {
+    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) -&gt; <span class="ident">PrintItems</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">items</span> <span class="op">=</span> <span class="ident">PrintItems::new</span>();
         <span class="ident">items</span>.<span class="ident">push_str</span>(<span class="self">self</span>);
         <span class="ident">items</span>
@@ -826,7 +826,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">PrintItems</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">String</span> {
-    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PrintItems</span> {
+    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) -&gt; <span class="ident">PrintItems</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">items</span> <span class="op">=</span> <span class="ident">PrintItems::new</span>();
         <span class="ident">items</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>);
         <span class="ident">items</span>
@@ -834,7 +834,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">PrintItems</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">String</span> {
-    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PrintItems</span> {
+    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) -&gt; <span class="ident">PrintItems</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">items</span> <span class="op">=</span> <span class="ident">PrintItems::new</span>();
         <span class="ident">items</span>.<span class="ident">push_str</span>(<span class="self">self</span>);
         <span class="ident">items</span>
@@ -842,7 +842,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">PrintItems</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Condition</span> {
-    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PrintItems</span> {
+    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) -&gt; <span class="ident">PrintItems</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">items</span> <span class="op">=</span> <span class="ident">PrintItems::new</span>();
         <span class="ident">items</span>.<span class="ident">push_condition</span>(<span class="self">self</span>);
         <span class="ident">items</span>
@@ -850,7 +850,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">PrintItems</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Signal</span> {
-    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PrintItems</span> {
+    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) -&gt; <span class="ident">PrintItems</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">items</span> <span class="op">=</span> <span class="ident">PrintItems::new</span>();
         <span class="ident">items</span>.<span class="ident">push_signal</span>(<span class="self">self</span>);
         <span class="ident">items</span>
@@ -858,7 +858,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">PrintItems</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PrintItemPath</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PrintItems</span> {
+    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) -&gt; <span class="ident">PrintItems</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">items</span> <span class="op">=</span> <span class="ident">PrintItems::new</span>();
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="self">self</span> {
             <span class="ident">items</span>.<span class="ident">push_path</span>(<span class="ident">path</span>);
@@ -875,7 +875,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">PrintNode</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">item</span>: <span class="ident">PrintItem</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PrintNode</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">item</span>: <span class="ident">PrintItem</span>) -&gt; <span class="ident">PrintNode</span> {
         <span class="ident">PrintNode</span> {
             <span class="ident">item</span>,
             <span class="ident">next</span>: <span class="prelude-val">None</span>,
@@ -899,21 +899,21 @@
 }
 
 <span class="kw">impl</span> <span class="ident">PrintNodeCell</span> {
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">item</span>: <span class="ident">PrintItem</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PrintNodeCell</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">item</span>: <span class="ident">PrintItem</span>) -&gt; <span class="ident">PrintNodeCell</span> {
         <span class="ident">PrintNodeCell</span> {
             <span class="ident">value</span>: <span class="ident">UnsafeCell::new</span>(<span class="ident">PrintNode::new</span>(<span class="ident">item</span>))
         }
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">get_item</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PrintItem</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">get_item</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PrintItem</span> {
         <span class="kw">unsafe</span> {
             (<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">value</span>.<span class="ident">get</span>()).<span class="ident">item</span>.<span class="ident">clone</span>()
         }
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">get_next</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PrintItemPath</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">get_next</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PrintItemPath</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
             (<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">value</span>.<span class="ident">get</span>()).<span class="ident">next</span>.<span class="ident">clone</span>()
         }
@@ -927,7 +927,7 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">get_last_next</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PrintItemPath</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">get_last_next</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PrintItemPath</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_next</span>();
         <span class="kw">loop</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">last</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">current</span> {
@@ -945,12 +945,12 @@
     <span class="doccomment">/// Gets the node unsafely. Be careful when using this and ensure no mutation is</span>
     <span class="doccomment">/// happening during the borrow.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_node</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PrintNode</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_node</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PrintNode</span> {
         <span class="self">self</span>.<span class="ident">value</span>.<span class="ident">get</span>()
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take_next</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PrintItemPath</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take_next</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PrintItemPath</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">value</span>.<span class="ident">into_inner</span>().<span class="ident">next</span>.<span class="ident">take</span>()
     }
 }
@@ -1033,7 +1033,7 @@
 <span class="kw">static</span> <span class="ident">INFO_COUNTER</span>: <span class="ident">AtomicUsize</span> <span class="op">=</span> <span class="ident">AtomicUsize::new</span>(<span class="number">0</span>);
 
 <span class="kw">impl</span> <span class="ident">Info</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Info</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="ident">Info</span> {
         <span class="ident">Info</span> {
             <span class="ident">id</span>: <span class="ident">INFO_COUNTER</span>.<span class="ident">fetch_add</span>(<span class="number">1</span>, <span class="ident">Ordering::SeqCst</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">debug_assertions</span>)]</span>
@@ -1042,12 +1042,12 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_unique_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_unique_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">id</span>
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">debug_assertions</span>)]</span>
         <span class="kw">return</span> <span class="self">self</span>.<span class="ident">name</span>;
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">debug_assertions</span>))]</span>
@@ -1083,11 +1083,11 @@
 <span class="kw">static</span> <span class="ident">CONDITION_COUNTER</span>: <span class="ident">AtomicUsize</span> <span class="op">=</span> <span class="ident">AtomicUsize::new</span>(<span class="number">0</span>);
 
 <span class="kw">impl</span> <span class="ident">Condition</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">properties</span>: <span class="ident">ConditionProperties</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Condition</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">properties</span>: <span class="ident">ConditionProperties</span>) -&gt; <span class="ident">Condition</span> {
         <span class="ident">Condition::new_internal</span>(<span class="ident">name</span>, <span class="ident">properties</span>, <span class="prelude-val">None</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_true</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Condition</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_true</span>() -&gt; <span class="ident">Condition</span> {
         <span class="ident">Condition::new_internal</span>(<span class="string">&quot;trueCondition&quot;</span>, <span class="ident">ConditionProperties</span> {
             <span class="ident">condition</span>: <span class="ident">Rc::new</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="prelude-val">Some</span>(<span class="bool-val">true</span>))),
             <span class="ident">true_path</span>: <span class="prelude-val">None</span>,
@@ -1095,7 +1095,7 @@
         }, <span class="prelude-val">None</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_false</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Condition</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_false</span>() -&gt; <span class="ident">Condition</span> {
         <span class="ident">Condition::new_internal</span>(<span class="string">&quot;falseCondition&quot;</span>, <span class="ident">ConditionProperties</span> {
             <span class="ident">condition</span>: <span class="ident">Rc::new</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="prelude-val">Some</span>(<span class="bool-val">false</span>))),
             <span class="ident">true_path</span>: <span class="prelude-val">None</span>,
@@ -1103,11 +1103,11 @@
         }, <span class="prelude-val">None</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_with_dependent_infos</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">properties</span>: <span class="ident">ConditionProperties</span>, <span class="ident">dependent_infos</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Info</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Condition</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_with_dependent_infos</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">properties</span>: <span class="ident">ConditionProperties</span>, <span class="ident">dependent_infos</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Info</span><span class="op">&gt;</span>) -&gt; <span class="ident">Condition</span> {
         <span class="ident">Condition::new_internal</span>(<span class="ident">name</span>, <span class="ident">properties</span>, <span class="prelude-val">Some</span>(<span class="ident">dependent_infos</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">new_internal</span>(<span class="ident">_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">properties</span>: <span class="ident">ConditionProperties</span>, <span class="ident">dependent_infos</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Info</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Condition</span> {
+    <span class="kw">fn</span> <span class="ident">new_internal</span>(<span class="ident">_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">properties</span>: <span class="ident">ConditionProperties</span>, <span class="ident">dependent_infos</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Info</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="ident">Condition</span> {
         <span class="ident">Condition</span> {
             <span class="ident">id</span>: <span class="ident">CONDITION_COUNTER</span>.<span class="ident">fetch_add</span>(<span class="number">1</span>, <span class="ident">Ordering::SeqCst</span>),
             <span class="ident">is_stored</span>: <span class="ident">dependent_infos</span>.<span class="ident">is_some</span>(),
@@ -1121,12 +1121,12 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_unique_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_unique_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">id</span>
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">debug_assertions</span>)]</span>
         <span class="kw">return</span> <span class="self">self</span>.<span class="ident">name</span>;
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">debug_assertions</span>))]</span>
@@ -1134,21 +1134,21 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_true_path</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PrintItemPath</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_true_path</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PrintItemPath</span><span class="op">&gt;</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">true_path</span>
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_false_path</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PrintItemPath</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_false_path</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PrintItemPath</span><span class="op">&gt;</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">false_path</span>
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">resolve</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">context</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ConditionResolverContext</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">resolve</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">context</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ConditionResolverContext</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         (<span class="self">self</span>.<span class="ident">condition</span>)(<span class="ident">context</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_reference</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ConditionReference</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_reference</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">ConditionReference</span> {
         <span class="self">self</span>.<span class="ident">is_stored</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="ident">ConditionReference::new</span>(<span class="self">self</span>.<span class="ident">get_name</span>(), <span class="self">self</span>.<span class="ident">id</span>)
     }
@@ -1162,7 +1162,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">ConditionReference</span> {
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">id</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ConditionReference</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">id</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ConditionReference</span> {
         <span class="ident">ConditionReference</span> {
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">debug_assertions</span>)]</span>
             <span class="ident">name</span>: <span class="ident">_name</span>,
@@ -1171,7 +1171,7 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">get_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">get_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">debug_assertions</span>)]</span>
         <span class="kw">return</span> <span class="self">self</span>.<span class="ident">name</span>;
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">debug_assertions</span>))]</span>
@@ -1179,7 +1179,7 @@
     }
 
     <span class="doccomment">/// Creates a condition resolver that checks the value of the condition this references.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create_resolver</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ConditionResolverContext</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create_resolver</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ConditionResolverContext</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> {
         <span class="kw">let</span> <span class="ident">captured_self</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">clone</span>();
         <span class="kw">move</span> <span class="op">|</span><span class="ident">condition_context</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ConditionResolverContext</span><span class="op">|</span> {
             <span class="ident">condition_context</span>.<span class="ident">get_resolved_condition</span>(<span class="kw-2">&amp;</span><span class="ident">captured_self</span>)
@@ -1198,7 +1198,7 @@
 }
 
 <span class="doccomment">/// Function used to resolve a condition.</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ConditionResolver</span> <span class="op">=</span> <span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ConditionResolverContext</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>;
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ConditionResolver</span> <span class="op">=</span> <span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ConditionResolverContext</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>;
 
 <span class="doccomment">/// Context used when resolving a condition.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ConditionResolverContext</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span><span class="op">&gt;</span> {
@@ -1208,7 +1208,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span><span class="op">&gt;</span> <span class="ident">ConditionResolverContext</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">printer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">Printer</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span><span class="op">&gt;</span>, <span class="ident">writer_info</span>: <span class="ident">WriterInfo</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">printer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">Printer</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span><span class="op">&gt;</span>, <span class="ident">writer_info</span>: <span class="ident">WriterInfo</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">ConditionResolverContext</span> {
             <span class="ident">printer</span>,
             <span class="ident">writer_info</span>,
@@ -1217,12 +1217,12 @@
 
     <span class="doccomment">/// Gets if a condition was true, false, or returns undefined when not yet resolved.</span>
     <span class="doccomment">/// A condition reference can be retrieved by calling the `get_reference()` on a condition.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_resolved_condition</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">condition_reference</span>: <span class="kw-2">&amp;</span><span class="ident">ConditionReference</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_resolved_condition</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">condition_reference</span>: <span class="kw-2">&amp;</span><span class="ident">ConditionReference</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">printer</span>.<span class="ident">get_resolved_condition</span>(<span class="ident">condition_reference</span>)
     }
 
     <span class="doccomment">/// Gets the writer info at a specified info or returns undefined when not yet resolved.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_resolved_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">info</span>: <span class="kw-2">&amp;</span><span class="ident">Info</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">WriterInfo</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_resolved_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">info</span>: <span class="kw-2">&amp;</span><span class="ident">Info</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">WriterInfo</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">printer</span>.<span class="ident">get_resolved_info</span>(<span class="ident">info</span>)
     }
 
@@ -1233,7 +1233,7 @@
 
     <span class="doccomment">/// Gets if the provided info has moved positions since the last check.</span>
     <span class="doccomment">/// Returns None when the info can&#39;t be resolved. Returns Some(false) the first time this is called.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_info_moved</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">info</span>: <span class="kw-2">&amp;</span><span class="ident">Info</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_info_moved</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">info</span>: <span class="kw-2">&amp;</span><span class="ident">Info</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">printer</span>.<span class="ident">has_info_moved</span>(<span class="ident">info</span>)
     }
 }
@@ -1250,7 +1250,7 @@
 
 <span class="kw">impl</span> <span class="ident">StringContainer</span> {
     <span class="doccomment">/// Creates a new string container.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">text</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">StringContainer</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">text</span>: <span class="ident">String</span>) -&gt; <span class="ident">StringContainer</span> {
         <span class="kw">let</span> <span class="ident">char_count</span> <span class="op">=</span> <span class="ident">text</span>.<span class="ident">chars</span>().<span class="ident">count</span>() <span class="kw">as</span> <span class="ident">u32</span>;
         <span class="ident">StringContainer</span> {
             <span class="ident">text</span>,
@@ -1271,12 +1271,12 @@
 
 <span class="kw">impl</span> <span class="ident">WriterInfo</span> {
     <span class="doccomment">/// Gets if the current column number equals the line start column number.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_start_of_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">column_number</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">line_start_column_number</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_start_of_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">column_number</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">line_start_column_number</span>
     }
 
     <span class="doccomment">/// Gets the line and column number.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_line_and_column</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">u32</span>, <span class="ident">u32</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_line_and_column</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">u32</span>, <span class="ident">u32</span>) {
         (<span class="self">self</span>.<span class="ident">line_number</span>, <span class="self">self</span>.<span class="ident">column_number</span>)
     }
 }

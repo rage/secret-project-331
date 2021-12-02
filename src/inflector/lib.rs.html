@@ -430,68 +430,68 @@
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">missing_docs</span>)]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Inflector</span> {
 
-    <span class="kw">fn</span> <span class="ident">to_camel_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span>;
-    <span class="kw">fn</span> <span class="ident">is_camel_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>;
+    <span class="kw">fn</span> <span class="ident">to_camel_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span>;
+    <span class="kw">fn</span> <span class="ident">is_camel_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
 
-    <span class="kw">fn</span> <span class="ident">to_pascal_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span>;
-    <span class="kw">fn</span> <span class="ident">is_pascal_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>;
+    <span class="kw">fn</span> <span class="ident">to_pascal_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span>;
+    <span class="kw">fn</span> <span class="ident">is_pascal_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
 
-    <span class="kw">fn</span> <span class="ident">to_snake_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span>;
-    <span class="kw">fn</span> <span class="ident">is_snake_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>;
+    <span class="kw">fn</span> <span class="ident">to_snake_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span>;
+    <span class="kw">fn</span> <span class="ident">is_snake_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
 
-    <span class="kw">fn</span> <span class="ident">to_screaming_snake_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span>;
-    <span class="kw">fn</span> <span class="ident">is_screaming_snake_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>;
+    <span class="kw">fn</span> <span class="ident">to_screaming_snake_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span>;
+    <span class="kw">fn</span> <span class="ident">is_screaming_snake_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
 
-    <span class="kw">fn</span> <span class="ident">to_kebab_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span>;
-    <span class="kw">fn</span> <span class="ident">is_kebab_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>;
+    <span class="kw">fn</span> <span class="ident">to_kebab_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span>;
+    <span class="kw">fn</span> <span class="ident">is_kebab_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
 
-    <span class="kw">fn</span> <span class="ident">to_train_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span>;
-    <span class="kw">fn</span> <span class="ident">is_train_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>;
+    <span class="kw">fn</span> <span class="ident">to_train_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span>;
+    <span class="kw">fn</span> <span class="ident">is_train_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
 
-    <span class="kw">fn</span> <span class="ident">to_sentence_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span>;
-    <span class="kw">fn</span> <span class="ident">is_sentence_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>;
+    <span class="kw">fn</span> <span class="ident">to_sentence_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span>;
+    <span class="kw">fn</span> <span class="ident">is_sentence_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
 
-    <span class="kw">fn</span> <span class="ident">to_title_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span>;
-    <span class="kw">fn</span> <span class="ident">is_title_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>;
+    <span class="kw">fn</span> <span class="ident">to_title_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span>;
+    <span class="kw">fn</span> <span class="ident">is_title_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
 
-    <span class="kw">fn</span> <span class="ident">ordinalize</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span>;
-    <span class="kw">fn</span> <span class="ident">deordinalize</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span>;
+    <span class="kw">fn</span> <span class="ident">ordinalize</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span>;
+    <span class="kw">fn</span> <span class="ident">deordinalize</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span>;
 
-    <span class="kw">fn</span> <span class="ident">to_foreign_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span>;
-    <span class="kw">fn</span> <span class="ident">is_foreign_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>;
-
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;heavyweight&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">demodulize</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span>;
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;heavyweight&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">deconstantize</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span>;
+    <span class="kw">fn</span> <span class="ident">to_foreign_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span>;
+    <span class="kw">fn</span> <span class="ident">is_foreign_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;heavyweight&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">to_class_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span>;
+    <span class="kw">fn</span> <span class="ident">demodulize</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span>;
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;heavyweight&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">is_class_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>;
+    <span class="kw">fn</span> <span class="ident">deconstantize</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span>;
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;heavyweight&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">to_table_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span>;
+    <span class="kw">fn</span> <span class="ident">to_class_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span>;
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;heavyweight&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">is_table_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>;
+    <span class="kw">fn</span> <span class="ident">is_class_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
+
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;heavyweight&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">to_plural</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span>;
+    <span class="kw">fn</span> <span class="ident">to_table_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span>;
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;heavyweight&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">to_singular</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span>;
+    <span class="kw">fn</span> <span class="ident">is_table_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;heavyweight&quot;</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">to_plural</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span>;
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;heavyweight&quot;</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">to_singular</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span>;
 }
 
 
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">missing_docs</span>)]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">InflectorNumbers</span> {
-    <span class="kw">fn</span> <span class="ident">ordinalize</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span>;
+    <span class="kw">fn</span> <span class="ident">ordinalize</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span>;
 }
 
 
 <span class="macro">macro_rules!</span> <span class="ident">define_implementations</span> {
-    ( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">slf</span>:<span class="ident">ident</span>; $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">imp_trait</span>:<span class="ident">ident</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">typ</span>:<span class="ident">ident</span>), <span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    ( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">slf</span>:<span class="ident">ident</span>; $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">imp_trait</span>:<span class="ident">ident</span> =&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">typ</span>:<span class="ident">ident</span>), <span class="kw-2">*</span>) =&gt; {
         $(
             <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">imp_trait</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">slf</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">typ</span> {
+            <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">imp_trait</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">slf</span>) -&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">typ</span> {
                 <span class="macro-nonterminal">$</span><span class="macro-nonterminal">imp_trait</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">slf</span>)
             }
         )<span class="op">*</span>
@@ -499,10 +499,10 @@
 }
 
 <span class="macro">macro_rules!</span> <span class="ident">define_number_implementations</span> {
-    ( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">slf</span>:<span class="ident">ident</span>; $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">imp_trait</span>:<span class="ident">ident</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">typ</span>:<span class="ident">ident</span>), <span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    ( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">slf</span>:<span class="ident">ident</span>; $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">imp_trait</span>:<span class="ident">ident</span> =&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">typ</span>:<span class="ident">ident</span>), <span class="kw-2">*</span>) =&gt; {
         $(
             <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">imp_trait</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">slf</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">typ</span> {
+            <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">imp_trait</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">slf</span>) -&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">typ</span> {
                 <span class="macro-nonterminal">$</span><span class="macro-nonterminal">imp_trait</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">slf</span>.<span class="ident">to_string</span>())
             }
         )<span class="op">*</span>
@@ -510,11 +510,11 @@
 }
 
 <span class="macro">macro_rules!</span> <span class="ident">define_gated_implementations</span> {
-    ( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">slf</span>:<span class="ident">ident</span>; $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">imp_trait</span>:<span class="ident">ident</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">typ</span>:<span class="ident">ident</span>), <span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    ( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">slf</span>:<span class="ident">ident</span>; $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">imp_trait</span>:<span class="ident">ident</span> =&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">typ</span>:<span class="ident">ident</span>), <span class="kw-2">*</span>) =&gt; {
         $(
             <span class="attribute">#[<span class="ident">inline</span>]</span>
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;heavyweight&quot;</span>)]</span>
-            <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">imp_trait</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">slf</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">typ</span> {
+            <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">imp_trait</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">slf</span>) -&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">typ</span> {
                 <span class="macro-nonterminal">$</span><span class="macro-nonterminal">imp_trait</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">slf</span>)
             }
         )<span class="op">*</span>
@@ -522,40 +522,40 @@
 }
 
 <span class="macro">macro_rules!</span> <span class="ident">implement_string_for</span> {
-    ( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">trt</span>:<span class="ident">ident</span>; $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">typ</span>:<span class="ident">ident</span>), <span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    ( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">trt</span>:<span class="ident">ident</span>; $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">typ</span>:<span class="ident">ident</span>), <span class="kw-2">*</span>) =&gt; {
         $(
             <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">trt</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">typ</span> {
                 <span class="macro">define_implementations!</span>[<span class="self">self</span>;
-                    <span class="ident">to_camel_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">String</span>,
-                    <span class="ident">is_camel_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">bool</span>,
-                    <span class="ident">to_pascal_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">String</span>,
-                    <span class="ident">is_pascal_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">bool</span>,
-                    <span class="ident">to_screaming_snake_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">String</span>,
-                    <span class="ident">is_screaming_snake_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">bool</span>,
-                    <span class="ident">to_snake_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">String</span>,
-                    <span class="ident">is_snake_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">bool</span>,
-                    <span class="ident">to_kebab_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">String</span>,
-                    <span class="ident">is_kebab_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">bool</span>,
-                    <span class="ident">to_train_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">String</span>,
-                    <span class="ident">is_train_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">bool</span>,
-                    <span class="ident">to_sentence_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">String</span>,
-                    <span class="ident">is_sentence_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">bool</span>,
-                    <span class="ident">to_title_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">String</span>,
-                    <span class="ident">is_title_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">bool</span>,
-                    <span class="ident">to_foreign_key</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">String</span>,
-                    <span class="ident">is_foreign_key</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">bool</span>,
-                    <span class="ident">ordinalize</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">String</span>,
-                    <span class="ident">deordinalize</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">String</span>
+                    <span class="ident">to_camel_case</span> =&gt; <span class="ident">String</span>,
+                    <span class="ident">is_camel_case</span> =&gt; <span class="ident">bool</span>,
+                    <span class="ident">to_pascal_case</span> =&gt; <span class="ident">String</span>,
+                    <span class="ident">is_pascal_case</span> =&gt; <span class="ident">bool</span>,
+                    <span class="ident">to_screaming_snake_case</span> =&gt; <span class="ident">String</span>,
+                    <span class="ident">is_screaming_snake_case</span> =&gt; <span class="ident">bool</span>,
+                    <span class="ident">to_snake_case</span> =&gt; <span class="ident">String</span>,
+                    <span class="ident">is_snake_case</span> =&gt; <span class="ident">bool</span>,
+                    <span class="ident">to_kebab_case</span> =&gt; <span class="ident">String</span>,
+                    <span class="ident">is_kebab_case</span> =&gt; <span class="ident">bool</span>,
+                    <span class="ident">to_train_case</span> =&gt; <span class="ident">String</span>,
+                    <span class="ident">is_train_case</span> =&gt; <span class="ident">bool</span>,
+                    <span class="ident">to_sentence_case</span> =&gt; <span class="ident">String</span>,
+                    <span class="ident">is_sentence_case</span> =&gt; <span class="ident">bool</span>,
+                    <span class="ident">to_title_case</span> =&gt; <span class="ident">String</span>,
+                    <span class="ident">is_title_case</span> =&gt; <span class="ident">bool</span>,
+                    <span class="ident">to_foreign_key</span> =&gt; <span class="ident">String</span>,
+                    <span class="ident">is_foreign_key</span> =&gt; <span class="ident">bool</span>,
+                    <span class="ident">ordinalize</span> =&gt; <span class="ident">String</span>,
+                    <span class="ident">deordinalize</span> =&gt; <span class="ident">String</span>
                 ];
                 <span class="macro">define_gated_implementations!</span>[<span class="self">self</span>;
-                    <span class="ident">to_class_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">String</span>,
-                    <span class="ident">is_class_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">bool</span>,
-                    <span class="ident">to_table_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">String</span>,
-                    <span class="ident">is_table_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">bool</span>,
-                    <span class="ident">to_plural</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">String</span>,
-                    <span class="ident">to_singular</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">String</span>,
-                    <span class="ident">demodulize</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">String</span>,
-                    <span class="ident">deconstantize</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">String</span>
+                    <span class="ident">to_class_case</span> =&gt; <span class="ident">String</span>,
+                    <span class="ident">is_class_case</span> =&gt; <span class="ident">bool</span>,
+                    <span class="ident">to_table_case</span> =&gt; <span class="ident">String</span>,
+                    <span class="ident">is_table_case</span> =&gt; <span class="ident">bool</span>,
+                    <span class="ident">to_plural</span> =&gt; <span class="ident">String</span>,
+                    <span class="ident">to_singular</span> =&gt; <span class="ident">String</span>,
+                    <span class="ident">demodulize</span> =&gt; <span class="ident">String</span>,
+                    <span class="ident">deconstantize</span> =&gt; <span class="ident">String</span>
                 ];
             }
         )<span class="op">*</span>
@@ -563,11 +563,11 @@
 }
 
 <span class="macro">macro_rules!</span> <span class="ident">implement_number_for</span> {
-    ( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">trt</span>:<span class="ident">ident</span>; $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">typ</span>:<span class="ident">ident</span>), <span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    ( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">trt</span>:<span class="ident">ident</span>; $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">typ</span>:<span class="ident">ident</span>), <span class="kw-2">*</span>) =&gt; {
         $(
             <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">trt</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">typ</span> {
                 <span class="macro">define_number_implementations!</span>[<span class="self">self</span>;
-                    <span class="ident">ordinalize</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">String</span>
+                    <span class="ident">ordinalize</span> =&gt; <span class="ident">String</span>
                 ];
             }
         )<span class="op">*</span>
@@ -591,7 +591,7 @@
     <span class="kw">use</span> <span class="ident">::Inflector</span>;
 
     <span class="macro">macro_rules!</span> <span class="ident">benchmarks</span> {
-        ( $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">test_name</span>:<span class="ident">ident</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">imp_trait</span>:<span class="ident">ident</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">to_cast</span>:<span class="ident">expr</span>), <span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        ( $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">test_name</span>:<span class="ident">ident</span> =&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">imp_trait</span>:<span class="ident">ident</span> =&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">to_cast</span>:<span class="ident">expr</span>), <span class="kw-2">*</span>) =&gt; {
             $(
                 <span class="attribute">#[<span class="ident">bench</span>]</span>
                 <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">test_name</span>(<span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Bencher</span>) {
@@ -604,62 +604,62 @@
     }
 
     <span class="macro">benchmarks!</span>[
-        <span class="ident">benchmark_str_to_camel</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">to_camel_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;foo_bar&quot;</span>,
-        <span class="ident">benchmark_str_is_camel</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">is_camel_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;fooBar&quot;</span>,
-        <span class="ident">benchmark_str_to_screaming_snake</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">to_screaming_snake_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;fooBar&quot;</span>,
-        <span class="ident">benchmark_str_is_screaming_snake</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">is_screaming_snake_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;FOO_BAR&quot;</span>,
-        <span class="ident">benchmark_str_to_snake</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">to_snake_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;fooBar&quot;</span>,
-        <span class="ident">benchmark_str_is_snake</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">is_snake_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;foo_bar&quot;</span>,
-        <span class="ident">benchmark_str_to_kebab</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">to_kebab_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;fooBar&quot;</span>,
-        <span class="ident">benchmark_str_is_kebab</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">is_kebab_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;foo-bar&quot;</span>,
-        <span class="ident">benchmark_str_to_train</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">to_train_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;fooBar&quot;</span>,
-        <span class="ident">benchmark_str_is_train</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">is_train_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Foo-Bar&quot;</span>,
-        <span class="ident">benchmark_str_to_sentence</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">to_sentence_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;fooBar&quot;</span>,
-        <span class="ident">benchmark_str_is_sentence</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">is_sentence_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Foo bar&quot;</span>,
-        <span class="ident">benchmark_str_to_title</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">to_title_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;fooBar&quot;</span>,
-        <span class="ident">benchmark_str_is_title</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">is_title_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Foo Bar&quot;</span>,
-        <span class="ident">benchmark_str_ordinalize</span>  <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ordinalize</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;1&quot;</span>,
-        <span class="ident">benchmark_str_deordinalize</span>  <span class="op">=</span><span class="op">&gt;</span> <span class="ident">deordinalize</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;1st&quot;</span>,
-        <span class="ident">benchmark_str_to_foreign_key</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">to_foreign_key</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Foo::Bar&quot;</span>,
-        <span class="ident">benchmark_str_is_foreign_key</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">is_foreign_key</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;bar_id&quot;</span>,
-        <span class="ident">benchmark_string_to_camel</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">to_camel_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;foo_bar&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">benchmark_string_is_camel</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">is_camel_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;fooBar&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">benchmark_string_to_screaming_snake</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">to_screaming_snake_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;fooBar&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">benchmark_string_is_screaming_snake</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">is_screaming_snake_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;FOO_BAR&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">benchmark_string_to_snake</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">to_snake_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;fooBar&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">benchmark_string_is_snake</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">is_snake_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;foo_bar&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">benchmark_string_to_kebab</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">to_kebab_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;fooBar&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">benchmark_string_is_kebab</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">is_kebab_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;foo-bar&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">benchmark_string_to_train</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">to_train_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;fooBar&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">benchmark_string_is_train</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">is_train_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Foo-Bar&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">benchmark_string_to_sentence</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">to_sentence_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;fooBar&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">benchmark_string_is_sentence</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">is_sentence_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Foo bar&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">benchmark_string_to_title</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">to_title_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;fooBar&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">benchmark_string_is_title</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">is_title_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Foo Bar&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">benchmark_string_ordinalize</span>  <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ordinalize</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;1&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">benchmark_string_deordinalize</span>  <span class="op">=</span><span class="op">&gt;</span> <span class="ident">deordinalize</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;1st&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">benchmark_string_to_foreign_key</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">to_foreign_key</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Foo::Bar&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">benchmark_string_is_foreign_key</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">is_foreign_key</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;bar_id&quot;</span>.<span class="ident">to_string</span>()
+        <span class="ident">benchmark_str_to_camel</span> =&gt; <span class="ident">to_camel_case</span> =&gt; <span class="string">&quot;foo_bar&quot;</span>,
+        <span class="ident">benchmark_str_is_camel</span> =&gt; <span class="ident">is_camel_case</span> =&gt; <span class="string">&quot;fooBar&quot;</span>,
+        <span class="ident">benchmark_str_to_screaming_snake</span> =&gt; <span class="ident">to_screaming_snake_case</span> =&gt; <span class="string">&quot;fooBar&quot;</span>,
+        <span class="ident">benchmark_str_is_screaming_snake</span> =&gt; <span class="ident">is_screaming_snake_case</span> =&gt; <span class="string">&quot;FOO_BAR&quot;</span>,
+        <span class="ident">benchmark_str_to_snake</span> =&gt; <span class="ident">to_snake_case</span> =&gt; <span class="string">&quot;fooBar&quot;</span>,
+        <span class="ident">benchmark_str_is_snake</span> =&gt; <span class="ident">is_snake_case</span> =&gt; <span class="string">&quot;foo_bar&quot;</span>,
+        <span class="ident">benchmark_str_to_kebab</span> =&gt; <span class="ident">to_kebab_case</span> =&gt; <span class="string">&quot;fooBar&quot;</span>,
+        <span class="ident">benchmark_str_is_kebab</span> =&gt; <span class="ident">is_kebab_case</span> =&gt; <span class="string">&quot;foo-bar&quot;</span>,
+        <span class="ident">benchmark_str_to_train</span> =&gt; <span class="ident">to_train_case</span> =&gt; <span class="string">&quot;fooBar&quot;</span>,
+        <span class="ident">benchmark_str_is_train</span> =&gt; <span class="ident">is_train_case</span> =&gt; <span class="string">&quot;Foo-Bar&quot;</span>,
+        <span class="ident">benchmark_str_to_sentence</span> =&gt; <span class="ident">to_sentence_case</span> =&gt; <span class="string">&quot;fooBar&quot;</span>,
+        <span class="ident">benchmark_str_is_sentence</span> =&gt; <span class="ident">is_sentence_case</span> =&gt; <span class="string">&quot;Foo bar&quot;</span>,
+        <span class="ident">benchmark_str_to_title</span> =&gt; <span class="ident">to_title_case</span> =&gt; <span class="string">&quot;fooBar&quot;</span>,
+        <span class="ident">benchmark_str_is_title</span> =&gt; <span class="ident">is_title_case</span> =&gt; <span class="string">&quot;Foo Bar&quot;</span>,
+        <span class="ident">benchmark_str_ordinalize</span>  =&gt; <span class="ident">ordinalize</span> =&gt; <span class="string">&quot;1&quot;</span>,
+        <span class="ident">benchmark_str_deordinalize</span>  =&gt; <span class="ident">deordinalize</span> =&gt; <span class="string">&quot;1st&quot;</span>,
+        <span class="ident">benchmark_str_to_foreign_key</span> =&gt; <span class="ident">to_foreign_key</span> =&gt; <span class="string">&quot;Foo::Bar&quot;</span>,
+        <span class="ident">benchmark_str_is_foreign_key</span> =&gt; <span class="ident">is_foreign_key</span> =&gt; <span class="string">&quot;bar_id&quot;</span>,
+        <span class="ident">benchmark_string_to_camel</span> =&gt; <span class="ident">to_camel_case</span> =&gt; <span class="string">&quot;foo_bar&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">benchmark_string_is_camel</span> =&gt; <span class="ident">is_camel_case</span> =&gt; <span class="string">&quot;fooBar&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">benchmark_string_to_screaming_snake</span> =&gt; <span class="ident">to_screaming_snake_case</span> =&gt; <span class="string">&quot;fooBar&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">benchmark_string_is_screaming_snake</span> =&gt; <span class="ident">is_screaming_snake_case</span> =&gt; <span class="string">&quot;FOO_BAR&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">benchmark_string_to_snake</span> =&gt; <span class="ident">to_snake_case</span> =&gt; <span class="string">&quot;fooBar&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">benchmark_string_is_snake</span> =&gt; <span class="ident">is_snake_case</span> =&gt; <span class="string">&quot;foo_bar&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">benchmark_string_to_kebab</span> =&gt; <span class="ident">to_kebab_case</span> =&gt; <span class="string">&quot;fooBar&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">benchmark_string_is_kebab</span> =&gt; <span class="ident">is_kebab_case</span> =&gt; <span class="string">&quot;foo-bar&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">benchmark_string_to_train</span> =&gt; <span class="ident">to_train_case</span> =&gt; <span class="string">&quot;fooBar&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">benchmark_string_is_train</span> =&gt; <span class="ident">is_train_case</span> =&gt; <span class="string">&quot;Foo-Bar&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">benchmark_string_to_sentence</span> =&gt; <span class="ident">to_sentence_case</span> =&gt; <span class="string">&quot;fooBar&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">benchmark_string_is_sentence</span> =&gt; <span class="ident">is_sentence_case</span> =&gt; <span class="string">&quot;Foo bar&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">benchmark_string_to_title</span> =&gt; <span class="ident">to_title_case</span> =&gt; <span class="string">&quot;fooBar&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">benchmark_string_is_title</span> =&gt; <span class="ident">is_title_case</span> =&gt; <span class="string">&quot;Foo Bar&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">benchmark_string_ordinalize</span>  =&gt; <span class="ident">ordinalize</span> =&gt; <span class="string">&quot;1&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">benchmark_string_deordinalize</span>  =&gt; <span class="ident">deordinalize</span> =&gt; <span class="string">&quot;1st&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">benchmark_string_to_foreign_key</span> =&gt; <span class="ident">to_foreign_key</span> =&gt; <span class="string">&quot;Foo::Bar&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">benchmark_string_is_foreign_key</span> =&gt; <span class="ident">is_foreign_key</span> =&gt; <span class="string">&quot;bar_id&quot;</span>.<span class="ident">to_string</span>()
     ];
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;heavyweight&quot;</span>)]</span>
     <span class="macro">benchmarks!</span>[
-        <span class="ident">benchmark_str_to_class</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">to_class_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;foo&quot;</span>,
-        <span class="ident">benchmark_str_is_class</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">is_class_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Foo&quot;</span>,
-        <span class="ident">benchmark_str_to_table</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">to_table_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;fooBar&quot;</span>,
-        <span class="ident">benchmark_str_is_table</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">is_table_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;foo_bars&quot;</span>,
-        <span class="ident">benchmark_str_pluralize</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">to_plural</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;crate&quot;</span>,
-        <span class="ident">benchmark_str_singular</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">to_singular</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;crates&quot;</span>,
-        <span class="ident">benchmark_string_to_class</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">to_class_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;foo&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">benchmark_string_is_class</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">is_class_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Foo&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">benchmark_string_to_table</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">to_table_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;fooBar&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">benchmark_string_is_table</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">is_table_case</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;foo_bars&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">benchmark_string_pluralize</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">to_plural</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;crate&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">benchmark_string_singular</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">to_singular</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;crates&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">benchmark_string_demodulize</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">demodulize</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Foo::Bar&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">benchmark_string_deconstantize</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">deconstantize</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Foo::Bar&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">benchmark_str_demodulize</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">demodulize</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Foo::Bar&quot;</span>,
-        <span class="ident">benchmark_str_deconstantize</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">deconstantize</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Foo::Bar&quot;</span>
+        <span class="ident">benchmark_str_to_class</span> =&gt; <span class="ident">to_class_case</span> =&gt; <span class="string">&quot;foo&quot;</span>,
+        <span class="ident">benchmark_str_is_class</span> =&gt; <span class="ident">is_class_case</span> =&gt; <span class="string">&quot;Foo&quot;</span>,
+        <span class="ident">benchmark_str_to_table</span> =&gt; <span class="ident">to_table_case</span> =&gt; <span class="string">&quot;fooBar&quot;</span>,
+        <span class="ident">benchmark_str_is_table</span> =&gt; <span class="ident">is_table_case</span> =&gt; <span class="string">&quot;foo_bars&quot;</span>,
+        <span class="ident">benchmark_str_pluralize</span> =&gt; <span class="ident">to_plural</span> =&gt; <span class="string">&quot;crate&quot;</span>,
+        <span class="ident">benchmark_str_singular</span> =&gt; <span class="ident">to_singular</span> =&gt; <span class="string">&quot;crates&quot;</span>,
+        <span class="ident">benchmark_string_to_class</span> =&gt; <span class="ident">to_class_case</span> =&gt; <span class="string">&quot;foo&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">benchmark_string_is_class</span> =&gt; <span class="ident">is_class_case</span> =&gt; <span class="string">&quot;Foo&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">benchmark_string_to_table</span> =&gt; <span class="ident">to_table_case</span> =&gt; <span class="string">&quot;fooBar&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">benchmark_string_is_table</span> =&gt; <span class="ident">is_table_case</span> =&gt; <span class="string">&quot;foo_bars&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">benchmark_string_pluralize</span> =&gt; <span class="ident">to_plural</span> =&gt; <span class="string">&quot;crate&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">benchmark_string_singular</span> =&gt; <span class="ident">to_singular</span> =&gt; <span class="string">&quot;crates&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">benchmark_string_demodulize</span> =&gt; <span class="ident">demodulize</span> =&gt; <span class="string">&quot;Foo::Bar&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">benchmark_string_deconstantize</span> =&gt; <span class="ident">deconstantize</span> =&gt; <span class="string">&quot;Foo::Bar&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">benchmark_str_demodulize</span> =&gt; <span class="ident">demodulize</span> =&gt; <span class="string">&quot;Foo::Bar&quot;</span>,
+        <span class="ident">benchmark_str_deconstantize</span> =&gt; <span class="ident">deconstantize</span> =&gt; <span class="string">&quot;Foo::Bar&quot;</span>
     ];
 }
 </code></pre></div>

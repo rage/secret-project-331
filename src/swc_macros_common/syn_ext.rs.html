@@ -152,11 +152,11 @@
     <span class="doccomment">///     .parse::&lt;ItemImpl&gt;()</span>
     <span class="doccomment">///     .with_generics(input.generics);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">with_generics</span>(<span class="self">self</span>, <span class="ident">generics</span>: <span class="ident">Generics</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
+    <span class="kw">fn</span> <span class="ident">with_generics</span>(<span class="self">self</span>, <span class="ident">generics</span>: <span class="ident">Generics</span>) -&gt; <span class="self">Self</span>;
 }
 
 <span class="kw">impl</span> <span class="ident">ItemImplExt</span> <span class="kw">for</span> <span class="ident">ItemImpl</span> {
-    <span class="kw">fn</span> <span class="ident">with_generics</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">generics</span>: <span class="ident">Generics</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">with_generics</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">generics</span>: <span class="ident">Generics</span>) -&gt; <span class="self">Self</span> {
         <span class="comment">// TODO: Check conflicting name</span>
 
         <span class="kw">let</span> <span class="ident">need_new_punct</span> <span class="op">=</span> <span class="op">!</span><span class="ident">generics</span>.<span class="ident">params</span>.<span class="ident">empty_or_trailing</span>();
@@ -198,13 +198,13 @@
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">generics</span>.<span class="ident">where_clause</span> {
             <span class="prelude-val">Some</span>(<span class="ident">WhereClause</span> {
                 <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">predicates</span>, ..
-            }) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">predicates</span>.<span class="ident">extend</span>(
+            }) =&gt; <span class="ident">predicates</span>.<span class="ident">extend</span>(
                 <span class="ident">generics</span>
                     .<span class="ident">where_clause</span>
                     .<span class="ident">into_iter</span>()
                     .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">wc</span><span class="op">|</span> <span class="ident">wc</span>.<span class="ident">predicates</span>.<span class="ident">into_pairs</span>()),
             ),
-            <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">opt</span> @ <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="ident">opt</span> <span class="op">=</span> <span class="ident">generics</span>.<span class="ident">where_clause</span>,
+            <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">opt</span> @ <span class="prelude-val">None</span> =&gt; <span class="kw-2">*</span><span class="ident">opt</span> <span class="op">=</span> <span class="ident">generics</span>.<span class="ident">where_clause</span>,
         }
 
         <span class="ident">ItemImpl</span> {
@@ -220,13 +220,13 @@
 }
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PairExt</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">P</span><span class="op">&gt;</span>: <span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Pair</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">P</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">map_item</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">NewItem</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">op</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pair</span><span class="op">&lt;</span><span class="ident">NewItem</span>, <span class="ident">P</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">map_item</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">NewItem</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">op</span>: <span class="ident">F</span>) -&gt; <span class="ident">Pair</span><span class="op">&lt;</span><span class="ident">NewItem</span>, <span class="ident">P</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">NewItem</span>,
+        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">T</span>) -&gt; <span class="ident">NewItem</span>,
     {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">into</span>() {
-            <span class="ident">Pair::Punctuated</span>(<span class="ident">t</span>, <span class="ident">p</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Pair::Punctuated</span>(<span class="ident">op</span>(<span class="ident">t</span>), <span class="ident">p</span>),
-            <span class="ident">Pair::End</span>(<span class="ident">t</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Pair::End</span>(<span class="ident">op</span>(<span class="ident">t</span>)),
+            <span class="ident">Pair::Punctuated</span>(<span class="ident">t</span>, <span class="ident">p</span>) =&gt; <span class="ident">Pair::Punctuated</span>(<span class="ident">op</span>(<span class="ident">t</span>), <span class="ident">p</span>),
+            <span class="ident">Pair::End</span>(<span class="ident">t</span>) =&gt; <span class="ident">Pair::End</span>(<span class="ident">op</span>(<span class="ident">t</span>)),
         }
     }
 }

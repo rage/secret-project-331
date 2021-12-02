@@ -105,11 +105,11 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types::Type</span>;
 
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">str</span> {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="ident">PgTypeInfo::TEXT</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) -&gt; <span class="ident">bool</span> {
         [
             <span class="ident">PgTypeInfo::TEXT</span>,
             <span class="ident">PgTypeInfo::NAME</span>,
@@ -122,27 +122,27 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> [<span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">str</span>] {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="ident">PgTypeInfo::TEXT_ARRAY</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) -&gt; <span class="ident">bool</span> {
         <span class="ident">array_compatible</span>::<span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>(<span class="ident">ty</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">str</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="op">&lt;</span>[<span class="kw-2">&amp;</span><span class="ident">str</span>] <span class="kw">as</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::type_info</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) -&gt; <span class="ident">bool</span> {
         <span class="op">&lt;</span>[<span class="kw-2">&amp;</span><span class="ident">str</span>] <span class="kw">as</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::compatible</span>(<span class="ident">ty</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Encode</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">str</span> {
-    <span class="kw">fn</span> <span class="ident">encode_by_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgArgumentBuffer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IsNull</span> {
+    <span class="kw">fn</span> <span class="ident">encode_by_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgArgumentBuffer</span>) -&gt; <span class="ident">IsNull</span> {
         <span class="ident">buf</span>.<span class="ident">extend</span>(<span class="self">self</span>.<span class="ident">as_bytes</span>());
 
         <span class="ident">IsNull::No</span>
@@ -150,49 +150,49 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Encode</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">String</span> {
-    <span class="kw">fn</span> <span class="ident">encode_by_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgArgumentBuffer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IsNull</span> {
+    <span class="kw">fn</span> <span class="ident">encode_by_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgArgumentBuffer</span>) -&gt; <span class="ident">IsNull</span> {
         <span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span> <span class="kw">as</span> <span class="ident">Encode</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::encode</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>, <span class="ident">buf</span>)
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span> <span class="ident">Decode</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;r</span> <span class="ident">str</span> {
-    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="ident">value</span>: <span class="ident">PgValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">BoxDynError</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="ident">value</span>: <span class="ident">PgValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">BoxDynError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">value</span>.<span class="ident">as_str</span>()<span class="question-mark">?</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">String</span> {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span> <span class="kw">as</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::type_info</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) -&gt; <span class="ident">bool</span> {
         <span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span> <span class="kw">as</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::compatible</span>(<span class="ident">ty</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> [<span class="ident">String</span>] {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="op">&lt;</span>[<span class="kw-2">&amp;</span><span class="ident">str</span>] <span class="kw">as</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::type_info</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) -&gt; <span class="ident">bool</span> {
         <span class="op">&lt;</span>[<span class="kw-2">&amp;</span><span class="ident">str</span>] <span class="kw">as</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::compatible</span>(<span class="ident">ty</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="op">&lt;</span>[<span class="ident">String</span>] <span class="kw">as</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::type_info</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) -&gt; <span class="ident">bool</span> {
         <span class="op">&lt;</span>[<span class="ident">String</span>] <span class="kw">as</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::compatible</span>(<span class="ident">ty</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Decode</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">String</span> {
-    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="ident">value</span>: <span class="ident">PgValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">BoxDynError</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="ident">value</span>: <span class="ident">PgValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">BoxDynError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">value</span>.<span class="ident">as_str</span>()<span class="question-mark">?</span>.<span class="ident">to_owned</span>())
     }
 }

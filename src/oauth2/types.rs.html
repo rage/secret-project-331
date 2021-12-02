@@ -671,7 +671,7 @@
             $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">type_attr</span>:<span class="ident">meta</span>]</span>)<span class="op">*</span>
             <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ty</span>
         )
-    ) <span class="op">=</span><span class="op">&gt;</span> {
+    ) =&gt; {
         <span class="macro">new_type!</span>[
             @<span class="ident">new_type</span> $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>]</span>)<span class="kw-2">*</span>,
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>(
@@ -698,7 +698,7 @@
         <span class="kw">impl</span> {
             $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>:<span class="ident">tt</span>)<span class="op">*</span>
         }
-    ) <span class="op">=</span><span class="op">&gt;</span> {
+    ) =&gt; {
         <span class="macro">new_type!</span>[
             @<span class="ident">new_type</span> $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>]</span>)<span class="kw-2">*</span>,
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>(
@@ -728,7 +728,7 @@
         <span class="kw">impl</span> {
             $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>:<span class="ident">tt</span>)<span class="op">*</span>
         }
-    ) <span class="op">=</span><span class="op">&gt;</span> {
+    ) =&gt; {
         $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>]</span>)<span class="op">*</span>
         <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
         <span class="kw">pub</span> <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>(
@@ -739,18 +739,18 @@
             $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>)<span class="op">*</span>
 
             <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">new_doc</span>]</span>
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">s</span>: <span class="macro-nonterminal">$</span><span class="kw">type</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="macro-nonterminal">Self</span> {
+            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">s</span>: <span class="macro-nonterminal">$</span><span class="kw">type</span>) -&gt; <span class="macro-nonterminal">Self</span> {
                 <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>(<span class="ident">s</span>)
             }
         }
         <span class="kw">impl</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
             <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">type</span>;
-            <span class="kw">fn</span> <span class="macro-nonterminal">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="kw">type</span> {
+            <span class="kw">fn</span> <span class="macro-nonterminal">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="kw">type</span> {
                 <span class="kw-2">&amp;</span><span class="macro-nonterminal">self</span>.<span class="number">0</span>
             }
         }
         <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="kw">type</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-            <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="kw">type</span> {
+            <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) -&gt; <span class="macro-nonterminal">$</span><span class="kw">type</span> {
                 <span class="macro-nonterminal">self</span>.<span class="number">0</span>
             }
         }
@@ -761,7 +761,7 @@
     (
         $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>:<span class="ident">meta</span>]</span>)<span class="op">*</span>
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ty</span>)
-    ) <span class="op">=</span><span class="op">&gt;</span> {
+    ) =&gt; {
         <span class="macro">new_secret_type!</span>[
             $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>]</span>)<span class="op">*</span>
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>)
@@ -774,7 +774,7 @@
         <span class="kw">impl</span> {
             $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>:<span class="ident">tt</span>)<span class="op">*</span>
         }
-    ) <span class="op">=</span><span class="op">&gt;</span> {
+    ) =&gt; {
         <span class="macro">new_secret_type!</span>[
             $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>]</span>)<span class="kw-2">*</span>,
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>),
@@ -799,7 +799,7 @@
         <span class="kw">impl</span> {
             $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>:<span class="ident">tt</span>)<span class="op">*</span>
         }
-    ) <span class="op">=</span><span class="op">&gt;</span> {
+    ) =&gt; {
         $(
             <span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>]</span>
         )<span class="op">*</span>
@@ -808,7 +808,7 @@
             $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>)<span class="op">*</span>
 
             <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">new_doc</span>]</span>
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">s</span>: <span class="macro-nonterminal">$</span><span class="kw">type</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="macro-nonterminal">Self</span> {
+            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">s</span>: <span class="macro-nonterminal">$</span><span class="kw">type</span>) -&gt; <span class="macro-nonterminal">Self</span> {
                 <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>(<span class="ident">s</span>)
             }
             <span class="doccomment">///</span>
@@ -818,10 +818,10 @@
             <span class="doccomment">///</span>
             <span class="doccomment">/// Leaking this value may compromise the security of the OAuth2 flow.</span>
             <span class="doccomment">///</span>
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">secret</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="kw">type</span> { <span class="kw-2">&amp;</span><span class="macro-nonterminal">self</span>.<span class="number">0</span> }
+            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">secret</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="kw">type</span> { <span class="kw-2">&amp;</span><span class="macro-nonterminal">self</span>.<span class="number">0</span> }
         }
         <span class="kw">impl</span> <span class="ident">Debug</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-            <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">FormatterError</span><span class="op">&gt;</span> {
+            <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">FormatterError</span><span class="op">&gt;</span> {
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="macro">concat!</span>(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>), <span class="string">&quot;([redacted])&quot;</span>))
             }
         }
@@ -845,7 +845,7 @@
     (
         $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>:<span class="ident">meta</span>]</span>)<span class="op">*</span>
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>
-    ) <span class="op">=</span><span class="op">&gt;</span> {
+    ) =&gt; {
         <span class="macro">new_url_type!</span>[
             @<span class="ident">new_type_pub</span> $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>]</span>)<span class="kw-2">*</span>,
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>,
@@ -862,7 +862,7 @@
         <span class="kw">impl</span> {
             $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>:<span class="ident">tt</span>)<span class="op">*</span>
         }
-    ) <span class="op">=</span><span class="op">&gt;</span> {
+    ) =&gt; {
         <span class="macro">new_url_type!</span>[
             @<span class="ident">new_type_pub</span> $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>]</span>)<span class="kw-2">*</span>,
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>,
@@ -884,41 +884,41 @@
         <span class="kw">impl</span> {
             $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>:<span class="ident">tt</span>)<span class="op">*</span>
         }
-    ) <span class="op">=</span><span class="op">&gt;</span> {
+    ) =&gt; {
         $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>]</span>)<span class="op">*</span>
         <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
         <span class="kw">pub</span> <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>(<span class="ident">Url</span>, <span class="ident">String</span>);
         <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
             <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">new_doc</span>]</span>
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">url</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">::url::ParseError</span><span class="op">&gt;</span> {
+            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">url</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">::url::ParseError</span><span class="op">&gt;</span> {
                 <span class="prelude-val">Ok</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>(<span class="ident">Url::parse</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)<span class="question-mark">?</span>, <span class="ident">url</span>))
             }
             <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">from_url_doc</span>]</span>
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_url</span>(<span class="ident">url</span>: <span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_url</span>(<span class="ident">url</span>: <span class="ident">Url</span>) -&gt; <span class="self">Self</span> {
                 <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">to_string</span>();
                 <span class="self">Self</span>(<span class="ident">url</span>, <span class="ident">s</span>)
             }
             <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">url_doc</span>]</span>
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">url</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Url</span> {
+            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">url</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Url</span> {
                 <span class="kw">return</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>;
             }
             $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>)<span class="op">*</span>
         }
         <span class="kw">impl</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
             <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">String</span>;
-            <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">String</span> {
+            <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">String</span> {
                 <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">1</span>
             }
         }
         <span class="kw">impl</span> <span class="ident">::std::fmt::Debug</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-            <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">::std::fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">::std::fmt::Error</span><span class="op">&gt;</span> {
+            <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">::std::fmt::Formatter</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">::std::fmt::Error</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">debug_trait_builder</span> <span class="op">=</span> <span class="ident">f</span>.<span class="ident">debug_tuple</span>(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>));
                 <span class="ident">debug_trait_builder</span>.<span class="ident">field</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">1</span>);
                 <span class="ident">debug_trait_builder</span>.<span class="ident">finish</span>()
             }
         }
         <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">::serde::Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-            <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">deserializer</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">D::Error</span><span class="op">&gt;</span>
+            <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">deserializer</span>: <span class="ident">D</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">D::Error</span><span class="op">&gt;</span>
             <span class="kw">where</span>
                 <span class="ident">D</span>: <span class="ident">::serde::de::Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
             {
@@ -929,11 +929,11 @@
                     <span class="kw">fn</span> <span class="ident">expecting</span>(
                         <span class="kw-2">&amp;</span><span class="self">self</span>,
                         <span class="ident">formatter</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">::std::fmt::Formatter</span>
-                    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">::std::fmt::Result</span> {
+                    ) -&gt; <span class="ident">::std::fmt::Result</span> {
                         <span class="ident">formatter</span>.<span class="ident">write_str</span>(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>))
                     }
 
-                    <span class="kw">fn</span> <span class="ident">visit_str</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Value</span>, <span class="ident">E</span><span class="op">&gt;</span>
+                    <span class="kw">fn</span> <span class="ident">visit_str</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Value</span>, <span class="ident">E</span><span class="op">&gt;</span>
                     <span class="kw">where</span>
                         <span class="ident">E</span>: <span class="ident">::serde::de::Error</span>,
                     {
@@ -944,7 +944,7 @@
             }
         }
         <span class="kw">impl</span> <span class="ident">::serde::Serialize</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-            <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">SE</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">serializer</span>: <span class="ident">SE</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SE::Ok</span>, <span class="ident">SE::Error</span><span class="op">&gt;</span>
+            <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">SE</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">serializer</span>: <span class="ident">SE</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SE::Ok</span>, <span class="ident">SE::Error</span><span class="op">&gt;</span>
             <span class="kw">where</span>
                 <span class="ident">SE</span>: <span class="ident">::serde::Serializer</span>,
             {
@@ -952,23 +952,23 @@
             }
         }
         <span class="kw">impl</span> <span class="ident">::std::hash::Hash</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-            <span class="kw">fn</span> <span class="ident">hash</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">::std::hash::Hasher</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">H</span>) <span class="op">-</span><span class="op">&gt;</span> () {
+            <span class="kw">fn</span> <span class="ident">hash</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">::std::hash::Hasher</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">H</span>) -&gt; () {
                 <span class="ident">::std::hash::Hash::hash</span>(<span class="kw-2">&amp;</span>(<span class="self">self</span>.<span class="number">1</span>), <span class="ident">state</span>);
             }
         }
         <span class="kw">impl</span> <span class="ident">Ord</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-            <span class="kw">fn</span> <span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">::std::cmp::Ordering</span> {
+            <span class="kw">fn</span> <span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>) -&gt; <span class="ident">::std::cmp::Ordering</span> {
                 <span class="self">self</span>.<span class="number">1</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">other</span>.<span class="number">1</span>)
             }
         }
         <span class="kw">impl</span> <span class="ident">PartialOrd</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-            <span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">::std::cmp::Ordering</span><span class="op">&gt;</span> {
+            <span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">::std::cmp::Ordering</span><span class="op">&gt;</span> {
                 <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">cmp</span>(<span class="ident">other</span>))
             }
         }
         <span class="kw">impl</span> <span class="ident">PartialEq</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-            <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-                <span class="self">self</span>.<span class="number">1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">other</span>.<span class="number">1</span>
+            <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>) -&gt; <span class="ident">bool</span> {
+                <span class="self">self</span>.<span class="number">1</span> <span class="op">==</span> <span class="ident">other</span>.<span class="number">1</span>
             }
         }
         <span class="kw">impl</span> <span class="ident">Eq</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {}
@@ -1051,7 +1051,7 @@
     <span class="ident">Scope</span>(<span class="ident">String</span>)
 ];
 <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Scope</span> {
-    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="self">self</span>
     }
 }
@@ -1090,7 +1090,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Generate a new random, base64-encoded SHA-256 PKCE code.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_random_sha256</span>() <span class="op">-</span><span class="op">&gt;</span> (<span class="self">Self</span>, <span class="ident">PkceCodeVerifier</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_random_sha256</span>() -&gt; (<span class="self">Self</span>, <span class="ident">PkceCodeVerifier</span>) {
         <span class="ident"><span class="self">Self</span>::new_random_sha256_len</span>(<span class="number">32</span>)
     }
 
@@ -1108,7 +1108,7 @@
     <span class="doccomment">/// This method panics if the resulting PKCE code verifier is not of a suitable length</span>
     <span class="doccomment">/// to comply with [RFC 7636](https://tools.ietf.org/html/rfc7636).</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_random_sha256_len</span>(<span class="ident">num_bytes</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="self">Self</span>, <span class="ident">PkceCodeVerifier</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_random_sha256_len</span>(<span class="ident">num_bytes</span>: <span class="ident">u32</span>) -&gt; (<span class="self">Self</span>, <span class="ident">PkceCodeVerifier</span>) {
         <span class="kw">let</span> <span class="ident">code_verifier</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::new_random_len</span>(<span class="ident">num_bytes</span>);
         (
             <span class="ident"><span class="self">Self</span>::from_code_verifier_sha256</span>(<span class="kw-2">&amp;</span><span class="ident">code_verifier</span>),
@@ -1130,7 +1130,7 @@
     <span class="doccomment">/// This method panics if the resulting PKCE code verifier is not of a suitable length</span>
     <span class="doccomment">/// to comply with [RFC 7636](https://tools.ietf.org/html/rfc7636).</span>
     <span class="doccomment">///</span>
-    <span class="kw">fn</span> <span class="ident">new_random_len</span>(<span class="ident">num_bytes</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PkceCodeVerifier</span> {
+    <span class="kw">fn</span> <span class="ident">new_random_len</span>(<span class="ident">num_bytes</span>: <span class="ident">u32</span>) -&gt; <span class="ident">PkceCodeVerifier</span> {
         <span class="comment">// The RFC specifies that the code verifier must have &quot;a minimum length of 43</span>
         <span class="comment">// characters and a maximum length of 128 characters&quot;.</span>
         <span class="comment">// This implies 32-96 octets of random data to be base64 encoded.</span>
@@ -1150,7 +1150,7 @@
     <span class="doccomment">/// This method panics if the supplied PKCE code verifier is not of a suitable length</span>
     <span class="doccomment">/// to comply with [RFC 7636](https://tools.ietf.org/html/rfc7636).</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_code_verifier_sha256</span>(<span class="ident">code_verifier</span>: <span class="kw-2">&amp;</span><span class="ident">PkceCodeVerifier</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_code_verifier_sha256</span>(<span class="ident">code_verifier</span>: <span class="kw-2">&amp;</span><span class="ident">PkceCodeVerifier</span>) -&gt; <span class="self">Self</span> {
         <span class="comment">// The RFC specifies that the code verifier must have &quot;a minimum length of 43</span>
         <span class="comment">// characters and a maximum length of 128 characters&quot;.</span>
         <span class="macro">assert!</span>(<span class="ident">code_verifier</span>.<span class="ident">secret</span>().<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">43</span> <span class="op">&amp;&amp;</span> <span class="ident">code_verifier</span>.<span class="ident">secret</span>().<span class="ident">len</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="number">128</span>);
@@ -1174,7 +1174,7 @@
     <span class="doccomment">/// to comply with [RFC 7636](https://tools.ietf.org/html/rfc7636).</span>
     <span class="doccomment">///</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;pkce-plain&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_random_plain</span>() <span class="op">-</span><span class="op">&gt;</span> (<span class="self">Self</span>, <span class="ident">PkceCodeVerifier</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_random_plain</span>() -&gt; (<span class="self">Self</span>, <span class="ident">PkceCodeVerifier</span>) {
         <span class="kw">let</span> <span class="ident">code_verifier</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::new_random_len</span>(<span class="number">32</span>);
         (
             <span class="ident"><span class="self">Self</span>::from_code_verifier_plain</span>(<span class="kw-2">&amp;</span><span class="ident">code_verifier</span>),
@@ -1192,7 +1192,7 @@
     <span class="doccomment">/// to comply with [RFC 7636](https://tools.ietf.org/html/rfc7636).</span>
     <span class="doccomment">///</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;pkce-plain&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_code_verifier_plain</span>(<span class="ident">code_verifier</span>: <span class="kw-2">&amp;</span><span class="ident">PkceCodeVerifier</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_code_verifier_plain</span>(<span class="ident">code_verifier</span>: <span class="kw-2">&amp;</span><span class="ident">PkceCodeVerifier</span>) -&gt; <span class="self">Self</span> {
         <span class="comment">// The RFC specifies that the code verifier must have &quot;a minimum length of 43</span>
         <span class="comment">// characters and a maximum length of 128 characters&quot;.</span>
         <span class="macro">assert!</span>(<span class="ident">code_verifier</span>.<span class="ident">secret</span>().<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">43</span> <span class="op">&amp;&amp;</span> <span class="ident">code_verifier</span>.<span class="ident">secret</span>().<span class="ident">len</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="number">128</span>);
@@ -1208,14 +1208,14 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns the PKCE code challenge as a string.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">code_challenge</span>
     }
 
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns the PKCE code challenge method as a string.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">method</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">PkceCodeChallengeMethod</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">method</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">PkceCodeChallengeMethod</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">code_challenge_method</span>
     }
 }
@@ -1240,7 +1240,7 @@
         <span class="doccomment">///</span>
         <span class="doccomment">/// Generate a new random, base64-encoded 128-bit CSRF token.</span>
         <span class="doccomment">///</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_random</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_random</span>() -&gt; <span class="self">Self</span> {
             <span class="ident">CsrfToken::new_random_len</span>(<span class="number">16</span>)
         }
         <span class="doccomment">///</span>
@@ -1250,7 +1250,7 @@
         <span class="doccomment">///</span>
         <span class="doccomment">/// * `num_bytes` - Number of random bytes to generate, prior to base64-encoding.</span>
         <span class="doccomment">///</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_random_len</span>(<span class="ident">num_bytes</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_random_len</span>(<span class="ident">num_bytes</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
             <span class="kw">let</span> <span class="ident">random_bytes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> (<span class="number">0</span>..<span class="ident">num_bytes</span>).<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">thread_rng</span>().<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>()).<span class="ident">collect</span>();
             <span class="ident">CsrfToken::new</span>(<span class="ident">base64::encode_config</span>(<span class="kw-2">&amp;</span><span class="ident">random_bytes</span>, <span class="ident">base64::URL_SAFE_NO_PAD</span>))
         }

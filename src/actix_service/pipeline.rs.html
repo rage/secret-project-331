@@ -323,7 +323,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">IntoService</span>, <span class="ident">IntoServiceFactory</span>, <span class="ident">Service</span>, <span class="ident">ServiceFactory</span>};
 
 <span class="doccomment">/// Construct new pipeline with one service in pipeline chain.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">pipeline</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>(<span class="ident">service</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pipeline</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">pipeline</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>(<span class="ident">service</span>: <span class="ident">I</span>) -&gt; <span class="ident">Pipeline</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">I</span>: <span class="ident">IntoService</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>,
     <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span>,
@@ -335,7 +335,7 @@
 }
 
 <span class="doccomment">/// Construct new pipeline factory with one service factory.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">pipeline_factory</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">SF</span>, <span class="ident">Req</span><span class="op">&gt;</span>(<span class="ident">factory</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PipelineFactory</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">Req</span><span class="op">&gt;</span>
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">pipeline_factory</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">SF</span>, <span class="ident">Req</span><span class="op">&gt;</span>(<span class="ident">factory</span>: <span class="ident">I</span>) -&gt; <span class="ident">PipelineFactory</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">Req</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">I</span>: <span class="ident">IntoServiceFactory</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">Req</span><span class="op">&gt;</span>,
     <span class="ident">SF</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span>,
@@ -368,7 +368,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">and_then</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">S1</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
         <span class="ident">service</span>: <span class="ident">I</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pipeline</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">S1::Response</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">S::Error</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span>, <span class="ident">Req</span><span class="op">&gt;</span>
+    ) -&gt; <span class="ident">Pipeline</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">S1::Response</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">S::Error</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span>, <span class="ident">Req</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">Sized</span>,
         <span class="ident">I</span>: <span class="ident">IntoService</span><span class="op">&lt;</span><span class="ident">S1</span>, <span class="ident">S::Response</span><span class="op">&gt;</span>,
@@ -388,7 +388,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">then</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S1</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
         <span class="ident">service</span>: <span class="ident">F</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pipeline</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">S1::Response</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">S::Error</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span>, <span class="ident">Req</span><span class="op">&gt;</span>
+    ) -&gt; <span class="ident">Pipeline</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">S1::Response</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">S::Error</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span>, <span class="ident">Req</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">Sized</span>,
         <span class="ident">F</span>: <span class="ident">IntoService</span><span class="op">&lt;</span><span class="ident">S1</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Response</span>, <span class="ident">S::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>,
@@ -409,10 +409,10 @@
     <span class="doccomment">/// Note that this function consumes the receiving service and returns a</span>
     <span class="doccomment">/// wrapped version of it, similar to the existing `map` methods in the</span>
     <span class="doccomment">/// standard library.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pipeline</span><span class="op">&lt;</span><span class="ident">Map</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">Req</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">Pipeline</span><span class="op">&lt;</span><span class="ident">Map</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">Req</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">Sized</span>,
-        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">S::Response</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span>,
+        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">S::Response</span>) -&gt; <span class="ident">R</span>,
     {
         <span class="ident">Pipeline</span> {
             <span class="ident">service</span>: <span class="ident">Map::new</span>(<span class="self">self</span>.<span class="ident">service</span>, <span class="ident">f</span>),
@@ -428,10 +428,10 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Note that this function consumes the receiving service and returns a</span>
     <span class="doccomment">/// wrapped version of it.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_err</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pipeline</span><span class="op">&lt;</span><span class="ident">MapErr</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span>, <span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">Req</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_err</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">Pipeline</span><span class="op">&lt;</span><span class="ident">MapErr</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span>, <span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">Req</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">Sized</span>,
-        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">S::Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">E</span>,
+        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">S::Error</span>) -&gt; <span class="ident">E</span>,
     {
         <span class="ident">Pipeline</span> {
             <span class="ident">service</span>: <span class="ident">MapErr::new</span>(<span class="self">self</span>.<span class="ident">service</span>, <span class="ident">f</span>),
@@ -444,7 +444,7 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Clone</span>,
 {
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">Pipeline</span> {
             <span class="ident">service</span>: <span class="self">self</span>.<span class="ident">service</span>.<span class="ident">clone</span>(),
             <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
@@ -458,12 +458,12 @@
     <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">S::Future</span>;
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">poll_ready</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">S::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">poll_ready</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">S::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">service</span>.<span class="ident">poll_ready</span>(<span class="ident">ctx</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">Req</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Future</span> {
+    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">Req</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
         <span class="self">self</span>.<span class="ident">service</span>.<span class="ident">call</span>(<span class="ident">req</span>)
     }
 }
@@ -482,7 +482,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">and_then</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">SF1</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
         <span class="ident">factory</span>: <span class="ident">I</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PipelineFactory</span><span class="op">&lt;</span>
+    ) -&gt; <span class="ident">PipelineFactory</span><span class="op">&lt;</span>
         <span class="kw">impl</span> <span class="ident">ServiceFactory</span><span class="op">&lt;</span>
                 <span class="ident">Req</span>,
                 <span class="ident">Response</span> <span class="op">=</span> <span class="ident">SF1::Response</span>,
@@ -519,7 +519,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">then</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">SF1</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
         <span class="ident">factory</span>: <span class="ident">I</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PipelineFactory</span><span class="op">&lt;</span>
+    ) -&gt; <span class="ident">PipelineFactory</span><span class="op">&lt;</span>
         <span class="kw">impl</span> <span class="ident">ServiceFactory</span><span class="op">&lt;</span>
                 <span class="ident">Req</span>,
                 <span class="ident">Response</span> <span class="op">=</span> <span class="ident">SF1::Response</span>,
@@ -549,10 +549,10 @@
 
     <span class="doccomment">/// Map this service&#39;s output to a different type, returning a new service</span>
     <span class="doccomment">/// of the resulting type.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PipelineFactory</span><span class="op">&lt;</span><span class="ident">MapServiceFactory</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">Req</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">PipelineFactory</span><span class="op">&lt;</span><span class="ident">MapServiceFactory</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">Req</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">Sized</span>,
-        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">SF::Response</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span> <span class="op">+</span> <span class="ident">Clone</span>,
+        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">SF::Response</span>) -&gt; <span class="ident">R</span> <span class="op">+</span> <span class="ident">Clone</span>,
     {
         <span class="ident">PipelineFactory</span> {
             <span class="ident">factory</span>: <span class="ident">MapServiceFactory::new</span>(<span class="self">self</span>.<span class="ident">factory</span>, <span class="ident">f</span>),
@@ -564,10 +564,10 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_err</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
         <span class="ident">f</span>: <span class="ident">F</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PipelineFactory</span><span class="op">&lt;</span><span class="ident">MapErrServiceFactory</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">Req</span>, <span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">Req</span><span class="op">&gt;</span>
+    ) -&gt; <span class="ident">PipelineFactory</span><span class="op">&lt;</span><span class="ident">MapErrServiceFactory</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">Req</span>, <span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">Req</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">Sized</span>,
-        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">SF::Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">E</span> <span class="op">+</span> <span class="ident">Clone</span>,
+        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">SF::Error</span>) -&gt; <span class="ident">E</span> <span class="op">+</span> <span class="ident">Clone</span>,
     {
         <span class="ident">PipelineFactory</span> {
             <span class="ident">factory</span>: <span class="ident">MapErrServiceFactory::new</span>(<span class="self">self</span>.<span class="ident">factory</span>, <span class="ident">f</span>),
@@ -576,10 +576,10 @@
     }
 
     <span class="doccomment">/// Map this factory&#39;s init error to a different error, returning a new service.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_init_err</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PipelineFactory</span><span class="op">&lt;</span><span class="ident">MapInitErr</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">Req</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_init_err</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">PipelineFactory</span><span class="op">&lt;</span><span class="ident">MapInitErr</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">Req</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">Sized</span>,
-        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">SF::InitError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">E</span> <span class="op">+</span> <span class="ident">Clone</span>,
+        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">SF::InitError</span>) -&gt; <span class="ident">E</span> <span class="op">+</span> <span class="ident">Clone</span>,
     {
         <span class="ident">PipelineFactory</span> {
             <span class="ident">factory</span>: <span class="ident">MapInitErr::new</span>(<span class="self">self</span>.<span class="ident">factory</span>, <span class="ident">f</span>),
@@ -592,7 +592,7 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Clone</span>,
 {
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">PipelineFactory</span> {
             <span class="ident">factory</span>: <span class="self">self</span>.<span class="ident">factory</span>.<span class="ident">clone</span>(),
             <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
@@ -612,7 +612,7 @@
     <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">SF::Future</span>;
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">new_service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cfg</span>: <span class="ident">SF::Config</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Future</span> {
+    <span class="kw">fn</span> <span class="ident">new_service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cfg</span>: <span class="ident">SF::Config</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
         <span class="self">self</span>.<span class="ident">factory</span>.<span class="ident">new_service</span>(<span class="ident">cfg</span>)
     }
 }

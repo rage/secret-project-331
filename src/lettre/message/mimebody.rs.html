@@ -728,8 +728,8 @@
 <span class="kw">impl</span> <span class="ident">EmailFormat</span> <span class="kw">for</span> <span class="ident">Part</span> {
     <span class="kw">fn</span> <span class="ident">format</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">out</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Part::Single</span>(<span class="ident">part</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">part</span>.<span class="ident">format</span>(<span class="ident">out</span>),
-            <span class="ident">Part::Multi</span>(<span class="ident">part</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">part</span>.<span class="ident">format</span>(<span class="ident">out</span>),
+            <span class="ident">Part::Single</span>(<span class="ident">part</span>) =&gt; <span class="ident">part</span>.<span class="ident">format</span>(<span class="ident">out</span>),
+            <span class="ident">Part::Multi</span>(<span class="ident">part</span>) =&gt; <span class="ident">part</span>.<span class="ident">format</span>(<span class="ident">out</span>),
         }
     }
 }
@@ -742,26 +742,26 @@
 
 <span class="kw">impl</span> <span class="ident">SinglePartBuilder</span> {
     <span class="doccomment">/// Creates a default singlepart builder</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">headers</span>: <span class="ident">Headers::new</span>(),
         }
     }
 
     <span class="doccomment">/// Set the header to singlepart</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">header</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">Header</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">header</span>: <span class="ident">H</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">header</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">Header</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">header</span>: <span class="ident">H</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">headers</span>.<span class="ident">set</span>(<span class="ident">header</span>);
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Set the Content-Type header of the singlepart</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">content_type</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">content_type</span>: <span class="ident">ContentType</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">content_type</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">content_type</span>: <span class="ident">ContentType</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">headers</span>.<span class="ident">set</span>(<span class="ident">content_type</span>);
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Build singlepart using body</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">body</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoBody</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">body</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SinglePart</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">body</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoBody</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">body</span>: <span class="ident">T</span>) -&gt; <span class="ident">SinglePart</span> {
         <span class="kw">let</span> <span class="ident">maybe_encoding</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">headers</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">ContentTransferEncoding</span><span class="op">&gt;</span>();
         <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">body</span>.<span class="ident">into_body</span>(<span class="ident">maybe_encoding</span>);
 
@@ -775,7 +775,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">SinglePartBuilder</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::new</span>()
     }
 }
@@ -804,19 +804,19 @@
 <span class="kw">impl</span> <span class="ident">SinglePart</span> {
     <span class="doccomment">/// Creates a builder for singlepart</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">builder</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SinglePartBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">builder</span>() -&gt; <span class="ident">SinglePartBuilder</span> {
         <span class="ident">SinglePartBuilder::new</span>()
     }
 
     <span class="doccomment">/// Directly create a `SinglePart` from an plain UTF-8 content</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">plain</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoBody</span><span class="op">&gt;</span>(<span class="ident">body</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">plain</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoBody</span><span class="op">&gt;</span>(<span class="ident">body</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::builder</span>()
             .<span class="ident">header</span>(<span class="ident">header::ContentType::TEXT_PLAIN</span>)
             .<span class="ident">body</span>(<span class="ident">body</span>)
     }
 
     <span class="doccomment">/// Directly create a `SinglePart` from an UTF-8 HTML content</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">html</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoBody</span><span class="op">&gt;</span>(<span class="ident">body</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">html</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoBody</span><span class="op">&gt;</span>(<span class="ident">body</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::builder</span>()
             .<span class="ident">header</span>(<span class="ident">header::ContentType::TEXT_HTML</span>)
             .<span class="ident">body</span>(<span class="ident">body</span>)
@@ -824,18 +824,18 @@
 
     <span class="doccomment">/// Get the headers from singlepart</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">headers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Headers</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">headers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Headers</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">headers</span>
     }
 
     <span class="doccomment">/// Get the encoded body</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">raw_body</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">raw_body</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">body</span>
     }
 
     <span class="doccomment">/// Get message content formatted for sending</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">formatted</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">formatted</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="self">self</span>.<span class="ident">format</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">out</span>);
         <span class="ident">out</span>
@@ -879,50 +879,50 @@
 
 <span class="doccomment">/// Create a random MIME boundary.</span>
 <span class="doccomment">/// (Not cryptographically random)</span>
-<span class="kw">fn</span> <span class="ident">make_boundary</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">fn</span> <span class="ident">make_boundary</span>() -&gt; <span class="ident">String</span> {
     <span class="ident">repeat_with</span>(<span class="ident">fastrand::alphanumeric</span>).<span class="ident">take</span>(<span class="number">40</span>).<span class="ident">collect</span>()
 }
 
 <span class="kw">impl</span> <span class="ident">MultiPartKind</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">to_mime</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">boundary</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Mime</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">to_mime</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">boundary</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>) -&gt; <span class="ident">Mime</span> {
         <span class="kw">let</span> <span class="ident">boundary</span> <span class="op">=</span> <span class="ident">boundary</span>.<span class="ident">map_or_else</span>(<span class="ident">make_boundary</span>, <span class="ident">Into::into</span>);
 
         <span class="macro">format!</span>(
             <span class="string">&quot;multipart/{}; boundary=\&quot;{}\&quot;{}&quot;</span>,
             <span class="kw">match</span> <span class="self">self</span> {
-                <span class="ident"><span class="self">Self</span>::Mixed</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;mixed&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::Alternative</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;alternative&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::Related</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;related&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::Encrypted</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;encrypted&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::Signed</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;signed&quot;</span>,
+                <span class="ident"><span class="self">Self</span>::Mixed</span> =&gt; <span class="string">&quot;mixed&quot;</span>,
+                <span class="ident"><span class="self">Self</span>::Alternative</span> =&gt; <span class="string">&quot;alternative&quot;</span>,
+                <span class="ident"><span class="self">Self</span>::Related</span> =&gt; <span class="string">&quot;related&quot;</span>,
+                <span class="ident"><span class="self">Self</span>::Encrypted</span> { .. } =&gt; <span class="string">&quot;encrypted&quot;</span>,
+                <span class="ident"><span class="self">Self</span>::Signed</span> { .. } =&gt; <span class="string">&quot;signed&quot;</span>,
             },
             <span class="ident">boundary</span>,
             <span class="kw">match</span> <span class="self">self</span> {
-                <span class="ident"><span class="self">Self</span>::Encrypted</span> { <span class="ident">protocol</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(<span class="string">&quot;; protocol=\&quot;{}\&quot;&quot;</span>, <span class="ident">protocol</span>),
-                <span class="ident"><span class="self">Self</span>::Signed</span> { <span class="ident">protocol</span>, <span class="ident">micalg</span> } <span class="op">=</span><span class="op">&gt;</span>
+                <span class="ident"><span class="self">Self</span>::Encrypted</span> { <span class="ident">protocol</span> } =&gt; <span class="macro">format!</span>(<span class="string">&quot;; protocol=\&quot;{}\&quot;&quot;</span>, <span class="ident">protocol</span>),
+                <span class="ident"><span class="self">Self</span>::Signed</span> { <span class="ident">protocol</span>, <span class="ident">micalg</span> } =&gt;
                     <span class="macro">format!</span>(<span class="string">&quot;; protocol=\&quot;{}\&quot;; micalg=\&quot;{}\&quot;&quot;</span>, <span class="ident">protocol</span>, <span class="ident">micalg</span>),
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">String::new</span>(),
+                <span class="kw">_</span> =&gt; <span class="ident">String::new</span>(),
             }
         )
         .<span class="ident">parse</span>()
         .<span class="ident">unwrap</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">from_mime</span>(<span class="ident">m</span>: <span class="kw-2">&amp;</span><span class="ident">Mime</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from_mime</span>(<span class="ident">m</span>: <span class="kw-2">&amp;</span><span class="ident">Mime</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">m</span>.<span class="ident">subtype</span>().<span class="ident">as_ref</span>() {
-            <span class="string">&quot;mixed&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::Mixed</span>),
-            <span class="string">&quot;alternative&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::Alternative</span>),
-            <span class="string">&quot;related&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::Related</span>),
-            <span class="string">&quot;signed&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">m</span>.<span class="ident">get_param</span>(<span class="string">&quot;protocol&quot;</span>).<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> {
+            <span class="string">&quot;mixed&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::Mixed</span>),
+            <span class="string">&quot;alternative&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::Alternative</span>),
+            <span class="string">&quot;related&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::Related</span>),
+            <span class="string">&quot;signed&quot;</span> =&gt; <span class="ident">m</span>.<span class="ident">get_param</span>(<span class="string">&quot;protocol&quot;</span>).<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> {
                 <span class="ident">m</span>.<span class="ident">get_param</span>(<span class="string">&quot;micalg&quot;</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">micalg</span><span class="op">|</span> <span class="ident"><span class="self">Self</span>::Signed</span> {
                     <span class="ident">protocol</span>: <span class="ident">p</span>.<span class="ident">as_str</span>().<span class="ident">to_owned</span>(),
                     <span class="ident">micalg</span>: <span class="ident">micalg</span>.<span class="ident">as_str</span>().<span class="ident">to_owned</span>(),
                 })
             }),
-            <span class="string">&quot;encrypted&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">m</span>.<span class="ident">get_param</span>(<span class="string">&quot;protocol&quot;</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident"><span class="self">Self</span>::Encrypted</span> {
+            <span class="string">&quot;encrypted&quot;</span> =&gt; <span class="ident">m</span>.<span class="ident">get_param</span>(<span class="string">&quot;protocol&quot;</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident"><span class="self">Self</span>::Encrypted</span> {
                 <span class="ident">protocol</span>: <span class="ident">p</span>.<span class="ident">as_str</span>().<span class="ident">to_owned</span>(),
             }),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
         }
     }
 }
@@ -935,25 +935,25 @@
 
 <span class="kw">impl</span> <span class="ident">MultiPartBuilder</span> {
     <span class="doccomment">/// Creates default multipart builder</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">headers</span>: <span class="ident">Headers::new</span>(),
         }
     }
 
     <span class="doccomment">/// Set a header</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">header</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">Header</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">header</span>: <span class="ident">H</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">header</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">Header</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">header</span>: <span class="ident">H</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">headers</span>.<span class="ident">set</span>(<span class="ident">header</span>);
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Set `Content-Type` header using [`MultiPartKind`]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">kind</span>(<span class="self">self</span>, <span class="ident">kind</span>: <span class="ident">MultiPartKind</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">kind</span>(<span class="self">self</span>, <span class="ident">kind</span>: <span class="ident">MultiPartKind</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">header</span>(<span class="ident">ContentType::from_mime</span>(<span class="ident">kind</span>.<span class="ident">to_mime</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>(<span class="prelude-val">None</span>)))
     }
 
     <span class="doccomment">/// Set custom boundary</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">boundary</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">boundary</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">boundary</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">boundary</span>: <span class="ident">S</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> {
             <span class="kw">let</span> <span class="ident">content_type</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">headers</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">ContentType</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
             <span class="ident">MultiPartKind::from_mime</span>(<span class="ident">content_type</span>.<span class="ident">as_ref</span>()).<span class="ident">unwrap</span>()
@@ -963,7 +963,7 @@
     }
 
     <span class="doccomment">/// Creates multipart without parts</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MultiPart</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="self">self</span>) -&gt; <span class="ident">MultiPart</span> {
         <span class="ident">MultiPart</span> {
             <span class="ident">headers</span>: <span class="self">self</span>.<span class="ident">headers</span>,
             <span class="ident">parts</span>: <span class="ident">Vec::new</span>(),
@@ -971,18 +971,18 @@
     }
 
     <span class="doccomment">/// Creates multipart using singlepart</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">singlepart</span>(<span class="self">self</span>, <span class="ident">part</span>: <span class="ident">SinglePart</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MultiPart</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">singlepart</span>(<span class="self">self</span>, <span class="ident">part</span>: <span class="ident">SinglePart</span>) -&gt; <span class="ident">MultiPart</span> {
         <span class="self">self</span>.<span class="ident">build</span>().<span class="ident">singlepart</span>(<span class="ident">part</span>)
     }
 
     <span class="doccomment">/// Creates multipart using multipart</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">multipart</span>(<span class="self">self</span>, <span class="ident">part</span>: <span class="ident">MultiPart</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MultiPart</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">multipart</span>(<span class="self">self</span>, <span class="ident">part</span>: <span class="ident">MultiPart</span>) -&gt; <span class="ident">MultiPart</span> {
         <span class="self">self</span>.<span class="ident">build</span>().<span class="ident">multipart</span>(<span class="ident">part</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">MultiPartBuilder</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::new</span>()
     }
 }
@@ -996,66 +996,66 @@
 
 <span class="kw">impl</span> <span class="ident">MultiPart</span> {
     <span class="doccomment">/// Creates multipart builder</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">builder</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MultiPartBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">builder</span>() -&gt; <span class="ident">MultiPartBuilder</span> {
         <span class="ident">MultiPartBuilder::new</span>()
     }
 
     <span class="doccomment">/// Creates mixed multipart builder</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Shortcut for `MultiPart::builder().kind(MultiPartKind::Mixed)`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mixed</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MultiPartBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mixed</span>() -&gt; <span class="ident">MultiPartBuilder</span> {
         <span class="ident">MultiPart::builder</span>().<span class="ident">kind</span>(<span class="ident">MultiPartKind::Mixed</span>)
     }
 
     <span class="doccomment">/// Creates alternative multipart builder</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Shortcut for `MultiPart::builder().kind(MultiPartKind::Alternative)`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">alternative</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MultiPartBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">alternative</span>() -&gt; <span class="ident">MultiPartBuilder</span> {
         <span class="ident">MultiPart::builder</span>().<span class="ident">kind</span>(<span class="ident">MultiPartKind::Alternative</span>)
     }
 
     <span class="doccomment">/// Creates related multipart builder</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Shortcut for `MultiPart::builder().kind(MultiPartKind::Related)`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">related</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MultiPartBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">related</span>() -&gt; <span class="ident">MultiPartBuilder</span> {
         <span class="ident">MultiPart::builder</span>().<span class="ident">kind</span>(<span class="ident">MultiPartKind::Related</span>)
     }
 
     <span class="doccomment">/// Creates encrypted multipart builder</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Shortcut for `MultiPart::builder().kind(MultiPartKind::Encrypted{ protocol })`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encrypted</span>(<span class="ident">protocol</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MultiPartBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encrypted</span>(<span class="ident">protocol</span>: <span class="ident">String</span>) -&gt; <span class="ident">MultiPartBuilder</span> {
         <span class="ident">MultiPart::builder</span>().<span class="ident">kind</span>(<span class="ident">MultiPartKind::Encrypted</span> { <span class="ident">protocol</span> })
     }
 
     <span class="doccomment">/// Creates signed multipart builder</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Shortcut for `MultiPart::builder().kind(MultiPartKind::Signed{ protocol, micalg })`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">signed</span>(<span class="ident">protocol</span>: <span class="ident">String</span>, <span class="ident">micalg</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MultiPartBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">signed</span>(<span class="ident">protocol</span>: <span class="ident">String</span>, <span class="ident">micalg</span>: <span class="ident">String</span>) -&gt; <span class="ident">MultiPartBuilder</span> {
         <span class="ident">MultiPart::builder</span>().<span class="ident">kind</span>(<span class="ident">MultiPartKind::Signed</span> { <span class="ident">protocol</span>, <span class="ident">micalg</span> })
     }
 
     <span class="doccomment">/// Alias for HTML and plain text versions of an email</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">alternative_plain_html</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoBody</span>, <span class="ident">V</span>: <span class="ident">IntoBody</span><span class="op">&gt;</span>(<span class="ident">plain</span>: <span class="ident">T</span>, <span class="ident">html</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">alternative_plain_html</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoBody</span>, <span class="ident">V</span>: <span class="ident">IntoBody</span><span class="op">&gt;</span>(<span class="ident">plain</span>: <span class="ident">T</span>, <span class="ident">html</span>: <span class="ident">V</span>) -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::alternative</span>()
             .<span class="ident">singlepart</span>(<span class="ident">SinglePart::plain</span>(<span class="ident">plain</span>))
             .<span class="ident">singlepart</span>(<span class="ident">SinglePart::html</span>(<span class="ident">html</span>))
     }
 
     <span class="doccomment">/// Add single part to multipart</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">singlepart</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">part</span>: <span class="ident">SinglePart</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">singlepart</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">part</span>: <span class="ident">SinglePart</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">parts</span>.<span class="ident">push</span>(<span class="ident">Part::Single</span>(<span class="ident">part</span>));
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Add multi part to multipart</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">multipart</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">part</span>: <span class="ident">MultiPart</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">multipart</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">part</span>: <span class="ident">MultiPart</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">parts</span>.<span class="ident">push</span>(<span class="ident">Part::Multi</span>(<span class="ident">part</span>));
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Get the boundary of multipart contents</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">boundary</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">boundary</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
         <span class="kw">let</span> <span class="ident">content_type</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">headers</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">ContentType</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
         <span class="ident">content_type</span>
             .<span class="ident">as_ref</span>()
@@ -1066,17 +1066,17 @@
     }
 
     <span class="doccomment">/// Get the headers from the multipart</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">headers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Headers</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">headers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Headers</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">headers</span>
     }
 
     <span class="doccomment">/// Get a mutable reference to the headers</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">headers_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Headers</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">headers_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Headers</span> {
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">headers</span>
     }
 
     <span class="doccomment">/// Get message content formatted for SMTP</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">formatted</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">formatted</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="self">self</span>.<span class="ident">format</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">out</span>);
         <span class="ident">out</span>

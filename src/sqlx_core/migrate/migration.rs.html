@@ -58,7 +58,7 @@
         <span class="ident">description</span>: <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span>,
         <span class="ident">migration_type</span>: <span class="ident">MigrationType</span>,
         <span class="ident">sql</span>: <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    ) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">checksum</span> <span class="op">=</span> <span class="ident">Cow::Owned</span>(<span class="ident">Vec::from</span>(<span class="ident">Sha384::digest</span>(<span class="ident">sql</span>.<span class="ident">as_bytes</span>()).<span class="ident">as_slice</span>()));
 
         <span class="ident">Migration</span> {

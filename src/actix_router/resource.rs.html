@@ -2095,7 +2095,7 @@
     <span class="doccomment">/// assert!(!resource.is_match(&quot;user/123&quot;));</span>
     <span class="doccomment">/// assert!(!resource.is_match(&quot;/foo&quot;));</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoPatterns</span><span class="op">&gt;</span>(<span class="ident">paths</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoPatterns</span><span class="op">&gt;</span>(<span class="ident">paths</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span> {
         <span class="macro">profile_method!</span>(<span class="ident">new</span>);
         <span class="ident"><span class="self">Self</span>::new2</span>(<span class="ident">paths</span>, <span class="bool-val">false</span>)
     }
@@ -2123,7 +2123,7 @@
     <span class="doccomment">/// assert!(!resource.is_match(&quot;user/123/stars&quot;));</span>
     <span class="doccomment">/// assert!(!resource.is_match(&quot;/foo&quot;));</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">prefix</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoPatterns</span><span class="op">&gt;</span>(<span class="ident">paths</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">prefix</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoPatterns</span><span class="op">&gt;</span>(<span class="ident">paths</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span> {
         <span class="macro">profile_method!</span>(<span class="ident">prefix</span>);
         <span class="ident">ResourceDef::new2</span>(<span class="ident">paths</span>, <span class="bool-val">true</span>)
     }
@@ -2148,7 +2148,7 @@
     <span class="doccomment">/// assert!(resource.is_match(&quot;/user/123&quot;));</span>
     <span class="doccomment">/// assert!(!resource.is_match(&quot;user/123&quot;));</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">root_prefix</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">root_prefix</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="self">Self</span> {
         <span class="macro">profile_method!</span>(<span class="ident">root_prefix</span>);
         <span class="ident">ResourceDef::prefix</span>(<span class="ident">insert_slash</span>(<span class="ident">path</span>).<span class="ident">into_owned</span>())
     }
@@ -2166,7 +2166,7 @@
     <span class="doccomment">/// resource.set_id(42);</span>
     <span class="doccomment">/// assert_eq!(resource.id(), 42);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u16</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u16</span> {
         <span class="self">self</span>.<span class="ident">id</span>
     }
 
@@ -2193,7 +2193,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// resource.set_name(&quot;root&quot;);</span>
     <span class="doccomment">/// assert_eq!(resource.name().unwrap(), &quot;root&quot;);</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">name</span>.<span class="ident">as_deref</span>()
     }
 
@@ -2227,7 +2227,7 @@
     <span class="doccomment">/// assert!(ResourceDef::prefix(&quot;/user&quot;).is_prefix());</span>
     <span class="doccomment">/// assert!(!ResourceDef::new(&quot;/user&quot;).is_prefix());</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_prefix</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_prefix</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">is_prefix</span>
     }
 
@@ -2245,10 +2245,10 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// let mut resource = ResourceDef::new([&quot;/profile&quot;, &quot;/user/{id}&quot;]);</span>
     <span class="doccomment">/// assert_eq!(resource.pattern(), Some(&quot;/profile&quot;));</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pattern</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pattern</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">patterns</span> {
-            <span class="ident">Patterns::Single</span>(<span class="ident">pattern</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">pattern</span>.<span class="ident">as_str</span>()),
-            <span class="ident">Patterns::List</span>(<span class="ident">patterns</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">patterns</span>.<span class="ident">first</span>().<span class="ident">map</span>(<span class="ident">AsRef::as_ref</span>),
+            <span class="ident">Patterns::Single</span>(<span class="ident">pattern</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">pattern</span>.<span class="ident">as_str</span>()),
+            <span class="ident">Patterns::List</span>(<span class="ident">patterns</span>) =&gt; <span class="ident">patterns</span>.<span class="ident">first</span>().<span class="ident">map</span>(<span class="ident">AsRef::as_ref</span>),
         }
     }
 
@@ -2267,7 +2267,7 @@
     <span class="doccomment">/// assert_eq!(iter.next().unwrap(), &quot;/root&quot;);</span>
     <span class="doccomment">/// assert_eq!(iter.next().unwrap(), &quot;/backup&quot;);</span>
     <span class="doccomment">/// assert!(iter.next().is_none());</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pattern_iter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pattern_iter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
         <span class="kw">struct</span> <span class="ident">PatternIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
             <span class="ident">patterns</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Patterns</span>,
             <span class="ident">list_idx</span>: <span class="ident">usize</span>,
@@ -2277,9 +2277,9 @@
         <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">PatternIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
             <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>;
 
-            <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
+            <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
                 <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">patterns</span> {
-                    <span class="ident">Patterns::Single</span>(<span class="ident">pattern</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">Patterns::Single</span>(<span class="ident">pattern</span>) =&gt; {
                         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">done</span> {
                             <span class="kw">return</span> <span class="prelude-val">None</span>;
                         }
@@ -2287,13 +2287,13 @@
                         <span class="self">self</span>.<span class="ident">done</span> <span class="op">=</span> <span class="bool-val">true</span>;
                         <span class="prelude-val">Some</span>(<span class="ident">pattern</span>.<span class="ident">as_str</span>())
                     }
-                    <span class="ident">Patterns::List</span>(<span class="ident">patterns</span>) <span class="kw">if</span> <span class="ident">patterns</span>.<span class="ident">is_empty</span>() <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-                    <span class="ident">Patterns::List</span>(<span class="ident">patterns</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">patterns</span>.<span class="ident">get</span>(<span class="self">self</span>.<span class="ident">list_idx</span>) {
-                        <span class="prelude-val">Some</span>(<span class="ident">pattern</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">Patterns::List</span>(<span class="ident">patterns</span>) <span class="kw">if</span> <span class="ident">patterns</span>.<span class="ident">is_empty</span>() =&gt; <span class="prelude-val">None</span>,
+                    <span class="ident">Patterns::List</span>(<span class="ident">patterns</span>) =&gt; <span class="kw">match</span> <span class="ident">patterns</span>.<span class="ident">get</span>(<span class="self">self</span>.<span class="ident">list_idx</span>) {
+                        <span class="prelude-val">Some</span>(<span class="ident">pattern</span>) =&gt; {
                             <span class="self">self</span>.<span class="ident">list_idx</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                             <span class="prelude-val">Some</span>(<span class="ident">pattern</span>.<span class="ident">as_str</span>())
                         }
-                        <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="prelude-val">None</span> =&gt; {
                             <span class="comment">// fast path future call</span>
                             <span class="self">self</span>.<span class="ident">done</span> <span class="op">=</span> <span class="bool-val">true</span>;
                             <span class="prelude-val">None</span>
@@ -2302,10 +2302,10 @@
                 }
             }
 
-            <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) {
+            <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) {
                 <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">patterns</span> {
-                    <span class="ident">Patterns::Single</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="number">1</span>)),
-                    <span class="ident">Patterns::List</span>(<span class="ident">patterns</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">patterns</span>.<span class="ident">len</span>(), <span class="prelude-val">Some</span>(<span class="ident">patterns</span>.<span class="ident">len</span>())),
+                    <span class="ident">Patterns::Single</span>(<span class="kw">_</span>) =&gt; (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="number">1</span>)),
+                    <span class="ident">Patterns::List</span>(<span class="ident">patterns</span>) =&gt; (<span class="ident">patterns</span>.<span class="ident">len</span>(), <span class="prelude-val">Some</span>(<span class="ident">patterns</span>.<span class="ident">len</span>())),
                 }
             }
         }
@@ -2327,7 +2327,7 @@
     <span class="doccomment">/// let joined = ResourceDef::prefix(&quot;/root&quot;).join(&amp;ResourceDef::prefix(&quot;/seg&quot;));</span>
     <span class="doccomment">/// assert_eq!(joined, ResourceDef::prefix(&quot;/root/seg&quot;));</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">join</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">ResourceDef</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ResourceDef</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">join</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">ResourceDef</span>) -&gt; <span class="ident">ResourceDef</span> {
         <span class="kw">let</span> <span class="ident">patterns</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">pattern_iter</span>()
             .<span class="ident">flat_map</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">this</span><span class="op">|</span> <span class="ident">other</span>.<span class="ident">pattern_iter</span>().<span class="ident">map</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">other</span><span class="op">|</span> (<span class="ident">this</span>, <span class="ident">other</span>)))
@@ -2335,8 +2335,8 @@
             .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
 
         <span class="kw">match</span> <span class="ident">patterns</span>.<span class="ident">len</span>() {
-            <span class="number">1</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ResourceDef::new2</span>(<span class="kw-2">&amp;</span><span class="ident">patterns</span>[<span class="number">0</span>], <span class="ident">other</span>.<span class="ident">is_prefix</span>()),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ResourceDef::new2</span>(<span class="ident">patterns</span>, <span class="ident">other</span>.<span class="ident">is_prefix</span>()),
+            <span class="number">1</span> =&gt; <span class="ident">ResourceDef::new2</span>(<span class="kw-2">&amp;</span><span class="ident">patterns</span>[<span class="number">0</span>], <span class="ident">other</span>.<span class="ident">is_prefix</span>()),
+            <span class="kw">_</span> =&gt; <span class="ident">ResourceDef::new2</span>(<span class="ident">patterns</span>, <span class="ident">other</span>.<span class="ident">is_prefix</span>()),
         }
     }
 
@@ -2374,7 +2374,7 @@
     <span class="doccomment">/// // more examples are shown in the `ResourceDef` struct docs</span>
     <span class="doccomment">/// ```</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_match</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_match</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
         <span class="macro">profile_method!</span>(<span class="ident">is_match</span>);
 
         <span class="comment">// this function could be expressed as:</span>
@@ -2382,9 +2382,9 @@
         <span class="comment">// but this skips some checks and uses potentially faster regex methods</span>
 
         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">pat_type</span> {
-            <span class="ident">PatternType::Static</span>(<span class="ident">pattern</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">static_match</span>(<span class="ident">pattern</span>, <span class="ident">path</span>).<span class="ident">is_some</span>(),
-            <span class="ident">PatternType::Dynamic</span>(<span class="ident">re</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">re</span>.<span class="ident">is_match</span>(<span class="ident">path</span>),
-            <span class="ident">PatternType::DynamicSet</span>(<span class="ident">re</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">re</span>.<span class="ident">is_match</span>(<span class="ident">path</span>),
+            <span class="ident">PatternType::Static</span>(<span class="ident">pattern</span>) =&gt; <span class="self">self</span>.<span class="ident">static_match</span>(<span class="ident">pattern</span>, <span class="ident">path</span>).<span class="ident">is_some</span>(),
+            <span class="ident">PatternType::Dynamic</span>(<span class="ident">re</span>, <span class="kw">_</span>) =&gt; <span class="ident">re</span>.<span class="ident">is_match</span>(<span class="ident">path</span>),
+            <span class="ident">PatternType::DynamicSet</span>(<span class="ident">re</span>, <span class="kw">_</span>) =&gt; <span class="ident">re</span>.<span class="ident">is_match</span>(<span class="ident">path</span>),
         }
     }
 
@@ -2423,15 +2423,15 @@
     <span class="doccomment">/// assert_eq!(resource.find_match(&quot;/user/123&quot;), Some(9));</span>
     <span class="doccomment">/// assert_eq!(resource.find_match(&quot;/profile/1234&quot;), Some(13));</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_match</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_match</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="macro">profile_method!</span>(<span class="ident">find_match</span>);
 
         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">pat_type</span> {
-            <span class="ident">PatternType::Static</span>(<span class="ident">pattern</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">static_match</span>(<span class="ident">pattern</span>, <span class="ident">path</span>),
+            <span class="ident">PatternType::Static</span>(<span class="ident">pattern</span>) =&gt; <span class="self">self</span>.<span class="ident">static_match</span>(<span class="ident">pattern</span>, <span class="ident">path</span>),
 
-            <span class="ident">PatternType::Dynamic</span>(<span class="ident">re</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">re</span>.<span class="ident">captures</span>(<span class="ident">path</span>)<span class="question-mark">?</span>[<span class="number">1</span>].<span class="ident">len</span>()),
+            <span class="ident">PatternType::Dynamic</span>(<span class="ident">re</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">re</span>.<span class="ident">captures</span>(<span class="ident">path</span>)<span class="question-mark">?</span>[<span class="number">1</span>].<span class="ident">len</span>()),
 
-            <span class="ident">PatternType::DynamicSet</span>(<span class="ident">re</span>, <span class="ident">params</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">PatternType::DynamicSet</span>(<span class="ident">re</span>, <span class="ident">params</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">re</span>.<span class="ident">matches</span>(<span class="ident">path</span>).<span class="ident">into_iter</span>().<span class="ident">next</span>()<span class="question-mark">?</span>;
                 <span class="kw">let</span> (<span class="kw-2">ref</span> <span class="ident">pattern</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">params</span>[<span class="ident">idx</span>];
                 <span class="prelude-val">Some</span>(<span class="ident">pattern</span>.<span class="ident">captures</span>(<span class="ident">path</span>)<span class="question-mark">?</span>[<span class="number">1</span>].<span class="ident">len</span>())
@@ -2459,7 +2459,7 @@
     <span class="doccomment">/// assert_eq!(path.get(&quot;path&quot;).unwrap(), &quot;HEAD/Cargo.toml&quot;);</span>
     <span class="doccomment">/// assert_eq!(path.unprocessed(), &quot;&quot;);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">capture_match_info</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ResourcePath</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Path</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">capture_match_info</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ResourcePath</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Path</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
         <span class="macro">profile_method!</span>(<span class="ident">capture_match_info</span>);
         <span class="self">self</span>.<span class="ident">capture_match_info_fn</span>(<span class="ident">path</span>, <span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> <span class="bool-val">true</span>, ())
     }
@@ -2507,11 +2507,11 @@
         <span class="ident">resource</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>,
         <span class="ident">check_fn</span>: <span class="ident">F</span>,
         <span class="ident">user_data</span>: <span class="ident">U</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>
+    ) -&gt; <span class="ident">bool</span>
     <span class="kw">where</span>
         <span class="ident">R</span>: <span class="ident">Resource</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
         <span class="ident">T</span>: <span class="ident">ResourcePath</span>,
-        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">R</span>, <span class="ident">U</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>,
+        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">R</span>, <span class="ident">U</span>) -&gt; <span class="ident">bool</span>,
     {
         <span class="macro">profile_method!</span>(<span class="ident">capture_match_info_fn</span>);
 
@@ -2520,24 +2520,24 @@
         <span class="kw">let</span> <span class="ident">path_str</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">path</span>();
 
         <span class="kw">let</span> (<span class="ident">matched_len</span>, <span class="ident">matched_vars</span>) <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">pat_type</span> {
-            <span class="ident">PatternType::Static</span>(<span class="ident">pattern</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">PatternType::Static</span>(<span class="ident">pattern</span>) =&gt; {
                 <span class="macro">profile_section!</span>(<span class="ident">pattern_static_or_prefix</span>);
 
                 <span class="kw">match</span> <span class="self">self</span>.<span class="ident">static_match</span>(<span class="ident">pattern</span>, <span class="ident">path_str</span>) {
-                    <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">len</span>, <span class="prelude-val">None</span>),
-                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="bool-val">false</span>,
+                    <span class="prelude-val">Some</span>(<span class="ident">len</span>) =&gt; (<span class="ident">len</span>, <span class="prelude-val">None</span>),
+                    <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="bool-val">false</span>,
                 }
             }
 
-            <span class="ident">PatternType::Dynamic</span>(<span class="ident">re</span>, <span class="ident">names</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">PatternType::Dynamic</span>(<span class="ident">re</span>, <span class="ident">names</span>) =&gt; {
                 <span class="macro">profile_section!</span>(<span class="ident">pattern_dynamic</span>);
 
                 <span class="kw">let</span> <span class="ident">captures</span> <span class="op">=</span> {
                     <span class="macro">profile_section!</span>(<span class="ident">pattern_dynamic_regex_exec</span>);
 
                     <span class="kw">match</span> <span class="ident">re</span>.<span class="ident">captures</span>(<span class="ident">path</span>.<span class="ident">path</span>()) {
-                        <span class="prelude-val">Some</span>(<span class="ident">captures</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">captures</span>,
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="bool-val">false</span>,
+                        <span class="prelude-val">Some</span>(<span class="ident">captures</span>) =&gt; <span class="ident">captures</span>,
+                        <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="bool-val">false</span>,
                     }
                 };
 
@@ -2560,18 +2560,18 @@
                 (<span class="ident">captures</span>[<span class="number">1</span>].<span class="ident">len</span>(), <span class="prelude-val">Some</span>(<span class="ident">names</span>))
             }
 
-            <span class="ident">PatternType::DynamicSet</span>(<span class="ident">re</span>, <span class="ident">params</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">PatternType::DynamicSet</span>(<span class="ident">re</span>, <span class="ident">params</span>) =&gt; {
                 <span class="macro">profile_section!</span>(<span class="ident">pattern_dynamic_set</span>);
 
                 <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">path</span>();
                 <span class="kw">let</span> (<span class="ident">pattern</span>, <span class="ident">names</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">re</span>.<span class="ident">matches</span>(<span class="ident">path</span>).<span class="ident">into_iter</span>().<span class="ident">next</span>() {
-                    <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">params</span>[<span class="ident">idx</span>],
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="bool-val">false</span>,
+                    <span class="prelude-val">Some</span>(<span class="ident">idx</span>) =&gt; <span class="kw-2">&amp;</span><span class="ident">params</span>[<span class="ident">idx</span>],
+                    <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="bool-val">false</span>,
                 };
 
                 <span class="kw">let</span> <span class="ident">captures</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">pattern</span>.<span class="ident">captures</span>(<span class="ident">path</span>.<span class="ident">path</span>()) {
-                    <span class="prelude-val">Some</span>(<span class="ident">captures</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">captures</span>,
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="bool-val">false</span>,
+                    <span class="prelude-val">Some</span>(<span class="ident">captures</span>) =&gt; <span class="ident">captures</span>,
+                    <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="bool-val">false</span>,
                 };
 
                 <span class="kw">for</span> (<span class="ident">no</span>, <span class="ident">name</span>) <span class="kw">in</span> <span class="ident">names</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
@@ -2606,17 +2606,17 @@
     }
 
     <span class="doccomment">/// Assembles resource path using a closure that maps variable segment names to values.</span>
-    <span class="kw">fn</span> <span class="ident">build_resource_path</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">String</span>, <span class="kw-2">mut</span> <span class="ident">vars</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>
+    <span class="kw">fn</span> <span class="ident">build_resource_path</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">String</span>, <span class="kw-2">mut</span> <span class="ident">vars</span>: <span class="ident">F</span>) -&gt; <span class="ident">bool</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>,
         <span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
     {
         <span class="kw">for</span> <span class="ident">segment</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">segments</span> {
             <span class="kw">match</span> <span class="ident">segment</span> {
-                <span class="ident">PatternSegment::Const</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">path</span>.<span class="ident">push_str</span>(<span class="ident">val</span>),
-                <span class="ident">PatternSegment::Var</span>(<span class="ident">name</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">vars</span>(<span class="ident">name</span>) {
-                    <span class="prelude-val">Some</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">path</span>.<span class="ident">push_str</span>(<span class="ident">val</span>.<span class="ident">as_ref</span>()),
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="bool-val">false</span>,
+                <span class="ident">PatternSegment::Const</span>(<span class="ident">val</span>) =&gt; <span class="ident">path</span>.<span class="ident">push_str</span>(<span class="ident">val</span>),
+                <span class="ident">PatternSegment::Var</span>(<span class="ident">name</span>) =&gt; <span class="kw">match</span> <span class="ident">vars</span>(<span class="ident">name</span>) {
+                    <span class="prelude-val">Some</span>(<span class="ident">val</span>) =&gt; <span class="ident">path</span>.<span class="ident">push_str</span>(<span class="ident">val</span>.<span class="ident">as_ref</span>()),
+                    <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="bool-val">false</span>,
                 },
             }
         }
@@ -2640,7 +2640,7 @@
     <span class="doccomment">/// assert!(resource.resource_path_from_iter(&amp;mut s, &amp;[&quot;123&quot;, &quot;my-post&quot;]));</span>
     <span class="doccomment">/// assert_eq!(s, &quot;/user/123/post/my-post&quot;);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resource_path_from_iter</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">String</span>, <span class="ident">values</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resource_path_from_iter</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">String</span>, <span class="ident">values</span>: <span class="ident">I</span>) -&gt; <span class="ident">bool</span>
     <span class="kw">where</span>
         <span class="ident">I</span>: <span class="ident">IntoIterator</span>,
         <span class="ident">I::Item</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
@@ -2675,7 +2675,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">String</span>,
         <span class="ident">values</span>: <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>
+    ) -&gt; <span class="ident">bool</span>
     <span class="kw">where</span>
         <span class="ident">K</span>: <span class="ident">Borrow</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Hash</span>,
         <span class="ident">V</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
@@ -2686,48 +2686,48 @@
     }
 
     <span class="doccomment">/// Returns true if `prefix` acts as a proper prefix (i.e., separated by a slash) in `path`.</span>
-    <span class="kw">fn</span> <span class="ident">static_match</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pattern</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">static_match</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pattern</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">rem</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">strip_prefix</span>(<span class="ident">pattern</span>)<span class="question-mark">?</span>;
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">is_prefix</span> {
             <span class="comment">// resource is not a prefix so an exact match is needed</span>
-            <span class="bool-val">false</span> <span class="kw">if</span> <span class="ident">rem</span>.<span class="ident">is_empty</span>() <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">pattern</span>.<span class="ident">len</span>()),
+            <span class="bool-val">false</span> <span class="kw">if</span> <span class="ident">rem</span>.<span class="ident">is_empty</span>() =&gt; <span class="prelude-val">Some</span>(<span class="ident">pattern</span>.<span class="ident">len</span>()),
 
             <span class="comment">// resource is a prefix so rem should start with a path delimiter</span>
-            <span class="bool-val">true</span> <span class="kw">if</span> <span class="ident">rem</span>.<span class="ident">is_empty</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">rem</span>.<span class="ident">starts_with</span>(<span class="string">&#39;/&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">pattern</span>.<span class="ident">len</span>()),
+            <span class="bool-val">true</span> <span class="kw">if</span> <span class="ident">rem</span>.<span class="ident">is_empty</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">rem</span>.<span class="ident">starts_with</span>(<span class="string">&#39;/&#39;</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">pattern</span>.<span class="ident">len</span>()),
 
             <span class="comment">// otherwise, no match</span>
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">new2</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoPatterns</span><span class="op">&gt;</span>(<span class="ident">paths</span>: <span class="ident">T</span>, <span class="ident">is_prefix</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">new2</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoPatterns</span><span class="op">&gt;</span>(<span class="ident">paths</span>: <span class="ident">T</span>, <span class="ident">is_prefix</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
         <span class="macro">profile_method!</span>(<span class="ident">new2</span>);
 
         <span class="kw">let</span> <span class="ident">patterns</span> <span class="op">=</span> <span class="ident">paths</span>.<span class="ident">patterns</span>();
         <span class="kw">let</span> (<span class="ident">pat_type</span>, <span class="ident">segments</span>) <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">patterns</span> {
-            <span class="ident">Patterns::Single</span>(<span class="ident">pattern</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ResourceDef::parse</span>(<span class="ident">pattern</span>, <span class="ident">is_prefix</span>, <span class="bool-val">false</span>),
+            <span class="ident">Patterns::Single</span>(<span class="ident">pattern</span>) =&gt; <span class="ident">ResourceDef::parse</span>(<span class="ident">pattern</span>, <span class="ident">is_prefix</span>, <span class="bool-val">false</span>),
 
             <span class="comment">// since zero length pattern sets are possible</span>
             <span class="comment">// just return a useless `ResourceDef`</span>
-            <span class="ident">Patterns::List</span>(<span class="ident">patterns</span>) <span class="kw">if</span> <span class="ident">patterns</span>.<span class="ident">is_empty</span>() <span class="op">=</span><span class="op">&gt;</span> (
+            <span class="ident">Patterns::List</span>(<span class="ident">patterns</span>) <span class="kw">if</span> <span class="ident">patterns</span>.<span class="ident">is_empty</span>() =&gt; (
                 <span class="ident">PatternType::DynamicSet</span>(<span class="ident">RegexSet::empty</span>(), <span class="ident">Vec::new</span>()),
                 <span class="ident">Vec::new</span>(),
             ),
 
-            <span class="ident">Patterns::List</span>(<span class="ident">patterns</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Patterns::List</span>(<span class="ident">patterns</span>) =&gt; {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">re_set</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">patterns</span>.<span class="ident">len</span>());
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pattern_data</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">segments</span> <span class="op">=</span> <span class="prelude-val">None</span>;
 
                 <span class="kw">for</span> <span class="ident">pattern</span> <span class="kw">in</span> <span class="ident">patterns</span> {
                     <span class="kw">match</span> <span class="ident">ResourceDef::parse</span>(<span class="ident">pattern</span>, <span class="ident">is_prefix</span>, <span class="bool-val">true</span>) {
-                        (<span class="ident">PatternType::Dynamic</span>(<span class="ident">re</span>, <span class="ident">names</span>), <span class="ident">segs</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        (<span class="ident">PatternType::Dynamic</span>(<span class="ident">re</span>, <span class="ident">names</span>), <span class="ident">segs</span>) =&gt; {
                             <span class="ident">re_set</span>.<span class="ident">push</span>(<span class="ident">re</span>.<span class="ident">as_str</span>().<span class="ident">to_owned</span>());
                             <span class="ident">pattern_data</span>.<span class="ident">push</span>((<span class="ident">re</span>, <span class="ident">names</span>));
                             <span class="ident">segments</span>.<span class="ident">get_or_insert</span>(<span class="ident">segs</span>);
                         }
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                        <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
                     }
                 }
 
@@ -2761,7 +2761,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">/// Panics if given patterns does not contain a dynamic segment.</span>
-    <span class="kw">fn</span> <span class="ident">parse_param</span>(<span class="ident">pattern</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">PatternSegment</span>, <span class="ident">String</span>, <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">bool</span>) {
+    <span class="kw">fn</span> <span class="ident">parse_param</span>(<span class="ident">pattern</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; (<span class="ident">PatternSegment</span>, <span class="ident">String</span>, <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">bool</span>) {
         <span class="macro">profile_method!</span>(<span class="ident">parse_param</span>);
 
         <span class="kw">const</span> <span class="ident">DEFAULT_PATTERN</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;[^/]+&quot;</span>;
@@ -2770,15 +2770,15 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">params_nesting</span> <span class="op">=</span> <span class="number">0usize</span>;
         <span class="kw">let</span> <span class="ident">close_idx</span> <span class="op">=</span> <span class="ident">pattern</span>
             .<span class="ident">find</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">c</span> {
-                <span class="string">&#39;{&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&#39;{&#39;</span> =&gt; {
                     <span class="ident">params_nesting</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                     <span class="bool-val">false</span>
                 }
-                <span class="string">&#39;}&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&#39;}&#39;</span> =&gt; {
                     <span class="ident">params_nesting</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-                    <span class="ident">params_nesting</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>
+                    <span class="ident">params_nesting</span> <span class="op">==</span> <span class="number">0</span>
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+                <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
             })
             .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> {
                 <span class="macro">panic!</span>(
@@ -2792,10 +2792,10 @@
         <span class="comment">// remove outer curly brackets</span>
         <span class="ident">param</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">param</span>[<span class="number">1</span>..<span class="ident">param</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>];
 
-        <span class="kw">let</span> <span class="ident">tail</span> <span class="op">=</span> <span class="ident">unprocessed</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;*&quot;</span>;
+        <span class="kw">let</span> <span class="ident">tail</span> <span class="op">=</span> <span class="ident">unprocessed</span> <span class="op">==</span> <span class="string">&quot;*&quot;</span>;
 
         <span class="kw">let</span> (<span class="ident">name</span>, <span class="ident">pattern</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">param</span>.<span class="ident">find</span>(<span class="string">&#39;:&#39;</span>) {
-            <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">idx</span>) =&gt; {
                 <span class="kw">if</span> <span class="ident">tail</span> {
                     <span class="macro">panic!</span>(<span class="string">&quot;custom regex is not supported for tail match&quot;</span>);
                 }
@@ -2803,7 +2803,7 @@
                 <span class="kw">let</span> (<span class="ident">name</span>, <span class="ident">pattern</span>) <span class="op">=</span> <span class="ident">param</span>.<span class="ident">split_at</span>(<span class="ident">idx</span>);
                 (<span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="ident">pattern</span>[<span class="number">1</span>..])
             }
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> (
+            <span class="prelude-val">None</span> =&gt; (
                 <span class="ident">param</span>,
                 <span class="kw">if</span> <span class="ident">tail</span> {
                     <span class="ident">unprocessed</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">unprocessed</span>[<span class="number">1</span>..];
@@ -2834,7 +2834,7 @@
         <span class="ident">pattern</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">is_prefix</span>: <span class="ident">bool</span>,
         <span class="ident">force_dynamic</span>: <span class="ident">bool</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">PatternType</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PatternSegment</span><span class="op">&gt;</span>) {
+    ) -&gt; (<span class="ident">PatternType</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PatternSegment</span><span class="op">&gt;</span>) {
         <span class="macro">profile_method!</span>(<span class="ident">parse</span>);
 
         <span class="kw">if</span> <span class="op">!</span><span class="ident">force_dynamic</span> <span class="op">&amp;&amp;</span> <span class="ident">pattern</span>.<span class="ident">find</span>(<span class="string">&#39;{&#39;</span>).<span class="ident">is_none</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">pattern</span>.<span class="ident">ends_with</span>(<span class="string">&#39;*&#39;</span>) {
@@ -2925,8 +2925,8 @@
         }
 
         <span class="kw">let</span> <span class="ident">re</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">Regex::new</span>(<span class="kw-2">&amp;</span><span class="ident">re</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">re</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">re</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;Wrong path pattern: \&quot;{}\&quot; {}&quot;</span>, <span class="ident">pattern</span>, <span class="ident">err</span>),
+            <span class="prelude-val">Ok</span>(<span class="ident">re</span>) =&gt; <span class="ident">re</span>,
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Wrong path pattern: \&quot;{}\&quot; {}&quot;</span>, <span class="ident">pattern</span>, <span class="ident">err</span>),
         };
 
         <span class="comment">// `Bok::leak(Box::new(name))` is an intentional memory leak. In typical applications the</span>
@@ -2945,8 +2945,8 @@
 <span class="kw">impl</span> <span class="ident">Eq</span> <span class="kw">for</span> <span class="ident">ResourceDef</span> {}
 
 <span class="kw">impl</span> <span class="ident">PartialEq</span> <span class="kw">for</span> <span class="ident">ResourceDef</span> {
-    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">ResourceDef</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">patterns</span> <span class="op">=</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">patterns</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">is_prefix</span> <span class="op">=</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">is_prefix</span>
+    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">ResourceDef</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">patterns</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">patterns</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">is_prefix</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">is_prefix</span>
     }
 }
 
@@ -2957,18 +2957,18 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ResourceDef</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ResourceDef</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) -&gt; <span class="ident">ResourceDef</span> {
         <span class="ident">ResourceDef::new</span>(<span class="ident">path</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ResourceDef</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">path</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ResourceDef</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">path</span>: <span class="ident">String</span>) -&gt; <span class="ident">ResourceDef</span> {
         <span class="ident">ResourceDef::new</span>(<span class="ident">path</span>)
     }
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">insert_slash</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">str</span><span class="op">&gt;</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">insert_slash</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">str</span><span class="op">&gt;</span> {
     <span class="macro">profile_fn!</span>(<span class="ident">insert_slash</span>);
 
     <span class="kw">if</span> <span class="op">!</span><span class="ident">path</span>.<span class="ident">is_empty</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">path</span>.<span class="ident">starts_with</span>(<span class="string">&#39;/&#39;</span>) {
@@ -3509,14 +3509,14 @@
     <span class="kw">fn</span> <span class="ident">join</span>() {
         <span class="comment">// test joined defs match the same paths as each component separately</span>
 
-        <span class="kw">fn</span> <span class="ident">seq_find_match</span>(<span class="ident">re1</span>: <span class="kw-2">&amp;</span><span class="ident">ResourceDef</span>, <span class="ident">re2</span>: <span class="kw-2">&amp;</span><span class="ident">ResourceDef</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+        <span class="kw">fn</span> <span class="ident">seq_find_match</span>(<span class="ident">re1</span>: <span class="kw-2">&amp;</span><span class="ident">ResourceDef</span>, <span class="ident">re2</span>: <span class="kw-2">&amp;</span><span class="ident">ResourceDef</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
             <span class="kw">let</span> <span class="ident">len1</span> <span class="op">=</span> <span class="ident">re1</span>.<span class="ident">find_match</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
             <span class="kw">let</span> <span class="ident">len2</span> <span class="op">=</span> <span class="ident">re2</span>.<span class="ident">find_match</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>[<span class="ident">len1</span>..])<span class="question-mark">?</span>;
             <span class="prelude-val">Some</span>(<span class="ident">len1</span> <span class="op">+</span> <span class="ident">len2</span>)
         }
 
         <span class="macro">macro_rules!</span> <span class="ident">join_test</span> {
-            (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pat1</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pat2</span>:<span class="ident">expr</span> <span class="op">=</span><span class="op">&gt;</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">test</span>:<span class="ident">expr</span>),<span class="op">+</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+            (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pat1</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pat2</span>:<span class="ident">expr</span> =&gt; $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">test</span>:<span class="ident">expr</span>),<span class="op">+</span>) =&gt; {{
                 <span class="kw">let</span> <span class="ident">pat1</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pat1</span>;
                 <span class="kw">let</span> <span class="ident">pat2</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pat2</span>;
                 $({
@@ -3544,12 +3544,12 @@
             }}
         }
 
-        <span class="macro">join_test!</span>(<span class="string">&quot;&quot;</span>, <span class="string">&quot;&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;&quot;</span>, <span class="string">&quot;/hello&quot;</span>, <span class="string">&quot;/&quot;</span>);
-        <span class="macro">join_test!</span>(<span class="string">&quot;/user&quot;</span>, <span class="string">&quot;&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;&quot;</span>, <span class="string">&quot;/user&quot;</span>, <span class="string">&quot;/user/123&quot;</span>, <span class="string">&quot;/user11&quot;</span>, <span class="string">&quot;user&quot;</span>, <span class="string">&quot;user/123&quot;</span>);
-        <span class="macro">join_test!</span>(<span class="string">&quot;&quot;</span>,  <span class="string">&quot;/user&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;&quot;</span>, <span class="string">&quot;/user&quot;</span>, <span class="string">&quot;foo&quot;</span>, <span class="string">&quot;/user11&quot;</span>, <span class="string">&quot;user&quot;</span>, <span class="string">&quot;user/123&quot;</span>);
-        <span class="macro">join_test!</span>(<span class="string">&quot;/user&quot;</span>,  <span class="string">&quot;/xx&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;&quot;</span>, <span class="string">&quot;&quot;</span>,  <span class="string">&quot;/&quot;</span>, <span class="string">&quot;/user&quot;</span>, <span class="string">&quot;/xx&quot;</span>, <span class="string">&quot;/userxx&quot;</span>, <span class="string">&quot;/user/xx&quot;</span>);
+        <span class="macro">join_test!</span>(<span class="string">&quot;&quot;</span>, <span class="string">&quot;&quot;</span> =&gt; <span class="string">&quot;&quot;</span>, <span class="string">&quot;/hello&quot;</span>, <span class="string">&quot;/&quot;</span>);
+        <span class="macro">join_test!</span>(<span class="string">&quot;/user&quot;</span>, <span class="string">&quot;&quot;</span> =&gt; <span class="string">&quot;&quot;</span>, <span class="string">&quot;/user&quot;</span>, <span class="string">&quot;/user/123&quot;</span>, <span class="string">&quot;/user11&quot;</span>, <span class="string">&quot;user&quot;</span>, <span class="string">&quot;user/123&quot;</span>);
+        <span class="macro">join_test!</span>(<span class="string">&quot;&quot;</span>,  <span class="string">&quot;/user&quot;</span> =&gt; <span class="string">&quot;&quot;</span>, <span class="string">&quot;/user&quot;</span>, <span class="string">&quot;foo&quot;</span>, <span class="string">&quot;/user11&quot;</span>, <span class="string">&quot;user&quot;</span>, <span class="string">&quot;user/123&quot;</span>);
+        <span class="macro">join_test!</span>(<span class="string">&quot;/user&quot;</span>,  <span class="string">&quot;/xx&quot;</span> =&gt; <span class="string">&quot;&quot;</span>, <span class="string">&quot;&quot;</span>,  <span class="string">&quot;/&quot;</span>, <span class="string">&quot;/user&quot;</span>, <span class="string">&quot;/xx&quot;</span>, <span class="string">&quot;/userxx&quot;</span>, <span class="string">&quot;/user/xx&quot;</span>);
 
-        <span class="macro">join_test!</span>([<span class="string">&quot;/ver/{v}&quot;</span>, <span class="string">&quot;/v{v}&quot;</span>], [<span class="string">&quot;/req/{req}&quot;</span>, <span class="string">&quot;/{req}&quot;</span>] <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;/v1/abc&quot;</span>, 
+        <span class="macro">join_test!</span>([<span class="string">&quot;/ver/{v}&quot;</span>, <span class="string">&quot;/v{v}&quot;</span>], [<span class="string">&quot;/req/{req}&quot;</span>, <span class="string">&quot;/{req}&quot;</span>] =&gt; <span class="string">&quot;/v1/abc&quot;</span>, 
                    <span class="string">&quot;/ver/1/abc&quot;</span>, <span class="string">&quot;/v1/req/abc&quot;</span>, <span class="string">&quot;/ver/1/req/abc&quot;</span>, <span class="string">&quot;/v1/abc/def&quot;</span>,
                    <span class="string">&quot;/ver1/req/abc/def&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;/&quot;</span>, <span class="string">&quot;/v1/&quot;</span>);
     }
@@ -3557,13 +3557,13 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">match_methods_agree</span>() {
         <span class="macro">macro_rules!</span> <span class="ident">match_methods_agree</span> {
-            (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pat</span>:<span class="ident">expr</span> <span class="op">=</span><span class="op">&gt;</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">test</span>:<span class="ident">expr</span>),<span class="op">+</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+            (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pat</span>:<span class="ident">expr</span> =&gt; $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">test</span>:<span class="ident">expr</span>),<span class="op">+</span>) =&gt; {{
                 <span class="macro">match_methods_agree!</span>(<span class="ident">finish</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pat</span>, <span class="ident">ResourceDef::new</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pat</span>), $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">test</span>),<span class="op">+</span>);
             }};
-            (<span class="ident">prefix</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pat</span>:<span class="ident">expr</span> <span class="op">=</span><span class="op">&gt;</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">test</span>:<span class="ident">expr</span>),<span class="op">+</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+            (<span class="ident">prefix</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pat</span>:<span class="ident">expr</span> =&gt; $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">test</span>:<span class="ident">expr</span>),<span class="op">+</span>) =&gt; {{
                 <span class="macro">match_methods_agree!</span>(<span class="ident">finish</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pat</span>, <span class="ident">ResourceDef::prefix</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pat</span>), $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">test</span>),<span class="op">+</span>);
             }};
-            (<span class="ident">finish</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pat</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">re</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">test</span>:<span class="ident">expr</span>),<span class="op">+</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+            (<span class="ident">finish</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pat</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">re</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">test</span>:<span class="ident">expr</span>),<span class="op">+</span>) =&gt; {{
                 <span class="kw">let</span> <span class="ident">re</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">re</span>;
                 $({
                     <span class="kw">let</span> <span class="ident">_is</span> <span class="op">=</span> <span class="ident">re</span>.<span class="ident">is_match</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">test</span>);
@@ -3577,19 +3577,19 @@
             }}
         }
 
-        <span class="macro">match_methods_agree!</span>(<span class="string">&quot;&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;&quot;</span>, <span class="string">&quot;/&quot;</span>, <span class="string">&quot;/foo&quot;</span>);
-        <span class="macro">match_methods_agree!</span>(<span class="string">&quot;/&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;&quot;</span>, <span class="string">&quot;/&quot;</span>, <span class="string">&quot;/foo&quot;</span>);
-        <span class="macro">match_methods_agree!</span>(<span class="string">&quot;/user&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;user&quot;</span>, <span class="string">&quot;/user&quot;</span>, <span class="string">&quot;/users&quot;</span>, <span class="string">&quot;/user/123&quot;</span>, <span class="string">&quot;/foo&quot;</span>);
-        <span class="macro">match_methods_agree!</span>(<span class="string">&quot;/v{v}&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;v&quot;</span>, <span class="string">&quot;/v&quot;</span>, <span class="string">&quot;/v1&quot;</span>, <span class="string">&quot;/v222&quot;</span>, <span class="string">&quot;/foo&quot;</span>);
-        <span class="macro">match_methods_agree!</span>([<span class="string">&quot;/v{v}&quot;</span>, <span class="string">&quot;/version/{v}&quot;</span>] <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;/v&quot;</span>, <span class="string">&quot;/v1&quot;</span>, <span class="string">&quot;/version&quot;</span>, <span class="string">&quot;/version/1&quot;</span>, <span class="string">&quot;/foo&quot;</span>);
+        <span class="macro">match_methods_agree!</span>(<span class="string">&quot;&quot;</span> =&gt; <span class="string">&quot;&quot;</span>, <span class="string">&quot;/&quot;</span>, <span class="string">&quot;/foo&quot;</span>);
+        <span class="macro">match_methods_agree!</span>(<span class="string">&quot;/&quot;</span> =&gt; <span class="string">&quot;&quot;</span>, <span class="string">&quot;/&quot;</span>, <span class="string">&quot;/foo&quot;</span>);
+        <span class="macro">match_methods_agree!</span>(<span class="string">&quot;/user&quot;</span> =&gt; <span class="string">&quot;user&quot;</span>, <span class="string">&quot;/user&quot;</span>, <span class="string">&quot;/users&quot;</span>, <span class="string">&quot;/user/123&quot;</span>, <span class="string">&quot;/foo&quot;</span>);
+        <span class="macro">match_methods_agree!</span>(<span class="string">&quot;/v{v}&quot;</span> =&gt; <span class="string">&quot;v&quot;</span>, <span class="string">&quot;/v&quot;</span>, <span class="string">&quot;/v1&quot;</span>, <span class="string">&quot;/v222&quot;</span>, <span class="string">&quot;/foo&quot;</span>);
+        <span class="macro">match_methods_agree!</span>([<span class="string">&quot;/v{v}&quot;</span>, <span class="string">&quot;/version/{v}&quot;</span>] =&gt; <span class="string">&quot;/v&quot;</span>, <span class="string">&quot;/v1&quot;</span>, <span class="string">&quot;/version&quot;</span>, <span class="string">&quot;/version/1&quot;</span>, <span class="string">&quot;/foo&quot;</span>);
 
-        <span class="macro">match_methods_agree!</span>(<span class="string">&quot;/path{tail}*&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;/path&quot;</span>, <span class="string">&quot;/path1&quot;</span>, <span class="string">&quot;/path/123&quot;</span>);
-        <span class="macro">match_methods_agree!</span>(<span class="string">&quot;/path/{tail}*&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;/path&quot;</span>, <span class="string">&quot;/path1&quot;</span>, <span class="string">&quot;/path/123&quot;</span>);
+        <span class="macro">match_methods_agree!</span>(<span class="string">&quot;/path{tail}*&quot;</span> =&gt; <span class="string">&quot;/path&quot;</span>, <span class="string">&quot;/path1&quot;</span>, <span class="string">&quot;/path/123&quot;</span>);
+        <span class="macro">match_methods_agree!</span>(<span class="string">&quot;/path/{tail}*&quot;</span> =&gt; <span class="string">&quot;/path&quot;</span>, <span class="string">&quot;/path1&quot;</span>, <span class="string">&quot;/path/123&quot;</span>);
 
-        <span class="macro">match_methods_agree!</span>(<span class="ident">prefix</span> <span class="string">&quot;&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;&quot;</span>, <span class="string">&quot;/&quot;</span>, <span class="string">&quot;/foo&quot;</span>);
-        <span class="macro">match_methods_agree!</span>(<span class="ident">prefix</span> <span class="string">&quot;/user&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;user&quot;</span>, <span class="string">&quot;/user&quot;</span>, <span class="string">&quot;/users&quot;</span>, <span class="string">&quot;/user/123&quot;</span>, <span class="string">&quot;/foo&quot;</span>);
-        <span class="macro">match_methods_agree!</span>(<span class="ident">prefix</span> <span class="string">r&quot;/id/{id:\d{3}}&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;/id/123&quot;</span>, <span class="string">&quot;/id/1234&quot;</span>);
-        <span class="macro">match_methods_agree!</span>([<span class="string">&quot;/v{v}&quot;</span>, <span class="string">&quot;/ver/{v}&quot;</span>] <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;&quot;</span>, <span class="string">&quot;s/v&quot;</span>, <span class="string">&quot;/v1&quot;</span>, <span class="string">&quot;/v1/xx&quot;</span>, <span class="string">&quot;/ver/i3/5&quot;</span>, <span class="string">&quot;/ver/1&quot;</span>);
+        <span class="macro">match_methods_agree!</span>(<span class="ident">prefix</span> <span class="string">&quot;&quot;</span> =&gt; <span class="string">&quot;&quot;</span>, <span class="string">&quot;/&quot;</span>, <span class="string">&quot;/foo&quot;</span>);
+        <span class="macro">match_methods_agree!</span>(<span class="ident">prefix</span> <span class="string">&quot;/user&quot;</span> =&gt; <span class="string">&quot;user&quot;</span>, <span class="string">&quot;/user&quot;</span>, <span class="string">&quot;/users&quot;</span>, <span class="string">&quot;/user/123&quot;</span>, <span class="string">&quot;/foo&quot;</span>);
+        <span class="macro">match_methods_agree!</span>(<span class="ident">prefix</span> <span class="string">r&quot;/id/{id:\d{3}}&quot;</span> =&gt; <span class="string">&quot;/id/123&quot;</span>, <span class="string">&quot;/id/1234&quot;</span>);
+        <span class="macro">match_methods_agree!</span>([<span class="string">&quot;/v{v}&quot;</span>, <span class="string">&quot;/ver/{v}&quot;</span>] =&gt; <span class="string">&quot;&quot;</span>, <span class="string">&quot;s/v&quot;</span>, <span class="string">&quot;/v1&quot;</span>, <span class="string">&quot;/v1/xx&quot;</span>, <span class="string">&quot;/ver/i3/5&quot;</span>, <span class="string">&quot;/ver/1&quot;</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>

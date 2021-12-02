@@ -30,7 +30,7 @@
     <span class="kw">static</span> <span class="ident">THREAD_LOCAL_BUMP_ALLOCATOR</span>: <span class="ident">UnsafeCell</span><span class="op">&lt;</span><span class="ident">Bump</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">UnsafeCell::new</span>(<span class="ident">Bump::new</span>());
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_bump_allocator</span><span class="op">&lt;</span><span class="ident">TReturn</span><span class="op">&gt;</span>(<span class="ident">action</span>: <span class="kw">impl</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">Bump</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TReturn</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TReturn</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_bump_allocator</span><span class="op">&lt;</span><span class="ident">TReturn</span><span class="op">&gt;</span>(<span class="ident">action</span>: <span class="kw">impl</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">Bump</span>) -&gt; <span class="ident">TReturn</span>) -&gt; <span class="ident">TReturn</span> {
     <span class="ident">THREAD_LOCAL_BUMP_ALLOCATOR</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">bump_cell</span><span class="op">|</span> {
         <span class="kw">unsafe</span> {
             <span class="kw">let</span> <span class="ident">bump</span> <span class="op">=</span> <span class="ident">bump_cell</span>.<span class="ident">get</span>();
@@ -39,7 +39,7 @@
     })
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_bump_allocator_mut</span><span class="op">&lt;</span><span class="ident">TReturn</span><span class="op">&gt;</span>(<span class="ident">action</span>: <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Bump</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TReturn</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TReturn</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_bump_allocator_mut</span><span class="op">&lt;</span><span class="ident">TReturn</span><span class="op">&gt;</span>(<span class="ident">action</span>: <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Bump</span>) -&gt; <span class="ident">TReturn</span>) -&gt; <span class="ident">TReturn</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">action</span> <span class="op">=</span> <span class="ident">action</span>;
     <span class="ident">THREAD_LOCAL_BUMP_ALLOCATOR</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">bump_cell</span><span class="op">|</span> {
         <span class="kw">unsafe</span> {

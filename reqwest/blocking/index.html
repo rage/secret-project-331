@@ -7,9 +7,9 @@ calling directly from an async function, consider using an async
 <a href="../struct.Client.html" title="crate::Client"><code>reqwest::Client</code></a> instead. If the immediate context is only
 synchronous, but a transitive caller is async, consider changing that caller
 to use <a href="../../tokio/task/blocking/fn.spawn_blocking.html" title="tokio::task::spawn_blocking"><code>tokio::task::spawn_blocking</code></a> around the calls that need to block.</p>
-<h1 id="optional" class="section-header"><a href="#optional">Optional</a></h1>
+<h2 id="optional" class="section-header"><a href="#optional">Optional</a></h2>
 <p>This requires the optional <code>blocking</code> feature to be enabled.</p>
-<h1 id="making-a-get-request" class="section-header"><a href="#making-a-get-request">Making a GET request</a></h1>
+<h2 id="making-a-get-request" class="section-header"><a href="#making-a-get-request">Making a GET request</a></h2>
 <p>For a single request, you can use the <a href="fn.get.html"><code>get</code></a> shortcut method.</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code>
@@ -24,7 +24,7 @@ acceptable.</p>
 <p><strong>NOTE</strong>: If you plan to perform multiple requests, it is best to create a
 <a href="struct.Client.html"><code>Client</code></a> and reuse it, taking advantage of keep-alive connection
 pooling.</p>
-<h1 id="making-post-requests-or-setting-request-bodies" class="section-header"><a href="#making-post-requests-or-setting-request-bodies">Making POST requests (or setting request bodies)</a></h1>
+<h2 id="making-post-requests-or-setting-request-bodies" class="section-header"><a href="#making-post-requests-or-setting-request-bodies">Making POST requests (or setting request bodies)</a></h2>
 <p>There are several ways you can set the body of a request. The basic one is
 by using the <code>body()</code> method of a <a href="struct.RequestBuilder.html"><code>RequestBuilder</code></a>. This lets you set the
 exact raw bytes of what the body should be. It accepts various types,
@@ -35,18 +35,18 @@ Reader, you can use the <code>reqwest::blocking::Body::new()</code> constructor.
 <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">post</span>(<span class="string">&quot;http://httpbin.org/post&quot;</span>)
     .<span class="ident">body</span>(<span class="string">&quot;the exact body that is sent&quot;</span>)
     .<span class="ident">send</span>()<span class="question-mark">?</span>;</code></pre></div>
-<h2 id="and-more" class="section-header"><a href="#and-more">And More</a></h2>
+<h3 id="and-more" class="section-header"><a href="#and-more">And More</a></h3>
 <p>Most features available to the asynchronous <code>Client</code> are also available,
 on the blocking <code>Client</code>, see those docs for more.</p>
 </div></details><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.Body.html" title="reqwest::blocking::Body struct">Body</a></div><div class="item-right docblock-short"><p>The body of a <code>Request</code>.</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.Client.html" title="reqwest::blocking::Client struct">Client</a></div><div class="item-right docblock-short"><p>A <code>Client</code> to make Requests with.</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.ClientBuilder.html" title="reqwest::blocking::ClientBuilder struct">ClientBuilder</a></div><div class="item-right docblock-short"><p>A <code>ClientBuilder</code> can be used to create a <code>Client</code> with  custom configuration.</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.Request.html" title="reqwest::blocking::Request struct">Request</a></div><div class="item-right docblock-short"><p>A request which can be executed with <code>Client::execute()</code>.</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.RequestBuilder.html" title="reqwest::blocking::RequestBuilder struct">RequestBuilder</a></div><div class="item-right docblock-short"><p>A builder to construct the properties of a <code>Request</code>.</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.Response.html" title="reqwest::blocking::Response struct">Response</a></div><div class="item-right docblock-short"><p>A Response to a submitted <code>Request</code>.</p>
-</div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="fn" href="fn.get.html" title="reqwest::blocking::get fn">get</a></div><div class="item-right docblock-short"><p>Shortcut method to quickly make a <em>blocking</em> <code>GET</code> request.</p>
-</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="reqwest" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Body.html" title="reqwest::blocking::Body struct">Body</a></div><div class="item-right docblock-short"><p>The body of a <code>Request</code>.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Client.html" title="reqwest::blocking::Client struct">Client</a></div><div class="item-right docblock-short"><p>A <code>Client</code> to make Requests with.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.ClientBuilder.html" title="reqwest::blocking::ClientBuilder struct">ClientBuilder</a></div><div class="item-right docblock-short"><p>A <code>ClientBuilder</code> can be used to create a <code>Client</code> with  custom configuration.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Request.html" title="reqwest::blocking::Request struct">Request</a></div><div class="item-right docblock-short"><p>A request which can be executed with <code>Client::execute()</code>.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.RequestBuilder.html" title="reqwest::blocking::RequestBuilder struct">RequestBuilder</a></div><div class="item-right docblock-short"><p>A builder to construct the properties of a <code>Request</code>.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Response.html" title="reqwest::blocking::Response struct">Response</a></div><div class="item-right docblock-short"><p>A Response to a submitted <code>Request</code>.</p>
+</div></div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.get.html" title="reqwest::blocking::get fn">get</a></div><div class="item-right docblock-short"><p>Shortcut method to quickly make a <em>blocking</em> <code>GET</code> request.</p>
+</div></div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="reqwest" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script>
 </body></html>

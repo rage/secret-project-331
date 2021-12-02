@@ -92,7 +92,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span> <span class="ident">QueryLogger</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;q</span> <span class="ident">str</span>, <span class="ident">settings</span>: <span class="ident">LogSettings</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;q</span> <span class="ident">str</span>, <span class="ident">settings</span>: <span class="ident">LogSettings</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">sql</span>,
             <span class="ident">rows</span>: <span class="number">0</span>,
@@ -157,7 +157,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">parse_query_summary</span>(<span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">fn</span> <span class="ident">parse_query_summary</span>(<span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">String</span> {
     <span class="comment">// For now, just take the first 4 words</span>
     <span class="ident">sql</span>.<span class="ident">split_whitespace</span>()
         .<span class="ident">take</span>(<span class="number">4</span>)

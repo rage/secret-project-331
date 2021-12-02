@@ -779,37 +779,37 @@
 
     <span class="doccomment">/// Declaration of this type, e.g. `interface User { user_id: number, ... }`.</span>
     <span class="doccomment">/// This function will panic if the type has no declaration.</span>
-    <span class="kw">fn</span> <span class="ident">decl</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">decl</span>() -&gt; <span class="ident">String</span> {
         <span class="macro">panic!</span>(<span class="string">&quot;{} cannot be declared&quot;</span>, <span class="ident"><span class="self">Self</span>::name</span>());
     }
 
     <span class="doccomment">/// Name of this type in TypeScript.</span>
-    <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span>;
+    <span class="kw">fn</span> <span class="ident">name</span>() -&gt; <span class="ident">String</span>;
 
     <span class="doccomment">/// Name of this type in TypeScript, with type arguments.</span>
-    <span class="kw">fn</span> <span class="ident">name_with_type_args</span>(<span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">name_with_type_args</span>(<span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) -&gt; <span class="ident">String</span> {
         <span class="macro">format!</span>(<span class="string">&quot;{}&lt;{}&gt;&quot;</span>, <span class="ident"><span class="self">Self</span>::name</span>(), <span class="ident">args</span>.<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>))
     }
 
     <span class="doccomment">/// Formats this types definition in TypeScript, e.g `{ user_id: number }`.</span>
     <span class="doccomment">/// This function will panic if the type cannot be inlined.</span>
-    <span class="kw">fn</span> <span class="ident">inline</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">inline</span>() -&gt; <span class="ident">String</span> {
         <span class="macro">panic!</span>(<span class="string">&quot;{} cannot be inlined&quot;</span>, <span class="ident"><span class="self">Self</span>::name</span>());
     }
 
     <span class="doccomment">/// Flatten an type declaration.  </span>
     <span class="doccomment">/// This function will panic if the type cannot be flattened.</span>
-    <span class="kw">fn</span> <span class="ident">inline_flattened</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">inline_flattened</span>() -&gt; <span class="ident">String</span> {
         <span class="macro">panic!</span>(<span class="string">&quot;{} cannot be flattened&quot;</span>, <span class="ident"><span class="self">Self</span>::name</span>())
     }
 
     <span class="doccomment">/// Information about types this type depends on.</span>
     <span class="doccomment">/// This is used for resolving imports when exporting to a file.</span>
-    <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Dependency</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">dependencies</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Dependency</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// `true` if this is a transparent type, e.g tuples or a list.  </span>
     <span class="doccomment">/// This is used for resolving imports when using the `export!` macro.</span>
-    <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>;
+    <span class="kw">fn</span> <span class="ident">transparent</span>() -&gt; <span class="ident">bool</span>;
 
     <span class="doccomment">/// Manually export this type to a file.</span>
     <span class="doccomment">/// The output file can be specified by annotating the type with `#[ts(export_to = &quot;..&quot;]`.</span>
@@ -818,7 +818,7 @@
     <span class="doccomment">/// When a type is annotated with `#[ts(export)]`, it is exported automatically within a test.</span>
     <span class="doccomment">/// This function is only usefull if you need to export the type outside of the context of a</span>
     <span class="doccomment">/// test.</span>
-    <span class="kw">fn</span> <span class="ident">export</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ExportError</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">export</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ExportError</span><span class="op">&gt;</span> {
         <span class="ident">export::export_type</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>()
     }
 }
@@ -840,7 +840,7 @@
     <span class="doccomment">/// Constructs a [`Dependency`] from the given type `T`.</span>
     <span class="doccomment">/// If `T` is not exportable (meaning `T::EXPORT_TO` is `None`), this function will return</span>
     <span class="doccomment">/// `None`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_ty</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_ty</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span><span class="op">&gt;</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="prelude-val">Some</span>(<span class="ident">Dependency</span> {
             <span class="ident">type_id</span>: <span class="ident">TypeId::of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(),
             <span class="ident">ts_name</span>: <span class="ident">T::name</span>(),
@@ -851,16 +851,16 @@
 
 <span class="comment">// generate impls for primitive types</span>
 <span class="macro">macro_rules!</span> <span class="ident">impl_primitives</span> {
-    ($($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>:<span class="ident">ty</span>),<span class="op">*</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">l</span>:<span class="ident">literal</span>),<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> { $($(
+    ($($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>:<span class="ident">ty</span>),<span class="op">*</span> =&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">l</span>:<span class="ident">literal</span>),<span class="kw-2">*</span>) =&gt; { $($(
         <span class="kw">impl</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span> {
-            <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> { <span class="macro-nonterminal">$</span><span class="macro-nonterminal">l</span>.<span class="ident">to_owned</span>() }
-            <span class="kw">fn</span> <span class="ident">name_with_type_args</span>(<span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+            <span class="kw">fn</span> <span class="ident">name</span>() -&gt; <span class="ident">String</span> { <span class="macro-nonterminal">$</span><span class="macro-nonterminal">l</span>.<span class="ident">to_owned</span>() }
+            <span class="kw">fn</span> <span class="ident">name_with_type_args</span>(<span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) -&gt; <span class="ident">String</span> {
                 <span class="macro">assert!</span>(<span class="ident">args</span>.<span class="ident">is_empty</span>(), <span class="string">&quot;called name_with_type_args on primitive&quot;</span>);
                 <span class="macro-nonterminal">$</span><span class="macro-nonterminal">l</span>.<span class="ident">to_owned</span>()
             }
-            <span class="kw">fn</span> <span class="ident">inline</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> { <span class="macro-nonterminal">$</span><span class="macro-nonterminal">l</span>.<span class="ident">to_owned</span>() }
-            <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Dependency</span><span class="op">&gt;</span> { <span class="macro">vec!</span>[] }
-            <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> { <span class="bool-val">false</span> }
+            <span class="kw">fn</span> <span class="ident">inline</span>() -&gt; <span class="ident">String</span> { <span class="macro-nonterminal">$</span><span class="macro-nonterminal">l</span>.<span class="ident">to_owned</span>() }
+            <span class="kw">fn</span> <span class="ident">dependencies</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Dependency</span><span class="op">&gt;</span> { <span class="macro">vec!</span>[] }
+            <span class="kw">fn</span> <span class="ident">transparent</span>() -&gt; <span class="ident">bool</span> { <span class="bool-val">false</span> }
         }
     )<span class="kw-2">*</span>)<span class="op">*</span> };
 }
@@ -868,67 +868,67 @@
 
 <span class="comment">// generate impls for tuples</span>
 <span class="macro">macro_rules!</span> <span class="ident">impl_tuples</span> {
-    ( <span class="kw">impl</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>:<span class="ident">ident</span>),<span class="op">*</span> ) <span class="op">=</span><span class="op">&gt;</span> {
+    ( <span class="kw">impl</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>:<span class="ident">ident</span>),<span class="op">*</span> ) =&gt; {
         <span class="kw">impl</span><span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>: <span class="ident">TS</span>),<span class="kw-2">*</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>,)<span class="kw-2">*</span>) {
-            <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+            <span class="kw">fn</span> <span class="ident">name</span>() -&gt; <span class="ident">String</span> {
                 <span class="macro">format!</span>(<span class="string">&quot;[{}]&quot;</span>, <span class="macro">vec!</span>[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">i::name</span>()),<span class="kw-2">*</span>].<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>))
             }
-            <span class="kw">fn</span> <span class="ident">inline</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+            <span class="kw">fn</span> <span class="ident">inline</span>() -&gt; <span class="ident">String</span> {
                 <span class="macro">format!</span>(<span class="string">&quot;[{}]&quot;</span>, <span class="macro">vec!</span>[ $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">i::inline</span>()),<span class="op">*</span> ].<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>))
             }
-            <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Dependency</span><span class="op">&gt;</span> {
+            <span class="kw">fn</span> <span class="ident">dependencies</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Dependency</span><span class="op">&gt;</span> {
                 [$( <span class="ident">Dependency::from_ty</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span><span class="op">&gt;</span>() ),<span class="kw-2">*</span>]
                 .<span class="ident">into_iter</span>()
                 .<span class="ident">flatten</span>()
                 .<span class="ident">collect</span>()
             }
-            <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> { <span class="bool-val">true</span> }
+            <span class="kw">fn</span> <span class="ident">transparent</span>() -&gt; <span class="ident">bool</span> { <span class="bool-val">true</span> }
         }
     };
-    ( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">i2</span>:<span class="ident">ident</span> $(, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>:<span class="ident">ident</span>)<span class="op">*</span> ) <span class="op">=</span><span class="op">&gt;</span> {
+    ( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">i2</span>:<span class="ident">ident</span> $(, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>:<span class="ident">ident</span>)<span class="op">*</span> ) =&gt; {
         <span class="macro">impl_tuples!</span>(<span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">i2</span> $(, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>)<span class="op">*</span> );
         <span class="macro">impl_tuples!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>),<span class="kw-2">*</span>);
     };
-    () <span class="op">=</span><span class="op">&gt;</span> {};
+    () =&gt; {};
 }
 
 <span class="comment">// generate impls for wrapper types</span>
 <span class="macro">macro_rules!</span> <span class="ident">impl_wrapper</span> {
-    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {
         $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)<span class="op">*</span> {
-            <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> { <span class="ident">T::name</span>() }
-            <span class="kw">fn</span> <span class="ident">name_with_type_args</span>(<span class="kw-2">mut</span> <span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+            <span class="kw">fn</span> <span class="ident">name</span>() -&gt; <span class="ident">String</span> { <span class="ident">T::name</span>() }
+            <span class="kw">fn</span> <span class="ident">name_with_type_args</span>(<span class="kw-2">mut</span> <span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) -&gt; <span class="ident">String</span> {
                 <span class="macro">assert_eq!</span>(<span class="ident">args</span>.<span class="ident">len</span>(), <span class="number">1</span>);
                 <span class="ident">args</span>.<span class="ident">remove</span>(<span class="number">0</span>)
             }
-            <span class="kw">fn</span> <span class="ident">inline</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> { <span class="ident">T::inline</span>() }
-            <span class="kw">fn</span> <span class="ident">inline_flattened</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> { <span class="ident">T::inline_flattened</span>() }
-            <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Dependency</span><span class="op">&gt;</span> { <span class="ident">T::dependencies</span>() }
-            <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> { <span class="ident">T::transparent</span>() }
+            <span class="kw">fn</span> <span class="ident">inline</span>() -&gt; <span class="ident">String</span> { <span class="ident">T::inline</span>() }
+            <span class="kw">fn</span> <span class="ident">inline_flattened</span>() -&gt; <span class="ident">String</span> { <span class="ident">T::inline_flattened</span>() }
+            <span class="kw">fn</span> <span class="ident">dependencies</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Dependency</span><span class="op">&gt;</span> { <span class="ident">T::dependencies</span>() }
+            <span class="kw">fn</span> <span class="ident">transparent</span>() -&gt; <span class="ident">bool</span> { <span class="ident">T::transparent</span>() }
         }
     };
 }
 
 <span class="comment">// implement TS for the $shadow, deferring to the impl $s</span>
 <span class="macro">macro_rules!</span> <span class="ident">impl_shadow</span> {
-    (<span class="kw">as</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">s</span>:<span class="ident">ty</span>: $(<span class="macro-nonterminal">$</span><span class="kw">impl</span>:<span class="macro-nonterminal">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="kw">as</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">s</span>:<span class="ident">ty</span>: $(<span class="macro-nonterminal">$</span><span class="kw">impl</span>:<span class="macro-nonterminal">tt</span>)<span class="kw-2">*</span>) =&gt; {
         $(<span class="macro-nonterminal">$</span><span class="kw">impl</span>)<span class="op">*</span> {
-            <span class="kw">fn</span> <span class="macro-nonterminal">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> { <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">s</span><span class="op">&gt;</span><span class="ident">::name</span>() }
-            <span class="kw">fn</span> <span class="ident">name_with_type_args</span>(<span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> { <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">s</span><span class="op">&gt;</span><span class="ident">::name_with_type_args</span>(<span class="ident">args</span>) }
-            <span class="kw">fn</span> <span class="ident">inline</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> { <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">s</span><span class="op">&gt;</span><span class="ident">::inline</span>() }
-            <span class="kw">fn</span> <span class="ident">inline_flattened</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> { <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">s</span><span class="op">&gt;</span><span class="ident">::inline_flattened</span>() }
-            <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::Dependency</span><span class="op">&gt;</span> { <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">s</span><span class="op">&gt;</span><span class="ident">::dependencies</span>() }
-            <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> { <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">s</span><span class="op">&gt;</span><span class="ident">::transparent</span>() }
+            <span class="kw">fn</span> <span class="macro-nonterminal">name</span>() -&gt; <span class="ident">String</span> { <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">s</span><span class="op">&gt;</span><span class="ident">::name</span>() }
+            <span class="kw">fn</span> <span class="ident">name_with_type_args</span>(<span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) -&gt; <span class="ident">String</span> { <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">s</span><span class="op">&gt;</span><span class="ident">::name_with_type_args</span>(<span class="ident">args</span>) }
+            <span class="kw">fn</span> <span class="ident">inline</span>() -&gt; <span class="ident">String</span> { <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">s</span><span class="op">&gt;</span><span class="ident">::inline</span>() }
+            <span class="kw">fn</span> <span class="ident">inline_flattened</span>() -&gt; <span class="ident">String</span> { <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">s</span><span class="op">&gt;</span><span class="ident">::inline_flattened</span>() }
+            <span class="kw">fn</span> <span class="ident">dependencies</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::Dependency</span><span class="op">&gt;</span> { <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">s</span><span class="op">&gt;</span><span class="ident">::dependencies</span>() }
+            <span class="kw">fn</span> <span class="ident">transparent</span>() -&gt; <span class="ident">bool</span> { <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">s</span><span class="op">&gt;</span><span class="ident">::transparent</span>() }
         }
     };
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">name</span>() -&gt; <span class="ident">String</span> {
         <span class="macro">unreachable!</span>();
     }
 
-    <span class="kw">fn</span> <span class="ident">name_with_type_args</span>(<span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">name_with_type_args</span>(<span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) -&gt; <span class="ident">String</span> {
         <span class="macro">assert_eq!</span>(
             <span class="ident">args</span>.<span class="ident">len</span>(),
             <span class="number">1</span>,
@@ -938,25 +938,25 @@
         <span class="macro">format!</span>(<span class="string">&quot;{} | null&quot;</span>, <span class="ident">args</span>[<span class="number">0</span>])
     }
 
-    <span class="kw">fn</span> <span class="ident">inline</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">inline</span>() -&gt; <span class="ident">String</span> {
         <span class="macro">format!</span>(<span class="string">&quot;{} | null&quot;</span>, <span class="ident">T::inline</span>())
     }
 
-    <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Dependency</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">dependencies</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Dependency</span><span class="op">&gt;</span> {
         [<span class="ident">Dependency::from_ty</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()].<span class="ident">into_iter</span>().<span class="ident">flatten</span>().<span class="ident">collect</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">transparent</span>() -&gt; <span class="ident">bool</span> {
         <span class="bool-val">true</span>
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">name</span>() -&gt; <span class="ident">String</span> {
         <span class="string">&quot;Array&quot;</span>.<span class="ident">to_owned</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">name_with_type_args</span>(<span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">name_with_type_args</span>(<span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) -&gt; <span class="ident">String</span> {
         <span class="macro">assert_eq!</span>(
             <span class="ident">args</span>.<span class="ident">len</span>(),
             <span class="number">1</span>,
@@ -966,25 +966,25 @@
         <span class="macro">format!</span>(<span class="string">&quot;Array&lt;{}&gt;&quot;</span>, <span class="ident">args</span>[<span class="number">0</span>])
     }
 
-    <span class="kw">fn</span> <span class="ident">inline</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">inline</span>() -&gt; <span class="ident">String</span> {
         <span class="macro">format!</span>(<span class="string">&quot;Array&lt;{}&gt;&quot;</span>, <span class="ident">T::inline</span>())
     }
 
-    <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Dependency</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">dependencies</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Dependency</span><span class="op">&gt;</span> {
         [<span class="ident">Dependency::from_ty</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()].<span class="ident">into_iter</span>().<span class="ident">flatten</span>().<span class="ident">collect</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">transparent</span>() -&gt; <span class="ident">bool</span> {
         <span class="bool-val">true</span>
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>: <span class="ident">TS</span>, <span class="ident">V</span>: <span class="ident">TS</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">name</span>() -&gt; <span class="ident">String</span> {
         <span class="string">&quot;Record&quot;</span>.<span class="ident">to_owned</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">name_with_type_args</span>(<span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">name_with_type_args</span>(<span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) -&gt; <span class="ident">String</span> {
         <span class="macro">assert_eq!</span>(
             <span class="ident">args</span>.<span class="ident">len</span>(),
             <span class="number">2</span>,
@@ -994,18 +994,18 @@
         <span class="macro">format!</span>(<span class="string">&quot;Record&lt;{}, {}&gt;&quot;</span>, <span class="ident">args</span>[<span class="number">0</span>], <span class="ident">args</span>[<span class="number">1</span>])
     }
 
-    <span class="kw">fn</span> <span class="ident">inline</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">inline</span>() -&gt; <span class="ident">String</span> {
         <span class="macro">format!</span>(<span class="string">&quot;Record&lt;{}, {}&gt;&quot;</span>, <span class="ident">K::inline</span>(), <span class="ident">V::inline</span>())
     }
 
-    <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Dependency</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">dependencies</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Dependency</span><span class="op">&gt;</span> {
         [<span class="ident">Dependency::from_ty</span>::<span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>(), <span class="ident">Dependency::from_ty</span>::<span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>()]
             .<span class="ident">into_iter</span>()
             .<span class="ident">flatten</span>()
             .<span class="ident">collect</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">transparent</span>() -&gt; <span class="ident">bool</span> {
         <span class="bool-val">true</span>
     }
 }
@@ -1025,10 +1025,10 @@
 <span class="macro">impl_tuples!</span>(<span class="ident">T1</span>, <span class="ident">T2</span>, <span class="ident">T3</span>, <span class="ident">T4</span>, <span class="ident">T5</span>, <span class="ident">T6</span>, <span class="ident">T7</span>, <span class="ident">T8</span>, <span class="ident">T9</span>, <span class="ident">T10</span>);
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal-impl&quot;</span>)]</span>
-<span class="macro">impl_primitives!</span> { <span class="ident">bigdecimal::BigDecimal</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;string&quot;</span> }
+<span class="macro">impl_primitives!</span> { <span class="ident">bigdecimal::BigDecimal</span> =&gt; <span class="string">&quot;string&quot;</span> }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid-impl&quot;</span>)]</span>
-<span class="macro">impl_primitives!</span> { <span class="ident">uuid::Uuid</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;string&quot;</span> }
+<span class="macro">impl_primitives!</span> { <span class="ident">uuid::Uuid</span> =&gt; <span class="string">&quot;string&quot;</span> }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bytes-impl&quot;</span>)]</span>
 <span class="kw">mod</span> <span class="ident">bytes</span> {
@@ -1039,20 +1039,20 @@
 }
 
 <span class="macro">impl_primitives!</span> {
-    <span class="ident">u8</span>, <span class="ident">i8</span>, <span class="ident">u16</span>, <span class="ident">i16</span>, <span class="ident">u32</span>, <span class="ident">i32</span>, <span class="ident">f32</span>, <span class="ident">f64</span>, <span class="ident">usize</span>, <span class="ident">isize</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;number&quot;</span>,
-    <span class="ident">u64</span>, <span class="ident">i64</span>, <span class="ident">u128</span>, <span class="ident">i128</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;bigint&quot;</span>,
-    <span class="ident">bool</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;boolean&quot;</span>,
-    <span class="ident">String</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;string&quot;</span>,
-    () <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;null&quot;</span>
+    <span class="ident">u8</span>, <span class="ident">i8</span>, <span class="ident">u16</span>, <span class="ident">i16</span>, <span class="ident">u32</span>, <span class="ident">i32</span>, <span class="ident">f32</span>, <span class="ident">f64</span>, <span class="ident">usize</span>, <span class="ident">isize</span> =&gt; <span class="string">&quot;number&quot;</span>,
+    <span class="ident">u64</span>, <span class="ident">i64</span>, <span class="ident">u128</span>, <span class="ident">i128</span> =&gt; <span class="string">&quot;bigint&quot;</span>,
+    <span class="ident">bool</span> =&gt; <span class="string">&quot;boolean&quot;</span>,
+    <span class="ident">String</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> =&gt; <span class="string">&quot;string&quot;</span>,
+    () =&gt; <span class="string">&quot;null&quot;</span>
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-json-impl&quot;</span>)]</span>
 <span class="macro">impl_primitives!</span> {
-    <span class="ident">serde_json::Value</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;unknown&quot;</span>
+    <span class="ident">serde_json::Value</span> =&gt; <span class="string">&quot;unknown&quot;</span>
 }
 
 <span class="macro">impl_primitives!</span> {
-    <span class="ident">std::path::Path</span>, <span class="ident">std::path::PathBuf</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;unknown&quot;</span>
+    <span class="ident">std::path::Path</span>, <span class="ident">std::path::PathBuf</span> =&gt; <span class="string">&quot;unknown&quot;</span>
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-impl&quot;</span>)]</span>
@@ -1066,78 +1066,78 @@
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Dependency</span>;
 
     <span class="macro">impl_primitives!</span> {
-        <span class="ident">NaiveDateTime</span>, <span class="ident">NaiveDate</span>, <span class="ident">NaiveTime</span>, <span class="ident">Utc</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Date&quot;</span>,
-        <span class="ident">Duration</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;string&quot;</span>
+        <span class="ident">NaiveDateTime</span>, <span class="ident">NaiveDate</span>, <span class="ident">NaiveTime</span>, <span class="ident">Utc</span> =&gt; <span class="string">&quot;Date&quot;</span>,
+        <span class="ident">Duration</span> =&gt; <span class="string">&quot;string&quot;</span>
     }
 
     <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TimeZone</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+        <span class="kw">fn</span> <span class="ident">name</span>() -&gt; <span class="ident">String</span> {
             <span class="string">&quot;Date&quot;</span>.<span class="ident">to_owned</span>()
         }
 
-        <span class="kw">fn</span> <span class="ident">inline</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+        <span class="kw">fn</span> <span class="ident">inline</span>() -&gt; <span class="ident">String</span> {
             <span class="string">&quot;Date&quot;</span>.<span class="ident">to_owned</span>()
         }
 
-        <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Dependency</span><span class="op">&gt;</span> {
+        <span class="kw">fn</span> <span class="ident">dependencies</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Dependency</span><span class="op">&gt;</span> {
             <span class="macro">vec!</span>[]
         }
 
-        <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="kw">fn</span> <span class="ident">transparent</span>() -&gt; <span class="ident">bool</span> {
             <span class="bool-val">false</span>
         }
     }
 
     <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TimeZone</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">Date</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+        <span class="kw">fn</span> <span class="ident">name</span>() -&gt; <span class="ident">String</span> {
             <span class="string">&quot;Date&quot;</span>.<span class="ident">to_owned</span>()
         }
 
-        <span class="kw">fn</span> <span class="ident">inline</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+        <span class="kw">fn</span> <span class="ident">inline</span>() -&gt; <span class="ident">String</span> {
             <span class="string">&quot;Date&quot;</span>.<span class="ident">to_owned</span>()
         }
 
-        <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Dependency</span><span class="op">&gt;</span> {
+        <span class="kw">fn</span> <span class="ident">dependencies</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Dependency</span><span class="op">&gt;</span> {
             <span class="macro">vec!</span>[]
         }
 
-        <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="kw">fn</span> <span class="ident">transparent</span>() -&gt; <span class="ident">bool</span> {
             <span class="bool-val">false</span>
         }
     }
 
     <span class="kw">impl</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">Local</span> {
-        <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+        <span class="kw">fn</span> <span class="ident">name</span>() -&gt; <span class="ident">String</span> {
             <span class="macro">unimplemented!</span>()
         }
 
-        <span class="kw">fn</span> <span class="ident">inline</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+        <span class="kw">fn</span> <span class="ident">inline</span>() -&gt; <span class="ident">String</span> {
             <span class="macro">unimplemented!</span>()
         }
 
-        <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Dependency</span><span class="op">&gt;</span> {
+        <span class="kw">fn</span> <span class="ident">dependencies</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Dependency</span><span class="op">&gt;</span> {
             <span class="macro">unimplemented!</span>()
         }
 
-        <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="kw">fn</span> <span class="ident">transparent</span>() -&gt; <span class="ident">bool</span> {
             <span class="macro">unimplemented!</span>()
         }
     }
 
     <span class="kw">impl</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">FixedOffset</span> {
-        <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+        <span class="kw">fn</span> <span class="ident">name</span>() -&gt; <span class="ident">String</span> {
             <span class="macro">unimplemented!</span>()
         }
 
-        <span class="kw">fn</span> <span class="ident">inline</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+        <span class="kw">fn</span> <span class="ident">inline</span>() -&gt; <span class="ident">String</span> {
             <span class="macro">unimplemented!</span>()
         }
 
-        <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Dependency</span><span class="op">&gt;</span> {
+        <span class="kw">fn</span> <span class="ident">dependencies</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Dependency</span><span class="op">&gt;</span> {
             <span class="macro">unimplemented!</span>()
         }
 
-        <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="kw">fn</span> <span class="ident">transparent</span>() -&gt; <span class="ident">bool</span> {
             <span class="macro">unimplemented!</span>()
         }
     }

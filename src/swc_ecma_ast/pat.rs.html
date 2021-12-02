@@ -145,7 +145,7 @@
 <span class="kw">use</span> <span class="ident">swc_common</span>::{<span class="ident">ast_node</span>, <span class="ident">Span</span>};
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Ident</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Pat</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">i</span>: <span class="ident">Ident</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">i</span>: <span class="ident">Ident</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">BindingIdent::from</span>(<span class="ident">i</span>).<span class="ident">into</span>()
     }
 }

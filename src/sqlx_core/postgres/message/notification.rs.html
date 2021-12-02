@@ -49,7 +49,7 @@
 
 <span class="kw">impl</span> <span class="ident">Decode</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Notification</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">decode_with</span>(<span class="kw-2">mut</span> <span class="ident">buf</span>: <span class="ident">Bytes</span>, <span class="kw">_</span>: ()) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">decode_with</span>(<span class="kw-2">mut</span> <span class="ident">buf</span>: <span class="ident">Bytes</span>, <span class="kw">_</span>: ()) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">process_id</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">get_u32</span>();
         <span class="kw">let</span> <span class="ident">channel</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">get_bytes_nul</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">payload</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">get_bytes_nul</span>()<span class="question-mark">?</span>;

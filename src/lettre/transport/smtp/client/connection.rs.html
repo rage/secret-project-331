@@ -316,10 +316,10 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::escape_crlf</span>;
 
 <span class="macro">macro_rules!</span> <span class="ident">try_smtp</span> (
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">err</span>: <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">client</span>: <span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> ({
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">err</span>: <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">client</span>: <span class="ident">ident</span>) =&gt; ({
         <span class="kw">match</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">err</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Ok</span>(<span class="ident">val</span>) =&gt; <span class="ident">val</span>,
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
                 <span class="macro-nonterminal">$</span><span class="macro-nonterminal">client</span>.<span class="ident">abort</span>();
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">From::from</span>(<span class="ident">err</span>))
             },
@@ -339,7 +339,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">SmtpConnection</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">server_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">ServerInfo</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">server_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">ServerInfo</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">server_info</span>
     }
 
@@ -353,7 +353,7 @@
         <span class="ident">timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
         <span class="ident">hello_name</span>: <span class="kw-2">&amp;</span><span class="ident">ClientId</span>,
         <span class="ident">tls_parameters</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">TlsParameters</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SmtpConnection</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SmtpConnection</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">stream</span> <span class="op">=</span> <span class="ident">NetworkStream::connect</span>(<span class="ident">server</span>, <span class="ident">timeout</span>, <span class="ident">tls_parameters</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">stream</span> <span class="op">=</span> <span class="ident">BufReader::new</span>(<span class="ident">stream</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">SmtpConnection</span> {
@@ -373,7 +373,7 @@
         <span class="prelude-val">Ok</span>(<span class="ident">conn</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">send</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">envelope</span>: <span class="kw-2">&amp;</span><span class="ident">Envelope</span>, <span class="ident">email</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Response</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">send</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">envelope</span>: <span class="kw-2">&amp;</span><span class="ident">Envelope</span>, <span class="ident">email</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Response</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="comment">// Mail</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mail_options</span> <span class="op">=</span> <span class="macro">vec!</span>[];
 
@@ -421,11 +421,11 @@
         <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_broken</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_broken</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">panic</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">can_starttls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">can_starttls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="op">!</span><span class="self">self</span>.<span class="ident">is_encrypted</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">server_info</span>.<span class="ident">supports_feature</span>(<span class="ident">Extension::StartTls</span>)
     }
 
@@ -434,7 +434,7 @@
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">tls_parameters</span>: <span class="kw-2">&amp;</span><span class="ident">TlsParameters</span>,
         <span class="ident">hello_name</span>: <span class="kw-2">&amp;</span><span class="ident">ClientId</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">server_info</span>.<span class="ident">supports_feature</span>(<span class="ident">Extension::StartTls</span>) {
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>))]</span>
             {
@@ -456,13 +456,13 @@
     }
 
     <span class="doccomment">/// Send EHLO and update server info</span>
-    <span class="kw">fn</span> <span class="ident">ehlo</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">hello_name</span>: <span class="kw-2">&amp;</span><span class="ident">ClientId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">ehlo</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">hello_name</span>: <span class="kw-2">&amp;</span><span class="ident">ClientId</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">ehlo_response</span> <span class="op">=</span> <span class="macro">try_smtp!</span>(<span class="self">self</span>.<span class="ident">command</span>(<span class="ident">Ehlo::new</span>(<span class="ident">hello_name</span>.<span class="ident">clone</span>())), <span class="self">self</span>);
         <span class="self">self</span>.<span class="ident">server_info</span> <span class="op">=</span> <span class="macro">try_smtp!</span>(<span class="ident">ServerInfo::from_response</span>(<span class="kw-2">&amp;</span><span class="ident">ehlo_response</span>), <span class="self">self</span>);
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">quit</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Response</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">quit</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Response</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="macro">try_smtp!</span>(<span class="self">self</span>.<span class="ident">command</span>(<span class="ident">Quit</span>), <span class="self">self</span>))
     }
 
@@ -480,18 +480,18 @@
     }
 
     <span class="doccomment">/// Tells if the underlying stream is currently encrypted</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_encrypted</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_encrypted</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">get_ref</span>().<span class="ident">is_encrypted</span>()
     }
 
     <span class="doccomment">/// Set timeout</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_timeout</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">duration</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_timeout</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">duration</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">get_mut</span>().<span class="ident">set_read_timeout</span>(<span class="ident">duration</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">get_mut</span>().<span class="ident">set_write_timeout</span>(<span class="ident">duration</span>)
     }
 
     <span class="doccomment">/// Checks if the server is connected using the NOOP SMTP command</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">test_connected</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">test_connected</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">command</span>(<span class="ident">Noop</span>).<span class="ident">is_ok</span>()
     }
 
@@ -500,7 +500,7 @@
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">mechanisms</span>: <span class="kw-2">&amp;</span>[<span class="ident">Mechanism</span>],
         <span class="ident">credentials</span>: <span class="kw-2">&amp;</span><span class="ident">Credentials</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Response</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Response</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">mechanism</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">server_info</span>
             .<span class="ident">get_auth_mechanism</span>(<span class="ident">mechanisms</span>)
@@ -522,7 +522,7 @@
             );
         }
 
-        <span class="kw">if</span> <span class="ident">challenges</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+        <span class="kw">if</span> <span class="ident">challenges</span> <span class="op">==</span> <span class="number">0</span> {
             <span class="prelude-val">Err</span>(<span class="ident">error::response</span>(<span class="string">&quot;Unexpected number of challenges&quot;</span>))
         } <span class="kw">else</span> {
             <span class="prelude-val">Ok</span>(<span class="ident">response</span>)
@@ -530,7 +530,7 @@
     }
 
     <span class="doccomment">/// Sends the message content</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">message</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">message</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Response</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">message</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">message</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Response</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out_buf</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[];
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">codec</span> <span class="op">=</span> <span class="ident">ClientCodec::new</span>();
         <span class="ident">codec</span>.<span class="ident">encode</span>(<span class="ident">message</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">out_buf</span>);
@@ -540,13 +540,13 @@
     }
 
     <span class="doccomment">/// Sends an SMTP command</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">command</span><span class="op">&lt;</span><span class="ident">C</span>: <span class="ident">Display</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">command</span>: <span class="ident">C</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Response</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">command</span><span class="op">&lt;</span><span class="ident">C</span>: <span class="ident">Display</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">command</span>: <span class="ident">C</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Response</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">write</span>(<span class="ident">command</span>.<span class="ident">to_string</span>().<span class="ident">as_bytes</span>())<span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">read_response</span>()
     }
 
     <span class="doccomment">/// Writes a string to the server</span>
-    <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">string</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">string</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">stream</span>
             .<span class="ident">get_mut</span>()
             .<span class="ident">write_all</span>(<span class="ident">string</span>)
@@ -559,25 +559,25 @@
     }
 
     <span class="doccomment">/// Gets the SMTP response</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_response</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Response</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_response</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Response</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">String::with_capacity</span>(<span class="number">100</span>);
 
         <span class="kw">while</span> <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">read_line</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buffer</span>).<span class="ident">map_err</span>(<span class="ident">error::network</span>)<span class="question-mark">?</span> <span class="op">&gt;</span> <span class="number">0</span> {
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing&quot;</span>)]</span>
             <span class="macro">tracing::debug!</span>(<span class="string">&quot;&lt;&lt; {}&quot;</span>, <span class="ident">escape_crlf</span>(<span class="kw-2">&amp;</span><span class="ident">buffer</span>));
             <span class="kw">match</span> <span class="ident">parse_response</span>(<span class="kw-2">&amp;</span><span class="ident">buffer</span>) {
-                <span class="prelude-val">Ok</span>((<span class="ident">_remaining</span>, <span class="ident">response</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Ok</span>((<span class="ident">_remaining</span>, <span class="ident">response</span>)) =&gt; {
                     <span class="kw">return</span> <span class="kw">if</span> <span class="ident">response</span>.<span class="ident">is_positive</span>() {
                         <span class="prelude-val">Ok</span>(<span class="ident">response</span>)
                     } <span class="kw">else</span> {
                         <span class="prelude-val">Err</span>(<span class="ident">error::code</span>(<span class="ident">response</span>.<span class="ident">code</span>()))
                     };
                 }
-                <span class="prelude-val">Err</span>(<span class="ident">nom::Err::Failure</span>(<span class="ident">e</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Err</span>(<span class="ident">nom::Err::Failure</span>(<span class="ident">e</span>)) =&gt; {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">error::response</span>(<span class="ident">e</span>.<span class="ident">to_string</span>()));
                 }
-                <span class="prelude-val">Err</span>(<span class="ident">nom::Err::Incomplete</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> { <span class="comment">/* read more */</span> }
-                <span class="prelude-val">Err</span>(<span class="ident">nom::Err::Error</span>(<span class="ident">e</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Err</span>(<span class="ident">nom::Err::Incomplete</span>(<span class="kw">_</span>)) =&gt; { <span class="comment">/* read more */</span> }
+                <span class="prelude-val">Err</span>(<span class="ident">nom::Err::Error</span>(<span class="ident">e</span>)) =&gt; {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">error::response</span>(<span class="ident">e</span>.<span class="ident">to_string</span>()));
                 }
             }

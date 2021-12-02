@@ -1703,13 +1703,13 @@
     <span class="ident">B</span>: <span class="ident">Fold</span>,
 {
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">fold_module</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">n</span>: <span class="ident">Module</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Module</span> {
+    <span class="kw">fn</span> <span class="ident">fold_module</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">n</span>: <span class="ident">Module</span>) -&gt; <span class="ident">Module</span> {
         <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">first</span>.<span class="ident">fold_module</span>(<span class="ident">n</span>);
         <span class="self">self</span>.<span class="ident">second</span>.<span class="ident">fold_module</span>(<span class="ident">n</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">fold_script</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">n</span>: <span class="ident">Script</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Script</span> {
+    <span class="kw">fn</span> <span class="ident">fold_script</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">n</span>: <span class="ident">Script</span>) -&gt; <span class="ident">Script</span> {
         <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">first</span>.<span class="ident">fold_script</span>(<span class="ident">n</span>);
         <span class="self">self</span>.<span class="ident">second</span>.<span class="ident">fold_script</span>(<span class="ident">n</span>)
     }
@@ -1735,7 +1735,7 @@
 <span class="kw">where</span>
     <span class="ident">V</span>: <span class="ident">Fold</span> <span class="op">+</span> <span class="ident">Repeated</span>,
 {
-    <span class="kw">fn</span> <span class="ident">fold_module</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">node</span>: <span class="ident">Module</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Module</span> {
+    <span class="kw">fn</span> <span class="ident">fold_module</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">node</span>: <span class="ident">Module</span>) -&gt; <span class="ident">Module</span> {
         <span class="kw">loop</span> {
             <span class="self">self</span>.<span class="ident">pass</span>.<span class="ident">reset</span>();
             <span class="ident">node</span> <span class="op">=</span> <span class="ident">node</span>.<span class="ident">fold_with</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">pass</span>);
@@ -1748,7 +1748,7 @@
         <span class="ident">node</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">fold_script</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">node</span>: <span class="ident">Script</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Script</span> {
+    <span class="kw">fn</span> <span class="ident">fold_script</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">node</span>: <span class="ident">Script</span>) -&gt; <span class="ident">Script</span> {
         <span class="kw">loop</span> {
             <span class="self">self</span>.<span class="ident">pass</span>.<span class="ident">reset</span>();
             <span class="ident">node</span> <span class="op">=</span> <span class="ident">node</span>.<span class="ident">fold_with</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">pass</span>);
@@ -1767,19 +1767,19 @@
 <span class="kw">struct</span> <span class="ident">SpanRemover</span>;
 
 <span class="doccomment">/// Returns a `Fold` which changes all span into `DUMMY_SP`.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span_remover</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Fold</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Default</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span_remover</span>() -&gt; <span class="kw">impl</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Fold</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Default</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> {
     <span class="ident">SpanRemover</span>
 }
 
 <span class="kw">impl</span> <span class="ident">Fold</span> <span class="kw">for</span> <span class="ident">SpanRemover</span> {
-    <span class="kw">fn</span> <span class="ident">fold_span</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw">_</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
+    <span class="kw">fn</span> <span class="ident">fold_span</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw">_</span>: <span class="ident">Span</span>) -&gt; <span class="ident">Span</span> {
         <span class="ident">DUMMY_SP</span>
     }
 }
 
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">assert_eq_ignore_span</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">l</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">r</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">l</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">r</span>:<span class="ident">expr</span>) =&gt; {{
         <span class="kw">use</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::FoldWith</span>;
         <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">l</span>.<span class="ident">fold_with</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::span_remover</span>());
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">r</span>.<span class="ident">fold_with</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::span_remover</span>());
@@ -1787,7 +1787,7 @@
         <span class="macro">assert_eq!</span>(<span class="ident">l</span>, <span class="ident">r</span>);
     }};
 
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">l</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">r</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tts</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">l</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">r</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tts</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {{
         <span class="kw">use</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::FoldWith</span>;
         <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">l</span>.<span class="ident">fold_with</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::span_remover</span>());
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">r</span>.<span class="ident">fold_with</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::span_remover</span>());
@@ -1796,7 +1796,7 @@
     }};
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_folder</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="ident">v</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Folder</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_folder</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="ident">v</span>: <span class="ident">V</span>) -&gt; <span class="ident">Folder</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">V</span>: <span class="ident">VisitMut</span>,
 {
@@ -1812,7 +1812,7 @@
     <span class="ident">V</span>: <span class="ident">Repeated</span> <span class="op">+</span> <span class="ident">VisitMut</span>,
 {
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">changed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">changed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="number">0</span>.<span class="ident">changed</span>()
     }
 
@@ -1826,15 +1826,15 @@
 <span class="kw">where</span>
     <span class="ident">V</span>: <span class="ident">VisitMut</span> <span class="op">+</span> <span class="ident">CompilerPass</span>,
 {
-    <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">name</span>() -&gt; <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span> {
         <span class="ident">V::name</span>()
     }
 }
 
 <span class="macro">macro_rules!</span> <span class="ident">method</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>:<span class="ident">ty</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>:<span class="ident">ty</span>) =&gt; {
         <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-        <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">n</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span> {
+        <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">n</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>) -&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span> {
             <span class="ident">n</span>.<span class="ident">visit_mut_with</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="number">0</span>);
             <span class="ident">n</span>
         }
@@ -1863,13 +1863,13 @@
 <span class="doccomment">/// Note: Ignoring more types is not considered as a breaking change.</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">noop_fold_type</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>:<span class="ident">tt</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>:<span class="ident">tt</span>) =&gt; {
         <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">node</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::swc_ecma_ast</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::swc_ecma_ast</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span> {
+        <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">node</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::swc_ecma_ast</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>) -&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::swc_ecma_ast</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span> {
             <span class="ident">node</span>
         }
     };
-    () <span class="op">=</span><span class="op">&gt;</span> {
+    () =&gt; {
         <span class="macro">noop_fold_type!</span>(<span class="ident">fold_accessibility</span>, <span class="ident">Accessibility</span>);
         <span class="macro">noop_fold_type!</span>(<span class="ident">fold_true_plus_minus</span>, <span class="ident">TruePlusMinus</span>);
         <span class="macro">noop_fold_type!</span>(<span class="ident">fold_ts_array_type</span>, <span class="ident">TsArrayType</span>);
@@ -1941,11 +1941,11 @@
 <span class="doccomment">/// Note: Ignoring more types is not considered as a breaking change.</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">noop_visit_type</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>:<span class="ident">tt</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>:<span class="ident">tt</span>) =&gt; {
         <span class="attribute">#[<span class="ident">inline</span>]</span>
         <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::swc_ecma_ast</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::Node</span>) {}
     };
-    () <span class="op">=</span><span class="op">&gt;</span> {
+    () =&gt; {
         <span class="macro">noop_visit_type!</span>(<span class="ident">visit_accessibility</span>, <span class="ident">Accessibility</span>);
         <span class="macro">noop_visit_type!</span>(<span class="ident">visit_true_plus_minus</span>, <span class="ident">TruePlusMinus</span>);
         <span class="macro">noop_visit_type!</span>(<span class="ident">visit_ts_array_type</span>, <span class="ident">TsArrayType</span>);
@@ -2017,11 +2017,11 @@
 <span class="doccomment">/// Note: Ignoring more types is not considered as a breaking change.</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">noop_visit_mut_type</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>:<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>:<span class="ident">ident</span>) =&gt; {
         <span class="attribute">#[<span class="ident">inline</span>]</span>
         <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::swc_ecma_ast</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>) {}
     };
-    () <span class="op">=</span><span class="op">&gt;</span> {
+    () =&gt; {
         <span class="macro">noop_visit_mut_type!</span>(<span class="ident">visit_mut_accessibility</span>, <span class="ident">Accessibility</span>);
         <span class="macro">noop_visit_mut_type!</span>(<span class="ident">visit_mut_true_plus_minus</span>, <span class="ident">TruePlusMinus</span>);
         <span class="macro">noop_visit_mut_type!</span>(<span class="ident">visit_mut_ts_array_type</span>, <span class="ident">TsArrayType</span>);

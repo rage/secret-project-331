@@ -79,8 +79,8 @@
 <span id="79">79</span>
 <span id="80">80</span>
 <span id="81">81</span>
-</pre><pre class="rust"><code><span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_new_line_occurrences_in_leading_whitespace</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">occurrences</span>: <span class="ident">i8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-    <span class="kw">if</span> <span class="ident">occurrences</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+</pre><pre class="rust"><code><span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_new_line_occurrences_in_leading_whitespace</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">occurrences</span>: <span class="ident">i8</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">if</span> <span class="ident">occurrences</span> <span class="op">==</span> <span class="number">0</span> {
         <span class="kw">return</span> <span class="ident">has_no_new_lines_in_leading_whitespace</span>(<span class="ident">text</span>);
     }
 
@@ -89,7 +89,7 @@
         <span class="kw">if</span> <span class="op">!</span><span class="ident">c</span>.<span class="ident">is_whitespace</span>() {
             <span class="kw">return</span> <span class="bool-val">false</span>;
         }
-        <span class="kw">if</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;\n&#39;</span> {
+        <span class="kw">if</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;\n&#39;</span> {
             <span class="ident">found_occurrences</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             <span class="kw">if</span> <span class="ident">found_occurrences</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">occurrences</span> {
                 <span class="kw">return</span> <span class="bool-val">true</span>;
@@ -100,12 +100,12 @@
     <span class="kw">return</span> <span class="bool-val">false</span>;
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_no_new_lines_in_leading_whitespace</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_no_new_lines_in_leading_whitespace</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
     <span class="kw">for</span> <span class="ident">c</span> <span class="kw">in</span> <span class="ident">text</span>.<span class="ident">chars</span>() {
         <span class="kw">if</span> <span class="op">!</span><span class="ident">c</span>.<span class="ident">is_whitespace</span>() {
             <span class="kw">return</span> <span class="bool-val">true</span>;
         }
-        <span class="kw">if</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;\n&#39;</span> {
+        <span class="kw">if</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;\n&#39;</span> {
             <span class="kw">return</span> <span class="bool-val">false</span>;
         }
     }
@@ -113,8 +113,8 @@
     <span class="kw">return</span> <span class="bool-val">true</span>;
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_new_line_occurrences_in_trailing_whitespace</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">occurrences</span>: <span class="ident">i8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-    <span class="kw">if</span> <span class="ident">occurrences</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_new_line_occurrences_in_trailing_whitespace</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">occurrences</span>: <span class="ident">i8</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">if</span> <span class="ident">occurrences</span> <span class="op">==</span> <span class="number">0</span> {
         <span class="kw">return</span> <span class="ident">has_no_new_lines_in_trailing_whitespace</span>(<span class="ident">text</span>);
     }
 
@@ -123,7 +123,7 @@
         <span class="kw">if</span> <span class="op">!</span><span class="ident">c</span>.<span class="ident">is_whitespace</span>() {
             <span class="kw">return</span> <span class="bool-val">false</span>;
         }
-        <span class="kw">if</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;\n&#39;</span> {
+        <span class="kw">if</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;\n&#39;</span> {
             <span class="ident">found_occurrences</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             <span class="kw">if</span> <span class="ident">found_occurrences</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">occurrences</span> {
                 <span class="kw">return</span> <span class="bool-val">true</span>;
@@ -134,12 +134,12 @@
     <span class="kw">return</span> <span class="bool-val">false</span>;
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_no_new_lines_in_trailing_whitespace</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_no_new_lines_in_trailing_whitespace</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
     <span class="kw">for</span> <span class="ident">c</span> <span class="kw">in</span> <span class="ident">text</span>.<span class="ident">chars</span>().<span class="ident">rev</span>() {
         <span class="kw">if</span> <span class="op">!</span><span class="ident">c</span>.<span class="ident">is_whitespace</span>() {
             <span class="kw">return</span> <span class="bool-val">true</span>;
         }
-        <span class="kw">if</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;\n&#39;</span> {
+        <span class="kw">if</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;\n&#39;</span> {
             <span class="kw">return</span> <span class="bool-val">false</span>;
         }
     }
@@ -147,7 +147,7 @@
     <span class="kw">return</span> <span class="bool-val">true</span>;
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_not_empty_and_only_spaces</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_not_empty_and_only_spaces</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
     <span class="kw">if</span> <span class="ident">text</span>.<span class="ident">is_empty</span>() {
         <span class="kw">return</span> <span class="bool-val">false</span>;
     }

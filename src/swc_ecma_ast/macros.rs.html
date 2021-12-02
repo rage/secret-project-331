@@ -175,163 +175,163 @@
 <span class="doccomment">/// Binary +,- is `op!(bin, &quot;+&quot;)`, `op!(bin, &quot;-&quot;)`.</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">op</span> {
-    (<span class="ident">unary</span>,<span class="string">&quot;-&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="ident">unary</span>,<span class="string">&quot;-&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::UnaryOp::Minus</span>
     };
-    (<span class="ident">unary</span>,<span class="string">&quot;+&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="ident">unary</span>,<span class="string">&quot;+&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::UnaryOp::Plus</span>
     };
-    (<span class="string">&quot;!&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;!&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::UnaryOp::Bang</span>
     };
-    (<span class="string">&quot;~&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;~&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::UnaryOp::Tilde</span>
     };
-    (<span class="string">&quot;typeof&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;typeof&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::UnaryOp::TypeOf</span>
     };
-    (<span class="string">&quot;void&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;void&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::UnaryOp::Void</span>
     };
-    (<span class="string">&quot;delete&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;delete&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::UnaryOp::Delete</span>
     };
 
-    (<span class="string">&quot;++&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;++&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::UpdateOp::PlusPlus</span>
     };
-    (<span class="string">&quot;--&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;--&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::UpdateOp::MinusMinus</span>
     };
 
-    (<span class="string">&quot;==&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;==&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BinaryOp::EqEq</span>
     };
-    (<span class="string">&quot;!=&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;!=&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BinaryOp::NotEq</span>
     };
-    (<span class="string">&quot;===&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;===&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BinaryOp::EqEqEq</span>
     };
-    (<span class="string">&quot;!==&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;!==&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BinaryOp::NotEqEq</span>
     };
-    (<span class="string">&quot;&lt;&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;&lt;&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BinaryOp::Lt</span>
     };
-    (<span class="string">&quot;&lt;=&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;&lt;=&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BinaryOp::LtEq</span>
     };
-    (<span class="string">&quot;&gt;&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;&gt;&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BinaryOp::Gt</span>
     };
-    (<span class="string">&quot;&gt;=&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;&gt;=&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BinaryOp::GtEq</span>
     };
-    (<span class="string">&quot;&lt;&lt;&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;&lt;&lt;&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BinaryOp::LShift</span>
     };
-    (<span class="string">&quot;&gt;&gt;&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;&gt;&gt;&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BinaryOp::RShift</span>
     };
-    (<span class="string">&quot;&gt;&gt;&gt;&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;&gt;&gt;&gt;&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BinaryOp::ZeroFillRShift</span>
     };
-    (<span class="ident">bin</span>,<span class="string">&quot;+&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="ident">bin</span>,<span class="string">&quot;+&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BinaryOp::Add</span>
     };
-    (<span class="ident">bin</span>,<span class="string">&quot;-&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="ident">bin</span>,<span class="string">&quot;-&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BinaryOp::Sub</span>
     };
-    (<span class="string">&quot;*&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;*&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BinaryOp::Mul</span>
     };
-    (<span class="string">&quot;/&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;/&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BinaryOp::Div</span>
     };
-    (<span class="string">&quot;%&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;%&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BinaryOp::Mod</span>
     };
-    (<span class="string">&quot;|&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;|&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BinaryOp::BitOr</span>
     };
-    (<span class="string">&quot;^&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;^&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BinaryOp::BitXor</span>
     };
-    (<span class="string">&quot;&amp;&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;&amp;&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BinaryOp::BitAnd</span>
     };
-    (<span class="string">&quot;||&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;||&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BinaryOp::LogicalOr</span>
     };
-    (<span class="string">&quot;&amp;&amp;&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;&amp;&amp;&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BinaryOp::LogicalAnd</span>
     };
-    (<span class="string">&quot;in&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;in&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BinaryOp::In</span>
     };
-    (<span class="string">&quot;instanceof&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;instanceof&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BinaryOp::InstanceOf</span>
     };
-    (<span class="string">&quot;**&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;**&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BinaryOp::Exp</span>
     };
-    (<span class="string">&quot;??&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;??&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BinaryOp::NullishCoalescing</span>
     };
 
-    (<span class="string">&quot;=&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;=&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::AssignOp::Assign</span>
     };
-    (<span class="string">&quot;+=&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;+=&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::AssignOp::AddAssign</span>
     };
-    (<span class="string">&quot;-=&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;-=&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::AssignOp::SubAssign</span>
     };
-    (<span class="string">&quot;*=&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;*=&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::AssignOp::MulAssign</span>
     };
-    (<span class="string">&quot;/=&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;/=&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::AssignOp::DivAssign</span>
     };
-    (<span class="string">&quot;%=&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;%=&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::AssignOp::ModAssign</span>
     };
-    (<span class="string">&quot;&lt;&lt;=&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;&lt;&lt;=&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::AssignOp::LShiftAssign</span>
     };
-    (<span class="string">&quot;&gt;&gt;=&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;&gt;&gt;=&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::AssignOp::RShiftAssign</span>
     };
-    (<span class="string">&quot;&gt;&gt;&gt;=&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;&gt;&gt;&gt;=&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::AssignOp::ZeroFillRShiftAssign</span>
     };
-    (<span class="string">&quot;|=&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;|=&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::AssignOp::BitOrAssign</span>
     };
-    (<span class="string">&quot;^=&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;^=&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::AssignOp::BitXorAssign</span>
     };
-    (<span class="string">&quot;&amp;=&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;&amp;=&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::AssignOp::BitAndAssign</span>
     };
-    (<span class="string">&quot;**=&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;**=&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::AssignOp::ExpAssign</span>
     };
-    (<span class="string">&quot;&amp;&amp;=&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;&amp;&amp;=&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::AssignOp::AndAssign</span>
     };
-    (<span class="string">&quot;||=&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;||=&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::AssignOp::OrAssign</span>
     };
-    (<span class="string">&quot;??=&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="string">&quot;??=&quot;</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::AssignOp::NullishAssign</span>
     };
 }
 
 <span class="macro">macro_rules!</span> <span class="ident">test_de</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>:<span class="ident">path</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">s</span>:<span class="ident">literal</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>:<span class="ident">path</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">s</span>:<span class="ident">literal</span>) =&gt; {
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>() {
             <span class="kw">let</span> <span class="ident">_var</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span> <span class="op">=</span> <span class="ident">::serde_json::from_str</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">s</span>).<span class="ident">expect</span>(<span class="string">&quot;failed to parse json&quot;</span>);

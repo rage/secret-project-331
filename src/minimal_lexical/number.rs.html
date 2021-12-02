@@ -110,7 +110,7 @@
 <span class="kw">impl</span> <span class="ident">Number</span> {
     <span class="doccomment">/// Detect if the float can be accurately reconstructed from native floats.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_fast_path</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Float</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_fast_path</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Float</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="ident">F::MIN_EXPONENT_FAST_PATH</span> <span class="op">&lt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">exponent</span>
             <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">exponent</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">F::MAX_EXPONENT_DISGUISED_FAST_PATH</span>
             <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">mantissa</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">F::MAX_MANTISSA_FAST_PATH</span>
@@ -126,7 +126,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// There is an exception: disguised fast-path cases, where we can shift</span>
     <span class="doccomment">/// powers-of-10 from the exponent to the significant digits.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_fast_path</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Float</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_fast_path</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Float</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> {
         <span class="comment">// The fast path crucially depends on arithmetic being rounded to the correct number of bits</span>
         <span class="comment">// without any intermediate rounding. On x86 (without SSE or SSE2) this requires the precision</span>
         <span class="comment">// of the x87 FPU stack to be changed so that it directly rounds to 64/32 bit.</span>

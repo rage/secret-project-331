@@ -699,7 +699,7 @@
     <span class="doccomment">/// If `buf` is valid utf-8 a `String` should be supplied, as `String`s</span>
     <span class="doccomment">/// can be encoded as `7bit` or `quoted-printable`, while `Vec&lt;u8&gt;` always</span>
     <span class="doccomment">/// get encoded as `base64`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">B</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">MaybeString</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">buf</span>: <span class="ident">B</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">B</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">MaybeString</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">buf</span>: <span class="ident">B</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span>: <span class="ident">MaybeString</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">into</span>();
 
         <span class="kw">let</span> <span class="ident">encoding</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">encoding</span>();
@@ -719,7 +719,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_with_encoding</span><span class="op">&lt;</span><span class="ident">B</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">MaybeString</span><span class="op">&gt;</span><span class="op">&gt;</span>(
         <span class="ident">buf</span>: <span class="ident">B</span>,
         <span class="ident">encoding</span>: <span class="ident">ContentTransferEncoding</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span>: <span class="ident">MaybeString</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">into</span>();
 
         <span class="kw">if</span> <span class="op">!</span><span class="ident">buf</span>.<span class="ident">is_encoding_ok</span>(<span class="ident">encoding</span>) {
@@ -736,22 +736,22 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// `buf` shouldn&#39;t contain non-ascii characters, lines longer than 1000 characters or nul bytes.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dangerous_pre_encoded</span>(<span class="ident">buf</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">encoding</span>: <span class="ident">ContentTransferEncoding</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dangerous_pre_encoded</span>(<span class="ident">buf</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">encoding</span>: <span class="ident">ContentTransferEncoding</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> { <span class="ident">buf</span>, <span class="ident">encoding</span> }
     }
 
     <span class="doccomment">/// Encodes the supplied `buf` using the provided `encoding`</span>
-    <span class="kw">fn</span> <span class="ident">new_impl</span>(<span class="ident">buf</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">encoding</span>: <span class="ident">ContentTransferEncoding</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">new_impl</span>(<span class="ident">buf</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">encoding</span>: <span class="ident">ContentTransferEncoding</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">encoding</span> {
             <span class="ident">ContentTransferEncoding::SevenBit</span>
             <span class="op">|</span> <span class="ident">ContentTransferEncoding::EightBit</span>
-            <span class="op">|</span> <span class="ident">ContentTransferEncoding::Binary</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span> { <span class="ident">buf</span>, <span class="ident">encoding</span> },
-            <span class="ident">ContentTransferEncoding::QuotedPrintable</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="op">|</span> <span class="ident">ContentTransferEncoding::Binary</span> =&gt; <span class="self">Self</span> { <span class="ident">buf</span>, <span class="ident">encoding</span> },
+            <span class="ident">ContentTransferEncoding::QuotedPrintable</span> =&gt; {
                 <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">quoted_printable::encode</span>(<span class="ident">buf</span>);
 
                 <span class="ident"><span class="self">Self</span>::dangerous_pre_encoded</span>(<span class="ident">encoded</span>, <span class="ident">ContentTransferEncoding::QuotedPrintable</span>)
             }
-            <span class="ident">ContentTransferEncoding::Base64</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ContentTransferEncoding::Base64</span> =&gt; {
                 <span class="kw">let</span> <span class="ident">base64_len</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">len</span>() <span class="op">*</span> <span class="number">4</span> <span class="op">/</span> <span class="number">3</span> <span class="op">+</span> <span class="number">4</span>;
                 <span class="kw">let</span> <span class="ident">base64_endings_len</span> <span class="op">=</span> <span class="ident">base64_len</span> <span class="op">+</span> <span class="ident">base64_len</span> <span class="op">/</span> <span class="ident">LINE_MAX_LENGTH</span>;
 
@@ -768,14 +768,14 @@
                         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">as_ref</span>();
                         <span class="kw">while</span> <span class="op">!</span><span class="ident">buf</span>.<span class="ident">is_empty</span>() {
                             <span class="kw">match</span> <span class="ident">writer</span>.<span class="ident">write</span>(<span class="ident">buf</span>) {
-                                <span class="prelude-val">Ok</span>(<span class="number">0</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="prelude-val">Ok</span>(<span class="number">0</span>) =&gt; {
                                     <span class="comment">// ignore 0 writes</span>
                                 }
-                                <span class="prelude-val">Ok</span>(<span class="ident">n</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="prelude-val">Ok</span>(<span class="ident">n</span>) =&gt; {
                                     <span class="ident">buf</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">buf</span>[<span class="ident">n</span>..];
                                 }
-                                <span class="prelude-val">Err</span>(<span class="kw-2">ref</span> <span class="ident">e</span>) <span class="kw">if</span> <span class="ident">e</span>.<span class="ident">kind</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">std::io::ErrorKind::Interrupted</span> <span class="op">=</span><span class="op">&gt;</span> {}
-                                <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;base64 encoding never fails: {}&quot;</span>, <span class="ident">e</span>),
+                                <span class="prelude-val">Err</span>(<span class="kw-2">ref</span> <span class="ident">e</span>) <span class="kw">if</span> <span class="ident">e</span>.<span class="ident">kind</span>() <span class="op">==</span> <span class="ident">std::io::ErrorKind::Interrupted</span> =&gt; {}
+                                <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;base64 encoding never fails: {}&quot;</span>, <span class="ident">e</span>),
                             }
                         }
                     }
@@ -788,25 +788,25 @@
 
     <span class="doccomment">/// Returns the length of this `Body` in bytes.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">len</span>()
     }
 
     <span class="doccomment">/// Returns `true` if this `Body` has a length of zero, `false` otherwise.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">is_empty</span>()
     }
 
     <span class="doccomment">/// Returns the `Content-Transfer-Encoding` of this `Body`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encoding</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ContentTransferEncoding</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encoding</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ContentTransferEncoding</span> {
         <span class="self">self</span>.<span class="ident">encoding</span>
     }
 
     <span class="doccomment">/// Consumes `Body` and returns the inner `Vec&lt;u8&gt;`</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_vec</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_vec</span>(<span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">buf</span>
     }
 }
@@ -823,32 +823,32 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// `8bit` and `binary` encodings are never returned, as they may not be</span>
     <span class="doccomment">/// supported by all SMTP servers.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encoding</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ContentTransferEncoding</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encoding</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ContentTransferEncoding</span> {
         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::String</span>(<span class="ident">s</span>) <span class="kw">if</span> <span class="ident">is_7bit_encoded</span>(<span class="ident">s</span>.<span class="ident">as_ref</span>()) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ContentTransferEncoding::SevenBit</span>,
+            <span class="ident"><span class="self">Self</span>::String</span>(<span class="ident">s</span>) <span class="kw">if</span> <span class="ident">is_7bit_encoded</span>(<span class="ident">s</span>.<span class="ident">as_ref</span>()) =&gt; <span class="ident">ContentTransferEncoding::SevenBit</span>,
             <span class="comment">// TODO: consider when base64 would be a better option because of output size</span>
-            <span class="ident"><span class="self">Self</span>::String</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ContentTransferEncoding::QuotedPrintable</span>,
-            <span class="ident"><span class="self">Self</span>::Binary</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ContentTransferEncoding::Base64</span>,
+            <span class="ident"><span class="self">Self</span>::String</span>(<span class="kw">_</span>) =&gt; <span class="ident">ContentTransferEncoding::QuotedPrintable</span>,
+            <span class="ident"><span class="self">Self</span>::Binary</span>(<span class="kw">_</span>) =&gt; <span class="ident">ContentTransferEncoding::Base64</span>,
         }
     }
 
     <span class="doccomment">/// Encode line endings to CRLF if the variant is `String`</span>
     <span class="kw">fn</span> <span class="ident">encode_crlf</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::String</span>(<span class="ident">string</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">in_place_crlf_line_endings</span>(<span class="ident">string</span>),
-            <span class="ident"><span class="self">Self</span>::Binary</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {}
+            <span class="ident"><span class="self">Self</span>::String</span>(<span class="ident">string</span>) =&gt; <span class="ident">in_place_crlf_line_endings</span>(<span class="ident">string</span>),
+            <span class="ident"><span class="self">Self</span>::Binary</span>(<span class="kw">_</span>) =&gt; {}
         }
     }
 
     <span class="doccomment">/// Returns `true` if using `encoding` to encode this `MaybeString`</span>
     <span class="doccomment">/// would result into an invalid encoded body.</span>
-    <span class="kw">fn</span> <span class="ident">is_encoding_ok</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">encoding</span>: <span class="ident">ContentTransferEncoding</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_encoding_ok</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">encoding</span>: <span class="ident">ContentTransferEncoding</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="ident">encoding</span> {
-            <span class="ident">ContentTransferEncoding::SevenBit</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">is_7bit_encoded</span>(<span class="self">self</span>),
-            <span class="ident">ContentTransferEncoding::EightBit</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">is_8bit_encoded</span>(<span class="self">self</span>),
+            <span class="ident">ContentTransferEncoding::SevenBit</span> =&gt; <span class="ident">is_7bit_encoded</span>(<span class="self">self</span>),
+            <span class="ident">ContentTransferEncoding::EightBit</span> =&gt; <span class="ident">is_8bit_encoded</span>(<span class="self">self</span>),
             <span class="ident">ContentTransferEncoding::Binary</span>
             <span class="op">|</span> <span class="ident">ContentTransferEncoding::QuotedPrintable</span>
-            <span class="op">|</span> <span class="ident">ContentTransferEncoding::Base64</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="op">|</span> <span class="ident">ContentTransferEncoding::Base64</span> =&gt; <span class="bool-val">true</span>,
         }
     }
 }
@@ -868,23 +868,23 @@
 <span class="doccomment">/// body, this will panic!</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IntoBody</span> {
     <span class="doccomment">/// Encode as valid body</span>
-    <span class="kw">fn</span> <span class="ident">into_body</span>(<span class="self">self</span>, <span class="ident">encoding</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ContentTransferEncoding</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Body</span>;
+    <span class="kw">fn</span> <span class="ident">into_body</span>(<span class="self">self</span>, <span class="ident">encoding</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ContentTransferEncoding</span><span class="op">&gt;</span>) -&gt; <span class="ident">Body</span>;
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">IntoBody</span> <span class="kw">for</span> <span class="ident">T</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">MaybeString</span><span class="op">&gt;</span>,
 {
-    <span class="kw">fn</span> <span class="ident">into_body</span>(<span class="self">self</span>, <span class="ident">encoding</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ContentTransferEncoding</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Body</span> {
+    <span class="kw">fn</span> <span class="ident">into_body</span>(<span class="self">self</span>, <span class="ident">encoding</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ContentTransferEncoding</span><span class="op">&gt;</span>) -&gt; <span class="ident">Body</span> {
         <span class="kw">match</span> <span class="ident">encoding</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">encoding</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Body::new_with_encoding</span>(<span class="self">self</span>, <span class="ident">encoding</span>).<span class="ident">expect</span>(<span class="string">&quot;invalid encoding&quot;</span>),
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Body::new</span>(<span class="self">self</span>),
+            <span class="prelude-val">Some</span>(<span class="ident">encoding</span>) =&gt; <span class="ident">Body::new_with_encoding</span>(<span class="self">self</span>, <span class="ident">encoding</span>).<span class="ident">expect</span>(<span class="string">&quot;invalid encoding&quot;</span>),
+            <span class="prelude-val">None</span> =&gt; <span class="ident">Body::new</span>(<span class="self">self</span>),
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">IntoBody</span> <span class="kw">for</span> <span class="ident">Body</span> {
-    <span class="kw">fn</span> <span class="ident">into_body</span>(<span class="self">self</span>, <span class="ident">encoding</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ContentTransferEncoding</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Body</span> {
+    <span class="kw">fn</span> <span class="ident">into_body</span>(<span class="self">self</span>, <span class="ident">encoding</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ContentTransferEncoding</span><span class="op">&gt;</span>) -&gt; <span class="ident">Body</span> {
         <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">encoding</span>;
 
         <span class="self">self</span>
@@ -893,31 +893,31 @@
 
 <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Body</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
+    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
         <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">as_ref</span>()
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MaybeString</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">b</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">b</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::Binary</span>(<span class="ident">b</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MaybeString</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">s</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">s</span>: <span class="ident">String</span>) -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::String</span>(<span class="ident">s</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">MaybeString</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">s</span>: <span class="ident">MaybeString</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">s</span>: <span class="ident">MaybeString</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">s</span> {
-            <span class="ident">MaybeString::Binary</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">b</span>,
-            <span class="ident">MaybeString::String</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">s</span>.<span class="ident">into</span>(),
+            <span class="ident">MaybeString::Binary</span>(<span class="ident">b</span>) =&gt; <span class="ident">b</span>,
+            <span class="ident">MaybeString::String</span>(<span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">into</span>(),
         }
     }
 }
@@ -926,10 +926,10 @@
     <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> [<span class="ident">u8</span>];
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Target</span> {
+    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Target</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Binary</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">b</span>.<span class="ident">as_ref</span>(),
-            <span class="ident"><span class="self">Self</span>::String</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">s</span>.<span class="ident">as_ref</span>(),
+            <span class="ident"><span class="self">Self</span>::Binary</span>(<span class="ident">b</span>) =&gt; <span class="ident">b</span>.<span class="ident">as_ref</span>(),
+            <span class="ident"><span class="self">Self</span>::String</span>(<span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">as_ref</span>(),
         }
     }
 }
@@ -938,21 +938,21 @@
 <span class="doccomment">/// and no lines are longer than 1000 characters including the `\n` character.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Most efficient content encoding available</span>
-<span class="kw">fn</span> <span class="ident">is_7bit_encoded</span>(<span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+<span class="kw">fn</span> <span class="ident">is_7bit_encoded</span>(<span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">bool</span> {
     <span class="ident">buf</span>.<span class="ident">is_ascii</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">contains_too_long_lines</span>(<span class="ident">buf</span>)
 }
 
 <span class="doccomment">/// Checks that no lines are longer than 1000 characters,</span>
 <span class="doccomment">/// including the `\n` character.</span>
 <span class="doccomment">/// NOTE: 8bit isn&#39;t supported by all SMTP servers.</span>
-<span class="kw">fn</span> <span class="ident">is_8bit_encoded</span>(<span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+<span class="kw">fn</span> <span class="ident">is_8bit_encoded</span>(<span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">bool</span> {
     <span class="op">!</span><span class="ident">contains_too_long_lines</span>(<span class="ident">buf</span>)
 }
 
 <span class="doccomment">/// Checks if there are lines that are longer than 1000 characters,</span>
 <span class="doccomment">/// including the `\n` character.</span>
-<span class="kw">fn</span> <span class="ident">contains_too_long_lines</span>(<span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-    <span class="ident">buf</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1000</span> <span class="op">&amp;&amp;</span> <span class="ident">buf</span>.<span class="ident">split</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">b</span><span class="op">|</span> <span class="ident">b</span> <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;\n&#39;</span>).<span class="ident">any</span>(<span class="op">|</span><span class="ident">line</span><span class="op">|</span> <span class="ident">line</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">999</span>)
+<span class="kw">fn</span> <span class="ident">contains_too_long_lines</span>(<span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">bool</span> {
+    <span class="ident">buf</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1000</span> <span class="op">&amp;&amp;</span> <span class="ident">buf</span>.<span class="ident">split</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">b</span><span class="op">|</span> <span class="ident">b</span> <span class="op">==</span> <span class="string">b&#39;\n&#39;</span>).<span class="ident">any</span>(<span class="op">|</span><span class="ident">line</span><span class="op">|</span> <span class="ident">line</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">999</span>)
 }
 
 <span class="kw">const</span> <span class="ident">LINE_SEPARATOR</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="string">b&quot;\r\n&quot;</span>;
@@ -966,7 +966,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span><span class="op">&gt;</span> <span class="ident">LineWrappingWriter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">W</span>, <span class="ident">max_line_length</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">W</span>, <span class="ident">max_line_length</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">writer</span>,
             <span class="ident">current_line_length</span>: <span class="number">0</span>,
@@ -979,13 +979,13 @@
 <span class="kw">where</span>
     <span class="ident">W</span>: <span class="ident">Write</span>,
 {
-    <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">remaining_line_len</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">max_line_length</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">current_line_length</span>;
         <span class="kw">let</span> <span class="ident">write_len</span> <span class="op">=</span> <span class="ident">std::cmp::min</span>(<span class="ident">buf</span>.<span class="ident">len</span>(), <span class="ident">remaining_line_len</span>);
 
         <span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[..<span class="ident">write_len</span>])<span class="question-mark">?</span>;
 
-        <span class="kw">if</span> <span class="ident">remaining_line_len</span> <span class="op">=</span><span class="op">=</span> <span class="ident">write_len</span> {
+        <span class="kw">if</span> <span class="ident">remaining_line_len</span> <span class="op">==</span> <span class="ident">write_len</span> {
             <span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="ident">LINE_SEPARATOR</span>)<span class="question-mark">?</span>;
 
             <span class="self">self</span>.<span class="ident">current_line_length</span> <span class="op">=</span> <span class="number">0</span>;
@@ -996,7 +996,7 @@
         <span class="prelude-val">Ok</span>(<span class="ident">write_len</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">flush</span>()
     }
 }
@@ -1015,7 +1015,7 @@
 <span class="doccomment">/// in order to make `s` have CRLF line endings</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// The list is reversed, which is more efficient.</span>
-<span class="kw">fn</span> <span class="ident">find_all_lf_char_indices</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">find_all_lf_char_indices</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">indices</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">found_lf</span> <span class="op">=</span> <span class="bool-val">false</span>;
@@ -1025,7 +1025,7 @@
             <span class="ident">indices</span>.<span class="ident">push</span>(<span class="ident">i</span> <span class="op">+</span> <span class="ident">c</span>.<span class="ident">len_utf8</span>());
         }
 
-        <span class="ident">found_lf</span> <span class="op">=</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;\n&#39;</span>;
+        <span class="ident">found_lf</span> <span class="op">=</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;\n&#39;</span>;
     }
 
     <span class="kw">if</span> <span class="ident">found_lf</span> {

@@ -597,14 +597,14 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span>[<span class="ident">Bound</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>; <span class="number">2</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">v</span>: [<span class="ident">Bound</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>; <span class="number">2</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">v</span>: [<span class="ident">Bound</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>; <span class="number">2</span>]) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> [<span class="ident">start</span>, <span class="ident">end</span>] <span class="op">=</span> <span class="ident">v</span>;
         <span class="self">Self</span> { <span class="ident">start</span>, <span class="ident">end</span> }
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span>(<span class="ident">Bound</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">Bound</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>)<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">v</span>: (<span class="ident">Bound</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">Bound</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>)) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">v</span>: (<span class="ident">Bound</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">Bound</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>)) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">start</span>: <span class="ident">v</span>.<span class="number">0</span>,
             <span class="ident">end</span>: <span class="ident">v</span>.<span class="number">1</span>,
@@ -613,7 +613,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Range</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">v</span>: <span class="ident">Range</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">v</span>: <span class="ident">Range</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">start</span>: <span class="ident">Bound::Included</span>(<span class="ident">v</span>.<span class="ident">start</span>),
             <span class="ident">end</span>: <span class="ident">Bound::Excluded</span>(<span class="ident">v</span>.<span class="ident">end</span>),
@@ -622,7 +622,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">RangeFrom</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">v</span>: <span class="ident">RangeFrom</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">v</span>: <span class="ident">RangeFrom</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">start</span>: <span class="ident">Bound::Included</span>(<span class="ident">v</span>.<span class="ident">start</span>),
             <span class="ident">end</span>: <span class="ident">Bound::Unbounded</span>,
@@ -631,7 +631,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">RangeInclusive</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">v</span>: <span class="ident">RangeInclusive</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">v</span>: <span class="ident">RangeInclusive</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> (<span class="ident">start</span>, <span class="ident">end</span>) <span class="op">=</span> <span class="ident">v</span>.<span class="ident">into_inner</span>();
         <span class="self">Self</span> {
             <span class="ident">start</span>: <span class="ident">Bound::Included</span>(<span class="ident">start</span>),
@@ -641,7 +641,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">RangeTo</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">v</span>: <span class="ident">RangeTo</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">v</span>: <span class="ident">RangeTo</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">start</span>: <span class="ident">Bound::Unbounded</span>,
             <span class="ident">end</span>: <span class="ident">Bound::Excluded</span>(<span class="ident">v</span>.<span class="ident">end</span>),
@@ -650,7 +650,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">RangeToInclusive</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">v</span>: <span class="ident">RangeToInclusive</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">v</span>: <span class="ident">RangeToInclusive</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">start</span>: <span class="ident">Bound::Unbounded</span>,
             <span class="ident">end</span>: <span class="ident">Bound::Included</span>(<span class="ident">v</span>.<span class="ident">end</span>),
@@ -659,238 +659,238 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">RangeBounds</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">start_bound</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Bound</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">start_bound</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Bound</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">start</span> {
-            <span class="ident">Bound::Included</span>(<span class="kw-2">ref</span> <span class="ident">start</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Bound::Included</span>(<span class="ident">start</span>),
-            <span class="ident">Bound::Excluded</span>(<span class="kw-2">ref</span> <span class="ident">start</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Bound::Excluded</span>(<span class="ident">start</span>),
-            <span class="ident">Bound::Unbounded</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Bound::Unbounded</span>,
+            <span class="ident">Bound::Included</span>(<span class="kw-2">ref</span> <span class="ident">start</span>) =&gt; <span class="ident">Bound::Included</span>(<span class="ident">start</span>),
+            <span class="ident">Bound::Excluded</span>(<span class="kw-2">ref</span> <span class="ident">start</span>) =&gt; <span class="ident">Bound::Excluded</span>(<span class="ident">start</span>),
+            <span class="ident">Bound::Unbounded</span> =&gt; <span class="ident">Bound::Unbounded</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">end_bound</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Bound</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">end_bound</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Bound</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">end</span> {
-            <span class="ident">Bound::Included</span>(<span class="kw-2">ref</span> <span class="ident">end</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Bound::Included</span>(<span class="ident">end</span>),
-            <span class="ident">Bound::Excluded</span>(<span class="kw-2">ref</span> <span class="ident">end</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Bound::Excluded</span>(<span class="ident">end</span>),
-            <span class="ident">Bound::Unbounded</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Bound::Unbounded</span>,
+            <span class="ident">Bound::Included</span>(<span class="kw-2">ref</span> <span class="ident">end</span>) =&gt; <span class="ident">Bound::Included</span>(<span class="ident">end</span>),
+            <span class="ident">Bound::Excluded</span>(<span class="kw-2">ref</span> <span class="ident">end</span>) =&gt; <span class="ident">Bound::Excluded</span>(<span class="ident">end</span>),
+            <span class="ident">Bound::Unbounded</span> =&gt; <span class="ident">Bound::Unbounded</span>,
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="ident">PgTypeInfo::INT4_RANGE</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) -&gt; <span class="ident">bool</span> {
         <span class="ident">range_compatible</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>(<span class="ident">ty</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="ident">PgTypeInfo::INT8_RANGE</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) -&gt; <span class="ident">bool</span> {
         <span class="ident">range_compatible</span>::<span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>(<span class="ident">ty</span>)
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">bigdecimal::BigDecimal</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="ident">PgTypeInfo::NUM_RANGE</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) -&gt; <span class="ident">bool</span> {
         <span class="ident">range_compatible</span>::<span class="op">&lt;</span><span class="ident">bigdecimal::BigDecimal</span><span class="op">&gt;</span>(<span class="ident">ty</span>)
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">chrono::NaiveDate</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="ident">PgTypeInfo::DATE_RANGE</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) -&gt; <span class="ident">bool</span> {
         <span class="ident">range_compatible</span>::<span class="op">&lt;</span><span class="ident">chrono::NaiveDate</span><span class="op">&gt;</span>(<span class="ident">ty</span>)
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">chrono::NaiveDateTime</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="ident">PgTypeInfo::TS_RANGE</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) -&gt; <span class="ident">bool</span> {
         <span class="ident">range_compatible</span>::<span class="op">&lt;</span><span class="ident">chrono::NaiveDateTime</span><span class="op">&gt;</span>(<span class="ident">ty</span>)
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Tz</span>: <span class="ident">chrono::TimeZone</span><span class="op">&gt;</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">chrono::DateTime</span><span class="op">&lt;</span><span class="ident">Tz</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="ident">PgTypeInfo::TSTZ_RANGE</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) -&gt; <span class="ident">bool</span> {
         <span class="ident">range_compatible</span>::<span class="op">&lt;</span><span class="ident">chrono::DateTime</span><span class="op">&lt;</span><span class="ident">Tz</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">ty</span>)
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;time&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">time::Date</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="ident">PgTypeInfo::DATE_RANGE</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) -&gt; <span class="ident">bool</span> {
         <span class="ident">range_compatible</span>::<span class="op">&lt;</span><span class="ident">time::Date</span><span class="op">&gt;</span>(<span class="ident">ty</span>)
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;time&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">time::PrimitiveDateTime</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="ident">PgTypeInfo::TS_RANGE</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) -&gt; <span class="ident">bool</span> {
         <span class="ident">range_compatible</span>::<span class="op">&lt;</span><span class="ident">time::PrimitiveDateTime</span><span class="op">&gt;</span>(<span class="ident">ty</span>)
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;time&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">time::OffsetDateTime</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="ident">PgTypeInfo::TSTZ_RANGE</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) -&gt; <span class="ident">bool</span> {
         <span class="ident">range_compatible</span>::<span class="op">&lt;</span><span class="ident">time::OffsetDateTime</span><span class="op">&gt;</span>(<span class="ident">ty</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> [<span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>] {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="ident">PgTypeInfo::INT4_RANGE_ARRAY</span>
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> [<span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>] {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="ident">PgTypeInfo::INT8_RANGE_ARRAY</span>
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> [<span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">bigdecimal::BigDecimal</span><span class="op">&gt;</span>] {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="ident">PgTypeInfo::NUM_RANGE_ARRAY</span>
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> [<span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">chrono::NaiveDate</span><span class="op">&gt;</span>] {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="ident">PgTypeInfo::DATE_RANGE_ARRAY</span>
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> [<span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">chrono::NaiveDateTime</span><span class="op">&gt;</span>] {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="ident">PgTypeInfo::TS_RANGE_ARRAY</span>
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Tz</span>: <span class="ident">chrono::TimeZone</span><span class="op">&gt;</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> [<span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">chrono::DateTime</span><span class="op">&lt;</span><span class="ident">Tz</span><span class="op">&gt;</span><span class="op">&gt;</span>] {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="ident">PgTypeInfo::TSTZ_RANGE_ARRAY</span>
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;time&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> [<span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">time::Date</span><span class="op">&gt;</span>] {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="ident">PgTypeInfo::DATE_RANGE_ARRAY</span>
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;time&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> [<span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">time::PrimitiveDateTime</span><span class="op">&gt;</span>] {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="ident">PgTypeInfo::TS_RANGE_ARRAY</span>
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;time&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> [<span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">time::OffsetDateTime</span><span class="op">&gt;</span>] {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="ident">PgTypeInfo::TSTZ_RANGE_ARRAY</span>
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="ident">PgTypeInfo::INT4_RANGE_ARRAY</span>
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="ident">PgTypeInfo::INT8_RANGE_ARRAY</span>
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">bigdecimal::BigDecimal</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="ident">PgTypeInfo::NUM_RANGE_ARRAY</span>
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">chrono::NaiveDate</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="ident">PgTypeInfo::DATE_RANGE_ARRAY</span>
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">chrono::NaiveDateTime</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="ident">PgTypeInfo::TS_RANGE_ARRAY</span>
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Tz</span>: <span class="ident">chrono::TimeZone</span><span class="op">&gt;</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">chrono::DateTime</span><span class="op">&lt;</span><span class="ident">Tz</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="ident">PgTypeInfo::TSTZ_RANGE_ARRAY</span>
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;time&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">time::Date</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="ident">PgTypeInfo::DATE_RANGE_ARRAY</span>
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;time&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">time::PrimitiveDateTime</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="ident">PgTypeInfo::TS_RANGE_ARRAY</span>
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;time&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PgRange</span><span class="op">&lt;</span><span class="ident">time::OffsetDateTime</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="ident">PgTypeInfo::TSTZ_RANGE_ARRAY</span>
     }
 }
@@ -899,21 +899,21 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Encode</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">Postgres</span><span class="op">&gt;</span>,
 {
-    <span class="kw">fn</span> <span class="ident">encode_by_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgArgumentBuffer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IsNull</span> {
+    <span class="kw">fn</span> <span class="ident">encode_by_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgArgumentBuffer</span>) -&gt; <span class="ident">IsNull</span> {
         <span class="comment">// https://github.com/postgres/postgres/blob/2f48ede080f42b97b594fb14102c82ca1001b80c/src/backend/utils/adt/rangetypes.c#L245</span>
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">flags</span> <span class="op">=</span> <span class="ident">RangeFlags::empty</span>();
 
         <span class="ident">flags</span> <span class="op">|</span><span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">start</span> {
-            <span class="ident">Bound::Included</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">RangeFlags::LB_INC</span>,
-            <span class="ident">Bound::Unbounded</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">RangeFlags::LB_INF</span>,
-            <span class="ident">Bound::Excluded</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">RangeFlags::empty</span>(),
+            <span class="ident">Bound::Included</span>(<span class="kw">_</span>) =&gt; <span class="ident">RangeFlags::LB_INC</span>,
+            <span class="ident">Bound::Unbounded</span> =&gt; <span class="ident">RangeFlags::LB_INF</span>,
+            <span class="ident">Bound::Excluded</span>(<span class="kw">_</span>) =&gt; <span class="ident">RangeFlags::empty</span>(),
         };
 
         <span class="ident">flags</span> <span class="op">|</span><span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">end</span> {
-            <span class="ident">Bound::Included</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">RangeFlags::UB_INC</span>,
-            <span class="ident">Bound::Unbounded</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">RangeFlags::UB_INF</span>,
-            <span class="ident">Bound::Excluded</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">RangeFlags::empty</span>(),
+            <span class="ident">Bound::Included</span>(<span class="kw">_</span>) =&gt; <span class="ident">RangeFlags::UB_INC</span>,
+            <span class="ident">Bound::Unbounded</span> =&gt; <span class="ident">RangeFlags::UB_INF</span>,
+            <span class="ident">Bound::Excluded</span>(<span class="kw">_</span>) =&gt; <span class="ident">RangeFlags::empty</span>(),
         };
 
         <span class="ident">buf</span>.<span class="ident">push</span>(<span class="ident">flags</span>.<span class="ident">bits</span>());
@@ -935,9 +935,9 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="op">+</span> <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Decode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Postgres</span><span class="op">&gt;</span>,
 {
-    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="ident">value</span>: <span class="ident">PgValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">BoxDynError</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="ident">value</span>: <span class="ident">PgValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">BoxDynError</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">value</span>.<span class="ident">format</span> {
-            <span class="ident">PgValueFormat::Binary</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">PgValueFormat::Binary</span> =&gt; {
                 <span class="kw">let</span> <span class="ident">element_ty</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PgTypeKind::Range</span>(<span class="ident">element</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">value</span>.<span class="ident">type_info</span>.<span class="number">0</span>.<span class="ident">kind</span>() {
                     <span class="ident">element</span>
                 } <span class="kw">else</span> {
@@ -980,7 +980,7 @@
                 <span class="prelude-val">Ok</span>(<span class="ident">PgRange</span> { <span class="ident">start</span>, <span class="ident">end</span> })
             }
 
-            <span class="ident">PgValueFormat::Text</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">PgValueFormat::Text</span> =&gt; {
                 <span class="comment">// https://github.com/postgres/postgres/blob/2f48ede080f42b97b594fb14102c82ca1001b80c/src/backend/utils/adt/rangetypes.c#L2046</span>
 
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">start</span> <span class="op">=</span> <span class="prelude-val">None</span>;
@@ -1011,40 +1011,40 @@
 
                     <span class="kw">loop</span> {
                         <span class="kw">match</span> <span class="ident">chars</span>.<span class="ident">next</span>() {
-                            <span class="prelude-val">Some</span>(<span class="ident">ch</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="prelude-val">Some</span>(<span class="ident">ch</span>) =&gt; {
                                 <span class="kw">match</span> <span class="ident">ch</span> {
-                                    <span class="kw">_</span> <span class="kw">if</span> <span class="ident">in_escape</span> <span class="op">=</span><span class="op">&gt;</span> {
+                                    <span class="kw">_</span> <span class="kw">if</span> <span class="ident">in_escape</span> =&gt; {
                                         <span class="ident">element</span>.<span class="ident">push</span>(<span class="ident">ch</span>);
                                         <span class="ident">in_escape</span> <span class="op">=</span> <span class="bool-val">false</span>;
                                     }
 
-                                    <span class="string">&#39;&quot;&#39;</span> <span class="kw">if</span> <span class="ident">in_quotes</span> <span class="op">=</span><span class="op">&gt;</span> {
+                                    <span class="string">&#39;&quot;&#39;</span> <span class="kw">if</span> <span class="ident">in_quotes</span> =&gt; {
                                         <span class="ident">in_quotes</span> <span class="op">=</span> <span class="bool-val">false</span>;
                                     }
 
-                                    <span class="string">&#39;&quot;&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                                    <span class="string">&#39;&quot;&#39;</span> =&gt; {
                                         <span class="ident">in_quotes</span> <span class="op">=</span> <span class="bool-val">true</span>;
                                         <span class="ident">quoted</span> <span class="op">=</span> <span class="bool-val">true</span>;
 
-                                        <span class="kw">if</span> <span class="ident">prev_ch</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;&quot;&#39;</span> {
+                                        <span class="kw">if</span> <span class="ident">prev_ch</span> <span class="op">==</span> <span class="string">&#39;&quot;&#39;</span> {
                                             <span class="ident">element</span>.<span class="ident">push</span>(<span class="string">&#39;&quot;&#39;</span>)
                                         }
                                     }
 
-                                    <span class="string">&#39;\\&#39;</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">in_escape</span> <span class="op">=</span><span class="op">&gt;</span> {
+                                    <span class="string">&#39;\\&#39;</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">in_escape</span> =&gt; {
                                         <span class="ident">in_escape</span> <span class="op">=</span> <span class="bool-val">true</span>;
                                     }
 
-                                    <span class="string">&#39;,&#39;</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">in_quotes</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">break</span>,
+                                    <span class="string">&#39;,&#39;</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">in_quotes</span> =&gt; <span class="kw">break</span>,
 
-                                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+                                    <span class="kw">_</span> =&gt; {
                                         <span class="ident">element</span>.<span class="ident">push</span>(<span class="ident">ch</span>);
                                     }
                                 }
                                 <span class="ident">prev_ch</span> <span class="op">=</span> <span class="ident">ch</span>;
                             }
 
-                            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="prelude-val">None</span> =&gt; {
                                 <span class="ident">done</span> <span class="op">=</span> <span class="bool-val">true</span>;
                                 <span class="kw">break</span>;
                             }
@@ -1060,9 +1060,9 @@
                             <span class="ident">row</span>: <span class="prelude-val">None</span>,
                         })<span class="question-mark">?</span>);
 
-                        <span class="kw">if</span> <span class="ident">count</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
+                        <span class="kw">if</span> <span class="ident">count</span> <span class="op">==</span> <span class="number">1</span> {
                             <span class="ident">start</span> <span class="op">=</span> <span class="ident">value</span>;
-                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">count</span> <span class="op">=</span><span class="op">=</span> <span class="number">2</span> {
+                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">count</span> <span class="op">==</span> <span class="number">2</span> {
                             <span class="ident">end</span> <span class="op">=</span> <span class="ident">value</span>;
                         } <span class="kw">else</span> {
                             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="string">&quot;more than 2 elements found in a range&quot;</span>.<span class="ident">into</span>());
@@ -1079,13 +1079,13 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">parse_bound</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">ch</span>: <span class="ident">char</span>, <span class="ident">value</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bound</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">BoxDynError</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">parse_bound</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">ch</span>: <span class="ident">char</span>, <span class="ident">value</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bound</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">BoxDynError</span><span class="op">&gt;</span> {
     <span class="prelude-val">Ok</span>(<span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>) <span class="op">=</span> <span class="ident">value</span> {
         <span class="kw">match</span> <span class="ident">ch</span> {
-            <span class="string">&#39;(&#39;</span> <span class="op">|</span> <span class="string">&#39;)&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Bound::Excluded</span>(<span class="ident">value</span>),
-            <span class="string">&#39;[&#39;</span> <span class="op">|</span> <span class="string">&#39;]&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Bound::Included</span>(<span class="ident">value</span>),
+            <span class="string">&#39;(&#39;</span> <span class="op">|</span> <span class="string">&#39;)&#39;</span> =&gt; <span class="ident">Bound::Excluded</span>(<span class="ident">value</span>),
+            <span class="string">&#39;[&#39;</span> <span class="op">|</span> <span class="string">&#39;]&#39;</span> =&gt; <span class="ident">Bound::Included</span>(<span class="ident">value</span>),
 
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="kw">_</span> =&gt; {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(
                     <span class="string">&quot;expected `(`, &#39;)&#39;, &#39;[&#39;, or `]` but found `{}` for range literal&quot;</span>,
                     <span class="ident">ch</span>
@@ -1102,24 +1102,24 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Display</span>,
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">start</span> {
-            <span class="ident">Bound::Unbounded</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;(,&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">Bound::Excluded</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;({},&quot;</span>, <span class="ident">v</span>)<span class="question-mark">?</span>,
-            <span class="ident">Bound::Included</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;[{},&quot;</span>, <span class="ident">v</span>)<span class="question-mark">?</span>,
+            <span class="ident">Bound::Unbounded</span> =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;(,&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">Bound::Excluded</span>(<span class="ident">v</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;({},&quot;</span>, <span class="ident">v</span>)<span class="question-mark">?</span>,
+            <span class="ident">Bound::Included</span>(<span class="ident">v</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;[{},&quot;</span>, <span class="ident">v</span>)<span class="question-mark">?</span>,
         }
 
         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">end</span> {
-            <span class="ident">Bound::Unbounded</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;)&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">Bound::Excluded</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{})&quot;</span>, <span class="ident">v</span>)<span class="question-mark">?</span>,
-            <span class="ident">Bound::Included</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}]&quot;</span>, <span class="ident">v</span>)<span class="question-mark">?</span>,
+            <span class="ident">Bound::Unbounded</span> =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;)&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">Bound::Excluded</span>(<span class="ident">v</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{})&quot;</span>, <span class="ident">v</span>)<span class="question-mark">?</span>,
+            <span class="ident">Bound::Included</span>(<span class="ident">v</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}]&quot;</span>, <span class="ident">v</span>)<span class="question-mark">?</span>,
         }
 
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="kw">fn</span> <span class="ident">range_compatible</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+<span class="kw">fn</span> <span class="ident">range_compatible</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) -&gt; <span class="ident">bool</span> {
     <span class="comment">// we require the declared type to be a _range_ with an</span>
     <span class="comment">// element type that is acceptable</span>
     <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PgTypeKind::Range</span>(<span class="ident">element</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">ty</span>.<span class="ident">kind</span>() {

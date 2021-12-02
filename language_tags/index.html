@@ -6,7 +6,7 @@ the W3C. They are commonly used in HTML and HTTP <code>Content-Language</code> a
 header fields.</p>
 <p>This package currently supports parsing (fully conformant parser), validation, canonicalization,
 formatting and comparing language tags.</p>
-<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
+<h2 id="examples" class="section-header"><a href="#examples">Examples</a></h2>
 <p>Create a simple language tag representing the French language as spoken
 in Belgium and print it:</p>
 
@@ -35,10 +35,10 @@ in <code>de</code> the request should be rejected.</p>
 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">langtag_user</span> <span class="op">=</span> <span class="ident">LanguageTag::parse</span>(<span class="string">&quot;de&quot;</span>).<span class="ident">unwrap</span>();
 <span class="macro">assert!</span>(<span class="ident">langtag_user</span>.<span class="ident">matches</span>(<span class="kw-2">&amp;</span><span class="ident">langtag_server</span>));</code></pre></div>
 </div></details><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.LanguageTag.html" title="language_tags::LanguageTag struct">LanguageTag</a></div><div class="item-right docblock-short"><p>A language tag as described in <a href="https://tools.ietf.org/html/rfc5646">RFC 5646</a>.</p>
-</div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="enum" href="enum.ParseError.html" title="language_tags::ParseError enum">ParseError</a></div><div class="item-right docblock-short"><p>Errors returned by <code>LanguageTag</code> parsing</p>
-</div><div class="item-left module-item"><a class="enum" href="enum.ValidationError.html" title="language_tags::ValidationError enum">ValidationError</a></div><div class="item-right docblock-short"><p>Errors returned by the <code>LanguageTag</code> validation</p>
-</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="language_tags" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.LanguageTag.html" title="language_tags::LanguageTag struct">LanguageTag</a></div><div class="item-right docblock-short"><p>A language tag as described in <a href="https://tools.ietf.org/html/rfc5646">RFC 5646</a>.</p>
+</div></div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.ParseError.html" title="language_tags::ParseError enum">ParseError</a></div><div class="item-right docblock-short"><p>Errors returned by <code>LanguageTag</code> parsing</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.ValidationError.html" title="language_tags::ValidationError enum">ValidationError</a></div><div class="item-right docblock-short"><p>Errors returned by the <code>LanguageTag</code> validation</p>
+</div></div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="language_tags" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
     <script src="../main.js"></script>
 </body></html>

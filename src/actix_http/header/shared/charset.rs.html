@@ -220,39 +220,39 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Charset</span> {
-    <span class="kw">fn</span> <span class="ident">label</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+    <span class="kw">fn</span> <span class="ident">label</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">Us_Ascii</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;US-ASCII&quot;</span>,
-            <span class="ident">Iso_8859_1</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;ISO-8859-1&quot;</span>,
-            <span class="ident">Iso_8859_2</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;ISO-8859-2&quot;</span>,
-            <span class="ident">Iso_8859_3</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;ISO-8859-3&quot;</span>,
-            <span class="ident">Iso_8859_4</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;ISO-8859-4&quot;</span>,
-            <span class="ident">Iso_8859_5</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;ISO-8859-5&quot;</span>,
-            <span class="ident">Iso_8859_6</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;ISO-8859-6&quot;</span>,
-            <span class="ident">Iso_8859_7</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;ISO-8859-7&quot;</span>,
-            <span class="ident">Iso_8859_8</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;ISO-8859-8&quot;</span>,
-            <span class="ident">Iso_8859_9</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;ISO-8859-9&quot;</span>,
-            <span class="ident">Iso_8859_10</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;ISO-8859-10&quot;</span>,
-            <span class="ident">Shift_Jis</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Shift-JIS&quot;</span>,
-            <span class="ident">Euc_Jp</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;EUC-JP&quot;</span>,
-            <span class="ident">Iso_2022_Kr</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;ISO-2022-KR&quot;</span>,
-            <span class="ident">Euc_Kr</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;EUC-KR&quot;</span>,
-            <span class="ident">Iso_2022_Jp</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;ISO-2022-JP&quot;</span>,
-            <span class="ident">Iso_2022_Jp_2</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;ISO-2022-JP-2&quot;</span>,
-            <span class="ident">Iso_8859_6_E</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;ISO-8859-6-E&quot;</span>,
-            <span class="ident">Iso_8859_6_I</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;ISO-8859-6-I&quot;</span>,
-            <span class="ident">Iso_8859_8_E</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;ISO-8859-8-E&quot;</span>,
-            <span class="ident">Iso_8859_8_I</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;ISO-8859-8-I&quot;</span>,
-            <span class="ident">Gb2312</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;GB2312&quot;</span>,
-            <span class="ident">Big5</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;big5&quot;</span>,
-            <span class="ident">Koi8_R</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;KOI8-R&quot;</span>,
-            <span class="ident">Ext</span>(<span class="kw-2">ref</span> <span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">s</span>,
+            <span class="ident">Us_Ascii</span> =&gt; <span class="string">&quot;US-ASCII&quot;</span>,
+            <span class="ident">Iso_8859_1</span> =&gt; <span class="string">&quot;ISO-8859-1&quot;</span>,
+            <span class="ident">Iso_8859_2</span> =&gt; <span class="string">&quot;ISO-8859-2&quot;</span>,
+            <span class="ident">Iso_8859_3</span> =&gt; <span class="string">&quot;ISO-8859-3&quot;</span>,
+            <span class="ident">Iso_8859_4</span> =&gt; <span class="string">&quot;ISO-8859-4&quot;</span>,
+            <span class="ident">Iso_8859_5</span> =&gt; <span class="string">&quot;ISO-8859-5&quot;</span>,
+            <span class="ident">Iso_8859_6</span> =&gt; <span class="string">&quot;ISO-8859-6&quot;</span>,
+            <span class="ident">Iso_8859_7</span> =&gt; <span class="string">&quot;ISO-8859-7&quot;</span>,
+            <span class="ident">Iso_8859_8</span> =&gt; <span class="string">&quot;ISO-8859-8&quot;</span>,
+            <span class="ident">Iso_8859_9</span> =&gt; <span class="string">&quot;ISO-8859-9&quot;</span>,
+            <span class="ident">Iso_8859_10</span> =&gt; <span class="string">&quot;ISO-8859-10&quot;</span>,
+            <span class="ident">Shift_Jis</span> =&gt; <span class="string">&quot;Shift-JIS&quot;</span>,
+            <span class="ident">Euc_Jp</span> =&gt; <span class="string">&quot;EUC-JP&quot;</span>,
+            <span class="ident">Iso_2022_Kr</span> =&gt; <span class="string">&quot;ISO-2022-KR&quot;</span>,
+            <span class="ident">Euc_Kr</span> =&gt; <span class="string">&quot;EUC-KR&quot;</span>,
+            <span class="ident">Iso_2022_Jp</span> =&gt; <span class="string">&quot;ISO-2022-JP&quot;</span>,
+            <span class="ident">Iso_2022_Jp_2</span> =&gt; <span class="string">&quot;ISO-2022-JP-2&quot;</span>,
+            <span class="ident">Iso_8859_6_E</span> =&gt; <span class="string">&quot;ISO-8859-6-E&quot;</span>,
+            <span class="ident">Iso_8859_6_I</span> =&gt; <span class="string">&quot;ISO-8859-6-I&quot;</span>,
+            <span class="ident">Iso_8859_8_E</span> =&gt; <span class="string">&quot;ISO-8859-8-E&quot;</span>,
+            <span class="ident">Iso_8859_8_I</span> =&gt; <span class="string">&quot;ISO-8859-8-I&quot;</span>,
+            <span class="ident">Gb2312</span> =&gt; <span class="string">&quot;GB2312&quot;</span>,
+            <span class="ident">Big5</span> =&gt; <span class="string">&quot;big5&quot;</span>,
+            <span class="ident">Koi8_R</span> =&gt; <span class="string">&quot;KOI8-R&quot;</span>,
+            <span class="ident">Ext</span>(<span class="kw-2">ref</span> <span class="ident">s</span>) =&gt; <span class="ident">s</span>,
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Charset</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="self">self</span>.<span class="ident">label</span>())
     }
 }
@@ -260,33 +260,33 @@
 <span class="kw">impl</span> <span class="ident">FromStr</span> <span class="kw">for</span> <span class="ident">Charset</span> {
     <span class="kw">type</span> <span class="prelude-val">Err</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::Error</span>;
 
-    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Charset</span>, <span class="ident"><span class="kw">crate</span>::Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Charset</span>, <span class="ident"><span class="kw">crate</span>::Error</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="kw">match</span> <span class="ident">s</span>.<span class="ident">to_ascii_uppercase</span>().<span class="ident">as_ref</span>() {
-            <span class="string">&quot;US-ASCII&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Us_Ascii</span>,
-            <span class="string">&quot;ISO-8859-1&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Iso_8859_1</span>,
-            <span class="string">&quot;ISO-8859-2&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Iso_8859_2</span>,
-            <span class="string">&quot;ISO-8859-3&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Iso_8859_3</span>,
-            <span class="string">&quot;ISO-8859-4&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Iso_8859_4</span>,
-            <span class="string">&quot;ISO-8859-5&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Iso_8859_5</span>,
-            <span class="string">&quot;ISO-8859-6&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Iso_8859_6</span>,
-            <span class="string">&quot;ISO-8859-7&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Iso_8859_7</span>,
-            <span class="string">&quot;ISO-8859-8&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Iso_8859_8</span>,
-            <span class="string">&quot;ISO-8859-9&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Iso_8859_9</span>,
-            <span class="string">&quot;ISO-8859-10&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Iso_8859_10</span>,
-            <span class="string">&quot;SHIFT-JIS&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Shift_Jis</span>,
-            <span class="string">&quot;EUC-JP&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Euc_Jp</span>,
-            <span class="string">&quot;ISO-2022-KR&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Iso_2022_Kr</span>,
-            <span class="string">&quot;EUC-KR&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Euc_Kr</span>,
-            <span class="string">&quot;ISO-2022-JP&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Iso_2022_Jp</span>,
-            <span class="string">&quot;ISO-2022-JP-2&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Iso_2022_Jp_2</span>,
-            <span class="string">&quot;ISO-8859-6-E&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Iso_8859_6_E</span>,
-            <span class="string">&quot;ISO-8859-6-I&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Iso_8859_6_I</span>,
-            <span class="string">&quot;ISO-8859-8-E&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Iso_8859_8_E</span>,
-            <span class="string">&quot;ISO-8859-8-I&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Iso_8859_8_I</span>,
-            <span class="string">&quot;GB2312&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Gb2312</span>,
-            <span class="string">&quot;big5&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Big5</span>,
-            <span class="string">&quot;KOI8-R&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Koi8_R</span>,
-            <span class="ident">s</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Ext</span>(<span class="ident">s</span>.<span class="ident">to_owned</span>()),
+            <span class="string">&quot;US-ASCII&quot;</span> =&gt; <span class="ident">Us_Ascii</span>,
+            <span class="string">&quot;ISO-8859-1&quot;</span> =&gt; <span class="ident">Iso_8859_1</span>,
+            <span class="string">&quot;ISO-8859-2&quot;</span> =&gt; <span class="ident">Iso_8859_2</span>,
+            <span class="string">&quot;ISO-8859-3&quot;</span> =&gt; <span class="ident">Iso_8859_3</span>,
+            <span class="string">&quot;ISO-8859-4&quot;</span> =&gt; <span class="ident">Iso_8859_4</span>,
+            <span class="string">&quot;ISO-8859-5&quot;</span> =&gt; <span class="ident">Iso_8859_5</span>,
+            <span class="string">&quot;ISO-8859-6&quot;</span> =&gt; <span class="ident">Iso_8859_6</span>,
+            <span class="string">&quot;ISO-8859-7&quot;</span> =&gt; <span class="ident">Iso_8859_7</span>,
+            <span class="string">&quot;ISO-8859-8&quot;</span> =&gt; <span class="ident">Iso_8859_8</span>,
+            <span class="string">&quot;ISO-8859-9&quot;</span> =&gt; <span class="ident">Iso_8859_9</span>,
+            <span class="string">&quot;ISO-8859-10&quot;</span> =&gt; <span class="ident">Iso_8859_10</span>,
+            <span class="string">&quot;SHIFT-JIS&quot;</span> =&gt; <span class="ident">Shift_Jis</span>,
+            <span class="string">&quot;EUC-JP&quot;</span> =&gt; <span class="ident">Euc_Jp</span>,
+            <span class="string">&quot;ISO-2022-KR&quot;</span> =&gt; <span class="ident">Iso_2022_Kr</span>,
+            <span class="string">&quot;EUC-KR&quot;</span> =&gt; <span class="ident">Euc_Kr</span>,
+            <span class="string">&quot;ISO-2022-JP&quot;</span> =&gt; <span class="ident">Iso_2022_Jp</span>,
+            <span class="string">&quot;ISO-2022-JP-2&quot;</span> =&gt; <span class="ident">Iso_2022_Jp_2</span>,
+            <span class="string">&quot;ISO-8859-6-E&quot;</span> =&gt; <span class="ident">Iso_8859_6_E</span>,
+            <span class="string">&quot;ISO-8859-6-I&quot;</span> =&gt; <span class="ident">Iso_8859_6_I</span>,
+            <span class="string">&quot;ISO-8859-8-E&quot;</span> =&gt; <span class="ident">Iso_8859_8_E</span>,
+            <span class="string">&quot;ISO-8859-8-I&quot;</span> =&gt; <span class="ident">Iso_8859_8_I</span>,
+            <span class="string">&quot;GB2312&quot;</span> =&gt; <span class="ident">Gb2312</span>,
+            <span class="string">&quot;big5&quot;</span> =&gt; <span class="ident">Big5</span>,
+            <span class="string">&quot;KOI8-R&quot;</span> =&gt; <span class="ident">Koi8_R</span>,
+            <span class="ident">s</span> =&gt; <span class="ident">Ext</span>(<span class="ident">s</span>.<span class="ident">to_owned</span>()),
         })
     }
 }

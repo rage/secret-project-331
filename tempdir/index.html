@@ -3,7 +3,7 @@
 is deleted once it goes out of scope. At construction, the
 <code>TempDir</code> creates a new directory with a randomly generated name
 and a prefix of your choosing.</p>
-<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
+<h2 id="examples" class="section-header"><a href="#examples">Examples</a></h2>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">tempdir</span>;
 
 <span class="kw">use</span> <span class="ident">std::fs::File</span>;
@@ -16,7 +16,7 @@ and a prefix of your choosing.</p>
     }
 }
 
-<span class="kw">fn</span> <span class="ident">run</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">io::Error</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">run</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">io::Error</span><span class="op">&gt;</span> {
     <span class="comment">// Create a directory inside of `std::env::temp_dir()`, named with</span>
     <span class="comment">// the prefix &quot;example&quot;.</span>
     <span class="kw">let</span> <span class="ident">tmp_dir</span> <span class="op">=</span> <span class="ident">TempDir::new</span>(<span class="string">&quot;example&quot;</span>)<span class="question-mark">?</span>;
@@ -34,8 +34,8 @@ and a prefix of your choosing.</p>
     <span class="prelude-val">Ok</span>(())
 }</code></pre></div>
 </div></details><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.TempDir.html" title="tempdir::TempDir struct">TempDir</a></div><div class="item-right docblock-short"><p>A directory in the filesystem that is automatically deleted when
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.TempDir.html" title="tempdir::TempDir struct">TempDir</a></div><div class="item-right docblock-short"><p>A directory in the filesystem that is automatically deleted when
 it goes out of scope.</p>
-</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="tempdir" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+</div></div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="tempdir" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
     <script src="../main.js"></script>
 </body></html>

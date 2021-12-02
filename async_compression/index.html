@@ -1,29 +1,29 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Adaptors between compression crates and Rust’s modern asynchronous IO types."><meta name="keywords" content="rust, rustlang, rust-lang, async_compression"><title>async_compression - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../favicon.svg"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../async_compression/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><h2 class="location">Crate async_compression</h2><div class="block version"><div class="narrow-helper"></div><p>Version 0.3.8</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all async_compression's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#enums">Enums</a></li></ul></div><div id="sidebar-vars" data-name="async_compression" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">async_compression</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/async_compression/lib.rs.html#1-260" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Adaptors between compression crates and Rust’s modern asynchronous IO types.</p>
-<h1 id="feature-organization" class="section-header"><a href="#feature-organization">Feature Organization</a></h1>
+<h2 id="feature-organization" class="section-header"><a href="#feature-organization">Feature Organization</a></h2>
 <p>This crate is divided up along two axes, which can each be individually selected via Cargo
 features.</p>
 <p>All features are disabled by default, you should enable just the ones you need from the lists
 below.</p>
 <p>If you want to pull in everything there are three group features defined:</p>
-<table><thead><tr><th>Feature</th><th>Does</th></tr></thead><tbody>
+<div><table><thead><tr><th>Feature</th><th>Does</th></tr></thead><tbody>
 <tr><td><code>all</code></td><td>Activates all implementations and algorithms.</td></tr>
 <tr><td><code>all-implementations</code></td><td>Activates all implementations, needs to be paired with a selection of algorithms</td></tr>
 <tr><td><code>all-algorithms</code></td><td>Activates all algorithms, needs to be paired with a selection of implementations</td></tr>
 </tbody></table>
-<h2 id="io-implementation" class="section-header"><a href="#io-implementation">IO implementation</a></h2>
+</div><h3 id="io-implementation" class="section-header"><a href="#io-implementation">IO implementation</a></h3>
 <p>The first division is which underlying asynchronous IO trait will be wrapped, these are
 available as separate features that have corresponding top-level modules:</p>
-<table><thead><tr><th>Feature</th><th>Type</th></tr></thead><tbody>
+<div><table><thead><tr><th>Feature</th><th>Type</th></tr></thead><tbody>
 <tr><td><code>futures-io</code> (<em>inactive</em>)</td><td><code>futures::io::AsyncBufRead</code>, <code>futures::io::AsyncWrite</code></td></tr>
 <tr><td><code>stream</code> (<em>inactive</em>)</td><td>(<em>deprecated</em>, see <code>async-compression::stream</code> docs for migration)</td></tr>
 <tr><td><code>tokio-02</code> (<em>inactive</em>)</td><td><code>tokio::io::AsyncBufRead</code>, <code>tokio::io::AsyncWrite</code></td></tr>
 <tr><td><code>tokio-03</code> (<em>inactive</em>)</td><td><code>tokio::io::AsyncBufRead</code>, <code>tokio::io::AsyncWrite</code></td></tr>
 <tr><td><a href="tokio/index.html"><code>tokio</code></a></td><td><a href="../tokio/io/async_buf_read/trait.AsyncBufRead.html"><code>tokio::io::AsyncBufRead</code></a>, <a href="../tokio/io/async_write/trait.AsyncWrite.html"><code>tokio::io::AsyncWrite</code></a></td></tr>
 </tbody></table>
-<h2 id="compression-algorithm" class="section-header"><a href="#compression-algorithm">Compression algorithm</a></h2>
+</div><h3 id="compression-algorithm" class="section-header"><a href="#compression-algorithm">Compression algorithm</a></h3>
 <p>The second division is which compression schemes to support, there are currently a few
 available choices, these determine which types will be available inside the above modules:</p>
-<table><thead><tr><th>Feature</th><th>Types</th></tr></thead><tbody>
+<div><table><thead><tr><th>Feature</th><th>Types</th></tr></thead><tbody>
 <tr><td><code>brotli</code></td><td><a href="?search=BrotliEncoder"><code>BrotliEncoder</code></a>, <a href="?search=BrotliDecoder"><code>BrotliDecoder</code></a></td></tr>
 <tr><td><code>bzip2</code> (<em>inactive</em>)</td><td><code>BzEncoder</code>, <code>BzDecoder</code></td></tr>
 <tr><td><code>deflate</code> (<em>inactive</em>)</td><td><code>DeflateEncoder</code>, <code>DeflateDecoder</code></td></tr>
@@ -33,10 +33,10 @@ available choices, these determine which types will be available inside the abov
 <tr><td><code>zlib</code> (<em>inactive</em>)</td><td><code>ZlibEncoder</code>, <code>ZlibDecoder</code></td></tr>
 <tr><td><code>zstd</code> (<em>inactive</em>)</td><td><code>ZstdEncoder</code>, <code>ZstdDecoder</code></td></tr>
 </tbody></table>
-</div></details><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="mod" href="tokio/index.html" title="async_compression::tokio mod">tokio</a></div><div class="item-right docblock-short"><p>Implementations for IO traits exported by <a href="../tokio/index.html"><code>tokio</code> v1.0</a>.</p>
-</div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="enum" href="enum.Level.html" title="async_compression::Level enum">Level</a></div><div class="item-right docblock-short"><p>Level of compression data should be compressed with.</p>
-</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="async_compression" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+</div></div></details><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="mod" href="tokio/index.html" title="async_compression::tokio mod">tokio</a></div><div class="item-right docblock-short"><p>Implementations for IO traits exported by <a href="../tokio/index.html"><code>tokio</code> v1.0</a>.</p>
+</div></div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.Level.html" title="async_compression::Level enum">Level</a></div><div class="item-right docblock-short"><p>Level of compression data should be compressed with.</p>
+</div></div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="async_compression" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
     <script src="../main.js"></script>
 </body></html>

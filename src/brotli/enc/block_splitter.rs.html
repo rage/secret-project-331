@@ -1092,7 +1092,7 @@
         <span class="comment">//println_stderr!(&quot;{:} ss {:} c {:?}&quot;, (index &lt;&lt; 3) + 7, switch_signal[ix + index],*cost_it);</span>
     }
 }
-<span class="kw">fn</span> <span class="ident">CountLiterals</span>(<span class="ident">cmds</span>: <span class="kw-2">&amp;</span>[<span class="ident">Command</span>], <span class="ident">num_commands</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+<span class="kw">fn</span> <span class="ident">CountLiterals</span>(<span class="ident">cmds</span>: <span class="kw-2">&amp;</span>[<span class="ident">Command</span>], <span class="ident">num_commands</span>: <span class="ident">usize</span>) -&gt; <span class="ident">usize</span> {
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_length</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0usize</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span>: <span class="ident">usize</span>;
   <span class="ident">i</span> <span class="op">=</span> <span class="number">0usize</span>;
@@ -1105,7 +1105,7 @@
   <span class="ident">total_length</span>
 }
 
-<span class="kw">fn</span> <span class="ident">CommandCopyLen</span>(<span class="ident">xself</span>: <span class="kw-2">&amp;</span><span class="ident">Command</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+<span class="kw">fn</span> <span class="ident">CommandCopyLen</span>(<span class="ident">xself</span>: <span class="kw-2">&amp;</span><span class="ident">Command</span>) -&gt; <span class="ident">u32</span> {
   (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">copy_len_</span> <span class="op">&amp;</span> <span class="number">0xffffffu32</span>
 }
 
@@ -1150,9 +1150,9 @@
   }
 }
 
-<span class="kw">fn</span> <span class="ident">MyRand</span>(<span class="ident">seed</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+<span class="kw">fn</span> <span class="ident">MyRand</span>(<span class="ident">seed</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">u32</span>) -&gt; <span class="ident">u32</span> {
   <span class="kw-2">*</span><span class="ident">seed</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">seed</span>).<span class="ident">wrapping_mul</span>(<span class="number">16807u32</span>);
-  <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">seed</span> <span class="op">=</span><span class="op">=</span> <span class="number">0u32</span> {
+  <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">seed</span> <span class="op">==</span> <span class="number">0u32</span> {
     <span class="kw-2">*</span><span class="ident">seed</span> <span class="op">=</span> <span class="number">1u32</span>;
   }
   <span class="kw-2">*</span><span class="ident">seed</span>
@@ -1237,8 +1237,8 @@
   }
 }
 
-<span class="kw">fn</span> <span class="ident">BitCost</span>(<span class="ident">count</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">super</span>::util::floatX</span> {
-  <span class="kw">if</span> <span class="ident">count</span> <span class="op">=</span><span class="op">=</span> <span class="number">0usize</span> {
+<span class="kw">fn</span> <span class="ident">BitCost</span>(<span class="ident">count</span>: <span class="ident">usize</span>) -&gt; <span class="ident"><span class="kw">super</span>::util::floatX</span> {
+  <span class="kw">if</span> <span class="ident">count</span> <span class="op">==</span> <span class="number">0usize</span> {
     <span class="op">-</span><span class="number">2.0</span> <span class="kw">as</span> <span class="ident"><span class="kw">super</span>::util::floatX</span>
   } <span class="kw">else</span> {
     <span class="ident">FastLog2</span>(<span class="ident">count</span> <span class="kw">as</span> <span class="ident">u64</span>)
@@ -1256,10 +1256,10 @@
    <span class="ident">cost</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">Mem256f</span>],
    <span class="ident">switch_signal</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>],
    <span class="ident">block_id</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>])
-   <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>
+   -&gt; <span class="ident">usize</span>
   <span class="kw">where</span> <span class="ident">u64</span>: <span class="ident">core::convert::From</span><span class="op">&lt;</span><span class="ident">IntegerType</span><span class="op">&gt;</span>
 {
-  <span class="kw">if</span> <span class="ident">num_histograms</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+  <span class="kw">if</span> <span class="ident">num_histograms</span> <span class="op">==</span> <span class="number">0</span> {
     <span class="kw">return</span> <span class="number">0</span>;
   }
   <span class="kw">let</span> <span class="ident">data_size</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">histograms</span>[<span class="number">0usize</span>].<span class="ident">slice</span>().<span class="ident">len</span>();
@@ -1386,7 +1386,7 @@
                  <span class="ident">length</span>: <span class="ident">usize</span>,
                  <span class="ident">new_id</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u16</span>],
                  <span class="ident">num_histograms</span>: <span class="ident">usize</span>)
-                 <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+                 -&gt; <span class="ident">usize</span> {
   <span class="kw">static</span> <span class="ident">kInvalidId</span>: <span class="ident">u16</span> <span class="op">=</span> <span class="number">256i32</span> <span class="kw">as</span> (<span class="ident">u16</span>);
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">next_id</span>: <span class="ident">u16</span> <span class="op">=</span> <span class="number">0i32</span> <span class="kw">as</span> (<span class="ident">u16</span>);
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span>: <span class="ident">usize</span>;
@@ -1401,7 +1401,7 @@
   <span class="kw">while</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="ident">length</span> {
     {
       <span class="number">0i32</span>;
-      <span class="kw">if</span> <span class="ident">new_id</span>[(<span class="ident">block_ids</span>[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">kInvalidId</span> <span class="kw">as</span> (<span class="ident">i32</span>) {
+      <span class="kw">if</span> <span class="ident">new_id</span>[(<span class="ident">block_ids</span>[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">==</span> <span class="ident">kInvalidId</span> <span class="kw">as</span> (<span class="ident">i32</span>) {
         <span class="ident">new_id</span>[(<span class="ident">block_ids</span>[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="op">=</span> {
           <span class="kw">let</span> <span class="ident">_old</span> <span class="op">=</span> <span class="ident">next_id</span>;
           <span class="ident">next_id</span> <span class="op">=</span> (<span class="ident">next_id</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">+</span> <span class="number">1</span>) <span class="kw">as</span> (<span class="ident">u16</span>);
@@ -1493,7 +1493,7 @@
           <span class="kw">let</span> <span class="ident">_lhs</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">block_lengths</span>.<span class="ident">slice_mut</span>()[(<span class="ident">block_idx</span> <span class="kw">as</span> (<span class="ident">usize</span>))];
           <span class="kw-2">*</span><span class="ident">_lhs</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">_lhs</span>).<span class="ident">wrapping_add</span>(<span class="ident">_rhs</span> <span class="kw">as</span> (<span class="ident">u32</span>));
         }
-        <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">wrapping_add</span>(<span class="number">1usize</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">length</span> <span class="op">|</span><span class="op">|</span>
+        <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">wrapping_add</span>(<span class="number">1usize</span>) <span class="op">==</span> <span class="ident">length</span> <span class="op">|</span><span class="op">|</span>
            <span class="ident">block_ids</span>[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">!</span><span class="op">=</span>
            <span class="ident">block_ids</span>[(<span class="ident">i</span>.<span class="ident">wrapping_add</span>(<span class="number">1usize</span>) <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">i32</span>) {
           <span class="ident">block_idx</span> <span class="op">=</span> <span class="ident">block_idx</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">usize</span>));
@@ -1548,7 +1548,7 @@
                                                 <span class="ident">scratch_space</span>);
       {
         <span class="kw">if</span> <span class="ident">all_histograms_capacity</span> <span class="op">&lt;</span> <span class="ident">all_histograms_size</span>.<span class="ident">wrapping_add</span>(<span class="ident">num_new_clusters</span>) {
-          <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">_new_size</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">all_histograms_capacity</span> <span class="op">=</span><span class="op">=</span> <span class="number">0usize</span> {
+          <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">_new_size</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">all_histograms_capacity</span> <span class="op">==</span> <span class="number">0usize</span> {
             <span class="ident">all_histograms_size</span>.<span class="ident">wrapping_add</span>(<span class="ident">num_new_clusters</span>)
           } <span class="kw">else</span> {
             <span class="ident">all_histograms_capacity</span>
@@ -1565,7 +1565,7 @@
       }
       {
         <span class="kw">if</span> <span class="ident">cluster_size_capacity</span> <span class="op">&lt;</span> <span class="ident">cluster_size_size</span>.<span class="ident">wrapping_add</span>(<span class="ident">num_new_clusters</span>) {
-          <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">_new_size</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">cluster_size_capacity</span> <span class="op">=</span><span class="op">=</span> <span class="number">0usize</span> {
+          <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">_new_size</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">cluster_size_capacity</span> <span class="op">==</span> <span class="number">0usize</span> {
             <span class="ident">cluster_size_size</span>.<span class="ident">wrapping_add</span>(<span class="ident">num_new_clusters</span>)
           } <span class="kw">else</span> {
             <span class="ident">cluster_size_capacity</span>
@@ -1668,7 +1668,7 @@
           }
           <span class="ident">j</span> <span class="op">=</span> <span class="ident">j</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">usize</span>));
         }
-        <span class="ident">best_out</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="number">0usize</span> {
+        <span class="ident">best_out</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">i</span> <span class="op">==</span> <span class="number">0usize</span> {
           <span class="ident">histogram_symbols</span>.<span class="ident">slice</span>()[(<span class="number">0usize</span>)]
         } <span class="kw">else</span> {
           <span class="ident">histogram_symbols</span>.<span class="ident">slice</span>()[(<span class="ident">i</span>.<span class="ident">wrapping_sub</span>(<span class="number">1usize</span>) <span class="kw">as</span> (<span class="ident">usize</span>))]
@@ -1693,7 +1693,7 @@
           <span class="ident">j</span> <span class="op">=</span> <span class="ident">j</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">usize</span>));
         }
         <span class="ident">histogram_symbols</span>.<span class="ident">slice_mut</span>()[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="op">=</span> <span class="ident">best_out</span>;
-        <span class="kw">if</span> <span class="ident">new_index</span>.<span class="ident">slice</span>()[(<span class="ident">best_out</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="op">=</span><span class="op">=</span> <span class="ident">kInvalidIndex</span> {
+        <span class="kw">if</span> <span class="ident">new_index</span>.<span class="ident">slice</span>()[(<span class="ident">best_out</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="op">==</span> <span class="ident">kInvalidIndex</span> {
           <span class="ident">new_index</span>.<span class="ident">slice_mut</span>()[(<span class="ident">best_out</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="op">=</span> {
             <span class="kw">let</span> <span class="ident">_old</span> <span class="op">=</span> <span class="ident">next_index</span>;
             <span class="ident">next_index</span> <span class="op">=</span> <span class="ident">next_index</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">u32</span>));
@@ -1708,7 +1708,7 @@
   <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HistogramType</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">all_histograms</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HistogramType</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
   {
     <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">split</span>).<span class="ident">types_alloc_size</span>() <span class="op">&lt;</span> <span class="ident">num_blocks</span> {
-      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">_new_size</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">split</span>).<span class="ident">types_alloc_size</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0usize</span> {
+      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">_new_size</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">split</span>).<span class="ident">types_alloc_size</span>() <span class="op">==</span> <span class="number">0usize</span> {
         <span class="ident">num_blocks</span>
       } <span class="kw">else</span> {
         (<span class="kw-2">*</span><span class="ident">split</span>).<span class="ident">types_alloc_size</span>()
@@ -1724,7 +1724,7 @@
   }
   {
     <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">split</span>).<span class="ident">lengths_alloc_size</span>() <span class="op">&lt;</span> <span class="ident">num_blocks</span> {
-      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">_new_size</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">split</span>).<span class="ident">lengths_alloc_size</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0usize</span> {
+      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">_new_size</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">split</span>).<span class="ident">lengths_alloc_size</span>() <span class="op">==</span> <span class="number">0usize</span> {
         <span class="ident">num_blocks</span>
       } <span class="kw">else</span> {
         (<span class="kw-2">*</span><span class="ident">split</span>).<span class="ident">lengths_alloc_size</span>()
@@ -1747,7 +1747,7 @@
     <span class="kw">while</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="ident">num_blocks</span> {
       {
         <span class="ident">cur_length</span> <span class="op">=</span> <span class="ident">cur_length</span>.<span class="ident">wrapping_add</span>(<span class="ident">block_lengths</span>.<span class="ident">slice</span>()[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))]);
-        <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">wrapping_add</span>(<span class="number">1usize</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">num_blocks</span> <span class="op">|</span><span class="op">|</span>
+        <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">wrapping_add</span>(<span class="number">1usize</span>) <span class="op">==</span> <span class="ident">num_blocks</span> <span class="op">|</span><span class="op">|</span>
            <span class="ident">histogram_symbols</span>.<span class="ident">slice</span>()[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="op">!</span><span class="op">=</span>
            <span class="ident">histogram_symbols</span>.<span class="ident">slice</span>()[(<span class="ident">i</span>.<span class="ident">wrapping_add</span>(<span class="number">1usize</span>) <span class="kw">as</span> (<span class="ident">usize</span>))] {
           <span class="kw">let</span> <span class="ident">id</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="ident">new_index</span>.<span class="ident">slice</span>()[(<span class="ident">histogram_symbols</span>.<span class="ident">slice</span>()[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span>
@@ -1786,13 +1786,13 @@
   <span class="kw">if</span> <span class="ident">num_histograms</span> <span class="op">&gt;</span> <span class="ident">max_histograms</span> {
     <span class="ident">num_histograms</span> <span class="op">=</span> <span class="ident">max_histograms</span>;
   }
-  <span class="kw">if</span> <span class="ident">length</span> <span class="op">=</span><span class="op">=</span> <span class="number">0usize</span> {
+  <span class="kw">if</span> <span class="ident">length</span> <span class="op">==</span> <span class="number">0usize</span> {
     (<span class="kw-2">*</span><span class="ident">split</span>).<span class="ident">num_types</span> <span class="op">=</span> <span class="number">1usize</span>;
     <span class="kw">return</span>;
   } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">length</span> <span class="op">&lt;</span> <span class="ident">kMinLengthForBlockSplitting</span> {
     {
       <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">split</span>).<span class="ident">types_alloc_size</span>() <span class="op">&lt;</span> (<span class="kw-2">*</span><span class="ident">split</span>).<span class="ident">num_blocks</span>.<span class="ident">wrapping_add</span>(<span class="number">1usize</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">_new_size</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">split</span>).<span class="ident">types_alloc_size</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0usize</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">_new_size</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">split</span>).<span class="ident">types_alloc_size</span>() <span class="op">==</span> <span class="number">0usize</span> {
           (<span class="kw-2">*</span><span class="ident">split</span>).<span class="ident">num_blocks</span>.<span class="ident">wrapping_add</span>(<span class="number">1usize</span>)
         } <span class="kw">else</span> {
           (<span class="kw-2">*</span><span class="ident">split</span>).<span class="ident">types_alloc_size</span>()
@@ -1809,7 +1809,7 @@
     }
     {
       <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">split</span>).<span class="ident">lengths_alloc_size</span>() <span class="op">&lt;</span> (<span class="kw-2">*</span><span class="ident">split</span>).<span class="ident">num_blocks</span>.<span class="ident">wrapping_add</span>(<span class="number">1usize</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">_new_size</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">split</span>).<span class="ident">lengths_alloc_size</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0usize</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">_new_size</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">split</span>).<span class="ident">lengths_alloc_size</span>() <span class="op">==</span> <span class="number">0usize</span> {
           (<span class="kw-2">*</span><span class="ident">split</span>).<span class="ident">num_blocks</span>.<span class="ident">wrapping_add</span>(<span class="number">1usize</span>)
         } <span class="kw">else</span> {
           (<span class="kw-2">*</span><span class="ident">split</span>).<span class="ident">lengths_alloc_size</span>()

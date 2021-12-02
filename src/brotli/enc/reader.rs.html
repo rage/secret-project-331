@@ -303,7 +303,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">r</span>: <span class="ident">R</span>, <span class="ident">buffer</span> : <span class="ident">BufferType</span>,
                <span class="ident">alloc</span>: <span class="ident">Alloc</span>,
                <span class="ident">q</span>: <span class="ident">u32</span>,
-               <span class="ident">lgwin</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+               <span class="ident">lgwin</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">CompressorReaderCustomAlloc</span>::<span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">BufferType</span>, <span class="ident">Alloc</span><span class="op">&gt;</span>(
           <span class="ident">CompressorReaderCustomIo</span>::<span class="op">&lt;</span><span class="ident">Error</span>,
                                  <span class="ident">IntoIoReader</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>,
@@ -317,10 +317,10 @@
               <span class="ident">q</span>, <span class="ident">lgwin</span>))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">R</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">R</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.<span class="ident">get_ref</span>().<span class="number">0</span>
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_inner</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_inner</span>(<span class="self">self</span>) -&gt; <span class="ident">R</span> {
         <span class="self">self</span>.<span class="number">0</span>.<span class="ident">into_inner</span>().<span class="number">0</span>
     }
 }
@@ -331,7 +331,7 @@
      <span class="ident">Alloc</span>: <span class="ident">BrotliAlloc</span><span class="op">&gt;</span>
     <span class="ident">Read</span> <span class="kw">for</span> <span class="ident">CompressorReaderCustomAlloc</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">BufferType</span>,
                                          <span class="ident">Alloc</span><span class="op">&gt;</span> {
-  	<span class="kw">fn</span> <span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+  	<span class="kw">fn</span> <span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">read</span>(<span class="ident">buf</span>)
     }
 }
@@ -344,10 +344,10 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Read</span><span class="op">&gt;</span> <span class="ident">CompressorReader</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> {
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">r</span>: <span class="ident">R</span>, <span class="ident">buffer_size</span>: <span class="ident">usize</span>, <span class="ident">q</span>: <span class="ident">u32</span>, <span class="ident">lgwin</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">r</span>: <span class="ident">R</span>, <span class="ident">buffer_size</span>: <span class="ident">usize</span>, <span class="ident">q</span>: <span class="ident">u32</span>, <span class="ident">lgwin</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">alloc</span> <span class="op">=</span> <span class="ident">StandardAlloc::default</span>();
     <span class="kw">let</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">StandardAlloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::alloc_cell</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">alloc</span>,
-                                                              <span class="kw">if</span> <span class="ident">buffer_size</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> { <span class="number">4096</span>} <span class="kw">else</span> {<span class="ident">buffer_size</span>});
+                                                              <span class="kw">if</span> <span class="ident">buffer_size</span> <span class="op">==</span> <span class="number">0</span> { <span class="number">4096</span>} <span class="kw">else</span> {<span class="ident">buffer_size</span>});
     <span class="ident">CompressorReader</span>::<span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">CompressorReaderCustomAlloc::new</span>(<span class="ident">r</span>,
                                                            <span class="ident">buffer</span>,
                                                            <span class="ident">alloc</span>,
@@ -355,16 +355,16 @@
                                                            <span class="ident">lgwin</span>))
   }
 
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_params</span>(<span class="ident">r</span>: <span class="ident">R</span>, <span class="ident">buffer_size</span>: <span class="ident">usize</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">BrotliEncoderParams</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_params</span>(<span class="ident">r</span>: <span class="ident">R</span>, <span class="ident">buffer_size</span>: <span class="ident">usize</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">BrotliEncoderParams</span>) -&gt; <span class="self">Self</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">r</span>, <span class="ident">buffer_size</span>, <span class="ident">params</span>.<span class="ident">quality</span> <span class="kw">as</span> <span class="ident">u32</span>, <span class="ident">params</span>.<span class="ident">lgwin</span> <span class="kw">as</span> <span class="ident">u32</span>);
     (<span class="ident">reader</span>.<span class="number">0</span>).<span class="number">0</span>.<span class="ident">state</span>.<span class="number">0</span>.<span class="ident">params</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">clone</span>();
     <span class="ident">reader</span>
   }
 
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">R</span> {
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">R</span> {
       <span class="self">self</span>.<span class="number">0</span>.<span class="ident">get_ref</span>()
   }
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_inner</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span> {
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_inner</span>(<span class="self">self</span>) -&gt; <span class="ident">R</span> {
     <span class="self">self</span>.<span class="number">0</span>.<span class="ident">into_inner</span>()
   }
 }
@@ -373,7 +373,7 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Read</span><span class="op">&gt;</span> <span class="ident">Read</span> <span class="kw">for</span> <span class="ident">CompressorReader</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="self">self</span>.<span class="number">0</span>.<span class="ident">read</span>(<span class="ident">buf</span>)
   }
 }
@@ -411,7 +411,7 @@
                               <span class="ident">alloc</span> : <span class="ident">Alloc</span>,
                <span class="ident">invalid_data_error_type</span> : <span class="ident">ErrType</span>,
                <span class="ident">q</span>: <span class="ident">u32</span>,
-               <span class="ident">lgwin</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+               <span class="ident">lgwin</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">CompressorReaderCustomIo</span>{
             <span class="ident">input_buffer</span> : <span class="ident">buffer</span>,
             <span class="ident">total_out</span> : <span class="prelude-val">Some</span>(<span class="number">0</span>),
@@ -433,7 +433,7 @@
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">copy_to_front</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
         <span class="kw">let</span> <span class="ident">avail_in</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">input_len</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">input_offset</span>;
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">input_offset</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">input_buffer</span>.<span class="ident">slice_mut</span>().<span class="ident">len</span>() {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">input_offset</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">input_buffer</span>.<span class="ident">slice_mut</span>().<span class="ident">len</span>() {
             <span class="self">self</span>.<span class="ident">input_offset</span> <span class="op">=</span> <span class="number">0</span>;
             <span class="self">self</span>.<span class="ident">input_len</span> <span class="op">=</span> <span class="number">0</span>;
         } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">input_offset</span> <span class="op">+</span> <span class="number">256</span> <span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">input_buffer</span>.<span class="ident">slice_mut</span>().<span class="ident">len</span>() <span class="op">&amp;&amp;</span> <span class="ident">avail_in</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">input_offset</span> {
@@ -443,7 +443,7 @@
             <span class="self">self</span>.<span class="ident">input_offset</span> <span class="op">=</span> <span class="number">0</span>;
         }
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_inner</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span>{
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_inner</span>(<span class="self">self</span>) -&gt; <span class="ident">R</span>{
       <span class="kw">match</span> <span class="self">self</span> {
         <span class="ident">CompressorReaderCustomIo</span> {
           <span class="ident">input_buffer</span>:<span class="ident">_ib</span>,
@@ -454,12 +454,12 @@
           <span class="ident">input_eof</span>:<span class="ident">_ieof</span>,
           <span class="ident">error_if_invalid_data</span>: <span class="ident">_eiid</span>,
           <span class="ident">state</span>: <span class="ident">_state</span>,
-        } <span class="op">=</span><span class="op">&gt;</span> {
+        } =&gt; {
           <span class="ident">input</span>
         }
       }
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">R</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">R</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">input</span>
     }
 }
@@ -468,18 +468,18 @@
      <span class="ident">BufferType</span> : <span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
      <span class="ident">Alloc</span>: <span class="ident">BrotliAlloc</span><span class="op">&gt;</span> <span class="ident">CustomRead</span><span class="op">&lt;</span><span class="ident">ErrType</span><span class="op">&gt;</span> <span class="kw">for</span>
 <span class="ident">CompressorReaderCustomIo</span><span class="op">&lt;</span><span class="ident">ErrType</span>, <span class="ident">R</span>, <span class="ident">BufferType</span>, <span class="ident">Alloc</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">ErrType</span> <span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">ErrType</span> <span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nop_callback</span> <span class="op">=</span> <span class="op">|</span><span class="ident">_data</span>:<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">interface::PredictionModeContextMap</span><span class="op">&lt;</span><span class="ident">interface::InputReferenceMut</span><span class="op">&gt;</span>,
                               <span class="ident">_cmds</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">interface::StaticCommand</span>],
                               <span class="ident">_mb</span>: <span class="ident">interface::InputPair</span>, <span class="ident">_mfv</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Alloc</span><span class="op">|</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output_offset</span> : <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">avail_out</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">len</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">avail_in</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">input_len</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">input_offset</span>;
-        <span class="kw">while</span> <span class="ident">output_offset</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+        <span class="kw">while</span> <span class="ident">output_offset</span> <span class="op">==</span> <span class="number">0</span> {
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">input_len</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">input_buffer</span>.<span class="ident">slice_mut</span>().<span class="ident">len</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">input_eof</span> {
                 <span class="kw">match</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">input_buffer</span>.<span class="ident">slice_mut</span>()[<span class="self">self</span>.<span class="ident">input_len</span>..]) {
-                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
-                    <span class="prelude-val">Ok</span>(<span class="ident">size</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">if</span> <span class="ident">size</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+                    <span class="prelude-val">Ok</span>(<span class="ident">size</span>) =&gt; <span class="kw">if</span> <span class="ident">size</span> <span class="op">==</span> <span class="number">0</span> {
                         <span class="self">self</span>.<span class="ident">input_eof</span> <span class="op">=</span> <span class="bool-val">true</span>;
                     }<span class="kw">else</span> {
                         <span class="self">self</span>.<span class="ident">input_len</span> <span class="op">+</span><span class="op">=</span> <span class="ident">size</span>;
@@ -488,7 +488,7 @@
                 }
             }
             <span class="kw">let</span> <span class="ident">op</span> : <span class="ident">BrotliEncoderOperation</span>;
-            <span class="kw">if</span> <span class="ident">avail_in</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+            <span class="kw">if</span> <span class="ident">avail_in</span> <span class="op">==</span> <span class="number">0</span> {
                 <span class="ident">op</span> <span class="op">=</span> <span class="ident">BrotliEncoderOperation::BROTLI_OPERATION_FINISH</span>;
             } <span class="kw">else</span> {
                 <span class="ident">op</span> <span class="op">=</span> <span class="ident">BrotliEncoderOperation::BROTLI_OPERATION_PROCESS</span>;
@@ -504,7 +504,7 @@
                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">output_offset</span>,
                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">total_out</span>,
                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">nop_callback</span>);
-            <span class="kw">if</span> <span class="ident">avail_in</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+            <span class="kw">if</span> <span class="ident">avail_in</span> <span class="op">==</span> <span class="number">0</span> {
                 <span class="self">self</span>.<span class="ident">copy_to_front</span>();
             }
             <span class="kw">if</span> <span class="ident">ret</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">0</span> {

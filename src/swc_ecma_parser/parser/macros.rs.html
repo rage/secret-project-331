@@ -334,7 +334,7 @@
 <span id="334">334</span>
 <span id="335">335</span>
 </pre><pre class="rust"><code><span class="macro">macro_rules!</span> <span class="ident">unexpected</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">expected</span>:<span class="ident">literal</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">expected</span>:<span class="ident">literal</span>) =&gt; {{
         <span class="kw">let</span> <span class="ident">got</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>.<span class="ident">input</span>.<span class="ident">dump_cur</span>();
         <span class="macro">syntax_error!</span>(
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>,
@@ -351,86 +351,86 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// Returns bool.</span>
 <span class="macro">macro_rules!</span> <span class="ident">is</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="ident">BindingIdent</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="ident">BindingIdent</span>) =&gt; {{
         <span class="kw">let</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>.<span class="ident">ctx</span>();
         <span class="kw">match</span> <span class="macro">cur!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>, <span class="bool-val">false</span>) {
-            <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span><span class="ident">Word</span>(<span class="kw-2">ref</span> <span class="ident">w</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="op">!</span><span class="ident">ctx</span>.<span class="ident">is_reserved_word</span>(<span class="kw-2">&amp;</span><span class="ident">w</span>.<span class="ident">cow</span>()),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span><span class="ident">Word</span>(<span class="kw-2">ref</span> <span class="ident">w</span>)) =&gt; <span class="op">!</span><span class="ident">ctx</span>.<span class="ident">is_reserved_word</span>(<span class="kw-2">&amp;</span><span class="ident">w</span>.<span class="ident">cow</span>()),
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }};
 
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="ident">IdentRef</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="ident">IdentRef</span>) =&gt; {{
         <span class="kw">let</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>.<span class="ident">ctx</span>();
         <span class="kw">match</span> <span class="macro">cur!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>, <span class="bool-val">false</span>) {
-            <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span><span class="ident">Word</span>(<span class="kw-2">ref</span> <span class="ident">w</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="op">!</span><span class="ident">ctx</span>.<span class="ident">is_reserved_word</span>(<span class="kw-2">&amp;</span><span class="ident">w</span>.<span class="ident">cow</span>()),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span><span class="ident">Word</span>(<span class="kw-2">ref</span> <span class="ident">w</span>)) =&gt; <span class="op">!</span><span class="ident">ctx</span>.<span class="ident">is_reserved_word</span>(<span class="kw-2">&amp;</span><span class="ident">w</span>.<span class="ident">cow</span>()),
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }};
 
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>,<span class="ident">IdentName</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>,<span class="ident">IdentName</span>) =&gt; {{
         <span class="kw">match</span> <span class="macro">cur!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>, <span class="bool-val">false</span>) {
-            <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span><span class="ident">Word</span>(..)) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span><span class="ident">Word</span>(..)) =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }};
 
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>,<span class="string">&#39;;&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>,<span class="string">&#39;;&#39;</span>) =&gt; {{
         <span class="kw">match</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>.<span class="ident">input</span>.<span class="ident">cur</span>() {
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Semi</span>) <span class="op">|</span> <span class="prelude-val">None</span> <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="macro">tok!</span>(<span class="string">&#39;}&#39;</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>.<span class="ident">input</span>.<span class="ident">had_line_break_before_cur</span>(),
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Semi</span>) <span class="op">|</span> <span class="prelude-val">None</span> <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="macro">tok!</span>(<span class="string">&#39;}&#39;</span>)) =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_</span> =&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>.<span class="ident">input</span>.<span class="ident">had_line_break_before_cur</span>(),
         }
     }};
 
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>) =&gt; {
         <span class="macro">is_exact!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)
     };
 }
 
 <span class="macro">macro_rules!</span> <span class="ident">peeked_is</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="ident">BindingIdent</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="ident">BindingIdent</span>) =&gt; {{
         <span class="kw">let</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>.<span class="ident">ctx</span>();
         <span class="kw">match</span> <span class="macro">peek!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>) {
-            <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span><span class="ident">Word</span>(<span class="kw-2">ref</span> <span class="ident">w</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="op">!</span><span class="ident">ctx</span>.<span class="ident">is_reserved_word</span>(<span class="kw-2">&amp;</span><span class="ident">w</span>.<span class="ident">cow</span>()),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span><span class="ident">Word</span>(<span class="kw-2">ref</span> <span class="ident">w</span>)) =&gt; <span class="op">!</span><span class="ident">ctx</span>.<span class="ident">is_reserved_word</span>(<span class="kw-2">&amp;</span><span class="ident">w</span>.<span class="ident">cow</span>()),
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }};
 
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="ident">IdentRef</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="ident">IdentRef</span>) =&gt; {{
         <span class="kw">let</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>.<span class="ident">ctx</span>();
         <span class="kw">match</span> <span class="macro">peek!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>) {
-            <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span><span class="ident">Word</span>(<span class="kw-2">ref</span> <span class="ident">w</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="op">!</span><span class="ident">ctx</span>.<span class="ident">is_reserved_word</span>(<span class="kw-2">&amp;</span><span class="ident">w</span>.<span class="ident">cow</span>()),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span><span class="ident">Word</span>(<span class="kw-2">ref</span> <span class="ident">w</span>)) =&gt; <span class="op">!</span><span class="ident">ctx</span>.<span class="ident">is_reserved_word</span>(<span class="kw-2">&amp;</span><span class="ident">w</span>.<span class="ident">cow</span>()),
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }};
 
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>,<span class="ident">IdentName</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>,<span class="ident">IdentName</span>) =&gt; {{
         <span class="kw">match</span> <span class="macro">peek!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>) {
-            <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span><span class="ident">Word</span>(..)) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span><span class="ident">Word</span>(..)) =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }};
 
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="string">&#39;;&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="string">&#39;;&#39;</span>) =&gt; {{
         <span class="macro">compile_error!</span>(<span class="string">&quot;peeked_is!(self, &#39;;&#39;) is invalid&quot;</span>);
     }};
 
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>) =&gt; {
         <span class="kw">match</span> <span class="macro">peek!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>).<span class="ident">ok</span>() {
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="macro">token_including_semi!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="macro">token_including_semi!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)) =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     };
 }
 
 <span class="doccomment">/// Returns true on eof.</span>
 <span class="macro">macro_rules!</span> <span class="ident">eof</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>) =&gt; {
         <span class="macro">cur!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>, <span class="bool-val">false</span>).<span class="ident">is_err</span>()
     };
 }
 
 <span class="macro">macro_rules!</span> <span class="ident">is_one_of</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>),<span class="op">+</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>),<span class="op">+</span>) =&gt; {{
         <span class="bool-val">false</span>
         $(
             <span class="op">|</span><span class="op">|</span> <span class="macro">is!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)
@@ -440,7 +440,7 @@
 
 <span class="comment">// This will panic if current != token</span>
 <span class="macro">macro_rules!</span> <span class="ident">assert_and_bump</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>) =&gt; {{
         <span class="kw">const</span> <span class="ident">TOKEN</span>: <span class="kw-2">&amp;</span><span class="ident">Token</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="macro">tok!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>);
         <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">debug_assertions</span>) <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="macro">is!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>) {
             <span class="macro">unreachable!</span>(
@@ -459,19 +459,19 @@
 <span class="doccomment">/// Returns bool if token is static, and Option&lt;Token&gt;</span>
 <span class="doccomment">///     if token has data like string.</span>
 <span class="macro">macro_rules!</span> <span class="ident">eat</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="string">&#39;;&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="string">&#39;;&#39;</span>) =&gt; {{
         <span class="macro">log::trace!</span>(<span class="string">&quot;eat(&#39;;&#39;): cur={:?}&quot;</span>, <span class="macro">cur!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>, <span class="bool-val">false</span>));
         <span class="kw">match</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>.<span class="ident">input</span>.<span class="ident">cur</span>() {
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Semi</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Semi</span>) =&gt; {
                 <span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>.<span class="ident">input</span>.<span class="ident">bump</span>();
                 <span class="bool-val">true</span>
             }
-            <span class="prelude-val">None</span> <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="macro">tok!</span>(<span class="string">&#39;}&#39;</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>.<span class="ident">input</span>.<span class="ident">had_line_break_before_cur</span>(),
+            <span class="prelude-val">None</span> <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="macro">tok!</span>(<span class="string">&#39;}&#39;</span>)) =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_</span> =&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>.<span class="ident">input</span>.<span class="ident">had_line_break_before_cur</span>(),
         }
     }};
 
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>) =&gt; {{
         <span class="kw">if</span> <span class="macro">is!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>) {
             <span class="macro">bump!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>);
             <span class="bool-val">true</span>
@@ -482,7 +482,7 @@
 }
 
 <span class="macro">macro_rules!</span> <span class="ident">eat_exact</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>) =&gt; {{
         <span class="kw">if</span> <span class="macro">is_exact!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>) {
             <span class="macro">bump!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>);
             <span class="bool-val">true</span>
@@ -493,17 +493,17 @@
 }
 
 <span class="macro">macro_rules!</span> <span class="ident">is_exact</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>) =&gt; {{
         <span class="kw">match</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>.<span class="ident">input</span>.<span class="ident">cur</span>() {
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="macro">token_including_semi!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="macro">token_including_semi!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)) =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }};
 }
 
 <span class="doccomment">/// This handles automatic semicolon insertion.</span>
 <span class="macro">macro_rules!</span> <span class="ident">expect</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>) =&gt; {{
         <span class="kw">const</span> <span class="ident">TOKEN</span>: <span class="kw-2">&amp;</span><span class="ident">Token</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="macro">token_including_semi!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>);
         <span class="kw">if</span> <span class="op">!</span><span class="macro">eat!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>) {
             <span class="kw">let</span> <span class="ident">cur</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>.<span class="ident">input</span>.<span class="ident">dump_cur</span>();
@@ -513,7 +513,7 @@
 }
 
 <span class="macro">macro_rules!</span> <span class="ident">expect_exact</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>) =&gt; {{
         <span class="kw">const</span> <span class="ident">TOKEN</span>: <span class="kw-2">&amp;</span><span class="ident">Token</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="macro">token_including_semi!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>);
         <span class="kw">if</span> <span class="op">!</span><span class="macro">eat_exact!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>) {
             <span class="kw">let</span> <span class="ident">cur</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>.<span class="ident">input</span>.<span class="ident">dump_cur</span>();
@@ -523,7 +523,7 @@
 }
 
 <span class="macro">macro_rules!</span> <span class="ident">store</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>) =&gt; {{
         <span class="kw">const</span> <span class="ident">TOKEN</span>: <span class="ident">Token</span> <span class="op">=</span> <span class="macro">token_including_semi!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>);
 
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>.<span class="ident">input</span>.<span class="ident">store</span>(<span class="ident">TOKEN</span>);
@@ -532,25 +532,25 @@
 
 <span class="doccomment">/// cur!($parser, required:bool)</span>
 <span class="macro">macro_rules!</span> <span class="ident">cur</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">required</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">required</span>:<span class="ident">expr</span>) =&gt; {{
         <span class="kw">let</span> <span class="ident">pos</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>.<span class="ident">input</span>.<span class="ident">last_pos</span>();
         <span class="kw">let</span> <span class="ident">last</span> <span class="op">=</span> <span class="ident">Span::new</span>(<span class="ident">pos</span>, <span class="ident">pos</span>, <span class="ident">Default::default</span>());
         <span class="kw">let</span> <span class="ident">is_err_token</span> <span class="op">=</span> <span class="kw">match</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>.<span class="ident">input</span>.<span class="ident">cur</span>() {
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::token::Token::Error</span>(..)) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::token::Token::Error</span>(..)) =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         };
         <span class="kw">if</span> <span class="ident">is_err_token</span> {
             <span class="kw">match</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>.<span class="ident">input</span>.<span class="ident">bump</span>() {
-                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::token::Token::Error</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::token::Token::Error</span>(<span class="ident">e</span>) =&gt; {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>);
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
             }
         }
 
         <span class="kw">match</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>.<span class="ident">input</span>.<span class="ident">cur</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">c</span>),
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">c</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">c</span>),
+            <span class="prelude-val">None</span> =&gt; {
                 <span class="kw">if</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">required</span> {
                     <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::error::Error</span> {
                         <span class="ident">error</span>: <span class="ident">Box::new</span>((<span class="ident">last</span>, <span class="ident"><span class="kw">crate</span>::error::SyntaxError::Eof</span>)),
@@ -566,7 +566,7 @@
 }
 
 <span class="macro">macro_rules!</span> <span class="ident">peek</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>) =&gt; {{
         <span class="macro">debug_assert!</span>(
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>.<span class="ident">input</span>.<span class="ident">knows_cur</span>(),
             <span class="string">&quot;parser should not call peek() without knowing current token.
@@ -577,8 +577,8 @@ Current token is {:?}&quot;</span>,
         <span class="kw">let</span> <span class="ident">pos</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>);
         <span class="kw">let</span> <span class="ident">last</span> <span class="op">=</span> <span class="ident">Span::new</span>(<span class="ident">pos</span>, <span class="ident">pos</span>, <span class="ident">Default::default</span>());
         <span class="kw">match</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>.<span class="ident">input</span>.<span class="ident">peek</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">c</span>),
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">c</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">c</span>),
+            <span class="prelude-val">None</span> =&gt; {
                 <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::error::Error</span> {
                     <span class="ident">error</span>: <span class="ident">Box::new</span>((<span class="ident">last</span>, <span class="ident"><span class="kw">crate</span>::error::SyntaxError::Eof</span>)),
                 };
@@ -589,7 +589,7 @@ Current token is {:?}&quot;</span>,
 }
 
 <span class="macro">macro_rules!</span> <span class="ident">bump</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>) =&gt; {{
         <span class="macro">debug_assert!</span>(
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>.<span class="ident">input</span>.<span class="ident">knows_cur</span>(),
             <span class="string">&quot;parser should not call bump() without knowing current token&quot;</span>
@@ -599,19 +599,19 @@ Current token is {:?}&quot;</span>,
 }
 
 <span class="macro">macro_rules!</span> <span class="ident">cur_pos</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>) =&gt; {{
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>.<span class="ident">input</span>.<span class="ident">cur_pos</span>()
     }};
 }
 
 <span class="macro">macro_rules!</span> <span class="ident">last_pos</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>.<span class="ident">input</span>.<span class="ident">prev_span</span>().<span class="ident">hi</span>
     };
 }
 
 <span class="macro">macro_rules!</span> <span class="ident">return_if_arrow</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">expr</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">expr</span>:<span class="ident">expr</span>) =&gt; {{
         <span class="comment">// FIXME:</span>
         <span class="comment">//</span>
         <span class="comment">//</span>
@@ -629,14 +629,14 @@ Current token is {:?}&quot;</span>,
 }
 
 <span class="macro">macro_rules!</span> <span class="ident">trace_cur</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>) =&gt; {{
         <span class="comment">// println!(&quot;{}: {:?}&quot;, stringify!($name), $p.input.cur());</span>
     }};
 }
 
 <span class="doccomment">/// This macro requires macro named &#39;last_pos&#39; to be in scope.</span>
 <span class="macro">macro_rules!</span> <span class="ident">span</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">start</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">start</span>:<span class="ident">expr</span>) =&gt; {{
         <span class="kw">let</span> <span class="ident">start</span>: <span class="ident">::swc_common::BytePos</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">start</span>;
         <span class="kw">let</span> <span class="ident">end</span>: <span class="ident">::swc_common::BytePos</span> <span class="op">=</span> <span class="macro">last_pos!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>);
         <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">debug_assertions</span>) <span class="op">&amp;&amp;</span> <span class="ident">start</span> <span class="op">&gt;</span> <span class="ident">end</span> {
@@ -651,7 +651,7 @@ Current token is {:?}&quot;</span>,
 }
 
 <span class="macro">macro_rules!</span> <span class="ident">make_error</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">span</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">err</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">span</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">err</span>:<span class="ident">expr</span>) =&gt; {{
         <span class="ident"><span class="kw">crate</span>::error::Error</span> {
             <span class="ident">error</span>: <span class="ident">Box::new</span>((<span class="macro-nonterminal">$</span><span class="macro-nonterminal">span</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">err</span>)),
         }
@@ -659,11 +659,11 @@ Current token is {:?}&quot;</span>,
 }
 
 <span class="macro">macro_rules!</span> <span class="ident">syntax_error</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">err</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">err</span>:<span class="ident">expr</span>) =&gt; {
         <span class="macro">syntax_error!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>.<span class="ident">input</span>.<span class="ident">cur_span</span>(), <span class="macro-nonterminal">$</span><span class="macro-nonterminal">err</span>)
     };
 
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">span</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">err</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">span</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">err</span>:<span class="ident">expr</span>) =&gt; {{
         <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="macro">make_error!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">span</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">err</span>);
         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>.<span class="ident">into</span>());
     }};

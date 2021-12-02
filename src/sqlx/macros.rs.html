@@ -1093,7 +1093,7 @@
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)))]</span>
 <span class="macro">macro_rules!</span> <span class="ident">query</span> (
     <span class="comment">// in Rust 1.45 we can now invoke proc macros in expression position</span>
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> ({
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>:<span class="ident">expr</span>) =&gt; ({
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">source</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>)
     });
     <span class="comment">// RFC: this semantically should be `$($args:expr),*` (with `$(,)?` to allow trailing comma)</span>
@@ -1104,7 +1104,7 @@
     <span class="comment">// experience, at least not with IntelliJ-Rust at the time of writing (version 0.3.126.3220-201)</span>
     <span class="comment">// so really the only benefit is making the macros _slightly_ self-documenting, but it&#39;s</span>
     <span class="comment">// not like it makes them magically understandable at-a-glance.</span>
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> ({
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; ({
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">source</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>, <span class="ident">args</span> <span class="op">=</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>)<span class="kw-2">*</span>])
     })
 );
@@ -1114,10 +1114,10 @@
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)))]</span>
 <span class="macro">macro_rules!</span> <span class="ident">query_unchecked</span> (
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> ({
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>:<span class="ident">expr</span>) =&gt; ({
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">source</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>, <span class="ident">checked</span> <span class="op">=</span> <span class="bool-val">false</span>)
     });
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> ({
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; ({
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">source</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>, <span class="ident">args</span> <span class="op">=</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>)<span class="kw-2">*</span>], <span class="ident">checked</span> <span class="op">=</span> <span class="bool-val">false</span>)
     })
 );
@@ -1167,10 +1167,10 @@
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)))]</span>
 <span class="macro">macro_rules!</span> <span class="ident">query_file</span> (
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>:<span class="ident">literal</span>) <span class="op">=</span><span class="op">&gt;</span> ({
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>:<span class="ident">literal</span>) =&gt; ({
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">source_file</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>)
     });
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>:<span class="ident">literal</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> ({
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>:<span class="ident">literal</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; ({
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">source_file</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>, <span class="ident">args</span> <span class="op">=</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>)<span class="kw-2">*</span>])
     })
 );
@@ -1180,10 +1180,10 @@
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)))]</span>
 <span class="macro">macro_rules!</span> <span class="ident">query_file_unchecked</span> (
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>:<span class="ident">literal</span>) <span class="op">=</span><span class="op">&gt;</span> ({
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>:<span class="ident">literal</span>) =&gt; ({
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">source_file</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>, <span class="ident">checked</span> <span class="op">=</span> <span class="bool-val">false</span>)
     });
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>:<span class="ident">literal</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> ({
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>:<span class="ident">literal</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; ({
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">source_file</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>, <span class="ident">args</span> <span class="op">=</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>)<span class="kw-2">*</span>], <span class="ident">checked</span> <span class="op">=</span> <span class="bool-val">false</span>)
     })
 );
@@ -1340,10 +1340,10 @@
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)))]</span>
 <span class="macro">macro_rules!</span> <span class="ident">query_as</span> (
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">out_struct</span>:<span class="ident">path</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> ( {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">out_struct</span>:<span class="ident">path</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>:<span class="ident">expr</span>) =&gt; ( {
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">record</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">out_struct</span>, <span class="ident">source</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>)
     });
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">out_struct</span>:<span class="ident">path</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> ( {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">out_struct</span>:<span class="ident">path</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; ( {
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">record</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">out_struct</span>, <span class="ident">source</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>, <span class="ident">args</span> <span class="op">=</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>)<span class="kw-2">*</span>])
     })
 );
@@ -1384,10 +1384,10 @@
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)))]</span>
 <span class="macro">macro_rules!</span> <span class="ident">query_file_as</span> (
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">out_struct</span>:<span class="ident">path</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>:<span class="ident">literal</span>) <span class="op">=</span><span class="op">&gt;</span> ( {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">out_struct</span>:<span class="ident">path</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>:<span class="ident">literal</span>) =&gt; ( {
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">record</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">out_struct</span>, <span class="ident">source_file</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>)
     });
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">out_struct</span>:<span class="ident">path</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>:<span class="ident">literal</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> ( {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">out_struct</span>:<span class="ident">path</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>:<span class="ident">literal</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; ( {
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">record</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">out_struct</span>, <span class="ident">source_file</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>, <span class="ident">args</span> <span class="op">=</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>)<span class="kw-2">*</span>])
     })
 );
@@ -1397,11 +1397,11 @@
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)))]</span>
 <span class="macro">macro_rules!</span> <span class="ident">query_as_unchecked</span> (
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">out_struct</span>:<span class="ident">path</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> ( {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">out_struct</span>:<span class="ident">path</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>:<span class="ident">expr</span>) =&gt; ( {
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">record</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">out_struct</span>, <span class="ident">source</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>, <span class="ident">checked</span> <span class="op">=</span> <span class="bool-val">false</span>)
     });
 
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">out_struct</span>:<span class="ident">path</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> ( {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">out_struct</span>:<span class="ident">path</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; ( {
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">record</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">out_struct</span>, <span class="ident">source</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>, <span class="ident">args</span> <span class="op">=</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>)<span class="kw-2">*</span>], <span class="ident">checked</span> <span class="op">=</span> <span class="bool-val">false</span>)
     })
 );
@@ -1412,11 +1412,11 @@
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)))]</span>
 <span class="macro">macro_rules!</span> <span class="ident">query_file_as_unchecked</span> (
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">out_struct</span>:<span class="ident">path</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>:<span class="ident">literal</span>) <span class="op">=</span><span class="op">&gt;</span> ( {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">out_struct</span>:<span class="ident">path</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>:<span class="ident">literal</span>) =&gt; ( {
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">record</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">out_struct</span>, <span class="ident">source_file</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>, <span class="ident">checked</span> <span class="op">=</span> <span class="bool-val">false</span>)
     });
 
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">out_struct</span>:<span class="ident">path</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>:<span class="ident">literal</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> ( {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">out_struct</span>:<span class="ident">path</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>:<span class="ident">literal</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; ( {
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">record</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">out_struct</span>, <span class="ident">source_file</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>, <span class="ident">args</span> <span class="op">=</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>)<span class="kw-2">*</span>], <span class="ident">checked</span> <span class="op">=</span> <span class="bool-val">false</span>)
     })
 );
@@ -1438,10 +1438,10 @@
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)))]</span>
 <span class="macro">macro_rules!</span> <span class="ident">query_scalar</span> (
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> (
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>:<span class="ident">expr</span>) =&gt; (
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">scalar</span> <span class="op">=</span> <span class="kw">_</span>, <span class="ident">source</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>)
     );
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> (
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; (
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">scalar</span> <span class="op">=</span> <span class="kw">_</span>, <span class="ident">source</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>, <span class="ident">args</span> <span class="op">=</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>)<span class="kw-2">*</span>])
     )
 );
@@ -1450,10 +1450,10 @@
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)))]</span>
 <span class="macro">macro_rules!</span> <span class="ident">query_file_scalar</span> (
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>:<span class="ident">literal</span>) <span class="op">=</span><span class="op">&gt;</span> (
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>:<span class="ident">literal</span>) =&gt; (
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">scalar</span> <span class="op">=</span> <span class="kw">_</span>, <span class="ident">source_file</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>)
     );
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>:<span class="ident">literal</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> (
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>:<span class="ident">literal</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; (
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">scalar</span> <span class="op">=</span> <span class="kw">_</span>, <span class="ident">source_file</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>, <span class="ident">args</span> <span class="op">=</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>)<span class="kw-2">*</span>])
     )
 );
@@ -1467,10 +1467,10 @@
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)))]</span>
 <span class="macro">macro_rules!</span> <span class="ident">query_scalar_unchecked</span> (
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> (
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>:<span class="ident">expr</span>) =&gt; (
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">scalar</span> <span class="op">=</span> <span class="kw">_</span>, <span class="ident">source</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>, <span class="ident">checked</span> <span class="op">=</span> <span class="bool-val">false</span>)
     );
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> (
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; (
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">scalar</span> <span class="op">=</span> <span class="kw">_</span>, <span class="ident">source</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>, <span class="ident">args</span> <span class="op">=</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>)<span class="kw-2">*</span>], <span class="ident">checked</span> <span class="op">=</span> <span class="bool-val">false</span>)
     )
 );
@@ -1484,10 +1484,10 @@
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)))]</span>
 <span class="macro">macro_rules!</span> <span class="ident">query_file_scalar_unchecked</span> (
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>:<span class="ident">literal</span>) <span class="op">=</span><span class="op">&gt;</span> (
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>:<span class="ident">literal</span>) =&gt; (
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">scalar</span> <span class="op">=</span> <span class="kw">_</span>, <span class="ident">source_file</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>, <span class="ident">checked</span> <span class="op">=</span> <span class="bool-val">false</span>)
     );
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>:<span class="ident">literal</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> (
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>:<span class="ident">literal</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; (
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">scalar</span> <span class="op">=</span> <span class="kw">_</span>, <span class="ident">source_file</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>, <span class="ident">args</span> <span class="op">=</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>)<span class="kw-2">*</span>], <span class="ident">checked</span> <span class="op">=</span> <span class="bool-val">false</span>)
     )
 );
@@ -1574,11 +1574,11 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;migrate&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">migrate</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">dir</span>:<span class="ident">literal</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">dir</span>:<span class="ident">literal</span>) =&gt; {{
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::migrate!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">dir</span>)
     }};
 
-    () <span class="op">=</span><span class="op">&gt;</span> {{
+    () =&gt; {{
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::migrate!</span>(<span class="string">&quot;./migrations&quot;</span>)
     }};
 }

@@ -580,7 +580,7 @@
         <span class="ident">bucket</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">object</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">new_object_access_control</span>: <span class="kw-2">&amp;</span><span class="ident">NewObjectAccessControl</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="ident"><span class="kw">crate</span>::CLOUD_CLIENT</span>
             .<span class="ident">object_access_control</span>()
             .<span class="ident">create</span>(<span class="ident">bucket</span>, <span class="ident">object</span>, <span class="ident">new_object_access_control</span>)
@@ -596,7 +596,7 @@
         <span class="ident">bucket</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">object</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">new_object_access_control</span>: <span class="kw-2">&amp;</span><span class="ident">NewObjectAccessControl</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="ident"><span class="kw">crate</span>::runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="ident"><span class="self">Self</span>::create</span>(<span class="ident">bucket</span>, <span class="ident">object</span>, <span class="ident">new_object_access_control</span>))
     }
 
@@ -607,7 +607,7 @@
     <span class="doccomment">/// bucket-level access enabled. Use `Bucket::get_iam_policy` and `Bucket::set_iam_policy` to</span>
     <span class="doccomment">/// control access instead.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">list</span>(<span class="ident">bucket</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">object</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">list</span>(<span class="ident">bucket</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">object</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident"><span class="kw">crate</span>::CLOUD_CLIENT</span>
             .<span class="ident">object_access_control</span>()
             .<span class="ident">list</span>(<span class="ident">bucket</span>, <span class="ident">object</span>)
@@ -619,7 +619,7 @@
     <span class="doccomment">/// ### Features</span>
     <span class="doccomment">/// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">list_sync</span>(<span class="ident">bucket</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">object</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">list_sync</span>(<span class="ident">bucket</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">object</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident"><span class="kw">crate</span>::runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="ident"><span class="self">Self</span>::list</span>(<span class="ident">bucket</span>, <span class="ident">object</span>))
     }
 
@@ -630,7 +630,7 @@
     <span class="doccomment">/// bucket-level access enabled. Use `Bucket::get_iam_policy` and `Bucket::set_iam_policy` to</span>
     <span class="doccomment">/// control access instead.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read</span>(<span class="ident">bucket</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">object</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">entity</span>: <span class="kw-2">&amp;</span><span class="ident">Entity</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read</span>(<span class="ident">bucket</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">object</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">entity</span>: <span class="kw-2">&amp;</span><span class="ident">Entity</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="ident"><span class="kw">crate</span>::CLOUD_CLIENT</span>
             .<span class="ident">object_access_control</span>()
             .<span class="ident">read</span>(<span class="ident">bucket</span>, <span class="ident">object</span>, <span class="ident">entity</span>)
@@ -642,7 +642,7 @@
     <span class="doccomment">/// ### Features</span>
     <span class="doccomment">/// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_sync</span>(<span class="ident">bucket</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">object</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">entity</span>: <span class="kw-2">&amp;</span><span class="ident">Entity</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_sync</span>(<span class="ident">bucket</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">object</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">entity</span>: <span class="kw-2">&amp;</span><span class="ident">Entity</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="ident"><span class="kw">crate</span>::runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="ident"><span class="self">Self</span>::read</span>(<span class="ident">bucket</span>, <span class="ident">object</span>, <span class="ident">entity</span>))
     }
 
@@ -653,7 +653,7 @@
     <span class="doccomment">/// bucket-level access enabled. Use `Bucket::get_iam_policy` and `Bucket::set_iam_policy` to</span>
     <span class="doccomment">/// control access instead.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="ident"><span class="kw">crate</span>::CLOUD_CLIENT</span>
             .<span class="ident">object_access_control</span>()
             .<span class="ident">update</span>(<span class="self">self</span>)
@@ -665,7 +665,7 @@
     <span class="doccomment">/// ### Features</span>
     <span class="doccomment">/// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_sync</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_sync</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="ident"><span class="kw">crate</span>::runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="self">self</span>.<span class="ident">update</span>())
     }
 
@@ -676,7 +676,7 @@
     <span class="doccomment">/// bucket-level access enabled. Use `Bucket::get_iam_policy` and `Bucket::set_iam_policy` to</span>
     <span class="doccomment">/// control access instead.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="ident"><span class="kw">crate</span>::CLOUD_CLIENT</span>
             .<span class="ident">object_access_control</span>()
             .<span class="ident">delete</span>(<span class="self">self</span>)
@@ -688,7 +688,7 @@
     <span class="doccomment">/// ### Features</span>
     <span class="doccomment">/// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete_sync</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete_sync</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="ident"><span class="kw">crate</span>::runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="self">self</span>.<span class="ident">delete</span>())
     }
 }

@@ -448,7 +448,7 @@
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">new_arc</span>(
         <span class="ident">options</span>: <span class="ident">PoolOptions</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>,
         <span class="ident">connect_options</span>: <span class="op">&lt;</span><span class="ident">DB::Connection</span> <span class="kw">as</span> <span class="ident">Connection</span><span class="op">&gt;</span><span class="ident">::Options</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">Arc</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">capacity</span> <span class="op">=</span> <span class="ident">options</span>.<span class="ident">max_connections</span> <span class="kw">as</span> <span class="ident">usize</span>;
 
         <span class="comment">// ensure the permit count won&#39;t overflow if we release `WAKE_ALL_PERMITS`</span>
@@ -473,16 +473,16 @@
         <span class="ident">pool</span>
     }
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u32</span> {
         <span class="self">self</span>.<span class="ident">size</span>.<span class="ident">load</span>(<span class="ident">Ordering::Acquire</span>)
     }
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">num_idle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">num_idle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="comment">// NOTE: This is very expensive</span>
         <span class="self">self</span>.<span class="ident">idle_conns</span>.<span class="ident">len</span>()
     }
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">is_closed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">is_closed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">is_closed</span>.<span class="ident">load</span>(<span class="ident">Ordering::Acquire</span>)
     }
 
@@ -508,7 +508,7 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">try_acquire</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Floating</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Idle</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">try_acquire</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Floating</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Idle</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_closed</span>() {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
@@ -520,7 +520,7 @@
     <span class="kw">fn</span> <span class="ident">pop_idle</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>,
         <span class="ident">permit</span>: <span class="ident">SemaphoreReleaser</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Floating</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Idle</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">SemaphoreReleaser</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Floating</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Idle</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">SemaphoreReleaser</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idle</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">idle_conns</span>.<span class="ident">pop</span>() {
             <span class="prelude-val">Ok</span>(<span class="ident">Floating::from_idle</span>(<span class="ident">idle</span>, <span class="self">self</span>, <span class="ident">permit</span>))
         } <span class="kw">else</span> {
@@ -553,7 +553,7 @@
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">try_increment_size</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>,
         <span class="ident">permit</span>: <span class="ident">SemaphoreReleaser</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DecrementSizeGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">SemaphoreReleaser</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DecrementSizeGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">SemaphoreReleaser</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>
             .<span class="ident">size</span>
             .<span class="ident">fetch_update</span>(<span class="ident">Ordering::AcqRel</span>, <span class="ident">Ordering::Acquire</span>, <span class="op">|</span><span class="ident">size</span><span class="op">|</span> {
@@ -561,14 +561,14 @@
                     .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">size</span><span class="op">|</span> <span class="ident">size</span> <span class="op">&lt;</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">options</span>.<span class="ident">max_connections</span>)
             }) {
             <span class="comment">// we successfully incremented the size</span>
-            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">DecrementSizeGuard::from_permit</span>(<span class="self">self</span>, <span class="ident">permit</span>)),
+            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">DecrementSizeGuard::from_permit</span>(<span class="self">self</span>, <span class="ident">permit</span>)),
             <span class="comment">// the pool is at max capacity</span>
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">permit</span>),
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">permit</span>),
         }
     }
 
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::needless_lifetimes</span>)]</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">acquire</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;s</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Floating</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident">Live</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">acquire</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;s</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Floating</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident">Live</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_closed</span>() {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::PoolClosed</span>);
         }
@@ -589,16 +589,16 @@
                     <span class="kw">let</span> <span class="ident">guard</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">pop_idle</span>(<span class="ident">permit</span>) {
 
                         <span class="comment">// Then, check that we can use it...</span>
-                        <span class="prelude-val">Ok</span>(<span class="ident">conn</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">check_conn</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">options</span>).<span class="kw">await</span> {
+                        <span class="prelude-val">Ok</span>(<span class="ident">conn</span>) =&gt; <span class="kw">match</span> <span class="ident">check_conn</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">options</span>).<span class="kw">await</span> {
 
                             <span class="comment">// All good!</span>
-                            <span class="prelude-val">Ok</span>(<span class="ident">live</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">live</span>),
+                            <span class="prelude-val">Ok</span>(<span class="ident">live</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">live</span>),
 
                             <span class="comment">// if the connection isn&#39;t usable for one reason or another,</span>
                             <span class="comment">// we get the `DecrementSizeGuard` back to open a new one</span>
-                            <span class="prelude-val">Err</span>(<span class="ident">guard</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">guard</span>,
+                            <span class="prelude-val">Err</span>(<span class="ident">guard</span>) =&gt; <span class="ident">guard</span>,
                         },
-                        <span class="prelude-val">Err</span>(<span class="ident">permit</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">guard</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">try_increment_size</span>(<span class="ident">permit</span>) {
+                        <span class="prelude-val">Err</span>(<span class="ident">permit</span>) =&gt; <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">guard</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">try_increment_size</span>(<span class="ident">permit</span>) {
                             <span class="comment">// we can open a new connection</span>
                             <span class="ident">guard</span>
                         } <span class="kw">else</span> {
@@ -620,7 +620,7 @@
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;s</span> <span class="self">self</span>,
         <span class="ident">deadline</span>: <span class="ident">Instant</span>,
         <span class="ident">guard</span>: <span class="ident">DecrementSizeGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Floating</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident">Live</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Floating</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident">Live</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_closed</span>() {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::PoolClosed</span>);
         }
@@ -635,7 +635,7 @@
             <span class="comment">// if this block does not return, sleep for the backoff timeout and try again</span>
             <span class="kw">match</span> <span class="ident">sqlx_rt::timeout</span>(<span class="ident">timeout</span>, <span class="self">self</span>.<span class="ident">connect_options</span>.<span class="ident">connect</span>()).<span class="kw">await</span> {
                 <span class="comment">// successfully established connection</span>
-                <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(<span class="kw-2">mut</span> <span class="ident">raw</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(<span class="kw-2">mut</span> <span class="ident">raw</span>)) =&gt; {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">callback</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">options</span>.<span class="ident">after_connect</span> {
                         <span class="ident">callback</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">raw</span>).<span class="kw">await</span><span class="question-mark">?</span>;
                     }
@@ -644,20 +644,20 @@
                 }
 
                 <span class="comment">// an IO error while connecting is assumed to be the system starting up</span>
-                <span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(<span class="ident">Error::Io</span>(<span class="ident">e</span>))) <span class="kw">if</span> <span class="ident">e</span>.<span class="ident">kind</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">std::io::ErrorKind::ConnectionRefused</span> <span class="op">=</span><span class="op">&gt;</span> (),
+                <span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(<span class="ident">Error::Io</span>(<span class="ident">e</span>))) <span class="kw">if</span> <span class="ident">e</span>.<span class="ident">kind</span>() <span class="op">==</span> <span class="ident">std::io::ErrorKind::ConnectionRefused</span> =&gt; (),
 
                 <span class="comment">// TODO: Handle other database &quot;boot period&quot;s</span>
 
                 <span class="comment">// [postgres] the database system is starting up</span>
                 <span class="comment">// TODO: Make this check actually check if this is postgres</span>
-                <span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(<span class="ident">Error::Database</span>(<span class="ident">error</span>))) <span class="kw">if</span> <span class="ident">error</span>.<span class="ident">code</span>().<span class="ident">as_deref</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&quot;57P03&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> (),
+                <span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(<span class="ident">Error::Database</span>(<span class="ident">error</span>))) <span class="kw">if</span> <span class="ident">error</span>.<span class="ident">code</span>().<span class="ident">as_deref</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="string">&quot;57P03&quot;</span>) =&gt; (),
 
                 <span class="comment">// Any other error while connection should immediately</span>
                 <span class="comment">// terminate and bubble the error up</span>
-                <span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+                <span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
 
                 <span class="comment">// timed out</span>
-                <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::PoolTimedOut</span>),
+                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::PoolTimedOut</span>),
             }
 
             <span class="comment">// If the connection is refused wait in exponentially</span>
@@ -671,14 +671,14 @@
 
 <span class="comment">// NOTE: Function names here are bizzare. Helpful help would be appreciated.</span>
 
-<span class="kw">fn</span> <span class="ident">is_beyond_lifetime</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span>(<span class="ident">live</span>: <span class="kw-2">&amp;</span><span class="ident">Live</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>, <span class="ident">options</span>: <span class="kw-2">&amp;</span><span class="ident">PoolOptions</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+<span class="kw">fn</span> <span class="ident">is_beyond_lifetime</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span>(<span class="ident">live</span>: <span class="kw-2">&amp;</span><span class="ident">Live</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>, <span class="ident">options</span>: <span class="kw-2">&amp;</span><span class="ident">PoolOptions</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
     <span class="comment">// check if connection was within max lifetime (or not set)</span>
     <span class="ident">options</span>
         .<span class="ident">max_lifetime</span>
         .<span class="ident">map_or</span>(<span class="bool-val">false</span>, <span class="op">|</span><span class="ident">max</span><span class="op">|</span> <span class="ident">live</span>.<span class="ident">created</span>.<span class="ident">elapsed</span>() <span class="op">&gt;</span> <span class="ident">max</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">is_beyond_idle</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span>(<span class="ident">idle</span>: <span class="kw-2">&amp;</span><span class="ident">Idle</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>, <span class="ident">options</span>: <span class="kw-2">&amp;</span><span class="ident">PoolOptions</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+<span class="kw">fn</span> <span class="ident">is_beyond_idle</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span>(<span class="ident">idle</span>: <span class="kw-2">&amp;</span><span class="ident">Idle</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>, <span class="ident">options</span>: <span class="kw-2">&amp;</span><span class="ident">PoolOptions</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
     <span class="comment">// if connection wasn&#39;t idle too long (or not set)</span>
     <span class="ident">options</span>
         .<span class="ident">idle_timeout</span>
@@ -688,7 +688,7 @@
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">check_conn</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>: <span class="lifetime">&#39;p</span>, <span class="lifetime">&#39;p</span>, <span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span>(
     <span class="kw-2">mut</span> <span class="ident">conn</span>: <span class="ident">Floating</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident">Idle</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">options</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="ident">PoolOptions</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Floating</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident">Live</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">DecrementSizeGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Floating</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident">Live</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">DecrementSizeGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="comment">// If the connection we pulled has expired, close the connection and</span>
     <span class="comment">// immediately create a new connection</span>
     <span class="kw">if</span> <span class="ident">is_beyond_lifetime</span>(<span class="kw-2">&amp;</span><span class="ident">conn</span>, <span class="ident">options</span>) {
@@ -707,17 +707,17 @@
         }
     } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">test</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">options</span>.<span class="ident">before_acquire</span> {
         <span class="kw">match</span> <span class="ident">test</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>.<span class="ident">live</span>.<span class="ident">raw</span>).<span class="kw">await</span> {
-            <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>) =&gt; {
                 <span class="comment">// connection was rejected by user-defined hook</span>
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">conn</span>.<span class="ident">close</span>().<span class="kw">await</span>);
             }
 
-            <span class="prelude-val">Err</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">error</span>) =&gt; {
                 <span class="macro">log::info!</span>(<span class="string">&quot;in `before_acquire`: {}&quot;</span>, <span class="ident">error</span>);
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">conn</span>.<span class="ident">close</span>().<span class="kw">await</span>);
             }
 
-            <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>) <span class="op">=</span><span class="op">&gt;</span> {}
+            <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>) =&gt; {}
         }
     }
 
@@ -728,11 +728,11 @@
 <span class="doccomment">/// if `max_lifetime` or `idle_timeout` is set, spawn a task that reaps senescent connections</span>
 <span class="kw">fn</span> <span class="ident">spawn_reaper</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span>(<span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">SharedPool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
     <span class="kw">let</span> <span class="ident">period</span> <span class="op">=</span> <span class="kw">match</span> (<span class="ident">pool</span>.<span class="ident">options</span>.<span class="ident">max_lifetime</span>, <span class="ident">pool</span>.<span class="ident">options</span>.<span class="ident">idle_timeout</span>) {
-        (<span class="prelude-val">Some</span>(<span class="ident">it</span>), <span class="prelude-val">None</span>) <span class="op">|</span> (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">it</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">it</span>,
+        (<span class="prelude-val">Some</span>(<span class="ident">it</span>), <span class="prelude-val">None</span>) <span class="op">|</span> (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">it</span>)) =&gt; <span class="ident">it</span>,
 
-        (<span class="prelude-val">Some</span>(<span class="ident">a</span>), <span class="prelude-val">Some</span>(<span class="ident">b</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">cmp::min</span>(<span class="ident">a</span>, <span class="ident">b</span>),
+        (<span class="prelude-val">Some</span>(<span class="ident">a</span>), <span class="prelude-val">Some</span>(<span class="ident">b</span>)) =&gt; <span class="ident">cmp::min</span>(<span class="ident">a</span>, <span class="ident">b</span>),
 
-        (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span>,
+        (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; <span class="kw">return</span>,
     };
 
     <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">Arc::clone</span>(<span class="kw-2">&amp;</span><span class="ident">pool</span>);
@@ -781,7 +781,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">DecrementSizeGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Create a new guard that will release a semaphore permit on-drop.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_permit</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span>(<span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">SharedPool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_permit</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span>(<span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">SharedPool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">size</span>: <span class="kw-2">&amp;</span><span class="ident">pool</span>.<span class="ident">size</span>,
             <span class="ident">semaphore</span>: <span class="kw-2">&amp;</span><span class="ident">pool</span>.<span class="ident">semaphore</span>,
@@ -792,14 +792,14 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_permit</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span>(
         <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">SharedPool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>,
         <span class="kw-2">mut</span> <span class="ident">permit</span>: <span class="ident">SemaphoreReleaser</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    ) -&gt; <span class="self">Self</span> {
         <span class="comment">// here we effectively take ownership of the permit</span>
         <span class="ident">permit</span>.<span class="ident">disarm</span>();
         <span class="ident"><span class="self">Self</span>::new_permit</span>(<span class="ident">pool</span>)
     }
 
     <span class="doccomment">/// Return `true` if the internal references point to the same fields in `SharedPool`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">same_pool</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">SharedPool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">same_pool</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">SharedPool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
         <span class="ident">ptr::eq</span>(<span class="self">self</span>.<span class="ident">size</span>, <span class="kw-2">&amp;</span><span class="ident">pool</span>.<span class="ident">size</span>)
     }
 

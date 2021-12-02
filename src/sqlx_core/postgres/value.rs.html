@@ -169,10 +169,10 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span> <span class="ident">PgValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">get</span>(<span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;r</span> [<span class="ident">u8</span>], <span class="ident">format</span>: <span class="ident">PgValueFormat</span>, <span class="ident">ty</span>: <span class="ident">PgTypeInfo</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">get</span>(<span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;r</span> [<span class="ident">u8</span>], <span class="ident">format</span>: <span class="ident">PgValueFormat</span>, <span class="ident">ty</span>: <span class="ident">PgTypeInfo</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">element_len</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">get_i32</span>();
 
-        <span class="kw">let</span> <span class="ident">element_val</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">element_len</span> <span class="op">=</span><span class="op">=</span> <span class="op">-</span><span class="number">1</span> {
+        <span class="kw">let</span> <span class="ident">element_val</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">element_len</span> <span class="op">==</span> <span class="op">-</span><span class="number">1</span> {
             <span class="ident">element_len</span> <span class="op">=</span> <span class="number">0</span>;
             <span class="prelude-val">None</span>
         } <span class="kw">else</span> {
@@ -189,18 +189,18 @@
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">format</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgValueFormat</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">format</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PgValueFormat</span> {
         <span class="self">self</span>.<span class="ident">format</span>
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">as_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;r</span> [<span class="ident">u8</span>], <span class="ident">BoxDynError</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">as_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;r</span> [<span class="ident">u8</span>], <span class="ident">BoxDynError</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">value</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">v</span>),
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">UnexpectedNullError</span>.<span class="ident">into</span>()),
+            <span class="prelude-val">Some</span>(<span class="ident">v</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">v</span>),
+            <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">UnexpectedNullError</span>.<span class="ident">into</span>()),
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">as_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;r</span> <span class="ident">str</span>, <span class="ident">BoxDynError</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">as_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;r</span> <span class="ident">str</span>, <span class="ident">BoxDynError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">from_utf8</span>(<span class="self">self</span>.<span class="ident">as_bytes</span>()<span class="question-mark">?</span>)<span class="question-mark">?</span>)
     }
 }
@@ -209,7 +209,7 @@
     <span class="kw">type</span> <span class="ident">Database</span> <span class="op">=</span> <span class="ident">Postgres</span>;
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PgValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
         <span class="ident">PgValueRef</span> {
             <span class="ident">value</span>: <span class="self">self</span>.<span class="ident">value</span>.<span class="ident">as_deref</span>(),
             <span class="ident">row</span>: <span class="prelude-val">None</span>,
@@ -218,11 +218,11 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">type_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">PgTypeInfo</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">PgTypeInfo</span><span class="op">&gt;</span> {
         <span class="ident">Cow::Borrowed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">type_info</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">is_null</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_null</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">value</span>.<span class="ident">is_none</span>()
     }
 }
@@ -230,13 +230,13 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span> <span class="ident">ValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Database</span> <span class="op">=</span> <span class="ident">Postgres</span>;
 
-    <span class="kw">fn</span> <span class="ident">to_owned</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgValue</span> {
+    <span class="kw">fn</span> <span class="ident">to_owned</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PgValue</span> {
         <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="kw">match</span> (<span class="self">self</span>.<span class="ident">row</span>, <span class="self">self</span>.<span class="ident">value</span>) {
-            (<span class="prelude-val">Some</span>(<span class="ident">row</span>), <span class="prelude-val">Some</span>(<span class="ident">value</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">row</span>.<span class="ident">slice_ref</span>(<span class="ident">value</span>)),
+            (<span class="prelude-val">Some</span>(<span class="ident">row</span>), <span class="prelude-val">Some</span>(<span class="ident">value</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">row</span>.<span class="ident">slice_ref</span>(<span class="ident">value</span>)),
 
-            (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">value</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Bytes::copy_from_slice</span>(<span class="ident">value</span>)),
+            (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">value</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">Bytes::copy_from_slice</span>(<span class="ident">value</span>)),
 
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
         };
 
         <span class="ident">PgValue</span> {
@@ -246,11 +246,11 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">type_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">PgTypeInfo</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">PgTypeInfo</span><span class="op">&gt;</span> {
         <span class="ident">Cow::Borrowed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">type_info</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">is_null</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_null</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">value</span>.<span class="ident">is_none</span>()
     }
 }
@@ -258,7 +258,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;any&quot;</span>)]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">PgValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident"><span class="kw">crate</span>::any::AnyValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">value</span>: <span class="ident">PgValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">value</span>: <span class="ident">PgValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="kw">crate</span>::any::AnyValueRef</span> {
             <span class="ident">type_info</span>: <span class="ident">value</span>.<span class="ident">type_info</span>.<span class="ident">clone</span>().<span class="ident">into</span>(),
             <span class="ident">kind</span>: <span class="ident"><span class="kw">crate</span>::any::value::AnyValueRefKind::Postgres</span>(<span class="ident">value</span>),
@@ -269,7 +269,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;any&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">PgValue</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident"><span class="kw">crate</span>::any::AnyValue</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">value</span>: <span class="ident">PgValue</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">value</span>: <span class="ident">PgValue</span>) -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="kw">crate</span>::any::AnyValue</span> {
             <span class="ident">type_info</span>: <span class="ident">value</span>.<span class="ident">type_info</span>.<span class="ident">clone</span>().<span class="ident">into</span>(),
             <span class="ident">kind</span>: <span class="ident"><span class="kw">crate</span>::any::value::AnyValueKind::Postgres</span>(<span class="ident">value</span>),

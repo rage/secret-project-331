@@ -365,7 +365,7 @@
 <span class="doccomment">/// which works incorrectly on Linux, macOS and Windows.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// [`std::env::home_dir`]: https://doc.rust-lang.org/std/env/fn.home_dir.html</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">home_dir</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">home_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
     <span class="ident">sys::home_dir</span>()
 }
 <span class="doccomment">/// Returns the path to the user&#39;s cache directory.</span>
@@ -377,7 +377,7 @@
 <span class="doccomment">/// | Linux   | `$XDG_CACHE_HOME` or `$HOME`/.cache | /home/alice/.cache           |</span>
 <span class="doccomment">/// | macOS   | `$HOME`/Library/Caches              | /Users/Alice/Library/Caches  |</span>
 <span class="doccomment">/// | Windows | `{FOLDERID_LocalAppData}`           | C:\Users\Alice\AppData\Local |</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cache_dir</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cache_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
     <span class="ident">sys::cache_dir</span>()
 }
 <span class="doccomment">/// Returns the path to the user&#39;s config directory.</span>
@@ -389,7 +389,7 @@
 <span class="doccomment">/// | Linux   | `$XDG_CONFIG_HOME` or `$HOME`/.config | /home/alice/.config                      |</span>
 <span class="doccomment">/// | macOS   | `$HOME`/Library/Application Support   | /Users/Alice/Library/Application Support |</span>
 <span class="doccomment">/// | Windows | `{FOLDERID_RoamingAppData}`           | C:\Users\Alice\AppData\Roaming           |</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">config_dir</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">config_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
     <span class="ident">sys::config_dir</span>()
 }
 <span class="doccomment">/// Returns the path to the user&#39;s data directory.</span>
@@ -401,7 +401,7 @@
 <span class="doccomment">/// | Linux   | `$XDG_DATA_HOME` or `$HOME`/.local/share | /home/alice/.local/share                 |</span>
 <span class="doccomment">/// | macOS   | `$HOME`/Library/Application Support      | /Users/Alice/Library/Application Support |</span>
 <span class="doccomment">/// | Windows | `{FOLDERID_RoamingAppData}`              | C:\Users\Alice\AppData\Roaming           |</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">data_dir</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">data_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
     <span class="ident">sys::data_dir</span>()
 }
 <span class="doccomment">/// Returns the path to the user&#39;s local data directory.</span>
@@ -413,7 +413,7 @@
 <span class="doccomment">/// | Linux   | `$XDG_DATA_HOME` or `$HOME`/.local/share | /home/alice/.local/share                 |</span>
 <span class="doccomment">/// | macOS   | `$HOME`/Library/Application Support      | /Users/Alice/Library/Application Support |</span>
 <span class="doccomment">/// | Windows | `{FOLDERID_LocalAppData}`                | C:\Users\Alice\AppData\Local             |</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">data_local_dir</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">data_local_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
     <span class="ident">sys::data_local_dir</span>()
 }
 <span class="doccomment">/// Returns the path to the user&#39;s executable directory.</span>
@@ -425,7 +425,7 @@
 <span class="doccomment">/// | Linux   | `$XDG_BIN_HOME` or `$XDG_DATA_HOME`/../bin or `$HOME`/.local/bin | /home/alice/.local/bin |</span>
 <span class="doccomment">/// | macOS   | –                                                                | –                      |</span>
 <span class="doccomment">/// | Windows | –                                                                | –                      |</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">executable_dir</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">executable_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
     <span class="ident">sys::executable_dir</span>()
 }
 <span class="doccomment">/// Returns the path to the user&#39;s preference directory.</span>
@@ -437,7 +437,7 @@
 <span class="doccomment">/// | Linux   | `$XDG_CONFIG_HOME` or `$HOME`/.config | /home/alice/.config              |</span>
 <span class="doccomment">/// | macOS   | `$HOME`/Library/Preferences           | /Users/Alice/Library/Preferences |</span>
 <span class="doccomment">/// | Windows | `{FOLDERID_RoamingAppData}`           | C:\Users\Alice\AppData\Roaming   |</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">preference_dir</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">preference_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
     <span class="ident">sys::preference_dir</span>()
 }
 <span class="doccomment">/// Returns the path to the user&#39;s runtime directory.</span>
@@ -449,7 +449,7 @@
 <span class="doccomment">/// | Linux   | `$XDG_RUNTIME_DIR` | /run/user/1001/ |</span>
 <span class="doccomment">/// | macOS   | –                  | –               |</span>
 <span class="doccomment">/// | Windows | –                  | –               |</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">runtime_dir</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">runtime_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
     <span class="ident">sys::runtime_dir</span>()
 }
 
@@ -462,7 +462,7 @@
 <span class="doccomment">/// | Linux   | `XDG_MUSIC_DIR`    | /home/alice/Music    |</span>
 <span class="doccomment">/// | macOS   | `$HOME`/Music      | /Users/Alice/Music   |</span>
 <span class="doccomment">/// | Windows | `{FOLDERID_Music}` | C:\Users\Alice\Music |</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">audio_dir</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">audio_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
     <span class="ident">sys::audio_dir</span>()
 }
 <span class="doccomment">/// Returns the path to the user&#39;s desktop directory.</span>
@@ -474,7 +474,7 @@
 <span class="doccomment">/// | Linux   | `XDG_DESKTOP_DIR`    | /home/alice/Desktop    |</span>
 <span class="doccomment">/// | macOS   | `$HOME`/Desktop      | /Users/Alice/Desktop   |</span>
 <span class="doccomment">/// | Windows | `{FOLDERID_Desktop}` | C:\Users\Alice\Desktop |</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">desktop_dir</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">desktop_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
     <span class="ident">sys::desktop_dir</span>()
 }
 <span class="doccomment">/// Returns the path to the user&#39;s document directory.</span>
@@ -486,7 +486,7 @@
 <span class="doccomment">/// | Linux   | `XDG_DOCUMENTS_DIR`    | /home/alice/Documents    |</span>
 <span class="doccomment">/// | macOS   | `$HOME`/Documents      | /Users/Alice/Documents   |</span>
 <span class="doccomment">/// | Windows | `{FOLDERID_Documents}` | C:\Users\Alice\Documents |</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">document_dir</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">document_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
     <span class="ident">sys::document_dir</span>()
 }
 <span class="doccomment">/// Returns the path to the user&#39;s download directory.</span>
@@ -498,7 +498,7 @@
 <span class="doccomment">/// | Linux   | `XDG_DOWNLOAD_DIR`     | /home/alice/Downloads    |</span>
 <span class="doccomment">/// | macOS   | `$HOME`/Downloads      | /Users/Alice/Downloads   |</span>
 <span class="doccomment">/// | Windows | `{FOLDERID_Downloads}` | C:\Users\Alice\Downloads |</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">download_dir</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">download_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
     <span class="ident">sys::download_dir</span>()
 }
 <span class="doccomment">/// Returns the path to the user&#39;s font directory.</span>
@@ -510,7 +510,7 @@
 <span class="doccomment">/// | Linux   | `$XDG_DATA_HOME`/fonts or `$HOME`/.local/share/fonts | /home/alice/.local/share/fonts |</span>
 <span class="doccomment">/// | macOS   | `$HOME/Library/Fonts`                                | /Users/Alice/Library/Fonts     |</span>
 <span class="doccomment">/// | Windows | –                                                    | –                              |</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">font_dir</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">font_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
     <span class="ident">sys::font_dir</span>()
 }
 <span class="doccomment">/// Returns the path to the user&#39;s picture directory.</span>
@@ -522,7 +522,7 @@
 <span class="doccomment">/// | Linux   | `XDG_PICTURES_DIR`    | /home/alice/Pictures    |</span>
 <span class="doccomment">/// | macOS   | `$HOME`/Pictures      | /Users/Alice/Pictures   |</span>
 <span class="doccomment">/// | Windows | `{FOLDERID_Pictures}` | C:\Users\Alice\Pictures |</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">picture_dir</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">picture_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
     <span class="ident">sys::picture_dir</span>()
 }
 <span class="doccomment">/// Returns the path to the user&#39;s public directory.</span>
@@ -534,7 +534,7 @@
 <span class="doccomment">/// | Linux   | `XDG_PUBLICSHARE_DIR` | /home/alice/Public  |</span>
 <span class="doccomment">/// | macOS   | `$HOME`/Public        | /Users/Alice/Public |</span>
 <span class="doccomment">/// | Windows | `{FOLDERID_Public}`   | C:\Users\Public     |</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">public_dir</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">public_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
     <span class="ident">sys::public_dir</span>()
 }
 <span class="doccomment">/// Returns the path to the user&#39;s template directory.</span>
@@ -546,7 +546,7 @@
 <span class="doccomment">/// | Linux   | `XDG_TEMPLATES_DIR`    | /home/alice/Templates                                      |</span>
 <span class="doccomment">/// | macOS   | –                      | –                                                          |</span>
 <span class="doccomment">/// | Windows | `{FOLDERID_Templates}` | C:\Users\Alice\AppData\Roaming\Microsoft\Windows\Templates |</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">template_dir</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">template_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
     <span class="ident">sys::template_dir</span>()
 }
 
@@ -559,7 +559,7 @@
 <span class="doccomment">/// | Linux   | `XDG_VIDEOS_DIR`    | /home/alice/Videos    |</span>
 <span class="doccomment">/// | macOS   | `$HOME`/Movies      | /Users/Alice/Movies   |</span>
 <span class="doccomment">/// | Windows | `{FOLDERID_Videos}` | C:\Users\Alice\Videos |</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">video_dir</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">video_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
     <span class="ident">sys::video_dir</span>()
 }
 

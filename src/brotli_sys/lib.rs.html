@@ -183,7 +183,7 @@
 
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">__enum_ty_s</span> <span class="op">=</span> <span class="ident">libc::c_int</span>;
 
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">brotli_alloc_func</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>(<span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>, <span class="ident">size_t</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span><span class="op">&gt;</span>;
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">brotli_alloc_func</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>(<span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>, <span class="ident">size_t</span>) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span><span class="op">&gt;</span>;
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">brotli_free_func</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>(<span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>, <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>)<span class="op">&gt;</span>;
 
 <span class="comment">// ========== Decoder functionality ==========</span>
@@ -230,12 +230,12 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderCreateInstance</span>(<span class="ident">alloc_func</span>: <span class="ident">brotli_alloc_func</span>,
                                        <span class="ident">free_func</span>: <span class="ident">brotli_free_func</span>,
                                        <span class="ident">opaque</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>)
-                                       <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">BrotliDecoderState</span>;
+                                       -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">BrotliDecoderState</span>;
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderDestroyInstance</span>(<span class="ident">state</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">BrotliDecoderState</span>);
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderDecompress</span>(<span class="ident">encoded_size</span>: <span class="ident">size_t</span>,
                                    <span class="ident">encoded_buffer</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span>,
                                    <span class="ident">decoded_size</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">size_t</span>,
-                                   <span class="ident">decoded_buffer</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span>
+                                   <span class="ident">decoded_buffer</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">u8</span>) -&gt;
                                    <span class="ident">BrotliDecoderResult</span>;
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderDecompressStream</span>(<span class="ident">state</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">BrotliDecoderState</span>,
                                          <span class="ident">available_in</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">size_t</span>,
@@ -243,19 +243,19 @@
                                          <span class="ident">available_out</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">size_t</span>,
                                          <span class="ident">next_out</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">u8</span>,
                                          <span class="ident">total_out</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">size_t</span>)
-                                         <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BrotliDecoderResult</span>;
+                                         -&gt; <span class="ident">BrotliDecoderResult</span>;
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderSetCustomDictionary</span>(<span class="ident">state</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">BrotliDecoderState</span>,
                                             <span class="ident">size</span>: <span class="ident">size_t</span>,
                                             <span class="ident">dict</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span>);
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderHasMoreOutput</span>(<span class="ident">state</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">BrotliDecoderState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderHasMoreOutput</span>(<span class="ident">state</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">BrotliDecoderState</span>) -&gt; <span class="ident">c_int</span>;
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderTakeOutput</span>(<span class="ident">state</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">BrotliDecoderState</span>,
                                    <span class="ident">size</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">size_t</span>)
-                                   <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderIsUsed</span>(<span class="ident">state</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">BrotliDecoderState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderIsFinished</span>(<span class="ident">state</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">BrotliDecoderState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderGetErrorCode</span>(<span class="ident">state</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">BrotliDecoderState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BrotliDecoderErrorCode</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderErrorString</span>(<span class="ident">c</span>: <span class="ident">BrotliDecoderErrorCode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderVersion</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span>;
+                                   -&gt; <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderIsUsed</span>(<span class="ident">state</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">BrotliDecoderState</span>) -&gt; <span class="ident">c_int</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderIsFinished</span>(<span class="ident">state</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">BrotliDecoderState</span>) -&gt; <span class="ident">c_int</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderGetErrorCode</span>(<span class="ident">state</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">BrotliDecoderState</span>) -&gt; <span class="ident">BrotliDecoderErrorCode</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderErrorString</span>(<span class="ident">c</span>: <span class="ident">BrotliDecoderErrorCode</span>) -&gt; <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderVersion</span>() -&gt; <span class="ident">u32</span>;
 }
 
 
@@ -292,11 +292,11 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliEncoderSetParameter</span>(<span class="ident">state</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">BrotliEncoderState</span>,
                                      <span class="ident">param</span>: <span class="ident">BrotliEncoderParameter</span>,
                                      <span class="ident">value</span>: <span class="ident">u32</span>)
-                                     <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
+                                     -&gt; <span class="ident">c_int</span>;
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliEncoderCreateInstance</span>(<span class="ident">alloc_func</span>: <span class="ident">brotli_alloc_func</span>,
                                        <span class="ident">free_func</span>: <span class="ident">brotli_free_func</span>,
                                        <span class="ident">opaque</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>)
-                                       <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">BrotliEncoderState</span>;
+                                       -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">BrotliEncoderState</span>;
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliEncoderDestroyInstance</span>(<span class="ident">state</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">BrotliEncoderState</span>);
     <span class="comment">// These three are deprecated</span>
     <span class="comment">//pub fn BrotliEncoderInputBlockSize(state: *mut BrotliEncoderState) -&gt; size_t;</span>
@@ -312,7 +312,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliEncoderSetCustomDictionary</span>(<span class="ident">state</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">BrotliEncoderState</span>,
                                             <span class="ident">size</span>: <span class="ident">size_t</span>,
                                             <span class="ident">dict</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span>);
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliEncoderMaxCompressedSize</span>(<span class="ident">input_size</span>: <span class="ident">size_t</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">size_t</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliEncoderMaxCompressedSize</span>(<span class="ident">input_size</span>: <span class="ident">size_t</span>) -&gt; <span class="ident">size_t</span>;
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliEncoderCompress</span>(<span class="ident">quality</span>: <span class="ident">c_int</span>,
                                  <span class="ident">lgwin</span>: <span class="ident">c_int</span>,
                                  <span class="ident">mode</span>: <span class="ident">BrotliEncoderMode</span>,
@@ -320,7 +320,7 @@
                                  <span class="ident">input_buffer</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span>,
                                  <span class="ident">encoded_size</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">size_t</span>,
                                  <span class="ident">encoded_buffer</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">u8</span>)
-                                 <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
+                                 -&gt; <span class="ident">c_int</span>;
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliEncoderCompressStream</span>(<span class="ident">state</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">BrotliEncoderState</span>,
                                        <span class="ident">op</span>: <span class="ident">BrotliEncoderOperation</span>,
                                        <span class="ident">available_in</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">size_t</span>,
@@ -328,13 +328,13 @@
                                        <span class="ident">available_out</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">size_t</span>,
                                        <span class="ident">next_out</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">u8</span>,
                                        <span class="ident">total_out</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">size_t</span>)
-                                       <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliEncoderIsFinished</span>(<span class="ident">state</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">BrotliEncoderState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliEncoderHasMoreOutput</span>(<span class="ident">state</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">BrotliEncoderState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
+                                       -&gt; <span class="ident">c_int</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliEncoderIsFinished</span>(<span class="ident">state</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">BrotliEncoderState</span>) -&gt; <span class="ident">c_int</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliEncoderHasMoreOutput</span>(<span class="ident">state</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">BrotliEncoderState</span>) -&gt; <span class="ident">c_int</span>;
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliEncoderTakeOutput</span>(<span class="ident">state</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">BrotliEncoderState</span>,
                                    <span class="ident">size</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">usize</span>)
-                                   <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliEncoderVersion</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span>;
+                                   -&gt; <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliEncoderVersion</span>() -&gt; <span class="ident">u32</span>;
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="brotli_sys" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>

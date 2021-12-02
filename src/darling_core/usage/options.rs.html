@@ -99,7 +99,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Purpose</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Options</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">purpose</span>: <span class="ident">Purpose</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">purpose</span>: <span class="ident">Purpose</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">purpose</span>,
             <span class="ident">__nonexhaustive</span>: (),
@@ -110,8 +110,8 @@
 <span class="kw">impl</span> <span class="ident">Options</span> {
     <span class="doccomment">/// Returns `true` if the implementer of `UseTypeParams` should search</span>
     <span class="doccomment">/// `&lt;___ as ...&gt;::...` when looking for type parameter uses.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">include_type_path_qself</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">purpose</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Purpose::Declare</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">include_type_path_qself</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">purpose</span> <span class="op">==</span> <span class="ident">Purpose::Declare</span>
     }
 }
 </code></pre></div>

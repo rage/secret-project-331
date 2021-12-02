@@ -1069,7 +1069,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">MessageType</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">MessageDecoder</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">MessageDecoder</span>(<span class="ident">PhantomData</span>)
     }
 }
@@ -1078,7 +1078,7 @@
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> (<span class="ident">T</span>, <span class="ident">PayloadType</span>);
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">ParseError</span>;
 
-    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">src</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">src</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
         <span class="ident">T::decode</span>(<span class="ident">src</span>)
     }
 }
@@ -1094,15 +1094,15 @@
 
     <span class="kw">fn</span> <span class="ident">set_expect</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>);
 
-    <span class="kw">fn</span> <span class="ident">headers_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HeaderMap</span>;
+    <span class="kw">fn</span> <span class="ident">headers_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HeaderMap</span>;
 
-    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="ident">src</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="self">Self</span>, <span class="ident">PayloadType</span>)<span class="op">&gt;</span>, <span class="ident">ParseError</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="ident">src</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="self">Self</span>, <span class="ident">PayloadType</span>)<span class="op">&gt;</span>, <span class="ident">ParseError</span><span class="op">&gt;</span>;
 
     <span class="kw">fn</span> <span class="ident">set_headers</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">slice</span>: <span class="kw-2">&amp;</span><span class="ident">Bytes</span>,
         <span class="ident">raw_headers</span>: <span class="kw-2">&amp;</span>[<span class="ident">HeaderIndex</span>],
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PayloadLength</span>, <span class="ident">ParseError</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PayloadLength</span>, <span class="ident">ParseError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ka</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">has_upgrade_websocket</span> <span class="op">=</span> <span class="bool-val">false</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expect</span> <span class="op">=</span> <span class="bool-val">false</span>;
@@ -1126,17 +1126,17 @@
                 };
 
                 <span class="kw">match</span> <span class="ident">name</span> {
-                    <span class="ident">header::CONTENT_LENGTH</span> <span class="kw">if</span> <span class="ident">content_length</span>.<span class="ident">is_some</span>() <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">header::CONTENT_LENGTH</span> <span class="kw">if</span> <span class="ident">content_length</span>.<span class="ident">is_some</span>() =&gt; {
                         <span class="macro">debug!</span>(<span class="string">&quot;multiple Content-Length&quot;</span>);
                         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParseError::Header</span>);
                     }
 
-                    <span class="ident">header::CONTENT_LENGTH</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">value</span>.<span class="ident">to_str</span>() {
-                        <span class="prelude-val">Ok</span>(<span class="ident">s</span>) <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">trim</span>().<span class="ident">starts_with</span>(<span class="string">&#39;+&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">header::CONTENT_LENGTH</span> =&gt; <span class="kw">match</span> <span class="ident">value</span>.<span class="ident">to_str</span>() {
+                        <span class="prelude-val">Ok</span>(<span class="ident">s</span>) <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">trim</span>().<span class="ident">starts_with</span>(<span class="string">&#39;+&#39;</span>) =&gt; {
                             <span class="macro">debug!</span>(<span class="string">&quot;illegal Content-Length: {:?}&quot;</span>, <span class="ident">s</span>);
                             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParseError::Header</span>);
                         }
-                        <span class="prelude-val">Ok</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="prelude-val">Ok</span>(<span class="ident">s</span>) =&gt; {
                             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">s</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>() {
                                 <span class="kw">if</span> <span class="ident">len</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
                                     <span class="ident">content_length</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>);
@@ -1146,19 +1146,19 @@
                                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParseError::Header</span>);
                             }
                         }
-                        <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
                             <span class="macro">debug!</span>(<span class="string">&quot;illegal Content-Length: {:?}&quot;</span>, <span class="ident">value</span>);
                             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParseError::Header</span>);
                         }
                     },
 
                     <span class="comment">// transfer-encoding</span>
-                    <span class="ident">header::TRANSFER_ENCODING</span> <span class="kw">if</span> <span class="ident">seen_te</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">header::TRANSFER_ENCODING</span> <span class="kw">if</span> <span class="ident">seen_te</span> =&gt; {
                         <span class="macro">debug!</span>(<span class="string">&quot;multiple Transfer-Encoding not allowed&quot;</span>);
                         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParseError::Header</span>);
                     }
 
-                    <span class="ident">header::TRANSFER_ENCODING</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">header::TRANSFER_ENCODING</span> =&gt; {
                         <span class="ident">seen_te</span> <span class="op">=</span> <span class="bool-val">true</span>;
 
                         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>) <span class="op">=</span> <span class="ident">value</span>.<span class="ident">to_str</span>().<span class="ident">map</span>(<span class="ident">str::trim</span>) {
@@ -1175,7 +1175,7 @@
                         }
                     }
                     <span class="comment">// connection keep-alive state</span>
-                    <span class="ident">header::CONNECTION</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">header::CONNECTION</span> =&gt; {
                         <span class="ident">ka</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">conn</span>) <span class="op">=</span> <span class="ident">value</span>.<span class="ident">to_str</span>().<span class="ident">map</span>(<span class="ident">str::trim</span>) {
                             <span class="kw">if</span> <span class="ident">conn</span>.<span class="ident">eq_ignore_ascii_case</span>(<span class="string">&quot;keep-alive&quot;</span>) {
                                 <span class="prelude-val">Some</span>(<span class="ident">ConnectionType::KeepAlive</span>)
@@ -1190,20 +1190,20 @@
                             <span class="prelude-val">None</span>
                         };
                     }
-                    <span class="ident">header::UPGRADE</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">header::UPGRADE</span> =&gt; {
                         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">val</span>) <span class="op">=</span> <span class="ident">value</span>.<span class="ident">to_str</span>().<span class="ident">map</span>(<span class="ident">str::trim</span>) {
                             <span class="kw">if</span> <span class="ident">val</span>.<span class="ident">eq_ignore_ascii_case</span>(<span class="string">&quot;websocket&quot;</span>) {
                                 <span class="ident">has_upgrade_websocket</span> <span class="op">=</span> <span class="bool-val">true</span>;
                             }
                         }
                     }
-                    <span class="ident">header::EXPECT</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">header::EXPECT</span> =&gt; {
                         <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">as_bytes</span>();
-                        <span class="kw">if</span> <span class="ident">bytes</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">4</span> <span class="op">&amp;&amp;</span> <span class="kw-2">&amp;</span><span class="ident">bytes</span>[<span class="number">0</span>..<span class="number">4</span>] <span class="op">=</span><span class="op">=</span> <span class="string">b&quot;100-&quot;</span> {
+                        <span class="kw">if</span> <span class="ident">bytes</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">4</span> <span class="op">&amp;&amp;</span> <span class="kw-2">&amp;</span><span class="ident">bytes</span>[<span class="number">0</span>..<span class="number">4</span>] <span class="op">==</span> <span class="string">b&quot;100-&quot;</span> {
                             <span class="ident">expect</span> <span class="op">=</span> <span class="bool-val">true</span>;
                         }
                     }
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+                    <span class="kw">_</span> =&gt; {}
                 }
 
                 <span class="ident">headers</span>.<span class="ident">append</span>(<span class="ident">name</span>, <span class="ident">value</span>);
@@ -1244,11 +1244,11 @@
         <span class="self">self</span>.<span class="ident">head_mut</span>().<span class="ident">set_expect</span>();
     }
 
-    <span class="kw">fn</span> <span class="ident">headers_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HeaderMap</span> {
+    <span class="kw">fn</span> <span class="ident">headers_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HeaderMap</span> {
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">head_mut</span>().<span class="ident">headers</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="ident">src</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="self">Self</span>, <span class="ident">PayloadType</span>)<span class="op">&gt;</span>, <span class="ident">ParseError</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="ident">src</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="self">Self</span>, <span class="ident">PayloadType</span>)<span class="op">&gt;</span>, <span class="ident">ParseError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span>: [<span class="ident">HeaderIndex</span>; <span class="ident">MAX_HEADERS</span>] <span class="op">=</span> <span class="ident">EMPTY_HEADER_INDEX_ARRAY</span>;
 
         <span class="kw">let</span> (<span class="ident">len</span>, <span class="ident">method</span>, <span class="ident">uri</span>, <span class="ident">ver</span>, <span class="ident">h_len</span>) <span class="op">=</span> {
@@ -1263,11 +1263,11 @@
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">httparse::Request::new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> []);
             <span class="kw">match</span> <span class="ident">req</span>.<span class="ident">parse_with_uninit_headers</span>(<span class="ident">src</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">parsed</span>)<span class="question-mark">?</span> {
-                <span class="ident">httparse::Status::Complete</span>(<span class="ident">len</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">httparse::Status::Complete</span>(<span class="ident">len</span>) =&gt; {
                     <span class="kw">let</span> <span class="ident">method</span> <span class="op">=</span> <span class="ident">Method::from_bytes</span>(<span class="ident">req</span>.<span class="ident">method</span>.<span class="ident">unwrap</span>().<span class="ident">as_bytes</span>())
                         .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">ParseError::Method</span>)<span class="question-mark">?</span>;
                     <span class="kw">let</span> <span class="ident">uri</span> <span class="op">=</span> <span class="ident">Uri::try_from</span>(<span class="ident">req</span>.<span class="ident">path</span>.<span class="ident">unwrap</span>())<span class="question-mark">?</span>;
-                    <span class="kw">let</span> <span class="ident">version</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">version</span>.<span class="ident">unwrap</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
+                    <span class="kw">let</span> <span class="ident">version</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">version</span>.<span class="ident">unwrap</span>() <span class="op">==</span> <span class="number">1</span> {
                         <span class="ident">Version::HTTP_11</span>
                     } <span class="kw">else</span> {
                         <span class="ident">Version::HTTP_10</span>
@@ -1276,7 +1276,7 @@
 
                     (<span class="ident">len</span>, <span class="ident">method</span>, <span class="ident">uri</span>, <span class="ident">version</span>, <span class="ident">req</span>.<span class="ident">headers</span>.<span class="ident">len</span>())
                 }
-                <span class="ident">httparse::Status::Partial</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">httparse::Status::Partial</span> =&gt; {
                     <span class="kw">return</span> <span class="kw">if</span> <span class="ident">src</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">MAX_BUFFER_SIZE</span> {
                         <span class="macro">trace!</span>(<span class="string">&quot;MAX_BUFFER_SIZE unprocessed data reached, closing&quot;</span>);
                         <span class="prelude-val">Err</span>(<span class="ident">ParseError::TooLarge</span>)
@@ -1295,13 +1295,13 @@
 
         <span class="comment">// payload decoder</span>
         <span class="kw">let</span> <span class="ident">decoder</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">length</span> {
-            <span class="ident">PayloadLength::Payload</span>(<span class="ident">pl</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">pl</span>,
-            <span class="ident">PayloadLength::UpgradeWebSocket</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">PayloadLength::Payload</span>(<span class="ident">pl</span>) =&gt; <span class="ident">pl</span>,
+            <span class="ident">PayloadLength::UpgradeWebSocket</span> =&gt; {
                 <span class="comment">// upgrade (WebSocket)</span>
                 <span class="ident">PayloadType::Stream</span>(<span class="ident">PayloadDecoder::eof</span>())
             }
-            <span class="ident">PayloadLength::None</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="ident">method</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Method::CONNECT</span> {
+            <span class="ident">PayloadLength::None</span> =&gt; {
+                <span class="kw">if</span> <span class="ident">method</span> <span class="op">==</span> <span class="ident">Method::CONNECT</span> {
                     <span class="ident">PayloadType::Stream</span>(<span class="ident">PayloadDecoder::eof</span>())
                 } <span class="kw">else</span> {
                     <span class="ident">PayloadType::None</span>
@@ -1327,11 +1327,11 @@
 
     <span class="kw">fn</span> <span class="ident">set_expect</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {}
 
-    <span class="kw">fn</span> <span class="ident">headers_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HeaderMap</span> {
+    <span class="kw">fn</span> <span class="ident">headers_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HeaderMap</span> {
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">headers</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="ident">src</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="self">Self</span>, <span class="ident">PayloadType</span>)<span class="op">&gt;</span>, <span class="ident">ParseError</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="ident">src</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="self">Self</span>, <span class="ident">PayloadType</span>)<span class="op">&gt;</span>, <span class="ident">ParseError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span>: [<span class="ident">HeaderIndex</span>; <span class="ident">MAX_HEADERS</span>] <span class="op">=</span> <span class="ident">EMPTY_HEADER_INDEX_ARRAY</span>;
 
         <span class="kw">let</span> (<span class="ident">len</span>, <span class="ident">ver</span>, <span class="ident">status</span>, <span class="ident">h_len</span>) <span class="op">=</span> {
@@ -1339,8 +1339,8 @@
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">httparse::Response::new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">parsed</span>);
             <span class="kw">match</span> <span class="ident">res</span>.<span class="ident">parse</span>(<span class="ident">src</span>)<span class="question-mark">?</span> {
-                <span class="ident">httparse::Status::Complete</span>(<span class="ident">len</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">let</span> <span class="ident">version</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">res</span>.<span class="ident">version</span>.<span class="ident">unwrap</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
+                <span class="ident">httparse::Status::Complete</span>(<span class="ident">len</span>) =&gt; {
+                    <span class="kw">let</span> <span class="ident">version</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">res</span>.<span class="ident">version</span>.<span class="ident">unwrap</span>() <span class="op">==</span> <span class="number">1</span> {
                         <span class="ident">Version::HTTP_11</span>
                     } <span class="kw">else</span> {
                         <span class="ident">Version::HTTP_10</span>
@@ -1351,7 +1351,7 @@
 
                     (<span class="ident">len</span>, <span class="ident">version</span>, <span class="ident">status</span>, <span class="ident">res</span>.<span class="ident">headers</span>.<span class="ident">len</span>())
                 }
-                <span class="ident">httparse::Status::Partial</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">httparse::Status::Partial</span> =&gt; {
                     <span class="kw">return</span> <span class="kw">if</span> <span class="ident">src</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">MAX_BUFFER_SIZE</span> {
                         <span class="macro">error!</span>(<span class="string">&quot;MAX_BUFFER_SIZE unprocessed data reached, closing&quot;</span>);
                         <span class="prelude-val">Err</span>(<span class="ident">ParseError::TooLarge</span>)
@@ -1371,12 +1371,12 @@
         <span class="comment">// message payload</span>
         <span class="kw">let</span> <span class="ident">decoder</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PayloadLength::Payload</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">length</span> {
             <span class="ident">pl</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">status</span> <span class="op">=</span><span class="op">=</span> <span class="ident">StatusCode::SWITCHING_PROTOCOLS</span> {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">status</span> <span class="op">==</span> <span class="ident">StatusCode::SWITCHING_PROTOCOLS</span> {
             <span class="comment">// switching protocol or connect</span>
             <span class="ident">PayloadType::Stream</span>(<span class="ident">PayloadDecoder::eof</span>())
         } <span class="kw">else</span> {
             <span class="comment">// for HTTP/1.0 read to eof and close connection</span>
-            <span class="kw">if</span> <span class="ident">msg</span>.<span class="ident">version</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Version::HTTP_10</span> {
+            <span class="kw">if</span> <span class="ident">msg</span>.<span class="ident">version</span> <span class="op">==</span> <span class="ident">Version::HTTP_10</span> {
                 <span class="ident">msg</span>.<span class="ident">set_connection_type</span>(<span class="ident">ConnectionType::Close</span>);
                 <span class="ident">PayloadType::Payload</span>(<span class="ident">PayloadDecoder::eof</span>())
             } <span class="kw">else</span> {
@@ -1440,19 +1440,19 @@
 }
 
 <span class="kw">impl</span> <span class="ident">PayloadDecoder</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">length</span>(<span class="ident">x</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PayloadDecoder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">length</span>(<span class="ident">x</span>: <span class="ident">u64</span>) -&gt; <span class="ident">PayloadDecoder</span> {
         <span class="ident">PayloadDecoder</span> {
             <span class="ident">kind</span>: <span class="ident">Kind::Length</span>(<span class="ident">x</span>),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">chunked</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PayloadDecoder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">chunked</span>() -&gt; <span class="ident">PayloadDecoder</span> {
         <span class="ident">PayloadDecoder</span> {
             <span class="ident">kind</span>: <span class="ident">Kind::Chunked</span>(<span class="ident">ChunkedState::Size</span>, <span class="number">0</span>),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eof</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PayloadDecoder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eof</span>() -&gt; <span class="ident">PayloadDecoder</span> {
         <span class="ident">PayloadDecoder</span> { <span class="ident">kind</span>: <span class="ident">Kind::Eof</span> }
     }
 }
@@ -1485,10 +1485,10 @@
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">PayloadItem</span>;
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">io::Error</span>;
 
-    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">src</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">src</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">kind</span> {
-            <span class="ident">Kind::Length</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">remaining</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">remaining</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+            <span class="ident">Kind::Length</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">remaining</span>) =&gt; {
+                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">remaining</span> <span class="op">==</span> <span class="number">0</span> {
                     <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">PayloadItem::Eof</span>))
                 } <span class="kw">else</span> {
                     <span class="kw">if</span> <span class="ident">src</span>.<span class="ident">is_empty</span>() {
@@ -1507,18 +1507,18 @@
                     <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">PayloadItem::Chunk</span>(<span class="ident">buf</span>)))
                 }
             }
-            <span class="ident">Kind::Chunked</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">state</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">size</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Kind::Chunked</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">state</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">size</span>) =&gt; {
                 <span class="kw">loop</span> {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="prelude-val">None</span>;
 
                     <span class="comment">// advances the chunked state</span>
                     <span class="kw-2">*</span><span class="ident">state</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">state</span>.<span class="ident">step</span>(<span class="ident">src</span>, <span class="ident">size</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>) {
-                        <span class="ident">Poll::Pending</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
-                        <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">state</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">state</span>,
-                        <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+                        <span class="ident">Poll::Pending</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
+                        <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">state</span>)) =&gt; <span class="ident">state</span>,
+                        <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
                     };
 
-                    <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">state</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ChunkedState::End</span> {
+                    <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">state</span> <span class="op">==</span> <span class="ident">ChunkedState::End</span> {
                         <span class="macro">trace!</span>(<span class="string">&quot;End of chunked stream&quot;</span>);
                         <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">PayloadItem::Eof</span>));
                     }
@@ -1532,7 +1532,7 @@
                     }
                 }
             }
-            <span class="ident">Kind::Eof</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Kind::Eof</span> =&gt; {
                 <span class="kw">if</span> <span class="ident">src</span>.<span class="ident">is_empty</span>() {
                     <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
                 } <span class="kw">else</span> {
@@ -1556,49 +1556,49 @@
     };
 
     <span class="kw">impl</span> <span class="ident">PayloadType</span> {
-        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">unwrap</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PayloadDecoder</span> {
+        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">unwrap</span>(<span class="self">self</span>) -&gt; <span class="ident">PayloadDecoder</span> {
             <span class="kw">match</span> <span class="self">self</span> {
-                <span class="ident">PayloadType::Payload</span>(<span class="ident">pl</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">pl</span>,
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(),
+                <span class="ident">PayloadType::Payload</span>(<span class="ident">pl</span>) =&gt; <span class="ident">pl</span>,
+                <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(),
             }
         }
 
-        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_unhandled</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_unhandled</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
             <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">PayloadType::Stream</span>(<span class="kw">_</span>))
         }
     }
 
     <span class="kw">impl</span> <span class="ident">PayloadItem</span> {
-        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">chunk</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Bytes</span> {
+        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">chunk</span>(<span class="self">self</span>) -&gt; <span class="ident">Bytes</span> {
             <span class="kw">match</span> <span class="self">self</span> {
-                <span class="ident">PayloadItem::Chunk</span>(<span class="ident">chunk</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">chunk</span>,
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;error&quot;</span>),
+                <span class="ident">PayloadItem::Chunk</span>(<span class="ident">chunk</span>) =&gt; <span class="ident">chunk</span>,
+                <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;error&quot;</span>),
             }
         }
 
-        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">eof</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">eof</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
             <span class="macro">matches!</span>(<span class="kw-2">*</span><span class="self">self</span>, <span class="ident">PayloadItem::Eof</span>)
         }
     }
 
     <span class="macro">macro_rules!</span> <span class="ident">parse_ready</span> {
-        (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+        (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>:<span class="ident">expr</span>) =&gt; {{
             <span class="kw">match</span> <span class="ident">MessageDecoder</span>::<span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span><span class="ident">::default</span>().<span class="ident">decode</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>) {
-                <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((<span class="ident">msg</span>, <span class="kw">_</span>))) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">msg</span>,
-                <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(<span class="string">&quot;Eof during parsing http request&quot;</span>),
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(<span class="string">&quot;Error during parsing http request: {:?}&quot;</span>, <span class="ident">err</span>),
+                <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((<span class="ident">msg</span>, <span class="kw">_</span>))) =&gt; <span class="ident">msg</span>,
+                <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Eof during parsing http request&quot;</span>),
+                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Error during parsing http request: {:?}&quot;</span>, <span class="ident">err</span>),
             }
         }};
     }
 
     <span class="macro">macro_rules!</span> <span class="ident">expect_parse_err</span> {
-        (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+        (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>:<span class="ident">expr</span>) =&gt; {{
             <span class="kw">match</span> <span class="ident">MessageDecoder</span>::<span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span><span class="ident">::default</span>().<span class="ident">decode</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>) {
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">err</span> {
-                    <span class="ident">ParseError::Io</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(<span class="string">&quot;Parse error expected&quot;</span>),
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="kw">match</span> <span class="ident">err</span> {
+                    <span class="ident">ParseError::Io</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Parse error expected&quot;</span>),
+                    <span class="kw">_</span> =&gt; {}
                 },
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(<span class="string">&quot;Error expected&quot;</span>),
+                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Error expected&quot;</span>),
             }
         }};
     }
@@ -1609,12 +1609,12 @@
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident">MessageDecoder</span>::<span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span><span class="ident">::default</span>();
         <span class="kw">match</span> <span class="ident">reader</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>) {
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((<span class="ident">req</span>, <span class="kw">_</span>))) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((<span class="ident">req</span>, <span class="kw">_</span>))) =&gt; {
                 <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">version</span>(), <span class="ident">Version::HTTP_11</span>);
                 <span class="macro">assert_eq!</span>(<span class="kw-2">*</span><span class="ident">req</span>.<span class="ident">method</span>(), <span class="ident">Method::GET</span>);
                 <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">path</span>(), <span class="string">&quot;/test&quot;</span>);
             }
-            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(<span class="string">&quot;Error during parsing http request&quot;</span>),
+            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Error during parsing http request&quot;</span>),
         }
     }
 

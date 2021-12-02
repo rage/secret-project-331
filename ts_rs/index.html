@@ -22,17 +22,17 @@ alt="docs.rs docs" />
 alt="Download" />
 </a>
 </div>
-<h2 id="why" class="section-header"><a href="#why">why?</a></h2>
+<h3 id="why" class="section-header"><a href="#why">why?</a></h3>
 <p>When building a web application in rust, data structures have to be shared between backend and frontend.
 Using this library, you can easily generate TypeScript bindings to your rust structs &amp; enums so that you can keep your
 types in one place.</p>
 <p>ts-rs might also come in handy when working with webassembly.</p>
-<h2 id="how" class="section-header"><a href="#how">how?</a></h2>
+<h3 id="how" class="section-header"><a href="#how">how?</a></h3>
 <p>ts-rs exposes a single trait, <code>TS</code>. Using a derive macro, you can implement this interface for your types.
 Then, you can use this trait to obtain the TypeScript bindings.
 We recommend doing this in your tests.
 <a href="https://github.com/Aleph-Alpha/ts-rs/blob/main/example/src/lib.rs">See the example</a> and <a href="https://docs.rs/ts-rs/latest/ts_rs/">the docs</a>.</p>
-<h2 id="get-started" class="section-header"><a href="#get-started">get started</a></h2><div class="example-wrap"><pre class="language-toml"><code>[dependencies]
+<h3 id="get-started" class="section-header"><a href="#get-started">get started</a></h3><div class="example-wrap"><pre class="language-toml"><code>[dependencies]
 ts-rs = &quot;6.0&quot;</code></pre></div>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">ts_rs::TS</span>;
 
@@ -44,7 +44,7 @@ ts-rs = &quot;6.0&quot;</code></pre></div>
     <span class="ident">last_name</span>: <span class="ident">String</span>,
 }</code></pre></div>
 <p>When running <code>cargo test</code>, the TypeScript bindings will be exported to the file <code>bindings/User.ts</code>.</p>
-<h2 id="features" class="section-header"><a href="#features">features</a></h2>
+<h3 id="features" class="section-header"><a href="#features">features</a></h3>
 <ul>
 <li>generate interface declarations from rust structs</li>
 <li>generate union declarations from rust enums</li>
@@ -54,7 +54,7 @@ ts-rs = &quot;6.0&quot;</code></pre></div>
 <li>serde compatibility</li>
 <li>generic types</li>
 </ul>
-<h2 id="cargo-features" class="section-header"><a href="#cargo-features">cargo features</a></h2>
+<h3 id="cargo-features" class="section-header"><a href="#cargo-features">cargo features</a></h3>
 <ul>
 <li><code>serde-compat</code> (default)<br />
 Enable serde compatibility. See below for more info.</li>
@@ -68,7 +68,7 @@ Implement <code>TS</code> for types from uuid</li>
 Implement <code>TS</code> for types from bytes</li>
 </ul>
 <p>If there’s a type you’re dealing with which doesn’t implement <code>TS</code>, use <code>#[ts(type = &quot;..&quot;)]</code> or open a PR.</p>
-<h2 id="serde-compatability" class="section-header"><a href="#serde-compatability">serde compatability</a></h2>
+<h3 id="serde-compatability" class="section-header"><a href="#serde-compatability">serde compatability</a></h3>
 <p>With the <code>serde-compat</code> feature (enabled by default), serde attributes can be parsed for enums and structs.
 Supported serde attributes:</p>
 <ul>
@@ -85,11 +85,11 @@ Supported serde attributes:</p>
 <li><code>default</code></li>
 </ul>
 <p>When ts-rs encounters an unsupported serde attribute, a warning is emitted.</p>
-<h2 id="contributing" class="section-header"><a href="#contributing">contributing</a></h2>
+<h3 id="contributing" class="section-header"><a href="#contributing">contributing</a></h3>
 <p>Contributions are always welcome!
 Feel free to open an issue, discuss using GitHub discussions or open a PR.
 <a href="https://github.com/Aleph-Alpha/ts-rs/blob/main/CONTRIBUTING.md">See CONTRIBUTING.md</a></p>
-<h2 id="todo" class="section-header"><a href="#todo">todo</a></h2>
+<h3 id="todo" class="section-header"><a href="#todo">todo</a></h3>
 <ul>
 <li><input disabled="" type="checkbox" checked=""/>
 serde compatibility layer</li>
@@ -105,18 +105,18 @@ generics</li>
 don’t require <code>'static</code></li>
 </ul>
 </div></details><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.Dependency.html" title="ts_rs::Dependency struct">Dependency</a></div><div class="item-right docblock-short"><p>A typescript type which is depended upon by other types.
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Dependency.html" title="ts_rs::Dependency struct">Dependency</a></div><div class="item-right docblock-short"><p>A typescript type which is depended upon by other types.
 This information is required for generating the correct import statements.</p>
-</div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="enum" href="enum.ExportError.html" title="ts_rs::ExportError enum">ExportError</a></div><div class="item-right docblock-short"><p>An error which may occur when exporting a type</p>
-</div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="trait" href="trait.TS.html" title="ts_rs::TS trait">TS</a></div><div class="item-right docblock-short"><p>A type which can be represented in TypeScript.<br />
+</div></div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.ExportError.html" title="ts_rs::ExportError enum">ExportError</a></div><div class="item-right docblock-short"><p>An error which may occur when exporting a type</p>
+</div></div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.TS.html" title="ts_rs::TS trait">TS</a></div><div class="item-right docblock-short"><p>A type which can be represented in TypeScript.<br />
 Most of the time, you’d want to derive this trait instead of implementing it manually.<br />
 ts-rs comes with implementations for all primitives, most collections, tuples,
 arrays and containers.</p>
-</div></div><h2 id="derives" class="section-header"><a href="#derives">Derive Macros</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="derive" href="derive.TS.html" title="ts_rs::TS derive">TS</a></div><div class="item-right docblock-short"><p>Derives <a href="./trait.TS.html">TS</a> for a struct or enum.
+</div></div></div><h2 id="derives" class="section-header"><a href="#derives">Derive Macros</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="derive" href="derive.TS.html" title="ts_rs::TS derive">TS</a></div><div class="item-right docblock-short"><p>Derives <a href="./trait.TS.html">TS</a> for a struct or enum.
 Please take a look at <a href="./trait.TS.html">TS</a> for documentation.</p>
-</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="ts_rs" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+</div></div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="ts_rs" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
     <script src="../main.js"></script>
 </body></html>

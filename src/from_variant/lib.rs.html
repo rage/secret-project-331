@@ -82,7 +82,7 @@
 <span class="kw">use</span> <span class="ident">syn</span>::<span class="kw-2">*</span>;
 
 <span class="attribute">#[<span class="ident">proc_macro_derive</span>(<span class="ident">FromVariant</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">derive_from_variant</span>(<span class="ident">input</span>: <span class="ident">proc_macro::TokenStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">proc_macro::TokenStream</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">derive_from_variant</span>(<span class="ident">input</span>: <span class="ident">proc_macro::TokenStream</span>) -&gt; <span class="ident">proc_macro::TokenStream</span> {
     <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">DeriveInput</span><span class="op">&gt;</span>(<span class="ident">input</span>).<span class="ident">expect</span>(<span class="string">&quot;failed to parse input as DeriveInput&quot;</span>);
 
     <span class="kw">let</span> <span class="ident">item</span> <span class="op">=</span> <span class="ident">derive</span>(<span class="ident">input</span>)
@@ -102,10 +102,10 @@
         <span class="ident">ident</span>,
         ..
     }: <span class="ident">DeriveInput</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ItemImpl</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ItemImpl</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">variants</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">data</span> {
-        <span class="ident">Data::Enum</span>(<span class="ident">DataEnum</span> { <span class="ident">variants</span>, .. }) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">variants</span>,
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;#[derive(FromVariant)] only works for an enum.&quot;</span>),
+        <span class="ident">Data::Enum</span>(<span class="ident">DataEnum</span> { <span class="ident">variants</span>, .. }) =&gt; <span class="ident">variants</span>,
+        <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;#[derive(FromVariant)] only works for an enum.&quot;</span>),
     };
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">from_impls</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ItemImpl</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[];
@@ -113,7 +113,7 @@
     <span class="kw">for</span> <span class="ident">v</span> <span class="kw">in</span> <span class="ident">variants</span> {
         <span class="kw">let</span> <span class="ident">variant_name</span> <span class="op">=</span> <span class="ident">v</span>.<span class="ident">ident</span>;
         <span class="kw">match</span> <span class="ident">v</span>.<span class="ident">fields</span> {
-            <span class="ident">Fields::Unnamed</span>(<span class="ident">FieldsUnnamed</span> { <span class="ident">unnamed</span>, .. }) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Fields::Unnamed</span>(<span class="ident">FieldsUnnamed</span> { <span class="ident">unnamed</span>, .. }) =&gt; {
                 <span class="kw">if</span> <span class="ident">unnamed</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">1</span> {
                     <span class="macro">panic!</span>(
                         <span class="string">&quot;#[derive(FromVariant)] requires all variants to be tuple with exactly \
@@ -131,7 +131,7 @@
                         },
                         {
                             <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">VariantType</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Type</span> {
-                                <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">v</span>: <span class="ident">VariantType</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+                                <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">v</span>: <span class="ident">VariantType</span>) -&gt; <span class="self">Self</span> {
                                     <span class="ident">Type::Variant</span>(<span class="ident">v</span>)
                                 }
                             }
@@ -141,7 +141,7 @@
 
                 <span class="ident">from_impls</span>.<span class="ident">push</span>(<span class="ident">from_impl</span>);
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(
+            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(
                 <span class="string">&quot;#[derive(FromVariant)] requires all variants to be tuple with exactly one field&quot;</span>
             ),
         }

@@ -25,18 +25,18 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types::Type</span>;
 
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> () {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="ident">PgTypeInfo::VOID</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) -&gt; <span class="ident">bool</span> {
         <span class="comment">// RECORD is here so we can support the empty tuple</span>
-        <span class="kw-2">*</span><span class="ident">ty</span> <span class="op">=</span><span class="op">=</span> <span class="ident">PgTypeInfo::VOID</span> <span class="op">|</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">ty</span> <span class="op">=</span><span class="op">=</span> <span class="ident">PgTypeInfo::RECORD</span>
+        <span class="kw-2">*</span><span class="ident">ty</span> <span class="op">==</span> <span class="ident">PgTypeInfo::VOID</span> <span class="op">|</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">ty</span> <span class="op">==</span> <span class="ident">PgTypeInfo::RECORD</span>
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span> <span class="ident">Decode</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> () {
-    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="ident">_value</span>: <span class="ident">PgValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">BoxDynError</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="ident">_value</span>: <span class="ident">PgValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">BoxDynError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(())
     }
 }

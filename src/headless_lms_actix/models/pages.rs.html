@@ -1947,7 +1947,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Page</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">blocks_cloned</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">GutenbergBlock</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">blocks_cloned</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">GutenbergBlock</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">serde_json::from_value</span>(<span class="self">self</span>.<span class="ident">content</span>.<span class="ident">clone</span>()).<span class="ident">map_err</span>(<span class="ident">Into::into</span>)
     }
 }
@@ -2082,7 +2082,7 @@
     <span class="ident">title</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
     <span class="ident">order_number</span>: <span class="ident">i32</span>,
     <span class="ident">author</span>: <span class="ident">Uuid</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span>(<span class="ident">Uuid</span>, <span class="ident">Uuid</span>)<span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>(<span class="ident">Uuid</span>, <span class="ident">Uuid</span>)<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">page_res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
@@ -2127,7 +2127,7 @@ RETURNING id
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;UPDATE pages SET chapter_id = $1 WHERE id = $2&quot;</span>,
         <span class="ident">chapter_id</span>,
@@ -2141,7 +2141,7 @@ RETURNING id
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_and_exam_id</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">id</span>: <span class="ident">Uuid</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 SELECT course_id, exam_id
@@ -2156,7 +2156,7 @@ WHERE id = $1
     <span class="prelude-val">Ok</span>((<span class="ident">res</span>.<span class="ident">course_id</span>, <span class="ident">res</span>.<span class="ident">exam_id</span>))
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">course_pages</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">course_id</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">course_pages</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">course_id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">pages</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">Page</span>,
         <span class="string">&quot;
@@ -2183,7 +2183,7 @@ WHERE course_id = $1
     <span class="prelude-val">Ok</span>(<span class="ident">pages</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">chapter_pages</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">chapter_pages</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">pages</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">Page</span>,
         <span class="string">&quot;
@@ -2210,7 +2210,7 @@ WHERE chapter_id = $1
     <span class="prelude-val">Ok</span>(<span class="ident">pages</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_page</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">page_id</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_page</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">page_id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">pages</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">Page</span>,
         <span class="string">&quot;
@@ -2240,7 +2240,7 @@ WHERE id = $1;
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">course_slug</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
     <span class="ident">url_path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">Page</span>,
         <span class="string">&quot;
@@ -2276,7 +2276,7 @@ WHERE courses.slug = $1
     <span class="ident">user</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AuthUser</span><span class="op">&gt;</span>,
     <span class="ident">course_slug</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
     <span class="ident">url_path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CoursePageWithUserData</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CoursePageWithUserData</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="ident">get_page_by_path</span>(<span class="ident">conn</span>, <span class="ident">course_slug</span>, <span class="ident">url_path</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">chapter_id</span>) <span class="op">=</span> <span class="ident">page</span>.<span class="ident">chapter_id</span> {
         <span class="kw">if</span> <span class="op">!</span><span class="ident">chapters::is_open</span>(<span class="ident">conn</span>, <span class="ident">chapter_id</span>).<span class="kw">await</span><span class="question-mark">?</span> {
@@ -2311,7 +2311,7 @@ WHERE courses.slug = $1
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_page_with_exercises</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">id</span>: <span class="ident">Uuid</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">ContentManagementPage</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">ContentManagementPage</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="ident">get_page</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">exercises</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPageExercise</span><span class="op">&gt;</span> <span class="op">=</span>
         <span class="ident"><span class="kw">crate</span>::models::exercises::get_exercises_by_page_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">page</span>.<span class="ident">id</span>)
@@ -2347,7 +2347,7 @@ WHERE courses.slug = $1
     })
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_exam_id</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">exam_id</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_exam_id</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">exam_id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">Page</span>,
         <span class="string">&quot;
@@ -2382,7 +2382,7 @@ AND pages.deleted_at IS NULL
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Exercise</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CmsPageExercise</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">exercise</span>: <span class="ident">Exercise</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">exercise</span>: <span class="ident">Exercise</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">id</span>: <span class="ident">exercise</span>.<span class="ident">id</span>,
             <span class="ident">name</span>: <span class="ident">exercise</span>.<span class="ident">name</span>,
@@ -2399,7 +2399,7 @@ AND pages.deleted_at IS NULL
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ExerciseSlide</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CmsPageExerciseSlide</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">slide</span>: <span class="ident">ExerciseSlide</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">slide</span>: <span class="ident">ExerciseSlide</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">id</span>: <span class="ident">slide</span>.<span class="ident">id</span>,
             <span class="ident">exercise_id</span>: <span class="ident">slide</span>.<span class="ident">exercise_id</span>,
@@ -2418,7 +2418,7 @@ AND pages.deleted_at IS NULL
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ExerciseTask</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CmsPageExerciseTask</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">task</span>: <span class="ident">ExerciseTask</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">task</span>: <span class="ident">ExerciseTask</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">CmsPageExerciseTask</span> {
             <span class="ident">id</span>: <span class="ident">task</span>.<span class="ident">id</span>,
             <span class="ident">exercise_slide_id</span>: <span class="ident">task</span>.<span class="ident">exercise_slide_id</span>,
@@ -2442,7 +2442,7 @@ AND pages.deleted_at IS NULL
 
 <span class="kw">impl</span> <span class="ident">CmsPageUpdate</span> {
     <span class="doccomment">/// Checks that each exercise has at least one slide and each slide has at least one task.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">validate_exercise_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">validate_exercise_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">exercise_ids</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">bool</span><span class="op">&gt;</span> <span class="op">=</span>
             <span class="self">self</span>.<span class="ident">exercises</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> (<span class="ident">x</span>.<span class="ident">id</span>, <span class="bool-val">false</span>)).<span class="ident">collect</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">slide_ids</span> <span class="op">=</span> <span class="self">self</span>
@@ -2489,7 +2489,7 @@ AND pages.deleted_at IS NULL
     <span class="ident">author</span>: <span class="ident">Uuid</span>,
     <span class="ident">retain_exercise_ids</span>: <span class="ident">bool</span>,
     <span class="ident">history_change_reason</span>: <span class="ident">HistoryChangeReason</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">ContentManagementPage</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">ContentManagementPage</span><span class="op">&gt;</span> {
     <span class="ident">page_update</span>.<span class="ident">validate_exercise_data</span>()<span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">parsed_content</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">GutenbergBlock</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">serde_json::from_value</span>(<span class="ident">page_update</span>.<span class="ident">content</span>)<span class="question-mark">?</span>;
@@ -2662,12 +2662,12 @@ RETURNING id,
     <span class="ident">existing_exercise_ids</span>: <span class="kw-2">&amp;</span>[<span class="ident">Uuid</span>],
     <span class="ident">exercise_updates</span>: <span class="kw-2">&amp;</span>[<span class="ident">CmsPageExercise</span>],
     <span class="ident">retain_exercise_ids</span>: <span class="ident">bool</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">CmsPageExercise</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">CmsPageExercise</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">remapped_exercises</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
     <span class="kw">for</span> <span class="ident">exercise_update</span> <span class="kw">in</span> <span class="ident">exercise_updates</span>.<span class="ident">iter</span>() {
         <span class="kw">let</span> <span class="ident">exercise_exists</span> <span class="op">=</span> <span class="ident">existing_exercise_ids</span>
             .<span class="ident">iter</span>()
-            .<span class="ident">any</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">exercise_update</span>.<span class="ident">id</span>);
+            .<span class="ident">any</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">id</span> <span class="op">==</span> <span class="ident">exercise_update</span>.<span class="ident">id</span>);
         <span class="kw">let</span> <span class="ident">safe_for_db_exercise_id</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">retain_exercise_ids</span> <span class="op">|</span><span class="op">|</span> <span class="ident">exercise_exists</span> {
             <span class="ident">exercise_update</span>.<span class="ident">id</span>
         } <span class="kw">else</span> {
@@ -2718,10 +2718,10 @@ RETURNING id,
     <span class="ident">existing_slide_ids</span>: <span class="kw-2">&amp;</span>[<span class="ident">Uuid</span>],
     <span class="ident">slide_updates</span>: <span class="kw-2">&amp;</span>[<span class="ident">CmsPageExerciseSlide</span>],
     <span class="ident">retain_exercise_ids</span>: <span class="ident">bool</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">CmsPageExerciseSlide</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">CmsPageExerciseSlide</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">remapped_exercise_slides</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
     <span class="kw">for</span> <span class="ident">slide_update</span> <span class="kw">in</span> <span class="ident">slide_updates</span>.<span class="ident">iter</span>() {
-        <span class="kw">let</span> <span class="ident">slide_exists</span> <span class="op">=</span> <span class="ident">existing_slide_ids</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">slide_update</span>.<span class="ident">id</span>);
+        <span class="kw">let</span> <span class="ident">slide_exists</span> <span class="op">=</span> <span class="ident">existing_slide_ids</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">id</span> <span class="op">==</span> <span class="ident">slide_update</span>.<span class="ident">id</span>);
         <span class="kw">let</span> <span class="ident">safe_for_db_slide_id</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">retain_exercise_ids</span> <span class="op">|</span><span class="op">|</span> <span class="ident">slide_exists</span> {
             <span class="ident">slide_update</span>.<span class="ident">id</span>
         } <span class="kw">else</span> {
@@ -2768,7 +2768,7 @@ RETURNING id,
     <span class="ident">existing_task_specs</span>: <span class="kw-2">&amp;</span>[<span class="ident">ExerciseTaskIdAndSpec</span>],
     <span class="ident">task_updates</span>: <span class="kw-2">&amp;</span>[<span class="ident">CmsPageExerciseTask</span>],
     <span class="ident">retain_exercise_ids</span>: <span class="ident">bool</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPageExerciseTask</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPageExerciseTask</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="comment">// For generating public specs for exercises.</span>
     <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">reqwest::Client::new</span>();
     <span class="kw">let</span> <span class="ident">exercise_types</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">task_updates</span>
@@ -2790,16 +2790,16 @@ RETURNING id,
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">remapped_exercise_tasks</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">for</span> <span class="ident">task_update</span> <span class="kw">in</span> <span class="ident">task_updates</span>.<span class="ident">iter</span>() {
-        <span class="kw">let</span> <span class="ident">existing_exercise_task</span> <span class="op">=</span> <span class="ident">existing_task_specs</span>.<span class="ident">iter</span>().<span class="ident">find</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">o</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">task_update</span>.<span class="ident">id</span>);
+        <span class="kw">let</span> <span class="ident">existing_exercise_task</span> <span class="op">=</span> <span class="ident">existing_task_specs</span>.<span class="ident">iter</span>().<span class="ident">find</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">o</span>.<span class="ident">id</span> <span class="op">==</span> <span class="ident">task_update</span>.<span class="ident">id</span>);
         <span class="kw">let</span> <span class="ident">safe_for_db_exercise_task_id</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">existing_exercise_task</span> {
-            <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">task_update</span>.<span class="ident">id</span>,
-            <span class="kw">_</span> <span class="kw">if</span> <span class="ident">retain_exercise_ids</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">task_update</span>.<span class="ident">id</span>,
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Uuid::new_v4</span>(),
+            <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; <span class="ident">task_update</span>.<span class="ident">id</span>,
+            <span class="kw">_</span> <span class="kw">if</span> <span class="ident">retain_exercise_ids</span> =&gt; <span class="ident">task_update</span>.<span class="ident">id</span>,
+            <span class="prelude-val">None</span> =&gt; <span class="ident">Uuid::new_v4</span>(),
         };
 
         <span class="kw">let</span> <span class="ident">task_exists</span> <span class="op">=</span> <span class="ident">existing_task_specs</span>
             .<span class="ident">iter</span>()
-            .<span class="ident">any</span>(<span class="op">|</span><span class="ident">task</span><span class="op">|</span> <span class="ident">task</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">task_update</span>.<span class="ident">id</span>);
+            .<span class="ident">any</span>(<span class="op">|</span><span class="ident">task</span><span class="op">|</span> <span class="ident">task</span>.<span class="ident">id</span> <span class="op">==</span> <span class="ident">task_update</span>.<span class="ident">id</span>);
         <span class="kw">let</span> <span class="ident">safe_for_db_task_id</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">retain_exercise_ids</span> <span class="op">|</span><span class="op">|</span> <span class="ident">task_exists</span> {
             <span class="ident">task_update</span>.<span class="ident">id</span>
         } <span class="kw">else</span> {
@@ -2887,7 +2887,7 @@ RETURNING id,
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">content</span>: <span class="kw-2">&amp;</span><span class="ident">serde_json::Value</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 UPDATE pages
@@ -2917,13 +2917,13 @@ WHERE id = $2;
     <span class="ident">urls_by_exercise_type</span>: <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">String</span>, <span class="ident">Url</span><span class="op">&gt;</span>,
     <span class="ident">client</span>: <span class="kw-2">&amp;</span><span class="ident">reqwest::Client</span>,
     <span class="ident">previous_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>, <span class="ident">ModelError</span><span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>, <span class="ident">ModelError</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">result_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">existing_exercise_task</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">exercise_task</span>) <span class="kw">if</span> <span class="ident">exercise_task</span>.<span class="ident">private_spec</span> <span class="op">=</span><span class="op">=</span> <span class="ident">task_update</span>.<span class="ident">private_spec</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Some</span>(<span class="ident">exercise_task</span>) <span class="kw">if</span> <span class="ident">exercise_task</span>.<span class="ident">private_spec</span> <span class="op">==</span> <span class="ident">task_update</span>.<span class="ident">private_spec</span> =&gt; {
             <span class="comment">// Skip generating public spec for an existing exercise again if private spec is still the same.</span>
             <span class="ident">previous_spec</span>
         }
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw">_</span> =&gt; {
             <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">urls_by_exercise_type</span>
                 .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">task_update</span>.<span class="ident">exercise_type</span>)
                 .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
@@ -2953,13 +2953,13 @@ WHERE id = $2;
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">new_page</span>: <span class="ident">NewPage</span>,
     <span class="ident">author</span>: <span class="ident">Uuid</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">next_order_number</span> <span class="op">=</span> <span class="kw">match</span> (<span class="ident">new_page</span>.<span class="ident">chapter_id</span>, <span class="ident">new_page</span>.<span class="ident">course_id</span>) {
-        (<span class="prelude-val">Some</span>(<span class="ident">id</span>), <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">get_next_page_order_number_in_chapter</span>(<span class="ident">conn</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>,
-        (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">course_id</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+        (<span class="prelude-val">Some</span>(<span class="ident">id</span>), <span class="kw">_</span>) =&gt; <span class="ident">get_next_page_order_number_in_chapter</span>(<span class="ident">conn</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>,
+        (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">course_id</span>)) =&gt; {
             <span class="ident">get_next_order_number_for_courses_top_level_pages</span>(<span class="ident">conn</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>
         }
-        (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="number">1</span>,
+        (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; <span class="number">1</span>,
     };
     <span class="kw">let</span> <span class="ident">course</span>: <span class="ident">OptionFuture</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">new_page</span>
         .<span class="ident">course_id</span>
@@ -3067,7 +3067,7 @@ RETURNING *;
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_page_and_exercises</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">Page</span>,
@@ -3142,7 +3142,7 @@ WHERE exercise_slide_id IN (
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_chapters_pages_with_exercises</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">chapters_id</span>: <span class="ident">Uuid</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageWithExercises</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageWithExercises</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">chapter_pages</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">Page</span>,
         <span class="string">r#&quot;
@@ -3190,8 +3190,8 @@ WHERE page_id IN (
         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">page</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">page_id</span> <span class="op">=</span> <span class="ident">page</span>.<span class="ident">id</span>;
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">exercises</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">page_to_exercises</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">page_id</span>) {
-                <span class="prelude-val">Some</span>(<span class="ident">ex</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ex</span>,
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Vec::new</span>(),
+                <span class="prelude-val">Some</span>(<span class="ident">ex</span>) =&gt; <span class="ident">ex</span>,
+                <span class="prelude-val">None</span> =&gt; <span class="ident">Vec::new</span>(),
             };
 
             <span class="ident">exercises</span>.<span class="ident">sort_by</span>(<span class="op">|</span><span class="ident">a</span>, <span class="ident">b</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">order_number</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">order_number</span>));
@@ -3220,13 +3220,13 @@ WHERE page_id IN (
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_next_page</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">pages_id</span>: <span class="ident">Uuid</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PageRoutingData</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PageRoutingData</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">page_metadata</span> <span class="op">=</span> <span class="ident">get_current_page_metadata</span>(<span class="ident">conn</span>, <span class="ident">pages_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">next_page</span> <span class="op">=</span> <span class="ident">get_next_page_by_order_number</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">page_metadata</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">match</span> <span class="ident">next_page</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">next_page</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">next_page</span>)),
-        <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Some</span>(<span class="ident">next_page</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">next_page</span>)),
+        <span class="prelude-val">None</span> =&gt; {
             <span class="kw">let</span> <span class="ident">first_page</span> <span class="op">=</span> <span class="ident">get_next_page_by_chapter_number</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">page_metadata</span>).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(<span class="ident">first_page</span>)
         }
@@ -3235,9 +3235,9 @@ WHERE page_id IN (
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_next_page_with_chapter_status</span>(
     <span class="ident">next_page_data</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PageRoutingData</span><span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PageRoutingDataWithChapterStatus</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PageRoutingDataWithChapterStatus</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="ident">next_page_data</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">data</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Some</span>(<span class="ident">data</span>) =&gt; {
             <span class="kw">let</span> <span class="ident">open</span> <span class="op">=</span> <span class="ident">data</span>
                 .<span class="ident">chapter_opens_at</span>
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">o</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">Utc::now</span>())
@@ -3257,14 +3257,14 @@ WHERE page_id IN (
                 <span class="ident">chapter_status</span>: <span class="ident">status</span>,
             }))
         }
-        <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
+        <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
     }
 }
 
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_current_page_metadata</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">PageMetadata</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">PageMetadata</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">page_metadata</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">PageMetadata</span>,
         <span class="string">r#&quot;
@@ -3295,7 +3295,7 @@ WHERE p.id = $1;
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_next_page_by_order_number</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">current_page_metadata</span>: <span class="kw-2">&amp;</span><span class="ident">PageMetadata</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PageRoutingData</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PageRoutingData</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">next_page</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">PageRoutingData</span>,
         <span class="string">&quot;
@@ -3329,7 +3329,7 @@ WHERE p.order_number = (
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_next_page_by_chapter_number</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">current_page_metadata</span>: <span class="kw-2">&amp;</span><span class="ident">PageMetadata</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PageRoutingData</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PageRoutingData</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">next_page</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">PageRoutingData</span>,
         <span class="string">&quot;
@@ -3363,7 +3363,7 @@ LIMIT 1;
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_next_page_order_number_in_chapter</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">next_order_number</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 select max(p.order_number) as order_number
@@ -3377,15 +3377,15 @@ where p.chapter_id = $1
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">match</span> <span class="ident">next_order_number</span>.<span class="ident">order_number</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">order_number</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">order_number</span> <span class="op">+</span> <span class="number">1</span>),
-        <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="number">0</span>),
+        <span class="prelude-val">Some</span>(<span class="ident">order_number</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">order_number</span> <span class="op">+</span> <span class="number">1</span>),
+        <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Ok</span>(<span class="number">0</span>),
     }
 }
 
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_next_order_number_for_courses_top_level_pages</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">next_order_number</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 select max(p.order_number) as order_number
@@ -3400,15 +3400,15 @@ where p.course_id = $1
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">match</span> <span class="ident">next_order_number</span>.<span class="ident">order_number</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">order_number</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">order_number</span> <span class="op">+</span> <span class="number">1</span>),
-        <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="number">0</span>),
+        <span class="prelude-val">Some</span>(<span class="ident">order_number</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">order_number</span> <span class="op">+</span> <span class="number">1</span>),
+        <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Ok</span>(<span class="number">0</span>),
     }
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_chapters_pages_exclude_main_frontpage</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">pages</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">Page</span>,
         <span class="string">&quot;
@@ -3448,7 +3448,7 @@ Returns search results for a phrase i.e. looks for matches where the words come 
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">page_search_request</span>: <span class="kw-2">&amp;</span><span class="ident">PageSearchRequest</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageSearchResult</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageSearchResult</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::models::courses::get_course</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// Last word of the search term needed so that the sql statement can change it to a prefix match.</span>
@@ -3531,7 +3531,7 @@ Returns search results for the given words. The words can appear in the source d
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">page_search_request</span>: <span class="kw-2">&amp;</span><span class="ident">PageSearchRequest</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageSearchResult</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageSearchResult</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::models::courses::get_course</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// Last word of the search term needed so that the sql statement can change it to a prefix match.</span>
@@ -3611,7 +3611,7 @@ LIMIT 50;
 <span class="kw">fn</span> <span class="ident">add_course_url_prefix_to_search_results</span>(
     <span class="ident">search_results</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageSearchResult</span><span class="op">&gt;</span>,
     <span class="ident">course</span>: <span class="kw-2">&amp;</span><span class="ident">Course</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageSearchResult</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageSearchResult</span><span class="op">&gt;</span> {
     <span class="ident">search_results</span>
         .<span class="ident">into_iter</span>()
         .<span class="ident">map</span>(<span class="op">|</span><span class="kw-2">mut</span> <span class="ident">sr</span><span class="op">|</span> {
@@ -3632,7 +3632,7 @@ LIMIT 50;
     <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">history_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">author</span>: <span class="ident">Uuid</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
     <span class="comment">// fetch old content</span>
     <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="ident">get_page</span>(<span class="ident">conn</span>, <span class="ident">page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> (<span class="ident">content_to_restore</span>, <span class="ident">title_to_restore</span>) <span class="op">=</span>
@@ -3659,7 +3659,7 @@ LIMIT 50;
     <span class="prelude-val">Ok</span>(<span class="ident">history_id</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_organization_id</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">page_id</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_organization_id</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">page_id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 SELECT organizations.id
@@ -3770,7 +3770,7 @@ WHERE pages.id = $1
         <span class="ident">exercises</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPageExercise</span><span class="op">&gt;</span>,
         <span class="ident">exercise_slides</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPageExerciseSlide</span><span class="op">&gt;</span>,
         <span class="ident">exercise_tasks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPageExerciseTask</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CmsPageUpdate</span> {
+    ) -&gt; <span class="ident">CmsPageUpdate</span> {
         <span class="ident">CmsPageUpdate</span> {
             <span class="ident">content</span>: <span class="macro">serde_json::json!</span>([]),
             <span class="ident">exercises</span>,

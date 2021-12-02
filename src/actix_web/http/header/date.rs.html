@@ -73,7 +73,7 @@
     <span class="doccomment">///     Date(SystemTime::now().into())</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    (<span class="ident">Date</span>, <span class="ident">DATE</span>) <span class="op">=</span><span class="op">&gt;</span> [<span class="ident">HttpDate</span>]
+    (<span class="ident">Date</span>, <span class="ident">DATE</span>) =&gt; [<span class="ident">HttpDate</span>]
 
     <span class="ident">test_date</span> {
         <span class="macro">crate::http::header::common_header_test!</span>(<span class="ident">test1</span>, <span class="macro">vec!</span>[<span class="string">b&quot;Tue, 15 Nov 1994 08:12:31 GMT&quot;</span>]);
@@ -82,7 +82,7 @@
 
 <span class="kw">impl</span> <span class="ident">Date</span> {
     <span class="doccomment">/// Create a date instance set to the current system time</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">now</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Date</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">now</span>() -&gt; <span class="ident">Date</span> {
         <span class="ident">Date</span>(<span class="ident">SystemTime::now</span>().<span class="ident">into</span>())
     }
 }

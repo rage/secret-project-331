@@ -170,12 +170,12 @@
 <span class="kw">mod</span> <span class="ident">migrate</span>;
 
 <span class="attribute">#[<span class="ident">proc_macro</span>]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">expand_query</span>(<span class="ident">input</span>: <span class="ident">TokenStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">expand_query</span>(<span class="ident">input</span>: <span class="ident">TokenStream</span>) -&gt; <span class="ident">TokenStream</span> {
     <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">syn::parse_macro_input!</span>(<span class="ident">input</span> <span class="kw">as</span> <span class="ident">query::QueryMacroInput</span>);
 
     <span class="kw">match</span> <span class="ident">query::expand_input</span>(<span class="ident">input</span>) {
-        <span class="prelude-val">Ok</span>(<span class="ident">ts</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ts</span>.<span class="ident">into</span>(),
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="ident">ts</span>) =&gt; <span class="ident">ts</span>.<span class="ident">into</span>(),
+        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">parse_err</span>) <span class="op">=</span> <span class="ident">e</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">syn::Error</span><span class="op">&gt;</span>() {
                 <span class="ident">parse_err</span>.<span class="ident">to_compile_error</span>().<span class="ident">into</span>()
             } <span class="kw">else</span> {
@@ -187,51 +187,51 @@
 }
 
 <span class="attribute">#[<span class="ident">proc_macro_derive</span>(<span class="ident">Encode</span>, <span class="ident">attributes</span>(<span class="ident">sqlx</span>))]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">derive_encode</span>(<span class="ident">tokenstream</span>: <span class="ident">TokenStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">derive_encode</span>(<span class="ident">tokenstream</span>: <span class="ident">TokenStream</span>) -&gt; <span class="ident">TokenStream</span> {
     <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">syn::parse_macro_input!</span>(<span class="ident">tokenstream</span> <span class="kw">as</span> <span class="ident">syn::DeriveInput</span>);
     <span class="kw">match</span> <span class="ident">derives::expand_derive_encode</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>) {
-        <span class="prelude-val">Ok</span>(<span class="ident">ts</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ts</span>.<span class="ident">into</span>(),
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">e</span>.<span class="ident">to_compile_error</span>().<span class="ident">into</span>(),
+        <span class="prelude-val">Ok</span>(<span class="ident">ts</span>) =&gt; <span class="ident">ts</span>.<span class="ident">into</span>(),
+        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="ident">e</span>.<span class="ident">to_compile_error</span>().<span class="ident">into</span>(),
     }
 }
 
 <span class="attribute">#[<span class="ident">proc_macro_derive</span>(<span class="ident">Decode</span>, <span class="ident">attributes</span>(<span class="ident">sqlx</span>))]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">derive_decode</span>(<span class="ident">tokenstream</span>: <span class="ident">TokenStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">derive_decode</span>(<span class="ident">tokenstream</span>: <span class="ident">TokenStream</span>) -&gt; <span class="ident">TokenStream</span> {
     <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">syn::parse_macro_input!</span>(<span class="ident">tokenstream</span> <span class="kw">as</span> <span class="ident">syn::DeriveInput</span>);
     <span class="kw">match</span> <span class="ident">derives::expand_derive_decode</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>) {
-        <span class="prelude-val">Ok</span>(<span class="ident">ts</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ts</span>.<span class="ident">into</span>(),
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">e</span>.<span class="ident">to_compile_error</span>().<span class="ident">into</span>(),
+        <span class="prelude-val">Ok</span>(<span class="ident">ts</span>) =&gt; <span class="ident">ts</span>.<span class="ident">into</span>(),
+        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="ident">e</span>.<span class="ident">to_compile_error</span>().<span class="ident">into</span>(),
     }
 }
 
 <span class="attribute">#[<span class="ident">proc_macro_derive</span>(<span class="ident">Type</span>, <span class="ident">attributes</span>(<span class="ident">sqlx</span>))]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">derive_type</span>(<span class="ident">tokenstream</span>: <span class="ident">TokenStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">derive_type</span>(<span class="ident">tokenstream</span>: <span class="ident">TokenStream</span>) -&gt; <span class="ident">TokenStream</span> {
     <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">syn::parse_macro_input!</span>(<span class="ident">tokenstream</span> <span class="kw">as</span> <span class="ident">syn::DeriveInput</span>);
     <span class="kw">match</span> <span class="ident">derives::expand_derive_type_encode_decode</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>) {
-        <span class="prelude-val">Ok</span>(<span class="ident">ts</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ts</span>.<span class="ident">into</span>(),
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">e</span>.<span class="ident">to_compile_error</span>().<span class="ident">into</span>(),
+        <span class="prelude-val">Ok</span>(<span class="ident">ts</span>) =&gt; <span class="ident">ts</span>.<span class="ident">into</span>(),
+        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="ident">e</span>.<span class="ident">to_compile_error</span>().<span class="ident">into</span>(),
     }
 }
 
 <span class="attribute">#[<span class="ident">proc_macro_derive</span>(<span class="ident">FromRow</span>, <span class="ident">attributes</span>(<span class="ident">sqlx</span>))]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">derive_from_row</span>(<span class="ident">input</span>: <span class="ident">TokenStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">derive_from_row</span>(<span class="ident">input</span>: <span class="ident">TokenStream</span>) -&gt; <span class="ident">TokenStream</span> {
     <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">syn::parse_macro_input!</span>(<span class="ident">input</span> <span class="kw">as</span> <span class="ident">syn::DeriveInput</span>);
 
     <span class="kw">match</span> <span class="ident">derives::expand_derive_from_row</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>) {
-        <span class="prelude-val">Ok</span>(<span class="ident">ts</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ts</span>.<span class="ident">into</span>(),
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">e</span>.<span class="ident">to_compile_error</span>().<span class="ident">into</span>(),
+        <span class="prelude-val">Ok</span>(<span class="ident">ts</span>) =&gt; <span class="ident">ts</span>.<span class="ident">into</span>(),
+        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="ident">e</span>.<span class="ident">to_compile_error</span>().<span class="ident">into</span>(),
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;migrate&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">proc_macro</span>]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">migrate</span>(<span class="ident">input</span>: <span class="ident">TokenStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">migrate</span>(<span class="ident">input</span>: <span class="ident">TokenStream</span>) -&gt; <span class="ident">TokenStream</span> {
     <span class="kw">use</span> <span class="ident">syn::LitStr</span>;
 
     <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">syn::parse_macro_input!</span>(<span class="ident">input</span> <span class="kw">as</span> <span class="ident">LitStr</span>);
     <span class="kw">match</span> <span class="ident">migrate::expand_migrator_from_dir</span>(<span class="ident">input</span>) {
-        <span class="prelude-val">Ok</span>(<span class="ident">ts</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ts</span>.<span class="ident">into</span>(),
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="ident">ts</span>) =&gt; <span class="ident">ts</span>.<span class="ident">into</span>(),
+        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">parse_err</span>) <span class="op">=</span> <span class="ident">e</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">syn::Error</span><span class="op">&gt;</span>() {
                 <span class="ident">parse_err</span>.<span class="ident">to_compile_error</span>().<span class="ident">into</span>()
             } <span class="kw">else</span> {
@@ -244,7 +244,7 @@
 
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="attribute">#[<span class="ident">proc_macro_attribute</span>]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">test</span>(<span class="ident">_attr</span>: <span class="ident">TokenStream</span>, <span class="ident">input</span>: <span class="ident">TokenStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">test</span>(<span class="ident">_attr</span>: <span class="ident">TokenStream</span>, <span class="ident">input</span>: <span class="ident">TokenStream</span>) -&gt; <span class="ident">TokenStream</span> {
     <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">syn::parse_macro_input!</span>(<span class="ident">input</span> <span class="kw">as</span> <span class="ident">syn::ItemFn</span>);
 
     <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">sig</span>.<span class="ident">output</span>;

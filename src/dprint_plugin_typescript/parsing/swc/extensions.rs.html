@@ -65,64 +65,64 @@
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">swc_ast_view::BinaryOp</span>;
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">BinaryOpExtensions</span> {
-    <span class="kw">fn</span> <span class="ident">is_add_sub</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>;
-    <span class="kw">fn</span> <span class="ident">is_mul_div</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>;
-    <span class="kw">fn</span> <span class="ident">is_bitwise_or_arithmetic</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>;
-    <span class="kw">fn</span> <span class="ident">is_logical</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>;
-    <span class="kw">fn</span> <span class="ident">is_bit_logical</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>;
-    <span class="kw">fn</span> <span class="ident">is_bit_shift</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>;
-    <span class="kw">fn</span> <span class="ident">is_equality</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>;
+    <span class="kw">fn</span> <span class="ident">is_add_sub</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
+    <span class="kw">fn</span> <span class="ident">is_mul_div</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
+    <span class="kw">fn</span> <span class="ident">is_bitwise_or_arithmetic</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
+    <span class="kw">fn</span> <span class="ident">is_logical</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
+    <span class="kw">fn</span> <span class="ident">is_bit_logical</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
+    <span class="kw">fn</span> <span class="ident">is_bit_shift</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
+    <span class="kw">fn</span> <span class="ident">is_equality</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
 }
 
 <span class="kw">impl</span> <span class="ident">BinaryOpExtensions</span> <span class="kw">for</span> <span class="ident">BinaryOp</span> {
-    <span class="kw">fn</span> <span class="ident">is_add_sub</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_add_sub</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">BinaryOp::Add</span> <span class="op">|</span> <span class="ident">BinaryOp::Sub</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">BinaryOp::Add</span> <span class="op">|</span> <span class="ident">BinaryOp::Sub</span> =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">is_mul_div</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_mul_div</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">BinaryOp::Mul</span> <span class="op">|</span> <span class="ident">BinaryOp::Div</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">BinaryOp::Mul</span> <span class="op">|</span> <span class="ident">BinaryOp::Div</span> =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">is_bitwise_or_arithmetic</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_bitwise_or_arithmetic</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">BinaryOp::LShift</span> <span class="op">|</span> <span class="ident">BinaryOp::RShift</span> <span class="op">|</span> <span class="ident">BinaryOp::ZeroFillRShift</span> <span class="op">|</span> <span class="ident">BinaryOp::Add</span> <span class="op">|</span> <span class="ident">BinaryOp::Sub</span> <span class="op">|</span> <span class="ident">BinaryOp::Mul</span>
                 <span class="op">|</span> <span class="ident">BinaryOp::Div</span> <span class="op">|</span> <span class="ident">BinaryOp::Mod</span> <span class="op">|</span> <span class="ident">BinaryOp::BitOr</span> <span class="op">|</span> <span class="ident">BinaryOp::BitXor</span>
-                <span class="op">|</span> <span class="ident">BinaryOp::BitAnd</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+                <span class="op">|</span> <span class="ident">BinaryOp::BitAnd</span> =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">is_logical</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_logical</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">BinaryOp::LogicalAnd</span> <span class="op">|</span> <span class="ident">BinaryOp::LogicalOr</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">BinaryOp::LogicalAnd</span> <span class="op">|</span> <span class="ident">BinaryOp::LogicalOr</span> =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">is_bit_logical</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_bit_logical</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">BinaryOp::BitOr</span> <span class="op">|</span> <span class="ident">BinaryOp::BitAnd</span> <span class="op">|</span> <span class="ident">BinaryOp::BitXor</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">BinaryOp::BitOr</span> <span class="op">|</span> <span class="ident">BinaryOp::BitAnd</span> <span class="op">|</span> <span class="ident">BinaryOp::BitXor</span> =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">is_bit_shift</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_bit_shift</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">BinaryOp::LShift</span> <span class="op">|</span> <span class="ident">BinaryOp::RShift</span> <span class="op">|</span> <span class="ident">BinaryOp::ZeroFillRShift</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">BinaryOp::LShift</span> <span class="op">|</span> <span class="ident">BinaryOp::RShift</span> <span class="op">|</span> <span class="ident">BinaryOp::ZeroFillRShift</span> =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">is_equality</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_equality</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">BinaryOp::EqEq</span> <span class="op">|</span> <span class="ident">BinaryOp::NotEq</span> <span class="op">|</span> <span class="ident">BinaryOp::EqEqEq</span> <span class="op">|</span> <span class="ident">BinaryOp::NotEqEq</span> <span class="op">|</span> <span class="ident">BinaryOp::Lt</span> <span class="op">|</span> <span class="ident">BinaryOp::LtEq</span> <span class="op">|</span> <span class="ident">BinaryOp::Gt</span> <span class="op">|</span> <span class="ident">BinaryOp::GtEq</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">BinaryOp::EqEq</span> <span class="op">|</span> <span class="ident">BinaryOp::NotEq</span> <span class="op">|</span> <span class="ident">BinaryOp::EqEqEq</span> <span class="op">|</span> <span class="ident">BinaryOp::NotEqEq</span> <span class="op">|</span> <span class="ident">BinaryOp::Lt</span> <span class="op">|</span> <span class="ident">BinaryOp::LtEq</span> <span class="op">|</span> <span class="ident">BinaryOp::Gt</span> <span class="op">|</span> <span class="ident">BinaryOp::GtEq</span> =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }
 }

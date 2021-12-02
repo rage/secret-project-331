@@ -917,19 +917,19 @@
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">SourceMapperDyn</span> <span class="op">=</span> <span class="kw">dyn</span> <span class="ident">SourceMapper</span>;
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">SourceMapper</span>: <span class="ident"><span class="kw">crate</span>::sync::Send</span> <span class="op">+</span> <span class="ident"><span class="kw">crate</span>::sync::Sync</span> {
-    <span class="kw">fn</span> <span class="ident">lookup_char_pos</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pos</span>: <span class="ident">BytePos</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Loc</span>;
-    <span class="kw">fn</span> <span class="ident">span_to_lines</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sp</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">FileLinesResult</span>;
-    <span class="kw">fn</span> <span class="ident">span_to_string</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sp</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span>;
-    <span class="kw">fn</span> <span class="ident">span_to_filename</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sp</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">FileName</span>;
-    <span class="kw">fn</span> <span class="ident">merge_spans</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sp_lhs</span>: <span class="ident">Span</span>, <span class="ident">sp_rhs</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Span</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">call_span_if_macro</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sp</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span>;
-    <span class="kw">fn</span> <span class="ident">doctest_offset_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">line</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+    <span class="kw">fn</span> <span class="ident">lookup_char_pos</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pos</span>: <span class="ident">BytePos</span>) -&gt; <span class="ident">Loc</span>;
+    <span class="kw">fn</span> <span class="ident">span_to_lines</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sp</span>: <span class="ident">Span</span>) -&gt; <span class="ident">FileLinesResult</span>;
+    <span class="kw">fn</span> <span class="ident">span_to_string</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sp</span>: <span class="ident">Span</span>) -&gt; <span class="ident">String</span>;
+    <span class="kw">fn</span> <span class="ident">span_to_filename</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sp</span>: <span class="ident">Span</span>) -&gt; <span class="ident">FileName</span>;
+    <span class="kw">fn</span> <span class="ident">merge_spans</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sp_lhs</span>: <span class="ident">Span</span>, <span class="ident">sp_rhs</span>: <span class="ident">Span</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Span</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">call_span_if_macro</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sp</span>: <span class="ident">Span</span>) -&gt; <span class="ident">Span</span>;
+    <span class="kw">fn</span> <span class="ident">doctest_offset_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">line</span>: <span class="ident">usize</span>) -&gt; <span class="ident">usize</span>;
 }
 
 <span class="kw">impl</span> <span class="ident">CodeSuggestion</span> {
     <span class="doccomment">/// Returns the assembled code suggestions and whether they should be shown</span>
     <span class="doccomment">/// with an underline.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">splice_lines</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cm</span>: <span class="kw-2">&amp;</span><span class="ident">SourceMapperDyn</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">SubstitutionPart</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">splice_lines</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cm</span>: <span class="kw-2">&amp;</span><span class="ident">SourceMapperDyn</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">SubstitutionPart</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
         <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::syntax_pos</span>::{<span class="ident">CharPos</span>, <span class="ident">Pos</span>};
 
         <span class="kw">fn</span> <span class="ident">push_trailing</span>(
@@ -943,8 +943,8 @@
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">lo</span>) <span class="op">=</span> <span class="ident">line</span>.<span class="ident">char_indices</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">i</span>).<span class="ident">nth</span>(<span class="ident">lo</span>) {
                     <span class="kw">let</span> <span class="ident">hi_opt</span> <span class="op">=</span> <span class="ident">hi_opt</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">hi</span><span class="op">|</span> <span class="ident">line</span>.<span class="ident">char_indices</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">i</span>).<span class="ident">nth</span>(<span class="ident">hi</span>));
                     <span class="ident">buf</span>.<span class="ident">push_str</span>(<span class="kw">match</span> <span class="ident">hi_opt</span> {
-                        <span class="prelude-val">Some</span>(<span class="ident">hi</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">line</span>[<span class="ident">lo</span>..<span class="ident">hi</span>],
-                        <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">line</span>[<span class="ident">lo</span>..],
+                        <span class="prelude-val">Some</span>(<span class="ident">hi</span>) =&gt; <span class="kw-2">&amp;</span><span class="ident">line</span>[<span class="ident">lo</span>..<span class="ident">hi</span>],
+                        <span class="prelude-val">None</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">line</span>[<span class="ident">lo</span>..],
                     });
                 }
                 <span class="kw">if</span> <span class="ident">hi_opt</span>.<span class="ident">is_none</span>() {
@@ -998,7 +998,7 @@
 
                 <span class="kw">for</span> <span class="ident">part</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">substitution</span>.<span class="ident">parts</span> {
                     <span class="kw">let</span> <span class="ident">cur_lo</span> <span class="op">=</span> <span class="ident">cm</span>.<span class="ident">lookup_char_pos</span>(<span class="ident">part</span>.<span class="ident">span</span>.<span class="ident">lo</span>());
-                    <span class="kw">if</span> <span class="ident">prev_hi</span>.<span class="ident">line</span> <span class="op">=</span><span class="op">=</span> <span class="ident">cur_lo</span>.<span class="ident">line</span> {
+                    <span class="kw">if</span> <span class="ident">prev_hi</span>.<span class="ident">line</span> <span class="op">==</span> <span class="ident">cur_lo</span>.<span class="ident">line</span> {
                         <span class="ident">push_trailing</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>, <span class="ident">prev_line</span>.<span class="ident">as_ref</span>(), <span class="kw-2">&amp;</span><span class="ident">prev_hi</span>, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">cur_lo</span>));
                     } <span class="kw">else</span> {
                         <span class="ident">push_trailing</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>, <span class="ident">prev_line</span>.<span class="ident">as_ref</span>(), <span class="kw-2">&amp;</span><span class="ident">prev_hi</span>, <span class="prelude-val">None</span>);
@@ -1046,19 +1046,19 @@
 <span class="comment">// impl !Send for FatalError {}</span>
 
 <span class="kw">impl</span> <span class="ident">FatalError</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">raise</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="op">!</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">raise</span>(<span class="self">self</span>) -&gt; <span class="op">!</span> {
         <span class="ident">panic::resume_unwind</span>(<span class="ident">Box::new</span>(<span class="ident">FatalErrorMarker</span>))
     }
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">FatalError</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;parser fatal error&quot;</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">error::Error</span> <span class="kw">for</span> <span class="ident">FatalError</span> {
-    <span class="kw">fn</span> <span class="ident">description</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+    <span class="kw">fn</span> <span class="ident">description</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="string">&quot;The parser has encountered a fatal error&quot;</span>
     }
 }
@@ -1069,13 +1069,13 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExplicitBug</span>;
 
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">ExplicitBug</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;parser internal bug&quot;</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">error::Error</span> <span class="kw">for</span> <span class="ident">ExplicitBug</span> {
-    <span class="kw">fn</span> <span class="ident">description</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+    <span class="kw">fn</span> <span class="ident">description</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="string">&quot;The parser has encountered an internal bug&quot;</span>
     }
 }
@@ -1131,7 +1131,7 @@
 
 <span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">Handler</span> {
     <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">err_count</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">err_count</span>() <span class="op">==</span> <span class="number">0</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bugs</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">delayed_span_bugs</span>.<span class="ident">borrow_mut</span>();
             <span class="kw">let</span> <span class="ident">has_bugs</span> <span class="op">=</span> <span class="op">!</span><span class="ident">bugs</span>.<span class="ident">is_empty</span>();
             <span class="kw">for</span> <span class="ident">bug</span> <span class="kw">in</span> <span class="ident">bugs</span>.<span class="ident">drain</span>(..) {
@@ -1151,7 +1151,7 @@
         <span class="ident">can_emit_warnings</span>: <span class="ident">bool</span>,
         <span class="ident">treat_err_as_bug</span>: <span class="ident">bool</span>,
         <span class="ident">cm</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Lrc</span><span class="op">&lt;</span><span class="ident">SourceMapperDyn</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Handler</span> {
+    ) -&gt; <span class="ident">Handler</span> {
         <span class="ident">Handler::with_tty_emitter_and_flags</span>(
             <span class="ident">color_config</span>,
             <span class="ident">cm</span>,
@@ -1168,7 +1168,7 @@
         <span class="ident">color_config</span>: <span class="ident">ColorConfig</span>,
         <span class="ident">cm</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Lrc</span><span class="op">&lt;</span><span class="ident">SourceMapperDyn</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">flags</span>: <span class="ident">HandlerFlags</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Handler</span> {
+    ) -&gt; <span class="ident">Handler</span> {
         <span class="kw">let</span> <span class="ident">emitter</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="ident">EmitterWriter::stderr</span>(<span class="ident">color_config</span>, <span class="ident">cm</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>));
         <span class="ident">Handler::with_emitter_and_flags</span>(<span class="ident">emitter</span>, <span class="ident">flags</span>)
     }
@@ -1177,7 +1177,7 @@
         <span class="ident">can_emit_warnings</span>: <span class="ident">bool</span>,
         <span class="ident">treat_err_as_bug</span>: <span class="ident">bool</span>,
         <span class="ident">e</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Emitter</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Handler</span> {
+    ) -&gt; <span class="ident">Handler</span> {
         <span class="ident">Handler::with_emitter_and_flags</span>(
             <span class="ident">e</span>,
             <span class="ident">HandlerFlags</span> {
@@ -1188,7 +1188,7 @@
         )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_emitter_and_flags</span>(<span class="ident">e</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Emitter</span><span class="op">&gt;</span>, <span class="ident">flags</span>: <span class="ident">HandlerFlags</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Handler</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_emitter_and_flags</span>(<span class="ident">e</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Emitter</span><span class="op">&gt;</span>, <span class="ident">flags</span>: <span class="ident">HandlerFlags</span>) -&gt; <span class="ident">Handler</span> {
         <span class="ident">Handler</span> {
             <span class="ident">flags</span>,
             <span class="ident">err_count</span>: <span class="ident">AtomicUsize::new</span>(<span class="number">0</span>),
@@ -1218,7 +1218,7 @@
         <span class="self">self</span>.<span class="ident">err_count</span>.<span class="ident">store</span>(<span class="number">0</span>, <span class="ident">SeqCst</span>);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">struct_dummy</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DiagnosticBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">struct_dummy</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">DiagnosticBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
         <span class="ident">DiagnosticBuilder::new</span>(<span class="self">self</span>, <span class="ident">Level::Cancelled</span>, <span class="string">&quot;&quot;</span>)
     }
 
@@ -1226,7 +1226,7 @@
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>,
         <span class="ident">sp</span>: <span class="ident">S</span>,
         <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DiagnosticBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">DiagnosticBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">DiagnosticBuilder::new</span>(<span class="self">self</span>, <span class="ident">Level::Warning</span>, <span class="ident">msg</span>);
         <span class="ident">result</span>.<span class="ident">set_span</span>(<span class="ident">sp</span>);
         <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">can_emit_warnings</span> {
@@ -1239,7 +1239,7 @@
         <span class="ident">sp</span>: <span class="ident">S</span>,
         <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">code</span>: <span class="ident">DiagnosticId</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DiagnosticBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">DiagnosticBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">DiagnosticBuilder::new</span>(<span class="self">self</span>, <span class="ident">Level::Warning</span>, <span class="ident">msg</span>);
         <span class="ident">result</span>.<span class="ident">set_span</span>(<span class="ident">sp</span>);
         <span class="ident">result</span>.<span class="ident">code</span>(<span class="ident">code</span>);
@@ -1248,7 +1248,7 @@
         }
         <span class="ident">result</span>
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">struct_warn</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DiagnosticBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">struct_warn</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">DiagnosticBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">DiagnosticBuilder::new</span>(<span class="self">self</span>, <span class="ident">Level::Warning</span>, <span class="ident">msg</span>);
         <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">can_emit_warnings</span> {
             <span class="ident">result</span>.<span class="ident">cancel</span>();
@@ -1259,7 +1259,7 @@
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>,
         <span class="ident">sp</span>: <span class="ident">S</span>,
         <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DiagnosticBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">DiagnosticBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">DiagnosticBuilder::new</span>(<span class="self">self</span>, <span class="ident">Level::Error</span>, <span class="ident">msg</span>);
         <span class="ident">result</span>.<span class="ident">set_span</span>(<span class="ident">sp</span>);
         <span class="ident">result</span>
@@ -1269,7 +1269,7 @@
         <span class="ident">sp</span>: <span class="ident">S</span>,
         <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">code</span>: <span class="ident">DiagnosticId</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DiagnosticBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">DiagnosticBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">DiagnosticBuilder::new</span>(<span class="self">self</span>, <span class="ident">Level::Error</span>, <span class="ident">msg</span>);
         <span class="ident">result</span>.<span class="ident">set_span</span>(<span class="ident">sp</span>);
         <span class="ident">result</span>.<span class="ident">code</span>(<span class="ident">code</span>);
@@ -1277,14 +1277,14 @@
     }
     <span class="comment">// FIXME: This method should be removed (every error should have an associated</span>
     <span class="comment">// error code).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">struct_err</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DiagnosticBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">struct_err</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">DiagnosticBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="ident">DiagnosticBuilder::new</span>(<span class="self">self</span>, <span class="ident">Level::Error</span>, <span class="ident">msg</span>)
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">struct_err_with_code</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>,
         <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">code</span>: <span class="ident">DiagnosticId</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DiagnosticBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">DiagnosticBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">DiagnosticBuilder::new</span>(<span class="self">self</span>, <span class="ident">Level::Error</span>, <span class="ident">msg</span>);
         <span class="ident">result</span>.<span class="ident">code</span>(<span class="ident">code</span>);
         <span class="ident">result</span>
@@ -1293,7 +1293,7 @@
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>,
         <span class="ident">sp</span>: <span class="ident">S</span>,
         <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DiagnosticBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">DiagnosticBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">DiagnosticBuilder::new</span>(<span class="self">self</span>, <span class="ident">Level::Fatal</span>, <span class="ident">msg</span>);
         <span class="ident">result</span>.<span class="ident">set_span</span>(<span class="ident">sp</span>);
         <span class="ident">result</span>
@@ -1303,13 +1303,13 @@
         <span class="ident">sp</span>: <span class="ident">S</span>,
         <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">code</span>: <span class="ident">DiagnosticId</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DiagnosticBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">DiagnosticBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">DiagnosticBuilder::new</span>(<span class="self">self</span>, <span class="ident">Level::Fatal</span>, <span class="ident">msg</span>);
         <span class="ident">result</span>.<span class="ident">set_span</span>(<span class="ident">sp</span>);
         <span class="ident">result</span>.<span class="ident">code</span>(<span class="ident">code</span>);
         <span class="ident">result</span>
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">struct_fatal</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DiagnosticBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">struct_fatal</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">DiagnosticBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="ident">DiagnosticBuilder::new</span>(<span class="self">self</span>, <span class="ident">Level::Fatal</span>, <span class="ident">msg</span>)
     }
 
@@ -1323,7 +1323,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span_fatal</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">MultiSpan</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sp</span>: <span class="ident">S</span>, <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">FatalError</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span_fatal</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">MultiSpan</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sp</span>: <span class="ident">S</span>, <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">FatalError</span> {
         <span class="self">self</span>.<span class="ident">emit</span>(<span class="kw-2">&amp;</span><span class="ident">sp</span>.<span class="ident">into</span>(), <span class="ident">msg</span>, <span class="ident">Fatal</span>);
         <span class="ident">FatalError</span>
     }
@@ -1332,7 +1332,7 @@
         <span class="ident">sp</span>: <span class="ident">S</span>,
         <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">code</span>: <span class="ident">DiagnosticId</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">FatalError</span> {
+    ) -&gt; <span class="ident">FatalError</span> {
         <span class="self">self</span>.<span class="ident">emit_with_code</span>(<span class="kw-2">&amp;</span><span class="ident">sp</span>.<span class="ident">into</span>(), <span class="ident">msg</span>, <span class="ident">code</span>, <span class="ident">Fatal</span>);
         <span class="ident">FatalError</span>
     }
@@ -1343,7 +1343,7 @@
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>,
         <span class="ident">sp</span>: <span class="ident">S</span>,
         <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DiagnosticBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">DiagnosticBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">DiagnosticBuilder::new</span>(<span class="self">self</span>, <span class="ident">Level::Error</span>, <span class="ident">msg</span>);
         <span class="ident">result</span>.<span class="ident">set_span</span>(<span class="ident">sp</span>);
         <span class="ident">result</span>
@@ -1357,7 +1357,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span_warn_with_code</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">MultiSpan</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sp</span>: <span class="ident">S</span>, <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">code</span>: <span class="ident">DiagnosticId</span>) {
         <span class="self">self</span>.<span class="ident">emit_with_code</span>(<span class="kw-2">&amp;</span><span class="ident">sp</span>.<span class="ident">into</span>(), <span class="ident">msg</span>, <span class="ident">code</span>, <span class="ident">Warning</span>);
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span_bug</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">MultiSpan</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sp</span>: <span class="ident">S</span>, <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="op">!</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span_bug</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">MultiSpan</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sp</span>: <span class="ident">S</span>, <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="op">!</span> {
         <span class="self">self</span>.<span class="ident">emit</span>(<span class="kw-2">&amp;</span><span class="ident">sp</span>.<span class="ident">into</span>(), <span class="ident">msg</span>, <span class="ident">Bug</span>);
         <span class="macro">panic!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">ExplicitBug</span>);
     }
@@ -1382,18 +1382,18 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span_note_without_error</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">MultiSpan</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sp</span>: <span class="ident">S</span>, <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
         <span class="self">self</span>.<span class="ident">emit</span>(<span class="kw-2">&amp;</span><span class="ident">sp</span>.<span class="ident">into</span>(), <span class="ident">msg</span>, <span class="ident">Note</span>);
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span_note_diag</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">sp</span>: <span class="ident">Span</span>, <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DiagnosticBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span_note_diag</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">sp</span>: <span class="ident">Span</span>, <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">DiagnosticBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">db</span> <span class="op">=</span> <span class="ident">DiagnosticBuilder::new</span>(<span class="self">self</span>, <span class="ident">Note</span>, <span class="ident">msg</span>);
         <span class="ident">db</span>.<span class="ident">set_span</span>(<span class="ident">sp</span>);
         <span class="ident">db</span>
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span_unimpl</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">MultiSpan</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sp</span>: <span class="ident">S</span>, <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="op">!</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span_unimpl</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">MultiSpan</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sp</span>: <span class="ident">S</span>, <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="op">!</span> {
         <span class="self">self</span>.<span class="ident">span_bug</span>(<span class="ident">sp</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;unimplemented {}&quot;</span>, <span class="ident">msg</span>));
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">failure</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
         <span class="ident">DiagnosticBuilder::new</span>(<span class="self">self</span>, <span class="ident">FailureNote</span>, <span class="ident">msg</span>).<span class="ident">emit</span>()
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fatal</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">FatalError</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fatal</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">FatalError</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">treat_err_as_bug</span> {
             <span class="self">self</span>.<span class="ident">bug</span>(<span class="ident">msg</span>);
         }
@@ -1415,12 +1415,12 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">db</span> <span class="op">=</span> <span class="ident">DiagnosticBuilder::new</span>(<span class="self">self</span>, <span class="ident">Note</span>, <span class="ident">msg</span>);
         <span class="ident">db</span>.<span class="ident">emit</span>();
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bug</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="op">!</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bug</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="op">!</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">db</span> <span class="op">=</span> <span class="ident">DiagnosticBuilder::new</span>(<span class="self">self</span>, <span class="ident">Bug</span>, <span class="ident">msg</span>);
         <span class="ident">db</span>.<span class="ident">emit</span>();
         <span class="macro">panic!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">ExplicitBug</span>);
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unimpl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="op">!</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unimpl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="op">!</span> {
         <span class="self">self</span>.<span class="ident">bug</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;unimplemented {}&quot;</span>, <span class="ident">msg</span>));
     }
 
@@ -1429,19 +1429,19 @@
         <span class="self">self</span>.<span class="ident">err_count</span>.<span class="ident">fetch_add</span>(<span class="number">1</span>, <span class="ident">SeqCst</span>);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">err_count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">err_count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">err_count</span>.<span class="ident">load</span>(<span class="ident">SeqCst</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_errors</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_errors</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">err_count</span>() <span class="op">&gt;</span> <span class="number">0</span>
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">print_error_count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
         <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">err_count</span>() {
-            <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span>,
-            <span class="number">1</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;aborting due to previous error&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(<span class="string">&quot;aborting due to {} previous errors&quot;</span>, <span class="self">self</span>.<span class="ident">err_count</span>()),
+            <span class="number">0</span> =&gt; <span class="kw">return</span>,
+            <span class="number">1</span> =&gt; <span class="string">&quot;aborting due to previous error&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="kw">_</span> =&gt; <span class="macro">format!</span>(<span class="string">&quot;aborting due to {} previous errors&quot;</span>, <span class="self">self</span>.<span class="ident">err_count</span>()),
         };
 
         <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">fatal</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>);
@@ -1454,8 +1454,8 @@
                 .<span class="ident">borrow</span>()
                 .<span class="ident">iter</span>()
                 .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">x</span> {
-                    <span class="ident">DiagnosticId::Error</span>(<span class="kw-2">ref</span> <span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">s</span>.<span class="ident">clone</span>()),
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+                    <span class="ident">DiagnosticId::Error</span>(<span class="kw-2">ref</span> <span class="ident">s</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">s</span>.<span class="ident">clone</span>()),
+                    <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
                 })
                 .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
             <span class="kw">if</span> <span class="op">!</span><span class="ident">error_codes</span>.<span class="ident">is_empty</span>() {
@@ -1486,13 +1486,13 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">abort_if_errors</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">err_count</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">err_count</span>() <span class="op">==</span> <span class="number">0</span> {
             <span class="kw">return</span>;
         }
         <span class="ident">FatalError</span>.<span class="ident">raise</span>();
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">emit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">msp</span>: <span class="kw-2">&amp;</span><span class="ident">MultiSpan</span>, <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">lvl</span>: <span class="ident">Level</span>) {
-        <span class="kw">if</span> <span class="ident">lvl</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Warning</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">can_emit_warnings</span> {
+        <span class="kw">if</span> <span class="ident">lvl</span> <span class="op">==</span> <span class="ident">Warning</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">can_emit_warnings</span> {
             <span class="kw">return</span>;
         }
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">db</span> <span class="op">=</span> <span class="ident">DiagnosticBuilder::new</span>(<span class="self">self</span>, <span class="ident">lvl</span>, <span class="ident">msg</span>);
@@ -1503,7 +1503,7 @@
         }
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">emit_with_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">msp</span>: <span class="kw-2">&amp;</span><span class="ident">MultiSpan</span>, <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">code</span>: <span class="ident">DiagnosticId</span>, <span class="ident">lvl</span>: <span class="ident">Level</span>) {
-        <span class="kw">if</span> <span class="ident">lvl</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Warning</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">can_emit_warnings</span> {
+        <span class="kw">if</span> <span class="ident">lvl</span> <span class="op">==</span> <span class="ident">Warning</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">can_emit_warnings</span> {
             <span class="kw">return</span>;
         }
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">db</span> <span class="op">=</span> <span class="ident">DiagnosticBuilder::new_with_code</span>(<span class="self">self</span>, <span class="ident">lvl</span>, <span class="prelude-val">Some</span>(<span class="ident">code</span>), <span class="ident">msg</span>);
@@ -1519,7 +1519,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Used to suppress emitting the same error multiple times with extended</span>
     <span class="doccomment">/// explanation when calling `-Zteach`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">must_teach</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="ident">DiagnosticId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">must_teach</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="ident">DiagnosticId</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">taught_diagnostics</span>.<span class="ident">borrow_mut</span>().<span class="ident">insert</span>(<span class="ident">code</span>.<span class="ident">clone</span>())
     }
 
@@ -1579,50 +1579,50 @@
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Level</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="self">self</span>.<span class="ident">to_str</span>().<span class="ident">fmt</span>(<span class="ident">f</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Level</span> {
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tty-emitter&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">color</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ColorSpec</span> {
+    <span class="kw">fn</span> <span class="ident">color</span>(<span class="self">self</span>) -&gt; <span class="ident">ColorSpec</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">spec</span> <span class="op">=</span> <span class="ident">ColorSpec::new</span>();
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Bug</span> <span class="op">|</span> <span class="ident">Fatal</span> <span class="op">|</span> <span class="ident">PhaseFatal</span> <span class="op">|</span> <span class="ident">Error</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Bug</span> <span class="op">|</span> <span class="ident">Fatal</span> <span class="op">|</span> <span class="ident">PhaseFatal</span> <span class="op">|</span> <span class="ident">Error</span> =&gt; {
                 <span class="ident">spec</span>.<span class="ident">set_fg</span>(<span class="prelude-val">Some</span>(<span class="ident">Color::Red</span>)).<span class="ident">set_intense</span>(<span class="bool-val">true</span>);
             }
-            <span class="ident">Warning</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Warning</span> =&gt; {
                 <span class="ident">spec</span>.<span class="ident">set_fg</span>(<span class="prelude-val">Some</span>(<span class="ident">Color::Yellow</span>)).<span class="ident">set_intense</span>(<span class="macro">cfg!</span>(<span class="ident">windows</span>));
             }
-            <span class="ident">Note</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Note</span> =&gt; {
                 <span class="ident">spec</span>.<span class="ident">set_fg</span>(<span class="prelude-val">Some</span>(<span class="ident">Color::Green</span>)).<span class="ident">set_intense</span>(<span class="bool-val">true</span>);
             }
-            <span class="ident">Help</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Help</span> =&gt; {
                 <span class="ident">spec</span>.<span class="ident">set_fg</span>(<span class="prelude-val">Some</span>(<span class="ident">Color::Cyan</span>)).<span class="ident">set_intense</span>(<span class="bool-val">true</span>);
             }
-            <span class="ident">FailureNote</span> <span class="op">=</span><span class="op">&gt;</span> {}
-            <span class="ident">Cancelled</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="ident">FailureNote</span> =&gt; {}
+            <span class="ident">Cancelled</span> =&gt; <span class="macro">unreachable!</span>(),
         }
         <span class="ident">spec</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_str</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_str</span>(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Bug</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;error: internal compiler error&quot;</span>,
-            <span class="ident">Fatal</span> <span class="op">|</span> <span class="ident">PhaseFatal</span> <span class="op">|</span> <span class="ident">Error</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;error&quot;</span>,
-            <span class="ident">Warning</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;warning&quot;</span>,
-            <span class="ident">Note</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;note&quot;</span>,
-            <span class="ident">Help</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;help&quot;</span>,
-            <span class="ident">FailureNote</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;&quot;</span>,
-            <span class="ident">Cancelled</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;Shouldn&#39;t call on cancelled error&quot;</span>),
+            <span class="ident">Bug</span> =&gt; <span class="string">&quot;error: internal compiler error&quot;</span>,
+            <span class="ident">Fatal</span> <span class="op">|</span> <span class="ident">PhaseFatal</span> <span class="op">|</span> <span class="ident">Error</span> =&gt; <span class="string">&quot;error&quot;</span>,
+            <span class="ident">Warning</span> =&gt; <span class="string">&quot;warning&quot;</span>,
+            <span class="ident">Note</span> =&gt; <span class="string">&quot;note&quot;</span>,
+            <span class="ident">Help</span> =&gt; <span class="string">&quot;help&quot;</span>,
+            <span class="ident">FailureNote</span> =&gt; <span class="string">&quot;&quot;</span>,
+            <span class="ident">Cancelled</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Shouldn&#39;t call on cancelled error&quot;</span>),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_failure_note</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_failure_note</span>(<span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">FailureNote</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">FailureNote</span> =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }
 }

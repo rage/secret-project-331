@@ -504,13 +504,13 @@
 }
 
 <span class="kw">impl</span> <span class="ident">HuffmanCode</span> {
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-    <span class="self">self</span>.<span class="ident">value</span> <span class="op">=</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">value</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">bits</span> <span class="op">=</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">bits</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="ident">bool</span> {
+    <span class="self">self</span>.<span class="ident">value</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">value</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">bits</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">bits</span>
   }
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">HuffmanCode</span> {
-  <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+  <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
     <span class="ident">HuffmanCode</span> {
       <span class="ident">value</span>: <span class="number">0</span>,
       <span class="ident">bits</span>: <span class="number">0</span>,
@@ -551,12 +551,12 @@
 <span class="comment">//        let _ = core::mem::replace(&amp;mut tree_out, fast_slice!((self.codes)[start;]));</span>
 <span class="comment">//    }</span>
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_tree_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">index</span> : <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">HuffmanCode</span>] {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_tree_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">index</span> : <span class="ident">u32</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">HuffmanCode</span>] {
         <span class="kw">let</span> <span class="ident">start</span> : <span class="ident">usize</span> <span class="op">=</span> <span class="macro">fast_slice!</span>((<span class="self">self</span>.<span class="ident">htrees</span>)[<span class="ident">index</span> <span class="kw">as</span> <span class="ident">usize</span>]) <span class="kw">as</span> <span class="ident">usize</span>;
         <span class="macro">fast_mut!</span>((<span class="self">self</span>.<span class="ident">codes</span>.<span class="ident">slice_mut</span>())[<span class="ident">start</span>;])
     }
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_tree</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span> : <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">HuffmanCode</span>] {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_tree</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span> : <span class="ident">u32</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">HuffmanCode</span>] {
         <span class="kw">let</span> <span class="ident">start</span> : <span class="ident">usize</span> <span class="op">=</span> <span class="macro">fast_slice!</span>((<span class="self">self</span>.<span class="ident">htrees</span>)[<span class="ident">index</span> <span class="kw">as</span> <span class="ident">usize</span>]) <span class="kw">as</span> <span class="ident">usize</span>;
         <span class="macro">fast_slice!</span>((<span class="self">self</span>.<span class="ident">codes</span>)[<span class="ident">start</span>;])
     }
@@ -574,7 +574,7 @@
 <span class="comment">// }</span>
 
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_hgroup_cache</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> [<span class="kw-2">&amp;</span>[<span class="ident">HuffmanCode</span>]; <span class="number">256</span>] {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_hgroup_cache</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [<span class="kw-2">&amp;</span>[<span class="ident">HuffmanCode</span>]; <span class="number">256</span>] {
       <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> : [<span class="kw-2">&amp;</span>[<span class="ident">HuffmanCode</span>]; <span class="number">256</span>] <span class="op">=</span> [<span class="kw-2">&amp;</span>[]; <span class="number">256</span>];
       <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">index</span> : <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
       <span class="kw">for</span> <span class="ident">htree</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">htrees</span>.<span class="ident">slice</span>() {
@@ -587,7 +587,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">AllocU32</span> : <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
      <span class="ident">AllocHC</span> : <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">HuffmanCode</span><span class="op">&gt;</span> <span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">HuffmanTreeGroup</span><span class="op">&lt;</span><span class="ident">AllocU32</span>, <span class="ident">AllocHC</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">HuffmanTreeGroup</span>::<span class="op">&lt;</span><span class="ident">AllocU32</span>, <span class="ident">AllocHC</span><span class="op">&gt;</span> {
           <span class="ident">htrees</span> : <span class="ident">AllocU32::AllocatedMemory::default</span>(),
           <span class="ident">codes</span> : <span class="ident">AllocHC::AllocatedMemory::default</span>(),
@@ -627,7 +627,7 @@
 <span class="comment">// Returns reverse(num &gt;&gt; BROTLI_REVERSE_BITS_BASE, BROTLI_REVERSE_BITS_MAX),</span>
 <span class="comment">// where reverse(value, len) is the bit-wise reversal of the len least</span>
 <span class="comment">// significant bits of value.</span>
-<span class="kw">fn</span> <span class="ident">BrotliReverseBits</span>(<span class="ident">num</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+<span class="kw">fn</span> <span class="ident">BrotliReverseBits</span>(<span class="ident">num</span>: <span class="ident">u32</span>) -&gt; <span class="ident">u32</span> {
   <span class="macro">fast!</span>((<span class="ident">kReverseBits</span>)[<span class="ident">num</span> <span class="kw">as</span> <span class="ident">usize</span>]) <span class="kw">as</span> <span class="ident">u32</span>
 }
 
@@ -650,7 +650,7 @@
 <span class="comment">// Returns the table width of the next 2nd level table. count is the histogram</span>
 <span class="comment">// of bit lengths for the remaining symbols, len is the code length of the next</span>
 <span class="comment">// processed symbol</span>
-<span class="kw">fn</span> <span class="ident">NextTableBitSize</span>(<span class="ident">count</span>: <span class="kw-2">&amp;</span>[<span class="ident">u16</span>], <span class="kw-2">mut</span> <span class="ident">len</span>: <span class="ident">i32</span>, <span class="ident">root_bits</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span> {
+<span class="kw">fn</span> <span class="ident">NextTableBitSize</span>(<span class="ident">count</span>: <span class="kw-2">&amp;</span>[<span class="ident">u16</span>], <span class="kw-2">mut</span> <span class="ident">len</span>: <span class="ident">i32</span>, <span class="ident">root_bits</span>: <span class="ident">i32</span>) -&gt; <span class="ident">i32</span> {
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">left</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> (<span class="ident">len</span> <span class="op">-</span> <span class="ident">root_bits</span>);
   <span class="kw">while</span> <span class="ident">len</span> <span class="op">&lt;</span> <span class="ident">BROTLI_HUFFMAN_MAX_CODE_LENGTH</span> <span class="kw">as</span> <span class="ident">i32</span> {
     <span class="ident">left</span> <span class="op">-</span><span class="op">=</span> <span class="macro">fast!</span>((<span class="ident">count</span>)[<span class="ident">len</span> <span class="kw">as</span> <span class="ident">usize</span>]) <span class="kw">as</span> <span class="ident">i32</span>;
@@ -693,7 +693,7 @@
       <span class="macro">fast_mut!</span>((<span class="ident">offset</span>)[<span class="macro">fast_inner!</span>((<span class="ident">code_lengths</span>)[<span class="ident">symbol</span> <span class="kw">as</span> <span class="ident">usize</span>]) <span class="kw">as</span> <span class="ident">usize</span>]) <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
       <span class="macro">fast_mut!</span>((<span class="ident">sorted</span>)[<span class="ident">index</span> <span class="kw">as</span> <span class="ident">usize</span>]) <span class="op">=</span> <span class="ident">symbol</span>;
     }
-    <span class="kw">if</span> <span class="ident">symbol</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+    <span class="kw">if</span> <span class="ident">symbol</span> <span class="op">==</span> <span class="number">0</span> {
       <span class="kw">break</span>;
     }
   }
@@ -701,7 +701,7 @@
   <span class="kw">const</span> <span class="ident">table_size</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">BROTLI_HUFFMAN_MAX_CODE_LENGTH_CODE_LENGTH</span>;
 
   <span class="comment">// Special case: all symbols but one have 0 code length.</span>
-  <span class="kw">if</span> <span class="macro">fast!</span>((<span class="ident">offset</span>)[<span class="number">0</span>]) <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+  <span class="kw">if</span> <span class="macro">fast!</span>((<span class="ident">offset</span>)[<span class="number">0</span>]) <span class="op">==</span> <span class="number">0</span> {
     <span class="kw">let</span> <span class="ident">code</span>: <span class="ident">HuffmanCode</span> <span class="op">=</span> <span class="ident">HuffmanCode</span> {
       <span class="ident">bits</span>: <span class="number">0</span>,
       <span class="ident">value</span>: <span class="macro">fast!</span>((<span class="ident">sorted</span>)[<span class="number">0</span>]) <span class="kw">as</span> <span class="ident">u16</span>,
@@ -746,7 +746,7 @@
                                <span class="ident">symbol_lists</span>: <span class="kw-2">&amp;</span>[<span class="ident">u16</span>],
                                <span class="ident">symbol_lists_offset</span>: <span class="ident">usize</span>, <span class="comment">/* need negative-index to symbol_lists */</span>
                                <span class="ident">count</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u16</span>])
-                               <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+                               -&gt; <span class="ident">u32</span> {
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">code</span>: <span class="ident">HuffmanCode</span> <span class="op">=</span> <span class="ident">HuffmanCode</span> {
     <span class="ident">bits</span>: <span class="number">0</span>,
     <span class="ident">value</span>: <span class="number">0</span>,
@@ -757,7 +757,7 @@
   <span class="macro">assert!</span>(<span class="ident">BROTLI_HUFFMAN_MAX_CODE_LENGTH</span> <span class="kw">as</span> <span class="ident">isize</span> <span class="op">-</span> <span class="ident">root_bits</span> <span class="kw">as</span> <span class="ident">isize</span> <span class="op">&lt;</span><span class="op">=</span>
           <span class="ident">BROTLI_REVERSE_BITS_MAX</span> <span class="kw">as</span> <span class="ident">isize</span>);
 
-  <span class="kw">while</span> <span class="macro">fast!</span>((<span class="ident">symbol_lists</span>)[((<span class="ident">symbol_lists_offset</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="op">+</span> <span class="ident">max_length</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="kw">as</span> <span class="ident">usize</span>]) <span class="op">=</span><span class="op">=</span>
+  <span class="kw">while</span> <span class="macro">fast!</span>((<span class="ident">symbol_lists</span>)[((<span class="ident">symbol_lists_offset</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="op">+</span> <span class="ident">max_length</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="kw">as</span> <span class="ident">usize</span>]) <span class="op">==</span>
         <span class="number">0xFFFF</span> {
     <span class="ident">max_length</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
   }
@@ -825,7 +825,7 @@
   <span class="kw">while</span> <span class="ident">len</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">max_length</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">symbol</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="ident">len</span> <span class="op">-</span> (<span class="ident">BROTLI_HUFFMAN_MAX_CODE_LENGTH</span> <span class="kw">as</span> <span class="ident">i32</span> <span class="op">+</span> <span class="number">1</span>);
     <span class="kw">while</span> <span class="macro">fast!</span>((<span class="ident">count</span>)[<span class="ident">len</span> <span class="kw">as</span> <span class="ident">usize</span>]) <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-      <span class="kw">if</span> <span class="ident">sub_key</span> <span class="op">=</span><span class="op">=</span> (<span class="ident">BROTLI_REVERSE_BITS_LOWEST</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">1u32</span>) {
+      <span class="kw">if</span> <span class="ident">sub_key</span> <span class="op">==</span> (<span class="ident">BROTLI_REVERSE_BITS_LOWEST</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">1u32</span>) {
         <span class="ident">table_free_offset</span> <span class="op">+</span><span class="op">=</span> <span class="ident">table_size</span> <span class="kw">as</span> <span class="ident">u32</span>;
         <span class="ident">table_bits</span> <span class="op">=</span> <span class="ident">NextTableBitSize</span>(<span class="ident">count</span>, <span class="ident">len</span>, <span class="ident">root_bits</span>);
         <span class="ident">table_size</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">table_bits</span>;
@@ -862,14 +862,14 @@
                                      <span class="ident">root_bits</span>: <span class="ident">i32</span>,
                                      <span class="ident">val</span>: <span class="kw-2">&amp;</span>[<span class="ident">u16</span>],
                                      <span class="ident">num_symbols</span>: <span class="ident">u32</span>)
-                                     <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+                                     -&gt; <span class="ident">u32</span> {
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">table_size</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">1</span>;
   <span class="kw">let</span> <span class="ident">goal_size</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">1u32</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">root_bits</span>;
   <span class="macro">assert!</span>(<span class="ident">num_symbols</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">4</span>);
-  <span class="kw">if</span> <span class="ident">num_symbols</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+  <span class="kw">if</span> <span class="ident">num_symbols</span> <span class="op">==</span> <span class="number">0</span> {
     <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">0</span>]).<span class="ident">bits</span> <span class="op">=</span> <span class="number">0</span>;
     <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">0</span>]).<span class="ident">value</span> <span class="op">=</span> <span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">0</span>]);
-  } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">num_symbols</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
+  } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">num_symbols</span> <span class="op">==</span> <span class="number">1</span> {
     <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">0</span>]).<span class="ident">bits</span> <span class="op">=</span> <span class="number">1</span>;
     <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">1</span>]).<span class="ident">bits</span> <span class="op">=</span> <span class="number">1</span>;
     <span class="kw">if</span> <span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">1</span>]) <span class="op">&gt;</span> <span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">0</span>]) {
@@ -880,7 +880,7 @@
       <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">1</span>]).<span class="ident">value</span> <span class="op">=</span> <span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">0</span>]);
     }
     <span class="ident">table_size</span> <span class="op">=</span> <span class="number">2</span>;
-  } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">num_symbols</span> <span class="op">=</span><span class="op">=</span> <span class="number">2</span> {
+  } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">num_symbols</span> <span class="op">==</span> <span class="number">2</span> {
     <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">0</span>]).<span class="ident">bits</span> <span class="op">=</span> <span class="number">1</span>;
     <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">0</span>]).<span class="ident">value</span> <span class="op">=</span> <span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">0</span>]);
     <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">2</span>]).<span class="ident">bits</span> <span class="op">=</span> <span class="number">1</span>;
@@ -895,7 +895,7 @@
     <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">1</span>]).<span class="ident">bits</span> <span class="op">=</span> <span class="number">2</span>;
     <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">3</span>]).<span class="ident">bits</span> <span class="op">=</span> <span class="number">2</span>;
     <span class="ident">table_size</span> <span class="op">=</span> <span class="number">4</span>;
-  } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">num_symbols</span> <span class="op">=</span><span class="op">=</span> <span class="number">3</span> {
+  } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">num_symbols</span> <span class="op">==</span> <span class="number">3</span> {
     <span class="kw">let</span> <span class="ident">last</span>: <span class="ident">u16</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">val</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">3</span> { <span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">3</span>]) } <span class="kw">else</span> { <span class="number">65535</span> };
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mval</span>: [<span class="ident">u16</span>; <span class="number">4</span>] <span class="op">=</span> [<span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">0</span>]), <span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">1</span>]), <span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">2</span>]), <span class="ident">last</span>];
     <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">3</span> {
@@ -913,7 +913,7 @@
     <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">1</span>]).<span class="ident">value</span> <span class="op">=</span> <span class="ident">mval</span>[<span class="number">2</span>];
     <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">3</span>]).<span class="ident">value</span> <span class="op">=</span> <span class="ident">mval</span>[<span class="number">3</span>];
     <span class="ident">table_size</span> <span class="op">=</span> <span class="number">4</span>;
-  } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">num_symbols</span> <span class="op">=</span><span class="op">=</span> <span class="number">4</span> {
+  } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">num_symbols</span> <span class="op">==</span> <span class="number">4</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mval</span>: [<span class="ident">u16</span>; <span class="number">4</span>] <span class="op">=</span> [<span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">0</span>]), <span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">1</span>]), <span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">2</span>]), <span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">3</span>])];
     <span class="kw">if</span> <span class="ident">mval</span>[<span class="number">3</span>] <span class="op">&lt;</span> <span class="ident">mval</span>[<span class="number">2</span>] {
       <span class="ident">mval</span>.<span class="ident">swap</span>(<span class="number">3</span>, <span class="number">2</span>)

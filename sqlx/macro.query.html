@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Statically checked SQL query with `println!()` style syntax."><meta name="keywords" content="rust, rustlang, rust-lang, query"><title>query in sqlx - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../favicon.svg"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../sqlx/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><h2 class="location">Other items in<br><a href="index.html">sqlx</a></h2><div id="sidebar-vars" data-name="query" data-ty="macro" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Macro <a href="index.html">sqlx</a>::<wbr><a class="macro" href="#">query</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/sqlx/macros.rs.html#302-318" title="goto source code">[src]</a></span></h1><div class="docblock type-decl"><div class="example-wrap"><pre class="rust macro"><code><span class="macro">macro_rules!</span> <span class="ident">query</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span> : <span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> { ... };
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span> : <span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span> : <span class="ident">tt</span>) <span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> { ... };
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span> : <span class="ident">expr</span>) =&gt; { ... };
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span> : <span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span> : <span class="ident">tt</span>) <span class="kw-2">*</span>) =&gt; { ... };
 }</code></pre></div>
 </div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Statically checked SQL query with <code>println!()</code> style syntax.</p>
 <p>This expands to an instance of <a href="query/struct.Map.html" title="crate::query::Map"><code>query::Map</code></a> that outputs an ad-hoc anonymous
@@ -16,16 +16,17 @@ struct type, if the query has at least one output column that is not <code>Void<
 <span class="macro">println!</span>(<span class="string">&quot;{}: {}&quot;</span>, <span class="ident">account</span>.<span class="ident">id</span>, <span class="ident">account</span>.<span class="ident">name</span>);
 </code></pre></div>
 <p><strong>The method you want to call depends on how many rows you’re expecting.</strong></p>
-<table><thead><tr><th>Number of Rows</th><th>Method to Call*</th><th>Returns</th><th>Notes</th></tr></thead><tbody>
+<div><table><thead><tr><th>Number of Rows</th><th>Method to Call*</th><th>Returns</th><th>Notes</th></tr></thead><tbody>
 <tr><td>None†</td><td><code>.execute(...).await</code></td><td><code>sqlx::Result&lt;DB::QueryResult&gt;</code></td><td>For <code>INSERT</code>/<code>UPDATE</code>/<code>DELETE</code> without <code>RETURNING</code>.</td></tr>
 <tr><td>Zero or One</td><td><code>.fetch_optional(...).await</code></td><td><code>sqlx::Result&lt;Option&lt;{adhoc struct}&gt;&gt;</code></td><td>Extra rows are ignored.</td></tr>
 <tr><td>Exactly One</td><td><code>.fetch_one(...).await</code></td><td><code>sqlx::Result&lt;{adhoc struct}&gt;</code></td><td>Errors if no rows were returned. Extra rows are ignored. Aggregate queries, use this.</td></tr>
 <tr><td>At Least One</td><td><code>.fetch(...)</code></td><td><code>impl Stream&lt;Item = sqlx::Result&lt;{adhoc struct}&gt;&gt;</code></td><td>Call <code>.try_next().await</code> to get each row result.</td></tr>
 <tr><td>Multiple</td><td><code>.fetch_all(...)</code></td><td><code>sqlx::Result&lt;Vec&lt;{adhoc struct}&gt;&gt;</code></td><td></td></tr>
 </tbody></table>
+</div>
 <p>* All methods accept one of <code>&amp;mut {connection type}</code>, <code>&amp;mut Transaction</code> or <code>&amp;Pool</code>.
 † Only callable if the query returns no columns; otherwise it’s assumed the query <em>may</em> return at least one row.</p>
-<h2 id="requirements" class="section-header"><a href="#requirements">Requirements</a></h2>
+<h3 id="requirements" class="section-header"><a href="#requirements">Requirements</a></h3>
 <ul>
 <li>
 <p>The <code>DATABASE_URL</code> environment variable must be set at build-time to point to a database
@@ -51,7 +52,7 @@ determine the database type.</li>
 </ul>
 </li>
 </ul>
-<h2 id="query-arguments" class="section-header"><a href="#query-arguments">Query Arguments</a></h2>
+<h3 id="query-arguments" class="section-header"><a href="#query-arguments">Query Arguments</a></h3>
 <p>Like <code>println!()</code> and the other formatting macros, you can add bind parameters to your SQL
 and this macro will typecheck passed arguments and error on missing ones:</p>
 
@@ -71,7 +72,7 @@ and this macro will typecheck passed arguments and error on missing ones:</p>
 <li>Postgres: <code>$N</code> where <code>N</code> is the 1-based positional argument index</li>
 <li>MySQL/SQLite: <code>?</code> which matches arguments in order that it appears in the query</li>
 </ul>
-<h2 id="nullability-bind-parameters" class="section-header"><a href="#nullability-bind-parameters">Nullability: Bind Parameters</a></h2>
+<h3 id="nullability-bind-parameters" class="section-header"><a href="#nullability-bind-parameters">Nullability: Bind Parameters</a></h3>
 <p>For a given expected type <code>T</code>, both <code>T</code> and <code>Option&lt;T&gt;</code> are allowed (as well as either
 behind references). <code>Option::None</code> will be bound as <code>NULL</code>, so if binding a type behind <code>Option</code>
 be sure your query can support it.</p>
@@ -81,7 +82,7 @@ null or is null, respectively.</p>
 <p>In Postgres and MySQL you may also use <code>IS [NOT] DISTINCT FROM</code> to compare with a possibly
 <code>NULL</code> value. In MySQL <code>IS NOT DISTINCT FROM</code> can be shortened to <code>&lt;=&gt;</code>.
 In SQLite you can us <code>IS</code> or <code>IS NOT</code>. Note that operator precedence may be different.</p>
-<h2 id="nullability-output-columns" class="section-header"><a href="#nullability-output-columns">Nullability: Output Columns</a></h2>
+<h3 id="nullability-output-columns" class="section-header"><a href="#nullability-output-columns">Nullability: Output Columns</a></h3>
 <p>In most cases, the database engine can tell us whether or not a column may be <code>NULL</code>, and
 the <code>query!()</code> macro adjusts the field types of the returned struct accordingly.</p>
 <p>For Postgres, this only works for columns which come directly from actual tables,
@@ -99,7 +100,7 @@ manual for the functions you are using to find the cases in which they return <c
 on columns that come from tables. However, for SQLite we also can step through the output
 of <code>EXPLAIN</code> to identify columns that may or may not be <code>NULL</code>.</p>
 <p>To override the nullability of an output column, <a href="#type-overrides-output-columns">see below</a>.</p>
-<h2 id="type-overrides-bind-parameters-postgres-only" class="section-header"><a href="#type-overrides-bind-parameters-postgres-only">Type Overrides: Bind Parameters (Postgres only)</a></h2>
+<h3 id="type-overrides-bind-parameters-postgres-only" class="section-header"><a href="#type-overrides-bind-parameters-postgres-only">Type Overrides: Bind Parameters (Postgres only)</a></h3>
 <p>For typechecking of bind parameters, casts using <code>as</code> are treated as overrides for the inferred
 types of bind parameters and no typechecking is emitted:</p>
 
@@ -114,10 +115,10 @@ types of bind parameters and no typechecking is emitted:</p>
 syntax, i.e. <code>my_int: _</code> (which is unstable but can be stripped), but this requires modifying
 the expression which is not possible as the macros are currently implemented. Casts to <code>_</code> are
 forbidden for now as they produce rather nasty type errors.</p>
-<h2 id="type-overrides-output-columns" class="section-header"><a href="#type-overrides-output-columns">Type Overrides: Output Columns</a></h2>
+<h3 id="type-overrides-output-columns" class="section-header"><a href="#type-overrides-output-columns">Type Overrides: Output Columns</a></h3>
 <p>Type overrides are also available for output columns, utilizing the SQL standard’s support
 for arbitrary text in column names:</p>
-<h5 id="force-not-null" class="section-header"><a href="#force-not-null">Force Not-Null</a></h5>
+<h6 id="force-not-null" class="section-header"><a href="#force-not-null">Force Not-Null</a></h6>
 <p>Selecting a column <code>foo as &quot;foo!&quot;</code> (Postgres / SQLite) or <code>foo as `foo!`</code> (MySQL) overrides
 inferred nullability and forces the column to be treated as <code>NOT NULL</code>; this is useful e.g. for
 selecting expressions in Postgres where we cannot infer nullability:</p>
@@ -131,7 +132,7 @@ selecting expressions in Postgres where we cannot infer nullability:</p>
 <span class="comment">// For Postgres this would have been inferred to be Option&lt;i32&gt; instead</span>
 <span class="macro">assert_eq!</span>(<span class="ident">record</span>.<span class="ident">id</span>, <span class="number">1i32</span>);
 </code></pre></div>
-<h5 id="force-nullable" class="section-header"><a href="#force-nullable">Force Nullable</a></h5>
+<h6 id="force-nullable" class="section-header"><a href="#force-nullable">Force Nullable</a></h6>
 <p>Selecting a column <code>foo as &quot;foo?&quot;</code> (Postgres / SQLite) or <code>foo as `foo?`</code> (MySQL) overrides
 inferred nullability and forces the column to be treated as nullable; this is provided mainly
 for symmetry with <code>!</code>.</p>
@@ -173,7 +174,7 @@ to reproduce the problem. For Postgres users, especially helpful would be the ou
 <code>EXPLAIN (VERBOSE, FORMAT JSON) &lt;your query&gt;</code> with bind parameters substituted in the query
 (as the exact value of bind parameters can change the query plan)
 and the definitions of any relevant tables (or sufficiently anonymized equivalents).</p>
-<h5 id="force-a-differentcustom-type" class="section-header"><a href="#force-a-differentcustom-type">Force a Different/Custom Type</a></h5>
+<h6 id="force-a-differentcustom-type" class="section-header"><a href="#force-a-differentcustom-type">Force a Different/Custom Type</a></h6>
 <p>Selecting a column <code>foo as &quot;foo: T&quot;</code> (Postgres / SQLite) or <code>foo as `foo: T`</code> (MySQL)
 overrides the inferred type which is useful when selecting user-defined custom types
 (dynamic type checking is still done so if the types are incompatible this will be an error
@@ -195,14 +196,14 @@ but it is compatible with the forced not-null and forced nullable annotations:</
 <span class="comment">// Note that while using `id: MyInt4` (without the `!`) would work the same for MySQL/SQLite,</span>
 <span class="comment">// Postgres would expect `Some(MyInt4(1))` and the code wouldn&#39;t compile</span>
 <span class="macro">assert_eq!</span>(<span class="ident">record</span>.<span class="ident">id</span>, <span class="ident">MyInt4</span>(<span class="number">1</span>));</code></pre></div>
-<h5 id="overrides-cheatsheet" class="section-header"><a href="#overrides-cheatsheet">Overrides cheatsheet</a></h5><table><thead><tr><th>Syntax</th><th>Nullability</th><th>Type</th></tr></thead><tbody>
+<h6 id="overrides-cheatsheet" class="section-header"><a href="#overrides-cheatsheet">Overrides cheatsheet</a></h6><div><table><thead><tr><th>Syntax</th><th>Nullability</th><th>Type</th></tr></thead><tbody>
 <tr><td><code>foo!</code></td><td>Forced not-null</td><td>Inferred</td></tr>
 <tr><td><code>foo?</code></td><td>Forced nullable</td><td>Inferred</td></tr>
 <tr><td><code>foo: T</code></td><td>Inferred</td><td>Overridden</td></tr>
 <tr><td><code>foo!: T</code></td><td>Forced not-null</td><td>Overridden</td></tr>
 <tr><td><code>foo?: T</code></td><td>Forced nullable</td><td>Overridden</td></tr>
 </tbody></table>
-<h2 id="offline-mode-requires-the-offline-feature" class="section-header"><a href="#offline-mode-requires-the-offline-feature">Offline Mode (requires the <code>offline</code> feature)</a></h2>
+</div><h3 id="offline-mode-requires-the-offline-feature" class="section-header"><a href="#offline-mode-requires-the-offline-feature">Offline Mode (requires the <code>offline</code> feature)</a></h3>
 <p>The macros can be configured to not require a live database connection for compilation,
 but it requires a couple extra steps:</p>
 <ul>
@@ -219,7 +220,7 @@ again.</p>
 project and your database schema itself, run
 <code>cargo install sqlx-cli &amp;&amp; cargo sqlx prepare --check</code> in your Continuous Integration script.</p>
 <p>See <a href="https://crates.io/crates/sqlx-cli">the README for <code>sqlx-cli</code></a> for more information.</p>
-<h2 id="see-also" class="section-header"><a href="#see-also">See Also</a></h2>
+<h3 id="see-also" class="section-header"><a href="#see-also">See Also</a></h3>
 <ul>
 <li><a href="macro.query_as.html" title="query_as!">query_as!</a> if you want to use a struct you can name,</li>
 <li><a href="macro.query_file.html" title="query_file!">query_file!</a> if you want to define the SQL query out-of-line,</li>

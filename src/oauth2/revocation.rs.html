@@ -193,7 +193,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// The actual token value to be revoked.</span>
     <span class="doccomment">///</span>
-    <span class="kw">fn</span> <span class="ident">secret</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span>;
+    <span class="kw">fn</span> <span class="ident">secret</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span>;
 
     <span class="doccomment">///</span>
     <span class="doccomment">/// Indicates the type of the token being revoked, as defined by [RFC 7009, Section 2.1](https://tools.ietf.org/html/rfc7009#section-2.1).</span>
@@ -202,7 +202,7 @@
     <span class="doccomment">/// expected to know (e.g. because they are registered in the [OAuth Token Type Hints Registry](https://tools.ietf.org/html/rfc7009#section-4.1.2))</span>
     <span class="doccomment">/// so that they can potentially optimize their search for the token to be revoked.</span>
     <span class="doccomment">///</span>
-    <span class="kw">fn</span> <span class="ident">type_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">type_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>;
 }
 
 <span class="doccomment">///</span>
@@ -242,10 +242,10 @@
     <span class="ident">RefreshToken</span>(<span class="ident">RefreshToken</span>),
 }
 <span class="kw">impl</span> <span class="ident">RevocableToken</span> <span class="kw">for</span> <span class="ident">StandardRevocableToken</span> {
-    <span class="kw">fn</span> <span class="ident">secret</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+    <span class="kw">fn</span> <span class="ident">secret</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::AccessToken</span>(<span class="ident">token</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">token</span>.<span class="ident">secret</span>(),
-            <span class="ident"><span class="self">Self</span>::RefreshToken</span>(<span class="ident">token</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">token</span>.<span class="ident">secret</span>(),
+            <span class="ident"><span class="self">Self</span>::AccessToken</span>(<span class="ident">token</span>) =&gt; <span class="ident">token</span>.<span class="ident">secret</span>(),
+            <span class="ident"><span class="self">Self</span>::RefreshToken</span>(<span class="ident">token</span>) =&gt; <span class="ident">token</span>.<span class="ident">secret</span>(),
         }
     }
 
@@ -258,34 +258,34 @@
     <span class="doccomment">/// * `refresh_token`: A refresh token as defined in [RFC 6749,</span>
     <span class="doccomment">///   Section 1.5](https://tools.ietf.org/html/rfc6749#section-1.5)</span>
     <span class="doccomment">///</span>
-    <span class="kw">fn</span> <span class="ident">type_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">type_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">StandardRevocableToken::AccessToken</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;access_token&quot;</span>),
-            <span class="ident">StandardRevocableToken::RefreshToken</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;refresh_token&quot;</span>),
+            <span class="ident">StandardRevocableToken::AccessToken</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;access_token&quot;</span>),
+            <span class="ident">StandardRevocableToken::RefreshToken</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;refresh_token&quot;</span>),
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">AccessToken</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">StandardRevocableToken</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">token</span>: <span class="ident">AccessToken</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">token</span>: <span class="ident">AccessToken</span>) -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::AccessToken</span>(<span class="ident">token</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">AccessToken</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">StandardRevocableToken</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">token</span>: <span class="kw-2">&amp;</span><span class="ident">AccessToken</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">token</span>: <span class="kw-2">&amp;</span><span class="ident">AccessToken</span>) -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::AccessToken</span>(<span class="ident">token</span>.<span class="ident">clone</span>())
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">RefreshToken</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">StandardRevocableToken</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">token</span>: <span class="ident">RefreshToken</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">token</span>: <span class="ident">RefreshToken</span>) -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::RefreshToken</span>(<span class="ident">token</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">RefreshToken</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">StandardRevocableToken</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">token</span>: <span class="kw-2">&amp;</span><span class="ident">RefreshToken</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">token</span>: <span class="kw-2">&amp;</span><span class="ident">RefreshToken</span>) -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::RefreshToken</span>(<span class="ident">token</span>.<span class="ident">clone</span>())
     }
 }
@@ -309,26 +309,26 @@
     <span class="ident">Basic</span>(<span class="ident">BasicErrorResponseType</span>),
 }
 <span class="kw">impl</span> <span class="ident">RevocationErrorResponseType</span> {
-    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">BasicErrorResponseType::from_str</span>(<span class="ident">s</span>) {
-            <span class="ident">BasicErrorResponseType::Extension</span>(<span class="ident">ext</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">ext</span>.<span class="ident">as_str</span>() {
-                <span class="string">&quot;unsupported_token_type&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">RevocationErrorResponseType::UnsupportedTokenType</span>,
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">RevocationErrorResponseType::Basic</span>(<span class="ident">BasicErrorResponseType::Extension</span>(<span class="ident">ext</span>)),
+            <span class="ident">BasicErrorResponseType::Extension</span>(<span class="ident">ext</span>) =&gt; <span class="kw">match</span> <span class="ident">ext</span>.<span class="ident">as_str</span>() {
+                <span class="string">&quot;unsupported_token_type&quot;</span> =&gt; <span class="ident">RevocationErrorResponseType::UnsupportedTokenType</span>,
+                <span class="kw">_</span> =&gt; <span class="ident">RevocationErrorResponseType::Basic</span>(<span class="ident">BasicErrorResponseType::Extension</span>(<span class="ident">ext</span>)),
             },
-            <span class="ident">basic</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">RevocationErrorResponseType::Basic</span>(<span class="ident">basic</span>),
+            <span class="ident">basic</span> =&gt; <span class="ident">RevocationErrorResponseType::Basic</span>(<span class="ident">basic</span>),
         }
     }
 }
 <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RevocationErrorResponseType</span> {
-    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">RevocationErrorResponseType::UnsupportedTokenType</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;unsupported_token_type&quot;</span>,
-            <span class="ident">RevocationErrorResponseType::Basic</span>(<span class="ident">basic</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">basic</span>.<span class="ident">as_ref</span>(),
+            <span class="ident">RevocationErrorResponseType::UnsupportedTokenType</span> =&gt; <span class="string">&quot;unsupported_token_type&quot;</span>,
+            <span class="ident">RevocationErrorResponseType::Basic</span>(<span class="ident">basic</span>) =&gt; <span class="ident">basic</span>.<span class="ident">as_ref</span>(),
         }
     }
 }
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">serde::Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RevocationErrorResponseType</span> {
-    <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">deserializer</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">D::Error</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">deserializer</span>: <span class="ident">D</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">D::Error</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">D</span>: <span class="ident">serde::de::Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
     {
@@ -337,7 +337,7 @@
     }
 }
 <span class="kw">impl</span> <span class="ident">serde::ser::Serialize</span> <span class="kw">for</span> <span class="ident">RevocationErrorResponseType</span> {
-    <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">serializer</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">S::Error</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">serializer</span>: <span class="ident">S</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">S::Error</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">S</span>: <span class="ident">serde::ser::Serializer</span>,
     {
@@ -346,13 +346,13 @@
 }
 <span class="kw">impl</span> <span class="ident">ErrorResponseType</span> <span class="kw">for</span> <span class="ident">RevocationErrorResponseType</span> {}
 <span class="kw">impl</span> <span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">RevocationErrorResponseType</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">FormatterError</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">FormatterError</span><span class="op">&gt;</span> {
         <span class="ident">Display::fmt</span>(<span class="self">self</span>, <span class="ident">f</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">RevocationErrorResponseType</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">FormatterError</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">FormatterError</span><span class="op">&gt;</span> {
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="ident">as_ref</span>())
     }
 }

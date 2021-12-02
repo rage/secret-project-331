@@ -763,40 +763,40 @@
     },
 }
 <span class="kw">impl</span> <span class="ident">TokenType</span> {
-    <span class="kw">fn</span> <span class="ident">before_expr</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">before_expr</span>(<span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">TokenType::JSXName</span>
             <span class="op">|</span> <span class="ident">TokenType::JSXTagStart</span>
             <span class="op">|</span> <span class="ident">TokenType::JSXTagEnd</span>
             <span class="op">|</span> <span class="ident">TokenType::Template</span>
             <span class="op">|</span> <span class="ident">TokenType::Dot</span>
-            <span class="op">|</span> <span class="ident">TokenType::RParen</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="op">|</span> <span class="ident">TokenType::RParen</span> =&gt; <span class="bool-val">false</span>,
 
-            <span class="ident">TokenType::JSXText</span> <span class="op">|</span> <span class="ident">TokenType::Colon</span> <span class="op">|</span> <span class="ident">TokenType::LBrace</span> <span class="op">|</span> <span class="ident">TokenType::Semi</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="ident">TokenType::BinOp</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">b</span>.<span class="ident">before_expr</span>(),
-            <span class="ident">TokenType::Keyword</span>(<span class="ident">k</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">k</span>.<span class="ident">before_expr</span>(),
-            <span class="ident">TokenType::Other</span> { <span class="ident">before_expr</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">before_expr</span>,
+            <span class="ident">TokenType::JSXText</span> <span class="op">|</span> <span class="ident">TokenType::Colon</span> <span class="op">|</span> <span class="ident">TokenType::LBrace</span> <span class="op">|</span> <span class="ident">TokenType::Semi</span> =&gt; <span class="bool-val">true</span>,
+            <span class="ident">TokenType::BinOp</span>(<span class="ident">b</span>) =&gt; <span class="ident">b</span>.<span class="ident">before_expr</span>(),
+            <span class="ident">TokenType::Keyword</span>(<span class="ident">k</span>) =&gt; <span class="ident">k</span>.<span class="ident">before_expr</span>(),
+            <span class="ident">TokenType::Other</span> { <span class="ident">before_expr</span>, .. } =&gt; <span class="ident">before_expr</span>,
         }
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Token</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TokenType</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">t</span>: <span class="kw-2">&amp;</span><span class="ident">Token</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">t</span>: <span class="kw-2">&amp;</span><span class="ident">Token</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">t</span> {
-            <span class="ident">Token::Template</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TokenType::Template</span>,
-            <span class="ident">Token::Dot</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TokenType::Dot</span>,
-            <span class="ident">Token::Colon</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TokenType::Colon</span>,
-            <span class="ident">Token::LBrace</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TokenType::LBrace</span>,
-            <span class="ident">Token::RParen</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TokenType::RParen</span>,
-            <span class="ident">Token::Semi</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TokenType::Semi</span>,
-            <span class="ident">Token::JSXTagEnd</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TokenType::JSXTagEnd</span>,
-            <span class="ident">Token::JSXTagStart</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TokenType::JSXTagStart</span>,
-            <span class="ident">Token::JSXText</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TokenType::JSXText</span>,
-            <span class="ident">Token::JSXName</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TokenType::JSXName</span>,
-            <span class="ident">Token::BinOp</span>(<span class="ident">op</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TokenType::BinOp</span>(<span class="ident">op</span>),
+            <span class="ident">Token::Template</span> { .. } =&gt; <span class="ident">TokenType::Template</span>,
+            <span class="ident">Token::Dot</span> =&gt; <span class="ident">TokenType::Dot</span>,
+            <span class="ident">Token::Colon</span> =&gt; <span class="ident">TokenType::Colon</span>,
+            <span class="ident">Token::LBrace</span> =&gt; <span class="ident">TokenType::LBrace</span>,
+            <span class="ident">Token::RParen</span> =&gt; <span class="ident">TokenType::RParen</span>,
+            <span class="ident">Token::Semi</span> =&gt; <span class="ident">TokenType::Semi</span>,
+            <span class="ident">Token::JSXTagEnd</span> =&gt; <span class="ident">TokenType::JSXTagEnd</span>,
+            <span class="ident">Token::JSXTagStart</span> =&gt; <span class="ident">TokenType::JSXTagStart</span>,
+            <span class="ident">Token::JSXText</span> { .. } =&gt; <span class="ident">TokenType::JSXText</span>,
+            <span class="ident">Token::JSXName</span> { .. } =&gt; <span class="ident">TokenType::JSXName</span>,
+            <span class="ident">Token::BinOp</span>(<span class="ident">op</span>) =&gt; <span class="ident">TokenType::BinOp</span>(<span class="ident">op</span>),
 
-            <span class="ident">Token::Word</span>(<span class="ident">Word::Keyword</span>(<span class="ident">k</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TokenType::Keyword</span>(<span class="ident">k</span>),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TokenType::Other</span> {
+            <span class="ident">Token::Word</span>(<span class="ident">Word::Keyword</span>(<span class="ident">k</span>)) =&gt; <span class="ident">TokenType::Keyword</span>(<span class="ident">k</span>),
+            <span class="kw">_</span> =&gt; <span class="ident">TokenType::Other</span> {
                 <span class="ident">before_expr</span>: <span class="ident">t</span>.<span class="ident">before_expr</span>(),
                 <span class="ident">can_have_trailing_comment</span>: <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">t</span> {
                     <span class="ident">Token::Num</span>(..)
@@ -806,9 +806,9 @@
                     <span class="op">|</span> <span class="ident">Token::Regex</span>(..)
                     <span class="op">|</span> <span class="ident">Token::BigInt</span>(..)
                     <span class="op">|</span> <span class="ident">Token::JSXText</span> { .. }
-                    <span class="op">|</span> <span class="ident">Token::RBrace</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+                    <span class="op">|</span> <span class="ident">Token::RBrace</span> =&gt; <span class="bool-val">true</span>,
 
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+                    <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
                 },
             },
         }
@@ -824,14 +824,14 @@
         <span class="self">self</span>.<span class="ident">ctx</span> <span class="op">=</span> <span class="ident">ctx</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">ctx</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Context</span> {
+    <span class="kw">fn</span> <span class="ident">ctx</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Context</span> {
         <span class="self">self</span>.<span class="ident">ctx</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">syntax</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Syntax</span> {
+    <span class="kw">fn</span> <span class="ident">syntax</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Syntax</span> {
         <span class="self">self</span>.<span class="ident">syntax</span>
     }
-    <span class="kw">fn</span> <span class="ident">target</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">JscTarget</span> {
+    <span class="kw">fn</span> <span class="ident">target</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">JscTarget</span> {
         <span class="self">self</span>.<span class="ident">target</span>
     }
 
@@ -839,10 +839,10 @@
         <span class="self">self</span>.<span class="ident">set_expr_allowed</span>(<span class="ident">allow</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">token_context</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">TokenContexts</span> {
+    <span class="kw">fn</span> <span class="ident">token_context</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">TokenContexts</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>.<span class="ident">context</span>
     }
-    <span class="kw">fn</span> <span class="ident">token_context_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TokenContexts</span> {
+    <span class="kw">fn</span> <span class="ident">token_context_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TokenContexts</span> {
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">context</span>
     }
 
@@ -854,7 +854,7 @@
         <span class="self">self</span>.<span class="ident">errors</span>.<span class="ident">borrow_mut</span>().<span class="ident">push</span>(<span class="ident">error</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">take_errors</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">take_errors</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="ident">take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">errors</span>.<span class="ident">borrow_mut</span>())
     }
 
@@ -869,10 +869,10 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">I</span>: <span class="ident">Input</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">Lexer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">I</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">TokenAndSpan</span>;
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cur_pos</span>();
 
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> (<span class="op">|</span><span class="op">|</span> <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> (<span class="op">|</span><span class="op">|</span> -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span> {
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">is_first</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">shebang</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">read_shebang</span>()<span class="question-mark">?</span> {
                     <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">Token::Shebang</span>(<span class="ident">shebang</span>)));
@@ -889,9 +889,9 @@
             };
 
             <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">cur</span>() {
-                <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">c</span>,
+                <span class="prelude-val">Some</span>(<span class="ident">c</span>) =&gt; <span class="ident">c</span>,
                 <span class="comment">// End of input.</span>
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">None</span> =&gt; {
                     <span class="comment">// Treat last comments as trailing.</span>
 
                     <span class="kw">if</span> <span class="self">self</span>
@@ -926,10 +926,10 @@
             <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">start</span> <span class="op">=</span> <span class="ident">start</span>;
 
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">syntax</span>.<span class="ident">typescript</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">ctx</span>.<span class="ident">in_type</span> {
-                <span class="kw">if</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;&lt;&#39;</span> {
+                <span class="kw">if</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;&lt;&#39;</span> {
                     <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">bump</span>();
                     <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="macro">tok!</span>(<span class="string">&#39;&lt;&#39;</span>)));
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;&gt;&#39;</span> {
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;&gt;&#39;</span> {
                     <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">bump</span>();
                     <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="macro">tok!</span>(<span class="string">&#39;&gt;&#39;</span>)));
                 }
@@ -937,32 +937,32 @@
 
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">syntax</span>.<span class="ident">jsx</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">ctx</span>.<span class="ident">in_property_name</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">ctx</span>.<span class="ident">in_type</span> {
                 <span class="comment">//jsx</span>
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">context</span>.<span class="ident">current</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">TokenContext::JSXExpr</span>) {
+                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">context</span>.<span class="ident">current</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">TokenContext::JSXExpr</span>) {
                     <span class="kw">return</span> <span class="self">self</span>.<span class="ident">read_jsx_token</span>();
                 }
 
                 <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cur</span>();
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">c</span> {
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">context</span>.<span class="ident">current</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">TokenContext::JSXOpeningTag</span>)
-                        <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">context</span>.<span class="ident">current</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">TokenContext::JSXClosingTag</span>)
+                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">context</span>.<span class="ident">current</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">TokenContext::JSXOpeningTag</span>)
+                        <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">context</span>.<span class="ident">current</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">TokenContext::JSXClosingTag</span>)
                     {
                         <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">is_ident_start</span>() {
                             <span class="kw">return</span> <span class="self">self</span>.<span class="ident">read_jsx_word</span>().<span class="ident">map</span>(<span class="prelude-val">Some</span>);
                         }
 
-                        <span class="kw">if</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;&gt;&#39;</span> {
+                        <span class="kw">if</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;&gt;&#39;</span> {
                             <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">bump</span>();
                             <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">Token::JSXTagEnd</span>));
                         }
 
-                        <span class="kw">if</span> (<span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;\&#39;&#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;&quot;&#39;</span>)
-                            <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">context</span>.<span class="ident">current</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">TokenContext::JSXOpeningTag</span>)
+                        <span class="kw">if</span> (<span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;\&#39;&#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;&quot;&#39;</span>)
+                            <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">context</span>.<span class="ident">current</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">TokenContext::JSXOpeningTag</span>)
                         {
                             <span class="kw">return</span> <span class="self">self</span>.<span class="ident">read_jsx_str</span>(<span class="ident">c</span>).<span class="ident">map</span>(<span class="prelude-val">Some</span>);
                         }
                     }
 
-                    <span class="kw">if</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;&lt;&#39;</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">is_expr_allowed</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">peek</span>() <span class="op">!</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&#39;!&#39;</span>) {
+                    <span class="kw">if</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;&lt;&#39;</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">is_expr_allowed</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">peek</span>() <span class="op">!</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&#39;!&#39;</span>) {
                         <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">bump</span>();
                         <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">Token::JSXTagStart</span>));
                     }
@@ -980,8 +980,8 @@
         })();
 
         <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">res</span>.<span class="ident">map_err</span>(<span class="ident">Token::Error</span>).<span class="ident">map_err</span>(<span class="prelude-val">Some</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">t</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">t</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">e</span>,
+            <span class="prelude-val">Ok</span>(<span class="ident">t</span>) =&gt; <span class="ident">t</span>,
+            <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="ident">e</span>,
         };
 
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">span</span>(<span class="ident">start</span>);
@@ -1022,7 +1022,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">State</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">syntax</span>: <span class="ident">Syntax</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">syntax</span>: <span class="ident">Syntax</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">State</span> {
             <span class="ident">is_expr_allowed</span>: <span class="bool-val">true</span>,
             <span class="ident">octal_pos</span>: <span class="prelude-val">None</span>,
@@ -1040,7 +1040,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">State</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">can_skip_space</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">can_skip_space</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="op">!</span><span class="self">self</span>
             .<span class="ident">context</span>
             .<span class="ident">current</span>()
@@ -1048,22 +1048,22 @@
             .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">can_have_trailing_comment</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">can_have_trailing_comment</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">token_type</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">TokenType::Keyword</span>(..)) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">TokenType::Semi</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">TokenType::LBrace</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="prelude-val">Some</span>(<span class="ident">TokenType::Keyword</span>(..)) =&gt; <span class="bool-val">false</span>,
+            <span class="prelude-val">Some</span>(<span class="ident">TokenType::Semi</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">TokenType::LBrace</span>) =&gt; <span class="bool-val">true</span>,
             <span class="prelude-val">Some</span>(<span class="ident">TokenType::Other</span> {
                 <span class="ident">can_have_trailing_comment</span>,
                 ..
-            }) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">can_have_trailing_comment</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            }) =&gt; <span class="ident">can_have_trailing_comment</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">last_was_tpl_element</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">last_was_tpl_element</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">token_type</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">TokenType::Template</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="prelude-val">Some</span>(<span class="ident">TokenType::Template</span>) =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }
 
@@ -1097,38 +1097,38 @@
         <span class="ident">next</span>: <span class="kw-2">&amp;</span><span class="ident">Token</span>,
         <span class="ident">had_line_break</span>: <span class="ident">bool</span>,
         <span class="ident">is_expr_allowed</span>: <span class="ident">bool</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    ) -&gt; <span class="ident">bool</span> {
         <span class="kw">let</span> <span class="ident">is_next_keyword</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">next</span> {
-            <span class="ident">Word</span>(<span class="ident">Word::Keyword</span>(..)) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">Word</span>(<span class="ident">Word::Keyword</span>(..)) =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         };
 
-        <span class="kw">if</span> <span class="ident">is_next_keyword</span> <span class="op">&amp;&amp;</span> <span class="ident">prev</span> <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">TokenType::Dot</span>) {
+        <span class="kw">if</span> <span class="ident">is_next_keyword</span> <span class="op">&amp;&amp;</span> <span class="ident">prev</span> <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">TokenType::Dot</span>) {
             <span class="bool-val">false</span>
         } <span class="kw">else</span> {
             <span class="comment">// ported updateContext</span>
             <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">next</span> {
-                <span class="macro">tok!</span>(<span class="string">&#39;)&#39;</span>) <span class="op">|</span> <span class="macro">tok!</span>(<span class="string">&#39;}&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="macro">tok!</span>(<span class="string">&#39;)&#39;</span>) <span class="op">|</span> <span class="macro">tok!</span>(<span class="string">&#39;}&#39;</span>) =&gt; {
                     <span class="comment">// TODO: Verify</span>
-                    <span class="kw">if</span> <span class="ident">context</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
+                    <span class="kw">if</span> <span class="ident">context</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
                         <span class="kw">return</span> <span class="bool-val">true</span>;
                     }
 
                     <span class="kw">let</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">context</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
 
                     <span class="comment">// let a = function(){}</span>
-                    <span class="kw">if</span> <span class="ident">out</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TokenContext::BraceStmt</span>
-                        <span class="op">&amp;&amp;</span> <span class="ident">context</span>.<span class="ident">current</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">TokenContext::FnExpr</span>)
+                    <span class="kw">if</span> <span class="ident">out</span> <span class="op">==</span> <span class="ident">TokenContext::BraceStmt</span>
+                        <span class="op">&amp;&amp;</span> <span class="ident">context</span>.<span class="ident">current</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">TokenContext::FnExpr</span>)
                     {
                         <span class="ident">context</span>.<span class="ident">pop</span>();
                         <span class="kw">return</span> <span class="bool-val">false</span>;
                     }
 
                     <span class="comment">// ${} in template</span>
-                    <span class="kw">if</span> <span class="ident">out</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TokenContext::TplQuasi</span> {
+                    <span class="kw">if</span> <span class="ident">out</span> <span class="op">==</span> <span class="ident">TokenContext::TplQuasi</span> {
                         <span class="kw">match</span> <span class="ident">context</span>.<span class="ident">current</span>() {
-                            <span class="prelude-val">Some</span>(<span class="ident">TokenContext::Tpl</span> { .. }) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="bool-val">false</span>,
-                            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="bool-val">true</span>,
+                            <span class="prelude-val">Some</span>(<span class="ident">TokenContext::Tpl</span> { .. }) =&gt; <span class="kw">return</span> <span class="bool-val">false</span>,
+                            <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="bool-val">true</span>,
                         }
                     }
 
@@ -1136,7 +1136,7 @@
                     <span class="op">!</span><span class="ident">out</span>.<span class="ident">is_expr</span>()
                 }
 
-                <span class="macro">tok!</span>(<span class="string">&quot;function&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="macro">tok!</span>(<span class="string">&quot;function&quot;</span>) =&gt; {
                     <span class="comment">// This is required to lex</span>
                     <span class="comment">// `x = function(){}/42/i`</span>
                     <span class="kw">if</span> <span class="ident">is_expr_allowed</span>
@@ -1149,7 +1149,7 @@
 
                 <span class="comment">// for (a of b) {}</span>
                 <span class="macro">tok!</span>(<span class="string">&quot;of&quot;</span>)
-                    <span class="kw">if</span> <span class="prelude-val">Some</span>(<span class="ident">TokenContext::ParenStmt</span> { <span class="ident">is_for_loop</span>: <span class="bool-val">true</span> }) <span class="op">=</span><span class="op">=</span> <span class="ident">context</span>.<span class="ident">current</span>() <span class="op">=</span><span class="op">&gt;</span>
+                    <span class="kw">if</span> <span class="prelude-val">Some</span>(<span class="ident">TokenContext::ParenStmt</span> { <span class="ident">is_for_loop</span>: <span class="bool-val">true</span> }) <span class="op">==</span> <span class="ident">context</span>.<span class="ident">current</span>() =&gt;
                 {
                     <span class="comment">// e.g. for (a of _) =&gt; true</span>
                     <span class="op">!</span><span class="ident">prev</span>
@@ -1157,29 +1157,29 @@
                         .<span class="ident">before_expr</span>()
                 }
 
-                <span class="ident">Word</span>(<span class="ident">Word::Ident</span>(..)) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Word</span>(<span class="ident">Word::Ident</span>(..)) =&gt; {
                     <span class="comment">// variable declaration</span>
                     <span class="kw">match</span> <span class="ident">prev</span> {
-                        <span class="prelude-val">Some</span>(<span class="ident">prev</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">prev</span> {
+                        <span class="prelude-val">Some</span>(<span class="ident">prev</span>) =&gt; <span class="kw">match</span> <span class="ident">prev</span> {
                             <span class="comment">// handle automatic semicolon insertion.</span>
                             <span class="ident">TokenType::Keyword</span>(<span class="ident">Let</span>)
                             <span class="op">|</span> <span class="ident">TokenType::Keyword</span>(<span class="ident">Const</span>)
                             <span class="op">|</span> <span class="ident">TokenType::Keyword</span>(<span class="ident">Var</span>)
-                                <span class="kw">if</span> <span class="ident">had_line_break</span> <span class="op">=</span><span class="op">&gt;</span>
+                                <span class="kw">if</span> <span class="ident">had_line_break</span> =&gt;
                             {
                                 <span class="bool-val">true</span>
                             }
-                            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+                            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
                         },
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+                        <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
                     }
                 }
 
-                <span class="macro">tok!</span>(<span class="string">&#39;{&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="macro">tok!</span>(<span class="string">&#39;{&#39;</span>) =&gt; {
                     <span class="kw">let</span> <span class="ident">cur</span> <span class="op">=</span> <span class="ident">context</span>.<span class="ident">current</span>();
-                    <span class="kw">if</span> <span class="ident">syntax</span>.<span class="ident">jsx</span>() <span class="op">&amp;&amp;</span> <span class="ident">cur</span> <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">TokenContext::JSXOpeningTag</span>) {
+                    <span class="kw">if</span> <span class="ident">syntax</span>.<span class="ident">jsx</span>() <span class="op">&amp;&amp;</span> <span class="ident">cur</span> <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">TokenContext::JSXOpeningTag</span>) {
                         <span class="ident">context</span>.<span class="ident">push</span>(<span class="ident">TokenContext::BraceExpr</span>)
-                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">syntax</span>.<span class="ident">jsx</span>() <span class="op">&amp;&amp;</span> <span class="ident">cur</span> <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">TokenContext::JSXExpr</span>) {
+                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">syntax</span>.<span class="ident">jsx</span>() <span class="op">&amp;&amp;</span> <span class="ident">cur</span> <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">TokenContext::JSXExpr</span>) {
                         <span class="ident">context</span>.<span class="ident">push</span>(<span class="ident">TokenContext::TplQuasi</span>);
                     } <span class="kw">else</span> {
                         <span class="kw">let</span> <span class="ident">next_ctxt</span> <span class="op">=</span>
@@ -1193,36 +1193,36 @@
                     <span class="bool-val">true</span>
                 }
 
-                <span class="macro">tok!</span>(<span class="string">&#39;/&#39;</span>) <span class="kw">if</span> <span class="ident">syntax</span>.<span class="ident">jsx</span>() <span class="op">&amp;&amp;</span> <span class="ident">prev</span> <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">TokenType::JSXTagStart</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="macro">tok!</span>(<span class="string">&#39;/&#39;</span>) <span class="kw">if</span> <span class="ident">syntax</span>.<span class="ident">jsx</span>() <span class="op">&amp;&amp;</span> <span class="ident">prev</span> <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">TokenType::JSXTagStart</span>) =&gt; {
                     <span class="ident">context</span>.<span class="ident">pop</span>();
                     <span class="ident">context</span>.<span class="ident">pop</span>(); <span class="comment">// do not consider JSX expr -&gt; JSX open tag -&gt; ... anymore</span>
                     <span class="ident">context</span>.<span class="ident">push</span>(<span class="ident">TokenContext::JSXClosingTag</span>); <span class="comment">// reconsider as closing tag context</span>
                     <span class="bool-val">false</span>
                 }
 
-                <span class="macro">tok!</span>(<span class="string">&quot;${&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="macro">tok!</span>(<span class="string">&quot;${&quot;</span>) =&gt; {
                     <span class="ident">context</span>.<span class="ident">push</span>(<span class="ident">TokenContext::TplQuasi</span>);
                     <span class="bool-val">true</span>
                 }
 
-                <span class="macro">tok!</span>(<span class="string">&#39;(&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="macro">tok!</span>(<span class="string">&#39;(&#39;</span>) =&gt; {
                     <span class="comment">// if, for, with, while is statement</span>
 
                     <span class="ident">context</span>.<span class="ident">push</span>(<span class="kw">match</span> <span class="ident">prev</span> {
-                        <span class="prelude-val">Some</span>(<span class="ident">TokenType::Keyword</span>(<span class="ident">k</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">k</span> {
-                            <span class="ident">If</span> <span class="op">|</span> <span class="ident">With</span> <span class="op">|</span> <span class="ident">While</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TokenContext::ParenStmt</span> { <span class="ident">is_for_loop</span>: <span class="bool-val">false</span> },
-                            <span class="ident">For</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TokenContext::ParenStmt</span> { <span class="ident">is_for_loop</span>: <span class="bool-val">true</span> },
-                            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TokenContext::ParenExpr</span>,
+                        <span class="prelude-val">Some</span>(<span class="ident">TokenType::Keyword</span>(<span class="ident">k</span>)) =&gt; <span class="kw">match</span> <span class="ident">k</span> {
+                            <span class="ident">If</span> <span class="op">|</span> <span class="ident">With</span> <span class="op">|</span> <span class="ident">While</span> =&gt; <span class="ident">TokenContext::ParenStmt</span> { <span class="ident">is_for_loop</span>: <span class="bool-val">false</span> },
+                            <span class="ident">For</span> =&gt; <span class="ident">TokenContext::ParenStmt</span> { <span class="ident">is_for_loop</span>: <span class="bool-val">true</span> },
+                            <span class="kw">_</span> =&gt; <span class="ident">TokenContext::ParenExpr</span>,
                         },
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TokenContext::ParenExpr</span>,
+                        <span class="kw">_</span> =&gt; <span class="ident">TokenContext::ParenExpr</span>,
                     });
                     <span class="bool-val">true</span>
                 }
 
                 <span class="comment">// remains unchanged.</span>
-                <span class="macro">tok!</span>(<span class="string">&quot;++&quot;</span>) <span class="op">|</span> <span class="macro">tok!</span>(<span class="string">&quot;--&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">is_expr_allowed</span>,
+                <span class="macro">tok!</span>(<span class="string">&quot;++&quot;</span>) <span class="op">|</span> <span class="macro">tok!</span>(<span class="string">&quot;--&quot;</span>) =&gt; <span class="ident">is_expr_allowed</span>,
 
-                <span class="macro">tok!</span>(<span class="string">&#39;`&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="macro">tok!</span>(<span class="string">&#39;`&#39;</span>) =&gt; {
                     <span class="comment">// If we are in template, ` terminates template.</span>
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">TokenContext::Tpl</span> { .. }) <span class="op">=</span> <span class="ident">context</span>.<span class="ident">current</span>() {
                         <span class="ident">context</span>.<span class="ident">pop</span>();
@@ -1233,27 +1233,27 @@
                 }
 
                 <span class="comment">// tt.jsxTagStart.updateContext</span>
-                <span class="ident">Token::JSXTagStart</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Token::JSXTagStart</span> =&gt; {
                     <span class="ident">context</span>.<span class="ident">push</span>(<span class="ident">TokenContext::JSXExpr</span>); <span class="comment">// treat as beginning of JSX expression</span>
                     <span class="ident">context</span>.<span class="ident">push</span>(<span class="ident">TokenContext::JSXOpeningTag</span>); <span class="comment">// start opening tag context</span>
                     <span class="bool-val">false</span>
                 }
 
                 <span class="comment">// tt.jsxTagEnd.updateContext</span>
-                <span class="ident">Token::JSXTagEnd</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Token::JSXTagEnd</span> =&gt; {
                     <span class="kw">let</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">context</span>.<span class="ident">pop</span>();
-                    <span class="kw">if</span> (<span class="ident">out</span> <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">TokenContext::JSXOpeningTag</span>)
-                        <span class="op">&amp;&amp;</span> <span class="ident">prev</span> <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">TokenType::BinOp</span>(<span class="ident">BinOpToken::Div</span>)))
-                        <span class="op">|</span><span class="op">|</span> <span class="ident">out</span> <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">TokenContext::JSXClosingTag</span>)
+                    <span class="kw">if</span> (<span class="ident">out</span> <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">TokenContext::JSXOpeningTag</span>)
+                        <span class="op">&amp;&amp;</span> <span class="ident">prev</span> <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">TokenType::BinOp</span>(<span class="ident">BinOpToken::Div</span>)))
+                        <span class="op">|</span><span class="op">|</span> <span class="ident">out</span> <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">TokenContext::JSXClosingTag</span>)
                     {
                         <span class="ident">context</span>.<span class="ident">pop</span>();
-                        <span class="ident">context</span>.<span class="ident">current</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">TokenContext::JSXExpr</span>)
+                        <span class="ident">context</span>.<span class="ident">current</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">TokenContext::JSXExpr</span>)
                     } <span class="kw">else</span> {
                         <span class="bool-val">true</span>
                     }
                 }
 
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">next</span>.<span class="ident">before_expr</span>(),
+                <span class="kw">_</span> =&gt; <span class="ident">next</span>.<span class="ident">before_expr</span>(),
             }
         }
     }
@@ -1269,14 +1269,14 @@
         <span class="ident">prev</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TokenType</span><span class="op">&gt;</span>,
         <span class="ident">had_line_break</span>: <span class="ident">bool</span>,
         <span class="ident">is_expr_allowed</span>: <span class="ident">bool</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    ) -&gt; <span class="ident">bool</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">TokenType::Colon</span>) <span class="op">=</span> <span class="ident">prev</span> {
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">current</span>() {
-                <span class="prelude-val">Some</span>(<span class="ident">TokenContext::BraceStmt</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="bool-val">true</span>,
+                <span class="prelude-val">Some</span>(<span class="ident">TokenContext::BraceStmt</span>) =&gt; <span class="kw">return</span> <span class="bool-val">true</span>,
                 <span class="comment">// `{ a: {} }`</span>
                 <span class="comment">//     ^ ^</span>
-                <span class="prelude-val">Some</span>(<span class="ident">TokenContext::BraceExpr</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="bool-val">false</span>,
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+                <span class="prelude-val">Some</span>(<span class="ident">TokenContext::BraceExpr</span>) =&gt; <span class="kw">return</span> <span class="bool-val">false</span>,
+                <span class="kw">_</span> =&gt; {}
             };
         }
 
@@ -1290,40 +1290,40 @@
             <span class="comment">//          function b(){}</span>
             <span class="comment">//      };</span>
             <span class="comment">//  }</span>
-            <span class="prelude-val">Some</span>(<span class="ident">TokenType::Keyword</span>(<span class="ident">Return</span>)) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">TokenType::Keyword</span>(<span class="ident">Yield</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">TokenType::Keyword</span>(<span class="ident">Return</span>)) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">TokenType::Keyword</span>(<span class="ident">Yield</span>)) =&gt; {
                 <span class="kw">return</span> <span class="ident">had_line_break</span>;
             }
 
             <span class="prelude-val">Some</span>(<span class="ident">TokenType::Keyword</span>(<span class="ident">Else</span>))
             <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">TokenType::Semi</span>)
             <span class="op">|</span> <span class="prelude-val">None</span>
-            <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">TokenType::RParen</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">TokenType::RParen</span>) =&gt; {
                 <span class="kw">return</span> <span class="bool-val">true</span>;
             }
 
             <span class="comment">// If previous token was `{`</span>
-            <span class="prelude-val">Some</span>(<span class="ident">TokenType::LBrace</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="self">self</span>.<span class="ident">current</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">TokenContext::BraceStmt</span>),
+            <span class="prelude-val">Some</span>(<span class="ident">TokenType::LBrace</span>) =&gt; <span class="kw">return</span> <span class="self">self</span>.<span class="ident">current</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">TokenContext::BraceStmt</span>),
 
             <span class="comment">// `class C&lt;T&gt; { ... }`</span>
-            <span class="prelude-val">Some</span>(<span class="ident">TokenType::BinOp</span>(<span class="ident">Lt</span>)) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">TokenType::BinOp</span>(<span class="ident">Gt</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            <span class="prelude-val">Some</span>(<span class="ident">TokenType::BinOp</span>(<span class="ident">Lt</span>)) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">TokenType::BinOp</span>(<span class="ident">Gt</span>)) =&gt; <span class="kw">return</span> <span class="bool-val">true</span>,
+            <span class="kw">_</span> =&gt; {}
         }
 
         <span class="op">!</span><span class="ident">is_expr_allowed</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="number">0</span>.<span class="ident">len</span>()
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="number">0</span>.<span class="ident">is_empty</span>()
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TokenContext</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TokenContext</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">opt</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">pop</span>();
         <span class="macro">trace!</span>(<span class="string">&quot;context.pop({:?})&quot;</span>, <span class="ident">opt</span>);
         <span class="ident">opt</span>
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">current</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TokenContext</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">current</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TokenContext</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="number">0</span>.<span class="ident">last</span>().<span class="ident">cloned</span>()
     }
     <span class="kw">fn</span> <span class="ident">push</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">t</span>: <span class="ident">TokenContext</span>) {
@@ -1368,9 +1368,9 @@
     <span class="ident">target</span>: <span class="ident">JscTarget</span>,
     <span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
     <span class="ident">f</span>: <span class="ident">F</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Ret</span>, <span class="ident">::testing::StdErr</span><span class="op">&gt;</span>
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Ret</span>, <span class="ident">::testing::StdErr</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Lexer</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident"><span class="kw">crate</span>::lexer::input::StringInput</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Ret</span>, ()<span class="op">&gt;</span>,
+    <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Lexer</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident"><span class="kw">crate</span>::lexer::input::StringInput</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Ret</span>, ()<span class="op">&gt;</span>,
 {
     <span class="ident"><span class="kw">crate</span>::with_test_sess</span>(<span class="ident">s</span>, <span class="op">|</span><span class="kw">_</span>, <span class="ident">fm</span><span class="op">|</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">l</span> <span class="op">=</span> <span class="ident">Lexer::new</span>(<span class="ident">syntax</span>, <span class="ident">target</span>, <span class="ident">fm</span>, <span class="prelude-val">None</span>);
@@ -1384,13 +1384,13 @@
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">lex</span>(<span class="ident">syntax</span>: <span class="ident">Syntax</span>, <span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TokenAndSpan</span><span class="op">&gt;</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">lex</span>(<span class="ident">syntax</span>: <span class="ident">Syntax</span>, <span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TokenAndSpan</span><span class="op">&gt;</span> {
     <span class="ident">with_lexer</span>(<span class="ident">syntax</span>, <span class="ident">Default::default</span>(), <span class="ident">s</span>, <span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="prelude-val">Ok</span>(<span class="ident">l</span>.<span class="ident">collect</span>())).<span class="ident">unwrap</span>()
 }
 
 <span class="doccomment">/// lex `s` within module context.</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">lex_module_errors</span>(<span class="ident">syntax</span>: <span class="ident">Syntax</span>, <span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">lex_module_errors</span>(<span class="ident">syntax</span>: <span class="ident">Syntax</span>, <span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="ident">with_lexer</span>(<span class="ident">syntax</span>, <span class="ident">Default::default</span>(), <span class="ident">s</span>, <span class="op">|</span><span class="ident">l</span><span class="op">|</span> {
         <span class="ident">l</span>.<span class="ident">ctx</span>.<span class="ident">strict</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="ident">l</span>.<span class="ident">ctx</span>.<span class="ident">module</span> <span class="op">=</span> <span class="bool-val">true</span>;
@@ -1403,7 +1403,7 @@
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">lex_tokens</span>(<span class="ident">syntax</span>: <span class="ident">Syntax</span>, <span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Token</span><span class="op">&gt;</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">lex_tokens</span>(<span class="ident">syntax</span>: <span class="ident">Syntax</span>, <span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Token</span><span class="op">&gt;</span> {
     <span class="ident">with_lexer</span>(<span class="ident">syntax</span>, <span class="ident">Default::default</span>(), <span class="ident">s</span>, <span class="op">|</span><span class="ident">l</span><span class="op">|</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">l</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">ts</span><span class="op">|</span> <span class="ident">ts</span>.<span class="ident">token</span>).<span class="ident">collect</span>())
     })
@@ -1415,14 +1415,14 @@
     <span class="ident">syntax</span>: <span class="ident">Syntax</span>,
     <span class="ident">target</span>: <span class="ident">JscTarget</span>,
     <span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Token</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Token</span><span class="op">&gt;</span> {
     <span class="ident">with_lexer</span>(<span class="ident">syntax</span>, <span class="ident">target</span>, <span class="ident">s</span>, <span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="prelude-val">Ok</span>(<span class="ident">l</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">ts</span><span class="op">|</span> <span class="ident">ts</span>.<span class="ident">token</span>).<span class="ident">collect</span>())).<span class="ident">unwrap</span>()
 }
 
 <span class="doccomment">/// Returns `(tokens, recovered_errors)`. `(tokens)` may contain an error token</span>
 <span class="doccomment">/// if the lexer fails to recover from it.</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">lex_errors</span>(<span class="ident">syntax</span>: <span class="ident">Syntax</span>, <span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Token</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span>) {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">lex_errors</span>(<span class="ident">syntax</span>: <span class="ident">Syntax</span>, <span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Token</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span>) {
     <span class="ident">with_lexer</span>(<span class="ident">syntax</span>, <span class="ident">JscTarget::Es2020</span>, <span class="ident">s</span>, <span class="op">|</span><span class="ident">l</span><span class="op">|</span> {
         <span class="kw">let</span> <span class="ident">tokens</span> <span class="op">=</span> <span class="ident">l</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">ts</span><span class="op">|</span> <span class="ident">ts</span>.<span class="ident">token</span>).<span class="ident">collect</span>();
         <span class="kw">let</span> <span class="ident">errors</span> <span class="op">=</span> <span class="ident">l</span>.<span class="ident">take_errors</span>();

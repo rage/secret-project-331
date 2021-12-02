@@ -1753,113 +1753,113 @@
 <span class="kw">impl</span> <span class="ident">ASN1Block</span> {
     <span class="doccomment">/// Get the class associated with the given ASN1Block, regardless of what</span>
     <span class="doccomment">/// kind of block it is.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">class</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ASN1Class</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">class</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ASN1Class</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Boolean</span>(<span class="kw">_</span>,<span class="kw">_</span>)          <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ASN1Class::Universal</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Integer</span>(<span class="kw">_</span>,<span class="kw">_</span>)          <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ASN1Class::Universal</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::BitString</span>(<span class="kw">_</span>,<span class="kw">_</span>,<span class="kw">_</span>)      <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ASN1Class::Universal</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::OctetString</span>(<span class="kw">_</span>,<span class="kw">_</span>)      <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ASN1Class::Universal</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Null</span>(<span class="kw">_</span>)               <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ASN1Class::Universal</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::ObjectIdentifier</span>(<span class="kw">_</span>,<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ASN1Class::Universal</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::UTF8String</span>(<span class="kw">_</span>,<span class="kw">_</span>)       <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ASN1Class::Universal</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::PrintableString</span>(<span class="kw">_</span>,<span class="kw">_</span>)  <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ASN1Class::Universal</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::TeletexString</span>(<span class="kw">_</span>,<span class="kw">_</span>)    <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ASN1Class::Universal</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::IA5String</span>(<span class="kw">_</span>,<span class="kw">_</span>)        <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ASN1Class::Universal</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::UTCTime</span>(<span class="kw">_</span>,<span class="kw">_</span>)          <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ASN1Class::Universal</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::GeneralizedTime</span>(<span class="kw">_</span>,<span class="kw">_</span>)  <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ASN1Class::Universal</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::UniversalString</span>(<span class="kw">_</span>,<span class="kw">_</span>)  <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ASN1Class::Universal</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::BMPString</span>(<span class="kw">_</span>,<span class="kw">_</span>)        <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ASN1Class::Universal</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Sequence</span>(<span class="kw">_</span>,<span class="kw">_</span>)         <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ASN1Class::Universal</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Set</span>(<span class="kw">_</span>,<span class="kw">_</span>)              <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ASN1Class::Universal</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Explicit</span>(<span class="ident">c</span>,<span class="kw">_</span>,<span class="kw">_</span>,<span class="kw">_</span>)     <span class="op">=</span><span class="op">&gt;</span> <span class="ident">c</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Unknown</span>(<span class="ident">c</span>,<span class="kw">_</span>,<span class="kw">_</span>,<span class="kw">_</span>,<span class="kw">_</span>)    <span class="op">=</span><span class="op">&gt;</span> <span class="ident">c</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Boolean</span>(<span class="kw">_</span>,<span class="kw">_</span>)          =&gt; <span class="ident">ASN1Class::Universal</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Integer</span>(<span class="kw">_</span>,<span class="kw">_</span>)          =&gt; <span class="ident">ASN1Class::Universal</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::BitString</span>(<span class="kw">_</span>,<span class="kw">_</span>,<span class="kw">_</span>)      =&gt; <span class="ident">ASN1Class::Universal</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::OctetString</span>(<span class="kw">_</span>,<span class="kw">_</span>)      =&gt; <span class="ident">ASN1Class::Universal</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Null</span>(<span class="kw">_</span>)               =&gt; <span class="ident">ASN1Class::Universal</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::ObjectIdentifier</span>(<span class="kw">_</span>,<span class="kw">_</span>) =&gt; <span class="ident">ASN1Class::Universal</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::UTF8String</span>(<span class="kw">_</span>,<span class="kw">_</span>)       =&gt; <span class="ident">ASN1Class::Universal</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::PrintableString</span>(<span class="kw">_</span>,<span class="kw">_</span>)  =&gt; <span class="ident">ASN1Class::Universal</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::TeletexString</span>(<span class="kw">_</span>,<span class="kw">_</span>)    =&gt; <span class="ident">ASN1Class::Universal</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::IA5String</span>(<span class="kw">_</span>,<span class="kw">_</span>)        =&gt; <span class="ident">ASN1Class::Universal</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::UTCTime</span>(<span class="kw">_</span>,<span class="kw">_</span>)          =&gt; <span class="ident">ASN1Class::Universal</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::GeneralizedTime</span>(<span class="kw">_</span>,<span class="kw">_</span>)  =&gt; <span class="ident">ASN1Class::Universal</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::UniversalString</span>(<span class="kw">_</span>,<span class="kw">_</span>)  =&gt; <span class="ident">ASN1Class::Universal</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::BMPString</span>(<span class="kw">_</span>,<span class="kw">_</span>)        =&gt; <span class="ident">ASN1Class::Universal</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Sequence</span>(<span class="kw">_</span>,<span class="kw">_</span>)         =&gt; <span class="ident">ASN1Class::Universal</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Set</span>(<span class="kw">_</span>,<span class="kw">_</span>)              =&gt; <span class="ident">ASN1Class::Universal</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Explicit</span>(<span class="ident">c</span>,<span class="kw">_</span>,<span class="kw">_</span>,<span class="kw">_</span>)     =&gt; <span class="ident">c</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Unknown</span>(<span class="ident">c</span>,<span class="kw">_</span>,<span class="kw">_</span>,<span class="kw">_</span>,<span class="kw">_</span>)    =&gt; <span class="ident">c</span>,
         }
     }
 
     <span class="doccomment">/// Get the starting offset associated with the given ASN1Block, regardless</span>
     <span class="doccomment">/// of what kind of block it is.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">offset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">offset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Boolean</span>(<span class="ident">o</span>,<span class="kw">_</span>)          <span class="op">=</span><span class="op">&gt;</span> <span class="ident">o</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Integer</span>(<span class="ident">o</span>,<span class="kw">_</span>)          <span class="op">=</span><span class="op">&gt;</span> <span class="ident">o</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::BitString</span>(<span class="ident">o</span>,<span class="kw">_</span>,<span class="kw">_</span>)      <span class="op">=</span><span class="op">&gt;</span> <span class="ident">o</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::OctetString</span>(<span class="ident">o</span>,<span class="kw">_</span>)      <span class="op">=</span><span class="op">&gt;</span> <span class="ident">o</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Null</span>(<span class="ident">o</span>)               <span class="op">=</span><span class="op">&gt;</span> <span class="ident">o</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::ObjectIdentifier</span>(<span class="ident">o</span>,<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">o</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::UTF8String</span>(<span class="ident">o</span>,<span class="kw">_</span>)       <span class="op">=</span><span class="op">&gt;</span> <span class="ident">o</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::PrintableString</span>(<span class="ident">o</span>,<span class="kw">_</span>)  <span class="op">=</span><span class="op">&gt;</span> <span class="ident">o</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::TeletexString</span>(<span class="ident">o</span>,<span class="kw">_</span>)    <span class="op">=</span><span class="op">&gt;</span> <span class="ident">o</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::IA5String</span>(<span class="ident">o</span>,<span class="kw">_</span>)        <span class="op">=</span><span class="op">&gt;</span> <span class="ident">o</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::UTCTime</span>(<span class="ident">o</span>,<span class="kw">_</span>)          <span class="op">=</span><span class="op">&gt;</span> <span class="ident">o</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::GeneralizedTime</span>(<span class="ident">o</span>,<span class="kw">_</span>)  <span class="op">=</span><span class="op">&gt;</span> <span class="ident">o</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::UniversalString</span>(<span class="ident">o</span>,<span class="kw">_</span>)  <span class="op">=</span><span class="op">&gt;</span> <span class="ident">o</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::BMPString</span>(<span class="ident">o</span>,<span class="kw">_</span>)        <span class="op">=</span><span class="op">&gt;</span> <span class="ident">o</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Sequence</span>(<span class="ident">o</span>,<span class="kw">_</span>)         <span class="op">=</span><span class="op">&gt;</span> <span class="ident">o</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Set</span>(<span class="ident">o</span>,<span class="kw">_</span>)              <span class="op">=</span><span class="op">&gt;</span> <span class="ident">o</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Explicit</span>(<span class="kw">_</span>,<span class="ident">o</span>,<span class="kw">_</span>,<span class="kw">_</span>)     <span class="op">=</span><span class="op">&gt;</span> <span class="ident">o</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Unknown</span>(<span class="kw">_</span>,<span class="kw">_</span>,<span class="ident">o</span>,<span class="kw">_</span>,<span class="kw">_</span>)    <span class="op">=</span><span class="op">&gt;</span> <span class="ident">o</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Boolean</span>(<span class="ident">o</span>,<span class="kw">_</span>)          =&gt; <span class="ident">o</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Integer</span>(<span class="ident">o</span>,<span class="kw">_</span>)          =&gt; <span class="ident">o</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::BitString</span>(<span class="ident">o</span>,<span class="kw">_</span>,<span class="kw">_</span>)      =&gt; <span class="ident">o</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::OctetString</span>(<span class="ident">o</span>,<span class="kw">_</span>)      =&gt; <span class="ident">o</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Null</span>(<span class="ident">o</span>)               =&gt; <span class="ident">o</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::ObjectIdentifier</span>(<span class="ident">o</span>,<span class="kw">_</span>) =&gt; <span class="ident">o</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::UTF8String</span>(<span class="ident">o</span>,<span class="kw">_</span>)       =&gt; <span class="ident">o</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::PrintableString</span>(<span class="ident">o</span>,<span class="kw">_</span>)  =&gt; <span class="ident">o</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::TeletexString</span>(<span class="ident">o</span>,<span class="kw">_</span>)    =&gt; <span class="ident">o</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::IA5String</span>(<span class="ident">o</span>,<span class="kw">_</span>)        =&gt; <span class="ident">o</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::UTCTime</span>(<span class="ident">o</span>,<span class="kw">_</span>)          =&gt; <span class="ident">o</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::GeneralizedTime</span>(<span class="ident">o</span>,<span class="kw">_</span>)  =&gt; <span class="ident">o</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::UniversalString</span>(<span class="ident">o</span>,<span class="kw">_</span>)  =&gt; <span class="ident">o</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::BMPString</span>(<span class="ident">o</span>,<span class="kw">_</span>)        =&gt; <span class="ident">o</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Sequence</span>(<span class="ident">o</span>,<span class="kw">_</span>)         =&gt; <span class="ident">o</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Set</span>(<span class="ident">o</span>,<span class="kw">_</span>)              =&gt; <span class="ident">o</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Explicit</span>(<span class="kw">_</span>,<span class="ident">o</span>,<span class="kw">_</span>,<span class="kw">_</span>)     =&gt; <span class="ident">o</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Unknown</span>(<span class="kw">_</span>,<span class="kw">_</span>,<span class="ident">o</span>,<span class="kw">_</span>,<span class="kw">_</span>)    =&gt; <span class="ident">o</span>,
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">PartialEq</span> <span class="kw">for</span> <span class="ident">ASN1Block</span> {
-    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">ASN1Block</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">ASN1Block</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> (<span class="self">self</span>, <span class="ident">other</span>) {
             (<span class="kw-2">&amp;</span><span class="ident">ASN1Block::Boolean</span>(<span class="kw">_</span>,<span class="ident">a1</span>),
-             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Boolean</span>(<span class="kw">_</span>,<span class="ident">a2</span>)) <span class="op">=</span><span class="op">&gt;</span>
-                (<span class="ident">a1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">a2</span>),
+             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Boolean</span>(<span class="kw">_</span>,<span class="ident">a2</span>)) =&gt;
+                (<span class="ident">a1</span> <span class="op">==</span> <span class="ident">a2</span>),
             (<span class="kw-2">&amp;</span><span class="ident">ASN1Block::Integer</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a1</span>),
-             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Integer</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a2</span>)) <span class="op">=</span><span class="op">&gt;</span>
-                (<span class="ident">a1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">a2</span>),
+             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Integer</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a2</span>)) =&gt;
+                (<span class="ident">a1</span> <span class="op">==</span> <span class="ident">a2</span>),
             (<span class="kw-2">&amp;</span><span class="ident">ASN1Block::BitString</span>(<span class="kw">_</span>,<span class="ident">a1</span>,<span class="kw-2">ref</span> <span class="ident">b1</span>),
-             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::BitString</span>(<span class="kw">_</span>,<span class="ident">a2</span>,<span class="kw-2">ref</span> <span class="ident">b2</span>)) <span class="op">=</span><span class="op">&gt;</span>
-                (<span class="ident">a1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">a2</span>) <span class="op">&amp;&amp;</span> (<span class="ident">b1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">b2</span>),
+             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::BitString</span>(<span class="kw">_</span>,<span class="ident">a2</span>,<span class="kw-2">ref</span> <span class="ident">b2</span>)) =&gt;
+                (<span class="ident">a1</span> <span class="op">==</span> <span class="ident">a2</span>) <span class="op">&amp;&amp;</span> (<span class="ident">b1</span> <span class="op">==</span> <span class="ident">b2</span>),
             (<span class="kw-2">&amp;</span><span class="ident">ASN1Block::OctetString</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a1</span>),
-             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::OctetString</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a2</span>)) <span class="op">=</span><span class="op">&gt;</span>
-                (<span class="ident">a1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">a2</span>),
+             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::OctetString</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a2</span>)) =&gt;
+                (<span class="ident">a1</span> <span class="op">==</span> <span class="ident">a2</span>),
             (<span class="kw-2">&amp;</span><span class="ident">ASN1Block::Null</span>(<span class="kw">_</span>),
-             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Null</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span>
+             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Null</span>(<span class="kw">_</span>)) =&gt;
                 <span class="bool-val">true</span>,
             (<span class="kw-2">&amp;</span><span class="ident">ASN1Block::ObjectIdentifier</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a1</span>),
-             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::ObjectIdentifier</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a2</span>)) <span class="op">=</span><span class="op">&gt;</span>
-                (<span class="ident">a1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">a2</span>),
+             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::ObjectIdentifier</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a2</span>)) =&gt;
+                (<span class="ident">a1</span> <span class="op">==</span> <span class="ident">a2</span>),
             (<span class="kw-2">&amp;</span><span class="ident">ASN1Block::UTF8String</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a1</span>),
-             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::UTF8String</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a2</span>)) <span class="op">=</span><span class="op">&gt;</span>
-                (<span class="ident">a1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">a2</span>),
+             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::UTF8String</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a2</span>)) =&gt;
+                (<span class="ident">a1</span> <span class="op">==</span> <span class="ident">a2</span>),
             (<span class="kw-2">&amp;</span><span class="ident">ASN1Block::PrintableString</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a1</span>),
-             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::PrintableString</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a2</span>)) <span class="op">=</span><span class="op">&gt;</span>
-                (<span class="ident">a1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">a2</span>),
+             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::PrintableString</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a2</span>)) =&gt;
+                (<span class="ident">a1</span> <span class="op">==</span> <span class="ident">a2</span>),
             (<span class="kw-2">&amp;</span><span class="ident">ASN1Block::TeletexString</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a1</span>),
-             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::TeletexString</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a2</span>)) <span class="op">=</span><span class="op">&gt;</span>
-                (<span class="ident">a1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">a2</span>),
+             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::TeletexString</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a2</span>)) =&gt;
+                (<span class="ident">a1</span> <span class="op">==</span> <span class="ident">a2</span>),
             (<span class="kw-2">&amp;</span><span class="ident">ASN1Block::IA5String</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a1</span>),
-             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::IA5String</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a2</span>)) <span class="op">=</span><span class="op">&gt;</span>
-                (<span class="ident">a1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">a2</span>),
+             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::IA5String</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a2</span>)) =&gt;
+                (<span class="ident">a1</span> <span class="op">==</span> <span class="ident">a2</span>),
             (<span class="kw-2">&amp;</span><span class="ident">ASN1Block::UTCTime</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a1</span>),
-             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::UTCTime</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a2</span>)) <span class="op">=</span><span class="op">&gt;</span>
-                (<span class="ident">a1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">a2</span>),
+             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::UTCTime</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a2</span>)) =&gt;
+                (<span class="ident">a1</span> <span class="op">==</span> <span class="ident">a2</span>),
             (<span class="kw-2">&amp;</span><span class="ident">ASN1Block::GeneralizedTime</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a1</span>),
-             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::GeneralizedTime</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a2</span>)) <span class="op">=</span><span class="op">&gt;</span>
-                (<span class="ident">a1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">a2</span>),
+             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::GeneralizedTime</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a2</span>)) =&gt;
+                (<span class="ident">a1</span> <span class="op">==</span> <span class="ident">a2</span>),
             (<span class="kw-2">&amp;</span><span class="ident">ASN1Block::UniversalString</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a1</span>),
-             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::UniversalString</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a2</span>)) <span class="op">=</span><span class="op">&gt;</span>
-                (<span class="ident">a1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">a2</span>),
+             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::UniversalString</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a2</span>)) =&gt;
+                (<span class="ident">a1</span> <span class="op">==</span> <span class="ident">a2</span>),
             (<span class="kw-2">&amp;</span><span class="ident">ASN1Block::BMPString</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a1</span>),
-             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::BMPString</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a2</span>)) <span class="op">=</span><span class="op">&gt;</span>
-                (<span class="ident">a1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">a2</span>),
+             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::BMPString</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a2</span>)) =&gt;
+                (<span class="ident">a1</span> <span class="op">==</span> <span class="ident">a2</span>),
             (<span class="kw-2">&amp;</span><span class="ident">ASN1Block::Sequence</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a1</span>),
-             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Sequence</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a2</span>)) <span class="op">=</span><span class="op">&gt;</span>
-                (<span class="ident">a1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">a2</span>),
+             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Sequence</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a2</span>)) =&gt;
+                (<span class="ident">a1</span> <span class="op">==</span> <span class="ident">a2</span>),
             (<span class="kw-2">&amp;</span><span class="ident">ASN1Block::Set</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a1</span>),
-             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Set</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a2</span>)) <span class="op">=</span><span class="op">&gt;</span>
-                (<span class="ident">a1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">a2</span>),
+             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Set</span>(<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">a2</span>)) =&gt;
+                (<span class="ident">a1</span> <span class="op">==</span> <span class="ident">a2</span>),
             (<span class="kw-2">&amp;</span><span class="ident">ASN1Block::Explicit</span>(<span class="ident">a1</span>,<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">b1</span>,<span class="kw-2">ref</span> <span class="ident">c1</span>),
-             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Explicit</span>(<span class="ident">a2</span>,<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">b2</span>,<span class="kw-2">ref</span> <span class="ident">c2</span>)) <span class="op">=</span><span class="op">&gt;</span>
-                (<span class="ident">a1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">a2</span>) <span class="op">&amp;&amp;</span> (<span class="ident">b1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">b2</span>) <span class="op">&amp;&amp;</span> (<span class="ident">c1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">c2</span>),
+             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Explicit</span>(<span class="ident">a2</span>,<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">b2</span>,<span class="kw-2">ref</span> <span class="ident">c2</span>)) =&gt;
+                (<span class="ident">a1</span> <span class="op">==</span> <span class="ident">a2</span>) <span class="op">&amp;&amp;</span> (<span class="ident">b1</span> <span class="op">==</span> <span class="ident">b2</span>) <span class="op">&amp;&amp;</span> (<span class="ident">c1</span> <span class="op">==</span> <span class="ident">c2</span>),
             (<span class="kw-2">&amp;</span><span class="ident">ASN1Block::Unknown</span>(<span class="ident">a1</span>,<span class="ident">b1</span>,<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">c1</span>,<span class="kw-2">ref</span> <span class="ident">d1</span>),
-             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Unknown</span>(<span class="ident">a2</span>,<span class="ident">b2</span>,<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">c2</span>,<span class="kw-2">ref</span> <span class="ident">d2</span>)) <span class="op">=</span><span class="op">&gt;</span>
-                (<span class="ident">a1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">a2</span>) <span class="op">&amp;&amp;</span> (<span class="ident">b1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">b2</span>) <span class="op">&amp;&amp;</span> (<span class="ident">c1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">c2</span>) <span class="op">&amp;&amp;</span> (<span class="ident">d1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">d2</span>),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span>
+             <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Unknown</span>(<span class="ident">a2</span>,<span class="ident">b2</span>,<span class="kw">_</span>,<span class="kw-2">ref</span> <span class="ident">c2</span>,<span class="kw-2">ref</span> <span class="ident">d2</span>)) =&gt;
+                (<span class="ident">a1</span> <span class="op">==</span> <span class="ident">a2</span>) <span class="op">&amp;&amp;</span> (<span class="ident">b1</span> <span class="op">==</span> <span class="ident">b2</span>) <span class="op">&amp;&amp;</span> (<span class="ident">c1</span> <span class="op">==</span> <span class="ident">c2</span>) <span class="op">&amp;&amp;</span> (<span class="ident">d1</span> <span class="op">==</span> <span class="ident">d2</span>),
+            <span class="kw">_</span> =&gt;
                 <span class="bool-val">false</span>
         }
     }
@@ -1872,14 +1872,14 @@
 <span class="kw">impl</span> <span class="ident">OID</span> {
     <span class="doccomment">/// Generate an ASN.1. The vector should be in the obvious format,</span>
     <span class="doccomment">/// with each component going left-to-right.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">x</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BigUint</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OID</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">x</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BigUint</span><span class="op">&gt;</span>) -&gt; <span class="ident">OID</span> {
         <span class="ident">OID</span>(<span class="ident">x</span>)
     }
 
     <span class="doccomment">/// converts the</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">ASN1EncodeErr</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">ASN1EncodeErr</span><span class="op">&gt;</span> {
         <span class="kw">match</span> (<span class="self">self</span>.<span class="number">0</span>.<span class="ident">get</span>(<span class="number">0</span>), <span class="self">self</span>.<span class="number">0</span>.<span class="ident">get</span>(<span class="number">1</span>)) {
-            (<span class="prelude-val">Some</span>(<span class="ident">v1</span>), <span class="prelude-val">Some</span>(<span class="ident">v2</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            (<span class="prelude-val">Some</span>(<span class="ident">v1</span>), <span class="prelude-val">Some</span>(<span class="ident">v2</span>)) =&gt; {
                 <span class="kw">let</span> <span class="ident">two</span> <span class="op">=</span> <span class="ident">BigUint::from_u8</span>(<span class="number">2</span>).<span class="ident">unwrap</span>();
 
                 <span class="comment">// first, validate that the first two items meet spec</span>
@@ -1889,7 +1889,7 @@
 
                 <span class="kw">let</span> <span class="ident">u175</span> <span class="op">=</span> <span class="ident">BigUint::from_u8</span>(<span class="number">175</span>).<span class="ident">unwrap</span>();
                 <span class="kw">let</span> <span class="ident">u39</span> <span class="op">=</span> <span class="ident">BigUint::from_u8</span>(<span class="number">39</span>).<span class="ident">unwrap</span>();
-                <span class="kw">let</span> <span class="ident">bound</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">v1</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">two</span> { <span class="ident">u175</span> } <span class="kw">else</span> { <span class="ident">u39</span> };
+                <span class="kw">let</span> <span class="ident">bound</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">v1</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">two</span> { <span class="ident">u175</span> } <span class="kw">else</span> { <span class="ident">u39</span> };
 
                 <span class="kw">if</span> <span class="ident">v2</span> <span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">bound</span> {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ASN1EncodeErr::ObjectIdentVal2TooLarge</span>);
@@ -1910,13 +1910,13 @@
 
                 <span class="prelude-val">Ok</span>(<span class="ident">body</span>)
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">ASN1EncodeErr::ObjectIdentHasTooFewFields</span>),
+            <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">ASN1EncodeErr::ObjectIdentHasTooFewFields</span>),
         }
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">PartialEq</span><span class="op">&lt;</span><span class="ident">OID</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">OID</span> {
-    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">v2</span>: <span class="kw-2">&amp;</span><span class="ident">OID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">v2</span>: <span class="kw-2">&amp;</span><span class="ident">OID</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">let</span> <span class="op">&amp;&amp;</span><span class="ident">OID</span>(<span class="kw-2">ref</span> <span class="ident">vec1</span>) <span class="op">=</span> <span class="self">self</span>;
         <span class="kw">let</span> <span class="kw-2">&amp;</span><span class="ident">OID</span>(<span class="kw-2">ref</span> <span class="ident">vec2</span>) <span class="op">=</span> <span class="ident">v2</span>;
 
@@ -1940,7 +1940,7 @@
 <span class="doccomment">/// 1.2.840.113549.1.1.1. (Coincidentally, this is RSA.)</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">oid</span> {
-    ( $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>: <span class="ident">expr</span> ),<span class="op">*</span> ) <span class="op">=</span><span class="op">&gt;</span> {{
+    ( $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>: <span class="ident">expr</span> ),<span class="op">*</span> ) =&gt; {{
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
         $(
@@ -1975,63 +1975,63 @@
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">ASN1DecodeErr</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ASN1DecodeErr::EmptyBuffer</span> <span class="op">=</span><span class="op">&gt;</span>
+            <span class="ident">ASN1DecodeErr::EmptyBuffer</span> =&gt;
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Encountered an empty buffer decoding ASN1 block.&quot;</span>),
-            <span class="ident">ASN1DecodeErr::BadBooleanLength</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span>
+            <span class="ident">ASN1DecodeErr::BadBooleanLength</span>(<span class="ident">x</span>) =&gt;
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Bad length field in boolean block: {}&quot;</span>, <span class="ident">x</span>),
-            <span class="ident">ASN1DecodeErr::LengthTooLarge</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span>
+            <span class="ident">ASN1DecodeErr::LengthTooLarge</span>(<span class="ident">x</span>) =&gt;
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Length field too large for object type: {}&quot;</span>, <span class="ident">x</span>),
-            <span class="ident">ASN1DecodeErr::UTF8DecodeFailure</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span>
+            <span class="ident">ASN1DecodeErr::UTF8DecodeFailure</span>(<span class="ident">x</span>) =&gt;
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;UTF8 string failed to properly decode: {}&quot;</span>, <span class="ident">x</span>),
-            <span class="ident">ASN1DecodeErr::PrintableStringDecodeFailure</span> <span class="op">=</span><span class="op">&gt;</span>
+            <span class="ident">ASN1DecodeErr::PrintableStringDecodeFailure</span> =&gt;
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Printable string failed to properly decode.&quot;</span>),
-            <span class="ident">ASN1DecodeErr::InvalidDateValue</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span>
+            <span class="ident">ASN1DecodeErr::InvalidDateValue</span>(<span class="ident">x</span>) =&gt;
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Invalid date value: {}&quot;</span>, <span class="ident">x</span>),
-            <span class="ident">ASN1DecodeErr::InvalidBitStringLength</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span>
+            <span class="ident">ASN1DecodeErr::InvalidBitStringLength</span>(<span class="ident">i</span>) =&gt;
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Invalid length of bit string: {}&quot;</span>, <span class="ident">i</span>),
-            <span class="ident">ASN1DecodeErr::InvalidClass</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span>
+            <span class="ident">ASN1DecodeErr::InvalidClass</span>(<span class="ident">i</span>) =&gt;
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Invalid class value: {}&quot;</span>, <span class="ident">i</span>),
-            <span class="ident">ASN1DecodeErr::Incomplete</span> <span class="op">=</span><span class="op">&gt;</span>
+            <span class="ident">ASN1DecodeErr::Incomplete</span> =&gt;
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Incomplete data or invalid ASN1&quot;</span>),
-            <span class="ident">ASN1DecodeErr::__Nonexhaustive</span> <span class="op">=</span><span class="op">&gt;</span>
+            <span class="ident">ASN1DecodeErr::__Nonexhaustive</span> =&gt;
               <span class="macro">panic!</span>(<span class="string">&quot;A non exhaustive error should not be constructed&quot;</span>),
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Error</span> <span class="kw">for</span> <span class="ident">ASN1DecodeErr</span> {
-    <span class="kw">fn</span> <span class="ident">description</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+    <span class="kw">fn</span> <span class="ident">description</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ASN1DecodeErr::EmptyBuffer</span> <span class="op">=</span><span class="op">&gt;</span>
+            <span class="ident">ASN1DecodeErr::EmptyBuffer</span> =&gt;
                 <span class="string">&quot;Encountered an empty buffer decoding ASN1 block.&quot;</span>,
-            <span class="ident">ASN1DecodeErr::BadBooleanLength</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span>
+            <span class="ident">ASN1DecodeErr::BadBooleanLength</span>(<span class="kw">_</span>) =&gt;
                 <span class="string">&quot;Bad length field in boolean block.&quot;</span>,
-            <span class="ident">ASN1DecodeErr::LengthTooLarge</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span>
+            <span class="ident">ASN1DecodeErr::LengthTooLarge</span>(<span class="kw">_</span>) =&gt;
                 <span class="string">&quot;Length field too large for object type.&quot;</span>,
-            <span class="ident">ASN1DecodeErr::UTF8DecodeFailure</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span>
+            <span class="ident">ASN1DecodeErr::UTF8DecodeFailure</span>(<span class="kw">_</span>) =&gt;
                 <span class="string">&quot;UTF8 string failed to properly decode.&quot;</span>,
-            <span class="ident">ASN1DecodeErr::PrintableStringDecodeFailure</span> <span class="op">=</span><span class="op">&gt;</span>
+            <span class="ident">ASN1DecodeErr::PrintableStringDecodeFailure</span> =&gt;
                 <span class="string">&quot;Printable string failed to properly decode.&quot;</span>,
-            <span class="ident">ASN1DecodeErr::InvalidDateValue</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span>
+            <span class="ident">ASN1DecodeErr::InvalidDateValue</span>(<span class="kw">_</span>) =&gt;
                 <span class="string">&quot;Invalid date value.&quot;</span>,
-            <span class="ident">ASN1DecodeErr::InvalidClass</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span>
+            <span class="ident">ASN1DecodeErr::InvalidClass</span>(<span class="kw">_</span>) =&gt;
                 <span class="string">&quot;Invalid class value&quot;</span>,
-            <span class="ident">ASN1DecodeErr::InvalidBitStringLength</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span>
+            <span class="ident">ASN1DecodeErr::InvalidBitStringLength</span>(<span class="kw">_</span>) =&gt;
                 <span class="string">&quot;Invalid length of bit string&quot;</span>,
-            <span class="ident">ASN1DecodeErr::Incomplete</span> <span class="op">=</span><span class="op">&gt;</span>
+            <span class="ident">ASN1DecodeErr::Incomplete</span> =&gt;
                 <span class="string">&quot;Incomplete data or invalid ASN1&quot;</span>,
-            <span class="ident">ASN1DecodeErr::__Nonexhaustive</span> <span class="op">=</span><span class="op">&gt;</span>
+            <span class="ident">ASN1DecodeErr::__Nonexhaustive</span> =&gt;
               <span class="macro">panic!</span>(<span class="string">&quot;A non exhaustive error should not be constructed&quot;</span>),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">cause</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">cause</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="prelude-val">None</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">source</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>(<span class="ident">dyn</span> <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>)<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">source</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>(<span class="ident">dyn</span> <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>)<span class="op">&gt;</span> {
         <span class="prelude-val">None</span>
     }
 }
@@ -2045,39 +2045,39 @@
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">ASN1EncodeErr</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="self">self</span>.<span class="ident">description</span>())
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Error</span> <span class="kw">for</span> <span class="ident">ASN1EncodeErr</span> {
-    <span class="kw">fn</span> <span class="ident">description</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+    <span class="kw">fn</span> <span class="ident">description</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ASN1EncodeErr::ObjectIdentHasTooFewFields</span> <span class="op">=</span><span class="op">&gt;</span>
+            <span class="ident">ASN1EncodeErr::ObjectIdentHasTooFewFields</span> =&gt;
                 <span class="string">&quot;ASN1 object identifier has too few fields.&quot;</span>,
-            <span class="ident">ASN1EncodeErr::ObjectIdentVal1TooLarge</span> <span class="op">=</span><span class="op">&gt;</span>
+            <span class="ident">ASN1EncodeErr::ObjectIdentVal1TooLarge</span> =&gt;
                 <span class="string">&quot;First value in ASN1 OID is too big.&quot;</span>,
-            <span class="ident">ASN1EncodeErr::ObjectIdentVal2TooLarge</span> <span class="op">=</span><span class="op">&gt;</span>
+            <span class="ident">ASN1EncodeErr::ObjectIdentVal2TooLarge</span> =&gt;
                 <span class="string">&quot;Second value in ASN1 OID is too big.&quot;</span>
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">cause</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">cause</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="prelude-val">None</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">source</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>(<span class="ident">dyn</span> <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>)<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">source</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>(<span class="ident">dyn</span> <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>)<span class="op">&gt;</span> {
         <span class="prelude-val">None</span>
     }
 }
 
 <span class="doccomment">/// Translate a binary blob into a series of `ASN1Block`s, or provide an</span>
 <span class="doccomment">/// error if it didn&#39;t work.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_der</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ASN1Block</span><span class="op">&gt;</span>, <span class="ident">ASN1DecodeErr</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_der</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ASN1Block</span><span class="op">&gt;</span>, <span class="ident">ASN1DecodeErr</span><span class="op">&gt;</span> {
     <span class="ident">from_der_</span>(<span class="ident">i</span>, <span class="number">0</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">from_der_</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">start_offset</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ASN1Block</span><span class="op">&gt;</span>, <span class="ident">ASN1DecodeErr</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">from_der_</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">start_offset</span>: <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ASN1Block</span><span class="op">&gt;</span>, <span class="ident">ASN1DecodeErr</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ASN1Block</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">index</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
     <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">len</span>();
@@ -2098,8 +2098,8 @@
             <span class="kw">if</span> <span class="ident">constructed</span> {
                 <span class="comment">// Try to read as explicitly tagged</span>
                 <span class="kw">match</span> <span class="ident">from_der_</span>(<span class="ident">body</span>, <span class="ident">start_offset</span> <span class="op">+</span> <span class="ident">index</span>) {
-                    <span class="prelude-val">Ok</span>(<span class="kw-2">mut</span> <span class="ident">items</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="kw">if</span> <span class="ident">items</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
+                    <span class="prelude-val">Ok</span>(<span class="kw-2">mut</span> <span class="ident">items</span>) =&gt; {
+                        <span class="kw">if</span> <span class="ident">items</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
                             <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">ASN1Block::Explicit</span>(
                                 <span class="ident">class</span>,
                                 <span class="ident">soff</span>,
@@ -2110,7 +2110,7 @@
                             <span class="kw">continue</span>;
                         }
                     }
-                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {}
+                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {}
                 }
             }
             <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">ASN1Block::Unknown</span>(
@@ -2127,22 +2127,22 @@
         <span class="comment">// Universal class</span>
         <span class="kw">match</span> <span class="ident">tag</span>.<span class="ident">to_u8</span>() {
             <span class="comment">// BOOLEAN</span>
-            <span class="prelude-val">Some</span>(<span class="number">0x01</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="number">0x01</span>) =&gt; {
                 <span class="kw">if</span> <span class="ident">len</span> <span class="op">!</span><span class="op">=</span> <span class="number">1</span> {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ASN1DecodeErr::BadBooleanLength</span>(<span class="ident">len</span>));
                 }
                 <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">ASN1Block::Boolean</span>(<span class="ident">soff</span>, <span class="ident">body</span>[<span class="number">0</span>] <span class="op">!</span><span class="op">=</span> <span class="number">0</span>));
             }
             <span class="comment">// INTEGER</span>
-            <span class="prelude-val">Some</span>(<span class="number">0x02</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="number">0x02</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">BigInt::from_signed_bytes_be</span>(<span class="kw-2">&amp;</span><span class="ident">body</span>);
                 <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">ASN1Block::Integer</span>(<span class="ident">soff</span>, <span class="ident">res</span>));
             }
             <span class="comment">// BIT STRING</span>
-            <span class="prelude-val">Some</span>(<span class="number">0x03</span>) <span class="kw">if</span> <span class="ident">body</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="number">0x03</span>) <span class="kw">if</span> <span class="ident">body</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">0</span> =&gt; {
                 <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">ASN1Block::BitString</span>(<span class="ident">soff</span>, <span class="number">0</span>, <span class="ident">Vec::new</span>()))
             }
-            <span class="prelude-val">Some</span>(<span class="number">0x03</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="number">0x03</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">bits</span> <span class="op">=</span> (<span class="kw-2">&amp;</span><span class="ident">body</span>[<span class="number">1</span>..]).<span class="ident">to_vec</span>();
                 <span class="kw">let</span> <span class="ident">bitcount</span> <span class="op">=</span> <span class="ident">bits</span>.<span class="ident">len</span>() <span class="op">*</span> <span class="number">8</span>;
                 <span class="kw">let</span> <span class="ident">rest</span> <span class="op">=</span> <span class="ident">body</span>[<span class="number">0</span>] <span class="kw">as</span> <span class="ident">usize</span>;
@@ -2156,17 +2156,17 @@
                 <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">ASN1Block::BitString</span>(<span class="ident">soff</span>, <span class="ident">nbits</span>, <span class="ident">bits</span>))
             }
             <span class="comment">// OCTET STRING</span>
-            <span class="prelude-val">Some</span>(<span class="number">0x04</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="number">0x04</span>) =&gt; {
                 <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">ASN1Block::OctetString</span>(<span class="ident">soff</span>, <span class="ident">body</span>.<span class="ident">to_vec</span>()))
             }
             <span class="comment">// NULL</span>
-            <span class="prelude-val">Some</span>(<span class="number">0x05</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="number">0x05</span>) =&gt; {
                 <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">ASN1Block::Null</span>(<span class="ident">soff</span>));
             }
             <span class="comment">// OBJECT IDENTIFIER</span>
-            <span class="prelude-val">Some</span>(<span class="number">0x06</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="number">0x06</span>) =&gt; {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">value1</span> <span class="op">=</span> <span class="ident">BigUint::zero</span>();
-                <span class="kw">if</span> <span class="ident">body</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+                <span class="kw">if</span> <span class="ident">body</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">0</span> {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ASN1DecodeErr::Incomplete</span>);
                 }
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">value2</span> <span class="op">=</span> <span class="ident">BigUint::from_u8</span>(<span class="ident">body</span>[<span class="number">0</span>]).<span class="ident">unwrap</span>();
@@ -2193,34 +2193,34 @@
                 <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">ASN1Block::ObjectIdentifier</span>(<span class="ident">soff</span>, <span class="ident">res</span>))
             }
             <span class="comment">// UTF8STRING</span>
-            <span class="prelude-val">Some</span>(<span class="number">0x0C</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="number">0x0C</span>) =&gt; {
                 <span class="kw">match</span> <span class="ident">String::from_utf8</span>(<span class="ident">body</span>.<span class="ident">to_vec</span>()) {
-                    <span class="prelude-val">Ok</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span>
+                    <span class="prelude-val">Ok</span>(<span class="ident">v</span>) =&gt;
                         <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">ASN1Block::UTF8String</span>(<span class="ident">soff</span>, <span class="ident">v</span>)),
-                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span>
+                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt;
                         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ASN1DecodeErr::UTF8DecodeFailure</span>(<span class="ident">e</span>.<span class="ident">utf8_error</span>()))
                 }
             }
             <span class="comment">// SEQUENCE</span>
-            <span class="prelude-val">Some</span>(<span class="number">0x10</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="number">0x10</span>) =&gt; {
                 <span class="kw">match</span> <span class="ident">from_der_</span>(<span class="ident">body</span>, <span class="ident">start_offset</span> <span class="op">+</span> <span class="ident">index</span>) {
-                    <span class="prelude-val">Ok</span>(<span class="ident">items</span>) <span class="op">=</span><span class="op">&gt;</span>
+                    <span class="prelude-val">Ok</span>(<span class="ident">items</span>) =&gt;
                         <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">ASN1Block::Sequence</span>(<span class="ident">soff</span>, <span class="ident">items</span>)),
-                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span>
+                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt;
                         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>)
                 }
             }
             <span class="comment">// SET</span>
-            <span class="prelude-val">Some</span>(<span class="number">0x11</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="number">0x11</span>) =&gt; {
                 <span class="kw">match</span> <span class="ident">from_der_</span>(<span class="ident">body</span>, <span class="ident">start_offset</span> <span class="op">+</span> <span class="ident">index</span>) {
-                    <span class="prelude-val">Ok</span>(<span class="ident">items</span>) <span class="op">=</span><span class="op">&gt;</span>
+                    <span class="prelude-val">Ok</span>(<span class="ident">items</span>) =&gt;
                         <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">ASN1Block::Set</span>(<span class="ident">soff</span>, <span class="ident">items</span>)),
-                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span>
+                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt;
                         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>)
                 }
             }
             <span class="comment">// PRINTABLE STRING</span>
-            <span class="prelude-val">Some</span>(<span class="number">0x13</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="number">0x13</span>) =&gt; {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">String::new</span>();
                 <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">body</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">x</span> <span class="kw">as</span> <span class="ident">char</span>);
 
@@ -2234,37 +2234,37 @@
                 <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">ASN1Block::PrintableString</span>(<span class="ident">soff</span>, <span class="ident">res</span>));
             }
             <span class="comment">// TELETEX STRINGS</span>
-            <span class="prelude-val">Some</span>(<span class="number">0x14</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="number">0x14</span>) =&gt; {
                 <span class="kw">match</span> <span class="ident">String::from_utf8</span>(<span class="ident">body</span>.<span class="ident">to_vec</span>()) {
-                    <span class="prelude-val">Ok</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span>
+                    <span class="prelude-val">Ok</span>(<span class="ident">v</span>) =&gt;
                         <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">ASN1Block::TeletexString</span>(<span class="ident">soff</span>, <span class="ident">v</span>)),
-                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span>
+                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt;
                         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ASN1DecodeErr::UTF8DecodeFailure</span>(<span class="ident">e</span>.<span class="ident">utf8_error</span>()))
                 }
             }
             <span class="comment">// IA5 (ASCII) STRING</span>
-            <span class="prelude-val">Some</span>(<span class="number">0x16</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="number">0x16</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">body</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">x</span> <span class="kw">as</span> <span class="ident">char</span>);
                 <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">String::from_iter</span>(<span class="ident">val</span>);
                 <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">ASN1Block::IA5String</span>(<span class="ident">soff</span>, <span class="ident">res</span>))
             }
             <span class="comment">// UTCTime</span>
-            <span class="prelude-val">Some</span>(<span class="number">0x17</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="number">0x17</span>) =&gt; {
                 <span class="kw">if</span> <span class="ident">body</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">13</span> {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ASN1DecodeErr::InvalidDateValue</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">body</span>.<span class="ident">len</span>())));
                 }
 
                 <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">String::from_iter</span>(<span class="ident">body</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">x</span> <span class="kw">as</span> <span class="ident">char</span>));
                 <span class="kw">match</span> <span class="ident">Utc</span>.<span class="ident">datetime_from_str</span>(<span class="kw-2">&amp;</span><span class="ident">v</span>, <span class="string">&quot;%y%m%d%H%M%SZ&quot;</span>) {
-                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span>
+                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt;
                         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ASN1DecodeErr::InvalidDateValue</span>(<span class="ident">v</span>)),
-                    <span class="prelude-val">Ok</span>(<span class="ident">t</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="prelude-val">Ok</span>(<span class="ident">t</span>) =&gt; {
                         <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">ASN1Block::UTCTime</span>(<span class="ident">soff</span>, <span class="ident">t</span>))
                     }
                 }
             }
             <span class="comment">// GeneralizedTime</span>
-            <span class="prelude-val">Some</span>(<span class="number">0x18</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="number">0x18</span>) =&gt; {
                 <span class="kw">if</span> <span class="ident">body</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">15</span> {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ASN1DecodeErr::InvalidDateValue</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">body</span>.<span class="ident">len</span>())));
                 }
@@ -2286,33 +2286,33 @@
                     <span class="ident">v</span>.<span class="ident">insert</span>(<span class="ident">idx</span>, <span class="string">&#39;0&#39;</span>);
                 }
                 <span class="kw">match</span> <span class="ident">Utc</span>.<span class="ident">datetime_from_str</span>(<span class="kw-2">&amp;</span><span class="ident">v</span>, <span class="string">&quot;%Y%m%d%H%M%S.%fZ&quot;</span>) {
-                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span>
+                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt;
                         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ASN1DecodeErr::InvalidDateValue</span>(<span class="ident">v</span>)),
-                    <span class="prelude-val">Ok</span>(<span class="ident">t</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="prelude-val">Ok</span>(<span class="ident">t</span>) =&gt; {
                         <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">ASN1Block::GeneralizedTime</span>(<span class="ident">soff</span>, <span class="ident">t</span>))
                     }
                 }
             }
             <span class="comment">// UNIVERSAL STRINGS</span>
-            <span class="prelude-val">Some</span>(<span class="number">0x1C</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="number">0x1C</span>) =&gt; {
                 <span class="kw">match</span> <span class="ident">String::from_utf8</span>(<span class="ident">body</span>.<span class="ident">to_vec</span>()) {
-                    <span class="prelude-val">Ok</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span>
+                    <span class="prelude-val">Ok</span>(<span class="ident">v</span>) =&gt;
                         <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">ASN1Block::UniversalString</span>(<span class="ident">soff</span>, <span class="ident">v</span>)),
-                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span>
+                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt;
                         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ASN1DecodeErr::UTF8DecodeFailure</span>(<span class="ident">e</span>.<span class="ident">utf8_error</span>()))
                 }
             }
             <span class="comment">// UNIVERSAL STRINGS</span>
-            <span class="prelude-val">Some</span>(<span class="number">0x1E</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="number">0x1E</span>) =&gt; {
                 <span class="kw">match</span> <span class="ident">String::from_utf8</span>(<span class="ident">body</span>.<span class="ident">to_vec</span>()) {
-                    <span class="prelude-val">Ok</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span>
+                    <span class="prelude-val">Ok</span>(<span class="ident">v</span>) =&gt;
                         <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">ASN1Block::BMPString</span>(<span class="ident">soff</span>, <span class="ident">v</span>)),
-                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span>
+                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt;
                         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ASN1DecodeErr::UTF8DecodeFailure</span>(<span class="ident">e</span>.<span class="ident">utf8_error</span>()))
                 }
             }
             <span class="comment">// Dunno.</span>
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="kw">_</span> =&gt; {
                 <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">ASN1Block::Unknown</span>(<span class="ident">class</span>, <span class="ident">constructed</span>, <span class="ident">soff</span>, <span class="ident">tag</span>, <span class="ident">body</span>.<span class="ident">to_vec</span>()));
             }
         }
@@ -2327,7 +2327,7 @@
 }
 
 <span class="doccomment">/// Returns the tag, if the type is constructed and the class.</span>
-<span class="kw">fn</span> <span class="ident">decode_tag</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">index</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">BigUint</span>, <span class="ident">bool</span>, <span class="ident">ASN1Class</span>), <span class="ident">ASN1DecodeErr</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">decode_tag</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">index</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">BigUint</span>, <span class="ident">bool</span>, <span class="ident">ASN1Class</span>), <span class="ident">ASN1DecodeErr</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">index</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">i</span>.<span class="ident">len</span>() {
         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ASN1DecodeErr::Incomplete</span>);
     }
@@ -2338,7 +2338,7 @@
 
     <span class="kw-2">*</span><span class="ident">index</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
 
-    <span class="kw">if</span> <span class="ident">basetag</span> <span class="op">=</span><span class="op">=</span> <span class="number">0b1_1111</span> {
+    <span class="kw">if</span> <span class="ident">basetag</span> <span class="op">==</span> <span class="number">0b1_1111</span> {
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">decode_base127</span>(<span class="ident">i</span>, <span class="ident">index</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>((<span class="ident">res</span>, <span class="ident">constructed</span>, <span class="ident">class</span>))
     } <span class="kw">else</span> {
@@ -2346,7 +2346,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">decode_base127</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">index</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">BigUint</span>, <span class="ident">ASN1DecodeErr</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">decode_base127</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">index</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">BigUint</span>, <span class="ident">ASN1DecodeErr</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">BigUint::zero</span>();
 
     <span class="kw">loop</span> {
@@ -2358,23 +2358,23 @@
 
         <span class="kw-2">*</span><span class="ident">index</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
         <span class="ident">res</span> <span class="op">=</span> (<span class="ident">res</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">7</span>) <span class="op">+</span> <span class="ident">BigUint::from</span>(<span class="ident">nextbyte</span> <span class="op">&amp;</span> <span class="number">0x7f</span>);
-        <span class="kw">if</span> (<span class="ident">nextbyte</span> <span class="op">&amp;</span> <span class="number">0x80</span>) <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+        <span class="kw">if</span> (<span class="ident">nextbyte</span> <span class="op">&amp;</span> <span class="number">0x80</span>) <span class="op">==</span> <span class="number">0</span> {
             <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">res</span>);
         }
     }
 }
 
-<span class="kw">fn</span> <span class="ident">decode_class</span>(<span class="ident">i</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ASN1Class</span>, <span class="ident">ASN1DecodeErr</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">decode_class</span>(<span class="ident">i</span>: <span class="ident">u8</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ASN1Class</span>, <span class="ident">ASN1DecodeErr</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="ident">i</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">6</span> {
-        <span class="number">0b00</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">ASN1Class::Universal</span>),
-        <span class="number">0b01</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">ASN1Class::Application</span>),
-        <span class="number">0b10</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">ASN1Class::ContextSpecific</span>),
-        <span class="number">0b11</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">ASN1Class::Private</span>),
-        <span class="kw">_</span>    <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">ASN1DecodeErr::InvalidClass</span>(<span class="ident">i</span>)),
+        <span class="number">0b00</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">ASN1Class::Universal</span>),
+        <span class="number">0b01</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">ASN1Class::Application</span>),
+        <span class="number">0b10</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">ASN1Class::ContextSpecific</span>),
+        <span class="number">0b11</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">ASN1Class::Private</span>),
+        <span class="kw">_</span>    =&gt; <span class="prelude-val">Err</span>(<span class="ident">ASN1DecodeErr::InvalidClass</span>(<span class="ident">i</span>)),
     }
 }
 
-<span class="kw">fn</span> <span class="ident">decode_length</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">index</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">ASN1DecodeErr</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">decode_length</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">index</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">ASN1DecodeErr</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">index</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">i</span>.<span class="ident">len</span>() {
         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ASN1DecodeErr::Incomplete</span>);
     }
@@ -2412,10 +2412,10 @@
 
 <span class="doccomment">/// Given an `ASN1Block`, covert it to its DER encoding, or return an error</span>
 <span class="doccomment">/// if something broke along the way.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_der</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">ASN1Block</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">ASN1EncodeErr</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_der</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">ASN1Block</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">ASN1EncodeErr</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="ident">i</span> {
         <span class="comment">// BOOLEAN</span>
-        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Boolean</span>(<span class="kw">_</span>, <span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Boolean</span>(<span class="kw">_</span>, <span class="ident">val</span>) =&gt; {
             <span class="kw">let</span> <span class="ident">inttag</span> <span class="op">=</span> <span class="ident">BigUint::one</span>();
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tagbytes</span> <span class="op">=</span> <span class="ident">encode_tag</span>(<span class="ident">ASN1Class::Universal</span>, <span class="bool-val">false</span>, <span class="kw-2">&amp;</span><span class="ident">inttag</span>);
             <span class="ident">tagbytes</span>.<span class="ident">push</span>(<span class="number">1</span>);
@@ -2423,7 +2423,7 @@
             <span class="prelude-val">Ok</span>(<span class="ident">tagbytes</span>)
         }
         <span class="comment">// INTEGER</span>
-        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Integer</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">int</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Integer</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">int</span>) =&gt; {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">base</span> <span class="op">=</span> <span class="ident">int</span>.<span class="ident">to_signed_bytes_be</span>();
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lenbytes</span> <span class="op">=</span> <span class="ident">encode_len</span>(<span class="ident">base</span>.<span class="ident">len</span>());
             <span class="kw">let</span> <span class="ident">inttag</span> <span class="op">=</span> <span class="ident">BigUint::from_u8</span>(<span class="number">0x02</span>).<span class="ident">unwrap</span>();
@@ -2436,11 +2436,11 @@
             <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
         }
         <span class="comment">// BIT STRING</span>
-        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::BitString</span>(<span class="kw">_</span>, <span class="ident">bits</span>, <span class="kw-2">ref</span> <span class="ident">vs</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::BitString</span>(<span class="kw">_</span>, <span class="ident">bits</span>, <span class="kw-2">ref</span> <span class="ident">vs</span>) =&gt; {
             <span class="kw">let</span> <span class="ident">inttag</span> <span class="op">=</span> <span class="ident">BigUint::from_u8</span>(<span class="number">0x03</span>).<span class="ident">unwrap</span>();
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tagbytes</span> <span class="op">=</span> <span class="ident">encode_tag</span>(<span class="ident">ASN1Class::Universal</span>, <span class="bool-val">false</span>, <span class="kw-2">&amp;</span><span class="ident">inttag</span>);
 
-            <span class="kw">if</span> <span class="ident">bits</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+            <span class="kw">if</span> <span class="ident">bits</span> <span class="op">==</span> <span class="number">0</span> {
                 <span class="ident">tagbytes</span>.<span class="ident">push</span>(<span class="number">0</span>);
                 <span class="prelude-val">Ok</span>(<span class="ident">tagbytes</span>)
             } <span class="kw">else</span> {
@@ -2456,7 +2456,7 @@
             }
         }
         <span class="comment">// OCTET STRING</span>
-        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::OctetString</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">bytes</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::OctetString</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">bytes</span>) =&gt; {
             <span class="kw">let</span> <span class="ident">inttag</span> <span class="op">=</span> <span class="ident">BigUint::from_u8</span>(<span class="number">0x04</span>).<span class="ident">unwrap</span>();
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tagbytes</span> <span class="op">=</span> <span class="ident">encode_tag</span>(<span class="ident">ASN1Class::Universal</span>, <span class="bool-val">false</span>, <span class="kw-2">&amp;</span><span class="ident">inttag</span>);
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lenbytes</span> <span class="op">=</span> <span class="ident">encode_len</span>(<span class="ident">bytes</span>.<span class="ident">len</span>());
@@ -2468,16 +2468,16 @@
             <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
         }
         <span class="comment">// NULL</span>
-        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Null</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Null</span>(<span class="kw">_</span>) =&gt; {
             <span class="kw">let</span> <span class="ident">inttag</span> <span class="op">=</span> <span class="ident">BigUint::from_u8</span>(<span class="number">0x05</span>).<span class="ident">unwrap</span>();
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">encode_tag</span>(<span class="ident">ASN1Class::Universal</span>, <span class="bool-val">false</span>, <span class="kw-2">&amp;</span><span class="ident">inttag</span>);
             <span class="ident">result</span>.<span class="ident">push</span>(<span class="number">0</span>);
             <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
         }
         <span class="comment">// OBJECT IDENTIFIER</span>
-        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::ObjectIdentifier</span>(<span class="kw">_</span>, <span class="ident">OID</span>(<span class="kw-2">ref</span> <span class="ident">nums</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::ObjectIdentifier</span>(<span class="kw">_</span>, <span class="ident">OID</span>(<span class="kw-2">ref</span> <span class="ident">nums</span>)) =&gt; {
             <span class="kw">match</span> (<span class="ident">nums</span>.<span class="ident">get</span>(<span class="number">0</span>), <span class="ident">nums</span>.<span class="ident">get</span>(<span class="number">1</span>)) {
-                (<span class="prelude-val">Some</span>(<span class="ident">v1</span>), <span class="prelude-val">Some</span>(<span class="ident">v2</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                (<span class="prelude-val">Some</span>(<span class="ident">v1</span>), <span class="prelude-val">Some</span>(<span class="ident">v2</span>)) =&gt; {
                     <span class="kw">let</span> <span class="ident">two</span> <span class="op">=</span> <span class="ident">BigUint::from_u8</span>(<span class="number">2</span>).<span class="ident">unwrap</span>();
 
                     <span class="comment">// first, validate that the first two items meet spec</span>
@@ -2487,7 +2487,7 @@
 
                     <span class="kw">let</span> <span class="ident">u175</span> <span class="op">=</span> <span class="ident">BigUint::from_u8</span>(<span class="number">175</span>).<span class="ident">unwrap</span>();
                     <span class="kw">let</span> <span class="ident">u39</span> <span class="op">=</span> <span class="ident">BigUint::from_u8</span>(<span class="number">39</span>).<span class="ident">unwrap</span>();
-                    <span class="kw">let</span> <span class="ident">bound</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">v1</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">two</span> { <span class="ident">u175</span> } <span class="kw">else</span> { <span class="ident">u39</span> };
+                    <span class="kw">let</span> <span class="ident">bound</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">v1</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">two</span> { <span class="ident">u175</span> } <span class="kw">else</span> { <span class="ident">u39</span> };
 
                     <span class="kw">if</span> <span class="ident">v2</span> <span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">bound</span> {
                         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ASN1EncodeErr::ObjectIdentVal2TooLarge</span>);
@@ -2516,13 +2516,13 @@
 
                     <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">_</span> =&gt; {
                     <span class="prelude-val">Err</span>(<span class="ident">ASN1EncodeErr::ObjectIdentHasTooFewFields</span>)
                 }
             }
         }
         <span class="comment">// SEQUENCE</span>
-        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Sequence</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">items</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Sequence</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">items</span>) =&gt; {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
             <span class="comment">// put all the subsequences into a block</span>
@@ -2544,7 +2544,7 @@
             <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
         }
         <span class="comment">// SET</span>
-        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Set</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">items</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Set</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">items</span>) =&gt; {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
             <span class="comment">// put all the subsequences into a block</span>
@@ -2565,7 +2565,7 @@
             <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">body</span>);
             <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
         }
-        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::UTCTime</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">time</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::UTCTime</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">time</span>) =&gt; {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">time</span>.<span class="ident">format</span>(<span class="string">&quot;%y%m%d%H%M%SZ&quot;</span>).<span class="ident">to_string</span>().<span class="ident">into_bytes</span>();
             <span class="kw">let</span> <span class="ident">inttag</span> <span class="op">=</span> <span class="ident">BigUint::from_u8</span>(<span class="number">0x17</span>).<span class="ident">unwrap</span>();
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lenbytes</span> <span class="op">=</span> <span class="ident">encode_len</span>(<span class="ident">body</span>.<span class="ident">len</span>());
@@ -2577,7 +2577,7 @@
             <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">body</span>);
             <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
         }
-        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::GeneralizedTime</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">time</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::GeneralizedTime</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">time</span>) =&gt; {
             <span class="kw">let</span> <span class="ident">base</span> <span class="op">=</span> <span class="ident">time</span>.<span class="ident">format</span>(<span class="string">&quot;%Y%m%d%H%M%S.%f&quot;</span>).<span class="ident">to_string</span>();
             <span class="kw">let</span> <span class="ident">zclear</span> <span class="op">=</span> <span class="ident">base</span>.<span class="ident">trim_end_matches</span>(<span class="string">&#39;0&#39;</span>);
             <span class="kw">let</span> <span class="ident">dclear</span> <span class="op">=</span> <span class="ident">zclear</span>.<span class="ident">trim_end_matches</span>(<span class="string">&#39;.&#39;</span>);
@@ -2593,19 +2593,19 @@
             <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">body</span>);
             <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
         }
-        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::UTF8String</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">str</span>)      <span class="op">=</span><span class="op">&gt;</span>
+        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::UTF8String</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">str</span>)      =&gt;
             <span class="ident">encode_asn1_string</span>(<span class="number">0x0c</span>, <span class="bool-val">false</span>, <span class="ident">ASN1Class::Universal</span>, <span class="ident">str</span>),
-        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::PrintableString</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">str</span>) <span class="op">=</span><span class="op">&gt;</span>
+        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::PrintableString</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">str</span>) =&gt;
             <span class="ident">encode_asn1_string</span>(<span class="number">0x13</span>, <span class="bool-val">true</span>,  <span class="ident">ASN1Class::Universal</span>, <span class="ident">str</span>),
-        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::TeletexString</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">str</span>)   <span class="op">=</span><span class="op">&gt;</span>
+        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::TeletexString</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">str</span>)   =&gt;
             <span class="ident">encode_asn1_string</span>(<span class="number">0x14</span>, <span class="bool-val">false</span>, <span class="ident">ASN1Class::Universal</span>, <span class="ident">str</span>),
-        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::UniversalString</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">str</span>) <span class="op">=</span><span class="op">&gt;</span>
+        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::UniversalString</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">str</span>) =&gt;
             <span class="ident">encode_asn1_string</span>(<span class="number">0x1c</span>, <span class="bool-val">false</span>, <span class="ident">ASN1Class::Universal</span>, <span class="ident">str</span>),
-        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::IA5String</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">str</span>)       <span class="op">=</span><span class="op">&gt;</span>
+        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::IA5String</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">str</span>)       =&gt;
             <span class="ident">encode_asn1_string</span>(<span class="number">0x16</span>, <span class="bool-val">true</span>,  <span class="ident">ASN1Class::Universal</span>, <span class="ident">str</span>),
-        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::BMPString</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">str</span>)       <span class="op">=</span><span class="op">&gt;</span>
+        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::BMPString</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">str</span>)       =&gt;
             <span class="ident">encode_asn1_string</span>(<span class="number">0x1e</span>, <span class="bool-val">false</span>, <span class="ident">ASN1Class::Universal</span>, <span class="ident">str</span>),
-        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Explicit</span>(<span class="ident">class</span>, <span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">tag</span>, <span class="kw-2">ref</span> <span class="ident">item</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Explicit</span>(<span class="ident">class</span>, <span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">tag</span>, <span class="kw-2">ref</span> <span class="ident">item</span>) =&gt; {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tagbytes</span> <span class="op">=</span> <span class="ident">encode_tag</span>(<span class="ident">class</span>, <span class="bool-val">true</span>, <span class="ident">tag</span>);
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">to_der</span>(<span class="ident">item</span>)<span class="question-mark">?</span>;
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lenbytes</span> <span class="op">=</span> <span class="ident">encode_len</span>(<span class="ident">bytes</span>.<span class="ident">len</span>());
@@ -2617,7 +2617,7 @@
             <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
         }
         <span class="comment">// Unknown blocks</span>
-        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Unknown</span>(<span class="ident">class</span>, <span class="ident">c</span>, <span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">tag</span>, <span class="kw-2">ref</span> <span class="ident">bytes</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw-2">&amp;</span><span class="ident">ASN1Block::Unknown</span>(<span class="ident">class</span>, <span class="ident">c</span>, <span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">tag</span>, <span class="kw-2">ref</span> <span class="ident">bytes</span>) =&gt; {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tagbytes</span> <span class="op">=</span> <span class="ident">encode_tag</span>(<span class="ident">class</span>, <span class="ident">c</span>, <span class="ident">tag</span>);
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lenbytes</span> <span class="op">=</span> <span class="ident">encode_len</span>(<span class="ident">bytes</span>.<span class="ident">len</span>());
 
@@ -2635,7 +2635,7 @@
     <span class="ident">force_chars</span>: <span class="ident">bool</span>,
     <span class="ident">c</span>: <span class="ident">ASN1Class</span>,
     <span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">String</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">ASN1EncodeErr</span><span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">ASN1EncodeErr</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">body</span> <span class="op">=</span> {
         <span class="kw">if</span> <span class="ident">force_chars</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
@@ -2659,17 +2659,17 @@
     <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">encode_tag</span>(<span class="ident">c</span>: <span class="ident">ASN1Class</span>, <span class="ident">constructed</span>: <span class="ident">bool</span>, <span class="ident">t</span>: <span class="kw-2">&amp;</span><span class="ident">BigUint</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">encode_tag</span>(<span class="ident">c</span>: <span class="ident">ASN1Class</span>, <span class="ident">constructed</span>: <span class="ident">bool</span>, <span class="ident">t</span>: <span class="kw-2">&amp;</span><span class="ident">BigUint</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">cbyte</span> <span class="op">=</span> <span class="ident">encode_class</span>(<span class="ident">c</span>);
 
     <span class="kw">match</span> <span class="ident">t</span>.<span class="ident">to_u8</span>() {
-        <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">x</span>) <span class="kw">if</span> <span class="ident">x</span> <span class="op">&lt;</span> <span class="number">31</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">x</span>) <span class="kw">if</span> <span class="ident">x</span> <span class="op">&lt;</span> <span class="number">31</span> =&gt; {
             <span class="kw">if</span> <span class="ident">constructed</span> {
                 <span class="ident">x</span> <span class="op">|</span><span class="op">=</span> <span class="number">0b0010_0000</span>;
             }
             <span class="macro">vec!</span>[<span class="ident">cbyte</span> <span class="op">|</span> <span class="ident">x</span>]
         }
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw">_</span> =&gt; {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">encode_base127</span>(<span class="ident">t</span>);
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">cbyte</span> <span class="op">|</span> <span class="number">0b0001_1111</span>;
             <span class="kw">if</span> <span class="ident">constructed</span> {
@@ -2681,13 +2681,13 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">encode_base127</span>(<span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="ident">BigUint</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">encode_base127</span>(<span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="ident">BigUint</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">acc</span> <span class="op">=</span> <span class="ident">v</span>.<span class="ident">clone</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">let</span> <span class="ident">u128</span> <span class="op">=</span> <span class="ident">BigUint::from_u8</span>(<span class="number">128</span>).<span class="ident">unwrap</span>();
     <span class="kw">let</span> <span class="ident">zero</span> <span class="op">=</span> <span class="ident">BigUint::zero</span>();
 
-    <span class="kw">if</span> <span class="ident">acc</span> <span class="op">=</span><span class="op">=</span> <span class="ident">zero</span> {
+    <span class="kw">if</span> <span class="ident">acc</span> <span class="op">==</span> <span class="ident">zero</span> {
         <span class="ident">res</span>.<span class="ident">push</span>(<span class="number">0</span>);
         <span class="kw">return</span> <span class="ident">res</span>;
     }
@@ -2698,11 +2698,11 @@
         <span class="ident">acc</span> <span class="op">=</span> <span class="ident">acc</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">7</span>;
 
         <span class="kw">match</span> <span class="ident">digit</span>.<span class="ident">to_u8</span>() {
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span>
+            <span class="prelude-val">None</span> =&gt;
                 <span class="macro">panic!</span>(<span class="string">&quot;7 bits don&#39;t fit into 8, cause ...&quot;</span>),
-            <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="kw">if</span> <span class="ident">res</span>.<span class="ident">is_empty</span>() <span class="op">=</span><span class="op">&gt;</span>
+            <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="kw">if</span> <span class="ident">res</span>.<span class="ident">is_empty</span>() =&gt;
                 <span class="ident">res</span>.<span class="ident">push</span>(<span class="ident">x</span>),
-            <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span>
+            <span class="prelude-val">Some</span>(<span class="ident">x</span>) =&gt;
                 <span class="ident">res</span>.<span class="ident">push</span>(<span class="ident">x</span> <span class="op">|</span> <span class="number">0x80</span>)
         }
     }
@@ -2711,17 +2711,17 @@
     <span class="ident">res</span>
 }
 
-<span class="kw">fn</span> <span class="ident">encode_class</span>(<span class="ident">c</span>: <span class="ident">ASN1Class</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u8</span> {
+<span class="kw">fn</span> <span class="ident">encode_class</span>(<span class="ident">c</span>: <span class="ident">ASN1Class</span>) -&gt; <span class="ident">u8</span> {
     <span class="kw">match</span> <span class="ident">c</span> {
-        <span class="ident">ASN1Class::Universal</span>       <span class="op">=</span><span class="op">&gt;</span> <span class="number">0b0000_0000</span>,
-        <span class="ident">ASN1Class::Application</span>     <span class="op">=</span><span class="op">&gt;</span> <span class="number">0b0100_0000</span>,
-        <span class="ident">ASN1Class::ContextSpecific</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">0b1000_0000</span>,
-        <span class="ident">ASN1Class::Private</span>         <span class="op">=</span><span class="op">&gt;</span> <span class="number">0b1100_0000</span>,
+        <span class="ident">ASN1Class::Universal</span>       =&gt; <span class="number">0b0000_0000</span>,
+        <span class="ident">ASN1Class::Application</span>     =&gt; <span class="number">0b0100_0000</span>,
+        <span class="ident">ASN1Class::ContextSpecific</span> =&gt; <span class="number">0b1000_0000</span>,
+        <span class="ident">ASN1Class::Private</span>         =&gt; <span class="number">0b1100_0000</span>,
     }
 }
 
 
-<span class="kw">fn</span> <span class="ident">encode_len</span>(<span class="ident">x</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">encode_len</span>(<span class="ident">x</span>: <span class="ident">usize</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="ident">x</span> <span class="op">&lt;</span> <span class="number">128</span> {
         <span class="macro">vec!</span>[<span class="ident">x</span> <span class="kw">as</span> <span class="ident">u8</span>]
     } <span class="kw">else</span> {
@@ -2755,7 +2755,7 @@
     <span class="kw">fn</span> <span class="ident">from_asn1_with_body</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
         <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">ASN1Block</span>],
         <span class="ident">_b</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="self">Self</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">ASN1Block</span>]), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>;
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="self">Self</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">ASN1Block</span>]), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>;
 }
 
 <span class="doccomment">/// A trait defining types that can be decoded from an `ASN1Block` stream.</span>
@@ -2764,7 +2764,7 @@
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">FromASN1</span>: <span class="ident">Sized</span> {
     <span class="kw">type</span> <span class="ident">Error</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ASN1DecodeErr</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">from_asn1</span>(<span class="ident">v</span>: <span class="kw-2">&amp;</span>[<span class="ident">ASN1Block</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="self">Self</span>, <span class="kw-2">&amp;</span>[<span class="ident">ASN1Block</span>]), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">from_asn1</span>(<span class="ident">v</span>: <span class="kw-2">&amp;</span>[<span class="ident">ASN1Block</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="self">Self</span>, <span class="kw-2">&amp;</span>[<span class="ident">ASN1Block</span>]), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>;
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FromASN1</span><span class="op">&gt;</span> <span class="ident">FromASN1WithBody</span> <span class="kw">for</span> <span class="ident">T</span> {
@@ -2773,14 +2773,14 @@
     <span class="kw">fn</span> <span class="ident">from_asn1_with_body</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
         <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">ASN1Block</span>],
         <span class="ident">_b</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">T</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">ASN1Block</span>]), <span class="ident">T::Error</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">T</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">ASN1Block</span>]), <span class="ident">T::Error</span><span class="op">&gt;</span> {
         <span class="ident">T::from_asn1</span>(<span class="ident">v</span>)
     }
 }
 
 <span class="doccomment">/// Automatically decode a type via DER encoding, assuming that the type</span>
 <span class="doccomment">/// is a member of `FromASN1` or `FromASN1WithBody`.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">der_decode</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FromASN1WithBody</span><span class="op">&gt;</span>(<span class="ident">v</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T::Error</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">der_decode</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FromASN1WithBody</span><span class="op">&gt;</span>(<span class="ident">v</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T::Error</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">vs</span> <span class="op">=</span> <span class="ident">from_der</span>(<span class="ident">v</span>)<span class="question-mark">?</span>;
     <span class="ident">T::from_asn1_with_body</span>(<span class="kw-2">&amp;</span><span class="ident">vs</span>, <span class="ident">v</span>).<span class="ident">and_then</span>(<span class="op">|</span>(<span class="ident">a</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="prelude-val">Ok</span>(<span class="ident">a</span>))
 }
@@ -2793,15 +2793,15 @@
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ToASN1</span> {
     <span class="kw">type</span> <span class="ident">Error</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ASN1EncodeErr</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">to_asn1</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ASN1Block</span><span class="op">&gt;</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">to_asn1</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ASN1Block</span><span class="op">&gt;</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">to_asn1_class</span>(<span class="ident">ASN1Class::Universal</span>)
     }
-    <span class="kw">fn</span> <span class="ident">to_asn1_class</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">c</span>: <span class="ident">ASN1Class</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ASN1Block</span><span class="op">&gt;</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">to_asn1_class</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">c</span>: <span class="ident">ASN1Class</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ASN1Block</span><span class="op">&gt;</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>;
 }
 
 <span class="doccomment">/// Automatically encode a type into binary via DER encoding, assuming</span>
 <span class="doccomment">/// that the type is a member of `ToASN1`.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">der_encode</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ToASN1</span><span class="op">&gt;</span>(<span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">T::Error</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">der_encode</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ToASN1</span><span class="op">&gt;</span>(<span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">T::Error</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">blocks</span> <span class="op">=</span> <span class="ident">T::to_asn1</span>(<span class="kw-2">&amp;</span><span class="ident">v</span>)<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
@@ -2825,24 +2825,24 @@
     <span class="kw">use</span> <span class="ident">std::io::Read</span>;
 
     <span class="kw">impl</span> <span class="ident">Arbitrary</span> <span class="kw">for</span> <span class="ident">ASN1Class</span> {
-        <span class="kw">fn</span> <span class="ident">arbitrary</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ASN1Class</span> {
+        <span class="kw">fn</span> <span class="ident">arbitrary</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>) -&gt; <span class="ident">ASN1Class</span> {
             <span class="kw">match</span> <span class="ident">g</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>() <span class="op">%</span> <span class="number">4</span> {
-                <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ASN1Class::Private</span>,
-                <span class="number">1</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ASN1Class::ContextSpecific</span>,
-                <span class="number">2</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ASN1Class::Universal</span>,
-                <span class="number">3</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ASN1Class::Application</span>,
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;I weep for a broken life.&quot;</span>),
+                <span class="number">0</span> =&gt; <span class="ident">ASN1Class::Private</span>,
+                <span class="number">1</span> =&gt; <span class="ident">ASN1Class::ContextSpecific</span>,
+                <span class="number">2</span> =&gt; <span class="ident">ASN1Class::Universal</span>,
+                <span class="number">3</span> =&gt; <span class="ident">ASN1Class::Application</span>,
+                <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;I weep for a broken life.&quot;</span>),
             }
         }
     }
 
     <span class="macro">quickcheck!</span> {
-        <span class="kw">fn</span> <span class="ident">class_encdec_roundtrips</span>(<span class="ident">c</span>: <span class="ident">ASN1Class</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-            <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="ident">decode_class</span>(<span class="ident">encode_class</span>(<span class="ident">c</span>.<span class="ident">clone</span>())).<span class="ident">unwrap</span>()
+        <span class="kw">fn</span> <span class="ident">class_encdec_roundtrips</span>(<span class="ident">c</span>: <span class="ident">ASN1Class</span>) -&gt; <span class="ident">bool</span> {
+            <span class="ident">c</span> <span class="op">==</span> <span class="ident">decode_class</span>(<span class="ident">encode_class</span>(<span class="ident">c</span>.<span class="ident">clone</span>())).<span class="ident">unwrap</span>()
         }
 
-        <span class="kw">fn</span> <span class="ident">class_decenc_roundtrips</span>(<span class="ident">v</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-            (<span class="ident">v</span> <span class="op">&amp;</span> <span class="number">0b11000000</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">encode_class</span>(<span class="ident">decode_class</span>(<span class="ident">v</span>).<span class="ident">unwrap</span>())
+        <span class="kw">fn</span> <span class="ident">class_decenc_roundtrips</span>(<span class="ident">v</span>: <span class="ident">u8</span>) -&gt; <span class="ident">bool</span> {
+            (<span class="ident">v</span> <span class="op">&amp;</span> <span class="number">0b11000000</span>) <span class="op">==</span> <span class="ident">encode_class</span>(<span class="ident">decode_class</span>(<span class="ident">v</span>).<span class="ident">unwrap</span>())
         }
     }
 
@@ -2852,26 +2852,26 @@
     }
 
     <span class="kw">impl</span> <span class="ident">Arbitrary</span> <span class="kw">for</span> <span class="ident">RandomUint</span> {
-        <span class="kw">fn</span> <span class="ident">arbitrary</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RandomUint</span> {
+        <span class="kw">fn</span> <span class="ident">arbitrary</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>) -&gt; <span class="ident">RandomUint</span> {
             <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">BigUint::from_u32</span>(<span class="ident">g</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>()).<span class="ident">unwrap</span>();
             <span class="ident">RandomUint</span> { <span class="ident">x</span>: <span class="ident">v</span> }
         }
     }
 
     <span class="macro">quickcheck!</span> {
-        <span class="kw">fn</span> <span class="ident">tags_encdec_roundtrips</span>(<span class="ident">c</span>: <span class="ident">ASN1Class</span>, <span class="ident">con</span>: <span class="ident">bool</span>, <span class="ident">t</span>: <span class="ident">RandomUint</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="kw">fn</span> <span class="ident">tags_encdec_roundtrips</span>(<span class="ident">c</span>: <span class="ident">ASN1Class</span>, <span class="ident">con</span>: <span class="ident">bool</span>, <span class="ident">t</span>: <span class="ident">RandomUint</span>) -&gt; <span class="ident">bool</span> {
             <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">encode_tag</span>(<span class="ident">c</span>, <span class="ident">con</span>, <span class="kw-2">&amp;</span><span class="ident">t</span>.<span class="ident">x</span>);
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">zero</span> <span class="op">=</span> <span class="number">0</span>;
             <span class="kw">let</span> (<span class="ident">t2</span>, <span class="ident">con2</span>, <span class="ident">c2</span>) <span class="op">=</span> <span class="ident">decode_tag</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>[..], <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">zero</span>).<span class="ident">unwrap</span>();
-            (<span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="ident">c2</span>) <span class="op">&amp;&amp;</span> (<span class="ident">con</span> <span class="op">=</span><span class="op">=</span> <span class="ident">con2</span>) <span class="op">&amp;&amp;</span> (<span class="ident">t</span>.<span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="ident">t2</span>)
+            (<span class="ident">c</span> <span class="op">==</span> <span class="ident">c2</span>) <span class="op">&amp;&amp;</span> (<span class="ident">con</span> <span class="op">==</span> <span class="ident">con2</span>) <span class="op">&amp;&amp;</span> (<span class="ident">t</span>.<span class="ident">x</span> <span class="op">==</span> <span class="ident">t2</span>)
         }
 
-        <span class="kw">fn</span> <span class="ident">len_encdec_roundtrips</span>(<span class="ident">l</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="kw">fn</span> <span class="ident">len_encdec_roundtrips</span>(<span class="ident">l</span>: <span class="ident">usize</span>) -&gt; <span class="ident">bool</span> {
             <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">encode_len</span>(<span class="ident">l</span>);
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">zero</span> <span class="op">=</span> <span class="number">0</span>;
             <span class="kw">match</span> <span class="ident">decode_length</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>[..], <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">zero</span>) {
-                <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-                <span class="prelude-val">Ok</span>(<span class="ident">l2</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">l</span> <span class="op">=</span><span class="op">=</span> <span class="ident">l2</span>
+                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">false</span>,
+                <span class="prelude-val">Ok</span>(<span class="ident">l2</span>) =&gt; <span class="ident">l</span> <span class="op">==</span> <span class="ident">l2</span>
             }
         }
     }
@@ -2882,26 +2882,26 @@
     }
 
     <span class="kw">impl</span> <span class="ident">Arbitrary</span> <span class="kw">for</span> <span class="ident">RandomInt</span> {
-        <span class="kw">fn</span> <span class="ident">arbitrary</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RandomInt</span> {
+        <span class="kw">fn</span> <span class="ident">arbitrary</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>) -&gt; <span class="ident">RandomInt</span> {
             <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">BigInt::from_i64</span>(<span class="ident">g</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>()).<span class="ident">unwrap</span>();
             <span class="ident">RandomInt</span> { <span class="ident">x</span>: <span class="ident">v</span> }
         }
     }
 
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">type_alias_bounds</span>)]</span>
-    <span class="kw">type</span> <span class="ident">ASN1BlockGen</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ASN1Block</span>;
+    <span class="kw">type</span> <span class="ident">ASN1BlockGen</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span>;
 
-    <span class="kw">fn</span> <span class="ident">arb_boolean</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_boolean</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>();
         <span class="ident">ASN1Block::Boolean</span>(<span class="number">0</span>, <span class="ident">v</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_integer</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_integer</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">let</span> <span class="ident">d</span> <span class="op">=</span> <span class="ident">RandomInt::arbitrary</span>(<span class="ident">g</span>);
         <span class="ident">ASN1Block::Integer</span>(<span class="number">0</span>, <span class="ident">d</span>.<span class="ident">x</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_bitstr</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_bitstr</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">let</span> <span class="ident">size</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span>() <span class="kw">as</span> <span class="ident">usize</span> <span class="op">%</span> <span class="number">16</span>;
         <span class="kw">let</span> <span class="ident">maxbits</span> <span class="op">=</span> (<span class="ident">size</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">*</span> <span class="number">8</span>;
         <span class="kw">let</span> <span class="ident">modbits</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>() <span class="kw">as</span> <span class="ident">usize</span> <span class="op">%</span> <span class="number">8</span>;
@@ -2914,21 +2914,21 @@
         <span class="ident">ASN1Block::BitString</span>(<span class="number">0</span>, <span class="ident">nbits</span>, <span class="ident">bytes</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_octstr</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_octstr</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">let</span> <span class="ident">size</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span>() <span class="kw">as</span> <span class="ident">usize</span> <span class="op">%</span> <span class="number">16</span>;
         <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">sample_iter</span>::<span class="op">&lt;</span><span class="ident">u8</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">Standard</span>).<span class="ident">take</span>(<span class="ident">size</span>).<span class="ident">collect</span>();
         <span class="ident">ASN1Block::OctetString</span>(<span class="number">0</span>, <span class="ident">bytes</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_null</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">_g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_null</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">_g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="ident">ASN1Block::Null</span>(<span class="number">0</span>)
     }
 
     <span class="kw">impl</span> <span class="ident">Arbitrary</span> <span class="kw">for</span> <span class="ident">OID</span> {
-        <span class="kw">fn</span> <span class="ident">arbitrary</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OID</span> {
+        <span class="kw">fn</span> <span class="ident">arbitrary</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>) -&gt; <span class="ident">OID</span> {
             <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen_range</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>(<span class="number">0</span>, <span class="number">40</span>);
             <span class="kw">let</span> <span class="ident">val1</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>() <span class="op">%</span> <span class="number">3</span>;
-            <span class="kw">let</span> <span class="ident">v2mod</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">val1</span> <span class="op">=</span><span class="op">=</span> <span class="number">2</span> { <span class="number">176</span> } <span class="kw">else</span> { <span class="number">40</span> };
+            <span class="kw">let</span> <span class="ident">v2mod</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">val1</span> <span class="op">==</span> <span class="number">2</span> { <span class="number">176</span> } <span class="kw">else</span> { <span class="number">40</span> };
             <span class="kw">let</span> <span class="ident">val2</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>() <span class="op">%</span> <span class="ident">v2mod</span>;
             <span class="kw">let</span> <span class="ident">v1</span> <span class="op">=</span> <span class="ident">BigUint::from_u8</span>(<span class="ident">val1</span>).<span class="ident">unwrap</span>();
             <span class="kw">let</span> <span class="ident">v2</span> <span class="op">=</span> <span class="ident">BigUint::from_u8</span>(<span class="ident">val2</span>).<span class="ident">unwrap</span>();
@@ -2943,12 +2943,12 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_objid</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_objid</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">let</span> <span class="ident">oid</span> <span class="op">=</span> <span class="ident">OID::arbitrary</span>(<span class="ident">g</span>);
         <span class="ident">ASN1Block::ObjectIdentifier</span>(<span class="number">0</span>, <span class="ident">oid</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_seq</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">d</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_seq</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen_range</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>(<span class="number">1</span>, <span class="number">64</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">items</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
@@ -2959,7 +2959,7 @@
         <span class="ident">ASN1Block::Sequence</span>(<span class="number">0</span>, <span class="ident">items</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_set</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">d</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_set</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen_range</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>(<span class="number">1</span>, <span class="number">64</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">items</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
@@ -2970,7 +2970,7 @@
         <span class="ident">ASN1Block::Set</span>(<span class="number">0</span>, <span class="ident">items</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_print</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_print</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen_range</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>(<span class="number">0</span>, <span class="number">384</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">items</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
@@ -2982,7 +2982,7 @@
         <span class="ident">ASN1Block::PrintableString</span>(<span class="number">0</span>, <span class="ident">String::from_iter</span>(<span class="ident">items</span>.<span class="ident">iter</span>()))
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_ia5</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_ia5</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen_range</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>(<span class="number">0</span>, <span class="number">384</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">items</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
@@ -2993,53 +2993,53 @@
         <span class="ident">ASN1Block::IA5String</span>(<span class="number">0</span>, <span class="ident">String::from_iter</span>(<span class="ident">items</span>.<span class="ident">iter</span>()))
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_utf8</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_utf8</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">String::arbitrary</span>(<span class="ident">g</span>);
         <span class="ident">ASN1Block::UTF8String</span>(<span class="number">0</span>, <span class="ident">val</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_tele</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_tele</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">String::arbitrary</span>(<span class="ident">g</span>);
         <span class="ident">ASN1Block::TeletexString</span>(<span class="number">0</span>, <span class="ident">val</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_uni</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_uni</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">String::arbitrary</span>(<span class="ident">g</span>);
         <span class="ident">ASN1Block::UniversalString</span>(<span class="number">0</span>, <span class="ident">val</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_bmp</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_bmp</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">String::arbitrary</span>(<span class="ident">g</span>);
         <span class="ident">ASN1Block::BMPString</span>(<span class="number">0</span>, <span class="ident">val</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_utc</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_utc</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">loop</span> {
             <span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen_range</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>(<span class="number">1970</span>, <span class="number">2069</span>);
             <span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen_range</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>(<span class="number">1</span>, <span class="number">13</span>);
             <span class="kw">let</span> <span class="ident">d</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen_range</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>(<span class="number">1</span>, <span class="number">32</span>);
             <span class="kw">match</span> <span class="ident">Utc</span>.<span class="ident">ymd_opt</span>(<span class="ident">y</span>, <span class="ident">m</span>, <span class="ident">d</span>) {
-                <span class="ident">LocalResult::None</span> <span class="op">=</span><span class="op">&gt;</span> {}
-                <span class="ident">LocalResult::Single</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">LocalResult::None</span> =&gt; {}
+                <span class="ident">LocalResult::Single</span>(<span class="ident">d</span>) =&gt; {
                     <span class="kw">let</span> <span class="ident">h</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen_range</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>(<span class="number">0</span>, <span class="number">24</span>);
                     <span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen_range</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>(<span class="number">0</span>, <span class="number">60</span>);
                     <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen_range</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>(<span class="number">0</span>, <span class="number">60</span>);
                     <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="ident">d</span>.<span class="ident">and_hms</span>(<span class="ident">h</span>, <span class="ident">m</span>, <span class="ident">s</span>);
                     <span class="kw">return</span> <span class="ident">ASN1Block::UTCTime</span>(<span class="number">0</span>, <span class="ident">t</span>);
                 }
-                <span class="ident">LocalResult::Ambiguous</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {}
+                <span class="ident">LocalResult::Ambiguous</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {}
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_time</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_time</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">loop</span> {
             <span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen_range</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>(<span class="number">0</span>, <span class="number">10000</span>);
             <span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen_range</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>(<span class="number">1</span>, <span class="number">13</span>);
             <span class="kw">let</span> <span class="ident">d</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen_range</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>(<span class="number">1</span>, <span class="number">32</span>);
             <span class="kw">match</span> <span class="ident">Utc</span>.<span class="ident">ymd_opt</span>(<span class="ident">y</span>, <span class="ident">m</span>, <span class="ident">d</span>) {
-                <span class="ident">LocalResult::None</span> <span class="op">=</span><span class="op">&gt;</span> {}
-                <span class="ident">LocalResult::Single</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">LocalResult::None</span> =&gt; {}
+                <span class="ident">LocalResult::Single</span>(<span class="ident">d</span>) =&gt; {
                     <span class="kw">let</span> <span class="ident">h</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen_range</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>(<span class="number">0</span>, <span class="number">24</span>);
                     <span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen_range</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>(<span class="number">0</span>, <span class="number">60</span>);
                     <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen_range</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>(<span class="number">0</span>, <span class="number">60</span>);
@@ -3047,14 +3047,14 @@
                     <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="ident">d</span>.<span class="ident">and_hms_nano</span>(<span class="ident">h</span>, <span class="ident">m</span>, <span class="ident">s</span>, <span class="ident">n</span>);
                     <span class="kw">return</span> <span class="ident">ASN1Block::GeneralizedTime</span>(<span class="number">0</span>, <span class="ident">t</span>);
                 }
-                <span class="ident">LocalResult::Ambiguous</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {}
+                <span class="ident">LocalResult::Ambiguous</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {}
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_explicit</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">d</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_explicit</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">class</span> <span class="op">=</span> <span class="ident">ASN1Class::arbitrary</span>(<span class="ident">g</span>);
-        <span class="kw">if</span> <span class="ident">class</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ASN1Class::Universal</span> {
+        <span class="kw">if</span> <span class="ident">class</span> <span class="op">==</span> <span class="ident">ASN1Class::Universal</span> {
             <span class="comment">// Universal is invalid for an explicitly tagged block</span>
             <span class="ident">class</span> <span class="op">=</span> <span class="ident">ASN1Class::ContextSpecific</span>;
         }
@@ -3064,7 +3064,7 @@
         <span class="ident">ASN1Block::Explicit</span>(<span class="ident">class</span>, <span class="number">0</span>, <span class="ident">tag</span>.<span class="ident">x</span>, <span class="ident">Box::new</span>(<span class="ident">item</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_unknown</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_unknown</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">let</span> <span class="ident">class</span> <span class="op">=</span> <span class="ident">ASN1Class::arbitrary</span>(<span class="ident">g</span>);
         <span class="kw">let</span> <span class="ident">tag</span> <span class="op">=</span> <span class="ident">RandomUint::arbitrary</span>(<span class="ident">g</span>);
         <span class="kw">let</span> <span class="ident">size</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen_range</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>(<span class="number">0</span>, <span class="number">128</span>);
@@ -3073,7 +3073,7 @@
         <span class="ident">ASN1Block::Unknown</span>(<span class="ident">class</span>, <span class="bool-val">false</span>, <span class="number">0</span>, <span class="ident">tag</span>.<span class="ident">x</span>, <span class="ident">items</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">limited_arbitrary</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">d</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">limited_arbitrary</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">possibles</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ASN1BlockGen</span><span class="op">&lt;</span><span class="ident">G</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
             <span class="ident">arb_boolean</span>,
             <span class="ident">arb_integer</span>,
@@ -3099,39 +3099,39 @@
         }
 
         <span class="kw">match</span> <span class="ident">g</span>.<span class="ident">choose</span>(<span class="kw-2">&amp;</span><span class="ident">possibles</span>[..]) {
-            <span class="prelude-val">Some</span>(<span class="ident">f</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>(<span class="ident">g</span>, <span class="ident">d</span>),
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;Couldn&#39;t generate arbitrary value.&quot;</span>),
+            <span class="prelude-val">Some</span>(<span class="ident">f</span>) =&gt; <span class="ident">f</span>(<span class="ident">g</span>, <span class="ident">d</span>),
+            <span class="prelude-val">None</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Couldn&#39;t generate arbitrary value.&quot;</span>),
         }
     }
 
     <span class="kw">impl</span> <span class="ident">Arbitrary</span> <span class="kw">for</span> <span class="ident">ASN1Block</span> {
-        <span class="kw">fn</span> <span class="ident">arbitrary</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ASN1Block</span> {
+        <span class="kw">fn</span> <span class="ident">arbitrary</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>) -&gt; <span class="ident">ASN1Block</span> {
             <span class="ident">limited_arbitrary</span>(<span class="ident">g</span>, <span class="number">2</span>)
         }
     }
 
     <span class="macro">quickcheck!</span> {
-        <span class="kw">fn</span> <span class="ident">encode_decode_roundtrips</span>(<span class="ident">v</span>: <span class="ident">ASN1Block</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="kw">fn</span> <span class="ident">encode_decode_roundtrips</span>(<span class="ident">v</span>: <span class="ident">ASN1Block</span>) -&gt; <span class="ident">bool</span> {
             <span class="kw">match</span> <span class="ident">to_der</span>(<span class="kw-2">&amp;</span><span class="ident">v</span>) {
-                <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
                     <span class="macro">println!</span>(<span class="string">&quot;Serialization error: {:?}&quot;</span>, <span class="ident">e</span>);
                     <span class="bool-val">false</span>
                 }
-                <span class="prelude-val">Ok</span>(<span class="ident">bytes</span>) <span class="op">=</span><span class="op">&gt;</span>
+                <span class="prelude-val">Ok</span>(<span class="ident">bytes</span>) =&gt;
                     <span class="kw">match</span> <span class="ident">from_der</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>[..]) {
-                        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
                             <span class="macro">println!</span>(<span class="string">&quot;Parse error: {:?}&quot;</span>, <span class="ident">e</span>);
                             <span class="bool-val">false</span>
                         }
-                        <span class="prelude-val">Ok</span>(<span class="kw-2">ref</span> <span class="ident">rvec</span>) <span class="kw">if</span> <span class="ident">rvec</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="prelude-val">Ok</span>(<span class="kw-2">ref</span> <span class="ident">rvec</span>) <span class="kw">if</span> <span class="ident">rvec</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> =&gt; {
                             <span class="kw">let</span> <span class="ident">v2</span> <span class="op">=</span> <span class="ident">rvec</span>.<span class="ident">get</span>(<span class="number">0</span>).<span class="ident">unwrap</span>();
                             <span class="kw">if</span> <span class="kw-2">&amp;</span><span class="ident">v</span> <span class="op">!</span><span class="op">=</span> <span class="ident">v2</span> {
                                 <span class="macro">println!</span>(<span class="string">&quot;Original: {:?}&quot;</span>, <span class="ident">v</span>);
                                 <span class="macro">println!</span>(<span class="string">&quot;Constructed: {:?}&quot;</span>, <span class="ident">v2</span>);
                             }
-                            <span class="kw-2">&amp;</span><span class="ident">v</span> <span class="op">=</span><span class="op">=</span> <span class="ident">v2</span>
+                            <span class="kw-2">&amp;</span><span class="ident">v</span> <span class="op">==</span> <span class="ident">v2</span>
                         }
-                        <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {
                             <span class="macro">println!</span>(<span class="string">&quot;Too many results returned.&quot;</span>);
                             <span class="bool-val">false</span>
                         }
@@ -3140,7 +3140,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">result_int</span>(<span class="ident">v</span>: <span class="ident">i16</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ASN1Block</span><span class="op">&gt;</span>, <span class="ident">ASN1DecodeErr</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">result_int</span>(<span class="ident">v</span>: <span class="ident">i16</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ASN1Block</span><span class="op">&gt;</span>, <span class="ident">ASN1DecodeErr</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">BigInt::from</span>(<span class="ident">v</span>);
         <span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[<span class="ident">ASN1Block::Integer</span>(<span class="number">0</span>, <span class="ident">val</span>)])
     }
@@ -3164,20 +3164,20 @@
     <span class="kw">fn</span> <span class="ident">check_spec</span>(<span class="ident">d</span>: <span class="kw-2">&amp;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>, <span class="ident">s</span>: <span class="ident">String</span>) {
         <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">ASN1Block::GeneralizedTime</span>(<span class="number">0</span>, <span class="ident">d</span>.<span class="ident">clone</span>());
         <span class="kw">match</span> <span class="ident">to_der</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>) {
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;Broken: {}&quot;</span>, <span class="ident">d</span>), <span class="ident">s</span>),
-            <span class="prelude-val">Ok</span>(<span class="kw-2">ref</span> <span class="ident">vec</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;Broken: {}&quot;</span>, <span class="ident">d</span>), <span class="ident">s</span>),
+            <span class="prelude-val">Ok</span>(<span class="kw-2">ref</span> <span class="ident">vec</span>) =&gt; {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">resvec</span> <span class="op">=</span> <span class="ident">vec</span>.<span class="ident">clone</span>();
                 <span class="ident">resvec</span>.<span class="ident">remove</span>(<span class="number">0</span>);
                 <span class="ident">resvec</span>.<span class="ident">remove</span>(<span class="number">0</span>);
                 <span class="macro">assert_eq!</span>(<span class="ident">String::from_utf8</span>(<span class="ident">resvec</span>).<span class="ident">unwrap</span>(), <span class="ident">s</span>);
                 <span class="kw">match</span> <span class="ident">from_der_</span>(<span class="ident">vec</span>, <span class="number">0</span>) {
-                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;Broken [reparse]: {}&quot;</span>, <span class="ident">d</span>), <span class="ident">s</span>),
-                    <span class="prelude-val">Ok</span>(<span class="kw-2">mut</span> <span class="ident">vec</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;Broken [reparse]: {}&quot;</span>, <span class="ident">d</span>), <span class="ident">s</span>),
+                    <span class="prelude-val">Ok</span>(<span class="kw-2">mut</span> <span class="ident">vec</span>) =&gt; {
                         <span class="macro">assert_eq!</span>(<span class="ident">vec</span>.<span class="ident">len</span>(), <span class="number">1</span>);
                         <span class="kw">match</span> <span class="ident">vec</span>.<span class="ident">pop</span>() {
-                            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;The world&#39;s gone mad again.&quot;</span>),
-                            <span class="prelude-val">Some</span>(<span class="ident">ASN1Block::GeneralizedTime</span>(<span class="kw">_</span>, <span class="ident">d2</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">d2</span>, <span class="ident">d</span>),
-                            <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;Bad reparse of GeneralizedTime.&quot;</span>),
+                            <span class="prelude-val">None</span> =&gt; <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;The world&#39;s gone mad again.&quot;</span>),
+                            <span class="prelude-val">Some</span>(<span class="ident">ASN1Block::GeneralizedTime</span>(<span class="kw">_</span>, <span class="ident">d2</span>)) =&gt; <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">d2</span>, <span class="ident">d</span>),
+                            <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;Bad reparse of GeneralizedTime.&quot;</span>),
                         }
                     }
                 }
@@ -3195,7 +3195,7 @@
         <span class="macro">assert_eq!</span>(<span class="ident">from_der</span>(<span class="kw-2">&amp;</span><span class="macro">vec!</span>[<span class="number">0x02</span>, <span class="number">0x02</span>, <span class="number">0xFF</span>, <span class="number">0x7F</span>]), <span class="ident">result_int</span>(<span class="op">-</span><span class="number">129</span>));
     }
 
-    <span class="kw">fn</span> <span class="ident">can_parse</span>(<span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ASN1Block</span><span class="op">&gt;</span>, <span class="ident">ASN1DecodeErr</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">can_parse</span>(<span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ASN1Block</span><span class="op">&gt;</span>, <span class="ident">ASN1DecodeErr</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fd</span> <span class="op">=</span> <span class="ident">File::open</span>(<span class="ident">f</span>).<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">let</span> <span class="ident">_amt</span> <span class="op">=</span> <span class="ident">fd</span>.<span class="ident">read_to_end</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buffer</span>);

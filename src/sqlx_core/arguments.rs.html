@@ -71,20 +71,20 @@
 }
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IntoArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">DB</span>: <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span>: <span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Send</span> {
-    <span class="kw">fn</span> <span class="ident">into_arguments</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Arguments</span>;
+    <span class="kw">fn</span> <span class="ident">into_arguments</span>(<span class="self">self</span>) -&gt; <span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Arguments</span>;
 }
 
 <span class="comment">// NOTE: required due to lack of lazy normalization</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_macros</span>)]</span>
 <span class="macro">macro_rules!</span> <span class="ident">impl_into_arguments_for_arguments</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Arguments</span>:<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Arguments</span>:<span class="ident">path</span>) =&gt; {
         <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span>
             <span class="ident"><span class="kw">crate</span>::arguments::IntoArguments</span><span class="op">&lt;</span>
                 <span class="lifetime">&#39;q</span>,
                 <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">Arguments</span> <span class="kw">as</span> <span class="ident"><span class="kw">crate</span>::arguments::Arguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Database</span>,
             <span class="op">&gt;</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Arguments</span>
         {
-            <span class="kw">fn</span> <span class="ident">into_arguments</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Arguments</span> {
+            <span class="kw">fn</span> <span class="ident">into_arguments</span>(<span class="self">self</span>) -&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Arguments</span> {
                 <span class="self">self</span>
             }
         }
@@ -95,7 +95,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ImmutableArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">DB</span>: <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw">pub</span> <span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Arguments</span>);
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">DB</span>: <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">IntoArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">DB</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ImmutableArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">DB</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">into_arguments</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Arguments</span> {
+    <span class="kw">fn</span> <span class="ident">into_arguments</span>(<span class="self">self</span>) -&gt; <span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Arguments</span> {
         <span class="self">self</span>.<span class="number">0</span>
     }
 }

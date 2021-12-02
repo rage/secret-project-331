@@ -110,7 +110,7 @@
 <span class="doccomment">/// This trait can be derived with `#[derive(Spanned)]`.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Spanned</span> {
     <span class="doccomment">/// Get span of `self`.</span>
-    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span>;
+    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span>;
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Spanned</span> <span class="kw">for</span> <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>
@@ -118,14 +118,14 @@
     <span class="ident">T</span>: <span class="ident">Spanned</span> <span class="op">+</span> <span class="ident">Clone</span>,
 {
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
+    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
         (<span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">span</span>()
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Spanned</span> <span class="kw">for</span> <span class="ident">Span</span> {
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
+    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
         <span class="kw-2">*</span><span class="self">self</span>
     }
 }
@@ -133,7 +133,7 @@
 <span class="kw">impl</span> <span class="ident">Spanned</span> <span class="kw">for</span> <span class="ident">BytePos</span> {
     <span class="doccomment">/// Creates a new single-byte span.</span>
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
+    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
         <span class="ident">Span::new</span>(<span class="kw-2">*</span><span class="self">self</span>, <span class="kw-2">*</span><span class="self">self</span>, <span class="ident">Default::default</span>())
     }
 }
@@ -142,10 +142,10 @@
 <span class="kw">where</span>
     <span class="ident">S</span>: <span class="ident">Spanned</span>,
 {
-    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
+    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">s</span>.<span class="ident">span</span>(),
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DUMMY_SP</span>,
+            <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">span</span>(),
+            <span class="prelude-val">None</span> =&gt; <span class="ident">DUMMY_SP</span>,
         }
     }
 }
@@ -154,7 +154,7 @@
 <span class="kw">where</span>
     <span class="ident">S</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Spanned</span>,
 {
-    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
+    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
         <span class="op">&lt;</span><span class="ident">S</span> <span class="kw">as</span> <span class="ident">Spanned</span><span class="op">&gt;</span><span class="ident">::span</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>)
     }
 }
@@ -163,7 +163,7 @@
 <span class="kw">where</span>
     <span class="ident">S</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Spanned</span>,
 {
-    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
+    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
         <span class="op">&lt;</span><span class="ident">S</span> <span class="kw">as</span> <span class="ident">Spanned</span><span class="op">&gt;</span><span class="ident">::span</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>)
     }
 }
@@ -172,7 +172,7 @@
 <span class="kw">where</span>
     <span class="ident">S</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Spanned</span>,
 {
-    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
+    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
         <span class="op">&lt;</span><span class="ident">S</span> <span class="kw">as</span> <span class="ident">Spanned</span><span class="op">&gt;</span><span class="ident">::span</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>)
     }
 }
@@ -181,7 +181,7 @@
 <span class="kw">where</span>
     <span class="ident">S</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Spanned</span>,
 {
-    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
+    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
         <span class="op">&lt;</span><span class="ident">S</span> <span class="kw">as</span> <span class="ident">Spanned</span><span class="op">&gt;</span><span class="ident">::span</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>)
     }
 }
@@ -191,10 +191,10 @@
     <span class="ident">A</span>: <span class="ident">Spanned</span>,
     <span class="ident">B</span>: <span class="ident">Spanned</span>,
 {
-    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
+    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">::either::Either::Left</span>(<span class="kw-2">ref</span> <span class="ident">n</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">n</span>.<span class="ident">span</span>(),
-            <span class="ident">::either::Either::Right</span>(<span class="kw-2">ref</span> <span class="ident">n</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">n</span>.<span class="ident">span</span>(),
+            <span class="ident">::either::Either::Left</span>(<span class="kw-2">ref</span> <span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">span</span>(),
+            <span class="ident">::either::Either::Right</span>(<span class="kw-2">ref</span> <span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">span</span>(),
         }
     }
 }

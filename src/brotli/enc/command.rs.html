@@ -382,7 +382,7 @@
   <span class="kw">pub</span> <span class="ident">dist_prefix_</span>: <span class="ident">u16</span>,
 }
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Command</span> {
-  <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Command</span> {
+  <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">Command</span> {
     <span class="ident">Command</span> {
       <span class="ident">insert_len_</span>: <span class="number">0</span>,
       <span class="ident">copy_len_</span>: <span class="number">0</span>,
@@ -392,14 +392,14 @@
     }
   }
 }
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">CommandCopyLen</span>(<span class="ident">xself</span>: <span class="kw-2">&amp;</span><span class="ident">Command</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">CommandCopyLen</span>(<span class="ident">xself</span>: <span class="kw-2">&amp;</span><span class="ident">Command</span>) -&gt; <span class="ident">u32</span> {
   (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">copy_len_</span> <span class="op">&amp;</span> <span class="number">0x1ffffffi32</span> <span class="kw">as</span> (<span class="ident">u32</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">CommandDistanceContext</span>(<span class="ident">xself</span>: <span class="kw-2">&amp;</span><span class="ident">Command</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">CommandDistanceContext</span>(<span class="ident">xself</span>: <span class="kw-2">&amp;</span><span class="ident">Command</span>) -&gt; <span class="ident">u32</span> {
   <span class="kw">let</span> <span class="ident">r</span>: <span class="ident">u32</span> <span class="op">=</span> ((<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">cmd_prefix_</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">6i32</span>) <span class="kw">as</span> (<span class="ident">u32</span>);
   <span class="kw">let</span> <span class="ident">c</span>: <span class="ident">u32</span> <span class="op">=</span> ((<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">cmd_prefix_</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">&amp;</span> <span class="number">7i32</span>) <span class="kw">as</span> (<span class="ident">u32</span>);
-  <span class="kw">if</span> (<span class="ident">r</span> <span class="op">=</span><span class="op">=</span> <span class="number">0i32</span> <span class="kw">as</span> (<span class="ident">u32</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">r</span> <span class="op">=</span><span class="op">=</span> <span class="number">2i32</span> <span class="kw">as</span> (<span class="ident">u32</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">r</span> <span class="op">=</span><span class="op">=</span> <span class="number">4i32</span> <span class="kw">as</span> (<span class="ident">u32</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">r</span> <span class="op">=</span><span class="op">=</span> <span class="number">7i32</span> <span class="kw">as</span> (<span class="ident">u32</span>)) <span class="op">&amp;&amp;</span>
+  <span class="kw">if</span> (<span class="ident">r</span> <span class="op">==</span> <span class="number">0i32</span> <span class="kw">as</span> (<span class="ident">u32</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">r</span> <span class="op">==</span> <span class="number">2i32</span> <span class="kw">as</span> (<span class="ident">u32</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">r</span> <span class="op">==</span> <span class="number">4i32</span> <span class="kw">as</span> (<span class="ident">u32</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">r</span> <span class="op">==</span> <span class="number">7i32</span> <span class="kw">as</span> (<span class="ident">u32</span>)) <span class="op">&amp;&amp;</span>
      (<span class="ident">c</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">2i32</span> <span class="kw">as</span> (<span class="ident">u32</span>)) {
     <span class="ident">c</span>
   } <span class="kw">else</span> {
@@ -408,22 +408,22 @@
 }
 
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ComputeDistanceCode</span>(<span class="ident">distance</span>: <span class="ident">usize</span>, <span class="ident">max_distance</span>: <span class="ident">usize</span>, <span class="ident">dist_cache</span>: <span class="kw-2">&amp;</span>[<span class="ident">i32</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ComputeDistanceCode</span>(<span class="ident">distance</span>: <span class="ident">usize</span>, <span class="ident">max_distance</span>: <span class="ident">usize</span>, <span class="ident">dist_cache</span>: <span class="kw-2">&amp;</span>[<span class="ident">i32</span>]) -&gt; <span class="ident">usize</span> {
   <span class="kw">if</span> <span class="ident">distance</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">max_distance</span> {
     <span class="kw">let</span> <span class="ident">distance_plus_3</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">distance</span>.<span class="ident">wrapping_add</span>(<span class="number">3usize</span>);
     <span class="kw">let</span> <span class="ident">offset0</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">distance_plus_3</span>.<span class="ident">wrapping_sub</span>(<span class="ident">dist_cache</span>[(<span class="number">0usize</span>)] <span class="kw">as</span> (<span class="ident">usize</span>));
     <span class="kw">let</span> <span class="ident">offset1</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">distance_plus_3</span>.<span class="ident">wrapping_sub</span>(<span class="ident">dist_cache</span>[(<span class="number">1usize</span>)] <span class="kw">as</span> (<span class="ident">usize</span>));
-    <span class="kw">if</span> <span class="ident">distance</span> <span class="op">=</span><span class="op">=</span> <span class="ident">dist_cache</span>[(<span class="number">0usize</span>)] <span class="kw">as</span> (<span class="ident">usize</span>) {
+    <span class="kw">if</span> <span class="ident">distance</span> <span class="op">==</span> <span class="ident">dist_cache</span>[(<span class="number">0usize</span>)] <span class="kw">as</span> (<span class="ident">usize</span>) {
       <span class="kw">return</span> <span class="number">0usize</span>;
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">distance</span> <span class="op">=</span><span class="op">=</span> <span class="ident">dist_cache</span>[(<span class="number">1usize</span>)] <span class="kw">as</span> (<span class="ident">usize</span>) {
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">distance</span> <span class="op">==</span> <span class="ident">dist_cache</span>[(<span class="number">1usize</span>)] <span class="kw">as</span> (<span class="ident">usize</span>) {
       <span class="kw">return</span> <span class="number">1usize</span>;
     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">offset0</span> <span class="op">&lt;</span> <span class="number">7usize</span> {
       <span class="kw">return</span> (<span class="number">0x9750468i32</span> <span class="op">&gt;</span><span class="op">&gt;</span> (<span class="number">4usize</span>).<span class="ident">wrapping_mul</span>(<span class="ident">offset0</span>) <span class="op">&amp;</span> <span class="number">0xfi32</span>) <span class="kw">as</span> (<span class="ident">usize</span>);
     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">offset1</span> <span class="op">&lt;</span> <span class="number">7usize</span> {
       <span class="kw">return</span> (<span class="number">0xfdb1acei32</span> <span class="op">&gt;</span><span class="op">&gt;</span> (<span class="number">4usize</span>).<span class="ident">wrapping_mul</span>(<span class="ident">offset1</span>) <span class="op">&amp;</span> <span class="number">0xfi32</span>) <span class="kw">as</span> (<span class="ident">usize</span>);
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">distance</span> <span class="op">=</span><span class="op">=</span> <span class="ident">dist_cache</span>[(<span class="number">2usize</span>)] <span class="kw">as</span> (<span class="ident">usize</span>) {
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">distance</span> <span class="op">==</span> <span class="ident">dist_cache</span>[(<span class="number">2usize</span>)] <span class="kw">as</span> (<span class="ident">usize</span>) {
       <span class="kw">return</span> <span class="number">2usize</span>;
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">distance</span> <span class="op">=</span><span class="op">=</span> <span class="ident">dist_cache</span>[(<span class="number">3usize</span>)] <span class="kw">as</span> (<span class="ident">usize</span>) {
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">distance</span> <span class="op">==</span> <span class="ident">dist_cache</span>[(<span class="number">3usize</span>)] <span class="kw">as</span> (<span class="ident">usize</span>) {
       <span class="kw">return</span> <span class="number">3usize</span>;
     }
   }
@@ -431,7 +431,7 @@
 }
 
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">GetInsertLengthCode</span>(<span class="ident">insertlen</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u16</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">GetInsertLengthCode</span>(<span class="ident">insertlen</span>: <span class="ident">usize</span>) -&gt; <span class="ident">u16</span> {
   <span class="kw">if</span> <span class="ident">insertlen</span> <span class="op">&lt;</span> <span class="number">6usize</span> {
     <span class="ident">insertlen</span> <span class="kw">as</span> (<span class="ident">u16</span>)
   } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">insertlen</span> <span class="op">&lt;</span> <span class="number">130usize</span> {
@@ -451,7 +451,7 @@
 }
 
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">GetCopyLengthCode</span>(<span class="ident">copylen</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u16</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">GetCopyLengthCode</span>(<span class="ident">copylen</span>: <span class="ident">usize</span>) -&gt; <span class="ident">u16</span> {
   <span class="kw">if</span> <span class="ident">copylen</span> <span class="op">&lt;</span> <span class="number">10usize</span> {
     <span class="ident">copylen</span>.<span class="ident">wrapping_sub</span>(<span class="number">2usize</span>) <span class="kw">as</span> (<span class="ident">u16</span>)
   } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">copylen</span> <span class="op">&lt;</span> <span class="number">134usize</span> {
@@ -467,7 +467,7 @@
 }
 
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">CombineLengthCodes</span>(<span class="ident">inscode</span>: <span class="ident">u16</span>, <span class="ident">copycode</span>: <span class="ident">u16</span>, <span class="ident">use_last_distance</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u16</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">CombineLengthCodes</span>(<span class="ident">inscode</span>: <span class="ident">u16</span>, <span class="ident">copycode</span>: <span class="ident">u16</span>, <span class="ident">use_last_distance</span>: <span class="ident">i32</span>) -&gt; <span class="ident">u16</span> {
   <span class="kw">let</span> <span class="ident">bits64</span>: <span class="ident">u16</span> <span class="op">=</span> (<span class="ident">copycode</span> <span class="kw">as</span> (<span class="ident">u32</span>) <span class="op">&amp;</span> <span class="number">0x7u32</span> <span class="op">|</span> (<span class="ident">inscode</span> <span class="kw">as</span> (<span class="ident">u32</span>) <span class="op">&amp;</span> <span class="number">0x7u32</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">3i32</span>) <span class="kw">as</span> (<span class="ident">u16</span>);
   <span class="kw">if</span> <span class="ident">use_last_distance</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> (<span class="ident">inscode</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">&lt;</span> <span class="number">8i32</span>) <span class="op">&amp;&amp;</span> (<span class="ident">copycode</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">&lt;</span> <span class="number">16i32</span>) {
     <span class="kw">if</span> <span class="ident">copycode</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">&lt;</span> <span class="number">8i32</span> {
@@ -521,7 +521,7 @@
       <span class="comment">//*extra_bits = (nbits &lt;&lt; 24i32 | dist.wrapping_sub(offset) &gt;&gt; postfix_bits) as (u32);</span>
   }
 }
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">CommandRestoreDistanceCode</span>(<span class="ident">xself</span>: <span class="kw-2">&amp;</span><span class="ident">Command</span>, <span class="ident">dist</span>:<span class="kw-2">&amp;</span><span class="ident">BrotliDistanceParams</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">CommandRestoreDistanceCode</span>(<span class="ident">xself</span>: <span class="kw-2">&amp;</span><span class="ident">Command</span>, <span class="ident">dist</span>:<span class="kw-2">&amp;</span><span class="ident">BrotliDistanceParams</span>) -&gt; <span class="ident">u32</span> {
   <span class="kw">if</span> ((<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">dist_prefix_</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">&amp;</span> <span class="number">0x3ff</span>) <span class="op">&lt;</span> <span class="ident">BROTLI_NUM_DISTANCE_SHORT_CODES</span> <span class="kw">as</span> <span class="ident">i32</span> <span class="op">+</span> <span class="ident">dist</span>.<span class="ident">num_direct_distance_codes</span> <span class="kw">as</span> <span class="ident">i32</span> {
     (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">dist_prefix_</span> <span class="kw">as</span> (<span class="ident">u32</span>) <span class="op">&amp;</span> <span class="number">0x3ff</span>
   } <span class="kw">else</span> {
@@ -541,7 +541,7 @@
 
 <span class="comment">// returns which distance code to use ( 0 means none, 1 means last, 2 means penultimate, 3 means the prior to penultimate</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">CommandDistanceIndexAndOffset</span>(<span class="ident">cmd</span>: <span class="kw-2">&amp;</span><span class="ident">Command</span>,
-                                     <span class="ident">dist</span>: <span class="kw-2">&amp;</span><span class="ident">BrotliDistanceParams</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, <span class="ident">isize</span>) {
+                                     <span class="ident">dist</span>: <span class="kw-2">&amp;</span><span class="ident">BrotliDistanceParams</span>) -&gt; (<span class="ident">usize</span>, <span class="ident">isize</span>) {
     <span class="kw">let</span> <span class="ident">n_postfix</span> <span class="op">=</span> <span class="ident">dist</span>.<span class="ident">distance_postfix_bits</span>;
     <span class="kw">let</span> <span class="ident">n_direct</span> <span class="op">=</span> <span class="ident">dist</span>.<span class="ident">num_direct_distance_codes</span>;
     <span class="kw">let</span> <span class="ident">dextra</span> <span class="op">=</span> <span class="ident">cmd</span>.<span class="ident">dist_extra_</span>;
@@ -574,7 +574,7 @@
     <span class="comment">// returns which distance code to use ( 0 means none, 1 means last, 2 means penultimate, 3 means the prior to penultimate</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">helperCommandDistanceIndexAndOffset</span>(<span class="ident">cmd</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="kw">super</span>::Command</span>,
-                                               <span class="ident">dist</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="kw">super</span>::BrotliDistanceParams</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, <span class="ident">isize</span>) {
+                                               <span class="ident">dist</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="kw">super</span>::BrotliDistanceParams</span>) -&gt; (<span class="ident">usize</span>, <span class="ident">isize</span>) {
         
         <span class="kw">let</span> <span class="ident">n_postfix</span> <span class="op">=</span> <span class="ident">dist</span>.<span class="ident">distance_postfix_bits</span>;
         <span class="kw">let</span> <span class="ident">n_direct</span> <span class="op">=</span> <span class="ident">dist</span>.<span class="ident">num_direct_distance_codes</span>;
@@ -660,7 +660,7 @@
                                  <span class="ident">distance_postfix_bits</span>: <span class="ident">u32</span>,
                                  <span class="ident">dist</span>:<span class="kw-2">&amp;</span><span class="ident">BrotliDistanceParams</span>) {
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span>: <span class="ident">usize</span>;
-  <span class="kw">if</span> <span class="ident">num_direct_distance_codes</span> <span class="op">=</span><span class="op">=</span> <span class="number">0u32</span> <span class="op">&amp;&amp;</span> (<span class="ident">distance_postfix_bits</span> <span class="op">=</span><span class="op">=</span> <span class="number">0u32</span>) {
+  <span class="kw">if</span> <span class="ident">num_direct_distance_codes</span> <span class="op">==</span> <span class="number">0u32</span> <span class="op">&amp;&amp;</span> (<span class="ident">distance_postfix_bits</span> <span class="op">==</span> <span class="number">0u32</span>) {
     <span class="kw">return</span>;
   }
   <span class="ident">i</span> <span class="op">=</span> <span class="number">0usize</span>;
@@ -697,7 +697,7 @@
                            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">xself</span>.<span class="ident">dist_extra_</span>);
   <span class="ident">GetLengthCode</span>(<span class="ident">insertlen</span>,
                 <span class="ident">copylen_code</span>,
-                <span class="kw">if</span> <span class="op">!</span><span class="op">!</span>((<span class="ident">xself</span>.<span class="ident">dist_prefix_</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">&amp;</span> <span class="number">0x3ff</span>) <span class="op">=</span><span class="op">=</span> <span class="number">0i32</span>) {
+                <span class="kw">if</span> <span class="op">!</span><span class="op">!</span>((<span class="ident">xself</span>.<span class="ident">dist_prefix_</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">&amp;</span> <span class="number">0x3ff</span>) <span class="op">==</span> <span class="number">0i32</span>) {
                   <span class="number">1i32</span>
                 } <span class="kw">else</span> {
                   <span class="number">0i32</span>
@@ -709,7 +709,7 @@
                   <span class="ident">copylen</span>: <span class="ident">usize</span>,
                   <span class="ident">copylen_code</span>: <span class="ident">usize</span>,
                   <span class="ident">distance_code</span>: <span class="ident">usize</span>)
-                  <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Command</span> {
+                  -&gt; <span class="ident">Command</span> {
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">xself</span>: <span class="ident">Command</span> <span class="op">=</span> <span class="ident">Command</span> {
     <span class="ident">insert_len_</span>: <span class="ident">insertlen</span> <span class="kw">as</span> (<span class="ident">u32</span>),
     <span class="ident">copy_len_</span>: (<span class="ident">copylen</span> <span class="op">|</span> ((<span class="ident">copylen_code</span> <span class="op">^</span> <span class="ident">copylen</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">25</span>)) <span class="kw">as</span> (<span class="ident">u32</span>),

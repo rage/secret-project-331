@@ -4550,23 +4550,23 @@
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">floatX</span> <span class="op">=</span> <span class="ident">f32</span>;
 
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">brotli_max_uint32_t</span>(<span class="ident">a</span>: <span class="ident">u32</span>, <span class="ident">b</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">brotli_max_uint32_t</span>(<span class="ident">a</span>: <span class="ident">u32</span>, <span class="ident">b</span>: <span class="ident">u32</span>) -&gt; <span class="ident">u32</span> {
     <span class="ident">core::cmp::max</span>(<span class="ident">a</span>, <span class="ident">b</span>)
 }
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">brotli_min_uint32_t</span>(<span class="ident">a</span>: <span class="ident">u32</span>, <span class="ident">b</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">brotli_min_uint32_t</span>(<span class="ident">a</span>: <span class="ident">u32</span>, <span class="ident">b</span>: <span class="ident">u32</span>) -&gt; <span class="ident">u32</span> {
     <span class="ident">core::cmp::min</span>(<span class="ident">a</span>, <span class="ident">b</span>)
 }
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">brotli_min_size_t</span>(<span class="ident">a</span>: <span class="ident">usize</span>, <span class="ident">b</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">brotli_min_size_t</span>(<span class="ident">a</span>: <span class="ident">usize</span>, <span class="ident">b</span>: <span class="ident">usize</span>) -&gt; <span class="ident">usize</span> {
   <span class="ident">core::cmp::min</span>(<span class="ident">a</span>,<span class="ident">b</span>)
 }
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">brotli_max_size_t</span>(<span class="ident">a</span>: <span class="ident">usize</span>, <span class="ident">b</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">brotli_max_size_t</span>(<span class="ident">a</span>: <span class="ident">usize</span>, <span class="ident">b</span>: <span class="ident">usize</span>) -&gt; <span class="ident">usize</span> {
   <span class="ident">core::cmp::max</span>(<span class="ident">a</span>,<span class="ident">b</span>)
 }
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">brotli_max_uint8_t</span>(<span class="ident">a</span>: <span class="ident">u8</span>, <span class="ident">b</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u8</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">brotli_max_uint8_t</span>(<span class="ident">a</span>: <span class="ident">u8</span>, <span class="ident">b</span>: <span class="ident">u8</span>) -&gt; <span class="ident">u8</span> {
     <span class="ident">core::cmp::max</span>(<span class="ident">a</span>,<span class="ident">b</span>)
 }
 
@@ -4830,13 +4830,13 @@
   <span class="number">7.9943534368588578</span>];
 
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">FastLog2u16</span>(<span class="ident">v</span>: <span class="ident">u16</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">floatX</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">FastLog2u16</span>(<span class="ident">v</span>: <span class="ident">u16</span>) -&gt; <span class="ident">floatX</span> {
     <span class="ident">log64k</span>[<span class="ident">v</span> <span class="kw">as</span> <span class="ident">usize</span>]
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">FastLog2</span>(<span class="ident">v</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">floatX</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">FastLog2</span>(<span class="ident">v</span>: <span class="ident">u64</span>) -&gt; <span class="ident">floatX</span> {
     <span class="kw">if</span> <span class="ident">v</span> <span class="op">&lt;</span> <span class="number">256</span> {
         <span class="kw">return</span> <span class="ident">kLog2Table</span>[<span class="ident">v</span> <span class="kw">as</span> <span class="ident">usize</span>] <span class="kw">as</span> <span class="ident">floatX</span>;
     }
@@ -4845,7 +4845,7 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))]</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">FastLog2</span>(<span class="ident">v</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">floatX</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">FastLog2</span>(<span class="ident">v</span>: <span class="ident">u64</span>) -&gt; <span class="ident">floatX</span> {
   <span class="kw">if</span> <span class="ident">v</span> <span class="op">&lt;</span> <span class="number">256</span> {
     <span class="kw">return</span> <span class="ident">kLog2Table</span>[<span class="ident">v</span> <span class="kw">as</span> <span class="ident">usize</span>] <span class="kw">as</span> <span class="ident">floatX</span>;
   }
@@ -4854,7 +4854,7 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">FastLog2f64</span>(<span class="ident">v</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">floatX</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">FastLog2f64</span>(<span class="ident">v</span>: <span class="ident">u64</span>) -&gt; <span class="ident">floatX</span> {
     <span class="kw">if</span> <span class="ident">v</span> <span class="op">&lt;</span> <span class="number">256</span> {
         <span class="kw">return</span> <span class="ident">kLog2Table</span>[<span class="ident">v</span> <span class="kw">as</span> <span class="ident">usize</span>] <span class="kw">as</span> <span class="ident">floatX</span>;
     }
@@ -4863,26 +4863,26 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))]</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">FastLog2f64</span>(<span class="ident">v</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">floatX</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">FastLog2f64</span>(<span class="ident">v</span>: <span class="ident">u64</span>) -&gt; <span class="ident">floatX</span> {
     <span class="ident">FastLog2</span>(<span class="ident">v</span>) <span class="kw">as</span> <span class="ident">floatX</span>
 }
 
 <span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">FastLog2u64</span>(<span class="ident">v</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">floatX</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">FastLog2u64</span>(<span class="ident">v</span>: <span class="ident">u64</span>) -&gt; <span class="ident">floatX</span> {
   <span class="kw">let</span> <span class="ident">bsr_8</span> <span class="op">=</span> <span class="number">56i8</span> <span class="op">-</span> <span class="ident">v</span>.<span class="ident">leading_zeros</span>() <span class="kw">as</span> <span class="ident">i8</span>;
   <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> <span class="ident">bsr_8</span> <span class="op">&amp;</span> <span class="op">-</span>((<span class="ident">bsr_8</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0</span>) <span class="kw">as</span> <span class="ident">i8</span>);
   <span class="ident">offset</span> <span class="kw">as</span> <span class="ident">floatX</span> <span class="op">+</span> <span class="ident">kLog2Table</span>[(<span class="ident">v</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">offset</span>) <span class="kw">as</span> <span class="ident">u8</span> <span class="kw">as</span> <span class="ident">usize</span>] <span class="kw">as</span> (<span class="ident">floatX</span>)
 }
 
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">FastLog2u32</span>(<span class="ident">v</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">floatX</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">FastLog2u32</span>(<span class="ident">v</span>: <span class="ident">i32</span>) -&gt; <span class="ident">floatX</span> {
   <span class="kw">let</span> <span class="ident">bsr_8</span> <span class="op">=</span> <span class="number">24i8</span> <span class="op">-</span> <span class="ident">v</span>.<span class="ident">leading_zeros</span>() <span class="kw">as</span> <span class="ident">i8</span>;
   <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> <span class="ident">bsr_8</span> <span class="op">&amp;</span> <span class="op">-</span>((<span class="ident">bsr_8</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0</span>) <span class="kw">as</span> <span class="ident">i8</span>);
   <span class="ident">offset</span> <span class="kw">as</span> <span class="ident">floatX</span> <span class="op">+</span> <span class="ident">kLog2Table</span>[(<span class="ident">v</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">offset</span>) <span class="kw">as</span> <span class="ident">u8</span> <span class="kw">as</span> <span class="ident">usize</span>] <span class="kw">as</span> (<span class="ident">floatX</span>)
 }
 
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">xFastLog2u16</span>(<span class="ident">v</span>: <span class="ident">u16</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">floatX</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">xFastLog2u16</span>(<span class="ident">v</span>: <span class="ident">u16</span>) -&gt; <span class="ident">floatX</span> {
   <span class="kw">let</span> <span class="ident">bsr_8</span> <span class="op">=</span> <span class="number">8i8</span> <span class="op">-</span> <span class="ident">v</span>.<span class="ident">leading_zeros</span>() <span class="kw">as</span> <span class="ident">i8</span>;
   <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> (<span class="ident">bsr_8</span> <span class="op">&amp;</span> <span class="op">-</span>((<span class="ident">bsr_8</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0</span>) <span class="kw">as</span> <span class="ident">i8</span>));
   <span class="ident">offset</span> <span class="kw">as</span> <span class="ident">floatX</span> <span class="op">+</span> <span class="ident">kLog2Table</span>[(<span class="ident">v</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">offset</span>) <span class="kw">as</span> <span class="ident">u8</span> <span class="kw">as</span> <span class="ident">usize</span>] <span class="kw">as</span> (<span class="ident">floatX</span>)
@@ -4890,14 +4890,14 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">FastPow2</span>(<span class="ident">v</span>: <span class="ident"><span class="kw">super</span>::util::floatX</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">super</span>::util::floatX</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">FastPow2</span>(<span class="ident">v</span>: <span class="ident"><span class="kw">super</span>::util::floatX</span>) -&gt; <span class="ident"><span class="kw">super</span>::util::floatX</span> {
   <span class="kw">return</span> (<span class="number">2</span> <span class="kw">as</span> <span class="ident"><span class="kw">super</span>::util::floatX</span>).<span class="ident">powf</span>(<span class="ident">v</span>);
 }
 
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))]</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">FastPow2</span>(<span class="ident">v</span>: <span class="ident"><span class="kw">super</span>::util::floatX</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">super</span>::util::floatX</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">FastPow2</span>(<span class="ident">v</span>: <span class="ident"><span class="kw">super</span>::util::floatX</span>) -&gt; <span class="ident"><span class="kw">super</span>::util::floatX</span> {
    <span class="macro">assert!</span>(<span class="ident">v</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0</span> <span class="kw">as</span> <span class="ident"><span class="kw">super</span>::util::floatX</span>);
    <span class="kw">let</span> <span class="ident">round_down</span> <span class="op">=</span> <span class="ident">v</span> <span class="kw">as</span> <span class="ident">i32</span>;
    <span class="kw">let</span> <span class="ident">remainder</span> <span class="op">=</span> <span class="ident">v</span> <span class="op">-</span> <span class="ident">round_down</span> <span class="kw">as</span> <span class="ident"><span class="kw">super</span>::util::floatX</span>;
@@ -4917,12 +4917,12 @@
 }
 
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">Log2FloorNonZero</span>(<span class="ident">v</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">Log2FloorNonZero</span>(<span class="ident">v</span>: <span class="ident">u64</span>) -&gt; <span class="ident">u32</span> {
   (<span class="number">63u32</span> <span class="op">^</span> <span class="ident">v</span>.<span class="ident">leading_zeros</span>()) <span class="kw">as</span> <span class="ident">u32</span>
 }
 
 <span class="kw">mod</span> <span class="ident">test</span> {
-  <span class="kw">fn</span> <span class="ident">baseline_log2_floor_non_zero</span>(<span class="kw-2">mut</span> <span class="ident">n</span>:<span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+  <span class="kw">fn</span> <span class="ident">baseline_log2_floor_non_zero</span>(<span class="kw-2">mut</span> <span class="ident">n</span>:<span class="ident">u64</span>) -&gt; <span class="ident">u32</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0u32</span>;
     <span class="kw">while</span> {
         <span class="ident">n</span> <span class="op">=</span> <span class="ident">n</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">1i32</span>;

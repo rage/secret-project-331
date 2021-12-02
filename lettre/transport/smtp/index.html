@@ -9,7 +9,7 @@ for sanity and RFC compliance checks.</p>
 <li>AUTH (<a href="https://tools.ietf.org/html/rfc4954">RFC 4954</a>) with PLAIN, LOGIN and XOAUTH2 mechanisms</li>
 <li>STARTTLS (<a href="https://tools.ietf.org/html/rfc2487">RFC 2487</a>)</li>
 </ul>
-<h4 id="smtp-transport" class="section-header"><a href="#smtp-transport">SMTP Transport</a></h4>
+<h5 id="smtp-transport" class="section-header"><a href="#smtp-transport">SMTP Transport</a></h5>
 <p>This transport uses the SMTP protocol to send emails over the network (locally or remotely).</p>
 <p>It is designed to be:</p>
 <ul>
@@ -20,7 +20,7 @@ for sanity and RFC compliance checks.</p>
 <p>This client is designed to send emails to a relay server, and should <em>not</em> be used to send
 emails directly to the destination server.</p>
 <p>The relay server can be the local email server, a specific host or a third-party service.</p>
-<h4 id="simple-example" class="section-header"><a href="#simple-example">Simple example</a></h4>
+<h5 id="simple-example" class="section-header"><a href="#simple-example">Simple example</a></h5>
 <p>This is the most basic example of usage:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">lettre</span>::{<span class="ident">Message</span>, <span class="ident">Transport</span>, <span class="ident">SmtpTransport</span>};
@@ -38,7 +38,7 @@ emails directly to the destination server.</p>
 <span class="comment">// Send the email via remote relay</span>
 <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">sender</span>.<span class="ident">send</span>(<span class="kw-2">&amp;</span><span class="ident">email</span>);
 <span class="macro">assert!</span>(<span class="ident">result</span>.<span class="ident">is_ok</span>());</code></pre></div>
-<h4 id="authentication" class="section-header"><a href="#authentication">Authentication</a></h4>
+<h5 id="authentication" class="section-header"><a href="#authentication">Authentication</a></h5>
 <p>Example with authentication and connection pool:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">lettre</span>::{<span class="ident">Message</span>, <span class="ident">Transport</span>, <span class="ident">SmtpTransport</span>, <span class="ident">transport::smtp</span>::{<span class="ident">PoolConfig</span>, <span class="ident">authentication</span>::{<span class="ident">Credentials</span>, <span class="ident">Mechanism</span>}}};
@@ -88,22 +88,22 @@ emails directly to the destination server.</p>
 <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">sender</span>.<span class="ident">send</span>(<span class="kw-2">&amp;</span><span class="ident">email</span>);
 <span class="macro">assert!</span>(<span class="ident">result</span>.<span class="ident">is_ok</span>());</code></pre></div>
 </div></details><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="mod" href="authentication/index.html" title="lettre::transport::smtp::authentication mod">authentication</a></div><div class="item-right docblock-short"><p>Provides limited SASL authentication mechanisms</p>
-</div><div class="item-left module-item"><a class="mod" href="client/index.html" title="lettre::transport::smtp::client mod">client</a></div><div class="item-right docblock-short"><p>SMTP client</p>
-</div><div class="item-left module-item"><a class="mod" href="commands/index.html" title="lettre::transport::smtp::commands mod">commands</a></div><div class="item-right docblock-short"><p>SMTP commands</p>
-</div><div class="item-left module-item"><a class="mod" href="extension/index.html" title="lettre::transport::smtp::extension mod">extension</a></div><div class="item-right docblock-short"><p>ESMTP features</p>
-</div><div class="item-left module-item"><a class="mod" href="response/index.html" title="lettre::transport::smtp::response mod">response</a></div><div class="item-right docblock-short"><p>SMTP response, containing a mandatory return code and an optional text
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="mod" href="authentication/index.html" title="lettre::transport::smtp::authentication mod">authentication</a></div><div class="item-right docblock-short"><p>Provides limited SASL authentication mechanisms</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="client/index.html" title="lettre::transport::smtp::client mod">client</a></div><div class="item-right docblock-short"><p>SMTP client</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="commands/index.html" title="lettre::transport::smtp::commands mod">commands</a></div><div class="item-right docblock-short"><p>SMTP commands</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="extension/index.html" title="lettre::transport::smtp::extension mod">extension</a></div><div class="item-right docblock-short"><p>ESMTP features</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="response/index.html" title="lettre::transport::smtp::response mod">response</a></div><div class="item-right docblock-short"><p>SMTP response, containing a mandatory return code and an optional text
 message</p>
-</div></div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.Error.html" title="lettre::transport::smtp::Error struct">Error</a></div><div class="item-right docblock-short"><p>The Errors that may occur when sending an email over SMTP</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.PoolConfig.html" title="lettre::transport::smtp::PoolConfig struct">PoolConfig</a></div><div class="item-right docblock-short"><p>Configuration for a connection pool</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.SmtpTransport.html" title="lettre::transport::smtp::SmtpTransport struct">SmtpTransport</a></div><div class="item-right docblock-short"><p>Sends emails using the SMTP protocol</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.SmtpTransportBuilder.html" title="lettre::transport::smtp::SmtpTransportBuilder struct">SmtpTransportBuilder</a></div><div class="item-right docblock-short"><p>Contains client configuration.
+</div></div></div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Error.html" title="lettre::transport::smtp::Error struct">Error</a></div><div class="item-right docblock-short"><p>The Errors that may occur when sending an email over SMTP</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.PoolConfig.html" title="lettre::transport::smtp::PoolConfig struct">PoolConfig</a></div><div class="item-right docblock-short"><p>Configuration for a connection pool</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.SmtpTransport.html" title="lettre::transport::smtp::SmtpTransport struct">SmtpTransport</a></div><div class="item-right docblock-short"><p>Sends emails using the SMTP protocol</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.SmtpTransportBuilder.html" title="lettre::transport::smtp::SmtpTransportBuilder struct">SmtpTransportBuilder</a></div><div class="item-right docblock-short"><p>Contains client configuration.
 Instances of this struct can be created using functions of <a href="struct.SmtpTransport.html" title="SmtpTransport"><code>SmtpTransport</code></a>.</p>
-</div></div><h2 id="constants" class="section-header"><a href="#constants">Constants</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="constant" href="constant.SMTP_PORT.html" title="lettre::transport::smtp::SMTP_PORT constant">SMTP_PORT</a></div><div class="item-right docblock-short"><p>Default smtp port</p>
-</div><div class="item-left module-item"><a class="constant" href="constant.SUBMISSIONS_PORT.html" title="lettre::transport::smtp::SUBMISSIONS_PORT constant">SUBMISSIONS_PORT</a></div><div class="item-right docblock-short"><p>Default submission over TLS port</p>
-</div><div class="item-left module-item"><a class="constant" href="constant.SUBMISSION_PORT.html" title="lettre::transport::smtp::SUBMISSION_PORT constant">SUBMISSION_PORT</a></div><div class="item-right docblock-short"><p>Default submission port</p>
-</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="lettre" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
+</div></div></div><h2 id="constants" class="section-header"><a href="#constants">Constants</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="constant" href="constant.SMTP_PORT.html" title="lettre::transport::smtp::SMTP_PORT constant">SMTP_PORT</a></div><div class="item-right docblock-short"><p>Default smtp port</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="constant" href="constant.SUBMISSIONS_PORT.html" title="lettre::transport::smtp::SUBMISSIONS_PORT constant">SUBMISSIONS_PORT</a></div><div class="item-right docblock-short"><p>Default submission over TLS port</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="constant" href="constant.SUBMISSION_PORT.html" title="lettre::transport::smtp::SUBMISSION_PORT constant">SUBMISSION_PORT</a></div><div class="item-right docblock-short"><p>Default submission port</p>
+</div></div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="lettre" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script>
 </body></html>

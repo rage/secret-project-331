@@ -564,19 +564,19 @@ $ cargo run --example cookbook-read-serde &lt; examples/data/smallpop.csv
 }
 
 <span class="kw">impl</span> <span class="ident">QuoteStyle</span> {
-    <span class="kw">fn</span> <span class="ident">to_core</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">csv_core::QuoteStyle</span> {
+    <span class="kw">fn</span> <span class="ident">to_core</span>(<span class="self">self</span>) -&gt; <span class="ident">csv_core::QuoteStyle</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">QuoteStyle::Always</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">csv_core::QuoteStyle::Always</span>,
-            <span class="ident">QuoteStyle::Necessary</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">csv_core::QuoteStyle::Necessary</span>,
-            <span class="ident">QuoteStyle::NonNumeric</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">csv_core::QuoteStyle::NonNumeric</span>,
-            <span class="ident">QuoteStyle::Never</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">csv_core::QuoteStyle::Never</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="ident">QuoteStyle::Always</span> =&gt; <span class="ident">csv_core::QuoteStyle::Always</span>,
+            <span class="ident">QuoteStyle::Necessary</span> =&gt; <span class="ident">csv_core::QuoteStyle::Necessary</span>,
+            <span class="ident">QuoteStyle::NonNumeric</span> =&gt; <span class="ident">csv_core::QuoteStyle::NonNumeric</span>,
+            <span class="ident">QuoteStyle::Never</span> =&gt; <span class="ident">csv_core::QuoteStyle::Never</span>,
+            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">QuoteStyle</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">QuoteStyle</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">QuoteStyle</span> {
         <span class="ident">QuoteStyle::Necessary</span>
     }
 }
@@ -602,17 +602,17 @@ $ cargo run --example cookbook-read-serde &lt; examples/data/smallpop.csv
 
 <span class="kw">impl</span> <span class="ident">Terminator</span> {
     <span class="doccomment">/// Convert this to the csv_core type of the same name.</span>
-    <span class="kw">fn</span> <span class="ident">to_core</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">csv_core::Terminator</span> {
+    <span class="kw">fn</span> <span class="ident">to_core</span>(<span class="self">self</span>) -&gt; <span class="ident">csv_core::Terminator</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Terminator::CRLF</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">csv_core::Terminator::CRLF</span>,
-            <span class="ident">Terminator::Any</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">csv_core::Terminator::Any</span>(<span class="ident">b</span>),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="ident">Terminator::CRLF</span> =&gt; <span class="ident">csv_core::Terminator::CRLF</span>,
+            <span class="ident">Terminator::Any</span>(<span class="ident">b</span>) =&gt; <span class="ident">csv_core::Terminator::Any</span>(<span class="ident">b</span>),
+            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Terminator</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Terminator</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">Terminator</span> {
         <span class="ident">Terminator::CRLF</span>
     }
 }
@@ -638,17 +638,17 @@ $ cargo run --example cookbook-read-serde &lt; examples/data/smallpop.csv
 }
 
 <span class="kw">impl</span> <span class="ident">Trim</span> {
-    <span class="kw">fn</span> <span class="ident">should_trim_fields</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">Trim::Fields</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">Trim::All</span>
+    <span class="kw">fn</span> <span class="ident">should_trim_fields</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">Trim::Fields</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">Trim::All</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">should_trim_headers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">Trim::Headers</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">Trim::All</span>
+    <span class="kw">fn</span> <span class="ident">should_trim_headers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">Trim::Headers</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">Trim::All</span>
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Trim</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Trim</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">Trim</span> {
         <span class="ident">Trim::None</span>
     }
 }
@@ -709,7 +709,7 @@ $ cargo run --example cookbook-read-serde &lt; examples/data/smallpop.csv
 <span class="doccomment">///     }</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">invalid_option</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, <span class="ident">D</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">de</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">result::Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">D::Error</span><span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">invalid_option</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, <span class="ident">D</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">de</span>: <span class="ident">D</span>) -&gt; <span class="ident">result::Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">D::Error</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">D</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
     <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>: <span class="ident">Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,

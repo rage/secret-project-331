@@ -29,7 +29,7 @@
 <span id="29">29</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::util</span>::<span class="kw-2">*</span>;
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">crc16_table</span>(<span class="ident">poly</span>: <span class="ident">u16</span>, <span class="ident">reflect</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> [<span class="ident">u16</span>; <span class="number">256</span>] {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">crc16_table</span>(<span class="ident">poly</span>: <span class="ident">u16</span>, <span class="ident">reflect</span>: <span class="ident">bool</span>) -&gt; [<span class="ident">u16</span>; <span class="number">256</span>] {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">table</span> <span class="op">=</span> [<span class="number">0u16</span>; <span class="number">256</span>];
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="number">0</span>;
     <span class="kw">while</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="ident">table</span>.<span class="ident">len</span>() {
@@ -38,7 +38,7 @@
     }
     <span class="ident">table</span>
 }
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">crc32_table</span>(<span class="ident">poly</span>: <span class="ident">u32</span>, <span class="ident">reflect</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> [<span class="ident">u32</span>; <span class="number">256</span>] {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">crc32_table</span>(<span class="ident">poly</span>: <span class="ident">u32</span>, <span class="ident">reflect</span>: <span class="ident">bool</span>) -&gt; [<span class="ident">u32</span>; <span class="number">256</span>] {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">table</span> <span class="op">=</span> [<span class="number">0u32</span>; <span class="number">256</span>];
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="number">0</span>;
     <span class="kw">while</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="ident">table</span>.<span class="ident">len</span>() {
@@ -47,7 +47,7 @@
     }
     <span class="ident">table</span>
 }
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">crc64_table</span>(<span class="ident">poly</span>: <span class="ident">u64</span>, <span class="ident">reflect</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> [<span class="ident">u64</span>; <span class="number">256</span>] {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">crc64_table</span>(<span class="ident">poly</span>: <span class="ident">u64</span>, <span class="ident">reflect</span>: <span class="ident">bool</span>) -&gt; [<span class="ident">u64</span>; <span class="number">256</span>] {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">table</span> <span class="op">=</span> [<span class="number">0u64</span>; <span class="number">256</span>];
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="number">0</span>;
     <span class="kw">while</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="ident">table</span>.<span class="ident">len</span>() {

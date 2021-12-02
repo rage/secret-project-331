@@ -53,7 +53,7 @@
 <span class="kw">use</span> <span class="ident">std::iter::FromIterator</span>;
 <span class="kw">use</span> <span class="ident">syn::DeriveInput</span>;
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">expand_derive_type_encode_decode</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">DeriveInput</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">expand_derive_type_encode_decode</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">DeriveInput</span>) -&gt; <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">encode_tts</span> <span class="op">=</span> <span class="ident">expand_derive_encode</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">decode_tts</span> <span class="op">=</span> <span class="ident">expand_derive_decode</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">type_tts</span> <span class="op">=</span> <span class="ident">expand_derive_type</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
@@ -63,15 +63,15 @@
     <span class="prelude-val">Ok</span>(<span class="ident">combined</span>)
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">rename_all</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">pattern</span>: <span class="ident">RenameAll</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">rename_all</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">pattern</span>: <span class="ident">RenameAll</span>) -&gt; <span class="ident">String</span> {
     <span class="kw">match</span> <span class="ident">pattern</span> {
-        <span class="ident">RenameAll::LowerCase</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">s</span>.<span class="ident">to_lowercase</span>(),
-        <span class="ident">RenameAll::SnakeCase</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">s</span>.<span class="ident">to_snake_case</span>(),
-        <span class="ident">RenameAll::UpperCase</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">s</span>.<span class="ident">to_uppercase</span>(),
-        <span class="ident">RenameAll::ScreamingSnakeCase</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">s</span>.<span class="ident">to_shouty_snake_case</span>(),
-        <span class="ident">RenameAll::KebabCase</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">s</span>.<span class="ident">to_kebab_case</span>(),
-        <span class="ident">RenameAll::CamelCase</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">s</span>.<span class="ident">to_mixed_case</span>(),
-        <span class="ident">RenameAll::PascalCase</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">s</span>.<span class="ident">to_camel_case</span>(),
+        <span class="ident">RenameAll::LowerCase</span> =&gt; <span class="ident">s</span>.<span class="ident">to_lowercase</span>(),
+        <span class="ident">RenameAll::SnakeCase</span> =&gt; <span class="ident">s</span>.<span class="ident">to_snake_case</span>(),
+        <span class="ident">RenameAll::UpperCase</span> =&gt; <span class="ident">s</span>.<span class="ident">to_uppercase</span>(),
+        <span class="ident">RenameAll::ScreamingSnakeCase</span> =&gt; <span class="ident">s</span>.<span class="ident">to_shouty_snake_case</span>(),
+        <span class="ident">RenameAll::KebabCase</span> =&gt; <span class="ident">s</span>.<span class="ident">to_kebab_case</span>(),
+        <span class="ident">RenameAll::CamelCase</span> =&gt; <span class="ident">s</span>.<span class="ident">to_mixed_case</span>(),
+        <span class="ident">RenameAll::PascalCase</span> =&gt; <span class="ident">s</span>.<span class="ident">to_camel_case</span>(),
     }
 }
 </code></pre></div>

@@ -254,30 +254,30 @@
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_extended_value</span>(
     <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ExtendedValue</span>, <span class="ident"><span class="kw">crate</span>::error::ParseError</span><span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ExtendedValue</span>, <span class="ident"><span class="kw">crate</span>::error::ParseError</span><span class="op">&gt;</span> {
     <span class="comment">// Break into three pieces separated by the single-quote character</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">val</span>.<span class="ident">splitn</span>(<span class="number">3</span>, <span class="string">&#39;\&#39;&#39;</span>);
 
     <span class="comment">// Interpret the first piece as a Charset</span>
     <span class="kw">let</span> <span class="ident">charset</span>: <span class="ident">Charset</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">parts</span>.<span class="ident">next</span>() {
-        <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::error::ParseError::Header</span>),
-        <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">FromStr::from_str</span>(<span class="ident">n</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident"><span class="kw">crate</span>::error::ParseError::Header</span>)<span class="question-mark">?</span>,
+        <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::error::ParseError::Header</span>),
+        <span class="prelude-val">Some</span>(<span class="ident">n</span>) =&gt; <span class="ident">FromStr::from_str</span>(<span class="ident">n</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident"><span class="kw">crate</span>::error::ParseError::Header</span>)<span class="question-mark">?</span>,
     };
 
     <span class="comment">// Interpret the second piece as a language tag</span>
     <span class="kw">let</span> <span class="ident">language_tag</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LanguageTag</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">parts</span>.<span class="ident">next</span>() {
-        <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::error::ParseError::Header</span>),
-        <span class="prelude-val">Some</span>(<span class="string">&quot;&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">s</span>.<span class="ident">parse</span>() {
-            <span class="prelude-val">Ok</span>(<span class="ident">lt</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">lt</span>),
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::error::ParseError::Header</span>),
+        <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::error::ParseError::Header</span>),
+        <span class="prelude-val">Some</span>(<span class="string">&quot;&quot;</span>) =&gt; <span class="prelude-val">None</span>,
+        <span class="prelude-val">Some</span>(<span class="ident">s</span>) =&gt; <span class="kw">match</span> <span class="ident">s</span>.<span class="ident">parse</span>() {
+            <span class="prelude-val">Ok</span>(<span class="ident">lt</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">lt</span>),
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::error::ParseError::Header</span>),
         },
     };
 
     <span class="comment">// Interpret the third piece as a sequence of value characters</span>
     <span class="kw">let</span> <span class="ident">value</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">parts</span>.<span class="ident">next</span>() {
-        <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::error::ParseError::Header</span>),
-        <span class="prelude-val">Some</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">percent_encoding::percent_decode</span>(<span class="ident">v</span>.<span class="ident">as_bytes</span>()).<span class="ident">collect</span>(),
+        <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::error::ParseError::Header</span>),
+        <span class="prelude-val">Some</span>(<span class="ident">v</span>) =&gt; <span class="ident">percent_encoding::percent_decode</span>(<span class="ident">v</span>.<span class="ident">as_bytes</span>()).<span class="ident">collect</span>(),
     };
 
     <span class="prelude-val">Ok</span>(<span class="ident">ExtendedValue</span> {
@@ -288,7 +288,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">ExtendedValue</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">let</span> <span class="ident">encoded_value</span> <span class="op">=</span>
             <span class="ident">percent_encoding::percent_encode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">value</span>[..], <span class="ident">HTTP_VALUE</span>);
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">lang</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">language_tag</span> {

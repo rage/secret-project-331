@@ -9,31 +9,31 @@ is likely to be more idiomatic. Use this crate if you want to avoid decoding byt
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">atoi::FromRadix10</span>;
 
 <span class="doccomment">/// Return the parsed integer and remaining slice if successful.</span>
-<span class="kw">fn</span> <span class="ident">atoi_with_rest</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">FromRadix10</span><span class="op">&gt;</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> ((<span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>)) {
+<span class="kw">fn</span> <span class="ident">atoi_with_rest</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">FromRadix10</span><span class="op">&gt;</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; ((<span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>)) {
     <span class="kw">match</span> <span class="ident">I::from_radix_10</span>(<span class="ident">text</span>) {
-        (<span class="kw">_</span>, <span class="number">0</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">text</span>, <span class="prelude-val">None</span>),
-        (<span class="ident">n</span>, <span class="ident">used</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="kw-2">&amp;</span><span class="ident">text</span>[<span class="ident">used</span>..], <span class="prelude-val">Some</span>(<span class="ident">n</span>)),
+        (<span class="kw">_</span>, <span class="number">0</span>) =&gt; (<span class="ident">text</span>, <span class="prelude-val">None</span>),
+        (<span class="ident">n</span>, <span class="ident">used</span>) =&gt; (<span class="kw-2">&amp;</span><span class="ident">text</span>[<span class="ident">used</span>..], <span class="prelude-val">Some</span>(<span class="ident">n</span>)),
     }
 }</code></pre></div>
 </div></details><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="enum" href="enum.Sign.html" title="atoi::Sign enum">Sign</a></div><div class="item-right docblock-short"><p>Representation of a numerical sign</p>
-</div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="trait" href="trait.FromRadix10.html" title="atoi::FromRadix10 trait">FromRadix10</a></div><div class="item-right docblock-short"><p>Types implementing this trait can be parsed from a positional numeral system with radix 10</p>
-</div><div class="item-left module-item"><a class="trait" href="trait.FromRadix10Checked.html" title="atoi::FromRadix10Checked trait">FromRadix10Checked</a></div><div class="item-right docblock-short"><p>Types implementing this trait can be parsed from a positional numeral system with radix 10.
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.Sign.html" title="atoi::Sign enum">Sign</a></div><div class="item-right docblock-short"><p>Representation of a numerical sign</p>
+</div></div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.FromRadix10.html" title="atoi::FromRadix10 trait">FromRadix10</a></div><div class="item-right docblock-short"><p>Types implementing this trait can be parsed from a positional numeral system with radix 10</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.FromRadix10Checked.html" title="atoi::FromRadix10Checked trait">FromRadix10Checked</a></div><div class="item-right docblock-short"><p>Types implementing this trait can be parsed from a positional numeral system with radix 10.
 Acts much like <code>FromRadix10</code>, but performs additional checks for overflows.</p>
-</div><div class="item-left module-item"><a class="trait" href="trait.FromRadix10Signed.html" title="atoi::FromRadix10Signed trait">FromRadix10Signed</a></div><div class="item-right docblock-short"><p>Types implementing this trait can be parsed from a positional numeral system with radix 10. This
+</div></div><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.FromRadix10Signed.html" title="atoi::FromRadix10Signed trait">FromRadix10Signed</a></div><div class="item-right docblock-short"><p>Types implementing this trait can be parsed from a positional numeral system with radix 10. This
 trait allows for an additional sign character (<code>+</code> or <code>-</code>) in front of the actual number in
 order, to allow for parsing negative values.</p>
-</div><div class="item-left module-item"><a class="trait" href="trait.FromRadix10SignedChecked.html" title="atoi::FromRadix10SignedChecked trait">FromRadix10SignedChecked</a></div><div class="item-right docblock-short"><p>Types implementing this trait can be parsed from a positional numeral system with radix 10.
+</div></div><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.FromRadix10SignedChecked.html" title="atoi::FromRadix10SignedChecked trait">FromRadix10SignedChecked</a></div><div class="item-right docblock-short"><p>Types implementing this trait can be parsed from a positional numeral system with radix 10.
 Acts much like <code>FromRadix10Signed</code>, but performs additional checks for overflows.</p>
-</div><div class="item-left module-item"><a class="trait" href="trait.FromRadix16.html" title="atoi::FromRadix16 trait">FromRadix16</a></div><div class="item-right docblock-short"><p>Types implementing this trait can be parsed from a positional numeral system with radix 16</p>
-</div><div class="item-left module-item"><a class="trait" href="trait.FromRadix16Checked.html" title="atoi::FromRadix16Checked trait">FromRadix16Checked</a></div><div class="item-right docblock-short"><p>Types implementing this trait can be parsed from a positional numeral system with radix 16.
+</div></div><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.FromRadix16.html" title="atoi::FromRadix16 trait">FromRadix16</a></div><div class="item-right docblock-short"><p>Types implementing this trait can be parsed from a positional numeral system with radix 16</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.FromRadix16Checked.html" title="atoi::FromRadix16Checked trait">FromRadix16Checked</a></div><div class="item-right docblock-short"><p>Types implementing this trait can be parsed from a positional numeral system with radix 16.
 Acts much like <code>FromRadix16</code>, but performs additional checks for overflows.</p>
-</div><div class="item-left module-item"><a class="trait" href="trait.MaxNumDigits.html" title="atoi::MaxNumDigits trait">MaxNumDigits</a></div><div class="item-right docblock-short"><p>A bounded integer, whose representation can overflow and therefore can only store a maximum
+</div></div><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.MaxNumDigits.html" title="atoi::MaxNumDigits trait">MaxNumDigits</a></div><div class="item-right docblock-short"><p>A bounded integer, whose representation can overflow and therefore can only store a maximum
 number of digits</p>
-</div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="fn" href="fn.ascii_to_digit.html" title="atoi::ascii_to_digit fn">ascii_to_digit</a></div><div class="item-right docblock-short"><p>Converts an ascii character to digit</p>
-</div><div class="item-left module-item"><a class="fn" href="fn.atoi.html" title="atoi::atoi fn">atoi</a></div><div class="item-right docblock-short"><p>Parses an integer from a slice.</p>
-</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="atoi" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+</div></div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.ascii_to_digit.html" title="atoi::ascii_to_digit fn">ascii_to_digit</a></div><div class="item-right docblock-short"><p>Converts an ascii character to digit</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.atoi.html" title="atoi::atoi fn">atoi</a></div><div class="item-right docblock-short"><p>Parses an integer from a slice.</p>
+</div></div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="atoi" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
     <script src="../main.js"></script>
 </body></html>

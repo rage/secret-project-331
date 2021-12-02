@@ -590,20 +590,20 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">NodeOrToken</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unwrap_token</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">TokenAndSpan</span> {
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unwrap_token</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">TokenAndSpan</span> {
     <span class="kw">match</span> <span class="self">self</span> {
-      <span class="ident">NodeOrToken::Token</span>(<span class="ident">token</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">token</span>,
-      <span class="ident">NodeOrToken::Node</span>(<span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(
+      <span class="ident">NodeOrToken::Token</span>(<span class="ident">token</span>) =&gt; <span class="ident">token</span>,
+      <span class="ident">NodeOrToken::Node</span>(<span class="ident">node</span>) =&gt; <span class="macro">panic!</span>(
         <span class="string">&quot;Expected to unwrap a token, but it was a node of kind {}.&quot;</span>,
         <span class="ident">node</span>.<span class="ident">kind</span>()
       ),
     }
   }
 
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unwrap_node</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unwrap_node</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="self">self</span> {
-      <span class="ident">NodeOrToken::Node</span>(<span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">node</span>,
-      <span class="ident">NodeOrToken::Token</span>(<span class="ident">token</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(
+      <span class="ident">NodeOrToken::Node</span>(<span class="ident">node</span>) =&gt; <span class="ident">node</span>,
+      <span class="ident">NodeOrToken::Token</span>(<span class="ident">token</span>) =&gt; <span class="macro">panic!</span>(
         <span class="string">&quot;Expected to unwrap a node, but it was a token with text &#39;{:?}&#39;.&quot;</span>,
         <span class="ident">token</span>.<span class="ident">token</span>
       ),
@@ -612,21 +612,21 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Spanned</span> <span class="kw">for</span> <span class="ident">NodeOrToken</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
+  <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
     <span class="kw">match</span> <span class="self">self</span> {
-      <span class="ident">NodeOrToken::Node</span>(<span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">node</span>.<span class="ident">span</span>(),
-      <span class="ident">NodeOrToken::Token</span>(<span class="ident">token</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">token</span>.<span class="ident">span</span>(),
+      <span class="ident">NodeOrToken::Node</span>(<span class="ident">node</span>) =&gt; <span class="ident">node</span>.<span class="ident">span</span>(),
+      <span class="ident">NodeOrToken::Token</span>(<span class="ident">token</span>) =&gt; <span class="ident">token</span>.<span class="ident">span</span>(),
     }
   }
 }
 
 <span class="doccomment">/// A Module or Script node.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">source_file</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">swc_common::SourceFile</span><span class="op">&gt;</span>;
-  <span class="kw">fn</span> <span class="ident">tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">TokenContainer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>;
-  <span class="kw">fn</span> <span class="ident">comments</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">CommentContainer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+  <span class="kw">fn</span> <span class="ident">source_file</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">swc_common::SourceFile</span><span class="op">&gt;</span>;
+  <span class="kw">fn</span> <span class="ident">tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">TokenContainer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+  <span class="kw">fn</span> <span class="ident">comments</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">CommentContainer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
-  <span class="kw">fn</span> <span class="ident">token_at_index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">TokenAndSpan</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">token_at_index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">TokenAndSpan</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">tokens</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">tokens</span>();
     <span class="kw">let</span> <span class="ident">token_container</span> <span class="op">=</span> <span class="ident">tokens</span>
       .<span class="ident">as_ref</span>()
@@ -636,17 +636,17 @@
 }
 
 <span class="macro">macro_rules!</span> <span class="ident">implement_root_node</span> {
-  (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span>) <span class="op">=</span><span class="op">&gt;</span> {
+  (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span>) =&gt; {
     <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-      <span class="kw">fn</span> <span class="ident">source_file</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">swc_common::SourceFile</span><span class="op">&gt;</span> {
+      <span class="kw">fn</span> <span class="ident">source_file</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">swc_common::SourceFile</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">source_file</span>
       }
 
-      <span class="kw">fn</span> <span class="ident">tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">TokenContainer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+      <span class="kw">fn</span> <span class="ident">tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">TokenContainer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">tokens</span>
       }
 
-      <span class="kw">fn</span> <span class="ident">comments</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">CommentContainer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+      <span class="kw">fn</span> <span class="ident">comments</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">CommentContainer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">comments</span>
       }
     }
@@ -666,118 +666,118 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Spanned</span> <span class="kw">for</span> <span class="ident">Program</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
+  <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
     <span class="kw">match</span> <span class="self">self</span> {
-      <span class="ident">Program::Module</span>(<span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">node</span>.<span class="ident">span</span>(),
-      <span class="ident">Program::Script</span>(<span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">node</span>.<span class="ident">span</span>(),
+      <span class="ident">Program::Module</span>(<span class="ident">node</span>) =&gt; <span class="ident">node</span>.<span class="ident">span</span>(),
+      <span class="ident">Program::Script</span>(<span class="ident">node</span>) =&gt; <span class="ident">node</span>.<span class="ident">span</span>(),
     }
   }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">NodeTrait</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Program</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">parent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">parent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="prelude-val">None</span>
   }
 
-  <span class="kw">fn</span> <span class="ident">children</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">children</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="self">self</span> {
-      <span class="ident">Program::Module</span>(<span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">node</span>.<span class="ident">children</span>(),
-      <span class="ident">Program::Script</span>(<span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">node</span>.<span class="ident">children</span>(),
+      <span class="ident">Program::Module</span>(<span class="ident">node</span>) =&gt; <span class="ident">node</span>.<span class="ident">children</span>(),
+      <span class="ident">Program::Script</span>(<span class="ident">node</span>) =&gt; <span class="ident">node</span>.<span class="ident">children</span>(),
     }
   }
 
-  <span class="kw">fn</span> <span class="ident">into_node</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">into_node</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="self">self</span> {
-      <span class="ident">Program::Module</span>(<span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">node</span>.<span class="ident">into_node</span>(),
-      <span class="ident">Program::Script</span>(<span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">node</span>.<span class="ident">into_node</span>(),
+      <span class="ident">Program::Module</span>(<span class="ident">node</span>) =&gt; <span class="ident">node</span>.<span class="ident">into_node</span>(),
+      <span class="ident">Program::Script</span>(<span class="ident">node</span>) =&gt; <span class="ident">node</span>.<span class="ident">into_node</span>(),
     }
   }
 
-  <span class="kw">fn</span> <span class="ident">kind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">NodeKind</span> {
+  <span class="kw">fn</span> <span class="ident">kind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">NodeKind</span> {
     <span class="kw">match</span> <span class="self">self</span> {
-      <span class="ident">Program::Module</span>(<span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">node</span>.<span class="ident">kind</span>(),
-      <span class="ident">Program::Script</span>(<span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">node</span>.<span class="ident">kind</span>(),
+      <span class="ident">Program::Module</span>(<span class="ident">node</span>) =&gt; <span class="ident">node</span>.<span class="ident">kind</span>(),
+      <span class="ident">Program::Script</span>(<span class="ident">node</span>) =&gt; <span class="ident">node</span>.<span class="ident">kind</span>(),
     }
   }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Program</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">node</span>: <span class="kw-2">&amp;</span><span class="ident">Program</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">node</span>: <span class="kw-2">&amp;</span><span class="ident">Program</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="ident">node</span> {
-      <span class="ident">Program::Module</span>(<span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="kw-2">*</span><span class="ident">node</span>).<span class="ident">into</span>(),
-      <span class="ident">Program::Script</span>(<span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="kw-2">*</span><span class="ident">node</span>).<span class="ident">into</span>(),
+      <span class="ident">Program::Module</span>(<span class="ident">node</span>) =&gt; (<span class="kw-2">*</span><span class="ident">node</span>).<span class="ident">into</span>(),
+      <span class="ident">Program::Script</span>(<span class="ident">node</span>) =&gt; (<span class="kw-2">*</span><span class="ident">node</span>).<span class="ident">into</span>(),
     }
   }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Program</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">node</span>: <span class="ident">Program</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">node</span>: <span class="ident">Program</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="ident">node</span> {
-      <span class="ident">Program::Module</span>(<span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">node</span>.<span class="ident">into</span>(),
-      <span class="ident">Program::Script</span>(<span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">node</span>.<span class="ident">into</span>(),
+      <span class="ident">Program::Module</span>(<span class="ident">node</span>) =&gt; <span class="ident">node</span>.<span class="ident">into</span>(),
+      <span class="ident">Program::Script</span>(<span class="ident">node</span>) =&gt; <span class="ident">node</span>.<span class="ident">into</span>(),
     }
   }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Program</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">source_file</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">swc_common::SourceFile</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">source_file</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">swc_common::SourceFile</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="self">self</span> {
-      <span class="ident">Program::Module</span>(<span class="ident">module</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">module</span>.<span class="ident">source_file</span>,
-      <span class="ident">Program::Script</span>(<span class="ident">script</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">script</span>.<span class="ident">source_file</span>,
+      <span class="ident">Program::Module</span>(<span class="ident">module</span>) =&gt; <span class="ident">module</span>.<span class="ident">source_file</span>,
+      <span class="ident">Program::Script</span>(<span class="ident">script</span>) =&gt; <span class="ident">script</span>.<span class="ident">source_file</span>,
     }
   }
 
-  <span class="kw">fn</span> <span class="ident">tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">TokenContainer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">TokenContainer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="self">self</span> {
-      <span class="ident">Program::Module</span>(<span class="ident">module</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">module</span>.<span class="ident">tokens</span>,
-      <span class="ident">Program::Script</span>(<span class="ident">script</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">script</span>.<span class="ident">tokens</span>,
+      <span class="ident">Program::Module</span>(<span class="ident">module</span>) =&gt; <span class="ident">module</span>.<span class="ident">tokens</span>,
+      <span class="ident">Program::Script</span>(<span class="ident">script</span>) =&gt; <span class="ident">script</span>.<span class="ident">tokens</span>,
     }
   }
 
-  <span class="kw">fn</span> <span class="ident">comments</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">CommentContainer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">comments</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">CommentContainer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="self">self</span> {
-      <span class="ident">Program::Module</span>(<span class="ident">module</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">module</span>.<span class="ident">comments</span>,
-      <span class="ident">Program::Script</span>(<span class="ident">script</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">script</span>.<span class="ident">comments</span>,
+      <span class="ident">Program::Module</span>(<span class="ident">module</span>) =&gt; <span class="ident">module</span>.<span class="ident">comments</span>,
+      <span class="ident">Program::Script</span>(<span class="ident">script</span>) =&gt; <span class="ident">script</span>.<span class="ident">comments</span>,
     }
   }
 }
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">SpannedExt</span> {
-  <span class="kw">fn</span> <span class="ident">lo</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BytePos</span>;
-  <span class="kw">fn</span> <span class="ident">hi</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BytePos</span>;
-  <span class="kw">fn</span> <span class="ident">start_line_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
-  <span class="kw">fn</span> <span class="ident">end_line_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
-  <span class="kw">fn</span> <span class="ident">start_column_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
-  <span class="kw">fn</span> <span class="ident">end_column_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
-  <span class="kw">fn</span> <span class="ident">width_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
-  <span class="kw">fn</span> <span class="ident">tokens_fast</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">TokenAndSpan</span>];
-  <span class="kw">fn</span> <span class="ident">text_fast</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>;
-  <span class="kw">fn</span> <span class="ident">leading_comments_fast</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CommentsIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
-  <span class="kw">fn</span> <span class="ident">trailing_comments_fast</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CommentsIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
+  <span class="kw">fn</span> <span class="ident">lo</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BytePos</span>;
+  <span class="kw">fn</span> <span class="ident">hi</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BytePos</span>;
+  <span class="kw">fn</span> <span class="ident">start_line_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span>) -&gt; <span class="ident">usize</span>;
+  <span class="kw">fn</span> <span class="ident">end_line_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span>) -&gt; <span class="ident">usize</span>;
+  <span class="kw">fn</span> <span class="ident">start_column_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span>) -&gt; <span class="ident">usize</span>;
+  <span class="kw">fn</span> <span class="ident">end_column_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span>) -&gt; <span class="ident">usize</span>;
+  <span class="kw">fn</span> <span class="ident">width_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span>) -&gt; <span class="ident">usize</span>;
+  <span class="kw">fn</span> <span class="ident">tokens_fast</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">TokenAndSpan</span>];
+  <span class="kw">fn</span> <span class="ident">text_fast</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>;
+  <span class="kw">fn</span> <span class="ident">leading_comments_fast</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="ident">CommentsIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
+  <span class="kw">fn</span> <span class="ident">trailing_comments_fast</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="ident">CommentsIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
 
-  <span class="kw">fn</span> <span class="ident">previous_token_fast</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">TokenAndSpan</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">previous_token_fast</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">TokenAndSpan</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">token_container</span> <span class="op">=</span> <span class="ident">root_node_to_token_container</span>(<span class="ident">program</span>);
     <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">token_container</span>.<span class="ident">get_token_index_at_lo</span>(<span class="self">self</span>.<span class="ident">lo</span>());
-    <span class="kw">if</span> <span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+    <span class="kw">if</span> <span class="ident">index</span> <span class="op">==</span> <span class="number">0</span> {
       <span class="prelude-val">None</span>
     } <span class="kw">else</span> {
       <span class="ident">token_container</span>.<span class="ident">get_token_at_index</span>(<span class="ident">index</span> <span class="op">-</span> <span class="number">1</span>)
     }
   }
 
-  <span class="kw">fn</span> <span class="ident">next_token_fast</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">TokenAndSpan</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">next_token_fast</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">TokenAndSpan</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">token_container</span> <span class="op">=</span> <span class="ident">root_node_to_token_container</span>(<span class="ident">program</span>);
     <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">token_container</span>.<span class="ident">get_token_index_at_hi</span>(<span class="self">self</span>.<span class="ident">hi</span>());
     <span class="ident">token_container</span>.<span class="ident">get_token_at_index</span>(<span class="ident">index</span> <span class="op">+</span> <span class="number">1</span>)
   }
 
-  <span class="kw">fn</span> <span class="ident">previous_tokens_fast</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">TokenAndSpan</span>] {
+  <span class="kw">fn</span> <span class="ident">previous_tokens_fast</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">TokenAndSpan</span>] {
     <span class="kw">let</span> <span class="ident">token_container</span> <span class="op">=</span> <span class="ident">root_node_to_token_container</span>(<span class="ident">program</span>);
     <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">token_container</span>.<span class="ident">get_token_index_at_lo</span>(<span class="self">self</span>.<span class="ident">lo</span>());
     <span class="kw-2">&amp;</span><span class="ident">token_container</span>.<span class="ident">tokens</span>[<span class="number">0</span>..<span class="ident">index</span>]
   }
 
-  <span class="kw">fn</span> <span class="ident">next_tokens_fast</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">TokenAndSpan</span>] {
+  <span class="kw">fn</span> <span class="ident">next_tokens_fast</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">TokenAndSpan</span>] {
     <span class="kw">let</span> <span class="ident">token_container</span> <span class="op">=</span> <span class="ident">root_node_to_token_container</span>(<span class="ident">program</span>);
     <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">token_container</span>.<span class="ident">get_token_index_at_hi</span>(<span class="self">self</span>.<span class="ident">hi</span>());
     <span class="kw-2">&amp;</span><span class="ident">token_container</span>.<span class="ident">tokens</span>[<span class="ident">index</span> <span class="op">+</span> <span class="number">1</span>..]
@@ -788,94 +788,94 @@
 <span class="kw">where</span>
   <span class="ident">T</span>: <span class="ident">Spanned</span>,
 {
-  <span class="kw">fn</span> <span class="ident">lo</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BytePos</span> {
+  <span class="kw">fn</span> <span class="ident">lo</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BytePos</span> {
     <span class="self">self</span>.<span class="ident">span</span>().<span class="ident">lo</span>
   }
 
-  <span class="kw">fn</span> <span class="ident">hi</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BytePos</span> {
+  <span class="kw">fn</span> <span class="ident">hi</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BytePos</span> {
     <span class="self">self</span>.<span class="ident">span</span>().<span class="ident">hi</span>
   }
 
-  <span class="kw">fn</span> <span class="ident">start_line_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+  <span class="kw">fn</span> <span class="ident">start_line_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span>) -&gt; <span class="ident">usize</span> {
     <span class="ident">root_node_to_source_file</span>(<span class="ident">program</span>)
       .<span class="ident">lookup_line</span>(<span class="self">self</span>.<span class="ident">lo</span>())
       .<span class="ident">unwrap_or</span>(<span class="number">0</span>)
   }
 
-  <span class="kw">fn</span> <span class="ident">end_line_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+  <span class="kw">fn</span> <span class="ident">end_line_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span>) -&gt; <span class="ident">usize</span> {
     <span class="ident">root_node_to_source_file</span>(<span class="ident">program</span>)
       .<span class="ident">lookup_line</span>(<span class="self">self</span>.<span class="ident">hi</span>())
       .<span class="ident">unwrap_or</span>(<span class="number">0</span>)
   }
 
-  <span class="kw">fn</span> <span class="ident">start_column_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+  <span class="kw">fn</span> <span class="ident">start_column_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span>) -&gt; <span class="ident">usize</span> {
     <span class="ident">get_column_at_pos</span>(<span class="ident">program</span>, <span class="self">self</span>.<span class="ident">lo</span>())
   }
 
-  <span class="kw">fn</span> <span class="ident">end_column_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+  <span class="kw">fn</span> <span class="ident">end_column_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span>) -&gt; <span class="ident">usize</span> {
     <span class="ident">get_column_at_pos</span>(<span class="ident">program</span>, <span class="self">self</span>.<span class="ident">hi</span>())
   }
 
-  <span class="kw">fn</span> <span class="ident">width_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+  <span class="kw">fn</span> <span class="ident">width_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span>) -&gt; <span class="ident">usize</span> {
     <span class="self">self</span>.<span class="ident">text_fast</span>(<span class="ident">program</span>).<span class="ident">chars</span>().<span class="ident">count</span>()
   }
 
-  <span class="kw">fn</span> <span class="ident">tokens_fast</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">TokenAndSpan</span>] {
+  <span class="kw">fn</span> <span class="ident">tokens_fast</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">TokenAndSpan</span>] {
     <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">span</span>();
     <span class="kw">let</span> <span class="ident">token_container</span> <span class="op">=</span> <span class="ident">root_node_to_token_container</span>(<span class="ident">program</span>);
     <span class="ident">token_container</span>.<span class="ident">get_tokens_in_range</span>(<span class="ident">span</span>.<span class="ident">lo</span>, <span class="ident">span</span>.<span class="ident">hi</span>)
   }
 
-  <span class="kw">fn</span> <span class="ident">text_fast</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span> {
+  <span class="kw">fn</span> <span class="ident">text_fast</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span> {
     <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">span</span>();
     <span class="kw">let</span> <span class="ident">source_file</span> <span class="op">=</span> <span class="ident">root_node_to_source_file</span>(<span class="ident">program</span>);
     <span class="kw-2">&amp;</span><span class="ident">source_file</span>.<span class="ident">src</span>[(<span class="ident">span</span>.<span class="ident">lo</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">usize</span>)..(<span class="ident">span</span>.<span class="ident">hi</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">usize</span>)]
   }
 
-  <span class="kw">fn</span> <span class="ident">leading_comments_fast</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CommentsIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">leading_comments_fast</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="ident">CommentsIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="ident">root_node_to_comment_container</span>(<span class="ident">program</span>).<span class="ident">leading_comments</span>(<span class="self">self</span>.<span class="ident">lo</span>())
   }
 
-  <span class="kw">fn</span> <span class="ident">trailing_comments_fast</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CommentsIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">trailing_comments_fast</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="ident">CommentsIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="ident">root_node_to_comment_container</span>(<span class="ident">program</span>).<span class="ident">trailing_comments</span>(<span class="self">self</span>.<span class="ident">hi</span>())
   }
 }
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">NodeTrait</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>: <span class="ident">SpannedExt</span> {
-  <span class="kw">fn</span> <span class="ident">parent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>;
-  <span class="kw">fn</span> <span class="ident">children</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>;
-  <span class="kw">fn</span> <span class="ident">into_node</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
-  <span class="kw">fn</span> <span class="ident">kind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">NodeKind</span>;
+  <span class="kw">fn</span> <span class="ident">parent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+  <span class="kw">fn</span> <span class="ident">children</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+  <span class="kw">fn</span> <span class="ident">into_node</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
+  <span class="kw">fn</span> <span class="ident">kind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">NodeKind</span>;
 
-  <span class="kw">fn</span> <span class="ident">ancestors</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">AncestorIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">ancestors</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">AncestorIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="ident">AncestorIterator::new</span>(<span class="self">self</span>.<span class="ident">into_node</span>())
   }
 
-  <span class="kw">fn</span> <span class="ident">start_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+  <span class="kw">fn</span> <span class="ident">start_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
     <span class="self">self</span>.<span class="ident">start_line_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">program</span>())
   }
 
-  <span class="kw">fn</span> <span class="ident">end_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+  <span class="kw">fn</span> <span class="ident">end_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
     <span class="self">self</span>.<span class="ident">end_line_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">program</span>())
   }
 
-  <span class="kw">fn</span> <span class="ident">start_column</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+  <span class="kw">fn</span> <span class="ident">start_column</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
     <span class="self">self</span>.<span class="ident">start_column_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">program</span>())
   }
 
-  <span class="kw">fn</span> <span class="ident">end_column</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+  <span class="kw">fn</span> <span class="ident">end_column</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
     <span class="self">self</span>.<span class="ident">end_column_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">program</span>())
   }
 
-  <span class="kw">fn</span> <span class="ident">width</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+  <span class="kw">fn</span> <span class="ident">width</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
     <span class="self">self</span>.<span class="ident">width_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">program</span>())
   }
 
-  <span class="kw">fn</span> <span class="ident">child_index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+  <span class="kw">fn</span> <span class="ident">child_index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">parent</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parent</span>() {
       <span class="kw">let</span> <span class="ident">lo</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">lo</span>();
       <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">child</span>) <span class="kw">in</span> <span class="ident">parent</span>.<span class="ident">children</span>().<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-        <span class="kw">if</span> <span class="ident">child</span>.<span class="ident">span</span>().<span class="ident">lo</span> <span class="op">=</span><span class="op">=</span> <span class="ident">lo</span> {
+        <span class="kw">if</span> <span class="ident">child</span>.<span class="ident">span</span>().<span class="ident">lo</span> <span class="op">==</span> <span class="ident">lo</span> {
           <span class="kw">return</span> <span class="ident">i</span>;
         }
       }
@@ -885,7 +885,7 @@
     }
   }
 
-  <span class="kw">fn</span> <span class="ident">previous_sibling</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">previous_sibling</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">parent</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parent</span>() {
       <span class="kw">let</span> <span class="ident">child_index</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">child_index</span>();
       <span class="kw">if</span> <span class="ident">child_index</span> <span class="op">&gt;</span> <span class="number">0</span> {
@@ -899,7 +899,7 @@
   }
 
   <span class="doccomment">/// Gets the previous siblings in the order they appear in the file.</span>
-  <span class="kw">fn</span> <span class="ident">previous_siblings</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">previous_siblings</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">parent</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parent</span>() {
       <span class="kw">let</span> <span class="ident">child_index</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">child_index</span>();
       <span class="kw">if</span> <span class="ident">child_index</span> <span class="op">&gt;</span> <span class="number">0</span> {
@@ -915,7 +915,7 @@
   }
 
   <span class="doccomment">/// Gets the next siblings in the order they appear in the file.</span>
-  <span class="kw">fn</span> <span class="ident">next_sibling</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">next_sibling</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">parent</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parent</span>() {
       <span class="kw">let</span> <span class="ident">next_index</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">child_index</span>() <span class="op">+</span> <span class="number">1</span>;
       <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parent_children</span> <span class="op">=</span> <span class="ident">parent</span>.<span class="ident">children</span>();
@@ -929,7 +929,7 @@
     }
   }
 
-  <span class="kw">fn</span> <span class="ident">next_siblings</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">next_siblings</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">parent</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parent</span>() {
       <span class="kw">let</span> <span class="ident">next_index</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">child_index</span>() <span class="op">+</span> <span class="number">1</span>;
       <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parent_children</span> <span class="op">=</span> <span class="ident">parent</span>.<span class="ident">children</span>();
@@ -944,15 +944,15 @@
     }
   }
 
-  <span class="kw">fn</span> <span class="ident">tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">TokenAndSpan</span>] {
+  <span class="kw">fn</span> <span class="ident">tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">TokenAndSpan</span>] {
     <span class="self">self</span>.<span class="ident">tokens_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">program</span>())
   }
 
-  <span class="kw">fn</span> <span class="ident">children_with_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">NodeOrToken</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">children_with_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">NodeOrToken</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="self">self</span>.<span class="ident">children_with_tokens_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">program</span>())
   }
 
-  <span class="kw">fn</span> <span class="ident">children_with_tokens_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">NodeOrToken</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">children_with_tokens_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">NodeOrToken</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">children</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">children</span>();
     <span class="kw">let</span> <span class="ident">tokens</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">tokens_fast</span>(<span class="ident">program</span>);
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
@@ -992,16 +992,16 @@
     <span class="ident">result</span>
   }
 
-  <span class="kw">fn</span> <span class="ident">leading_comments</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CommentsIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">leading_comments</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">CommentsIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="self">self</span>.<span class="ident">leading_comments_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">program</span>())
   }
 
-  <span class="kw">fn</span> <span class="ident">trailing_comments</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CommentsIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">trailing_comments</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">CommentsIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="self">self</span>.<span class="ident">trailing_comments_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">program</span>())
   }
 
   <span class="doccomment">/// Gets the root node.</span>
-  <span class="kw">fn</span> <span class="ident">program</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Program</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">program</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Program</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current</span>: <span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into_node</span>();
     <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">parent</span>) <span class="op">=</span> <span class="ident">current</span>.<span class="ident">parent</span>() {
       <span class="ident">current</span> <span class="op">=</span> <span class="ident">parent</span>;
@@ -1009,9 +1009,9 @@
 
     <span class="comment">// the top-most node will always be a script or module</span>
     <span class="kw">match</span> <span class="ident">current</span> {
-      <span class="ident">Node::Module</span>(<span class="ident">module</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Program::Module</span>(<span class="ident">module</span>),
-      <span class="ident">Node::Script</span>(<span class="ident">script</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Program::Script</span>(<span class="ident">script</span>),
-      <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(
+      <span class="ident">Node::Module</span>(<span class="ident">module</span>) =&gt; <span class="ident">Program::Module</span>(<span class="ident">module</span>),
+      <span class="ident">Node::Script</span>(<span class="ident">script</span>) =&gt; <span class="ident">Program::Script</span>(<span class="ident">script</span>),
+      <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(
         <span class="string">&quot;Expected the root node to be a Module or Script, but it was a {}.&quot;</span>,
         <span class="ident">current</span>.<span class="ident">kind</span>()
       ),
@@ -1019,86 +1019,86 @@
   }
 
   <span class="doccomment">/// Gets the root node if the view was created from a Module; otherwise panics.</span>
-  <span class="kw">fn</span> <span class="ident">module</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Module</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">module</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Module</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="self">self</span>.<span class="ident">program</span>() {
-      <span class="ident">Program::Module</span>(<span class="ident">module</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">module</span>,
-      <span class="ident">Program::Script</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+      <span class="ident">Program::Module</span>(<span class="ident">module</span>) =&gt; <span class="ident">module</span>,
+      <span class="ident">Program::Script</span>(<span class="kw">_</span>) =&gt; {
         <span class="macro">panic!</span>(<span class="string">&quot;The root node was a Script and not a Module. Use .script() or .program() instead.&quot;</span>)
       }
     }
   }
 
   <span class="doccomment">/// Gets the root node if the view was created from a Script; otherwise panics.</span>
-  <span class="kw">fn</span> <span class="ident">script</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Script</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">script</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Script</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="self">self</span>.<span class="ident">program</span>() {
-      <span class="ident">Program::Script</span>(<span class="ident">script</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">script</span>,
-      <span class="ident">Program::Module</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+      <span class="ident">Program::Script</span>(<span class="ident">script</span>) =&gt; <span class="ident">script</span>,
+      <span class="ident">Program::Module</span>(<span class="kw">_</span>) =&gt; {
         <span class="macro">panic!</span>(<span class="string">&quot;The root node was a Module and not a Script. Use .module() or .program() instead.&quot;</span>)
       }
     }
   }
 
-  <span class="kw">fn</span> <span class="ident">text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span> {
+  <span class="kw">fn</span> <span class="ident">text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span> {
     <span class="self">self</span>.<span class="ident">text_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">program</span>())
   }
 
-  <span class="kw">fn</span> <span class="ident">previous_token</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">TokenAndSpan</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">previous_token</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">TokenAndSpan</span><span class="op">&gt;</span> {
     <span class="self">self</span>.<span class="ident">previous_token_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">program</span>())
   }
 
-  <span class="kw">fn</span> <span class="ident">next_token</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">TokenAndSpan</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">next_token</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">TokenAndSpan</span><span class="op">&gt;</span> {
     <span class="self">self</span>.<span class="ident">next_token_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">program</span>())
   }
 
   <span class="doccomment">/// Gets the previous tokens in the order they appear in the file.</span>
-  <span class="kw">fn</span> <span class="ident">previous_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">TokenAndSpan</span>] {
+  <span class="kw">fn</span> <span class="ident">previous_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">TokenAndSpan</span>] {
     <span class="self">self</span>.<span class="ident">previous_tokens_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">program</span>())
   }
 
   <span class="doccomment">/// Gets the next tokens in the order they appear in the file.</span>
-  <span class="kw">fn</span> <span class="ident">next_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">TokenAndSpan</span>] {
+  <span class="kw">fn</span> <span class="ident">next_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">TokenAndSpan</span>] {
     <span class="self">self</span>.<span class="ident">next_tokens_fast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">program</span>())
   }
 }
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">TokenExt</span> {
-  <span class="kw">fn</span> <span class="ident">token_index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+  <span class="kw">fn</span> <span class="ident">token_index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span>) -&gt; <span class="ident">usize</span>;
 }
 
 <span class="kw">impl</span> <span class="ident">TokenExt</span> <span class="kw">for</span> <span class="ident">TokenAndSpan</span> {
-  <span class="kw">fn</span> <span class="ident">token_index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+  <span class="kw">fn</span> <span class="ident">token_index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span>) -&gt; <span class="ident">usize</span> {
     <span class="kw">let</span> <span class="ident">token_container</span> <span class="op">=</span> <span class="ident">root_node_to_token_container</span>(<span class="ident">program</span>);
     <span class="ident">token_container</span>.<span class="ident">get_token_index_at_lo</span>(<span class="self">self</span>.<span class="ident">span</span>.<span class="ident">lo</span>)
   }
 }
 
-<span class="kw">fn</span> <span class="ident">root_node_to_source_file</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">root_node</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">swc_common::SourceFile</span> {
+<span class="kw">fn</span> <span class="ident">root_node_to_source_file</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">root_node</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">swc_common::SourceFile</span> {
   <span class="ident">root_node</span>
     .<span class="ident">source_file</span>()
     .<span class="ident">expect</span>(<span class="string">&quot;The source file must be provided to `with_view` in order to use this method.&quot;</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">root_node_to_token_container</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">root_node</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">TokenContainer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">root_node_to_token_container</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">root_node</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">TokenContainer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
   <span class="ident">root_node</span>
     .<span class="ident">tokens</span>()
     .<span class="ident">as_ref</span>()
     .<span class="ident">expect</span>(<span class="string">&quot;The tokens must be provided to `with_view` in order to use this method.&quot;</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">root_node_to_comment_container</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">root_node</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">CommentContainer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">root_node_to_comment_container</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">root_node</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">CommentContainer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
   <span class="ident">root_node</span>
     .<span class="ident">comments</span>()
     .<span class="ident">as_ref</span>()
     .<span class="ident">expect</span>(<span class="string">&quot;The comments must be provided to `with_view` in order to use this method.&quot;</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">get_column_at_pos</span>(<span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span>, <span class="ident">pos</span>: <span class="ident">BytePos</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+<span class="kw">fn</span> <span class="ident">get_column_at_pos</span>(<span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">RootNode</span>, <span class="ident">pos</span>: <span class="ident">BytePos</span>) -&gt; <span class="ident">usize</span> {
   <span class="kw">let</span> <span class="ident">source_file</span> <span class="op">=</span> <span class="ident">root_node_to_source_file</span>(<span class="ident">program</span>);
   <span class="kw">let</span> <span class="ident">text_bytes</span> <span class="op">=</span> <span class="ident">source_file</span>.<span class="ident">src</span>.<span class="ident">as_bytes</span>();
   <span class="kw">let</span> <span class="ident">pos</span> <span class="op">=</span> <span class="ident">pos</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">usize</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">line_start</span> <span class="op">=</span> <span class="number">0</span>;
   <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> (<span class="number">0</span>..<span class="ident">pos</span>).<span class="ident">rev</span>() {
-    <span class="kw">if</span> <span class="ident">text_bytes</span>[<span class="ident">i</span>] <span class="op">=</span><span class="op">=</span> <span class="string">&#39;\n&#39;</span> <span class="kw">as</span> <span class="ident">u8</span> {
+    <span class="kw">if</span> <span class="ident">text_bytes</span>[<span class="ident">i</span>] <span class="op">==</span> <span class="string">&#39;\n&#39;</span> <span class="kw">as</span> <span class="ident">u8</span> {
       <span class="ident">line_start</span> <span class="op">=</span> <span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>;
       <span class="kw">break</span>;
     }
@@ -1108,8 +1108,8 @@
 }
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">CastableNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">to</span>(<span class="ident">node</span>: <span class="kw-2">&amp;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">Self</span><span class="op">&gt;</span>;
-  <span class="kw">fn</span> <span class="ident">kind</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">NodeKind</span>;
+  <span class="kw">fn</span> <span class="ident">to</span>(<span class="ident">node</span>: <span class="kw-2">&amp;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">Self</span><span class="op">&gt;</span>;
+  <span class="kw">fn</span> <span class="ident">kind</span>() -&gt; <span class="ident">NodeKind</span>;
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
@@ -1142,7 +1142,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">AncestorIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">node</span>: <span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">AncestorIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">node</span>: <span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="ident">AncestorIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="ident">AncestorIterator</span> { <span class="ident">current</span>: <span class="ident">node</span> }
   }
 }
@@ -1150,7 +1150,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">AncestorIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
   <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
 
-  <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+  <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">parent</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">parent</span>();
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">parent</span>) <span class="op">=</span> <span class="ident">parent</span> {
       <span class="self">self</span>.<span class="ident">current</span> <span class="op">=</span> <span class="ident">parent</span>;

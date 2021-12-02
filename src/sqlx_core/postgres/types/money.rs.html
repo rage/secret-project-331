@@ -436,7 +436,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`BigDecimal`]: crate::types::BigDecimal</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_bigdecimal</span>(<span class="self">self</span>, <span class="ident">locale_frac_digits</span>: <span class="ident">i64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bigdecimal::BigDecimal</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_bigdecimal</span>(<span class="self">self</span>, <span class="ident">locale_frac_digits</span>: <span class="ident">i64</span>) -&gt; <span class="ident">bigdecimal::BigDecimal</span> {
         <span class="kw">let</span> <span class="ident">digits</span> <span class="op">=</span> <span class="ident">num_bigint::BigInt::from</span>(<span class="self">self</span>.<span class="number">0</span>);
 
         <span class="ident">bigdecimal::BigDecimal::new</span>(<span class="ident">digits</span>, <span class="ident">locale_frac_digits</span>)
@@ -448,7 +448,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`Decimal`]: crate::types::Decimal</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;decimal&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_decimal</span>(<span class="self">self</span>, <span class="ident">locale_frac_digits</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">rust_decimal::Decimal</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_decimal</span>(<span class="self">self</span>, <span class="ident">locale_frac_digits</span>: <span class="ident">u32</span>) -&gt; <span class="ident">rust_decimal::Decimal</span> {
         <span class="ident">rust_decimal::Decimal::new</span>(<span class="self">self</span>.<span class="number">0</span>, <span class="ident">locale_frac_digits</span>)
     }
 
@@ -461,7 +461,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`Decimal`]: crate::types::Decimal</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;decimal&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_decimal</span>(<span class="kw-2">mut</span> <span class="ident">decimal</span>: <span class="ident">rust_decimal::Decimal</span>, <span class="ident">locale_frac_digits</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_decimal</span>(<span class="kw-2">mut</span> <span class="ident">decimal</span>: <span class="ident">rust_decimal::Decimal</span>, <span class="ident">locale_frac_digits</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">use</span> <span class="ident">std::convert::TryFrom</span>;
 
         <span class="comment">// this is all we need to convert to our expected locale&#39;s `frac_digits`</span>
@@ -490,7 +490,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_bigdecimal</span>(
         <span class="ident">decimal</span>: <span class="ident">bigdecimal::BigDecimal</span>,
         <span class="ident">locale_frac_digits</span>: <span class="ident">u32</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">BoxDynError</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">BoxDynError</span><span class="op">&gt;</span> {
         <span class="kw">use</span> <span class="ident">bigdecimal::ToPrimitive</span>;
 
         <span class="kw">let</span> <span class="ident">multiplier</span> <span class="op">=</span> <span class="ident">bigdecimal::BigDecimal::new</span>(
@@ -512,19 +512,19 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgMoney</span> {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="ident">PgTypeInfo::MONEY</span>
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> [<span class="ident">PgMoney</span>] {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="ident">PgTypeInfo::MONEY_ARRAY</span>
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PgMoney</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PgTypeInfo</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
         <span class="op">&lt;</span>[<span class="ident">PgMoney</span>] <span class="kw">as</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::type_info</span>()
     }
 }
@@ -533,13 +533,13 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
 {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">num</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">num</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span>(<span class="ident">num</span>.<span class="ident">into</span>())
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Encode</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgMoney</span> {
-    <span class="kw">fn</span> <span class="ident">encode_by_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgArgumentBuffer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IsNull</span> {
+    <span class="kw">fn</span> <span class="ident">encode_by_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgArgumentBuffer</span>) -&gt; <span class="ident">IsNull</span> {
         <span class="ident">buf</span>.<span class="ident">extend</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.<span class="ident">to_be_bytes</span>());
 
         <span class="ident">IsNull::No</span>
@@ -547,14 +547,14 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Decode</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgMoney</span> {
-    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="ident">value</span>: <span class="ident">PgValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">BoxDynError</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="ident">value</span>: <span class="ident">PgValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">BoxDynError</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">value</span>.<span class="ident">format</span>() {
-            <span class="ident">PgValueFormat::Binary</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">PgValueFormat::Binary</span> =&gt; {
                 <span class="kw">let</span> <span class="ident">cents</span> <span class="op">=</span> <span class="ident">BigEndian::read_i64</span>(<span class="ident">value</span>.<span class="ident">as_bytes</span>()<span class="question-mark">?</span>);
 
                 <span class="prelude-val">Ok</span>(<span class="ident">PgMoney</span>(<span class="ident">cents</span>))
             }
-            <span class="ident">PgValueFormat::Text</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">PgValueFormat::Text</span> =&gt; {
                 <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="ident">io::Error::new</span>(
                     <span class="ident">io::ErrorKind::InvalidData</span>,
                     <span class="string">&quot;Reading a `MONEY` value in text format is not supported.&quot;</span>,
@@ -573,7 +573,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">/// Panics if overflowing the `i64::MAX`.</span>
-    <span class="kw">fn</span> <span class="ident">add</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">PgMoney</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Output</span> {
+    <span class="kw">fn</span> <span class="ident">add</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">PgMoney</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="self">self</span>.<span class="number">0</span>
             .<span class="ident">checked_add</span>(<span class="ident">rhs</span>.<span class="number">0</span>)
             .<span class="ident">map</span>(<span class="ident">PgMoney</span>)
@@ -601,7 +601,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">/// Panics if underflowing the `i64::MIN`.</span>
-    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">PgMoney</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Output</span> {
+    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">PgMoney</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="self">self</span>.<span class="number">0</span>
             .<span class="ident">checked_sub</span>(<span class="ident">rhs</span>.<span class="number">0</span>)
             .<span class="ident">map</span>(<span class="ident">PgMoney</span>)

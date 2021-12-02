@@ -189,7 +189,7 @@
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>:
 
         $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="op">+</span>
-    ) <span class="op">=</span><span class="op">&gt;</span> {
+    ) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro">crate::make_impl_block!</span>(
             @<span class="macro-nonterminal">VALUE</span>,
             <span class="ident">Cur</span> {},
@@ -217,7 +217,7 @@
         ,
 
         $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="op">*</span>
-    ) <span class="op">=</span><span class="op">&gt;</span> {
+    ) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro">crate::make_impl_block!</span>(
             @<span class="macro-nonterminal">NAME</span>,
             <span class="ident">Done</span> {
@@ -243,7 +243,7 @@
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">tok</span>:<span class="ident">tt</span>
 
         $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="op">+</span>
-    ) <span class="op">=</span><span class="op">&gt;</span> {
+    ) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro">crate::make_impl_block!</span>(
             @<span class="macro-nonterminal">VALUE</span>,
             <span class="ident">Cur</span> {
@@ -269,7 +269,7 @@
         },
 
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">tok</span>:<span class="ident">tt</span>
-    ) <span class="op">=</span><span class="op">&gt;</span> {
+    ) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro">crate::make_impl_block!</span>(
             @<span class="macro-nonterminal">VALUE</span>,
             <span class="ident">Cur</span> {
@@ -297,7 +297,7 @@
                 <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>: ( $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">val</span>:<span class="ident">tt</span>)<span class="op">*</span> ),
             )<span class="op">*</span>
         },
-    ) <span class="op">=</span><span class="op">&gt;</span> {
+    ) =&gt; {
         <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">STRUCT</span> {
             $(
                 $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>]</span>)<span class="op">*</span>
@@ -313,24 +313,24 @@
     (
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>:<span class="ident">ident</span> <span class="op">|</span>
         $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="op">*</span>
-    ) <span class="op">=</span><span class="op">&gt;</span> {
+    ) =&gt; {
         <span class="self">Self</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>.<span class="ident">bits</span> <span class="op">|</span> <span class="macro-nonterminal">$</span><span class="macro">crate::value_of_bitflag!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>)
     };
 
     (
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>:<span class="ident">ident</span>
-    ) <span class="op">=</span><span class="op">&gt;</span> {
+    ) =&gt; {
         <span class="self">Self</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>.<span class="ident">bits</span>
     };
 
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> { <span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span> };
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>:<span class="ident">expr</span>) =&gt; { <span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span> };
 }
 
 <span class="doccomment">/// rustfmt-friendly version of `bitflags!`.</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">add_bitflags</span> {
     <span class="comment">// Done</span>
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">STRUCT</span>:<span class="ident">ident</span>,) <span class="op">=</span><span class="op">&gt;</span> {};
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">STRUCT</span>:<span class="ident">ident</span>,) =&gt; {};
 
     (
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">STRUCT</span>:<span class="ident">ident</span>,
@@ -340,7 +340,7 @@
         },
 
         $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="op">*</span>
-    ) <span class="op">=</span><span class="op">&gt;</span> {
+    ) =&gt; {
         $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>]</span>)<span class="op">*</span>
         <span class="macro-nonterminal">$</span><span class="macro">crate::make_impl_block!</span>(@<span class="macro-nonterminal">NAME</span>, <span class="ident">Done</span> {
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">STRUCT</span>;

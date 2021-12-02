@@ -647,9 +647,9 @@
         <span class="ident">buf</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>,
         <span class="ident">buflen</span>: <span class="ident">usize</span>,
         <span class="ident">result</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PassWd</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span>;
-    <span class="kw">fn</span> <span class="ident">geteuid</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span>;
-    <span class="kw">fn</span> <span class="ident">gethostname</span>(<span class="ident">name</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>, <span class="ident">len</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span>;
+    ) -&gt; <span class="ident">i32</span>;
+    <span class="kw">fn</span> <span class="ident">geteuid</span>() -&gt; <span class="ident">u32</span>;
+    <span class="kw">fn</span> <span class="ident">gethostname</span>(<span class="ident">name</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>, <span class="ident">len</span>: <span class="ident">usize</span>) -&gt; <span class="ident">i32</span>;
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>)]</span>
@@ -661,20 +661,20 @@
         <span class="ident">buffer</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">u8</span>,
         <span class="ident">buffer_size</span>: <span class="ident">c_long</span>,
         <span class="ident">encoding</span>: <span class="ident">u32</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_uchar</span>;
-    <span class="kw">fn</span> <span class="ident">CFStringGetLength</span>(<span class="ident">the_string</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_long</span>;
+    ) -&gt; <span class="ident">c_uchar</span>;
+    <span class="kw">fn</span> <span class="ident">CFStringGetLength</span>(<span class="ident">the_string</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>) -&gt; <span class="ident">c_long</span>;
     <span class="kw">fn</span> <span class="ident">CFStringGetMaximumSizeForEncoding</span>(
         <span class="ident">length</span>: <span class="ident">c_long</span>,
         <span class="ident">encoding</span>: <span class="ident">u32</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_long</span>;
+    ) -&gt; <span class="ident">c_long</span>;
     <span class="kw">fn</span> <span class="ident">SCDynamicStoreCopyComputerName</span>(
         <span class="ident">store</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>,
         <span class="ident">encoding</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">u32</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>;
+    ) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>;
     <span class="kw">fn</span> <span class="ident">CFRelease</span>(<span class="ident">cf</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_void</span>);
 }
 
-<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">strlen</span>(<span class="ident">cs</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_void</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">strlen</span>(<span class="ident">cs</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_void</span>) -&gt; <span class="ident">usize</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">len</span> <span class="op">=</span> <span class="number">0</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">cast</span>();
     <span class="kw">while</span> <span class="kw-2">*</span><span class="ident">cs</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
@@ -684,7 +684,7 @@
     <span class="ident">len</span>
 }
 
-<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">strlen_gecos</span>(<span class="ident">cs</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_void</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">strlen_gecos</span>(<span class="ident">cs</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_void</span>) -&gt; <span class="ident">usize</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">len</span> <span class="op">=</span> <span class="number">0</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">cast</span>();
     <span class="kw">while</span> <span class="kw-2">*</span><span class="ident">cs</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="kw-2">*</span><span class="ident">cs</span> <span class="op">!</span><span class="op">=</span> <span class="string">b&#39;,&#39;</span> {
@@ -695,14 +695,14 @@
 }
 
 <span class="comment">// Convert an OsString into a String</span>
-<span class="kw">fn</span> <span class="ident">string_from_os</span>(<span class="ident">string</span>: <span class="ident">OsString</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">fn</span> <span class="ident">string_from_os</span>(<span class="ident">string</span>: <span class="ident">OsString</span>) -&gt; <span class="ident">String</span> {
     <span class="kw">match</span> <span class="ident">string</span>.<span class="ident">into_string</span>() {
-        <span class="prelude-val">Ok</span>(<span class="ident">string</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">string</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">string</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">string</span>.<span class="ident">to_string_lossy</span>().<span class="ident">to_string</span>(),
+        <span class="prelude-val">Ok</span>(<span class="ident">string</span>) =&gt; <span class="ident">string</span>,
+        <span class="prelude-val">Err</span>(<span class="ident">string</span>) =&gt; <span class="ident">string</span>.<span class="ident">to_string_lossy</span>().<span class="ident">to_string</span>(),
     }
 }
 
-<span class="kw">fn</span> <span class="ident">os_from_cstring_gecos</span>(<span class="ident">string</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_void</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OsString</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">os_from_cstring_gecos</span>(<span class="ident">string</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_void</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OsString</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="ident">string</span>.<span class="ident">is_null</span>() {
         <span class="kw">return</span> <span class="prelude-val">None</span>;
     }
@@ -710,7 +710,7 @@
     <span class="comment">// Get a byte slice of the c string.</span>
     <span class="kw">let</span> <span class="ident">slice</span> <span class="op">=</span> <span class="kw">unsafe</span> {
         <span class="kw">let</span> <span class="ident">length</span> <span class="op">=</span> <span class="ident">strlen_gecos</span>(<span class="ident">string</span>);
-        <span class="kw">if</span> <span class="ident">length</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+        <span class="kw">if</span> <span class="ident">length</span> <span class="op">==</span> <span class="number">0</span> {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
         <span class="ident">std::slice::from_raw_parts</span>(<span class="ident">string</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span>, <span class="ident">length</span>)
@@ -720,7 +720,7 @@
     <span class="prelude-val">Some</span>(<span class="ident">OsString::from_vec</span>(<span class="ident">slice</span>.<span class="ident">to_vec</span>()))
 }
 
-<span class="kw">fn</span> <span class="ident">os_from_cstring</span>(<span class="ident">string</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_void</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OsString</span> {
+<span class="kw">fn</span> <span class="ident">os_from_cstring</span>(<span class="ident">string</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_void</span>) -&gt; <span class="ident">OsString</span> {
     <span class="kw">if</span> <span class="ident">string</span>.<span class="ident">is_null</span>() {
         <span class="kw">return</span> <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>().<span class="ident">into</span>();
     }
@@ -736,7 +736,7 @@
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>)]</span>
-<span class="kw">fn</span> <span class="ident">os_from_cfstring</span>(<span class="ident">string</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OsString</span> {
+<span class="kw">fn</span> <span class="ident">os_from_cfstring</span>(<span class="ident">string</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>) -&gt; <span class="ident">OsString</span> {
     <span class="kw">if</span> <span class="ident">string</span>.<span class="ident">is_null</span>() {
         <span class="kw">return</span> <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>().<span class="ident">into</span>();
     }
@@ -767,7 +767,7 @@
 <span class="comment">// This function must allocate, because a slice or Cow&lt;OsStr&gt; would still</span>
 <span class="comment">// reference `passwd` which is dropped when this function returns.</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">getpwuid</span>(<span class="ident">real</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OsString</span> {
+<span class="kw">fn</span> <span class="ident">getpwuid</span>(<span class="ident">real</span>: <span class="ident">bool</span>) -&gt; <span class="ident">OsString</span> {
     <span class="kw">const</span> <span class="ident">BUF_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">16_384</span>; <span class="comment">// size from the man page</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">mem::MaybeUninit</span>::<span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="ident">BUF_SIZE</span>]<span class="op">&gt;</span><span class="ident">::uninit</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">passwd</span> <span class="op">=</span> <span class="ident">mem::MaybeUninit</span>::<span class="op">&lt;</span><span class="ident">PassWd</span><span class="op">&gt;</span><span class="ident">::uninit</span>();
@@ -810,28 +810,28 @@
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">username</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">username</span>() -&gt; <span class="ident">String</span> {
     <span class="ident">string_from_os</span>(<span class="ident">username_os</span>())
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">username_os</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OsString</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">username_os</span>() -&gt; <span class="ident">OsString</span> {
     <span class="ident">getpwuid</span>(<span class="bool-val">false</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">fancy_fallback</span>(<span class="ident">result</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">fn</span> <span class="ident">fancy_fallback</span>(<span class="ident">result</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">String</span><span class="op">&gt;</span>) -&gt; <span class="ident">String</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cap</span> <span class="op">=</span> <span class="bool-val">true</span>;
     <span class="kw">let</span> <span class="ident">iter</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">result</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">chars</span>(),
-        <span class="prelude-val">Err</span>(<span class="kw-2">ref</span> <span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">b</span>.<span class="ident">chars</span>(),
+        <span class="prelude-val">Ok</span>(<span class="ident">a</span>) =&gt; <span class="ident">a</span>.<span class="ident">chars</span>(),
+        <span class="prelude-val">Err</span>(<span class="kw-2">ref</span> <span class="ident">b</span>) =&gt; <span class="ident">b</span>.<span class="ident">chars</span>(),
     };
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">String::new</span>();
     <span class="kw">for</span> <span class="ident">c</span> <span class="kw">in</span> <span class="ident">iter</span> {
         <span class="kw">match</span> <span class="ident">c</span> {
-            <span class="string">&#39;.&#39;</span> <span class="op">|</span> <span class="string">&#39;-&#39;</span> <span class="op">|</span> <span class="string">&#39;_&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">&#39;.&#39;</span> <span class="op">|</span> <span class="string">&#39;-&#39;</span> <span class="op">|</span> <span class="string">&#39;_&#39;</span> =&gt; {
                 <span class="ident">new</span>.<span class="ident">push</span>(<span class="string">&#39; &#39;</span>);
                 <span class="ident">cap</span> <span class="op">=</span> <span class="bool-val">true</span>;
             }
-            <span class="ident">a</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">a</span> =&gt; {
                 <span class="kw">if</span> <span class="ident">cap</span> {
                     <span class="ident">cap</span> <span class="op">=</span> <span class="bool-val">false</span>;
                     <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">a</span>.<span class="ident">to_uppercase</span>() {
@@ -846,13 +846,13 @@
     <span class="ident">new</span>
 }
 
-<span class="kw">fn</span> <span class="ident">fancy_fallback_os</span>(<span class="ident">result</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OsString</span>, <span class="ident">OsString</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OsString</span> {
+<span class="kw">fn</span> <span class="ident">fancy_fallback_os</span>(<span class="ident">result</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OsString</span>, <span class="ident">OsString</span><span class="op">&gt;</span>) -&gt; <span class="ident">OsString</span> {
     <span class="kw">match</span> <span class="ident">result</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">success</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">success</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">fallback</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="ident">success</span>) =&gt; <span class="ident">success</span>,
+        <span class="prelude-val">Err</span>(<span class="ident">fallback</span>) =&gt; {
             <span class="kw">let</span> <span class="ident">cs</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">fallback</span>.<span class="ident">to_str</span>() {
-                <span class="prelude-val">Some</span>(<span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">a</span>),
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">fallback</span>.<span class="ident">to_string_lossy</span>().<span class="ident">to_string</span>()),
+                <span class="prelude-val">Some</span>(<span class="ident">a</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">a</span>),
+                <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">fallback</span>.<span class="ident">to_string_lossy</span>().<span class="ident">to_string</span>()),
             };
 
             <span class="ident">fancy_fallback</span>(<span class="ident">cs</span>).<span class="ident">into</span>()
@@ -860,21 +860,21 @@
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">realname</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">realname</span>() -&gt; <span class="ident">String</span> {
     <span class="ident">string_from_os</span>(<span class="ident">realname_os</span>())
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">realname_os</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OsString</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">realname_os</span>() -&gt; <span class="ident">OsString</span> {
     <span class="ident">getpwuid</span>(<span class="bool-val">true</span>)
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">devicename_os</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OsString</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">devicename_os</span>() -&gt; <span class="ident">OsString</span> {
     <span class="ident">devicename</span>().<span class="ident">into</span>()
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">devicename</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">devicename</span>() -&gt; <span class="ident">String</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">distro</span> <span class="op">=</span> <span class="ident">String::new</span>();
 
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">program</span>) <span class="op">=</span> <span class="ident">std::fs::read_to_string</span>(<span class="string">&quot;/etc/machine-info&quot;</span>) {
@@ -885,7 +885,7 @@
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">distro</span>.<span class="ident">split</span>(<span class="string">&#39;\n&#39;</span>) {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">j</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">split</span>(<span class="string">&#39;=&#39;</span>);
 
-            <span class="kw">if</span> <span class="ident">j</span>.<span class="ident">next</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&quot;PRETTY_HOSTNAME&quot;</span>) {
+            <span class="kw">if</span> <span class="ident">j</span>.<span class="ident">next</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="string">&quot;PRETTY_HOSTNAME&quot;</span>) {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>) <span class="op">=</span> <span class="ident">j</span>.<span class="ident">next</span>() {
                     <span class="kw">return</span> <span class="ident">value</span>.<span class="ident">trim_matches</span>(<span class="string">&#39;&quot;&#39;</span>).<span class="ident">to_string</span>();
                 }
@@ -896,12 +896,12 @@
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">devicename</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">devicename</span>() -&gt; <span class="ident">String</span> {
     <span class="ident">string_from_os</span>(<span class="ident">devicename_os</span>())
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">devicename_os</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OsString</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">devicename_os</span>() -&gt; <span class="ident">OsString</span> {
     <span class="kw">let</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">os_from_cfstring</span>(<span class="kw">unsafe</span> {
         <span class="ident">SCDynamicStoreCopyComputerName</span>(<span class="ident">null_mut</span>(), <span class="ident">null_mut</span>())
     });
@@ -914,11 +914,11 @@
     <span class="ident">fancy_fallback_os</span>(<span class="ident">computer</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hostname</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hostname</span>() -&gt; <span class="ident">String</span> {
     <span class="ident">string_from_os</span>(<span class="ident">hostname_os</span>())
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hostname_os</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OsString</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hostname_os</span>() -&gt; <span class="ident">OsString</span> {
     <span class="comment">// Maximum hostname length = 255, plus a NULL byte.</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">string</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="ident">::with_capacity</span>(<span class="number">256</span>);
     <span class="kw">unsafe</span> {
@@ -929,7 +929,7 @@
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>)]</span>
-<span class="kw">fn</span> <span class="ident">distro_xml</span>(<span class="ident">data</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">distro_xml</span>(<span class="ident">data</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">product_name</span> <span class="op">=</span> <span class="prelude-val">None</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">user_visible_version</span> <span class="op">=</span> <span class="prelude-val">None</span>;
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">start</span>) <span class="op">=</span> <span class="ident">data</span>.<span class="ident">find</span>(<span class="string">&quot;&lt;dict&gt;&quot;</span>) {
@@ -940,16 +940,16 @@
                 <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="ident">line</span>.<span class="ident">trim</span>();
                 <span class="kw">if</span> <span class="ident">line</span>.<span class="ident">starts_with</span>(<span class="string">&quot;&lt;key&gt;&quot;</span>) {
                     <span class="kw">match</span> <span class="ident">line</span>[<span class="string">&quot;&lt;key&gt;&quot;</span>.<span class="ident">len</span>()..].<span class="ident">trim_end_matches</span>(<span class="string">&quot;&lt;/key&gt;&quot;</span>) {
-                        <span class="string">&quot;ProductName&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">set_product_name</span> <span class="op">=</span> <span class="bool-val">true</span>,
-                        <span class="string">&quot;ProductUserVisibleVersion&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="string">&quot;ProductName&quot;</span> =&gt; <span class="ident">set_product_name</span> <span class="op">=</span> <span class="bool-val">true</span>,
+                        <span class="string">&quot;ProductUserVisibleVersion&quot;</span> =&gt; {
                             <span class="ident">set_user_visible_version</span> <span class="op">=</span> <span class="bool-val">true</span>
                         }
-                        <span class="string">&quot;ProductVersion&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="string">&quot;ProductVersion&quot;</span> =&gt; {
                             <span class="kw">if</span> <span class="ident">user_visible_version</span>.<span class="ident">is_none</span>() {
                                 <span class="ident">set_user_visible_version</span> <span class="op">=</span> <span class="bool-val">true</span>
                             }
                         }
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+                        <span class="kw">_</span> =&gt; {}
                     }
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">line</span>.<span class="ident">starts_with</span>(<span class="string">&quot;&lt;string&gt;&quot;</span>) {
                     <span class="kw">if</span> <span class="ident">set_product_name</span> {
@@ -983,12 +983,12 @@
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">distro_os</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OsString</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">distro_os</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OsString</span><span class="op">&gt;</span> {
     <span class="ident">distro</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">into</span>())
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">distro</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">distro</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">data</span>) <span class="op">=</span> <span class="ident">std::fs::read_to_string</span>(
         <span class="string">&quot;/System/Library/CoreServices/ServerVersion.plist&quot;</span>,
     ) {
@@ -1003,12 +1003,12 @@
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">distro_os</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OsString</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">distro_os</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OsString</span><span class="op">&gt;</span> {
     <span class="ident">distro</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">into</span>())
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">distro</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">distro</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">distro</span> <span class="op">=</span> <span class="ident">String::new</span>();
 
     <span class="kw">let</span> <span class="ident">program</span> <span class="op">=</span> <span class="ident">std::fs::read_to_string</span>(<span class="string">&quot;/etc/os-release&quot;</span>)
@@ -1023,11 +1023,11 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">j</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">split</span>(<span class="string">&#39;=&#39;</span>);
 
         <span class="kw">match</span> <span class="ident">j</span>.<span class="ident">next</span>()<span class="question-mark">?</span> {
-            <span class="string">&quot;PRETTY_NAME&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">&quot;PRETTY_NAME&quot;</span> =&gt; {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">j</span>.<span class="ident">next</span>()<span class="question-mark">?</span>.<span class="ident">trim_matches</span>(<span class="string">&#39;&quot;&#39;</span>).<span class="ident">to_string</span>())
             }
-            <span class="string">&quot;NAME&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">fallback</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">j</span>.<span class="ident">next</span>()<span class="question-mark">?</span>.<span class="ident">trim_matches</span>(<span class="string">&#39;&quot;&#39;</span>).<span class="ident">to_string</span>()),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            <span class="string">&quot;NAME&quot;</span> =&gt; <span class="ident">fallback</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">j</span>.<span class="ident">next</span>()<span class="question-mark">?</span>.<span class="ident">trim_matches</span>(<span class="string">&#39;&quot;&#39;</span>).<span class="ident">to_string</span>()),
+            <span class="kw">_</span> =&gt; {}
         }
     }
 
@@ -1036,17 +1036,17 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">desktop_env</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DesktopEnv</span> {
+<span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">desktop_env</span>() -&gt; <span class="ident">DesktopEnv</span> {
     <span class="ident">DesktopEnv::Aqua</span>
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>))]</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">desktop_env</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DesktopEnv</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">desktop_env</span>() -&gt; <span class="ident">DesktopEnv</span> {
     <span class="kw">match</span> <span class="ident">std::env::var_os</span>(<span class="string">&quot;DESKTOP_SESSION&quot;</span>)
         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">env</span><span class="op">|</span> <span class="ident">env</span>.<span class="ident">to_string_lossy</span>().<span class="ident">to_string</span>())
     {
-        <span class="prelude-val">Some</span>(<span class="ident">env_orig</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Some</span>(<span class="ident">env_orig</span>) =&gt; {
             <span class="kw">let</span> <span class="ident">env</span> <span class="op">=</span> <span class="ident">env_orig</span>.<span class="ident">to_uppercase</span>();
 
             <span class="kw">if</span> <span class="ident">env</span>.<span class="ident">contains</span>(<span class="string">&quot;GNOME&quot;</span>) {
@@ -1066,13 +1066,13 @@
             }
         }
         <span class="comment">// TODO: Other Linux Desktop Environments</span>
-        <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DesktopEnv::Unknown</span>(<span class="string">&quot;Unknown&quot;</span>.<span class="ident">to_string</span>()),
+        <span class="prelude-val">None</span> =&gt; <span class="ident">DesktopEnv::Unknown</span>(<span class="string">&quot;Unknown&quot;</span>.<span class="ident">to_string</span>()),
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">platform</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Platform</span> {
+<span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">platform</span>() -&gt; <span class="ident">Platform</span> {
     <span class="ident">Platform::MacOS</span>
 }
 
@@ -1085,7 +1085,7 @@
     <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;netbsd&quot;</span>
 )))]</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">platform</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Platform</span> {
+<span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">platform</span>() -&gt; <span class="ident">Platform</span> {
     <span class="ident">Platform::Linux</span>
 }
 
@@ -1097,7 +1097,7 @@
     <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;netbsd&quot;</span>
 ))]</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">platform</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Platform</span> {
+<span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">platform</span>() -&gt; <span class="ident">Platform</span> {
     <span class="ident">Platform::Bsd</span>
 }
 
@@ -1109,7 +1109,7 @@
 <span class="kw">impl</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">LangIter</span> {
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">String</span>;
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">index</span><span class="question-mark">?</span> {
             <span class="self">self</span>.<span class="ident">index</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="bool-val">false</span>);
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">temp</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">array</span>.<span class="ident">split</span>(<span class="string">&#39;-&#39;</span>).<span class="ident">next</span>()<span class="question-mark">?</span>.<span class="ident">to_string</span>();
@@ -1125,7 +1125,7 @@
 }
 
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lang</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">String</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lang</span>() -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">String</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">array</span> <span class="op">=</span> <span class="ident">std::env::var</span>(<span class="string">&quot;LANG&quot;</span>)
         .<span class="ident">unwrap_or_default</span>()
         .<span class="ident">split</span>(<span class="string">&#39;.&#39;</span>)

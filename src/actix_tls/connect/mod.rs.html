@@ -115,7 +115,7 @@
 <span class="doccomment">/// Create TCP connector service.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_connector</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Address</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(
     <span class="ident">resolver</span>: <span class="ident">Resolver</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Connect</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Connection</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">TcpStream</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">ConnectError</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span>
+) -&gt; <span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Connect</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Connection</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">TcpStream</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">ConnectError</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span>
 {
     <span class="ident">ConnectServiceFactory::new</span>(<span class="ident">resolver</span>).<span class="ident">service</span>()
 }
@@ -123,7 +123,7 @@
 <span class="doccomment">/// Create TCP connector service factory.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_connector_factory</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Address</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(
     <span class="ident">resolver</span>: <span class="ident">Resolver</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">ServiceFactory</span><span class="op">&lt;</span>
+) -&gt; <span class="kw">impl</span> <span class="ident">ServiceFactory</span><span class="op">&lt;</span>
     <span class="ident">Connect</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
     <span class="ident">Config</span> <span class="op">=</span> (),
     <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Connection</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">TcpStream</span><span class="op">&gt;</span>,
@@ -135,13 +135,13 @@
 
 <span class="doccomment">/// Create connector service with default parameters.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_connector</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Address</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(
-) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Connect</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Connection</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">TcpStream</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">ConnectError</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span>
+) -&gt; <span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Connect</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Connection</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">TcpStream</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">ConnectError</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span>
 {
     <span class="ident">new_connector</span>(<span class="ident">Resolver::Default</span>)
 }
 
 <span class="doccomment">/// Create connector service factory with default parameters.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_connector_factory</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Address</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">ServiceFactory</span><span class="op">&lt;</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_connector_factory</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Address</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>() -&gt; <span class="kw">impl</span> <span class="ident">ServiceFactory</span><span class="op">&lt;</span>
     <span class="ident">Connect</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
     <span class="ident">Config</span> <span class="op">=</span> (),
     <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Connection</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">TcpStream</span><span class="op">&gt;</span>,

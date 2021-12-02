@@ -269,7 +269,7 @@
     <span class="doccomment">/// When `format_time` is called, implementors should get the current time using their desired</span>
     <span class="doccomment">/// mechanism, and write it out to the given `fmt::Write`. Implementors must insert a trailing</span>
     <span class="doccomment">/// space themselves if they wish to separate the time from subsequent log message text.</span>
-    <span class="kw">fn</span> <span class="ident">format_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span>;
+    <span class="kw">fn</span> <span class="ident">format_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>) -&gt; <span class="ident">fmt::Result</span>;
 }
 
 <span class="doccomment">/// Returns a new `SystemTime` timestamp provider.</span>
@@ -283,7 +283,7 @@
 <span class="doccomment">/// tracing_subscriber::fmt::time::SystemTime::default()</span>
 <span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">time</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SystemTime</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">time</span>() -&gt; <span class="ident">SystemTime</span> {
     <span class="ident">SystemTime::default</span>()
 }
 
@@ -301,7 +301,7 @@
 <span class="doccomment">/// tracing_subscriber::fmt::time::Uptime::default()</span>
 <span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uptime</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Uptime</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uptime</span>() -&gt; <span class="ident">Uptime</span> {
     <span class="ident">Uptime::default</span>()
 }
 
@@ -309,19 +309,19 @@
 <span class="kw">where</span>
     <span class="ident">F</span>: <span class="ident">FormatTime</span>,
 {
-    <span class="kw">fn</span> <span class="ident">format_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">format_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>) -&gt; <span class="ident">fmt::Result</span> {
         (<span class="kw-2">*</span><span class="self">self</span>).<span class="ident">format_time</span>(<span class="ident">w</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">FormatTime</span> <span class="kw">for</span> () {
-    <span class="kw">fn</span> <span class="ident">format_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">format_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">FormatTime</span> <span class="kw">for</span> <span class="kw">fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
-    <span class="kw">fn</span> <span class="ident">format_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+<span class="kw">impl</span> <span class="ident">FormatTime</span> <span class="kw">for</span> <span class="kw">fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>) -&gt; <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">format_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>) -&gt; <span class="ident">fmt::Result</span> {
         (<span class="kw-2">*</span><span class="self">self</span>)(<span class="ident">w</span>)
     }
 }
@@ -342,7 +342,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Uptime</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">Uptime</span> {
             <span class="ident">epoch</span>: <span class="ident">Instant::now</span>(),
         }
@@ -350,21 +350,21 @@
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Instant</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Uptime</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">epoch</span>: <span class="ident">Instant</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">epoch</span>: <span class="ident">Instant</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">Uptime</span> { <span class="ident">epoch</span> }
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">FormatTime</span> <span class="kw">for</span> <span class="ident">SystemTime</span> {
-    <span class="kw">fn</span> <span class="ident">format_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">format_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="macro">write!</span>(<span class="ident">w</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">chrono::Local::now</span>().<span class="ident">format</span>(<span class="string">&quot;%b %d %H:%M:%S%.3f&quot;</span>))
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>))]</span>
 <span class="kw">impl</span> <span class="ident">FormatTime</span> <span class="kw">for</span> <span class="ident">SystemTime</span> {
-    <span class="kw">fn</span> <span class="ident">format_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">format_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="macro">write!</span>(
             <span class="ident">w</span>,
             <span class="string">&quot;{}&quot;</span>,
@@ -374,7 +374,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">FormatTime</span> <span class="kw">for</span> <span class="ident">Uptime</span> {
-    <span class="kw">fn</span> <span class="ident">format_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">format_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">let</span> <span class="ident">e</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">epoch</span>.<span class="ident">elapsed</span>();
         <span class="macro">write!</span>(<span class="ident">w</span>, <span class="string">&quot;{:4}.{:09}s&quot;</span>, <span class="ident">e</span>.<span class="ident">as_secs</span>(), <span class="ident">e</span>.<span class="ident">subsec_nanos</span>())
     }
@@ -392,7 +392,7 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ChronoFmtType</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">ChronoFmtType::Rfc3339</span>
     }
 }
@@ -413,7 +413,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`RFC 3339`]: https://tools.ietf.org/html/rfc3339</span>
     <span class="doccomment">/// [`ISO 8601`]: https://en.wikipedia.org/wiki/ISO_8601</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rfc3339</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rfc3339</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">ChronoUtc</span> {
             <span class="ident">format</span>: <span class="ident">ChronoFmtType::Rfc3339</span>,
         }
@@ -425,7 +425,7 @@
     <span class="doccomment">/// for details on the supported syntax.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`chrono::format::strftime`]: https://docs.rs/chrono/0.4.9/chrono/format/strftime/index.html</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_format</span>(<span class="ident">format_string</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_format</span>(<span class="ident">format_string</span>: <span class="ident">String</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">ChronoUtc</span> {
             <span class="ident">format</span>: <span class="ident">ChronoFmtType::Custom</span>(<span class="ident">format_string</span>),
         }
@@ -435,11 +435,11 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)))]</span>
 <span class="kw">impl</span> <span class="ident">FormatTime</span> <span class="kw">for</span> <span class="ident">ChronoUtc</span> {
-    <span class="kw">fn</span> <span class="ident">format_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">format_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">let</span> <span class="ident">time</span> <span class="op">=</span> <span class="ident">chrono::Utc::now</span>();
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">format</span> {
-            <span class="ident">ChronoFmtType::Rfc3339</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">w</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">time</span>.<span class="ident">to_rfc3339</span>()),
-            <span class="ident">ChronoFmtType::Custom</span>(<span class="kw-2">ref</span> <span class="ident">format_str</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">w</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">time</span>.<span class="ident">format</span>(<span class="ident">format_str</span>)),
+            <span class="ident">ChronoFmtType::Rfc3339</span> =&gt; <span class="macro">write!</span>(<span class="ident">w</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">time</span>.<span class="ident">to_rfc3339</span>()),
+            <span class="ident">ChronoFmtType::Custom</span>(<span class="kw-2">ref</span> <span class="ident">format_str</span>) =&gt; <span class="macro">write!</span>(<span class="ident">w</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">time</span>.<span class="ident">format</span>(<span class="ident">format_str</span>)),
         }
     }
 }
@@ -460,7 +460,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`RFC 3339`]: https://tools.ietf.org/html/rfc3339</span>
     <span class="doccomment">/// [`ISO 8601`]: https://en.wikipedia.org/wiki/ISO_8601</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rfc3339</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rfc3339</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">ChronoLocal</span> {
             <span class="ident">format</span>: <span class="ident">ChronoFmtType::Rfc3339</span>,
         }
@@ -472,7 +472,7 @@
     <span class="doccomment">/// for details on the supported syntax.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`chrono::format::strftime`]: https://docs.rs/chrono/0.4.9/chrono/format/strftime/index.html</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_format</span>(<span class="ident">format_string</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_format</span>(<span class="ident">format_string</span>: <span class="ident">String</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">ChronoLocal</span> {
             <span class="ident">format</span>: <span class="ident">ChronoFmtType::Custom</span>(<span class="ident">format_string</span>),
         }
@@ -482,11 +482,11 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)))]</span>
 <span class="kw">impl</span> <span class="ident">FormatTime</span> <span class="kw">for</span> <span class="ident">ChronoLocal</span> {
-    <span class="kw">fn</span> <span class="ident">format_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">format_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">let</span> <span class="ident">time</span> <span class="op">=</span> <span class="ident">chrono::Local::now</span>();
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">format</span> {
-            <span class="ident">ChronoFmtType::Rfc3339</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">w</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">time</span>.<span class="ident">to_rfc3339</span>()),
-            <span class="ident">ChronoFmtType::Custom</span>(<span class="kw-2">ref</span> <span class="ident">format_str</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">w</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">time</span>.<span class="ident">format</span>(<span class="ident">format_str</span>)),
+            <span class="ident">ChronoFmtType::Rfc3339</span> =&gt; <span class="macro">write!</span>(<span class="ident">w</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">time</span>.<span class="ident">to_rfc3339</span>()),
+            <span class="ident">ChronoFmtType::Custom</span>(<span class="kw-2">ref</span> <span class="ident">format_str</span>) =&gt; <span class="macro">write!</span>(<span class="ident">w</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">time</span>.<span class="ident">format</span>(<span class="ident">format_str</span>)),
         }
     }
 }

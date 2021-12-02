@@ -1512,7 +1512,7 @@
 
 
 
-<span class="kw">fn</span> <span class="ident">ToUpperCase</span>(<span class="ident">p</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span> {
+<span class="kw">fn</span> <span class="ident">ToUpperCase</span>(<span class="ident">p</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) -&gt; <span class="ident">i32</span> {
   <span class="kw">if</span> (<span class="macro">fast!</span>((<span class="ident">p</span>)[<span class="number">0</span>]) <span class="op">&lt;</span> <span class="number">0xc0</span>) {
     <span class="kw">if</span> (<span class="macro">fast!</span>((<span class="ident">p</span>)[<span class="number">0</span>]) <span class="op">&gt;</span><span class="op">=</span> <span class="string">b&#39;a&#39;</span> <span class="op">&amp;&amp;</span> <span class="macro">fast!</span>((<span class="ident">p</span>)[<span class="number">0</span>]) <span class="op">&lt;</span><span class="op">=</span> <span class="string">b&#39;z&#39;</span>) {
       <span class="macro">fast_mut!</span>((<span class="ident">p</span>)[<span class="number">0</span>]) <span class="op">^</span><span class="op">=</span> <span class="number">32</span>;
@@ -1533,7 +1533,7 @@
                                <span class="kw-2">mut</span> <span class="ident">word</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
                                <span class="kw-2">mut</span> <span class="ident">len</span>: <span class="ident">i32</span>,
                                <span class="ident">transform</span>: <span class="ident">i32</span>)
-                               <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span> {
+                               -&gt; <span class="ident">i32</span> {
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">idx</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">0</span>;
   {
     <span class="kw">let</span> <span class="ident">prefix</span> <span class="op">=</span>
@@ -1565,9 +1565,9 @@
       <span class="ident">i</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
     }
     <span class="kw">let</span> <span class="ident">uppercase</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="macro">fast_mut!</span>((<span class="ident">dst</span>)[(<span class="ident">idx</span> <span class="op">-</span> <span class="ident">len</span>) <span class="kw">as</span> <span class="ident">usize</span> ;]);
-    <span class="kw">if</span> (<span class="ident">t</span> <span class="op">=</span><span class="op">=</span> <span class="ident">kUppercaseFirst</span>) {
+    <span class="kw">if</span> (<span class="ident">t</span> <span class="op">==</span> <span class="ident">kUppercaseFirst</span>) {
       <span class="ident">ToUpperCase</span>(<span class="ident">uppercase</span>);
-    } <span class="kw">else</span> <span class="kw">if</span> (<span class="ident">t</span> <span class="op">=</span><span class="op">=</span> <span class="ident">kUppercaseAll</span>) {
+    } <span class="kw">else</span> <span class="kw">if</span> (<span class="ident">t</span> <span class="op">==</span> <span class="ident">kUppercaseAll</span>) {
       <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">uppercase_offset</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
       <span class="kw">while</span> (<span class="ident">len</span> <span class="op">&gt;</span> <span class="number">0</span>) {
         <span class="kw">let</span> <span class="ident">step</span> <span class="op">=</span> <span class="ident">ToUpperCase</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="macro">fast_mut!</span>((<span class="ident">uppercase</span>)[<span class="ident">uppercase_offset</span>;]));

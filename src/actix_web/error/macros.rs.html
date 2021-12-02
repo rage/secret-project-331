@@ -106,7 +106,7 @@
 <span id="106">106</span>
 <span id="107">107</span>
 </pre><pre class="rust"><code><span class="macro">macro_rules!</span> <span class="ident">downcast_get_type_id</span> {
-    () <span class="op">=</span><span class="op">&gt;</span> {
+    () =&gt; {
         <span class="doccomment">/// A helper method to get the type ID of the type</span>
         <span class="doccomment">/// this trait is implemented on.</span>
         <span class="doccomment">/// This method is unsafe to *implement*, since `downcast_ref` relies</span>
@@ -126,7 +126,7 @@
         <span class="doccomment">/// delegating to an existing implementation of `__private_get_type_id__`</span>
         <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-        <span class="kw">fn</span> <span class="ident">__private_get_type_id__</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="ident">PrivateHelper</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">std::any::TypeId</span>, <span class="ident">PrivateHelper</span>)
+        <span class="kw">fn</span> <span class="ident">__private_get_type_id__</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="ident">PrivateHelper</span>) -&gt; (<span class="ident">std::any::TypeId</span>, <span class="ident">PrivateHelper</span>)
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="lifetime">&#39;static</span>,
         {
@@ -137,7 +137,7 @@
 
 <span class="comment">// Generate implementation for dyn $name</span>
 <span class="macro">macro_rules!</span> <span class="ident">downcast_dyn</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>) =&gt; {
         <span class="doccomment">/// A struct with a private constructor, for use with</span>
         <span class="doccomment">/// `__private_get_type_id__`. Its single field is private,</span>
         <span class="doccomment">/// ensuring that it can only be constructed from this module</span>
@@ -148,9 +148,9 @@
         <span class="kw">impl</span> <span class="kw">dyn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> {
             <span class="doccomment">/// Downcasts generic body to a specific type.</span>
             <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">downcast_ref</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T</span><span class="op">&gt;</span> {
+            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">downcast_ref</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">__private_get_type_id__</span>(<span class="ident">PrivateHelper</span>(())).<span class="number">0</span>
-                    <span class="op">=</span><span class="op">=</span> <span class="ident">std::any::TypeId::of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
+                    <span class="op">==</span> <span class="ident">std::any::TypeId::of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
                 {
                     <span class="comment">// SAFETY: external crates cannot override the default</span>
                     <span class="comment">// implementation of `__private_get_type_id__`, since</span>
@@ -165,9 +165,9 @@
 
             <span class="doccomment">/// Downcasts a generic body to a mutable specific type.</span>
             <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">downcast_mut</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span><span class="op">&gt;</span> {
+            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">downcast_mut</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">__private_get_type_id__</span>(<span class="ident">PrivateHelper</span>(())).<span class="number">0</span>
-                    <span class="op">=</span><span class="op">=</span> <span class="ident">std::any::TypeId::of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
+                    <span class="op">==</span> <span class="ident">std::any::TypeId::of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
                 {
                     <span class="comment">// SAFETY: external crates cannot override the default</span>
                     <span class="comment">// implementation of `__private_get_type_id__`, since</span>

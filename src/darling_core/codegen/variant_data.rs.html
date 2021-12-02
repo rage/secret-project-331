@@ -101,7 +101,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">FieldsGen</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">fields</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Fields</span><span class="op">&lt;</span><span class="ident">Field</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">allow_unknown_fields</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">fields</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Fields</span><span class="op">&lt;</span><span class="ident">Field</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">allow_unknown_fields</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">fields</span>,
             <span class="ident">allow_unknown_fields</span>,
@@ -109,21 +109,21 @@
     }
 
     <span class="doccomment">/// Create declarations for all the fields in the struct.</span>
-    <span class="kw">pub</span>(<span class="kw">in</span> <span class="ident">codegen</span>) <span class="kw">fn</span> <span class="ident">declarations</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream</span> {
+    <span class="kw">pub</span>(<span class="kw">in</span> <span class="ident">codegen</span>) <span class="kw">fn</span> <span class="ident">declarations</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">fields</span> {
             <span class="ident">Fields</span> {
                 <span class="ident">style</span>: <span class="ident">Style::Struct</span>,
                 <span class="kw-2">ref</span> <span class="ident">fields</span>,
-            } <span class="op">=</span><span class="op">&gt;</span> {
+            } =&gt; {
                 <span class="kw">let</span> <span class="ident">vdr</span> <span class="op">=</span> <span class="ident">fields</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="ident">Field::as_declaration</span>);
                 <span class="macro">quote!</span>(#(#<span class="ident">vdr</span>)<span class="kw-2">*</span>)
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;FieldsGen doesn&#39;t support tuples yet&quot;</span>),
+            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;FieldsGen doesn&#39;t support tuples yet&quot;</span>),
         }
     }
 
     <span class="doccomment">/// Generate the loop which walks meta items looking for property matches.</span>
-    <span class="kw">pub</span>(<span class="kw">in</span> <span class="ident">codegen</span>) <span class="kw">fn</span> <span class="ident">core_loop</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream</span> {
+    <span class="kw">pub</span>(<span class="kw">in</span> <span class="ident">codegen</span>) <span class="kw">fn</span> <span class="ident">core_loop</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream</span> {
         <span class="kw">let</span> <span class="ident">arms</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">fields</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="ident">Field::as_match</span>);
 
         <span class="comment">// If we&#39;re allowing unknown fields, then handling one is a no-op.</span>
@@ -153,27 +153,27 @@
                     <span class="kw">let</span> <span class="ident">__name</span> <span class="op">=</span> <span class="ident">__inner</span>.<span class="ident">path</span>().<span class="ident">segments</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">ident</span>.<span class="ident">to_string</span>()).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">join</span>(<span class="string">&quot;::&quot;</span>);
                     <span class="kw">match</span> <span class="ident">__name</span>.<span class="ident">as_str</span>() {
                         #(#<span class="ident">arms</span>)<span class="op">*</span>
-                        <span class="ident">__other</span> <span class="op">=</span><span class="op">&gt;</span> { #<span class="ident">handle_unknown</span> }
+                        <span class="ident">__other</span> =&gt; { #<span class="ident">handle_unknown</span> }
                     }
                 }
             }
         )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">require_fields</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">require_fields</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">fields</span> {
             <span class="ident">Fields</span> {
                 <span class="ident">style</span>: <span class="ident">Style::Struct</span>,
                 <span class="kw-2">ref</span> <span class="ident">fields</span>,
-            } <span class="op">=</span><span class="op">&gt;</span> {
+            } =&gt; {
                 <span class="kw">let</span> <span class="ident">checks</span> <span class="op">=</span> <span class="ident">fields</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="ident">Field::as_presence_check</span>);
                 <span class="macro">quote!</span>(#(#<span class="ident">checks</span>)<span class="kw-2">*</span>)
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;FieldsGen doesn&#39;t support tuples for requirement checks&quot;</span>),
+            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;FieldsGen doesn&#39;t support tuples for requirement checks&quot;</span>),
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">in</span> <span class="ident">codegen</span>) <span class="kw">fn</span> <span class="ident">initializers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream</span> {
+    <span class="kw">pub</span>(<span class="kw">in</span> <span class="ident">codegen</span>) <span class="kw">fn</span> <span class="ident">initializers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream</span> {
         <span class="kw">let</span> <span class="ident">inits</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">fields</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="ident">Field::as_initializer</span>);
         <span class="kw">let</span> <span class="ident">inits</span> <span class="op">=</span> <span class="ident">inits</span>.<span class="ident">iter</span>();
 

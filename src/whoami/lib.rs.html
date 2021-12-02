@@ -387,7 +387,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">std::fmt::Display</span> <span class="kw">for</span> <span class="ident">DesktopEnv</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">std::fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">std::fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">std::fmt::Formatter</span>) -&gt; <span class="ident">std::fmt::Result</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">DesktopEnv::Unknown</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="self">self</span> {
             <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Unknown: &quot;</span>)<span class="question-mark">?</span>;
         }
@@ -396,24 +396,24 @@
             <span class="ident">f</span>,
             <span class="string">&quot;{}&quot;</span>,
             <span class="kw">match</span> <span class="self">self</span> {
-                <span class="ident">DesktopEnv::Gnome</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Gnome&quot;</span>,
-                <span class="ident">DesktopEnv::Windows</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Windows&quot;</span>,
-                <span class="ident">DesktopEnv::Lxde</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;LXDE&quot;</span>,
-                <span class="ident">DesktopEnv::Openbox</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Openbox&quot;</span>,
-                <span class="ident">DesktopEnv::Mate</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Mate&quot;</span>,
-                <span class="ident">DesktopEnv::Xfce</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;XFCE&quot;</span>,
-                <span class="ident">DesktopEnv::Kde</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;KDE&quot;</span>,
-                <span class="ident">DesktopEnv::Cinnamon</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Cinnamon&quot;</span>,
-                <span class="ident">DesktopEnv::I3</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;I3&quot;</span>,
-                <span class="ident">DesktopEnv::Aqua</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Aqua&quot;</span>,
-                <span class="ident">DesktopEnv::Ios</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;IOS&quot;</span>,
-                <span class="ident">DesktopEnv::Android</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Android&quot;</span>,
-                <span class="ident">DesktopEnv::WebBrowser</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Web Browser&quot;</span>,
-                <span class="ident">DesktopEnv::Console</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Console&quot;</span>,
-                <span class="ident">DesktopEnv::Ubuntu</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Ubuntu&quot;</span>,
-                <span class="ident">DesktopEnv::Ermine</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Ermine&quot;</span>,
-                <span class="ident">DesktopEnv::Orbital</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Orbital&quot;</span>,
-                <span class="ident">DesktopEnv::Unknown</span>(<span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>,
+                <span class="ident">DesktopEnv::Gnome</span> =&gt; <span class="string">&quot;Gnome&quot;</span>,
+                <span class="ident">DesktopEnv::Windows</span> =&gt; <span class="string">&quot;Windows&quot;</span>,
+                <span class="ident">DesktopEnv::Lxde</span> =&gt; <span class="string">&quot;LXDE&quot;</span>,
+                <span class="ident">DesktopEnv::Openbox</span> =&gt; <span class="string">&quot;Openbox&quot;</span>,
+                <span class="ident">DesktopEnv::Mate</span> =&gt; <span class="string">&quot;Mate&quot;</span>,
+                <span class="ident">DesktopEnv::Xfce</span> =&gt; <span class="string">&quot;XFCE&quot;</span>,
+                <span class="ident">DesktopEnv::Kde</span> =&gt; <span class="string">&quot;KDE&quot;</span>,
+                <span class="ident">DesktopEnv::Cinnamon</span> =&gt; <span class="string">&quot;Cinnamon&quot;</span>,
+                <span class="ident">DesktopEnv::I3</span> =&gt; <span class="string">&quot;I3&quot;</span>,
+                <span class="ident">DesktopEnv::Aqua</span> =&gt; <span class="string">&quot;Aqua&quot;</span>,
+                <span class="ident">DesktopEnv::Ios</span> =&gt; <span class="string">&quot;IOS&quot;</span>,
+                <span class="ident">DesktopEnv::Android</span> =&gt; <span class="string">&quot;Android&quot;</span>,
+                <span class="ident">DesktopEnv::WebBrowser</span> =&gt; <span class="string">&quot;Web Browser&quot;</span>,
+                <span class="ident">DesktopEnv::Console</span> =&gt; <span class="string">&quot;Console&quot;</span>,
+                <span class="ident">DesktopEnv::Ubuntu</span> =&gt; <span class="string">&quot;Ubuntu&quot;</span>,
+                <span class="ident">DesktopEnv::Ermine</span> =&gt; <span class="string">&quot;Ermine&quot;</span>,
+                <span class="ident">DesktopEnv::Orbital</span> =&gt; <span class="string">&quot;Orbital&quot;</span>,
+                <span class="ident">DesktopEnv::Unknown</span>(<span class="ident">a</span>) =&gt; <span class="ident">a</span>,
             }
         )
     }
@@ -441,7 +441,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">std::fmt::Display</span> <span class="kw">for</span> <span class="ident">Platform</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">std::fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">std::fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">std::fmt::Formatter</span>) -&gt; <span class="ident">std::fmt::Result</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Platform::Unknown</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="self">self</span> {
             <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Unknown: &quot;</span>)<span class="question-mark">?</span>;
         }
@@ -450,18 +450,18 @@
             <span class="ident">f</span>,
             <span class="string">&quot;{}&quot;</span>,
             <span class="kw">match</span> <span class="self">self</span> {
-                <span class="ident">Platform::Linux</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Linux&quot;</span>,
-                <span class="ident">Platform::Bsd</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;BSD&quot;</span>,
-                <span class="ident">Platform::Windows</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Windows&quot;</span>,
-                <span class="ident">Platform::MacOS</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Mac OS&quot;</span>,
-                <span class="ident">Platform::Ios</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;iOS&quot;</span>,
-                <span class="ident">Platform::Android</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Android&quot;</span>,
-                <span class="ident">Platform::Nintendo</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Nintendo&quot;</span>,
-                <span class="ident">Platform::Xbox</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;XBox&quot;</span>,
-                <span class="ident">Platform::PlayStation</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;PlayStation&quot;</span>,
-                <span class="ident">Platform::Fuchsia</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Fuchsia&quot;</span>,
-                <span class="ident">Platform::Redox</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Redox&quot;</span>,
-                <span class="ident">Platform::Unknown</span>(<span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>,
+                <span class="ident">Platform::Linux</span> =&gt; <span class="string">&quot;Linux&quot;</span>,
+                <span class="ident">Platform::Bsd</span> =&gt; <span class="string">&quot;BSD&quot;</span>,
+                <span class="ident">Platform::Windows</span> =&gt; <span class="string">&quot;Windows&quot;</span>,
+                <span class="ident">Platform::MacOS</span> =&gt; <span class="string">&quot;Mac OS&quot;</span>,
+                <span class="ident">Platform::Ios</span> =&gt; <span class="string">&quot;iOS&quot;</span>,
+                <span class="ident">Platform::Android</span> =&gt; <span class="string">&quot;Android&quot;</span>,
+                <span class="ident">Platform::Nintendo</span> =&gt; <span class="string">&quot;Nintendo&quot;</span>,
+                <span class="ident">Platform::Xbox</span> =&gt; <span class="string">&quot;XBox&quot;</span>,
+                <span class="ident">Platform::PlayStation</span> =&gt; <span class="string">&quot;PlayStation&quot;</span>,
+                <span class="ident">Platform::Fuchsia</span> =&gt; <span class="string">&quot;Fuchsia&quot;</span>,
+                <span class="ident">Platform::Redox</span> =&gt; <span class="string">&quot;Redox&quot;</span>,
+                <span class="ident">Platform::Unknown</span>(<span class="ident">a</span>) =&gt; <span class="ident">a</span>,
             }
         )
     }
@@ -482,51 +482,51 @@
 
 <span class="doccomment">/// Get the user&#39;s username.</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">username</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">username</span>() -&gt; <span class="ident">String</span> {
     <span class="ident">native::username</span>()
 }
 
 <span class="doccomment">/// Get the user&#39;s username.</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">username_os</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OsString</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">username_os</span>() -&gt; <span class="ident">OsString</span> {
     <span class="ident">native::username_os</span>()
 }
 
 <span class="doccomment">/// Get the user&#39;s real name.</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">realname</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">realname</span>() -&gt; <span class="ident">String</span> {
     <span class="ident">native::realname</span>()
 }
 
 <span class="doccomment">/// Get the user&#39;s real name.</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">realname_os</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OsString</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">realname_os</span>() -&gt; <span class="ident">OsString</span> {
     <span class="ident">native::realname_os</span>()
 }
 
 <span class="doccomment">/// Get the device name (also known as &quot;Pretty Name&quot;), used to identify device</span>
 <span class="doccomment">/// for bluetooth pairing.</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">devicename</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">devicename</span>() -&gt; <span class="ident">String</span> {
     <span class="ident">native::devicename</span>()
 }
 
 <span class="doccomment">/// Get the device name (also known as &quot;Pretty Name&quot;), used to identify device</span>
 <span class="doccomment">/// for bluetooth pairing.</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">devicename_os</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OsString</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">devicename_os</span>() -&gt; <span class="ident">OsString</span> {
     <span class="ident">native::devicename_os</span>()
 }
 
 <span class="doccomment">/// Get the host device&#39;s hostname.</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hostname</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hostname</span>() -&gt; <span class="ident">String</span> {
     <span class="ident">native::hostname</span>()
 }
 
 <span class="doccomment">/// Get the host device&#39;s hostname.</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hostname_os</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OsString</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hostname_os</span>() -&gt; <span class="ident">OsString</span> {
     <span class="ident">native::hostname_os</span>()
 }
 
@@ -534,7 +534,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// Example: &quot;Windows 10&quot; or &quot;Fedora 26 (Workstation Edition)&quot;</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">distro</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">distro</span>() -&gt; <span class="ident">String</span> {
     <span class="ident">native::distro</span>().<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;Unknown {}&quot;</span>, <span class="ident">platform</span>()))
 }
 
@@ -542,7 +542,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// Example: &quot;Windows 10&quot; or &quot;Fedora 26 (Workstation Edition)&quot;</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">distro_os</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OsString</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">distro_os</span>() -&gt; <span class="ident">OsString</span> {
     <span class="ident">native::distro_os</span>()
         .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;Unknown {}&quot;</span>, <span class="ident">platform</span>()).<span class="ident">into</span>())
 }
@@ -551,13 +551,13 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// Example: &quot;gnome&quot; or &quot;windows&quot;</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">desktop_env</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DesktopEnv</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">desktop_env</span>() -&gt; <span class="ident">DesktopEnv</span> {
     <span class="ident">native::desktop_env</span>()
 }
 
 <span class="doccomment">/// Get the platform.</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">platform</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Platform</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">platform</span>() -&gt; <span class="ident">Platform</span> {
     <span class="ident">native::platform</span>()
 }
 
@@ -567,7 +567,7 @@
 <span class="doccomment">/// followed by a dash (-) and a two letter region code (uppercase).  The most</span>
 <span class="doccomment">/// preferred language is returned first, followed by next preferred, and so on.</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lang</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">String</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lang</span>() -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">String</span><span class="op">&gt;</span> {
     <span class="ident">native::lang</span>()
 }
 </code></pre></div>

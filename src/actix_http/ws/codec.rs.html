@@ -376,7 +376,7 @@
 
 <span class="kw">impl</span> <span class="ident">Codec</span> {
     <span class="doccomment">/// Create new WebSocket frames decoder.</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Codec</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">Codec</span> {
         <span class="ident">Codec</span> {
             <span class="ident">max_size</span>: <span class="number">65_536</span>,
             <span class="ident">flags</span>: <span class="ident">Flags::SERVER</span>,
@@ -386,7 +386,7 @@
     <span class="doccomment">/// Set max frame size.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// By default max size is set to 64kB.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_size</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">size</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_size</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">size</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">max_size</span> <span class="op">=</span> <span class="ident">size</span>;
         <span class="self">self</span>
     }
@@ -394,7 +394,7 @@
     <span class="doccomment">/// Set decoder to client mode.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// By default decoder works in server mode.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">client_mode</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">client_mode</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">remove</span>(<span class="ident">Flags::SERVER</span>);
         <span class="self">self</span>
     }
@@ -403,41 +403,41 @@
 <span class="kw">impl</span> <span class="ident">Encoder</span><span class="op">&lt;</span><span class="ident">Message</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Codec</span> {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">ProtocolError</span>;
 
-    <span class="kw">fn</span> <span class="ident">encode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">item</span>: <span class="ident">Message</span>, <span class="ident">dst</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">encode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">item</span>: <span class="ident">Message</span>, <span class="ident">dst</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">item</span> {
-            <span class="ident">Message::Text</span>(<span class="ident">txt</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Parser::write_message</span>(
+            <span class="ident">Message::Text</span>(<span class="ident">txt</span>) =&gt; <span class="ident">Parser::write_message</span>(
                 <span class="ident">dst</span>,
                 <span class="ident">txt</span>,
                 <span class="ident">OpCode::Text</span>,
                 <span class="bool-val">true</span>,
                 <span class="op">!</span><span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::SERVER</span>),
             ),
-            <span class="ident">Message::Binary</span>(<span class="ident">bin</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Parser::write_message</span>(
+            <span class="ident">Message::Binary</span>(<span class="ident">bin</span>) =&gt; <span class="ident">Parser::write_message</span>(
                 <span class="ident">dst</span>,
                 <span class="ident">bin</span>,
                 <span class="ident">OpCode::Binary</span>,
                 <span class="bool-val">true</span>,
                 <span class="op">!</span><span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::SERVER</span>),
             ),
-            <span class="ident">Message::Ping</span>(<span class="ident">txt</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Parser::write_message</span>(
+            <span class="ident">Message::Ping</span>(<span class="ident">txt</span>) =&gt; <span class="ident">Parser::write_message</span>(
                 <span class="ident">dst</span>,
                 <span class="ident">txt</span>,
                 <span class="ident">OpCode::Ping</span>,
                 <span class="bool-val">true</span>,
                 <span class="op">!</span><span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::SERVER</span>),
             ),
-            <span class="ident">Message::Pong</span>(<span class="ident">txt</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Parser::write_message</span>(
+            <span class="ident">Message::Pong</span>(<span class="ident">txt</span>) =&gt; <span class="ident">Parser::write_message</span>(
                 <span class="ident">dst</span>,
                 <span class="ident">txt</span>,
                 <span class="ident">OpCode::Pong</span>,
                 <span class="bool-val">true</span>,
                 <span class="op">!</span><span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::SERVER</span>),
             ),
-            <span class="ident">Message::Close</span>(<span class="ident">reason</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Message::Close</span>(<span class="ident">reason</span>) =&gt; {
                 <span class="ident">Parser::write_close</span>(<span class="ident">dst</span>, <span class="ident">reason</span>, <span class="op">!</span><span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::SERVER</span>))
             }
-            <span class="ident">Message::Continuation</span>(<span class="ident">cont</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">cont</span> {
-                <span class="ident">Item::FirstText</span>(<span class="ident">data</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Message::Continuation</span>(<span class="ident">cont</span>) =&gt; <span class="kw">match</span> <span class="ident">cont</span> {
+                <span class="ident">Item::FirstText</span>(<span class="ident">data</span>) =&gt; {
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::W_CONTINUATION</span>) {
                         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ProtocolError::ContinuationStarted</span>);
                     } <span class="kw">else</span> {
@@ -451,7 +451,7 @@
                         )
                     }
                 }
-                <span class="ident">Item::FirstBinary</span>(<span class="ident">data</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Item::FirstBinary</span>(<span class="ident">data</span>) =&gt; {
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::W_CONTINUATION</span>) {
                         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ProtocolError::ContinuationStarted</span>);
                     } <span class="kw">else</span> {
@@ -465,7 +465,7 @@
                         )
                     }
                 }
-                <span class="ident">Item::Continue</span>(<span class="ident">data</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Item::Continue</span>(<span class="ident">data</span>) =&gt; {
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::W_CONTINUATION</span>) {
                         <span class="ident">Parser::write_message</span>(
                             <span class="ident">dst</span>,
@@ -478,7 +478,7 @@
                         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ProtocolError::ContinuationNotStarted</span>);
                     }
                 }
-                <span class="ident">Item::Last</span>(<span class="ident">data</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Item::Last</span>(<span class="ident">data</span>) =&gt; {
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::W_CONTINUATION</span>) {
                         <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">remove</span>(<span class="ident">Flags::W_CONTINUATION</span>);
                         <span class="ident">Parser::write_message</span>(
@@ -493,7 +493,7 @@
                     }
                 }
             },
-            <span class="ident">Message::Nop</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            <span class="ident">Message::Nop</span> =&gt; {}
         }
         <span class="prelude-val">Ok</span>(())
     }
@@ -503,13 +503,13 @@
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">Frame</span>;
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">ProtocolError</span>;
 
-    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">src</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">src</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">Parser::parse</span>(<span class="ident">src</span>, <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::SERVER</span>), <span class="self">self</span>.<span class="ident">max_size</span>) {
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((<span class="ident">finished</span>, <span class="ident">opcode</span>, <span class="ident">payload</span>))) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((<span class="ident">finished</span>, <span class="ident">opcode</span>, <span class="ident">payload</span>))) =&gt; {
                 <span class="comment">// continuation is not supported</span>
                 <span class="kw">if</span> <span class="op">!</span><span class="ident">finished</span> {
                     <span class="kw">return</span> <span class="kw">match</span> <span class="ident">opcode</span> {
-                        <span class="ident">OpCode::Continue</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">OpCode::Continue</span> =&gt; {
                             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::CONTINUATION</span>) {
                                 <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">Frame::Continuation</span>(<span class="ident">Item::Continue</span>(
                                     <span class="ident">payload</span>
@@ -520,7 +520,7 @@
                                 <span class="prelude-val">Err</span>(<span class="ident">ProtocolError::ContinuationNotStarted</span>)
                             }
                         }
-                        <span class="ident">OpCode::Binary</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">OpCode::Binary</span> =&gt; {
                             <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::CONTINUATION</span>) {
                                 <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">insert</span>(<span class="ident">Flags::CONTINUATION</span>);
                                 <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">Frame::Continuation</span>(<span class="ident">Item::FirstBinary</span>(
@@ -532,7 +532,7 @@
                                 <span class="prelude-val">Err</span>(<span class="ident">ProtocolError::ContinuationStarted</span>)
                             }
                         }
-                        <span class="ident">OpCode::Text</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">OpCode::Text</span> =&gt; {
                             <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::CONTINUATION</span>) {
                                 <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">insert</span>(<span class="ident">Flags::CONTINUATION</span>);
                                 <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">Frame::Continuation</span>(<span class="ident">Item::FirstText</span>(
@@ -544,7 +544,7 @@
                                 <span class="prelude-val">Err</span>(<span class="ident">ProtocolError::ContinuationStarted</span>)
                             }
                         }
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="kw">_</span> =&gt; {
                             <span class="macro">error!</span>(<span class="string">&quot;Unfinished fragment {:?}&quot;</span>, <span class="ident">opcode</span>);
                             <span class="prelude-val">Err</span>(<span class="ident">ProtocolError::ContinuationFragment</span>(<span class="ident">opcode</span>))
                         }
@@ -552,7 +552,7 @@
                 }
 
                 <span class="kw">match</span> <span class="ident">opcode</span> {
-                    <span class="ident">OpCode::Continue</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">OpCode::Continue</span> =&gt; {
                         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::CONTINUATION</span>) {
                             <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">remove</span>(<span class="ident">Flags::CONTINUATION</span>);
                             <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">Frame::Continuation</span>(<span class="ident">Item::Last</span>(
@@ -562,8 +562,8 @@
                             <span class="prelude-val">Err</span>(<span class="ident">ProtocolError::ContinuationNotStarted</span>)
                         }
                     }
-                    <span class="ident">OpCode::Bad</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">ProtocolError::BadOpCode</span>),
-                    <span class="ident">OpCode::Close</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">OpCode::Bad</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">ProtocolError::BadOpCode</span>),
+                    <span class="ident">OpCode::Close</span> =&gt; {
                         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">payload</span> {
                             <span class="kw">let</span> <span class="ident">close_reason</span> <span class="op">=</span> <span class="ident">Parser::parse_close_payload</span>(<span class="ident">pl</span>);
                             <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">Frame::Close</span>(<span class="ident">close_reason</span>)))
@@ -571,22 +571,22 @@
                             <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">Frame::Close</span>(<span class="prelude-val">None</span>)))
                         }
                     }
-                    <span class="ident">OpCode::Ping</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">Frame::Ping</span>(
+                    <span class="ident">OpCode::Ping</span> =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">Frame::Ping</span>(
                         <span class="ident">payload</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">pl</span><span class="op">|</span> <span class="ident">pl</span>.<span class="ident">freeze</span>()).<span class="ident">unwrap_or_else</span>(<span class="ident">Bytes::new</span>),
                     ))),
-                    <span class="ident">OpCode::Pong</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">Frame::Pong</span>(
+                    <span class="ident">OpCode::Pong</span> =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">Frame::Pong</span>(
                         <span class="ident">payload</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">pl</span><span class="op">|</span> <span class="ident">pl</span>.<span class="ident">freeze</span>()).<span class="ident">unwrap_or_else</span>(<span class="ident">Bytes::new</span>),
                     ))),
-                    <span class="ident">OpCode::Binary</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">Frame::Binary</span>(
+                    <span class="ident">OpCode::Binary</span> =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">Frame::Binary</span>(
                         <span class="ident">payload</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">pl</span><span class="op">|</span> <span class="ident">pl</span>.<span class="ident">freeze</span>()).<span class="ident">unwrap_or_else</span>(<span class="ident">Bytes::new</span>),
                     ))),
-                    <span class="ident">OpCode::Text</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">Frame::Text</span>(
+                    <span class="ident">OpCode::Text</span> =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">Frame::Text</span>(
                         <span class="ident">payload</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">pl</span><span class="op">|</span> <span class="ident">pl</span>.<span class="ident">freeze</span>()).<span class="ident">unwrap_or_else</span>(<span class="ident">Bytes::new</span>),
                     ))),
                 }
             }
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
+            <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">e</span>),
         }
     }
 }

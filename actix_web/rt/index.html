@@ -10,7 +10,7 @@ have similar runtime expense.</p>
 <p>The disadvantage is that idle threads will not steal work from very busy, stuck or otherwise
 backlogged threads. Tasks that are disproportionately expensive should be offloaded to the
 blocking task thread-pool using <a href="task/fn.spawn_blocking.html" title="task::spawn_blocking"><code>task::spawn_blocking</code></a>.</p>
-<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
+<h2 id="examples" class="section-header"><a href="#examples">Examples</a></h2>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::sync::mpsc</span>;
 <span class="kw">use</span> <span class="ident">actix_rt</span>::{<span class="ident">Arbiter</span>, <span class="ident">System</span>};
 
@@ -27,24 +27,24 @@ blocking task thread-pool using <a href="task/fn.spawn_blocking.html" title="tas
 <span class="ident">arbiter</span>.<span class="ident">stop</span>();
 <span class="ident">arbiter</span>.<span class="ident">join</span>().<span class="ident">unwrap</span>();</code></pre></div>
 </div></details><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="mod" href="net/index.html" title="actix_web::rt::net mod">net</a></div><div class="item-right docblock-short"><p>TCP/UDP/Unix bindings (mostly Tokio re-exports).</p>
-</div><div class="item-left module-item"><a class="mod" href="signal/index.html" title="actix_web::rt::signal mod">signal</a></div><div class="item-right docblock-short"><p>Asynchronous signal handling (Tokio re-exports).</p>
-</div><div class="item-left module-item"><a class="mod" href="task/index.html" title="actix_web::rt::task mod">task</a></div><div class="item-right docblock-short"><p>Task management (Tokio re-exports).</p>
-</div><div class="item-left module-item"><a class="mod" href="time/index.html" title="actix_web::rt::time mod">time</a></div><div class="item-right docblock-short"><p>Utilities for tracking time (Tokio re-exports).</p>
-</div></div><h2 id="macros" class="section-header"><a href="#macros">Macros</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="macro" href="macro.pin.html" title="actix_web::rt::pin macro">pin</a></div><div class="item-right docblock-short"><p>Pins a value on the stack.</p>
-</div></div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.Arbiter.html" title="actix_web::rt::Arbiter struct">Arbiter</a></div><div class="item-right docblock-short"><p>An Arbiter represents a thread that provides an asynchronous execution environment for futures
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="mod" href="net/index.html" title="actix_web::rt::net mod">net</a></div><div class="item-right docblock-short"><p>TCP/UDP/Unix bindings (mostly Tokio re-exports).</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="signal/index.html" title="actix_web::rt::signal mod">signal</a></div><div class="item-right docblock-short"><p>Asynchronous signal handling (Tokio re-exports).</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="task/index.html" title="actix_web::rt::task mod">task</a></div><div class="item-right docblock-short"><p>Task management (Tokio re-exports).</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="time/index.html" title="actix_web::rt::time mod">time</a></div><div class="item-right docblock-short"><p>Utilities for tracking time (Tokio re-exports).</p>
+</div></div></div><h2 id="macros" class="section-header"><a href="#macros">Macros</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="macro" href="macro.pin.html" title="actix_web::rt::pin macro">pin</a></div><div class="item-right docblock-short"><p>Pins a value on the stack.</p>
+</div></div></div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Arbiter.html" title="actix_web::rt::Arbiter struct">Arbiter</a></div><div class="item-right docblock-short"><p>An Arbiter represents a thread that provides an asynchronous execution environment for futures
 and functions.</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.ArbiterHandle.html" title="actix_web::rt::ArbiterHandle struct">ArbiterHandle</a></div><div class="item-right docblock-short"><p>A handle for sending spawn and stop messages to an <a href="struct.Arbiter.html" title="Arbiter">Arbiter</a>.</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.Runtime.html" title="actix_web::rt::Runtime struct">Runtime</a></div><div class="item-right docblock-short"><p>A Tokio-based runtime proxy.</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.System.html" title="actix_web::rt::System struct">System</a></div><div class="item-right docblock-short"><p>A manager for a per-thread distributed async runtime.</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.SystemRunner.html" title="actix_web::rt::SystemRunner struct">SystemRunner</a></div><div class="item-right docblock-short"><p>Runner that keeps a <a href="struct.System.html" title="System">System</a>’s event loop alive until stop message is received.</p>
-</div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="fn" href="fn.spawn.html" title="actix_web::rt::spawn fn">spawn</a></div><div class="item-right docblock-short"><p>Spawns a future on the current thread.</p>
-</div></div><h2 id="attributes" class="section-header"><a href="#attributes">Attribute Macros</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="attr" href="attr.main.html" title="actix_web::rt::main attr">main</a></div><div class="item-right docblock-short"><p>Marks async entry-point function to be executed by Actix system.</p>
-</div><div class="item-left module-item"><a class="attr" href="attr.test.html" title="actix_web::rt::test attr">test</a></div><div class="item-right docblock-short"><p>Marks async test function to be executed in an Actix system.</p>
-</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_web" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.ArbiterHandle.html" title="actix_web::rt::ArbiterHandle struct">ArbiterHandle</a></div><div class="item-right docblock-short"><p>A handle for sending spawn and stop messages to an <a href="struct.Arbiter.html" title="Arbiter">Arbiter</a>.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Runtime.html" title="actix_web::rt::Runtime struct">Runtime</a></div><div class="item-right docblock-short"><p>A Tokio-based runtime proxy.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.System.html" title="actix_web::rt::System struct">System</a></div><div class="item-right docblock-short"><p>A manager for a per-thread distributed async runtime.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.SystemRunner.html" title="actix_web::rt::SystemRunner struct">SystemRunner</a></div><div class="item-right docblock-short"><p>Runner that keeps a <a href="struct.System.html" title="System">System</a>’s event loop alive until stop message is received.</p>
+</div></div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.spawn.html" title="actix_web::rt::spawn fn">spawn</a></div><div class="item-right docblock-short"><p>Spawns a future on the current thread.</p>
+</div></div></div><h2 id="attributes" class="section-header"><a href="#attributes">Attribute Macros</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="attr" href="attr.main.html" title="actix_web::rt::main attr">main</a></div><div class="item-right docblock-short"><p>Marks async entry-point function to be executed by Actix system.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="attr" href="attr.test.html" title="actix_web::rt::test attr">test</a></div><div class="item-right docblock-short"><p>Marks async test function to be executed in an Actix system.</p>
+</div></div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_web" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script>
 </body></html>

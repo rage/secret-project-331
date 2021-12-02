@@ -195,7 +195,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Parse</span> <span class="kw">for</span> <span class="ident">VariantAttr</span> {
-    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">content</span>;
         <span class="kw">let</span> <span class="ident">_paren_token</span> <span class="op">=</span> <span class="macro">parenthesized!</span>(<span class="ident">content</span> <span class="kw">in</span> <span class="ident">input</span>);
         <span class="prelude-val">Ok</span>(<span class="ident">VariantAttr</span> {
@@ -212,10 +212,10 @@
         <span class="ident">data</span>,
         ..
     }: <span class="ident">DeriveInput</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ItemImpl</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ItemImpl</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">data</span> {
-        <span class="ident">Data::Enum</span>(<span class="ident">data</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">data</span>,
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(<span class="string">&quot;expand_enum is called with none-enum item&quot;</span>),
+        <span class="ident">Data::Enum</span>(<span class="ident">data</span>) =&gt; <span class="ident">data</span>,
+        <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;expand_enum is called with none-enum item&quot;</span>),
     };
 
     <span class="kw">let</span> <span class="ident">deserialize</span> <span class="op">=</span> {
@@ -225,7 +225,7 @@
             .<span class="ident">iter</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">variant</span><span class="op">|</span> {
                 <span class="kw">let</span> <span class="ident">field_type</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">variant</span>.<span class="ident">fields</span> {
-                    <span class="ident">Fields::Unnamed</span>(<span class="kw-2">ref</span> <span class="ident">fields</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">Fields::Unnamed</span>(<span class="kw-2">ref</span> <span class="ident">fields</span>) =&gt; {
                         <span class="macro">assert_eq!</span>(
                             <span class="ident">fields</span>.<span class="ident">unnamed</span>.<span class="ident">len</span>(),
                             <span class="number">1</span>,
@@ -234,14 +234,14 @@
 
                         <span class="ident">fields</span>.<span class="ident">unnamed</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">ty</span>.<span class="ident">clone</span>()
                     }
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">_</span> =&gt; {
                         <span class="macro">unreachable!</span>(<span class="string">&quot;#[ast_node] enum cannot contain named fields or unit variant&quot;</span>)
                     }
                 };
                 <span class="kw">let</span> <span class="ident">tags</span> <span class="op">=</span> <span class="ident">variant</span>
                     .<span class="ident">attrs</span>
                     .<span class="ident">iter</span>()
-                    .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">attr</span><span class="op">|</span> <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">VariantAttr</span><span class="op">&gt;</span> {
+                    .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">attr</span><span class="op">|</span> -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">VariantAttr</span><span class="op">&gt;</span> {
                         <span class="kw">if</span> <span class="op">!</span><span class="ident">is_attr_name</span>(<span class="ident">attr</span>, <span class="string">&quot;tag&quot;</span>) {
                             <span class="kw">return</span> <span class="prelude-val">None</span>;
                         }
@@ -257,10 +257,10 @@
                     <span class="op">!</span><span class="ident">tags</span>.<span class="ident">is_empty</span>(),
                     <span class="string">&quot;All #[ast_node] enum variants have one or more tag&quot;</span>
                 );
-                <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span>
+                <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span>
                     <span class="op">&amp;&amp;</span> <span class="kw">match</span> <span class="ident">tags</span>.<span class="ident">first</span>() {
-                        <span class="prelude-val">Some</span>(<span class="ident">Lit::Str</span>(<span class="ident">s</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">s</span>.<span class="ident">value</span>() <span class="op">=</span><span class="op">=</span> <span class="string">&quot;*&quot;</span>,
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+                        <span class="prelude-val">Some</span>(<span class="ident">Lit::Str</span>(<span class="ident">s</span>)) =&gt; <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">s</span>.<span class="ident">value</span>() <span class="op">==</span> <span class="string">&quot;*&quot;</span>,
+                        <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
                     }
                 {
                     <span class="ident">Quote::new_call_site</span>()
@@ -279,8 +279,8 @@
                                     ),
                                     <span class="ident">Enum::Variant</span>,
                                 ) {
-                                    <span class="prelude-val">Ok</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">v</span>),
-                                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>),
+                                    <span class="prelude-val">Ok</span>(<span class="ident">v</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">v</span>),
+                                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>),
                                 }
                             }
                         ))
@@ -338,7 +338,7 @@
                 {
                     <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">serde::Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Enum</span> {
                         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unreachable_code</span>)]</span>
-                        <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">Deserializer</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">::std::result::Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">D::Error</span><span class="op">&gt;</span>
+                        <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">Deserializer</span>: <span class="ident">D</span>) -&gt; <span class="ident">::std::result::Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">D::Error</span><span class="op">&gt;</span>
                         <span class="kw">where</span>
                             <span class="ident">D</span>: <span class="ident">serde::Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
                         {

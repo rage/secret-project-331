@@ -132,7 +132,7 @@
     <span class="ident">block_len</span>: <span class="ident">u8</span>,
     <span class="ident">counter</span>: <span class="ident">u64</span>,
     <span class="ident">flags</span>: <span class="ident">u8</span>,
-) <span class="op">-</span><span class="op">&gt;</span> [<span class="ident">u8</span>; <span class="number">64</span>] {
+) -&gt; [<span class="ident">u8</span>; <span class="number">64</span>] {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span> <span class="op">=</span> [<span class="number">0u8</span>; <span class="number">64</span>];
     <span class="ident">ffi::blake3_compress_xof_sse41</span>(
         <span class="ident">cv</span>.<span class="ident">as_ptr</span>(),

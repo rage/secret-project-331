@@ -349,7 +349,7 @@
     <span class="doccomment">///     ])</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    (<span class="ident">Accept</span>, <span class="ident">header::ACCEPT</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">Mime</span><span class="op">&gt;</span>)<span class="op">+</span>
+    (<span class="ident">Accept</span>, <span class="ident">header::ACCEPT</span>) =&gt; (<span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">Mime</span><span class="op">&gt;</span>)<span class="op">+</span>
 
     <span class="ident">test_accept</span> {
         <span class="comment">// Tests from the RFC</span>
@@ -398,27 +398,27 @@
 
 <span class="kw">impl</span> <span class="ident">Accept</span> {
     <span class="doccomment">/// Construct `Accept: */*`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">star</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Accept</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">star</span>() -&gt; <span class="ident">Accept</span> {
         <span class="ident">Accept</span>(<span class="macro">vec!</span>[<span class="ident">qitem</span>(<span class="ident">mime::STAR_STAR</span>)])
     }
 
     <span class="doccomment">/// Construct `Accept: application/json`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">json</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Accept</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">json</span>() -&gt; <span class="ident">Accept</span> {
         <span class="ident">Accept</span>(<span class="macro">vec!</span>[<span class="ident">qitem</span>(<span class="ident">mime::APPLICATION_JSON</span>)])
     }
 
     <span class="doccomment">/// Construct `Accept: text/*`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">text</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Accept</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">text</span>() -&gt; <span class="ident">Accept</span> {
         <span class="ident">Accept</span>(<span class="macro">vec!</span>[<span class="ident">qitem</span>(<span class="ident">mime::TEXT_STAR</span>)])
     }
 
     <span class="doccomment">/// Construct `Accept: image/*`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">image</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Accept</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">image</span>() -&gt; <span class="ident">Accept</span> {
         <span class="ident">Accept</span>(<span class="macro">vec!</span>[<span class="ident">qitem</span>(<span class="ident">mime::IMAGE_STAR</span>)])
     }
 
     <span class="doccomment">/// Construct `Accept: text/html`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">html</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Accept</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">html</span>() -&gt; <span class="ident">Accept</span> {
         <span class="ident">Accept</span>(<span class="macro">vec!</span>[<span class="ident">qitem</span>(<span class="ident">mime::TEXT_HTML</span>)])
     }
 
@@ -426,7 +426,7 @@
     <span class="doccomment">/// [q-factor weighting] and specificity.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [q-factor weighting]: https://tools.ietf.org/html/rfc7231#section-5.3.2</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mime_precedence</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Mime</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mime_precedence</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Mime</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">types</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">clone</span>();
 
         <span class="comment">// use stable sort so items with equal q-factor and specificity retain listed order</span>
@@ -438,29 +438,29 @@
 
                 <span class="comment">// subtypes are not comparable if main type is star, so return</span>
                 <span class="kw">match</span> (<span class="ident">a</span>.<span class="ident">item</span>.<span class="ident">type_</span>(), <span class="ident">b</span>.<span class="ident">item</span>.<span class="ident">type_</span>()) {
-                    (<span class="ident">mime::STAR</span>, <span class="ident">mime::STAR</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">Ordering::Equal</span>,
+                    (<span class="ident">mime::STAR</span>, <span class="ident">mime::STAR</span>) =&gt; <span class="kw">return</span> <span class="ident">Ordering::Equal</span>,
 
                     <span class="comment">// a is sorted after b</span>
-                    (<span class="ident">mime::STAR</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">Ordering::Greater</span>,
+                    (<span class="ident">mime::STAR</span>, <span class="kw">_</span>) =&gt; <span class="kw">return</span> <span class="ident">Ordering::Greater</span>,
 
                     <span class="comment">// a is sorted before b</span>
-                    (<span class="kw">_</span>, <span class="ident">mime::STAR</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">Ordering::Less</span>,
+                    (<span class="kw">_</span>, <span class="ident">mime::STAR</span>) =&gt; <span class="kw">return</span> <span class="ident">Ordering::Less</span>,
 
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+                    <span class="kw">_</span> =&gt; {}
                 }
 
                 <span class="comment">// in both these match expressions, the returned ordering appears</span>
                 <span class="comment">// inverted because sort is high-to-low (&quot;descending&quot;) precedence</span>
                 <span class="kw">match</span> (<span class="ident">a</span>.<span class="ident">item</span>.<span class="ident">subtype</span>(), <span class="ident">b</span>.<span class="ident">item</span>.<span class="ident">subtype</span>()) {
-                    (<span class="ident">mime::STAR</span>, <span class="ident">mime::STAR</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Ordering::Equal</span>,
+                    (<span class="ident">mime::STAR</span>, <span class="ident">mime::STAR</span>) =&gt; <span class="ident">Ordering::Equal</span>,
 
                     <span class="comment">// a is sorted after b</span>
-                    (<span class="ident">mime::STAR</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Ordering::Greater</span>,
+                    (<span class="ident">mime::STAR</span>, <span class="kw">_</span>) =&gt; <span class="ident">Ordering::Greater</span>,
 
                     <span class="comment">// a is sorted before b</span>
-                    (<span class="kw">_</span>, <span class="ident">mime::STAR</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Ordering::Less</span>,
+                    (<span class="kw">_</span>, <span class="ident">mime::STAR</span>) =&gt; <span class="ident">Ordering::Less</span>,
 
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Ordering::Equal</span>,
+                    <span class="kw">_</span> =&gt; <span class="ident">Ordering::Equal</span>,
                 }
             })
         });
@@ -476,7 +476,7 @@
     <span class="doccomment">/// Returns `None` if contained list is empty.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [q-factor weighting]: https://tools.ietf.org/html/rfc7231#section-5.3.2</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mime_preference</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Mime</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mime_preference</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Mime</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">types</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">mime_precedence</span>();
         <span class="ident">types</span>.<span class="ident">first</span>().<span class="ident">cloned</span>()
     }

@@ -311,7 +311,7 @@
 <span class="doccomment">///     assert!(asserted_string == expected_string);</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_screaming_snake_case</span>(<span class="ident">non_snake_case_string</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_screaming_snake_case</span>(<span class="ident">non_snake_case_string</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">String</span> {
     <span class="ident">to_case_snake_like</span>(<span class="ident">non_snake_case_string</span>, <span class="string">&quot;_&quot;</span>, <span class="string">&quot;upper&quot;</span>)
 }
 
@@ -373,8 +373,8 @@
 <span class="doccomment">///     assert!(asserted_bool == true);</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_screaming_snake_case</span>(<span class="ident">test_string</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-    <span class="ident">test_string</span> <span class="op">=</span><span class="op">=</span> <span class="ident">to_screaming_snake_case</span>(<span class="ident">test_string</span>.<span class="ident">clone</span>())
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_screaming_snake_case</span>(<span class="ident">test_string</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
+    <span class="ident">test_string</span> <span class="op">==</span> <span class="ident">to_screaming_snake_case</span>(<span class="ident">test_string</span>.<span class="ident">clone</span>())
 }
 
 

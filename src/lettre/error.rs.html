@@ -84,23 +84,23 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">fmt::Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">fmt::Error</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Error::MissingFrom</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;missing source address, invalid envelope&quot;</span>),
-            <span class="ident">Error::MissingTo</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;missing destination address, invalid envelope&quot;</span>),
-            <span class="ident">Error::TooManyFrom</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;there can only be one source address&quot;</span>),
-            <span class="ident">Error::EmailMissingAt</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;missing @ in email address&quot;</span>),
-            <span class="ident">Error::EmailMissingLocalPart</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;missing local part in email address&quot;</span>),
-            <span class="ident">Error::EmailMissingDomain</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;missing domain in email address&quot;</span>),
-            <span class="ident">Error::CannotParseFilename</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;could not parse attachment filename&quot;</span>),
-            <span class="ident">Error::NonAsciiChars</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;contains non-ASCII chars&quot;</span>),
-            <span class="ident">Error::Io</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">e</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
+            <span class="ident">Error::MissingFrom</span> =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;missing source address, invalid envelope&quot;</span>),
+            <span class="ident">Error::MissingTo</span> =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;missing destination address, invalid envelope&quot;</span>),
+            <span class="ident">Error::TooManyFrom</span> =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;there can only be one source address&quot;</span>),
+            <span class="ident">Error::EmailMissingAt</span> =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;missing @ in email address&quot;</span>),
+            <span class="ident">Error::EmailMissingLocalPart</span> =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;missing local part in email address&quot;</span>),
+            <span class="ident">Error::EmailMissingDomain</span> =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;missing domain in email address&quot;</span>),
+            <span class="ident">Error::CannotParseFilename</span> =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;could not parse attachment filename&quot;</span>),
+            <span class="ident">Error::NonAsciiChars</span> =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;contains non-ASCII chars&quot;</span>),
+            <span class="ident">Error::Io</span>(<span class="ident">e</span>) =&gt; <span class="ident">e</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">std::io::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">std::io::Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Error</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">std::io::Error</span>) -&gt; <span class="ident">Error</span> {
         <span class="ident">Error::Io</span>(<span class="ident">err</span>)
     }
 }

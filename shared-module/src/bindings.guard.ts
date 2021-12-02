@@ -38,6 +38,7 @@ import {
   ErrorResponse,
   Exam,
   ExamCourseInfo,
+  ExamData,
   ExamEnrollment,
   Exercise,
   ExerciseService,
@@ -357,9 +358,13 @@ export function isExam(obj: any, _argumentName?: string): obj is Exam {
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
     typeof obj.name === "string" &&
+    typeof obj.instructions === "string" &&
     typeof obj.page_id === "string" &&
     Array.isArray(obj.courses) &&
-    obj.courses.every((e: any) => isCourse(e) as boolean)
+    obj.courses.every((e: any) => isCourse(e) as boolean) &&
+    (obj.starts_at === null || obj.starts_at instanceof Date) &&
+    (obj.ends_at === null || obj.ends_at instanceof Date) &&
+    typeof obj.time_minutes === "number"
   )
 }
 
@@ -368,7 +373,7 @@ export function isExamEnrollment(obj: any, _argumentName?: string): obj is ExamE
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.user_id === "string" &&
     typeof obj.exam_id === "string" &&
-    (obj.started_at === null || obj.started_at instanceof Date)
+    obj.started_at instanceof Date
   )
 }
 
@@ -1064,6 +1069,28 @@ export function isUser(obj: any, _argumentName?: string): obj is User {
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
     (obj.upstream_id === null || typeof obj.upstream_id === "number") &&
     typeof obj.email === "string"
+  )
+}
+
+export function isExamData(obj: any, _argumentName?: string): obj is ExamData {
+  return (
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.tag === "EnrolledAndOpen" &&
+      typeof obj.id === "string" &&
+      typeof obj.name === "string" &&
+      typeof obj.instructions === "string" &&
+      typeof obj.page_id === "string" &&
+      Array.isArray(obj.courses) &&
+      obj.courses.every((e: any) => isCourse(e) as boolean) &&
+      obj.starts_at instanceof Date &&
+      (obj.ends_at === null || obj.ends_at instanceof Date) &&
+      typeof obj.time_minutes === "number" &&
+      (isPage(obj.page) as boolean) &&
+      (isExamEnrollment(obj.enrollment) as boolean)) ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.tag === "EnrolledAndClosed") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.tag === "NotEnrolled")
   )
 }
 

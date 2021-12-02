@@ -1,10 +1,17 @@
 use crate::{
     controllers::ControllerResult,
     domain::authorization::AuthUser,
-    models::exams::{self, ExamEnrollment},
+    models::{
+        courses::Course,
+        exams::{self, ExamEnrollment},
+        pages::{self, Page},
+    },
 };
 use actix_web::web::{self, Json, ServiceConfig};
+use chrono::{DateTime, Utc};
+use serde::Serialize;
 use sqlx::PgPool;
+use ts_rs::TS;
 use uuid::Uuid;
 
 pub async fn enrollment(
@@ -27,14 +34,75 @@ pub async fn enroll(
     Ok(Json(()))
 }
 
-pub async fn start(
+#[derive(Debug, Serialize, TS)]
+#[serde(tag = "tag")]
+pub enum ExamData {
+    EnrolledAndOpen {
+        id: Uuid,
+        name: String,
+        instructions: String,
+        page_id: Uuid,
+        courses: Vec<Course>,
+        starts_at: DateTime<Utc>,
+        ends_at: Option<DateTime<Utc>>,
+        time_minutes: i32,
+        page: Page,
+        enrollment: ExamEnrollment,
+    },
+    EnrolledAndClosed,
+    NotEnrolled,
+}
+
+pub async fn fetch_exam_for_user(
     pool: web::Data<PgPool>,
     id: web::Path<Uuid>,
     user: AuthUser,
-) -> ControllerResult<Json<()>> {
+) -> ControllerResult<Json<ExamData>> {
     let mut conn = pool.acquire().await?;
-    exams::start(&mut conn, id.into_inner(), user.id).await?;
-    Ok(Json(()))
+    let id = id.into_inner();
+    if let Some(enrollment) = exams::get_enrollment(&mut conn, id, user.id).await? {
+        // user has started the exam
+        let exam = exams::get(&mut conn, id).await?;
+
+        // check if the exam is closed
+        let starts_at = match exam.starts_at {
+            Some(starts_at) => {
+                if starts_at > Utc::now() {
+                    // hasn't started yet
+                    return Ok(Json(ExamData::EnrolledAndClosed));
+                }
+                if let Some(ends_at) = exam.ends_at {
+                    if ends_at < Utc::now() {
+                        // already ended
+                        return Ok(Json(ExamData::EnrolledAndClosed));
+                    }
+                }
+                starts_at
+            }
+            None => {
+                // no start time defined
+                return Ok(Json(ExamData::EnrolledAndClosed));
+            }
+        };
+
+        let page = pages::get_page(&mut conn, exam.page_id).await?;
+
+        Ok(Json(ExamData::EnrolledAndOpen {
+            id: exam.id,
+            name: exam.name,
+            instructions: exam.instructions,
+            page_id: exam.page_id,
+            courses: exam.courses,
+            starts_at,
+            ends_at: exam.ends_at,
+            time_minutes: exam.time_minutes,
+            page,
+            enrollment,
+        }))
+    } else {
+        // user has not started the exam
+        Ok(Json(ExamData::NotEnrolled))
+    }
 }
 
 /**
@@ -47,5 +115,5 @@ We add the routes by calling the route method instead of using the route annotat
 pub fn _add_exams_routes(cfg: &mut ServiceConfig) {
     cfg.route("/{id}/enrollment", web::get().to(enrollment))
         .route("/{id}/enroll", web::post().to(enroll))
-        .route("/{id}/start", web::post().to(start));
+        .route("/{id}", web::get().to(fetch_exam_for_user));
 }

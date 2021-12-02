@@ -2,6 +2,7 @@
 use crate::{
     controllers::{
         auth::Login,
+        course_material::exams::ExamData,
         main_frontend::{
             courses::GetFeedbackQuery, exams::ExamCourseInfo, exercises::ExerciseSubmissions,
             feedback::MarkAsRead, proposed_edits::GetEditProposalsQuery,
@@ -116,6 +117,7 @@ ts_rs::export! {
 
   users::User,
 
+  ExamData,
   ExamCourseInfo,
   Login,
   UploadResult,

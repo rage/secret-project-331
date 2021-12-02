@@ -1788,7 +1788,7 @@ WHERE pages.id = $1
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::test_helper::*;
+    use crate::{models::exams::NewExam, test_helper::*};
 
     #[tokio::test]
     async fn gets_organization_id() {
@@ -1799,9 +1799,20 @@ mod test {
         assert_eq!(data.org, course_page_org);
 
         let exam = Uuid::new_v4();
-        crate::models::exams::insert(tx.as_mut(), exam, "name", None, None, None, data.org)
-            .await
-            .unwrap();
+        crate::models::exams::insert(
+            tx.as_mut(),
+            NewExam {
+                id: exam,
+                name: "name",
+                instructions: "instr",
+                starts_at: None,
+                ends_at: None,
+                time_minutes: None,
+                organization_id: data.org,
+            },
+        )
+        .await
+        .unwrap();
         let page = crate::models::pages::insert_page(
             tx.as_mut(),
             NewPage {

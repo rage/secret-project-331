@@ -182,14 +182,18 @@ export interface CourseExam {
 export interface Exam {
   id: string
   name: string
+  instructions: string
   page_id: string
   courses: Array<Course>
+  starts_at: Date | null
+  ends_at: Date | null
+  time_minutes: number
 }
 
 export interface ExamEnrollment {
   user_id: string
   exam_id: string
-  started_at: Date | null
+  started_at: Date
 }
 
 export interface CourseMaterialExerciseServiceInfo {
@@ -648,6 +652,23 @@ export interface User {
   upstream_id: number | null
   email: string
 }
+
+export type ExamData =
+  | {
+      tag: "EnrolledAndOpen"
+      id: string
+      name: string
+      instructions: string
+      page_id: string
+      courses: Array<Course>
+      starts_at: Date
+      ends_at: Date | null
+      time_minutes: number
+      page: Page
+      enrollment: ExamEnrollment
+    }
+  | { tag: "EnrolledAndClosed" }
+  | { tag: "NotEnrolled" }
 
 export interface ExamCourseInfo {
   course_id: string

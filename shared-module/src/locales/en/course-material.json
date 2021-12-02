@@ -82,5 +82,7 @@
   "course-title": "Course: {{title}}",
   "max-score-n-marks": "Max score: <2>{{marks}} marks</2>",
   "started-at-time": "Started: {{time}}",
-  "ends-at-time": "Ends: {{time}}"
+  "ends-at-time": "Ends: {{time}}",
+  "enroll": "Enroll",
+  "instructions": "Instructions"
 }

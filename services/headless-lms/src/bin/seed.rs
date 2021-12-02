@@ -5,6 +5,7 @@ use headless_lms_actix::models::chapters::NewChapter;
 use headless_lms_actix::models::course_instance_enrollments::NewCourseInstanceEnrollment;
 use headless_lms_actix::models::course_instances::NewCourseInstance;
 use headless_lms_actix::models::courses::NewCourse;
+use headless_lms_actix::models::exams::NewExam;
 use headless_lms_actix::models::exercises::GradingProgress;
 use headless_lms_actix::models::feedback::{FeedbackBlock, NewFeedback};
 use headless_lms_actix::models::page_history::HistoryChangeReason;
@@ -1406,12 +1407,15 @@ async fn seed_sample_course(
     let exam_id = Uuid::new_v5(&course_id, b"7d6ed843-2a94-445b-8ced-ab3c67290ad0");
     exams::insert(
         conn,
-        exam_id,
-        "Course exam",
-        Some(Utc::now()),
-        Some(Utc::now() + Duration::days(30)),
-        Some(120),
-        org,
+        NewExam {
+            id: exam_id,
+            name: "Course exam",
+            instructions: "Do your best!",
+            starts_at: Some(Utc::now()),
+            ends_at: Some(Utc::now() + Duration::days(30)),
+            time_minutes: Some(120),
+            organization_id: org,
+        },
     )
     .await?;
     pages::insert_page(
@@ -1437,12 +1441,15 @@ async fn seed_sample_course(
     let exam_id = Uuid::new_v5(&course_id, b"94393cf5-1814-4d57-80d5-e5af93790967");
     exams::insert(
         conn,
-        exam_id,
-        "Repeat exam",
-        Some(Utc::now()),
-        Some(Utc::now() + Duration::days(30)),
-        Some(120),
-        org,
+        NewExam {
+            id: exam_id,
+            name: "Repeat exam",
+            instructions: "Do your best!",
+            starts_at: Some(Utc::now()),
+            ends_at: Some(Utc::now() + Duration::days(30)),
+            time_minutes: Some(120),
+            organization_id: org,
+        },
     )
     .await?;
     pages::insert_page(

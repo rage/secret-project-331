@@ -376,6 +376,52 @@
       "nullable": [false, false, false, false, false, true, false, null, false, true, false]
     }
   },
+  "06518b02100124d605ae4cd2b84008fe94e46360284a701d60f79c7dcb117ea6": {
+    "query": "\nSELECT exams.id,\n  exams.name,\n  exams.instructions,\n  pages.id AS page_id,\n  exams.starts_at,\n  exams.ends_at,\n  exams.time_minutes\nFROM exams\n  JOIN pages ON pages.exam_id = exams.id\nWHERE exams.id = $1\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "instructions",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 3,
+          "name": "page_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "starts_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 5,
+          "name": "ends_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "time_minutes",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false, true, true, false]
+    }
+  },
   "072ecb29b589e56f6fc04bb0787efd82beab771ae9d87752f80b0734b16c56e4": {
     "query": "\nINSERT INTO exercise_services (\n    name,\n    slug,\n    public_url,\n    internal_url,\n    max_reprocessing_submissions_at_once\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING *\n  ",
     "describe": {
@@ -1390,32 +1436,6 @@
         "Left": ["Uuid", "Varchar", "Varchar", "Varchar", "Varchar", "Varchar", "Varchar"]
       },
       "nullable": [false, false, false, false, false, false, false, false, false]
-    }
-  },
-  "21877a242bc25c4da0f60a5c4d3d0a3d225be46b074815734c90a70fb8173f9b": {
-    "query": "\nSELECT exams.id,\n  exams.name,\n  pages.id AS page_id\nFROM exams\n  JOIN pages ON pages.exam_id = exams.id\nWHERE exams.id = $1\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "page_id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, false]
     }
   },
   "2395ca73bcdd330e31c0d42fdf6ec062602d06d67ce40ffcf1b71fd90982b2f7": {
@@ -3213,16 +3233,6 @@
       ]
     }
   },
-  "5a3d64dab36fe5aef50d5fef06ece4decec5d7683e02a7b5a8e5d60ce63d9825": {
-    "query": "\nUPDATE exam_enrollments\nSET started_at = now()\nWHERE exam_id = $1\n  AND user_id = $2\n  AND started_at IS NULL\n",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      },
-      "nullable": []
-    }
-  },
   "5aa5b0629666c849e87f50b545a2f83f7bfadc42d475b3b2979f1c2507fdc551": {
     "query": "\nSELECT *\nFROM exercise_slides\nWHERE exercise_id = ANY($1)\n  AND deleted_at IS NULL;\n        ",
     "describe": {
@@ -4691,7 +4701,7 @@
       "parameters": {
         "Left": ["Uuid", "Uuid"]
       },
-      "nullable": [false, false, true]
+      "nullable": [false, false, false]
     }
   },
   "87848a65cafd33187ebbc6ed99b0a6eaaff44a09d3efb17759ee3604fc39f49c": {
@@ -6132,6 +6142,16 @@
       ]
     }
   },
+  "aa3d589f5ad62e428553c37b3629fbe81b79261e73cebbe2e70bed882c5c39d8": {
+    "query": "\nINSERT INTO exams (\n    id,\n    name,\n    instructions,\n    starts_at,\n    ends_at,\n    time_minutes,\n    organization_id\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7)\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Varchar", "Text", "Timestamptz", "Timestamptz", "Int4", "Uuid"]
+      },
+      "nullable": []
+    }
+  },
   "aabbcdc5984f0c7fc03acf0c2f53ebb8f0ff5f2b8993a81bd988be4bbf240a70": {
     "query": "\nINSERT INTO exercise_slides (id, exercise_id, order_number)\nVALUES ($1, $2, $3) ON CONFLICT (id) DO\nUPDATE\nSET exercise_id = $2,\n    order_number = $3,\n    deleted_at = NULL\nRETURNING id;\n    ",
     "describe": {
@@ -7191,16 +7211,6 @@
       "nullable": []
     }
   },
-  "c5c02778029045a48b32567f114b8fbd441b01ac1e0908eca4e02a067327036e": {
-    "query": "\nUPDATE exams\nSET name = COALESCE($2, name),\n  starts_at = $3,\n  ends_at = $4,\n  time_minutes = $5\nWHERE id = $1\n",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Uuid", "Varchar", "Timestamptz", "Timestamptz", "Int4"]
-      },
-      "nullable": []
-    }
-  },
   "c63ca33887bc73c797b68af5b66b248f0740a2678b86e4a3644b61804abdad17": {
     "query": "\nSELECT id,\n  submission_id,\n  grading_before_regrading,\n  grading_after_regrading\nFROM regrading_submissions\nWHERE regrading_id = $1\n",
     "describe": {
@@ -7819,16 +7829,6 @@
         "Left": ["Uuid"]
       },
       "nullable": [true]
-    }
-  },
-  "d8d04e29f7f64a2b9f2d0e71a16628a97375de4fc419950b906bd8a3d755a457": {
-    "query": "\nINSERT INTO exams (\n    id,\n    name,\n    starts_at,\n    ends_at,\n    time_minutes,\n    organization_id\n  )\nVALUES ($1, $2, $3, $4, $5, $6)\n",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Uuid", "Varchar", "Timestamptz", "Timestamptz", "Int4", "Uuid"]
-      },
-      "nullable": []
     }
   },
   "d9d04909a35ed8edd343a0be75ee10041e50a42d8ca3547d001672a9557b6d9d": {
@@ -8570,6 +8570,16 @@
         ]
       },
       "nullable": [false]
+    }
+  },
+  "f41650c8d1aa4526a7b1ea598d5b8d7d39df3f833dd9205bf67c116e6e8191ac": {
+    "query": "\nUPDATE exams\nSET name = COALESCE($2, name),\ninstructions = COALESCE($3, instructions),\n  starts_at = $4,\n  ends_at = $5,\n  time_minutes = $6\nWHERE id = $1\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Varchar", "Text", "Timestamptz", "Timestamptz", "Int4"]
+      },
+      "nullable": []
     }
   },
   "f4c732597c3cdf6484a20f41348183e56353ecdafbd4da0b6544f356e50e2424": {

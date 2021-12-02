@@ -1,3 +1,5 @@
 {
-  "error-page-without-course": "Virhe: Sivu ei liity mihinkään kurssiin"
+  "error-page-without-course": "Virhe: Sivu ei liity mihinkään kurssiin",
+  "enroll": "Aloita",
+  "instructions": "Ohjeet"
 }

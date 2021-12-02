@@ -4,6 +4,7 @@ import {
   CourseInstance,
   CourseMaterialExercise,
   CoursePageWithUserData,
+  ExamData,
   ExamEnrollment,
   NewFeedback,
   NewProposedPageEdits,
@@ -25,6 +26,7 @@ import {
   isCourseInstance,
   isCourseMaterialExercise,
   isCoursePageWithUserData,
+  isExamData,
   isPage,
   isPageRoutingDataWithChapterStatus,
   isPageSearchResult,
@@ -243,6 +245,7 @@ export const enrollInExam = async (examId: string): Promise<void> => {
   await courseMaterialClient.post(`/exams/${examId}/enroll`, { responseType: "json" })
 }
 
-export const startExam = async (examId: string): Promise<void> => {
-  await courseMaterialClient.post(`/exams/${examId}/start`, { responseType: "json" })
+export const fetchExam = async (examId: string): Promise<ExamData> => {
+  const response = await courseMaterialClient.get(`/exams/${examId}`, { responseType: "json" })
+  return validateResponse(response, isExamData)
 }

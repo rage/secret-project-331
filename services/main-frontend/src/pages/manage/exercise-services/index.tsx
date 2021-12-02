@@ -25,7 +25,7 @@ import {
 import { ExerciseService, ExerciseServiceNewOrUpdate } from "../../../shared-module/bindings"
 import Button from "../../../shared-module/components/Button"
 import TimeComponent from "../../../shared-module/components/TimeComponent"
-import { frontendNormalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
+import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import basePath from "../../../shared-module/utils/base-path"
 import { validNumber, validURL } from "../../../shared-module/utils/validation"
 
@@ -435,7 +435,7 @@ const ExerciseServicePage: React.FC = () => {
 
   return (
     <Layout navVariant={"simple"} frontPageUrl={basePath() + "/../.."}>
-      <div className={frontendNormalWidthCenteredComponentStyles}>
+      <div className={normalWidthCenteredComponentStyles}>
         <h1>{t("title-manage-exercise-services")}</h1>
         <Button onClick={openModal} variant="primary" size="medium">
           {t("button-text-new")}

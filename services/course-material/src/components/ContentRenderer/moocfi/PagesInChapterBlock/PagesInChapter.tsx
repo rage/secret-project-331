@@ -5,7 +5,7 @@ import { useQuery } from "react-query"
 
 import { fetchChaptersPagesExcludeFrontpage } from "../../../../services/backend"
 import PagesInChapterBox from "../../../../shared-module/components/PagesInChapterBox"
-import { courseMaterialCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import { coursePageRoute } from "../../../../utils/routing"
 import GenericLoading from "../../../GenericLoading"
 
@@ -36,7 +36,7 @@ const PagesInChapter: React.FC<PagesInChapterProps> = ({
   return (
     <>
       {data.length > 0 && (
-        <div className={courseMaterialCenteredComponentStyles}>
+        <div className={normalWidthCenteredComponentStyles}>
           <div
             className={css`
               padding: 7.5em 1em;

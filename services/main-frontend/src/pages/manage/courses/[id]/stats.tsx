@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 import Layout from "../../../../components/Layout"
 import CourseSubmissionsByDay from "../../../../components/page-specific/manage/courses/id/stats/CourseSubmissionsByDay"
 import CourseSubmissionsByWeekdayAndHour from "../../../../components/page-specific/manage/courses/id/stats/CourseSubmissionsByWeekdayAndHour"
-import { frontendNormalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import {
   dontRenderUntilQueryParametersReady,
   SimplifiedUrlQuery,
@@ -23,7 +23,7 @@ const StatsPage: React.FC<StatsPageProps> = ({ query }) => {
     <Layout navVariant="complex">
       <div
         className={css`
-          ${frontendNormalWidthCenteredComponentStyles}
+          ${normalWidthCenteredComponentStyles}
           margin-bottom: 1rem;
         `}
       >

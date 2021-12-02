@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
 import CoursePageContext from "../../../../contexts/CoursePageContext"
-import { courseMaterialCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import GenericLoading from "../../../GenericLoading"
 
@@ -22,7 +22,7 @@ const ChapterProgressBlock: React.FC<BlockRendererProps<unknown>> = () => {
     return (
       <div
         className={css`
-          ${courseMaterialCenteredComponentStyles}
+          ${normalWidthCenteredComponentStyles}
         `}
       >
         {t("title-select-course-version-to-see-your-progress")}

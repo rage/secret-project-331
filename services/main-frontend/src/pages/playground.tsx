@@ -16,7 +16,7 @@ import { PlaygroundExample } from "../shared-module/bindings"
 import Button from "../shared-module/components/Button"
 import MessageChannelIFrame from "../shared-module/components/MessageChannelIFrame"
 import { monospaceFont } from "../shared-module/styles"
-import { frontendNormalWidthCenteredComponentStyles } from "../shared-module/styles/componentStyles"
+import { normalWidthCenteredComponentStyles } from "../shared-module/styles/componentStyles"
 import { defaultContainerWidth } from "../shared-module/styles/constants"
 
 const Home: React.FC = () => {
@@ -165,7 +165,7 @@ const Home: React.FC = () => {
 
   return (
     <Layout>
-      <div className={frontendNormalWidthCenteredComponentStyles}>
+      <div className={normalWidthCenteredComponentStyles}>
         <Grow
           in={
             saveMutation.isError ||

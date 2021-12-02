@@ -8,7 +8,7 @@ import { fetchExerciseSubmissions } from "../../../../services/backend/exercises
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
-import { frontendWideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import {
   dontRenderUntilQueryParametersReady,
   SimplifiedUrlQuery,
@@ -27,7 +27,7 @@ const SubmissionsPage: React.FC<SubmissionPageProps> = ({ query }) => {
 
   return (
     <Layout navVariant="complex">
-      <div className={frontendWideWidthCenteredComponentStyles}>
+      <div className={wideWidthCenteredComponentStyles}>
         <h4>{t("header-submissions")}</h4>
         {getExerciseSubmissions.isError && (
           <ErrorBanner variant={"readOnly"} error={getExerciseSubmissions.error} />

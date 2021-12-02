@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 
 import { BlockRendererProps } from "../../.."
 import { AudioAttributes } from "../../../../../../types/GutenbergBlockAttributes"
-import { courseMaterialCenteredComponentStyles } from "../../../../../shared-module/styles/componentStyles"
+import { normalWidthCenteredComponentStyles } from "../../../../../shared-module/styles/componentStyles"
 import withErrorBoundary from "../../../../../shared-module/utils/withErrorBoundary"
 
 const AudioBlock: React.FC<BlockRendererProps<AudioAttributes>> = ({ data }) => {
@@ -10,7 +10,7 @@ const AudioBlock: React.FC<BlockRendererProps<AudioAttributes>> = ({ data }) => 
   return (
     <figure
       className={css`
-        ${courseMaterialCenteredComponentStyles}
+        ${normalWidthCenteredComponentStyles}
       `}
       {...(anchor && { id: anchor })}
     >

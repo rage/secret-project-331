@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;git&#x2F;checkouts&#x2F;ts-rs-c83e02589aa690b5&#x2F;db15807&#x2F;ts-rs&#x2F;src&#x2F;lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../ts_rs/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;git&#x2F;checkouts&#x2F;ts-rs-c83e02589aa690b5&#x2F;3d0fd4f&#x2F;ts-rs&#x2F;src&#x2F;lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../ts_rs/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -510,82 +510,229 @@
 <span id="510">510</span>
 <span id="511">511</span>
 <span id="512">512</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Generate TypeScript interface/type declarations from rust structs.</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+</pre><pre class="rust"><code><span class="doccomment">//! &lt;h1 align=&quot;center&quot; style=&quot;padding-top: 0; margin-top: 0;&quot;&gt;</span>
+<span class="doccomment">//! &lt;img width=&quot;150px&quot; src=&quot;https://raw.githubusercontent.com/Aleph-Alpha/ts-rs/main/logo.png&quot; alt=&quot;logo&quot;&gt;</span>
+<span class="doccomment">//! &lt;br/&gt;</span>
+<span class="doccomment">//! ts-rs</span>
+<span class="doccomment">//! &lt;/h1&gt;</span>
+<span class="doccomment">//! &lt;p align=&quot;center&quot;&gt;</span>
+<span class="doccomment">//! generate typescript interface/type declarations from rust types</span>
+<span class="doccomment">//! &lt;/p&gt;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! &lt;div align=&quot;center&quot;&gt;</span>
+<span class="doccomment">//! &lt;!-- Github Actions --&gt;</span>
+<span class="doccomment">//! &lt;img src=&quot;https://img.shields.io/github/workflow/status/Aleph-Alpha/ts-rs/Test?style=flat-square&quot; alt=&quot;actions status&quot; /&gt;</span>
+<span class="doccomment">//! &lt;a href=&quot;https://crates.io/crates/ts-rs&quot;&gt;</span>
+<span class="doccomment">//! &lt;img src=&quot;https://img.shields.io/crates/v/ts-rs.svg?style=flat-square&quot;</span>
+<span class="doccomment">//! alt=&quot;Crates.io version&quot; /&gt;</span>
+<span class="doccomment">//! &lt;/a&gt;</span>
+<span class="doccomment">//! &lt;a href=&quot;https://docs.rs/ts-rs&quot;&gt;</span>
+<span class="doccomment">//! &lt;img src=&quot;https://img.shields.io/badge/docs-latest-blue.svg?style=flat-square&quot;</span>
+<span class="doccomment">//! alt=&quot;docs.rs docs&quot; /&gt;</span>
+<span class="doccomment">//! &lt;/a&gt;</span>
+<span class="doccomment">//! &lt;a href=&quot;https://crates.io/crates/ts-rs&quot;&gt;</span>
+<span class="doccomment">//! &lt;img src=&quot;https://img.shields.io/crates/d/ts-rs.svg?style=flat-square&quot;</span>
+<span class="doccomment">//! alt=&quot;Download&quot; /&gt;</span>
+<span class="doccomment">//! &lt;/a&gt;</span>
+<span class="doccomment">//! &lt;/div&gt;</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ## why?</span>
-<span class="doccomment">//! When building a web application in rust, data structures have to be shared between backend and frontend.  </span>
-<span class="doccomment">//! Using this library, you can easily generate TypeScript bindings to your rust structs &amp; enums, so that you can keep your</span>
+<span class="doccomment">//! When building a web application in rust, data structures have to be shared between backend and frontend.</span>
+<span class="doccomment">//! Using this library, you can easily generate TypeScript bindings to your rust structs &amp; enums so that you can keep your</span>
 <span class="doccomment">//! types in one place.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ts-rs might also come in handy when working with webassembly.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ## how?</span>
-<span class="doccomment">//! ts-rs exposes a single trait, `TS`.  </span>
-<span class="doccomment">//! Using a derive macro, you can implement this trait for</span>
-<span class="doccomment">//! your types.  </span>
+<span class="doccomment">//! ts-rs exposes a single trait, `TS`. Using a derive macro, you can implement this interface for your types.</span>
 <span class="doccomment">//! Then, you can use this trait to obtain the TypeScript bindings.</span>
-<span class="doccomment">//! We recommend doing this in your tests. [see the example](https://github.com/Aleph-Alpha/ts-rs/blob/main/example/src/lib.rs)</span>
+<span class="doccomment">//! We recommend doing this in your tests.</span>
+<span class="doccomment">//! [See the example](https://github.com/Aleph-Alpha/ts-rs/blob/main/example/src/lib.rs) and [the docs](https://docs.rs/ts-rs/latest/ts_rs/).</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! ## serde compatibility layer</span>
-<span class="doccomment">//! With the `serde-compat` feature enabled, ts-rs tries parsing serde attributes.  </span>
-<span class="doccomment">//! Please note that not all serde attributes are supported yet.</span>
+<span class="doccomment">//! ## get started</span>
+<span class="doccomment">//! ```toml</span>
+<span class="doccomment">//! [dependencies]</span>
+<span class="doccomment">//! ts-rs = &quot;6.0&quot;</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! use ts_rs::TS;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! #[derive(TS)]</span>
+<span class="doccomment">//! #[ts(export)]</span>
+<span class="doccomment">//! struct User {</span>
+<span class="doccomment">//!     user_id: i32,</span>
+<span class="doccomment">//!     first_name: String,</span>
+<span class="doccomment">//!     last_name: String,</span>
+<span class="doccomment">//! }</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! When running `cargo test`, the TypeScript bindings will be exported to the file `bindings/User.ts`.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## features</span>
+<span class="doccomment">//! - generate interface declarations from rust structs</span>
+<span class="doccomment">//! - generate union declarations from rust enums</span>
+<span class="doccomment">//! - inline types</span>
+<span class="doccomment">//! - flatten structs/interfaces</span>
+<span class="doccomment">//! - generate necessary imports when exporting to multiple files</span>
+<span class="doccomment">//! - serde compatibility</span>
+<span class="doccomment">//! - generic types</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## cargo features</span>
+<span class="doccomment">//! - `serde-compat` (default)  </span>
+<span class="doccomment">//!   Enable serde compatibility. See below for more info.  </span>
+<span class="doccomment">//! - `chrono-impl`  </span>
+<span class="doccomment">//!   Implement `TS` for types from chrono  </span>
+<span class="doccomment">//! - `bigdecimal-impl`  </span>
+<span class="doccomment">//!   Implement `TS` for types from bigdecimal  </span>
+<span class="doccomment">//! - `uuid-impl`  </span>
+<span class="doccomment">//!   Implement `TS` for types from uuid  </span>
+<span class="doccomment">//! - `bytes-impl`  </span>
+<span class="doccomment">//!   Implement `TS` for types from bytes  </span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! If there&#39;s a type you&#39;re dealing with which doesn&#39;t implement `TS`, use `#[ts(type = &quot;..&quot;)]` or open a PR.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## serde compatability</span>
+<span class="doccomment">//! With the `serde-compat` feature (enabled by default), serde attributes can be parsed for enums and structs.</span>
+<span class="doccomment">//! Supported serde attributes:</span>
+<span class="doccomment">//! - `rename`</span>
+<span class="doccomment">//! - `rename-all`</span>
+<span class="doccomment">//! - `tag`</span>
+<span class="doccomment">//! - `content`</span>
+<span class="doccomment">//! - `untagged`</span>
+<span class="doccomment">//! - `skip`</span>
+<span class="doccomment">//! - `skip_serializing`</span>
+<span class="doccomment">//! - `skip_deserializing`</span>
+<span class="doccomment">//! - `skip_serializing_if = &quot;Option::is_none&quot;`</span>
+<span class="doccomment">//! - `flatten`</span>
+<span class="doccomment">//! - `default`</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! When ts-rs encounters an unsupported serde attribute, a warning is emitted.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## contributing</span>
+<span class="doccomment">//! Contributions are always welcome!</span>
+<span class="doccomment">//! Feel free to open an issue, discuss using GitHub discussions or open a PR.</span>
+<span class="doccomment">//! [See CONTRIBUTING.md](https://github.com/Aleph-Alpha/ts-rs/blob/main/CONTRIBUTING.md)</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## todo</span>
+<span class="doccomment">//! - [x] serde compatibility layer</span>
+<span class="doccomment">//! - [x] documentation</span>
+<span class="doccomment">//! - [x] use typescript types across files</span>
+<span class="doccomment">//! - [x] more enum representations</span>
+<span class="doccomment">//! - [x] generics</span>
+<span class="doccomment">//! - [ ] don&#39;t require `&#39;static`</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">any::TypeId</span>,
     <span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>},
-    <span class="ident">fs::OpenOptions</span>,
-    <span class="ident">io</span>::{<span class="ident">BufWriter</span>, <span class="ident">Write</span>},
-    <span class="ident">path::Path</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ts_rs_macros::TS</span>;
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">export</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::export::ExportError</span>;
+
+<span class="kw">mod</span> <span class="ident">export</span>;
 
 <span class="doccomment">/// A type which can be represented in TypeScript.  </span>
 <span class="doccomment">/// Most of the time, you&#39;d want to derive this trait instead of implementing it manually.  </span>
-<span class="doccomment">/// ts-rs comes with implementations for all numeric types, `String`, `Vec`, `Option` and tuples.</span>
+<span class="doccomment">/// ts-rs comes with implementations for all primitives, most collections, tuples,</span>
+<span class="doccomment">/// arrays and containers.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// ## get started</span>
-<span class="doccomment">/// [TS](TS) can easily be derived for structs and enums:</span>
-<span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// use ts_rs::TS;</span>
+<span class="doccomment">/// ### exporting</span>
+<span class="doccomment">/// Because Rusts procedural macros are evaluated before other compilation steps, TypeScript</span>
+<span class="doccomment">/// bindings cannot be exported during compile time.</span>
+<span class="doccomment">/// Bindings can be exported within a test, which ts-rs generates for you by adding `#[ts(export)]`</span>
+<span class="doccomment">/// to a type you wish to export to a file.</span>
+<span class="doccomment">/// If, for some reason, you need to do this during runtime, you can call [`TS::export`] yourself.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// #[derive(TS)]</span>
-<span class="doccomment">/// struct User {</span>
-<span class="doccomment">///     first_name: String,</span>
-<span class="doccomment">///     last_name: String,</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// To actually obtain the bindings, you can call `User::dump` to write the bindings to a file.</span>
-<span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # use ts_rs::TS;</span>
-<span class="doccomment">/// # #[derive(TS)]</span>
-<span class="doccomment">/// # struct User {</span>
-<span class="doccomment">/// #     first_name: String,</span>
-<span class="doccomment">/// #     last_name: String,</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">/// std::fs::remove_file(&quot;bindings.ts&quot;).ok();</span>
-<span class="doccomment">/// User::dump(&quot;bindings.ts&quot;).unwrap();</span>
-<span class="doccomment">/// ```</span>
+<span class="doccomment">/// ### serde compatibility</span>
+<span class="doccomment">/// By default, the feature `serde-compat` is enabled.</span>
+<span class="doccomment">/// ts-rs then parses serde attributes and adjusts the generated typescript bindings accordingly.</span>
+<span class="doccomment">/// Not all serde attributes are supported yet - if you use an unsupported attribute, you&#39;ll see a</span>
+<span class="doccomment">/// warning.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// Preferrably, you should use the [export!](export!) macro, which takes care of dependencies</span>
-<span class="doccomment">/// between types and allows you to decide between `export` and `declare`.</span>
+<span class="doccomment">/// ### container attributes</span>
+<span class="doccomment">/// attributes applicable for both structs and enums</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// ### struct attributes</span>
+<span class="doccomment">/// - `#[ts(export)]`:  </span>
+<span class="doccomment">///   Generates a test which will export the type, by default to `bindings/&lt;name&gt;.ts` when running</span>
+<span class="doccomment">///   `cargo test`</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// - `#[ts(export_to = &quot;..&quot;)]`:  </span>
+<span class="doccomment">///   Specifies where the type should be exported to. Defaults to `bindings/&lt;name&gt;.ts`.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// - `#[ts(rename = &quot;..&quot;)]`:  </span>
-<span class="doccomment">///   Set the name of the generated interface  </span>
+<span class="doccomment">///   Sets the typescript name of the generated type</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// - `#[ts(rename_all = &quot;..&quot;)]`:  </span>
-<span class="doccomment">///   Rename all fields of this struct.  </span>
+<span class="doccomment">///   Rename all fields/variants of the type.</span>
 <span class="doccomment">///   Valid values are `lowercase`, `UPPERCASE`, `camelCase`, `snake_case`, `PascalCase`, `SCREAMING_SNAKE_CASE`</span>
-<span class="doccomment">///   </span>
+<span class="doccomment">///</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// ### struct field attributes</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// - `#[ts(type = &quot;..&quot;)]`:  </span>
-<span class="doccomment">///   Overrides the type used in TypeScript  </span>
+<span class="doccomment">///   Overrides the type used in TypeScript.  </span>
+<span class="doccomment">///   This is useful when there&#39;s a type for which you cannot derive `TS`.  </span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// - `#[ts(rename = &quot;..&quot;)]`:  </span>
 <span class="doccomment">///   Renames this field  </span>
@@ -596,7 +743,7 @@
 <span class="doccomment">/// - `#[ts(skip)]`:  </span>
 <span class="doccomment">///   Skip this field  </span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// - `#[ts(optional)]</span>
+<span class="doccomment">/// - `#[ts(optional)]`:  </span>
 <span class="doccomment">///   Indicates the field may be omitted from the serialized struct</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// - `#[ts(flatten)]`:  </span>
@@ -604,8 +751,17 @@
 <span class="doccomment">///   </span>
 <span class="doccomment">/// ### enum attributes</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// - `#[ts(rename = &quot;..&quot;)]`:  </span>
-<span class="doccomment">///   Set the name of the generated type  </span>
+<span class="doccomment">/// - `#[ts(tag = &quot;..&quot;)]`:  </span>
+<span class="doccomment">///   Changes the representation of the enum to store its tag in a separate field.</span>
+<span class="doccomment">///   See [the serde docs](https://serde.rs/enum-representations.html).</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// - `#[ts(content = &quot;..&quot;)]`:  </span>
+<span class="doccomment">///   Changes the representation of the enum to store its content in a separate field.</span>
+<span class="doccomment">///   See [the serde docs](https://serde.rs/enum-representations.html).</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// - `#[ts(untagged)]`:  </span>
+<span class="doccomment">///   Changes the representation of the enum to not include its tag.</span>
+<span class="doccomment">///   See [the serde docs](https://serde.rs/enum-representations.html).</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// - `#[ts(rename_all = &quot;..&quot;)]`:  </span>
 <span class="doccomment">///   Rename all variants of this enum.  </span>
@@ -618,8 +774,9 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// - `#[ts(skip)]`:  </span>
 <span class="doccomment">///   Skip this variant  </span>
-
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">TS</span>: <span class="lifetime">&#39;static</span> {
+    <span class="kw">const</span> <span class="ident">EXPORT_TO</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+
     <span class="doccomment">/// Declaration of this type, e.g. `interface User { user_id: number, ... }`.</span>
     <span class="doccomment">/// This function will panic if the type has no declaration.</span>
     <span class="kw">fn</span> <span class="ident">decl</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
@@ -646,76 +803,86 @@
         <span class="macro">panic!</span>(<span class="string">&quot;{} cannot be flattened&quot;</span>, <span class="ident"><span class="self">Self</span>::name</span>())
     }
 
-    <span class="doccomment">/// All type ids and typescript names of the types this type depends on.  </span>
-    <span class="doccomment">/// This is used for resolving imports when using the `export!` macro.  </span>
-    <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">TypeId</span>, <span class="ident">String</span>)<span class="op">&gt;</span>;
+    <span class="doccomment">/// Information about types this type depends on.</span>
+    <span class="doccomment">/// This is used for resolving imports when exporting to a file.</span>
+    <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Dependency</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// `true` if this is a transparent type, e.g tuples or a list.  </span>
     <span class="doccomment">/// This is used for resolving imports when using the `export!` macro.</span>
     <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>;
 
-    <span class="doccomment">/// Dumps the declaration of this type to a file.  </span>
-    <span class="doccomment">/// If the file does not exist, it will be created.  </span>
-    <span class="doccomment">/// If it does, the declaration will be appended.</span>
+    <span class="doccomment">/// Manually export this type to a file.</span>
+    <span class="doccomment">/// The output file can be specified by annotating the type with `#[ts(export_to = &quot;..&quot;]`.</span>
+    <span class="doccomment">/// By default, the filename will be derived from the types name.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This function will panicked when called on a type which does not have a declaration.</span>
-    <span class="kw">fn</span> <span class="ident">dump</span>(<span class="ident">out</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">std::io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">out</span>.<span class="ident">as_ref</span>();
-        <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">OpenOptions::new</span>()
-            .<span class="ident">append</span>(<span class="bool-val">true</span>)
-            .<span class="ident">create</span>(<span class="bool-val">true</span>)
-            .<span class="ident">truncate</span>(<span class="bool-val">false</span>)
-            .<span class="ident">open</span>(<span class="ident">out</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">writer</span> <span class="op">=</span> <span class="ident">BufWriter::new</span>(<span class="ident">file</span>);
-        <span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="ident"><span class="self">Self</span>::decl</span>().<span class="ident">as_bytes</span>())<span class="question-mark">?</span>;
-        <span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="string">b&quot;\n\n&quot;</span>)<span class="question-mark">?</span>;
-        <span class="ident">writer</span>.<span class="ident">flush</span>()<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(())
+    <span class="doccomment">/// When a type is annotated with `#[ts(export)]`, it is exported automatically within a test.</span>
+    <span class="doccomment">/// This function is only usefull if you need to export the type outside of the context of a</span>
+    <span class="doccomment">/// test.</span>
+    <span class="kw">fn</span> <span class="ident">export</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ExportError</span><span class="op">&gt;</span> {
+        <span class="ident">export::export_type</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>()
     }
 }
 
+<span class="doccomment">/// A typescript type which is depended upon by other types.</span>
+<span class="doccomment">/// This information is required for generating the correct import statements.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>, <span class="ident">Ord</span>, <span class="ident">PartialOrd</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Dependency</span> {
+    <span class="doccomment">/// Type ID of the rust type</span>
+    <span class="kw">pub</span> <span class="ident">type_id</span>: <span class="ident">TypeId</span>,
+    <span class="doccomment">/// Name of the type in TypeScript</span>
+    <span class="kw">pub</span> <span class="ident">ts_name</span>: <span class="ident">String</span>,
+    <span class="doccomment">/// Path to where the type would be exported. By default a filename is derived from the types</span>
+    <span class="doccomment">/// name, which can be customized with `#[ts(export_to = &quot;..&quot;)]`.</span>
+    <span class="kw">pub</span> <span class="ident">exported_to</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">Dependency</span> {
+    <span class="doccomment">/// Constructs a [`Dependency`] from the given type `T`.</span>
+    <span class="doccomment">/// If `T` is not exportable (meaning `T::EXPORT_TO` is `None`), this function will return</span>
+    <span class="doccomment">/// `None`</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_ty</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Some</span>(<span class="ident">Dependency</span> {
+            <span class="ident">type_id</span>: <span class="ident">TypeId::of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(),
+            <span class="ident">ts_name</span>: <span class="ident">T::name</span>(),
+            <span class="ident">exported_to</span>: <span class="ident">T::EXPORT_TO</span><span class="question-mark">?</span>,
+        })
+    }
+}
+
+<span class="comment">// generate impls for primitive types</span>
 <span class="macro">macro_rules!</span> <span class="ident">impl_primitives</span> {
     ($($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>:<span class="ident">ty</span>),<span class="op">*</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">l</span>:<span class="ident">literal</span>),<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> { $($(
         <span class="kw">impl</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span> {
-            <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+            <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> { <span class="macro-nonterminal">$</span><span class="macro-nonterminal">l</span>.<span class="ident">to_owned</span>() }
+            <span class="kw">fn</span> <span class="ident">name_with_type_args</span>(<span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+                <span class="macro">assert!</span>(<span class="ident">args</span>.<span class="ident">is_empty</span>(), <span class="string">&quot;called name_with_type_args on primitive&quot;</span>);
                 <span class="macro-nonterminal">$</span><span class="macro-nonterminal">l</span>.<span class="ident">to_owned</span>()
             }
-            <span class="kw">fn</span> <span class="ident">inline</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">l</span>.<span class="ident">to_owned</span>()
-            }
-            <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">TypeId</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
-                <span class="macro">vec!</span>[]
-            }
-            <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-                <span class="bool-val">false</span>
-            }
+            <span class="kw">fn</span> <span class="ident">inline</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> { <span class="macro-nonterminal">$</span><span class="macro-nonterminal">l</span>.<span class="ident">to_owned</span>() }
+            <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Dependency</span><span class="op">&gt;</span> { <span class="macro">vec!</span>[] }
+            <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> { <span class="bool-val">false</span> }
         }
     )<span class="kw-2">*</span>)<span class="op">*</span> };
 }
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident">impl_primitives</span>;
 
+<span class="comment">// generate impls for tuples</span>
 <span class="macro">macro_rules!</span> <span class="ident">impl_tuples</span> {
     ( <span class="kw">impl</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>:<span class="ident">ident</span>),<span class="op">*</span> ) <span class="op">=</span><span class="op">&gt;</span> {
         <span class="kw">impl</span><span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>: <span class="ident">TS</span>),<span class="kw-2">*</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>,)<span class="kw-2">*</span>) {
             <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-                <span class="macro">format!</span>(
-                    <span class="string">&quot;[{}]&quot;</span>,
-                    <span class="macro">vec!</span>[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">i::name</span>()),<span class="kw-2">*</span>].<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>)
-                )
+                <span class="macro">format!</span>(<span class="string">&quot;[{}]&quot;</span>, <span class="macro">vec!</span>[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">i::name</span>()),<span class="kw-2">*</span>].<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>))
             }
             <span class="kw">fn</span> <span class="ident">inline</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-                <span class="macro">format!</span>(
-                    <span class="string">&quot;[{}]&quot;</span>,
-                    <span class="macro">vec!</span>[
-                        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">i::inline</span>()),<span class="op">*</span>
-                    ].<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>)
-                )
+                <span class="macro">format!</span>(<span class="string">&quot;[{}]&quot;</span>, <span class="macro">vec!</span>[ $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">i::inline</span>()),<span class="op">*</span> ].<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>))
             }
-            <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">TypeId</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
-                <span class="macro">vec!</span>[$((<span class="ident">TypeId::of</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span><span class="op">&gt;</span>(), <span class="macro-nonterminal">$</span><span class="macro-nonterminal">i::name</span>())),<span class="kw-2">*</span>]
+            <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Dependency</span><span class="op">&gt;</span> {
+                [$( <span class="ident">Dependency::from_ty</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span><span class="op">&gt;</span>() ),<span class="kw-2">*</span>]
+                .<span class="ident">into_iter</span>()
+                .<span class="ident">flatten</span>()
+                .<span class="ident">collect</span>()
             }
-            <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-                <span class="bool-val">true</span>
-            }
+            <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> { <span class="bool-val">true</span> }
         }
     };
     ( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">i2</span>:<span class="ident">ident</span> $(, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>:<span class="ident">ident</span>)<span class="op">*</span> ) <span class="op">=</span><span class="op">&gt;</span> {
@@ -725,33 +892,150 @@
     () <span class="op">=</span><span class="op">&gt;</span> {};
 }
 
-<span class="macro">macro_rules!</span> <span class="ident">impl_proxy</span> {
+<span class="comment">// generate impls for wrapper types</span>
+<span class="macro">macro_rules!</span> <span class="ident">impl_wrapper</span> {
     ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
         $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)<span class="op">*</span> {
-            <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-                <span class="ident">T::name</span>()
+            <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> { <span class="ident">T::name</span>() }
+            <span class="kw">fn</span> <span class="ident">name_with_type_args</span>(<span class="kw-2">mut</span> <span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+                <span class="macro">assert_eq!</span>(<span class="ident">args</span>.<span class="ident">len</span>(), <span class="number">1</span>);
+                <span class="ident">args</span>.<span class="ident">remove</span>(<span class="number">0</span>)
             }
-            <span class="kw">fn</span> <span class="ident">name_with_type_args</span>(<span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-                <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
-                    <span class="ident">args</span>[<span class="number">0</span>].<span class="ident">clone</span>()
-                } <span class="kw">else</span> {
-                    <span class="macro">format!</span>(<span class="string">&quot;[{}]&quot;</span>, <span class="ident">args</span>.<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>))
-                }
-            }
-            <span class="kw">fn</span> <span class="ident">inline</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-                <span class="ident">T::inline</span>()
-            }
-            <span class="kw">fn</span> <span class="ident">inline_flattened</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-                <span class="ident">T::inline_flattened</span>()
-            }
-            <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">TypeId</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
-                <span class="ident">T::dependencies</span>()
-            }
-            <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-                <span class="ident">T::transparent</span>()
-            }
+            <span class="kw">fn</span> <span class="ident">inline</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> { <span class="ident">T::inline</span>() }
+            <span class="kw">fn</span> <span class="ident">inline_flattened</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> { <span class="ident">T::inline_flattened</span>() }
+            <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Dependency</span><span class="op">&gt;</span> { <span class="ident">T::dependencies</span>() }
+            <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> { <span class="ident">T::transparent</span>() }
         }
     };
+}
+
+<span class="comment">// implement TS for the $shadow, deferring to the impl $s</span>
+<span class="macro">macro_rules!</span> <span class="ident">impl_shadow</span> {
+    (<span class="kw">as</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">s</span>:<span class="ident">ty</span>: $(<span class="macro-nonterminal">$</span><span class="kw">impl</span>:<span class="macro-nonterminal">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        $(<span class="macro-nonterminal">$</span><span class="kw">impl</span>)<span class="op">*</span> {
+            <span class="kw">fn</span> <span class="macro-nonterminal">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> { <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">s</span><span class="op">&gt;</span><span class="ident">::name</span>() }
+            <span class="kw">fn</span> <span class="ident">name_with_type_args</span>(<span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> { <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">s</span><span class="op">&gt;</span><span class="ident">::name_with_type_args</span>(<span class="ident">args</span>) }
+            <span class="kw">fn</span> <span class="ident">inline</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> { <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">s</span><span class="op">&gt;</span><span class="ident">::inline</span>() }
+            <span class="kw">fn</span> <span class="ident">inline_flattened</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> { <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">s</span><span class="op">&gt;</span><span class="ident">::inline_flattened</span>() }
+            <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::Dependency</span><span class="op">&gt;</span> { <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">s</span><span class="op">&gt;</span><span class="ident">::dependencies</span>() }
+            <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> { <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">s</span><span class="op">&gt;</span><span class="ident">::transparent</span>() }
+        }
+    };
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+        <span class="macro">unreachable!</span>();
+    }
+
+    <span class="kw">fn</span> <span class="ident">name_with_type_args</span>(<span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">args</span>.<span class="ident">len</span>(),
+            <span class="number">1</span>,
+            <span class="string">&quot;called Option::name_with_type_args with {} args&quot;</span>,
+            <span class="ident">args</span>.<span class="ident">len</span>()
+        );
+        <span class="macro">format!</span>(<span class="string">&quot;{} | null&quot;</span>, <span class="ident">args</span>[<span class="number">0</span>])
+    }
+
+    <span class="kw">fn</span> <span class="ident">inline</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+        <span class="macro">format!</span>(<span class="string">&quot;{} | null&quot;</span>, <span class="ident">T::inline</span>())
+    }
+
+    <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Dependency</span><span class="op">&gt;</span> {
+        [<span class="ident">Dependency::from_ty</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()].<span class="ident">into_iter</span>().<span class="ident">flatten</span>().<span class="ident">collect</span>()
+    }
+
+    <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="bool-val">true</span>
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+        <span class="string">&quot;Array&quot;</span>.<span class="ident">to_owned</span>()
+    }
+
+    <span class="kw">fn</span> <span class="ident">name_with_type_args</span>(<span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">args</span>.<span class="ident">len</span>(),
+            <span class="number">1</span>,
+            <span class="string">&quot;called Vec::name_with_type_args with {} args&quot;</span>,
+            <span class="ident">args</span>.<span class="ident">len</span>()
+        );
+        <span class="macro">format!</span>(<span class="string">&quot;Array&lt;{}&gt;&quot;</span>, <span class="ident">args</span>[<span class="number">0</span>])
+    }
+
+    <span class="kw">fn</span> <span class="ident">inline</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+        <span class="macro">format!</span>(<span class="string">&quot;Array&lt;{}&gt;&quot;</span>, <span class="ident">T::inline</span>())
+    }
+
+    <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Dependency</span><span class="op">&gt;</span> {
+        [<span class="ident">Dependency::from_ty</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()].<span class="ident">into_iter</span>().<span class="ident">flatten</span>().<span class="ident">collect</span>()
+    }
+
+    <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="bool-val">true</span>
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>: <span class="ident">TS</span>, <span class="ident">V</span>: <span class="ident">TS</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+        <span class="string">&quot;Record&quot;</span>.<span class="ident">to_owned</span>()
+    }
+
+    <span class="kw">fn</span> <span class="ident">name_with_type_args</span>(<span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">args</span>.<span class="ident">len</span>(),
+            <span class="number">2</span>,
+            <span class="string">&quot;called HashMap::name_with_type_args with {} args&quot;</span>,
+            <span class="ident">args</span>.<span class="ident">len</span>()
+        );
+        <span class="macro">format!</span>(<span class="string">&quot;Record&lt;{}, {}&gt;&quot;</span>, <span class="ident">args</span>[<span class="number">0</span>], <span class="ident">args</span>[<span class="number">1</span>])
+    }
+
+    <span class="kw">fn</span> <span class="ident">inline</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+        <span class="macro">format!</span>(<span class="string">&quot;Record&lt;{}, {}&gt;&quot;</span>, <span class="ident">K::inline</span>(), <span class="ident">V::inline</span>())
+    }
+
+    <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Dependency</span><span class="op">&gt;</span> {
+        [<span class="ident">Dependency::from_ty</span>::<span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>(), <span class="ident">Dependency::from_ty</span>::<span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>()]
+            .<span class="ident">into_iter</span>()
+            .<span class="ident">flatten</span>()
+            .<span class="ident">collect</span>()
+    }
+
+    <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="bool-val">true</span>
+    }
+}
+
+<span class="macro">impl_shadow!</span>(<span class="kw">as</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>: <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>);
+<span class="macro">impl_shadow!</span>(<span class="kw">as</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>: <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>);
+<span class="macro">impl_shadow!</span>(<span class="kw">as</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>: <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>: <span class="ident">TS</span>, <span class="ident">V</span>: <span class="ident">TS</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>);
+<span class="macro">impl_shadow!</span>(<span class="kw">as</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>: <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span>, <span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> [<span class="ident">T</span>; <span class="ident">N</span>]);
+
+<span class="macro">impl_wrapper!</span>(<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>);
+<span class="macro">impl_wrapper!</span>(<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">std::sync::Arc</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>);
+<span class="macro">impl_wrapper!</span>(<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">std::rc::Rc</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>);
+<span class="macro">impl_wrapper!</span>(<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span> <span class="op">+</span> <span class="ident">ToOwned</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">std::borrow::Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">T</span><span class="op">&gt;</span>);
+<span class="macro">impl_wrapper!</span>(<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">std::cell::Cell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>);
+<span class="macro">impl_wrapper!</span>(<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">std::cell::RefCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>);
+
+<span class="macro">impl_tuples!</span>(<span class="ident">T1</span>, <span class="ident">T2</span>, <span class="ident">T3</span>, <span class="ident">T4</span>, <span class="ident">T5</span>, <span class="ident">T6</span>, <span class="ident">T7</span>, <span class="ident">T8</span>, <span class="ident">T9</span>, <span class="ident">T10</span>);
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal-impl&quot;</span>)]</span>
+<span class="macro">impl_primitives!</span> { <span class="ident">bigdecimal::BigDecimal</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;string&quot;</span> }
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid-impl&quot;</span>)]</span>
+<span class="macro">impl_primitives!</span> { <span class="ident">uuid::Uuid</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;string&quot;</span> }
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bytes-impl&quot;</span>)]</span>
+<span class="kw">mod</span> <span class="ident">bytes</span> {
+    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::TS</span>;
+
+    <span class="macro">impl_shadow!</span>(<span class="kw">as</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>: <span class="kw">impl</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">bytes::Bytes</span>);
+    <span class="macro">impl_shadow!</span>(<span class="kw">as</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>: <span class="kw">impl</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">bytes::BytesMut</span>);
 }
 
 <span class="macro">impl_primitives!</span> {
@@ -762,59 +1046,28 @@
     () <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;null&quot;</span>
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bytes-impl&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">bytes</span> {
-    <span class="kw">use</span> <span class="ident">std::any::TypeId</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-json-impl&quot;</span>)]</span>
+<span class="macro">impl_primitives!</span> {
+    <span class="ident">serde_json::Value</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;unknown&quot;</span>
+}
 
-    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::TS</span>;
-
-    <span class="kw">impl</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">bytes::Bytes</span> {
-        <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-            <span class="string">&quot;Array&lt;number&gt;&quot;</span>.<span class="ident">to_owned</span>()
-        }
-
-        <span class="kw">fn</span> <span class="ident">inline</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-            <span class="macro">format!</span>(<span class="string">&quot;Array&lt;{}&gt;&quot;</span>, <span class="ident">u8::inline</span>())
-        }
-
-        <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">TypeId</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
-            <span class="macro">vec!</span>[(<span class="ident">TypeId::of</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>(), <span class="ident">u8::name</span>())]
-        }
-
-        <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-            <span class="bool-val">true</span>
-        }
-    }
-
-    <span class="kw">impl</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">bytes::BytesMut</span> {
-        <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-            <span class="string">&quot;Array&lt;number&gt;&quot;</span>.<span class="ident">to_owned</span>()
-        }
-
-        <span class="kw">fn</span> <span class="ident">inline</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-            <span class="macro">format!</span>(<span class="string">&quot;Array&lt;{}&gt;&quot;</span>, <span class="ident">u8::inline</span>())
-        }
-
-        <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">TypeId</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
-            <span class="macro">vec!</span>[(<span class="ident">TypeId::of</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>(), <span class="ident">u8::name</span>())]
-        }
-
-        <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-            <span class="bool-val">true</span>
-        }
-    }
+<span class="macro">impl_primitives!</span> {
+    <span class="ident">std::path::Path</span>, <span class="ident">std::path::PathBuf</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;unknown&quot;</span>
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-impl&quot;</span>)]</span>
 <span class="kw">mod</span> <span class="ident">chrono_impls</span> {
-    <span class="kw">use</span> <span class="ident">std::any::TypeId</span>;
-
-    <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">Date</span>, <span class="ident">DateTime</span>, <span class="ident">NaiveDate</span>, <span class="ident">NaiveDateTime</span>, <span class="ident">NaiveTime</span>, <span class="ident">TimeZone</span>, <span class="ident">Utc</span>};
+    <span class="kw">use</span> <span class="ident">chrono</span>::{
+        <span class="ident">Date</span>, <span class="ident">DateTime</span>, <span class="ident">Duration</span>, <span class="ident">FixedOffset</span>, <span class="ident">Local</span>, <span class="ident">NaiveDate</span>, <span class="ident">NaiveDateTime</span>, <span class="ident">NaiveTime</span>,
+        <span class="ident">TimeZone</span>, <span class="ident">Utc</span>,
+    };
 
     <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::TS</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Dependency</span>;
 
     <span class="macro">impl_primitives!</span> {
-        <span class="ident">NaiveDateTime</span>, <span class="ident">NaiveDate</span>, <span class="ident">NaiveTime</span>, <span class="ident">Utc</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Date&quot;</span>
+        <span class="ident">NaiveDateTime</span>, <span class="ident">NaiveDate</span>, <span class="ident">NaiveTime</span>, <span class="ident">Utc</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Date&quot;</span>,
+        <span class="ident">Duration</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;string&quot;</span>
     }
 
     <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TimeZone</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
@@ -826,7 +1079,7 @@
             <span class="string">&quot;Date&quot;</span>.<span class="ident">to_owned</span>()
         }
 
-        <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">TypeId</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
+        <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Dependency</span><span class="op">&gt;</span> {
             <span class="macro">vec!</span>[]
         }
 
@@ -844,7 +1097,7 @@
             <span class="string">&quot;Date&quot;</span>.<span class="ident">to_owned</span>()
         }
 
-        <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">TypeId</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
+        <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Dependency</span><span class="op">&gt;</span> {
             <span class="macro">vec!</span>[]
         }
 
@@ -852,174 +1105,41 @@
             <span class="bool-val">false</span>
         }
     }
-}
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal-impl&quot;</span>)]</span>
-<span class="macro">impl_primitives!</span> {
-    <span class="ident">bigdecimal::BigDecimal</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;string&quot;</span>
-}
+    <span class="kw">impl</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">Local</span> {
+        <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+            <span class="macro">unimplemented!</span>()
+        }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid-impl&quot;</span>)]</span>
-<span class="macro">impl_primitives!</span> {
-    <span class="ident">uuid::Uuid</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;string&quot;</span>
-}
+        <span class="kw">fn</span> <span class="ident">inline</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+            <span class="macro">unimplemented!</span>()
+        }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-json-impl&quot;</span>)]</span>
-<span class="macro">impl_primitives!</span> {
-    <span class="ident">serde_json::Value</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;unknown&quot;</span>
-}
+        <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Dependency</span><span class="op">&gt;</span> {
+            <span class="macro">unimplemented!</span>()
+        }
 
-<span class="macro">impl_primitives!</span> {
-    <span class="ident">std::path::Path</span>, <span class="ident">std::path::PathBuf</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;unknown&quot;</span>
-}
-
-<span class="macro">impl_tuples!</span>(<span class="ident">T1</span>, <span class="ident">T2</span>, <span class="ident">T3</span>, <span class="ident">T4</span>, <span class="ident">T5</span>, <span class="ident">T6</span>, <span class="ident">T7</span>, <span class="ident">T8</span>, <span class="ident">T9</span>, <span class="ident">T10</span>);
-<span class="macro">impl_proxy!</span>(<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>);
-<span class="macro">impl_proxy!</span>(<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">std::sync::Arc</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>);
-<span class="macro">impl_proxy!</span>(<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">std::rc::Rc</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>);
-<span class="macro">impl_proxy!</span>(<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span> <span class="op">+</span> <span class="ident">ToOwned</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">std::borrow::Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">T</span><span class="op">&gt;</span>);
-<span class="macro">impl_proxy!</span>(<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">std::cell::Cell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>);
-<span class="macro">impl_proxy!</span>(<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">std::cell::RefCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>);
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-        <span class="macro">unreachable!</span>();
+        <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+            <span class="macro">unimplemented!</span>()
+        }
     }
 
-    <span class="kw">fn</span> <span class="ident">name_with_type_args</span>(<span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-        <span class="macro">assert_eq!</span>(<span class="ident">args</span>.<span class="ident">len</span>(), <span class="number">1</span>);
-        <span class="macro">format!</span>(<span class="string">&quot;{} | null&quot;</span>, <span class="ident">args</span>[<span class="number">0</span>])
-    }
+    <span class="kw">impl</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">FixedOffset</span> {
+        <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+            <span class="macro">unimplemented!</span>()
+        }
 
-    <span class="kw">fn</span> <span class="ident">inline</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-        <span class="macro">format!</span>(<span class="string">&quot;{} | null&quot;</span>, <span class="ident">T::inline</span>())
-    }
+        <span class="kw">fn</span> <span class="ident">inline</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+            <span class="macro">unimplemented!</span>()
+        }
 
-    <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">TypeId</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
-        <span class="macro">vec!</span>[(<span class="ident">TypeId::of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(), <span class="ident">T::name</span>())]
-    }
+        <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Dependency</span><span class="op">&gt;</span> {
+            <span class="macro">unimplemented!</span>()
+        }
 
-    <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="bool-val">true</span>
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-        <span class="string">&quot;Array&quot;</span>.<span class="ident">to_owned</span>()
-    }
-
-    <span class="kw">fn</span> <span class="ident">name_with_type_args</span>(<span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-        <span class="macro">assert_eq!</span>(<span class="ident">args</span>.<span class="ident">len</span>(), <span class="number">1</span>);
-        <span class="macro">format!</span>(<span class="string">&quot;Array&lt;{}&gt;&quot;</span>, <span class="ident">args</span>[<span class="number">0</span>])
-    }
-
-    <span class="kw">fn</span> <span class="ident">inline</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-        <span class="macro">format!</span>(<span class="string">&quot;Array&lt;{}&gt;&quot;</span>, <span class="ident">T::inline</span>())
-    }
-
-    <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">TypeId</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
-        <span class="macro">vec!</span>[(<span class="ident">TypeId::of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(), <span class="ident">T::name</span>())]
-    }
-
-    <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="bool-val">true</span>
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-        <span class="string">&quot;Array&quot;</span>.<span class="ident">to_owned</span>()
-    }
-
-    <span class="kw">fn</span> <span class="ident">inline</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-        <span class="macro">format!</span>(<span class="string">&quot;Array&lt;{}&gt;&quot;</span>, <span class="ident">T::inline</span>())
-    }
-
-    <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">TypeId</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
-        <span class="macro">vec!</span>[(<span class="ident">TypeId::of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(), <span class="ident">T::name</span>())]
-    }
-
-    <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="bool-val">true</span>
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-        <span class="string">&quot;Array&quot;</span>.<span class="ident">to_owned</span>()
-    }
-
-    <span class="kw">fn</span> <span class="ident">inline</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-        <span class="macro">format!</span>(<span class="string">&quot;Array&lt;{}&gt;&quot;</span>, <span class="ident">T::inline</span>())
-    }
-
-    <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">TypeId</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
-        <span class="macro">vec!</span>[(<span class="ident">TypeId::of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(), <span class="ident">T::name</span>())]
-    }
-
-    <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="bool-val">true</span>
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>: <span class="ident">TS</span>, <span class="ident">V</span>: <span class="ident">TS</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-        <span class="string">&quot;Record&quot;</span>.<span class="ident">to_owned</span>()
-    }
-
-    <span class="kw">fn</span> <span class="ident">inline</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-        <span class="macro">format!</span>(<span class="string">&quot;Record&lt;{}, {}&gt;&quot;</span>, <span class="ident">K::inline</span>(), <span class="ident">V::inline</span>())
-    }
-
-    <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">TypeId</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
-        <span class="macro">vec!</span>[
-            (<span class="ident">TypeId::of</span>::<span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>(), <span class="ident">K::name</span>()),
-            (<span class="ident">TypeId::of</span>::<span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(), <span class="ident">V::name</span>()),
-        ]
-    }
-
-    <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="bool-val">true</span>
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>: <span class="ident">TS</span>, <span class="ident">V</span>: <span class="ident">TS</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-        <span class="string">&quot;Record&quot;</span>.<span class="ident">to_owned</span>()
-    }
-
-    <span class="kw">fn</span> <span class="ident">inline</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-        <span class="macro">format!</span>(<span class="string">&quot;Record&lt;{}, {}&gt;&quot;</span>, <span class="ident">K::inline</span>(), <span class="ident">V::inline</span>())
-    }
-
-    <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">TypeId</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
-        <span class="macro">vec!</span>[
-            (<span class="ident">TypeId::of</span>::<span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>(), <span class="ident">K::name</span>()),
-            (<span class="ident">TypeId::of</span>::<span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(), <span class="ident">V::name</span>()),
-        ]
-    }
-
-    <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="bool-val">true</span>
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span>, <span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span> <span class="ident">TS</span> <span class="kw">for</span> [<span class="ident">T</span>; <span class="ident">N</span>] {
-    <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-        <span class="macro">format!</span>(<span class="string">&quot;Array&lt;{}&gt;&quot;</span>, <span class="ident">T::name</span>())
-    }
-
-    <span class="kw">fn</span> <span class="ident">inline</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-        <span class="macro">format!</span>(<span class="string">&quot;Array&lt;{}&gt;&quot;</span>, <span class="ident">T::inline</span>())
-    }
-
-    <span class="kw">fn</span> <span class="ident">dependencies</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">TypeId</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
-        <span class="macro">vec!</span>[(<span class="ident">TypeId::of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(), <span class="ident">T::name</span>())]
-    }
-
-    <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="bool-val">true</span>
+        <span class="kw">fn</span> <span class="ident">transparent</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+            <span class="macro">unimplemented!</span>()
+        }
     }
 }
 </code></pre></div>

@@ -1,32 +1,119 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Generate TypeScript interface&#x2F;type declarations from rust structs."><meta name="keywords" content="rust, rustlang, rust-lang, ts_rs"><title>ts_rs - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../favicon.svg"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../ts_rs/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><h2 class="location">Crate ts_rs</h2><div class="block version"><div class="narrow-helper"></div><p>Version 5.1.1</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all ts_rs's items</p></a><div class="block items"><ul><li><a href="#macros">Macros</a></li><li><a href="#traits">Traits</a></li></ul></div><div id="sidebar-vars" data-name="ts_rs" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">ts_rs</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/ts_rs/lib.rs.html#1-512" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Generate TypeScript interface/type declarations from rust structs.</p>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="why?"><meta name="keywords" content="rust, rustlang, rust-lang, ts_rs"><title>ts_rs - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../favicon.svg"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../ts_rs/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><h2 class="location">Crate ts_rs</h2><div class="block version"><div class="narrow-helper"></div><p>Version 6.0.5</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all ts_rs's items</p></a><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li></ul></div><div id="sidebar-vars" data-name="ts_rs" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">ts_rs</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/ts_rs/lib.rs.html#1-572" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h1 align="center" style="padding-top: 0; margin-top: 0;">
+<img width="150px" src="https://raw.githubusercontent.com/Aleph-Alpha/ts-rs/main/logo.png" alt="logo">
+<br/>
+ts-rs
+</h1>
+<p align="center">
+generate typescript interface/type declarations from rust types
+</p>
+<div align="center">
+<!-- Github Actions -->
+<img src="https://img.shields.io/github/workflow/status/Aleph-Alpha/ts-rs/Test?style=flat-square" alt="actions status" />
+<a href="https://crates.io/crates/ts-rs">
+<img src="https://img.shields.io/crates/v/ts-rs.svg?style=flat-square"
+alt="Crates.io version" />
+</a>
+<a href="https://docs.rs/ts-rs">
+<img src="https://img.shields.io/badge/docs-latest-blue.svg?style=flat-square"
+alt="docs.rs docs" />
+</a>
+<a href="https://crates.io/crates/ts-rs">
+<img src="https://img.shields.io/crates/d/ts-rs.svg?style=flat-square"
+alt="Download" />
+</a>
+</div>
 <h2 id="why" class="section-header"><a href="#why">why?</a></h2>
-<p>When building a web application in rust, data structures have to be shared between backend and frontend.<br />
-Using this library, you can easily generate TypeScript bindings to your rust structs &amp; enums, so that you can keep your
+<p>When building a web application in rust, data structures have to be shared between backend and frontend.
+Using this library, you can easily generate TypeScript bindings to your rust structs &amp; enums so that you can keep your
 types in one place.</p>
 <p>ts-rs might also come in handy when working with webassembly.</p>
 <h2 id="how" class="section-header"><a href="#how">how?</a></h2>
-<p>ts-rs exposes a single trait, <code>TS</code>.<br />
-Using a derive macro, you can implement this trait for
-your types.<br />
+<p>ts-rs exposes a single trait, <code>TS</code>. Using a derive macro, you can implement this interface for your types.
 Then, you can use this trait to obtain the TypeScript bindings.
-We recommend doing this in your tests. <a href="https://github.com/Aleph-Alpha/ts-rs/blob/main/example/src/lib.rs">see the example</a></p>
-<h2 id="serde-compatibility-layer" class="section-header"><a href="#serde-compatibility-layer">serde compatibility layer</a></h2>
-<p>With the <code>serde-compat</code> feature enabled, ts-rs tries parsing serde attributes.<br />
-Please note that not all serde attributes are supported yet.</p>
-</div></details><h2 id="macros" class="section-header"><a href="#macros">Macros</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="macro" href="macro.export.html" title="ts_rs::export macro">export</a></div><div class="item-right docblock-short"><p>Expands to a test function which exports typescript bindings to one or multiple files when
-running <code>cargo test</code>.<br />
-If a type depends on an other type which is exported to a different file, an appropriate import
-will be included.<br />
-If a file already exists, it will be overriden.<br />
-Missing parent directories of the file(s) will be created.<br />
-Paths are interpreted as being relative to the project root.</p>
-</div><div class="item-left module-item"><a class="macro" href="macro.export_here.html" title="ts_rs::export_here macro">export_here</a></div><div class="item-right docblock-short"><p>Like <code>export!</code> but instead of creating a test function it executes the binding generation right here.
-This may be useful if you’d like to run the binding generation in any other context than a test.</p>
+We recommend doing this in your tests.
+<a href="https://github.com/Aleph-Alpha/ts-rs/blob/main/example/src/lib.rs">See the example</a> and <a href="https://docs.rs/ts-rs/latest/ts_rs/">the docs</a>.</p>
+<h2 id="get-started" class="section-header"><a href="#get-started">get started</a></h2><div class="example-wrap"><pre class="language-toml"><code>[dependencies]
+ts-rs = &quot;6.0&quot;</code></pre></div>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">ts_rs::TS</span>;
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">TS</span>)]</span>
+<span class="attribute">#[<span class="ident">ts</span>(<span class="ident">export</span>)]</span>
+<span class="kw">struct</span> <span class="ident">User</span> {
+    <span class="ident">user_id</span>: <span class="ident">i32</span>,
+    <span class="ident">first_name</span>: <span class="ident">String</span>,
+    <span class="ident">last_name</span>: <span class="ident">String</span>,
+}</code></pre></div>
+<p>When running <code>cargo test</code>, the TypeScript bindings will be exported to the file <code>bindings/User.ts</code>.</p>
+<h2 id="features" class="section-header"><a href="#features">features</a></h2>
+<ul>
+<li>generate interface declarations from rust structs</li>
+<li>generate union declarations from rust enums</li>
+<li>inline types</li>
+<li>flatten structs/interfaces</li>
+<li>generate necessary imports when exporting to multiple files</li>
+<li>serde compatibility</li>
+<li>generic types</li>
+</ul>
+<h2 id="cargo-features" class="section-header"><a href="#cargo-features">cargo features</a></h2>
+<ul>
+<li><code>serde-compat</code> (default)<br />
+Enable serde compatibility. See below for more info.</li>
+<li><code>chrono-impl</code><br />
+Implement <code>TS</code> for types from chrono</li>
+<li><code>bigdecimal-impl</code><br />
+Implement <code>TS</code> for types from bigdecimal</li>
+<li><code>uuid-impl</code><br />
+Implement <code>TS</code> for types from uuid</li>
+<li><code>bytes-impl</code><br />
+Implement <code>TS</code> for types from bytes</li>
+</ul>
+<p>If there’s a type you’re dealing with which doesn’t implement <code>TS</code>, use <code>#[ts(type = &quot;..&quot;)]</code> or open a PR.</p>
+<h2 id="serde-compatability" class="section-header"><a href="#serde-compatability">serde compatability</a></h2>
+<p>With the <code>serde-compat</code> feature (enabled by default), serde attributes can be parsed for enums and structs.
+Supported serde attributes:</p>
+<ul>
+<li><code>rename</code></li>
+<li><code>rename-all</code></li>
+<li><code>tag</code></li>
+<li><code>content</code></li>
+<li><code>untagged</code></li>
+<li><code>skip</code></li>
+<li><code>skip_serializing</code></li>
+<li><code>skip_deserializing</code></li>
+<li><code>skip_serializing_if = &quot;Option::is_none&quot;</code></li>
+<li><code>flatten</code></li>
+<li><code>default</code></li>
+</ul>
+<p>When ts-rs encounters an unsupported serde attribute, a warning is emitted.</p>
+<h2 id="contributing" class="section-header"><a href="#contributing">contributing</a></h2>
+<p>Contributions are always welcome!
+Feel free to open an issue, discuss using GitHub discussions or open a PR.
+<a href="https://github.com/Aleph-Alpha/ts-rs/blob/main/CONTRIBUTING.md">See CONTRIBUTING.md</a></p>
+<h2 id="todo" class="section-header"><a href="#todo">todo</a></h2>
+<ul>
+<li><input disabled="" type="checkbox" checked=""/>
+serde compatibility layer</li>
+<li><input disabled="" type="checkbox" checked=""/>
+documentation</li>
+<li><input disabled="" type="checkbox" checked=""/>
+use typescript types across files</li>
+<li><input disabled="" type="checkbox" checked=""/>
+more enum representations</li>
+<li><input disabled="" type="checkbox" checked=""/>
+generics</li>
+<li><input disabled="" type="checkbox"/>
+don’t require <code>'static</code></li>
+</ul>
+</div></details><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.Dependency.html" title="ts_rs::Dependency struct">Dependency</a></div><div class="item-right docblock-short"><p>A typescript type which is depended upon by other types.
+This information is required for generating the correct import statements.</p>
+</div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="enum" href="enum.ExportError.html" title="ts_rs::ExportError enum">ExportError</a></div><div class="item-right docblock-short"><p>An error which may occur when exporting a type</p>
 </div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
 <div class="item-table"><div class="item-left module-item"><a class="trait" href="trait.TS.html" title="ts_rs::TS trait">TS</a></div><div class="item-right docblock-short"><p>A type which can be represented in TypeScript.<br />
 Most of the time, you’d want to derive this trait instead of implementing it manually.<br />
-ts-rs comes with implementations for all numeric types, <code>String</code>, <code>Vec</code>, <code>Option</code> and tuples.</p>
+ts-rs comes with implementations for all primitives, most collections, tuples,
+arrays and containers.</p>
 </div></div><h2 id="derives" class="section-header"><a href="#derives">Derive Macros</a></h2>
 <div class="item-table"><div class="item-left module-item"><a class="derive" href="derive.TS.html" title="ts_rs::TS derive">TS</a></div><div class="item-right docblock-short"><p>Derives <a href="./trait.TS.html">TS</a> for a struct or enum.
 Please take a look at <a href="./trait.TS.html">TS</a> for documentation.</p>

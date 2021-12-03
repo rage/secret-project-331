@@ -6,6 +6,7 @@ import {
   PublicQuiz,
   PublicQuizItem,
   QuizAnswer,
+  QuizItemAnswer,
 } from "../../types/types"
 import { ItemAnswerFeedback } from "../pages/api/grade"
 import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
@@ -25,6 +26,7 @@ interface QuizItemSubmissionComponentProps {
   public_quiz_item: PublicQuizItem
   quiz_item_model_solution: ModelSolutionQuizItem
   quiz_item_feedback: ItemAnswerFeedback
+  user_quiz_item_answer: QuizItemAnswer
 }
 
 type QuizItemType =
@@ -55,6 +57,7 @@ const Submission: React.FC<SubmissionProps> = ({
   publicAlternatives,
   modelSolutions,
   feedback_json,
+  user_answer,
 }) => {
   return (
     <HeightTrackingContainer port={port}>
@@ -66,12 +69,14 @@ const Submission: React.FC<SubmissionProps> = ({
         const itemModelSolution = modelSolutions.items.filter(
           (itemModelSolution) => itemModelSolution.id === item.id,
         )[0]
+        const quizItemAnswer = user_answer.itemAnswers.filter((ia) => ia.quizItemId === item.id)[0]
         return (
           <Component
             key={item.id}
             public_quiz_item={item}
             quiz_item_feedback={itemFeedback}
             quiz_item_model_solution={itemModelSolution}
+            user_quiz_item_answer={quizItemAnswer}
           />
         )
       })}

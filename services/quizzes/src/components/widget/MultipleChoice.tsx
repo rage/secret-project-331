@@ -117,14 +117,8 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
               onClick={handleOptionSelect}
               className={cx(
                 optionButton,
-                css`
-                  /* stylelint-disable property-no-unknown -- Want to use conditional cx */
-                `,
-                { optionButtonSelected: selected },
-                { optionButtonColumn: direction === DIRECTION_COLUMN },
-                css`
-                  /* stylelint-enable property-no-unknown */
-                `,
+                selected ? optionButtonSelected : "",
+                direction === DIRECTION_COLUMN ? optionButtonColumn : "",
               )}
             >
               {qo.title || qo.body}

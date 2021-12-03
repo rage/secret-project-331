@@ -17,6 +17,9 @@ import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary
 import GenericLoading from "../../../GenericLoading"
 
 import ExerciseTaskIframe from "./ExerciseTaskIframe"
+
+const INITIAL_VIEW_TYPE = "exercise"
+
 interface ExerciseBlockAttributes {
   id: string
 }
@@ -24,7 +27,6 @@ interface ExerciseBlockAttributes {
 // Special care taken here to ensure exercise content can have full width of
 // the page.
 const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (props) => {
-  const INITIAL_VIEW_TYPE = "exercise"
   const { t } = useTranslation()
   const loginState = useContext(LoginStateContext)
   const coursePageContext = useContext(CoursePageContext)
@@ -40,6 +42,9 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const exerciseTask = useQuery(queryUniqueKey, () => fetchExerciseById(id), {
     enabled: showExercise,
     onSuccess: (data) => {
+      if (data.exercise_status?.score_given) {
+        setPoints(data.exercise_status?.score_given)
+      }
       dispatch({
         type: "exerciseDownloaded",
         payload: {
@@ -51,9 +56,11 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
       })
     },
   })
+
   const postSubmissionMutation = useMutation(postSubmission, {
     retry: 3,
-    onSuccess: (data) =>
+    onSuccess: (data) => {
+      setPoints(data.grading.score_given)
       dispatch({
         type: "submissionGraded",
         payload: {
@@ -64,10 +71,12 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
             public_spec: exerciseTask.data?.current_exercise_task.public_spec,
           },
         },
-      }),
+      })
+    },
   })
   const [answer, setAnswer] = useState<unknown>(null)
   const [answerValid, setAnswerValid] = useState(false)
+  const [points, setPoints] = useState<number | null>(null)
 
   if (exerciseTask.error) {
     return <pre>{JSON.stringify(exerciseTask.error, undefined, 2)}</pre>
@@ -137,8 +146,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
         >
           {t("points-label")}
           <br />
-          {exerciseTask.data.exercise_status?.score_given ?? 0}/
-          {exerciseTask.data.exercise.score_maximum}
+          {points ?? 0}/{exerciseTask.data.exercise.score_maximum}
         </div>
       </div>
       {currentExerciseTaskAssignment && (

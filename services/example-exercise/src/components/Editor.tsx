@@ -1,11 +1,15 @@
 import styled from "@emotion/styled"
+import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
 import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
+import { CurrentStateMessage } from "../shared-module/iframe-protocol-types"
 import { Alternative } from "../util/stateInterfaces"
 
 import ButtonEditor from "./ButtonEditor"
+
+const CURRENT_STATE = "current-state"
 interface Props {
   state: Alternative[]
   setState: (newState: Alternative[]) => void
@@ -35,6 +39,18 @@ const NewButton = styled.button`
 
 const Editor: React.FC<Props> = ({ state, setState, port }) => {
   const { t } = useTranslation()
+
+  useEffect(() => {
+    if (!port) {
+      return
+    }
+    const message: CurrentStateMessage = {
+      data: { private_spec: state },
+      message: CURRENT_STATE,
+      valid: true,
+    }
+    port.postMessage(message)
+  }, [state, port])
 
   return (
     <HeightTrackingContainer port={port}>

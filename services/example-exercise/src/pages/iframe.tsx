@@ -56,7 +56,7 @@ const Iframe: React.FC = () => {
               })
             } else if (data.view_type === "exercise-editor") {
               ReactDOM.flushSync(() => {
-                setState(data.data as Alternative[])
+                setState((JSON.parse(data.data as string) as Alternative[]) || [])
                 setViewType(data.view_type)
               })
             } else if (data.view_type === "view-submission") {

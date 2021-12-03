@@ -2,8 +2,8 @@ import { css } from "@emotion/css"
 import { useRouter } from "next/router"
 import { useTranslation } from "react-i18next"
 
-import HistoryView from "../../../../components/HistoryView"
 import Layout from "../../../../components/Layout"
+import HistoryView from "../../../../components/page-specific/manage/pages/id/history/HistoryView"
 import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 
 const History: React.FC<unknown> = () => {

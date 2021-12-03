@@ -1,12 +1,14 @@
 import { Pagination } from "@material-ui/core"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
-import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
-import { fetchHistoryCountForPage, restorePage } from "../../services/backend/pages"
-import { PageHistory } from "../../shared-module/bindings"
-import HistoryPage from "../HistoryPage"
+import { fetchHistoryCountForPage, restorePage } from "../../../../../../services/backend/pages"
+import { PageHistory } from "../../../../../../shared-module/bindings"
+import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../../../../shared-module/components/Spinner"
+
+import HistoryPage from "./HistoryPage"
 
 interface Props {
   pageId: string
@@ -21,7 +23,6 @@ const HistoryList: React.FC<Props> = ({
   onRestore,
   onCompare,
 }) => {
-  const { t } = useTranslation()
   const router = useRouter()
   const query = router.query.page
   let initialPage
@@ -38,22 +39,9 @@ const HistoryList: React.FC<Props> = ({
     initialSelectedRevisionId,
   )
 
-  const { isLoading, error, data, refetch } = useQuery(`page-history-count-${pageId}`, () =>
+  const getPageHistoryCount = useQuery(`page-history-count-${pageId}`, () =>
     fetchHistoryCountForPage(pageId),
   )
-
-  if (error) {
-    return (
-      <div>
-        <h1>{t("error-title")}</h1>
-        <pre>{JSON.stringify(error, undefined, 2)}</pre>
-      </div>
-    )
-  }
-
-  if (isLoading || !data) {
-    return <div>{t("loading-text")}</div>
-  }
 
   function compare(history: PageHistory) {
     setSelectedRevisionId(history.id)
@@ -63,7 +51,7 @@ const HistoryList: React.FC<Props> = ({
   async function restore(history: PageHistory) {
     const newHistoryId = await restorePage(pageId, history.id)
     await onRestore(history)
-    await refetch()
+    await getPageHistoryCount.refetch()
     changePage(1)
     setSelectedRevisionId(newHistoryId)
   }
@@ -75,19 +63,27 @@ const HistoryList: React.FC<Props> = ({
 
   return (
     <>
-      <HistoryPage
-        pageId={pageId}
-        page={currentPage}
-        limit={perPage}
-        selectedRevisionId={selectedRevisionId}
-        onCompare={compare}
-        onRestore={restore}
-      />
-      <Pagination
-        count={data / perPage}
-        page={currentPage}
-        onChange={(_, val) => changePage(val)}
-      />
+      {getPageHistoryCount.isError && (
+        <ErrorBanner variant={"readOnly"} error={getPageHistoryCount.error} />
+      )}
+      {getPageHistoryCount.isLoading && <Spinner variant={"medium"} />}
+      {getPageHistoryCount.isSuccess && (
+        <>
+          <HistoryPage
+            pageId={pageId}
+            page={currentPage}
+            limit={perPage}
+            selectedRevisionId={selectedRevisionId}
+            onCompare={compare}
+            onRestore={restore}
+          />
+          <Pagination
+            count={getPageHistoryCount.data / perPage}
+            page={currentPage}
+            onChange={(_, val) => changePage(val)}
+          />
+        </>
+      )}
     </>
   )
 }

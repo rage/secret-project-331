@@ -4,9 +4,9 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import Layout from "../../../../components/Layout"
-import FeedbackList from "../../../../components/lists/FeedbackList"
+import FeedbackList from "../../../../components/page-specific/manage/courses/id/feedback/FeedbackList"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
-import { frontendWideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import {
   dontRenderUntilQueryParametersReady,
   SimplifiedUrlQuery,
@@ -40,7 +40,7 @@ const FeedbackPage: React.FC<FeedbackProps> = ({ query }) => {
   const read = tab == 1
   return (
     <Layout navVariant={"complex"}>
-      <div className={frontendWideWidthCenteredComponentStyles}>
+      <div className={wideWidthCenteredComponentStyles}>
         <h3>{t("title-feedback")}</h3>
         <Paper square>
           <Tabs

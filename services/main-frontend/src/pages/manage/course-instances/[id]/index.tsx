@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next"
 import { useMutation, useQuery } from "react-query"
 
 import Layout from "../../../../components/Layout"
-import Form from "../../../../components/forms/CourseInstanceForm"
+import NewCourseInstanceForm from "../../../../components/page-specific/manage/courses/id/new-course-instance/NewCourseInstanceForm"
 import {
   deleteCourseInstance,
   editCourseInstance,
@@ -17,7 +17,7 @@ import { isErrorResponse } from "../../../../shared-module/bindings.guard"
 import Button from "../../../../shared-module/components/Button"
 import Spinner from "../../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
-import { frontendWideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import basePath from "../../../../shared-module/utils/base-path"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
@@ -91,7 +91,7 @@ const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) 
   let instanceInfo
   if (editing) {
     instanceInfo = (
-      <Form
+      <NewCourseInstanceForm
         initialData={data}
         onSubmit={(data) => {
           mutation.mutate(data)
@@ -158,7 +158,7 @@ const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) 
     <Layout frontPageUrl={basePath()} navVariant="complex">
       <div
         className={css`
-          ${frontendWideWidthCenteredComponentStyles}
+          ${wideWidthCenteredComponentStyles}
           margin-bottom: 1rem;
         `}
       >

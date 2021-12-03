@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
 import CoursePageContext from "../../../../contexts/CoursePageContext"
-import { courseMaterialCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import GenericLoading from "../../../GenericLoading"
 
@@ -28,7 +28,7 @@ const ExerciseInChapterBlock: React.FC<BlockRendererProps<unknown>> = () => {
   }
 
   return (
-    <div className={courseMaterialCenteredComponentStyles}>
+    <div className={normalWidthCenteredComponentStyles}>
       <ExercisesInChapter chapterId={chapterId} courseInstanceId={courseInstanceId} />
     </div>
   )

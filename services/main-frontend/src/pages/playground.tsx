@@ -195,7 +195,7 @@ const Home: React.FC = () => {
         <h2>{t("title-playground-exercise-iframe")}</h2>
         {data.length > 0 && (
           <div>
-            <h4>{t("title-list-of-examples")}</h4>
+            <h3>{t("title-list-of-examples")}</h3>
             <div
               className={css`
                 margin-bottom: 1rem;
@@ -203,7 +203,11 @@ const Home: React.FC = () => {
               `}
             >
               {/* eslint-disable-next-line jsx-a11y/no-onchange */}
-              <select onChange={handleExampleChange} name="playground-examples">
+              <select
+                onChange={handleExampleChange}
+                name="playground-examples"
+                aria-label={t("playground-examples")}
+              >
                 <option selected disabled label={t("label-examples")} />
                 {data.map((example) => (
                   <option
@@ -248,21 +252,20 @@ const Home: React.FC = () => {
           `}
         />
         <br />
-        <label>
-          {t("data-to-post-to-iframe")}
-          <textarea
-            rows={20}
-            spellCheck={false}
-            value={exampleData}
-            onChange={(e) => handleDataChange(e.target.value)}
-            className={css`
-              border: 1px solid black;
-              margin-bottom: 1rem;
-              width: 100%;
-              font-family: ${monospaceFont} !important;
-            `}
-          />
-        </label>
+        <label id="data-preview-label">{t("data-to-post-to-iframe")}</label>
+        <textarea
+          rows={20}
+          spellCheck={false}
+          value={exampleData}
+          onChange={(e) => handleDataChange(e.target.value)}
+          aria-labelledby="data-preview-label"
+          className={css`
+            border: 1px solid black;
+            margin-bottom: 1rem;
+            width: 100%;
+            font-family: ${monospaceFont} !important;
+          `}
+        />
         {exampleUrl && exampleWidth && exampleData && exampleName && (
           <Button
             variant="primary"

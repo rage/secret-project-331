@@ -110,20 +110,15 @@ fn setup_file_store() -> Arc<dyn FileStore> {
     if env::var("FILE_STORE_USE_GOOGLE_CLOUD_STORAGE").is_ok() {
         info!("Using Google Cloud Storage as the file store");
         let bucket_name = env::var("GOOGLE_CLOUD_STORAGE_BUCKET_NAME").expect("env FILE_STORE_USE_GOOGLE_CLOUD_STORAGE was defined but GOOGLE_CLOUD_STORAGE_BUCKET_NAME was not.");
-        Arc::new(futures::executor::block_on(async {
-            GoogleCloudFileStore::new(bucket_name)
-                .await
-                .expect("Failed to initialize file store")
-        }))
+        Arc::new(GoogleCloudFileStore::new(bucket_name).expect("Failed to initialize file store"))
     } else {
-        Arc::new(futures::executor::block_on(async {
-            info!("Using local file storage as the file store");
+        info!("Using local file storage as the file store");
+        Arc::new(
             LocalFileStore::new(
                 "uploads".into(),
                 "http://project-331.local/api/v0/files/uploads/".into(),
             )
-            .await
-            .expect("Failed to initialize file store")
-        }))
+            .expect("Failed to initialize file store"),
+        )
     }
 }

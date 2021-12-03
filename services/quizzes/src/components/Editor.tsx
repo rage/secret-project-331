@@ -1,6 +1,7 @@
 import React from "react"
 
 import { useSendEditorStateOnChange } from "../hooks/useSendEditorStateOnChange"
+import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
 import { useTypedSelector } from "../store/store"
 
 import BasicInformation from "./QuizEditForms/BasicInfo"
@@ -15,10 +16,10 @@ const Editor: React.FC<EditorProps> = ({ port }) => {
   useSendEditorStateOnChange(port, state)
 
   return (
-    <div>
+    <HeightTrackingContainer port={port}>
       <BasicInformation />
       <QuizItems />
-    </div>
+    </HeightTrackingContainer>
   )
 }
 

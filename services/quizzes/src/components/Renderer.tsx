@@ -9,9 +9,9 @@ import { initializedEditor } from "../store/editor/editorActions"
 import { normalizeData } from "../util/normalizerFunctions"
 
 import Editor from "./Editor"
+import Exercise from "./Exercise"
 import PlaygroundExercise from "./PlaygroundExercise"
 import Submission from "./Submission"
-import Widget from "./widget"
 
 interface RendererProps {
   viewType: ViewType
@@ -26,7 +26,7 @@ export const Renderer: React.FC<RendererProps> = ({ viewType, state, port, maxWi
   const dispatch = useDispatch()
 
   if (viewType === "exercise") {
-    return <Widget maxWidth={maxWidth} port={port} quiz={state as PublicQuiz} />
+    return <Exercise port={port} maxWidth={maxWidth} quiz={state as PublicQuiz} />
   } else if (viewType === "view-submission") {
     return (
       <Submission

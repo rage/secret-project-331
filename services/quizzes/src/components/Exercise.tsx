@@ -5,18 +5,18 @@ import HeightTrackingContainer from "../shared-module/components/HeightTrackingC
 
 import Widget from "./widget"
 
-export interface PlaygroundExerciseProps {
+export interface ExerciseProps {
   port: MessagePort
-  maxWidth: number | null
+  maxWidth: number
   quiz: PublicQuiz
 }
 
-const PlaygroundExercise: React.FC<PlaygroundExerciseProps> = ({ port, maxWidth, quiz }) => {
+const Exercise: React.FC<ExerciseProps> = ({ port, maxWidth, quiz }) => {
   return (
     <HeightTrackingContainer port={port}>
-      <Widget quiz={quiz} maxWidth={maxWidth} port={port} />
+      <Widget port={port} maxWidth={maxWidth} quiz={quiz} />
     </HeightTrackingContainer>
   )
 }
 
-export default PlaygroundExercise
+export default Exercise

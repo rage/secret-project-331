@@ -48,7 +48,6 @@ const IFrame: React.FC = () => {
           console.log(data)
           if (isSetStateMessage(data)) {
             if (data.view_type === "exercise") {
-              console.log("exercise: ", data)
               ReactDOM.flushSync(() => {
                 setState(
                   (data.data as any).public_spec.current_exercise_task.public_spec as PublicQuiz,
@@ -57,23 +56,19 @@ const IFrame: React.FC = () => {
               })
             } else if (data.view_type === "exercise-editor") {
               ReactDOM.flushSync(() => {
-                console.log("editor: ", data)
                 if (data.data === null) {
-                  console.log("empty quiz")
                   setState(emptyQuiz)
                 } else {
-                  setState(JSON.parse(data.data as Quiz))
+                  setState(JSON.parse(data.data as string) as Quiz)
                 }
                 setViewType(data.view_type)
               })
             } else if (data.view_type === "view-submission") {
-              console.log("submission: ", data)
               ReactDOM.flushSync(() => {
                 setState(data.data as SubmissionData)
                 setViewType(data.view_type)
               })
             } else if (data.view_type === "playground-exercise") {
-              console.log("playground exercise: ", data)
               ReactDOM.flushSync(() => {
                 setState(data.data as PublicQuiz)
                 setViewType(data.view_type)

@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 
 import { ModelSolutionQuiz, PublicQuiz, Quiz } from "../../types/types"
+import { ItemAnswerFeedback } from "../pages/api/grade"
 import { SubmissionData } from "../pages/iframe"
 import { ViewType } from "../shared-module/iframe-protocol-types"
 import { initializedEditor } from "../store/editor/editorActions"
@@ -37,6 +38,9 @@ export const Renderer: React.FC<RendererProps> = ({ viewType, state, port, maxWi
           (state as SubmissionData).submission_result.model_solution_spec as ModelSolutionQuiz
         }
         user_answer={(state as SubmissionData).user_answer}
+        feedback_json={
+          (state as SubmissionData).submission_result.grading.feedback_json as ItemAnswerFeedback[]
+        }
       />
     )
   } else if (viewType === "exercise-editor") {

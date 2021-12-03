@@ -15,10 +15,11 @@ pub struct GoogleCloudFileStore {
 }
 
 impl GoogleCloudFileStore {
-    pub async fn new(bucket_name: String) -> Result<Self> {
+    /// Needs to not be async because of how this is used in worker factories
+    #[instrument]
+    pub fn new(bucket_name: String) -> Result<Self> {
         let client = Client::default();
-        let _bucket = client.bucket().read(&bucket_name).await?;
-        // bucket exists, continue
+
         Ok(Self {
             bucket_name,
             client,

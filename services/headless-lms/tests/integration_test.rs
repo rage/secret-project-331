@@ -62,7 +62,6 @@ pub async fn init_actix() -> (
         .expect("failed to connect to test db");
     let file_store = Arc::new(futures::executor::block_on(async {
         LocalFileStore::new("uploads".into(), "http://localhost:3000".to_string())
-            .await
             .expect("Failed to initialize test file store")
     }));
     let app_conf = ApplicationConfiguration {

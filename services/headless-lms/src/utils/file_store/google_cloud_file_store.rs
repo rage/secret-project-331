@@ -4,7 +4,7 @@ use async_trait::async_trait;
 use bytes::Bytes;
 use cloud_storage::Client;
 use futures::{future::try_join, StreamExt};
-use std::path::Path;
+use std::{path::Path, time::Duration};
 use tokio_stream::wrappers::ReceiverStream;
 
 const BUFFER_SIZE: usize = 512;
@@ -15,10 +15,14 @@ pub struct GoogleCloudFileStore {
 }
 
 impl GoogleCloudFileStore {
+    #[instrument]
     pub async fn new(bucket_name: String) -> Result<Self> {
         let client = Client::default();
-        let _bucket = client.bucket().read(&bucket_name).await?;
-        // bucket exists, continue
+        info!("Checking whether bucket exists");
+        let bucket = client.bucket();
+        let bucket_future = bucket.read(&bucket_name);
+        let _res = tokio::time::timeout(Duration::from_secs(2), bucket_future).await??;
+        info!("Bucket exits");
         Ok(Self {
             bucket_name,
             client,

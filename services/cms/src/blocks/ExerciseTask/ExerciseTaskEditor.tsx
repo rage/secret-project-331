@@ -79,7 +79,7 @@ const ExerciseTaskEditor: React.FC<BlockEditProps<ExerciseTaskAttributes>> = ({
 }) => {
   const dispatch = useContext(EditorContentDispatch)
 
-  const [privcateSPecOnFirstRender] = useState(attributes.private_spec)
+  const [privateSpecOnFirstRender] = useState(attributes.private_spec)
   const { t } = useTranslation()
 
   const handleDeleteTask = () => {
@@ -150,7 +150,7 @@ const ExerciseTaskEditor: React.FC<BlockEditProps<ExerciseTaskAttributes>> = ({
           ) : (
             <ExerciseTaskIFrameEditor
               onPrivateSpecChange={(x) => setAttributes({ private_spec: x })}
-              privateSpec={privcateSPecOnFirstRender}
+              privateSpec={privateSpecOnFirstRender}
               url={`${url}?width=${defaultContainerWidth}`}
             />
           )}

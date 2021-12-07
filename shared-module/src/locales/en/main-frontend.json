@@ -168,5 +168,6 @@
   "available-in-languages": "Available in {{num}} languages",
   "language-language": "Language: {{language}}",
   "manage-course": "Manage course '{{ title }}'",
-  "courses": "Courses ({{ courses }}):"
+  "courses": "Courses ({{ courses }}):",
+  "course-navigation": "Navigate to course '{{ title }}'"
 }

@@ -130,5 +130,6 @@
   "american-english": "Englanti",
   "available-in-languages": "Saatavilla {{num}} kielellä",
   "language-language": "Kieli: {{language}}",
-  "manage-course": "Hallinnoi kurssia '{{ title }}'"
+  "manage-course": "Hallinnoi kurssia '{{ title }}'",
+  "course-navigation": "Siirry kurssiin '{{ title }}'"
 }

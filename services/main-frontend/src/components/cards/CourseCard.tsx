@@ -121,7 +121,7 @@ const CourseComponent: React.FC<CourseCardProps> = ({
   const { t } = useTranslation()
 
   return (
-    <CourseCard onClick={manageCourseNavigation}>
+    <CourseCard onClick={manageCourseNavigation} aria-label={t("course-navigation", { title })}>
       {loginStateContext.signedIn && (
         <StyledSettingIcon
           aria-label={t("manage-course", { title })}

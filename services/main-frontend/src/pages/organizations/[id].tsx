@@ -131,9 +131,13 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
                   title={course.name}
                   description={course.description ?? NO_DESCRIPTION}
                   languageCode={course.language_code}
-                  onClick={() => {
+                  manageCourseManagementNavigation={() => {
                     // eslint-disable-next-line i18next/no-literal-string
                     router.push(`/manage/courses/${course.id}`)
+                  }}
+                  manageCourseNavigation={() => {
+                    // eslint-disable-next-line i18next/no-literal-string
+                    router.push(`/courses/${course.slug}`)
                   }}
                 />
               ))}

@@ -25,6 +25,10 @@ const CourseCard = styled.div`
   height: 320px;
   background: #ededed;
   border-radius: 1px;
+
+  :hover {
+    cursor: pointer;
+  }
 `
 
 const StyledSettingIcon = styled(SettingIcon)`
@@ -95,7 +99,8 @@ interface CourseCardProps {
   title: string
   description: string
   languageCode: string
-  onClick: (event: unknown) => unknown
+  manageCourseNavigation: (event: unknown) => unknown
+  manageCourseManagementNavigation: (event: unknown) => unknown
 }
 
 const capitalize: (language: string) => string = (language) => {
@@ -108,16 +113,20 @@ const CourseComponent: React.FC<CourseCardProps> = ({
   title,
   description,
   languageCode,
-  onClick,
+  manageCourseNavigation,
+  manageCourseManagementNavigation,
 }) => {
   const loginStateContext = useContext(LoginStateContext)
   const LanguageComponent = Language[languageCode]
   const { t } = useTranslation()
 
   return (
-    <CourseCard>
+    <CourseCard onClick={manageCourseNavigation}>
       {loginStateContext.signedIn && (
-        <StyledSettingIcon aria-label={t("manage-course", { title })} onClick={onClick} />
+        <StyledSettingIcon
+          aria-label={t("manage-course", { title })}
+          onClick={manageCourseManagementNavigation}
+        />
       )}
 
       <CourseContent>

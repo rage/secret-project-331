@@ -112,6 +112,27 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
     setNewCourseFormOpen(false)
   }
 
+  const activeCourseCount = dataOrgActiveCoursesCount.count
+  const activeCourses =
+    dataOrgActiveCourses.length === 0
+      ? t("no-active-courses")
+      : dataOrgActiveCourses.map((course) => (
+          <CourseComponent
+            key={course.id}
+            title={course.name}
+            description={course.description ?? NO_DESCRIPTION}
+            languageCode={course.language_code}
+            manageCourseManagementNavigation={() => {
+              // eslint-disable-next-line i18next/no-literal-string
+              router.push(`/manage/courses/${course.id}`)
+            }}
+            manageCourseNavigation={() => {
+              // eslint-disable-next-line i18next/no-literal-string
+              router.push(`/courses/${course.slug}`)
+            }}
+          />
+        ))
+
   return (
     // Removing frontPageUrl for some unsolved reason returns to organization front page rather than root
     <Layout frontPageUrl="/">
@@ -121,30 +142,11 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
           organization={dataOrg}
           onOrganizationUpdated={() => refetchOrg()}
         />
-        <h2>{t("active-courses", { courses: dataOrgActiveCoursesCount.count })}</h2>
-        <CourseGrid>
-          {dataOrgActiveCourses.length === 0
-            ? t("no-active-courses")
-            : dataOrgActiveCourses.map((course) => (
-                <CourseComponent
-                  key={course.id}
-                  title={course.name}
-                  description={course.description ?? NO_DESCRIPTION}
-                  languageCode={course.language_code}
-                  manageCourseManagementNavigation={() => {
-                    // eslint-disable-next-line i18next/no-literal-string
-                    router.push(`/manage/courses/${course.id}`)
-                  }}
-                  manageCourseNavigation={() => {
-                    // eslint-disable-next-line i18next/no-literal-string
-                    router.push(`/courses/${course.slug}`)
-                  }}
-                />
-              ))}
-        </CourseGrid>
+        <h2>{t("active-courses", { courses: activeCourseCount })}</h2>
+        <CourseGrid>{activeCourses}</CourseGrid>
         <br />
         <Pagination
-          count={Math.ceil(dataOrgActiveCoursesCount.count / PAGE_LIMIT)}
+          count={Math.ceil(activeCourseCount / PAGE_LIMIT)}
           page={page}
           onChange={(_, pageNumber) => {
             router.replace(

@@ -128,5 +128,6 @@
   "choose-a-language": "Valitse kieli",
   "american-english": "Englanti",
   "available-in-languages": "Saatavilla {{num}} kielellä",
-  "language-language": "Kieli: {{language}}"
+  "language-language": "Kieli: {{language}}",
+  "manage-course": "Hallinnoi kurssia '{{ title }}'"
 }

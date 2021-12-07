@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { useContext } from "react"
+import { useTranslation } from "react-i18next"
 
 import SettingIcon from "../../imgs/setting.svg"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
@@ -111,10 +112,14 @@ const CourseComponent: React.FC<CourseCardProps> = ({
 }) => {
   const loginStateContext = useContext(LoginStateContext)
   const LanguageComponent = Language[languageCode]
+  const { t } = useTranslation()
 
   return (
     <CourseCard>
-      {loginStateContext.signedIn && <StyledSettingIcon onClick={onClick} />}
+      {loginStateContext.signedIn && (
+        <StyledSettingIcon aria-label={t("manage-course", { title })} onClick={onClick} />
+      )}
+
       <CourseContent>
         <CourseHeading> {title} </CourseHeading>
         <CourseDescription>{description}</CourseDescription>

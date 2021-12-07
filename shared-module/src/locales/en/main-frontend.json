@@ -166,5 +166,6 @@
   "choose-a-language": "Choose a language",
   "american-english": "English",
   "available-in-languages": "Available in {{num}} languages",
-  "language-language": "Language: {{language}}"
+  "language-language": "Language: {{language}}",
+  "manage-course": "Manage course '{{ title }}'"
 }

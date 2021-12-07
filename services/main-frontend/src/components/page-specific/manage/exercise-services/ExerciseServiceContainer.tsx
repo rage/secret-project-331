@@ -6,17 +6,17 @@ import { ExerciseService } from "../../../../shared-module/bindings"
 import ExerciseServiceCard from "./ExerciseServiceCard"
 
 interface ExerciseServiceEditorProps {
-  exercise_services: ExerciseService[]
+  exerciseServices: ExerciseService[]
   refetch(): Promise<QueryObserverResult<ExerciseService[], unknown>>
 }
 
 const ExerciseServiceContainer: React.FC<ExerciseServiceEditorProps> = ({
-  exercise_services,
+  exerciseServices,
   refetch,
 }) => (
   <div>
-    {exercise_services.map((service) => (
-      <ExerciseServiceCard key={service.id} exercise_service={service} refetch={refetch} />
+    {exerciseServices.map((service) => (
+      <ExerciseServiceCard key={service.id} exerciseService={service} refetch={refetch} />
     ))}
   </div>
 )

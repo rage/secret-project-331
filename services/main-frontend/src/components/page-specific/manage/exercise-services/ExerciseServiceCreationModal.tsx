@@ -17,6 +17,11 @@ interface ExerciseServiceCreationModelProps {
   open: boolean
 }
 
+const EXERCISE_SERVICE_SLUG = "slug"
+const SERVICE_PUBLIC_URL = "public_url"
+const SERVICE_INTERNAL_URL = "internal_url"
+const MAX_REPROCESSING_SUBMISSION_AT_ONCE = "max_reprocessing_submissions_at_once"
+
 const ExerciseServiceCreationModal: React.FC<ExerciseServiceCreationModelProps> = ({
   open,
   handleClose,
@@ -57,8 +62,7 @@ const ExerciseServiceCreationModal: React.FC<ExerciseServiceCreationModelProps> 
             title={t("text-field-label-or-header-slug-or-short-name")}
             text={exercise_service.slug}
             editing={true}
-            // eslint-disable-next-line i18next/no-literal-string
-            onChange={onChange("slug")}
+            onChange={onChange(EXERCISE_SERVICE_SLUG)}
             type={"text"}
             error={false}
           />
@@ -66,8 +70,7 @@ const ExerciseServiceCreationModal: React.FC<ExerciseServiceCreationModelProps> 
             title={t("title-public-url")}
             text={exercise_service.public_url}
             editing={true}
-            // eslint-disable-next-line i18next/no-literal-string
-            onChange={onChange("public_url")}
+            onChange={onChange(SERVICE_PUBLIC_URL)}
             type={"text"}
             error={!validURL(exercise_service.public_url)}
           />
@@ -75,8 +78,7 @@ const ExerciseServiceCreationModal: React.FC<ExerciseServiceCreationModelProps> 
             title={t("title-internal-url")}
             text={exercise_service.internal_url}
             editing={true}
-            // eslint-disable-next-line i18next/no-literal-string
-            onChange={onChange("internal_url")}
+            onChange={onChange(SERVICE_INTERNAL_URL)}
             type={"text"}
             error={!validURL(exercise_service.internal_url ?? "")}
           />
@@ -84,8 +86,7 @@ const ExerciseServiceCreationModal: React.FC<ExerciseServiceCreationModelProps> 
             title={t("title-reprocessing-submissions")}
             text={exercise_service.max_reprocessing_submissions_at_once}
             editing={true}
-            // eslint-disable-next-line i18next/no-literal-string
-            onChange={onChange("max_reprocessing_submissions_at_once")}
+            onChange={onChange(MAX_REPROCESSING_SUBMISSION_AT_ONCE)}
             type={"number"}
             error={exercise_service.max_reprocessing_submissions_at_once < 0}
           />

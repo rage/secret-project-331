@@ -30,24 +30,28 @@ import ContentArea from "./ContentArea"
 
 interface ExerciseServiceCardProps {
   key: string
-  exercise_service: ExerciseService
+  exerciseService: ExerciseService
   refetch(): Promise<QueryObserverResult<ExerciseService[], unknown>>
 }
 
-type UpdateStatus = null | "saved" | "failed"
+enum UpdateStatus {
+  "none",
+  "saved",
+  "failed",
+}
 
 const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
   key,
-  exercise_service,
+  exerciseService,
   refetch,
 }) => {
   const { t } = useTranslation()
   const [editing, setEditing] = useState<boolean>(false)
   const [service, setService] = useState<ExerciseServiceNewOrUpdate | ExerciseService>(
-    exercise_service,
+    exerciseService,
   )
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false)
-  const [status, setStatus] = useState<UpdateStatus>(null)
+  const [status, setStatus] = useState<UpdateStatus>(UpdateStatus.none)
 
   const toggleEdit = () => {
     setEditing(!editing)
@@ -70,28 +74,25 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
 
   const updateContent = async () => {
     window.setTimeout(() => {
-      setStatus(null)
+      setStatus(UpdateStatus.none)
     }, 4000)
     if (!canSave(service)) {
-      // eslint-disable-next-line i18next/no-literal-string
-      setStatus("failed")
+      setStatus(UpdateStatus.failed)
       return
     }
     try {
       if ("id" in service) {
         const updated = await updateExerciseService(service.id, service)
         setService(updated)
-        // eslint-disable-next-line i18next/no-literal-string
-        setStatus("saved")
+        setStatus(UpdateStatus.saved)
         await refetch()
       }
     } catch (e) {
-      // eslint-disable-next-line i18next/no-literal-string
-      setStatus("failed")
-      console.error(e)
+      setStatus(UpdateStatus.failed)
+      throw e
     }
     window.setTimeout(() => {
-      setStatus(null)
+      setStatus(UpdateStatus.none)
     }, 4000)
   }
 
@@ -110,9 +111,8 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
         await refetch()
       }
     } catch (e) {
-      // eslint-disable-next-line i18next/no-literal-string
-      setStatus("failed")
-      console.error(e)
+      setStatus(UpdateStatus.failed)
+      throw e
     }
   }
 
@@ -134,7 +134,13 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
             editing ? (
               <>
                 <IconButton aria-label={t("button-text-save")} onClick={updateContent}>
-                  {status == null ? <SaveIcon /> : status == "saved" ? <DoneIcon /> : <ErrorIcon />}
+                  {status == UpdateStatus.none ? (
+                    <SaveIcon />
+                  ) : status == UpdateStatus.saved ? (
+                    <DoneIcon />
+                  ) : (
+                    <ErrorIcon />
+                  )}
                 </IconButton>
                 <IconButton aria-label={t("button-text-cancel")} onClick={toggleEdit}>
                   <CancelIcon />
@@ -206,12 +212,12 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
         <CardContent>
           <TimeComponent
             name={`${t("label-created")} `}
-            date={exercise_service.created_at}
+            date={exerciseService.created_at}
             right={false}
           />
           <TimeComponent
             name={`${t("label-updated")} `}
-            date={exercise_service.updated_at}
+            date={exerciseService.updated_at}
             right={true}
           />
         </CardContent>

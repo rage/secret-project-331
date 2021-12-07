@@ -14,6 +14,7 @@ import ErrorBanner from "../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../shared-module/components/Spinner"
 import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import basePath from "../../../shared-module/utils/base-path"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import { canSave } from "../../../utils/canSaveExerciseService"
 import { convertToSlug } from "../../../utils/convert"
 
@@ -74,6 +75,7 @@ const ExerciseServicePage: React.FC = () => {
       resetExerciseService()
     } catch (e) {
       console.error(e)
+      throw e
     }
   }
 
@@ -92,7 +94,7 @@ const ExerciseServicePage: React.FC = () => {
         {getExerciseServices.isSuccess && (
           <>
             <ExerciseServiceContainer
-              exercise_services={getExerciseServices.data}
+              exerciseServices={getExerciseServices.data}
               refetch={getExerciseServices.refetch}
             />
             <ExerciseServiceCreationModal
@@ -110,4 +112,4 @@ const ExerciseServicePage: React.FC = () => {
   )
 }
 
-export default ExerciseServicePage
+export default withErrorBoundary(ExerciseServicePage)

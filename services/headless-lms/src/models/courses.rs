@@ -25,7 +25,7 @@ use super::{
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
-pub struct ActiveCourseCount {
+pub struct CourseCount {
     pub count: i64,
 }
 
@@ -174,7 +174,7 @@ WHERE
 pub async fn get_active_courses_for_organization_count(
     conn: &mut PgConnection,
     organization_id: Uuid,
-) -> ModelResult<ActiveCourseCount> {
+) -> ModelResult<CourseCount> {
     let result = sqlx::query!(
         r#"
 SELECT
@@ -190,7 +190,7 @@ WHERE
     )
     .fetch_one(conn)
     .await?;
-    Ok(ActiveCourseCount {
+    Ok(CourseCount {
         count: result.count.unwrap_or_default(),
     })
 }
@@ -556,6 +556,7 @@ pub async fn get_course_structure(
 pub async fn organization_courses(
     conn: &mut PgConnection,
     organization_id: &Uuid,
+    pagination: &Pagination,
 ) -> ModelResult<Vec<Course>> {
     let courses = sqlx::query_as!(
         Course,
@@ -574,13 +575,36 @@ SELECT id,
   description
 FROM courses
 WHERE organization_id = $1
-  AND deleted_at IS NULL;
+  AND deleted_at IS NULL
+  LIMIT $2 OFFSET $3;
         "#,
-        organization_id
+        organization_id,
+        pagination.limit(),
+        pagination.offset()
     )
     .fetch_all(conn)
     .await?;
     Ok(courses)
+}
+
+pub async fn organization_course_count(
+    conn: &mut PgConnection,
+    organization_id: Uuid,
+) -> ModelResult<CourseCount> {
+    let course_count = sqlx::query!(
+        r#"
+SELECT
+    COUNT(DISTINCT id) as count
+FROM courses
+WHERE organization_id = $1
+        "#,
+        organization_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(CourseCount {
+        count: course_count.count.unwrap_or_default(),
+    })
 }
 
 // Represents the subset of page fields that are required to create a new course.

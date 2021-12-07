@@ -7,7 +7,7 @@ use crate::{
     },
     domain::authorization::{authorize, Action, AuthUser, Resource},
     models::{
-        courses::{ActiveCourseCount, Course},
+        courses::{Course, CourseCount},
         organizations::Organization,
     },
     utils::{file_store::FileStore, pagination::Pagination},
@@ -71,11 +71,29 @@ GET `/api/v0/main-frontend/organizations/{organization_id}/courses"` - Returns a
 async fn get_organization_courses(
     request_organization_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    pagination: web::Query<Pagination>,
 ) -> ControllerResult<Json<Vec<Course>>> {
     let mut conn = pool.acquire().await?;
-    let courses =
-        crate::models::courses::organization_courses(&mut conn, &*request_organization_id).await?;
+    let courses = crate::models::courses::organization_courses(
+        &mut conn,
+        &*request_organization_id,
+        &pagination,
+    )
+    .await?;
     Ok(Json(courses))
+}
+
+#[instrument(skip(pool))]
+async fn get_organization_course_count(
+    request_organization_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    pagination: web::Query<Pagination>,
+) -> ControllerResult<Json<CourseCount>> {
+    let mut conn = pool.acquire().await?;
+    let result =
+        crate::models::courses::organization_course_count(&mut conn, *request_organization_id)
+            .await?;
+    Ok(Json(result))
 }
 
 #[instrument(skip(pool))]
@@ -98,7 +116,7 @@ async fn get_organization_active_courses(
 async fn get_organization_active_courses_count(
     request_organization_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<Json<ActiveCourseCount>> {
+) -> ControllerResult<Json<CourseCount>> {
     let mut conn = pool.acquire().await?;
     let result = crate::models::courses::get_active_courses_for_organization_count(
         &mut conn,
@@ -280,6 +298,10 @@ pub fn _add_organizations_routes<T: 'static + FileStore>(cfg: &mut ServiceConfig
         .route(
             "/{organization_id}/courses",
             web::get().to(get_organization_courses),
+        )
+        .route(
+            "/{organization_id}/courses/count",
+            web::get().to(get_organization_course_count),
         )
         .route(
             "/{organization_id}/courses/active",

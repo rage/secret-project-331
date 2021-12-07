@@ -12,8 +12,7 @@ import NewCourseForm from "../../components/forms/NewCourseForm"
 import { postNewCourse } from "../../services/backend/courses"
 import {
   fetchOrganization,
-  fetchOrganizationActiveCourses,
-  fetchOrganizationActiveCoursesCount,
+  fetchOrganizationCourseCount,
   fetchOrganizationCourses,
 } from "../../services/backend/organizations"
 import { NewCourse } from "../../shared-module/bindings"
@@ -40,26 +39,17 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
     error: errorOrgCourses,
     data: dataOrgCourses,
     refetch: refetchOrgCourses,
-  } = useQuery(`organization-courses`, () => fetchOrganizationCourses(query.id))
+  } = useQuery(`organization-courses`, () => fetchOrganizationCourses(query.id, page, PAGE_LIMIT))
 
   const [page, setPage] = useState(1)
 
   const {
-    isLoading: isLoadingOrgActiveCourses,
-    error: errorOrgActiveCourses,
-    data: dataOrgActiveCourses,
-    refetch: refetchOrgActiveCourses,
-  } = useQuery([`organization-active-courses`, query.id, page], () =>
-    fetchOrganizationActiveCourses(query.id, page, PAGE_LIMIT),
-  )
-
-  const {
-    isLoading: isLoadingActiveCoursesCount,
-    error: errorActiveCourseCount,
-    data: dataOrgActiveCoursesCount,
-    refetch: refetchOrgActiveCoursesCount,
-  } = useQuery([`organization-active-courses-count`, query.id], () =>
-    fetchOrganizationActiveCoursesCount(query.id),
+    isLoading: isLoadingCourseCount,
+    error: errorCourseCount,
+    data: dataOrgCourseCount,
+    refetch: refetchOrgCourseCount,
+  } = useQuery([`organization-courses-count`, query.id], () =>
+    fetchOrganizationCourseCount(query.id),
   )
 
   const { t } = useTranslation()
@@ -78,61 +68,46 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
     return <pre>{JSON.stringify(errorOrgCourses, undefined, 2)}</pre>
   }
 
-  if (errorOrgActiveCourses) {
-    return <pre>{JSON.stringify(errorOrgActiveCourses, undefined, 2)}</pre>
-  }
-
   if (errorOrg) {
     return <pre>{JSON.stringify(errorOrg, undefined, 2)}</pre>
   }
 
-  if (errorActiveCourseCount) {
-    return <pre>{JSON.stringify(errorActiveCourseCount, undefined, 2)}</pre>
+  if (errorCourseCount) {
+    return <pre>{JSON.stringify(errorCourseCount, undefined, 2)}</pre>
   }
 
   if (isLoadingOrgCourses || !dataOrgCourses || isLoadingOrg || !dataOrg) {
     return <>{t("loading-text")}</>
   }
 
-  if (
-    isLoadingOrgActiveCourses ||
-    !dataOrgActiveCourses ||
-    isLoadingOrgActiveCourses ||
-    !dataOrgActiveCoursesCount ||
-    isLoadingActiveCoursesCount
-  ) {
+  if (!dataOrgCourseCount || isLoadingCourseCount) {
     return <>{t("loading-text")}</>
   }
 
   const handleSubmitNewCourse = async (newCourse: NewCourse) => {
     await postNewCourse(newCourse)
     await refetchOrgCourses()
-    await refetchOrgActiveCourses()
-    await refetchOrgActiveCoursesCount()
+    await refetchOrgCourseCount()
     setNewCourseFormOpen(false)
   }
 
-  const activeCourseCount = dataOrgActiveCoursesCount.count
-  const activeCourses =
-    dataOrgActiveCourses.length === 0
-      ? t("no-active-courses")
-      : dataOrgActiveCourses.map((course) => (
-          <CourseComponent
-            key={course.id}
-            title={course.name}
-            description={course.description ?? NO_DESCRIPTION}
-            languageCode={course.language_code}
-            manageCourseManagementNavigation={() => {
-              // eslint-disable-next-line i18next/no-literal-string
-              router.push(`/manage/courses/${course.id}`)
-            }}
-            manageCourseNavigation={() => {
-              // eslint-disable-next-line i18next/no-literal-string
-              router.push(`/courses/${course.slug}`)
-            }}
-          />
-        ))
-
+  const courseCount = dataOrgCourseCount.count
+  const courses = dataOrgCourses.map((course) => (
+    <CourseComponent
+      key={course.id}
+      title={course.name}
+      description={course.description ?? NO_DESCRIPTION}
+      languageCode={course.language_code}
+      manageCourseManagementNavigation={() => {
+        // eslint-disable-next-line i18next/no-literal-string
+        router.push(`/manage/courses/${course.id}`)
+      }}
+      manageCourseNavigation={() => {
+        // eslint-disable-next-line i18next/no-literal-string
+        router.push(`/courses/${course.slug}`)
+      }}
+    />
+  ))
   return (
     // Removing frontPageUrl for some unsolved reason returns to organization front page rather than root
     <Layout frontPageUrl="/">
@@ -142,11 +117,11 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
           organization={dataOrg}
           onOrganizationUpdated={() => refetchOrg()}
         />
-        <h2>{t("active-courses", { courses: activeCourseCount })}</h2>
-        <CourseGrid>{activeCourses}</CourseGrid>
+        <h2>{t("courses", { courses: courseCount })}</h2>
+        <CourseGrid>{courses}</CourseGrid>
         <br />
         <Pagination
-          count={Math.ceil(activeCourseCount / PAGE_LIMIT)}
+          count={Math.ceil(courseCount / PAGE_LIMIT)}
           page={page}
           onChange={(_, pageNumber) => {
             router.replace(

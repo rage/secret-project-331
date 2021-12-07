@@ -125,6 +125,7 @@
   "link-manage-change-requests": "Hallinnoi muutosehdotuksia",
   "no-active-courses": "Ei aktiivisia kursseja",
   "active-courses": "Aktiiviset kurssit ({{ courses }}):",
+  "courses": "Kurssit ({{ courses }}):",
   "choose-a-language": "Valitse kieli",
   "american-english": "Englanti",
   "available-in-languages": "Saatavilla {{num}} kielellä",

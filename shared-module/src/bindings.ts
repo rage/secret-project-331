@@ -197,7 +197,7 @@ export interface ExerciseService {
   max_reprocessing_submissions_at_once: number
 }
 
-export interface ActiveCourseCount {
+export interface CourseCount {
   count: number
 }
 

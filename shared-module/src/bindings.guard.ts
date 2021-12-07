@@ -6,7 +6,6 @@
  * WARNING: Do not manually change this file.
  */
 import {
-  ActiveCourseCount,
   ActivityProgress,
   BlockProposal,
   BlockProposalAction,
@@ -21,6 +20,7 @@ import {
   CmsPageUpdate,
   ContentManagementPage,
   Course,
+  CourseCount,
   CourseInstance,
   CourseInstanceEnrollment,
   CourseInstanceForm,
@@ -376,7 +376,7 @@ export function isExerciseService(obj: any, _argumentName?: string): obj is Exer
   )
 }
 
-export function isActiveCourseCount(obj: any, _argumentName?: string): obj is ActiveCourseCount {
+export function isCourseCount(obj: any, _argumentName?: string): obj is CourseCount {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.count === "number"

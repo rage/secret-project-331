@@ -59,6 +59,7 @@ const Submission: React.FC<SubmissionPageProps> = ({ query }) => {
           public_spec={data.exercise_task.public_spec}
           submission={data.submission}
           model_solution_spec={data.exercise_task.model_solution_spec}
+          grading={data.grading}
         />
         <DebugModal data={data} />
       </div>

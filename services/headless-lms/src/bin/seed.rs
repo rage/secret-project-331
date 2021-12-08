@@ -1879,8 +1879,8 @@ async fn submit_and_grade(
     let submission = submissions::get_by_id(conn, sub).await?;
     let grading = gradings::new_grading(conn, &submission).await?;
     let grading_result = GradingResult {
-        feedback_json: None,
-        feedback_text: None,
+        feedback_json: Some(serde_json::json!([{"SelectedOptioIsCorrect": true}])),
+        feedback_text: Some("Good job!".to_string()),
         grading_progress: GradingProgress::FullyGraded,
         score_given: out_of_100,
         score_maximum: 100,

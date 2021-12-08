@@ -1,6 +1,7 @@
 import { css, cx } from "@emotion/css"
 import _ from "lodash"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 import { QuizItemAnswer } from "../../../types/types"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
@@ -45,6 +46,8 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
   quizItem,
   setQuizItemAnswerState,
 }) => {
+  const { t } = useTranslation()
+
   // Column means that all the options are always diplayed on top of each other, regardless of the
   // device width. Sanitized since the value is used in CSS.
   const direction: "row" | "column" =
@@ -115,6 +118,7 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
               key={qo.id}
               value={qo.id}
               onClick={handleOptionSelect}
+              aria-label={selected ? t("selected-option") : t("unselected-option")}
               className={cx(
                 optionButton,
                 selected ? optionButtonSelected : "",

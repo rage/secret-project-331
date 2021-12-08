@@ -99,8 +99,8 @@ interface CourseCardProps {
   title: string
   description: string
   languageCode: string
-  manageCourseNavigation: (event: unknown) => unknown
-  manageCourseManagementNavigation: (event: unknown) => unknown
+  manageCourseNavigation: (event: React.MouseEvent<HTMLElement>) => unknown
+  manageCourseManagementNavigation: (event: React.MouseEvent<HTMLElement>) => unknown
 }
 
 const capitalize: (language: string) => string = (language) => {

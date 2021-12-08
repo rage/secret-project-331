@@ -20,7 +20,7 @@ test.describe("quizzes tests", () => {
     expectPath(page, "/organizations/[id]")
 
     // Click text=Add course
-    await page.click(`button:text("Create")`)
+    await page.click(`button:text("New")`)
 
     // Click input[type="text"]
     await page.click('input[type="text"]')
@@ -36,7 +36,7 @@ test.describe("quizzes tests", () => {
 
     await Promise.all([
       page.waitForNavigation(),
-      await page.click("text=quizzes test Manage >> :nth-match(a, 2)"),
+      page.click("[aria-label=\"Manage course 'quizzes test'\"]"),
     ])
     // Click :nth-match(:text("Manage"), 4)
 

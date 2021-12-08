@@ -136,8 +136,9 @@ test("test", async ({ page, headless }) => {
   // Click text=Introduction to edit proposals Manage >> :nth-match(a, 2)
   await Promise.all([
     page.waitForNavigation(),
-    page.click("text=Introduction to edit proposals Manage >> :nth-match(a, 2)"),
+    page.click("[aria-label=\"Manage course 'Introduction to edit proposals'\"]"),
   ])
+
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/cae7da38-9486-47da-9106-bff9b6a280f2",
   )

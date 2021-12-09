@@ -400,6 +400,13 @@
 <span id="400">400</span>
 <span id="401">401</span>
 <span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::{
     <span class="ident">courses::Course</span>,
     <span class="ident">exercise_tasks::ExerciseTask</span>,
@@ -408,7 +415,10 @@
     <span class="ident">ModelResult</span>,
 };
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">models</span>::{<span class="ident">exercise_tasks::get_exercise_task_by_id</span>, <span class="ident">gradings::grade_submission</span>},
+    <span class="ident">models</span>::{
+        <span class="ident">exercise_tasks</span>::{<span class="ident">get_exercise_task_by_id</span>, <span class="ident">get_exercise_task_model_solution_spec_by_id</span>},
+        <span class="ident">gradings::grade_submission</span>,
+    },
     <span class="ident">utils::pagination::Pagination</span>,
 };
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">NaiveDate</span>, <span class="ident">Utc</span>};
@@ -482,6 +492,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SubmissionResult</span> {
     <span class="ident">submission</span>: <span class="ident">Submission</span>,
     <span class="ident">grading</span>: <span class="ident">Grading</span>,
+    <span class="ident">model_solution_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">TS</span>)]</span>
@@ -490,7 +501,7 @@
     <span class="kw">pub</span> <span class="ident">exercise</span>: <span class="ident">Exercise</span>,
     <span class="kw">pub</span> <span class="ident">exercise_task</span>: <span class="ident">ExerciseTask</span>,
     <span class="kw">pub</span> <span class="ident">grading</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Grading</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">submission_iframe_path</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">iframe_path</span>: <span class="ident">String</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">TS</span>)]</span>
@@ -714,10 +725,13 @@ OFFSET $4;
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">updated_grading</span> <span class="op">=</span>
         <span class="ident">grade_submission</span>(<span class="ident">conn</span>, <span class="ident">submission</span>.<span class="ident">clone</span>(), <span class="ident">exercise_task</span>, <span class="ident">exercise</span>, <span class="ident">grading</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">model_solution_spec</span> <span class="op">=</span>
+        <span class="ident">get_exercise_task_model_solution_spec_by_id</span>(<span class="ident">conn</span>, <span class="ident">submission</span>.<span class="ident">exercise_task_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="prelude-val">Ok</span>(<span class="ident">SubmissionResult</span> {
         <span class="ident">submission</span>: <span class="ident">updated_submission</span>,
         <span class="ident">grading</span>: <span class="ident">updated_grading</span>,
+        <span class="ident">model_solution_spec</span>,
     })
 }
 

@@ -15,7 +15,6 @@ test("latex-block renders", async ({ headless, page }) => {
     page.waitForNavigation(),
     await page.click("text=University of Helsinki, Department of Mathematics and Statistics"),
   ])
-  expectPath(page, "/organizations/[id]")
   // Click text=Add course
   await page.click(`button:text("Create")`)
   // Click input[type="text"]
@@ -117,7 +116,7 @@ test("latex-block renders", async ({ headless, page }) => {
     page.waitForNavigation(),
     page.click("text=University of Helsinki, Department of Mathematics and Statistics"),
   ])
-  expectPath(page, "/organizations/[id]")
+  expectPath(page, "/org/uh-mathstat")
   // Click text=Latex course
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/courses/latex-course' }*/),
@@ -127,10 +126,9 @@ test("latex-block renders", async ({ headless, page }) => {
   await page.click('button:has-text("Continue")')
   // Click text=Chapter 1: first page
   await Promise.all([page.waitForNavigation(), page.click("text=first page")])
-  expectPath(page, "/courses/latex-course/chapter-1")
+  expectPath(page, "org/uh-mathstat/courses/latex-course/chapter-1")
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "latex",

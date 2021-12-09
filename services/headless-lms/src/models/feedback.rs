@@ -92,7 +92,7 @@ pub async fn get_feedback_for_course(
         r#"
 SELECT feedback.id,
   feedback.user_id,
-  feedback.course_id,
+  feedback.course_id as "course_id!",
   feedback.feedback_given,
   feedback.selected_text,
   feedback.marked_as_read,
@@ -147,8 +147,8 @@ LIMIT $3 OFFSET $4
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
 pub struct FeedbackCount {
-    read: i64,
-    unread: i64,
+    read: u32,
+    unread: u32,
 }
 
 pub async fn get_feedback_count_for_course(
@@ -172,7 +172,7 @@ WHERE course_id = $1
     .fetch_one(conn)
     .await?;
     Ok(FeedbackCount {
-        read: res.read.unwrap_or_default(),
-        unread: res.unread.unwrap_or_default(),
+        read: res.read.unwrap_or_default().try_into()?,
+        unread: res.unread.unwrap_or_default().try_into()?,
     })
 }

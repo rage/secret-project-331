@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Henrik Nygren <nygrenh@gmail.com>"]
 edition = "2021"
 default-run = "headless-lms-actix"
+rust-version = "1.56.0"  # minimum required Rust version, update if you use a new API
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 # To add a new dependency, search for it using `cargo search` and take the latest version of the package
@@ -89,7 +90,7 @@ tracing-log = "0.1"
 # This library provides a convenient derive macro for the standard library's std::error::Error trait.
 thiserror = "1"
 # generate typescript bindings from rust types
-ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "67f765076b9d0eaf8283a9374b4a3ecd814c75e2", features = [
+ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "3d0fd4f71fd1698e4236393206597d70974079c0", features = [
   "chrono-impl",
   "serde-compat",
   "serde-json-impl",

@@ -26,6 +26,8 @@ spec:
       app: course-material
   template:
     metadata:
+      annotations:
+        linkerd.io/inject: enabled
       labels:
         app: course-material
     spec:
@@ -37,8 +39,11 @@ spec:
               name: http
           env:
             - name: NEXT_PUBLIC_BASE_PATH
-              value: "/courses"
+              value: "/org"
           resources:
             requests:
               memory: 200Mi
               cpu: 200m
+            limits:
+              memory: 500Mi
+              cpu: 500m

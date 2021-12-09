@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import Head from "next/head"
 import { useRouter } from "next/router"
 import React, { ReactNode, useContext } from "react"
+import { useTranslation } from "react-i18next"
 
 import CoursePageContext from "../contexts/CoursePageContext"
 import Footer from "../shared-module/components/Footer"
@@ -11,7 +12,7 @@ import basePath from "../shared-module/utils/base-path"
 import ScrollIndicator from "./ScrollIndicator"
 import SearchDialog from "./SearchDialog"
 
-type LayoutProps = {
+interface LayoutProps {
   children: ReactNode
   frontPageUrl?: string
   navVariant?: "simple" | "complex"
@@ -19,6 +20,8 @@ type LayoutProps = {
   title?: string
   licenseUrl?: string
   returnToPath?: string
+  courseSlug: string
+  organizationSlug: string
 }
 
 const Layout: React.FC<LayoutProps> = ({
@@ -29,8 +32,11 @@ const Layout: React.FC<LayoutProps> = ({
   faqUrl,
   licenseUrl,
   returnToPath,
+  courseSlug,
+  organizationSlug,
 }) => {
   const router = useRouter()
+  const { t } = useTranslation()
   // eslint-disable-next-line i18next/no-literal-string
   const returnPath = `/login?return_to=${encodeURIComponent(
     process.env.NEXT_PUBLIC_BASE_PATH + router.asPath,
@@ -54,7 +60,7 @@ const Layout: React.FC<LayoutProps> = ({
           min-height: 100vh;
         `}
       >
-        <div>
+        <nav role="navigation" aria-label={t("navigation-menu")}>
           <ScrollIndicator />
           <Navbar
             faqUrl={faqUrl}
@@ -63,9 +69,15 @@ const Layout: React.FC<LayoutProps> = ({
             // Return to path can be override per page
             returnToPath={returnToPath ?? returnPath}
           >
-            {courseId && <SearchDialog courseId={courseId} />}
+            {courseId && (
+              <SearchDialog
+                courseId={courseId}
+                courseSlug={courseSlug}
+                organizationSlug={organizationSlug}
+              />
+            )}
           </Navbar>
-        </div>
+        </nav>
         {/* Do not touch flex */}
         <main
           className={css`

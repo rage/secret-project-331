@@ -2,11 +2,12 @@ pub mod controllers;
 pub mod domain;
 pub mod models;
 pub mod regrading;
-mod ts_binding_generator;
 pub mod utils;
 
 #[cfg(test)]
 pub mod test_helper;
+#[cfg(test)]
+pub mod ts_binding_generator;
 
 #[macro_use]
 extern crate tracing;
@@ -36,9 +37,9 @@ pub struct ApplicationConfiguration {
     pub development_uuid_login: bool,
 }
 
-pub fn configure<T: 'static + FileStore>(
+pub fn configure(
     config: &mut ServiceConfig,
-    file_store: T,
+    file_store: Arc<dyn FileStore>,
     app_conf: ApplicationConfiguration,
 ) {
     let json_config =
@@ -60,9 +61,10 @@ pub fn configure<T: 'static + FileStore>(
         .service(
             web::scope("/api/v0")
                 // .wrap(TracingLogger::default())
-                .configure(controllers::configure_controllers::<T>),
+                .configure(controllers::configure_controllers),
         )
-        .app_data(Data::new(file_store))
+        // Not using Data::new for file_store to avoid double wrapping it in a arc
+        .app_data(Data::from(file_store))
         .app_data(Data::new(app_conf));
 }
 

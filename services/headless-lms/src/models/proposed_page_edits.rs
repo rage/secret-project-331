@@ -1,4 +1,5 @@
 use super::{
+    page_history::HistoryChangeReason,
     pages::CmsPageUpdate,
     proposed_block_edits::{BlockProposal, BlockProposalInfo, NewProposedBlockEdit},
 };
@@ -44,8 +45,8 @@ pub struct EditProposalInfo {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
 pub struct ProposalCount {
-    pending: i64,
-    handled: i64,
+    pending: u32,
+    handled: u32,
 }
 
 pub async fn insert(
@@ -230,8 +231,8 @@ AND proposed_page_edits.deleted_at IS NULL
     .fetch_one(conn)
     .await?;
     let count = ProposalCount {
-        pending: res.pending.unwrap_or_default(),
-        handled: res.handled.unwrap_or_default(),
+        pending: res.pending.unwrap_or_default().try_into()?,
+        handled: res.handled.unwrap_or_default().try_into()?,
     };
     Ok(count)
 }
@@ -325,6 +326,7 @@ WHERE id = $1
         page_update,
         author,
         true,
+        HistoryChangeReason::PageSaved,
     )
     .await?;
 
@@ -394,9 +396,16 @@ mod test {
             exercise_slides: vec![],
             exercise_tasks: vec![],
         };
-        crate::models::pages::update_page(conn, data.page, page_update, data.user, true)
-            .await
-            .unwrap();
+        crate::models::pages::update_page(
+            conn,
+            data.page,
+            page_update,
+            data.user,
+            true,
+            HistoryChangeReason::PageSaved,
+        )
+        .await
+        .unwrap();
         (data, client_id)
     }
 

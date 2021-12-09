@@ -8,7 +8,7 @@ use headless_lms_actix::{
     ApplicationConfiguration,
 };
 use sqlx::{migrate::MigrateDatabase, Connection, PgConnection, PgPool, Postgres};
-use std::env;
+use std::{env, sync::Arc};
 use tokio::sync::Mutex;
 use uuid::Uuid;
 
@@ -45,6 +45,8 @@ pub async fn init_db() -> String {
         .await
         .expect("failed to run migrations");
     setup_tracing().expect("Could not setup tracing.");
+    let mut lock = DB_URL.lock().await;
+    *lock = Some(db.clone());
     db
 }
 
@@ -58,11 +60,10 @@ pub async fn init_actix() -> (
     let pool = PgPool::connect(&db)
         .await
         .expect("failed to connect to test db");
-    let file_store = futures::executor::block_on(async {
+    let file_store = Arc::new(futures::executor::block_on(async {
         LocalFileStore::new("uploads".into(), "http://localhost:3000".to_string())
-            .await
             .expect("Failed to initialize test file store")
-    });
+    }));
     let app_conf = ApplicationConfiguration {
         test_mode: true,
         base_url: "http://project-331.local".to_string(),

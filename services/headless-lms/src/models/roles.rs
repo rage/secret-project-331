@@ -17,6 +17,7 @@ pub enum UserRole {
 pub struct Role {
     pub organization_id: Option<Uuid>,
     pub course_id: Option<Uuid>,
+    pub exam_id: Option<Uuid>,
     pub role: UserRole,
 }
 
@@ -35,6 +36,10 @@ impl Role {
 
     pub fn is_role_for_course(&self, course_id: Uuid) -> bool {
         self.course_id.map(|id| id == course_id).unwrap_or_default()
+    }
+
+    pub fn is_role_for_exam(&self, exam_id: Uuid) -> bool {
+        self.exam_id.map(|id| id == exam_id).unwrap_or_default()
     }
 }
 
@@ -62,7 +67,7 @@ INSERT INTO roles (user_id, organization_id, course_id, role) VALUES ($1, $2, $3
 pub async fn get_roles(conn: &mut PgConnection, user_id: Uuid) -> ModelResult<Vec<Role>> {
     let roles = sqlx::query_as!(
         Role,
-        r#"SELECT organization_id, course_id, role AS "role: UserRole" FROM roles WHERE user_id = $1"#, user_id
+        r#"SELECT organization_id, course_id, exam_id, role AS "role: UserRole" FROM roles WHERE user_id = $1"#, user_id
     )
     .fetch_all(conn)
     .await?;

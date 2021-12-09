@@ -15,7 +15,7 @@ use crate::{
         exercise_services::{get_internal_public_spec_url, get_model_solution_url},
         exercise_tasks::ExerciseTask,
         exercises::Exercise,
-        page_history::HistoryChangeReason,
+        page_history::{self, HistoryChangeReason, PageHistoryContent},
         ModelError,
     },
     utils::document_schema_processor::{
@@ -25,10 +25,14 @@ use crate::{
 
 use anyhow::Context;
 use chrono::{DateTime, Utc};
+use futures::future::OptionFuture;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use sqlx::{Acquire, FromRow, PgConnection};
-use std::{collections::HashMap, time::Duration};
+use std::{
+    collections::{hash_map, HashMap},
+    time::Duration,
+};
 use ts_rs::TS;
 use url::Url;
 use uuid::Uuid;
@@ -38,7 +42,8 @@ pub struct Page {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
-    pub course_id: Uuid,
+    pub course_id: Option<Uuid>,
+    pub exam_id: Option<Uuid>,
     pub chapter_id: Option<Uuid>,
     pub url_path: String,
     pub title: String,
@@ -67,7 +72,8 @@ pub struct PageWithExercises {
     id: Uuid,
     created_at: DateTime<Utc>,
     updated_at: DateTime<Utc>,
-    course_id: Uuid,
+    course_id: Option<Uuid>,
+    exam_id: Option<Uuid>,
     chapter_id: Option<Uuid>,
     content: serde_json::Value,
     url_path: String,
@@ -83,13 +89,17 @@ pub struct NewPage {
     pub exercises: Vec<CmsPageExercise>,
     pub exercise_slides: Vec<CmsPageExerciseSlide>,
     pub exercise_tasks: Vec<CmsPageExerciseTask>,
+    // should always be a Vec<GutenbergBlock>, but is more convenient to keep as Value
     pub content: serde_json::Value,
     pub url_path: String,
     pub title: String,
-    pub course_id: Uuid,
+    pub course_id: Option<Uuid>,
+    pub exam_id: Option<Uuid>,
     pub chapter_id: Option<Uuid>,
     /// If set, set this page to be the front page of this course part.
     pub front_page_of_chapter_id: Option<Uuid>,
+    /// Read from the course's settings if None. If course_id is None as well, defaults to "simple"
+    pub content_search_language: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -127,7 +137,8 @@ pub struct PageMetadata {
     order_number: i32,
     chapter_id: Option<Uuid>,
     chapter_number: Option<i32>,
-    course_id: Uuid,
+    course_id: Option<Uuid>,
+    exam_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
@@ -145,6 +156,7 @@ pub struct ContentManagementPage {
     pub exercises: Vec<CmsPageExercise>,
     pub exercise_slides: Vec<CmsPageExerciseSlide>,
     pub exercise_tasks: Vec<CmsPageExerciseTask>,
+    pub organization_id: Uuid,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
@@ -204,7 +216,12 @@ RETURNING id
         &mut tx,
         page_res.id,
         title,
-        &serde_json::Value::Array(vec![]),
+        &PageHistoryContent {
+            content: serde_json::Value::Array(vec![]),
+            exercises: vec![],
+            exercise_slides: vec![],
+            exercise_tasks: vec![],
+        },
         HistoryChangeReason::PageSaved,
         author,
         None,
@@ -229,10 +246,13 @@ pub async fn set_chapter(
     Ok(())
 }
 
-pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
-    let course_id = sqlx::query!(
+pub async fn get_course_and_exam_id(
+    conn: &mut PgConnection,
+    id: Uuid,
+) -> ModelResult<(Option<Uuid>, Option<Uuid>)> {
+    let res = sqlx::query!(
         "
-SELECT course_id
+SELECT course_id, exam_id
 FROM pages
 WHERE id = $1
   AND deleted_at IS NULL;
@@ -240,9 +260,8 @@ WHERE id = $1
         id
     )
     .fetch_one(conn)
-    .await?
-    .course_id;
-    Ok(course_id)
+    .await?;
+    Ok((res.course_id, res.exam_id))
 }
 
 pub async fn course_pages(conn: &mut PgConnection, course_id: Uuid) -> ModelResult<Vec<Page>> {
@@ -253,6 +272,7 @@ SELECT id,
   created_at,
   updated_at,
   course_id,
+  exam_id,
   chapter_id,
   url_path,
   title,
@@ -279,6 +299,7 @@ SELECT id,
   created_at,
   updated_at,
   course_id,
+  exam_id,
   chapter_id,
   url_path,
   title,
@@ -305,6 +326,7 @@ SELECT id,
   created_at,
   updated_at,
   course_id,
+  exam_id,
   chapter_id,
   url_path,
   title,
@@ -334,6 +356,7 @@ SELECT pages.id,
   pages.created_at,
   pages.updated_at,
   pages.course_id,
+  pages.exam_id,
   pages.chapter_id,
   pages.url_path,
   pages.title,
@@ -371,28 +394,26 @@ pub async fn get_page_with_user_data_by_path(
         }
     }
 
-    if let Some(user) = user {
-        let instance =
-            course_instances::current_course_instance_of_user(conn, user.id, page.course_id)
-                .await?;
-        let settings = user_course_settings::get_user_course_settings_by_course_id(
-            conn,
-            user.id,
-            page.course_id,
-        )
-        .await?;
-        Ok(CoursePageWithUserData {
-            page,
-            instance,
-            settings,
-        })
-    } else {
-        Ok(CoursePageWithUserData {
-            page,
-            instance: None,
-            settings: None,
-        })
+    if let Some(course_id) = page.course_id {
+        if let Some(user) = user {
+            let instance =
+                course_instances::current_course_instance_of_user(conn, user.id, course_id).await?;
+            let settings = user_course_settings::get_user_course_settings_by_course_id(
+                conn, user.id, course_id,
+            )
+            .await?;
+            return Ok(CoursePageWithUserData {
+                page,
+                instance,
+                settings,
+            });
+        }
     }
+    Ok(CoursePageWithUserData {
+        page,
+        instance: None,
+        settings: None,
+    })
 }
 
 pub async fn get_page_with_exercises(
@@ -424,12 +445,41 @@ pub async fn get_page_with_exercises(
         .into_iter()
         .map(|x| x.into())
         .collect();
+    let organization_id = get_organization_id(&mut *conn, id).await?;
     Ok(ContentManagementPage {
         page,
         exercises,
         exercise_slides,
         exercise_tasks,
+        organization_id,
     })
+}
+
+pub async fn get_by_exam_id(conn: &mut PgConnection, exam_id: Uuid) -> ModelResult<Page> {
+    let res = sqlx::query_as!(
+        Page,
+        "
+SELECT pages.id,
+  pages.created_at,
+  pages.updated_at,
+  pages.course_id,
+  pages.exam_id,
+  pages.chapter_id,
+  pages.url_path,
+  pages.title,
+  pages.deleted_at,
+  pages.content,
+  pages.order_number,
+  pages.copied_from
+FROM pages
+WHERE exam_id = $1
+AND pages.deleted_at IS NULL
+",
+        exam_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
@@ -498,13 +548,58 @@ pub struct CmsPageUpdate {
     pub chapter_id: Option<Uuid>,
 }
 
+impl CmsPageUpdate {
+    /// Checks that each exercise has at least one slide and each slide has at least one task.
+    pub fn validate_exercise_data(&self) -> ModelResult<()> {
+        let mut exercise_ids: HashMap<Uuid, bool> =
+            self.exercises.iter().map(|x| (x.id, false)).collect();
+        let mut slide_ids = self
+            .exercise_slides
+            .iter()
+            .map(|x| {
+                if let hash_map::Entry::Occupied(mut e) = exercise_ids.entry(x.exercise_id) {
+                    e.insert(true);
+                    Ok((x.id, false))
+                } else {
+                    Err(ModelError::PreconditionFailed(
+                        "Exercide ids in slides don't match.".to_string(),
+                    ))
+                }
+            })
+            .collect::<ModelResult<HashMap<Uuid, bool>>>()?;
+        if exercise_ids.values().any(|x| !x) {
+            return Err(ModelError::PreconditionFailed(
+                "All exercises must have at least one slide.".to_string(),
+            ));
+        }
+        for task in self.exercise_tasks.iter() {
+            if let hash_map::Entry::Occupied(mut e) = slide_ids.entry(task.exercise_slide_id) {
+                e.insert(true);
+            } else {
+                return Err(ModelError::PreconditionFailed(
+                    "Exercide slide ids in tasks don't match.".to_string(),
+                ));
+            }
+        }
+        if slide_ids.values().any(|x| !x) {
+            return Err(ModelError::PreconditionFailed(
+                "All exercise slides must have at least one task.".to_string(),
+            ));
+        }
+        Ok(())
+    }
+}
+
 pub async fn update_page(
     conn: &mut PgConnection,
     page_id: Uuid,
     page_update: CmsPageUpdate,
     author: Uuid,
     retain_exercise_ids: bool,
+    history_change_reason: HistoryChangeReason,
 ) -> ModelResult<ContentManagementPage> {
+    page_update.validate_exercise_data()?;
+
     let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(page_update.content)?;
     if page_update.chapter_id.is_none()
         && contains_blocks_not_allowed_in_top_level_pages(&parsed_content)
@@ -515,8 +610,6 @@ pub async fn update_page(
     }
 
     let mut tx = conn.begin().await?;
-
-    // TODO: Make sure that the content maches provided exercises.
 
     // Updating page
     let page = sqlx::query_as!(
@@ -532,6 +625,7 @@ RETURNING id,
   created_at,
   updated_at,
   course_id,
+  exam_id,
   chapter_id,
   url_path,
   title,
@@ -590,11 +684,11 @@ RETURNING id,
   public_spec,
   model_solution_spec;
         ",
-        &existing_exercise_ids,
+        &existing_exercise_slide_ids,
     )
     .fetch_all(&mut tx)
     .await?;
-    let remapped_exercise_tasks = upsert_exercise_tasks(
+    let final_tasks = upsert_exercise_tasks(
         &mut tx,
         &remapped_exercise_slides,
         &existing_exercise_task_specs,
@@ -604,8 +698,7 @@ RETURNING id,
     .await?;
 
     // Now, we might have changed some of the exercise ids and need to do the same changes in the page content as well
-    // TODO: change signature of this function to avoid copying.
-    let new_content = update_ids_in_content(
+    let new_content = crate::utils::document_schema_processor::remap_ids_in_content(
         &page.content,
         remapped_exercises
             .iter()
@@ -623,6 +716,7 @@ RETURNING id,
   created_at,
   updated_at,
   course_id,
+  exam_id,
   chapter_id,
   url_path,
   title,
@@ -637,26 +731,35 @@ RETURNING id,
     .fetch_one(&mut tx)
     .await?;
 
-    let history_content = serde_json::to_value(&new_content)?;
+    let final_exercises: Vec<CmsPageExercise> = remapped_exercises.into_values().collect();
+    let final_slides: Vec<CmsPageExerciseSlide> = remapped_exercise_slides.into_values().collect();
+    let history_content = PageHistoryContent {
+        content: page.content.clone(),
+        exercises: final_exercises,
+        exercise_slides: final_slides,
+        exercise_tasks: final_tasks,
+    };
     crate::models::page_history::insert(
         &mut tx,
         page_id,
         &page_update.title,
         &history_content,
-        HistoryChangeReason::PageSaved,
+        history_change_reason,
         author,
         None,
     )
     .await
     .context("Failed to create a page history entry")?;
+    let organization_id = get_organization_id(&mut tx, page.id).await?;
 
     tx.commit().await?;
 
     Ok(ContentManagementPage {
         page,
-        exercises: remapped_exercises.into_values().collect(),
-        exercise_slides: remapped_exercise_slides.into_values().collect(),
-        exercise_tasks: remapped_exercise_tasks,
+        exercises: history_content.exercises,
+        exercise_slides: history_content.exercise_slides,
+        exercise_tasks: history_content.exercise_tasks,
+        organization_id,
     })
 }
 
@@ -954,37 +1057,36 @@ async fn fetch_derived_spec(
     Ok(result_spec)
 }
 
-fn update_ids_in_content(
-    content: &serde_json::Value,
-    chaged_ids: HashMap<Uuid, Uuid>,
-) -> ModelResult<serde_json::Value> {
-    // naive implementation for now because the structure of the content was not decided at the time of writing this.
-    // In the future we could only edit the necessary fields.
-    let mut content_str = serde_json::to_string(content)?;
-    for (k, v) in chaged_ids.into_iter() {
-        content_str = content_str.replace(&k.to_string(), &v.to_string());
-    }
-    Ok(serde_json::from_str(&content_str)?)
-}
-
 pub async fn insert_page(
     conn: &mut PgConnection,
     new_page: NewPage,
     author: Uuid,
 ) -> ModelResult<Page> {
-    let next_order_number = match new_page.chapter_id {
-        Some(id) => get_next_page_order_number_in_chapter(conn, id).await?,
-        None => get_next_order_number_for_courses_top_level_pages(conn, new_page.course_id).await?,
+    let next_order_number = match (new_page.chapter_id, new_page.course_id) {
+        (Some(id), _) => get_next_page_order_number_in_chapter(conn, id).await?,
+        (None, Some(course_id)) => {
+            get_next_order_number_for_courses_top_level_pages(conn, course_id).await?
+        }
+        (None, None) => 1,
     };
-    let course = crate::models::courses::get_course(conn, new_page.course_id).await?;
+    let course: OptionFuture<_> = new_page
+        .course_id
+        .map(|id| crate::models::courses::get_course(conn, id))
+        .into();
+    let course = course.await.transpose()?;
 
     let mut tx = conn.begin().await?;
 
+    let content_search_language = course
+        .and_then(|c| c.content_search_language)
+        .or(new_page.content_search_language)
+        .unwrap_or_else(|| "simple".to_string());
     let page = sqlx::query_as!(
         Page,
         r#"
 INSERT INTO pages(
     course_id,
+    exam_id,
     content,
     url_path,
     title,
@@ -992,11 +1094,12 @@ INSERT INTO pages(
     chapter_id,
     content_search_language
   )
-VALUES($1, $2, $3, $4, $5, $6, $7::regconfig)
+VALUES($1, $2, $3, $4, $5, $6, $7, $8::regconfig)
 RETURNING id,
   created_at,
   updated_at,
   course_id,
+  exam_id,
   chapter_id,
   url_path,
   title,
@@ -1006,12 +1109,13 @@ RETURNING id,
   copied_from
           "#,
         new_page.course_id,
+        new_page.exam_id,
         new_page.content,
         new_page.url_path.trim(),
         new_page.title.trim(),
         next_order_number,
         new_page.chapter_id,
-        course.content_search_language as _
+        content_search_language as _
     )
     .fetch_one(&mut tx)
     .await?;
@@ -1030,6 +1134,7 @@ RETURNING id,
         },
         author,
         false,
+        HistoryChangeReason::PageSaved,
     )
     .await?;
 
@@ -1054,6 +1159,7 @@ RETURNING *;
     Ok(Page {
         content: cms_page.page.content,
         course_id: page.course_id,
+        exam_id: page.exam_id,
         created_at: page.created_at,
         updated_at: page.updated_at,
         deleted_at: page.deleted_at,
@@ -1081,6 +1187,7 @@ RETURNING id,
   created_at,
   updated_at,
   course_id,
+  exam_id,
   chapter_id,
   url_path,
   title,
@@ -1151,6 +1258,7 @@ SELECT id,
   created_at,
   updated_at,
   course_id,
+  exam_id,
   chapter_id,
   url_path,
   title,
@@ -1200,6 +1308,7 @@ WHERE page_id IN (
                 created_at: page.created_at,
                 updated_at: page.updated_at,
                 course_id: page.course_id,
+                exam_id: page.exam_id,
                 chapter_id: page.chapter_id,
                 content: page.content,
                 url_path: page.url_path,
@@ -1270,6 +1379,7 @@ async fn get_current_page_metadata(
 SELECT p.id as page_id,
   p.order_number as order_number,
   p.course_id as course_id,
+  p.exam_id as exam_id,
   c.id as "chapter_id?",
   c.chapter_number as "chapter_number?"
 FROM pages p
@@ -1414,6 +1524,7 @@ SELECT id,
   created_at,
   updated_at,
   course_id,
+  exam_id,
   chapter_id,
   url_path,
   title,
@@ -1630,46 +1741,152 @@ pub async fn restore(
     history_id: Uuid,
     author: Uuid,
 ) -> ModelResult<Uuid> {
-    let mut tx = conn.begin().await?;
-
     // fetch old content
-    let page = get_page(&mut tx, page_id).await?;
-    let content_to_restore = sqlx::query!(
-        "
-SELECT title, content
-FROM page_history
-WHERE id = $1
-",
-        history_id
-    )
-    .fetch_one(&mut tx)
-    .await?;
+    let page = get_page(conn, page_id).await?;
+    let (content_to_restore, title_to_restore) =
+        page_history::get_history_content_and_title(conn, history_id).await?;
 
-    // restore page content
-    sqlx::query!(
-        "
-UPDATE pages
-SET content = $1
-WHERE id = $2
-",
-        content_to_restore.content,
-        page_id,
-    )
-    .execute(&mut tx)
-    .await?;
-
-    // TODO(?): Update exercises according to content.
-
-    let history_id = crate::models::page_history::insert(
-        &mut tx,
-        page_id,
-        &content_to_restore.title,
-        &page.content,
-        HistoryChangeReason::HistoryRestored,
+    update_page(
+        conn,
+        page.id,
+        CmsPageUpdate {
+            content: content_to_restore.content,
+            exercises: content_to_restore.exercises,
+            exercise_slides: content_to_restore.exercise_slides,
+            exercise_tasks: content_to_restore.exercise_tasks,
+            url_path: page.url_path,
+            title: title_to_restore,
+            chapter_id: page.chapter_id,
+        },
         author,
-        Some(history_id),
+        true,
+        HistoryChangeReason::HistoryRestored,
     )
     .await?;
-    tx.commit().await?;
+
     Ok(history_id)
+}
+
+pub async fn get_organization_id(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<Uuid> {
+    let res = sqlx::query!(
+        "
+SELECT organizations.id
+FROM pages
+  LEFT OUTER JOIN courses ON courses.id = pages.course_id
+  LEFT OUTER JOIN exams ON exams.id = pages.exam_id
+  JOIN organizations ON organizations.id = courses.organization_id
+  OR organizations.id = exams.organization_id
+WHERE pages.id = $1
+",
+        page_id,
+    )
+    .fetch_one(&mut *conn)
+    .await?;
+    Ok(res.id)
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::test_helper::*;
+
+    #[tokio::test]
+    async fn gets_organization_id() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        let data = insert_data(tx.as_mut(), "").await.unwrap();
+        let course_page_org = get_organization_id(tx.as_mut(), data.page).await.unwrap();
+        assert_eq!(data.org, course_page_org);
+
+        let exam = Uuid::new_v4();
+        crate::models::exams::insert(tx.as_mut(), exam, "name", None, None, None, data.org)
+            .await
+            .unwrap();
+        let page = crate::models::pages::insert_page(
+            tx.as_mut(),
+            NewPage {
+                exercises: vec![],
+                exercise_slides: vec![],
+                exercise_tasks: vec![],
+                content: serde_json::Value::Array(vec![]),
+                url_path: "url".to_string(),
+                title: "title".to_string(),
+                course_id: None,
+                exam_id: Some(exam),
+                chapter_id: None,
+                front_page_of_chapter_id: None,
+                content_search_language: None,
+            },
+            data.user,
+        )
+        .await
+        .unwrap();
+        let exam_page_org = get_organization_id(tx.as_mut(), page.id).await.unwrap();
+        assert_eq!(data.org, exam_page_org);
+    }
+
+    #[tokio::test]
+    async fn page_update_validation_works() {
+        let e1 = CmsPageExercise {
+            id: Uuid::parse_str("0c9dca80-5904-4d35-a945-8c080446f667").unwrap(),
+            name: "".to_string(),
+            order_number: 1,
+        };
+        let e1_s1 = CmsPageExerciseSlide {
+            id: Uuid::parse_str("43380e81-6ff2-4f46-9f38-af0ac6a8421a").unwrap(),
+            exercise_id: e1.id,
+            order_number: 1,
+        };
+        let e1_s1_t1 = CmsPageExerciseTask {
+            id: Uuid::parse_str("6fb19c22-bca0-42cf-8be5-4141e21cc7a9").unwrap(),
+            exercise_slide_id: e1_s1.id,
+            assignment: serde_json::json!([]),
+            exercise_type: "exercise".to_string(),
+            private_spec: None,
+        };
+
+        // Works without exercises
+        assert!(create_update(vec![], vec![], vec![])
+            .validate_exercise_data()
+            .is_ok());
+
+        // Works with single valid exercise
+        assert!(create_update(
+            vec![e1.clone()],
+            vec![e1_s1.clone()],
+            vec![e1_s1_t1.clone()],
+        )
+        .validate_exercise_data()
+        .is_ok());
+
+        // Fails with missing slide
+        assert!(
+            create_update(vec![e1.clone()], vec![], vec![e1_s1_t1.clone()],)
+                .validate_exercise_data()
+                .is_err()
+        );
+
+        // Fails with missing task
+        assert!(
+            create_update(vec![e1.clone()], vec![e1_s1.clone()], vec![],)
+                .validate_exercise_data()
+                .is_err()
+        );
+    }
+
+    fn create_update(
+        exercises: Vec<CmsPageExercise>,
+        exercise_slides: Vec<CmsPageExerciseSlide>,
+        exercise_tasks: Vec<CmsPageExerciseTask>,
+    ) -> CmsPageUpdate {
+        CmsPageUpdate {
+            content: serde_json::json!([]),
+            exercises,
+            exercise_slides,
+            exercise_tasks,
+            url_path: "".to_string(),
+            title: "".to_string(),
+            chapter_id: None,
+        }
+    }
 }

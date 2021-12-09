@@ -16,13 +16,11 @@ test("test", async ({ page, headless }) => {
     page.waitForNavigation(),
     page.click("text=University of Helsinki, Department of Computer Science"),
   ])
-  await expect(page).toHaveURL(
-    "http://project-331.local/organizations/8bb12295-53ac-4099-9644-ac0ff5e34d92",
-  )
+  await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   // Click text=Introduction to edit proposals
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-edit-proposals' }*/),
+    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-edit-proposals' }*/),
     page.click("text=Introduction to edit proposals"),
   ])
 
@@ -34,7 +32,7 @@ test("test", async ({ page, headless }) => {
 
   // Click text=The Basics
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-edit-proposals/chapter-1' }*/),
+    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-edit-proposals/chapter-1' }*/),
     page.click("text=The Basics"),
   ])
 
@@ -59,7 +57,6 @@ test("test", async ({ page, headless }) => {
   await page.click("text=Improve material")
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "no-edits-yet",
@@ -71,7 +68,6 @@ test("test", async ({ page, headless }) => {
   await page.click("text=So big, that we need many paragraphs.")
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "currently-editing",
@@ -109,7 +105,6 @@ test("test", async ({ page, headless }) => {
   await page.click('button:has-text("Preview")')
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "preview",

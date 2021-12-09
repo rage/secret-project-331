@@ -22,7 +22,6 @@ const TableCellContent: React.FC<TableCellContentProps> = ({ columnLoop, rowLoop
   const handleTextarea = (text: string) => {
     dispatch(editedOptionCorrectAnswer(text, storeOption.id))
   }
-  console.log(storeOption)
   return (
     <>
       <td

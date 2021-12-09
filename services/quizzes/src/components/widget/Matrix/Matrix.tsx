@@ -1,9 +1,10 @@
 import { css } from "@emotion/css"
-import React, { useState } from "react"
+import React from "react"
 
-import { MatrixItemAnswer, PublicQuizItemOption, QuizItemAnswer } from "../../../types/types"
+import { QuizItemComponentProps } from ".."
+import { MatrixItemAnswer, PublicQuizItemOption, QuizItemAnswer } from "../../../../types/types"
 
-import { QuizItemComponentProps } from "."
+import MatrixCell from "./MatrixCell"
 
 export interface LeftBorderedDivProps {
   correct: boolean | undefined
@@ -16,7 +17,6 @@ const Matrix: React.FunctionComponent<QuizItemComponentProps> = ({
   quizItem,
   setQuizItemAnswerState,
 }) => {
-  const [IsActive, setIsActive] = useState(false)
   const handleOptionSelect = (
     text: string,
     option: PublicQuizItemOption,
@@ -118,53 +118,16 @@ const Matrix: React.FunctionComponent<QuizItemComponentProps> = ({
                 <tr key={`row${rowIndex}`}>
                   {quizItem.options.map((option, columnIndex) => {
                     if (option.row === rowIndex) {
-                      //         const checkNeighbour = checkNeighbourCells(columnIndex, rowIndex)
                       return (
-                        <>
-                          <>
-                            <td
-                              key={`cell ${rowIndex} ${columnIndex}`}
-                              className={css`
-                                padding: 0;
-                                font-size: 30px;
-                              `}
-                            >
-                              {
-                                <input
-                                  className={css`
-                                    display: block;
-                                    width: 50px;
-                                    height: 50px;
-                                    border: 0;
-                                    outline: none;
-                                    text-align: center;
-                                    resize: none;
-                                    ${option.body?.length === 0 &&
-                                    `
-                              background-color: #ECECEC;
-                            `}
-                                    ${IsActive &&
-                                    option.body?.length === 0 &&
-                                    `
-                                background-color: #DBDBDB;
-                                `}
-                                  `}
-                                  value={findOptionText(option.id) ?? ""}
-                                  onSelect={() => setIsActive(true)}
-                                  onBlur={() => setIsActive(false)}
-                                  onChange={(event) =>
-                                    handleOptionSelect(
-                                      event.target.value,
-                                      option,
-                                      columnIndex,
-                                      rowIndex,
-                                    )
-                                  }
-                                ></input>
-                              }
-                            </td>
-                          </>
-                        </>
+                        <MatrixCell
+                          column={columnIndex}
+                          row={rowIndex}
+                          option={option}
+                          findOptionText={findOptionText}
+                          handleOptionSelect={handleOptionSelect}
+                        >
+                          {" "}
+                        </MatrixCell>
                       )
                     }
                   })}

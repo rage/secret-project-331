@@ -6,7 +6,7 @@ import HeightTrackingContainer from "../../shared-module/components/HeightTracki
 
 import Checkbox from "./Checkbox"
 import Essay from "./Essay"
-import Matrix from "./Matrix"
+import Matrix from "./Matrix/Matrix"
 import MultipleChoice from "./MultipleChoice"
 import { MultipleChoiceClickable } from "./MultipleChoiceClickable"
 import { MultipleChoiceDropdown } from "./MultipleChoiceDropdown"

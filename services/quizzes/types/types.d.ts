@@ -206,6 +206,7 @@ export interface QuizItemOption {
   correct: boolean
   row: number | null
   column: number | null
+  correctAnswer: string
   createdAt: Date
   updatedAt: Date
   title: string

@@ -55,10 +55,11 @@ const Submission: React.FC<SubmissionPageProps> = ({ query }) => {
         <h1>{t("title-submission-id", { id: data.submission.id })}</h1>
         {grading}
         <SubmissionIFrame
-          url={`${data.submission_iframe_path}?width=700`} // todo: move constants to shared module?
+          url={`${data.iframe_path}?width=700`} // todo: move constants to shared module?
           public_spec={data.exercise_task.public_spec}
           submission={data.submission}
           model_solution_spec={data.exercise_task.model_solution_spec}
+          grading={data.grading}
         />
         <DebugModal data={data} />
       </div>

@@ -11,9 +11,15 @@
         }
       ],
       "parameters": {
-        "Left": ["UuidArray", "Uuid", "Uuid"]
+        "Left": [
+          "UuidArray",
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [null]
+      "nullable": [
+        null
+      ]
     }
   },
   "0126aff55bba1d467391b9f51bd71afaaee6de715d563aa5a7cc6fe2d250e346": {
@@ -87,7 +93,12 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Int8", "Int8"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Int8",
+          "Int8"
+        ]
       },
       "nullable": [
         false,
@@ -177,7 +188,9 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -217,9 +230,15 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [true, true, true]
+      "nullable": [
+        true,
+        true,
+        true
+      ]
     }
   },
   "03595bec90a8dbdc483f87cfd24779991dd94f07d43c0a5fe51c8ce4972516a2": {
@@ -233,9 +252,15 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "036ca022aaa61a639202afffa66f21d3ca72ad8413d1ac55fc476050c89a3dcc": {
@@ -274,9 +299,18 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false
+      ]
     }
   },
   "0394be9f394a19ed8c6deba2429f8e24f582498eb4efca135bd4dbcd6f2bca12": {
@@ -284,7 +318,11 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -305,9 +343,14 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, null]
+      "nullable": [
+        false,
+        null
+      ]
     }
   },
   "05e50555c17d165bafb82465302b66aa05daba6ac760db60387a4f7a87ae496b": {
@@ -371,9 +414,28 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Varchar", "Varchar", "Uuid", "Varchar", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Varchar",
+          "Varchar",
+          "Uuid",
+          "Varchar",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, false, true, false, null, false, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        null,
+        false,
+        true,
+        false
+      ]
     }
   },
   "072ecb29b589e56f6fc04bb0787efd82beab771ae9d87752f80b0734b16c56e4": {
@@ -427,9 +489,25 @@
         }
       ],
       "parameters": {
-        "Left": ["Varchar", "Varchar", "Varchar", "Varchar", "Int4"]
+        "Left": [
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Int4"
+        ]
       },
-      "nullable": [false, false, false, true, false, false, false, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false
+      ]
     }
   },
   "0abb5b4eb5524497c8727f23e3b43527d4c158a09d9b4bb3f463d0fece259743": {
@@ -483,7 +561,13 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           }
@@ -495,7 +579,13 @@
             "Custom": {
               "name": "activity_progress",
               "kind": {
-                "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
+                "Enum": [
+                  "initialized",
+                  "started",
+                  "in-progress",
+                  "submitted",
+                  "completed"
+                ]
               }
             }
           }
@@ -507,9 +597,25 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, true, true, false, false, true, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "0b8c4705a77d9ac8cca192ce62f98cddf054bcb9b067715f25ded813bddaf3c9": {
@@ -517,7 +623,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -563,9 +672,20 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, true, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ]
     }
   },
   "0eb1973f9ce1c28fdf44969a8691da1e88b58501a1eff1e236eed1310dfe2464": {
@@ -611,7 +731,13 @@
           "Text"
         ]
       },
-      "nullable": [false, null, null, null, false]
+      "nullable": [
+        false,
+        null,
+        null,
+        null,
+        false
+      ]
     }
   },
   "0f8ebb278dc89487e24c2b9729baa1c012e2242bfa7b984ec77b1df0a84a6a7a": {
@@ -619,7 +745,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Bool", "Uuid"]
+        "Left": [
+          "Bool",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -635,9 +764,16 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "11bdd7c111ff7fca68cbf6fffe1079e69283545b8146c3fc6ec9acc1997ccb1e": {
@@ -650,7 +786,13 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           },
@@ -688,7 +830,12 @@
       "parameters": {
         "Left": []
       },
-      "nullable": [false, false, true, true]
+      "nullable": [
+        false,
+        false,
+        true,
+        true
+      ]
     }
   },
   "12ca747f44759f66feeb79358eafa59184d090a9a37fefcc951eb221e4cebe9f": {
@@ -722,7 +869,10 @@
             "Custom": {
               "name": "history_change_reason",
               "kind": {
-                "Enum": ["page-saved", "history-restored"]
+                "Enum": [
+                  "page-saved",
+                  "history-restored"
+                ]
               }
             }
           }
@@ -739,9 +889,21 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Int8", "Int8"]
+        "Left": [
+          "Uuid",
+          "Int8",
+          "Int8"
+        ]
       },
-      "nullable": [false, false, false, false, false, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false
+      ]
     }
   },
   "1354fbf47a4a0f22b9b9f30143dd425b05aef41d55a178bc39eb1eb4140a6e0c": {
@@ -754,7 +916,12 @@
             "Custom": {
               "name": "variant_status",
               "kind": {
-                "Enum": ["draft", "upcoming", "active", "ended"]
+                "Enum": [
+                  "draft",
+                  "upcoming",
+                  "active",
+                  "ended"
+                ]
               }
             }
           },
@@ -830,9 +997,24 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, false, true, true, true, true, true, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false
+      ]
     }
   },
   "14dc35fa341ba8f03c4c5ba7bf6b92f5e5135ad81b73466e061ef4307ab08340": {
@@ -901,9 +1083,24 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "15a11ba6125a09bf31705b19618ab342b0a435f51736be52d3c67a25040f6298": {
@@ -967,9 +1164,24 @@
         }
       ],
       "parameters": {
-        "Left": ["Varchar", "Uuid"]
+        "Left": [
+          "Varchar",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, false, true, false, null, false, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        null,
+        false,
+        true,
+        false
+      ]
     }
   },
   "17ac831ff424d02bd7609c76c190768ef00265bf144ab61459e11f1b7179b660": {
@@ -1020,7 +1232,16 @@
       "parameters": {
         "Left": []
       },
-      "nullable": [false, false, false, false, true, false, true, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true
+      ]
     }
   },
   "188aa23c96370d5e30740a2a8631c78cb0283c1f4e71ef275583e3ae5895fa8b": {
@@ -1079,7 +1300,12 @@
             "Custom": {
               "name": "variant_status",
               "kind": {
-                "Enum": ["draft", "upcoming", "active", "ended"]
+                "Enum": [
+                  "draft",
+                  "upcoming",
+                  "active",
+                  "ended"
+                ]
               }
             }
           }
@@ -1101,7 +1327,9 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -1191,7 +1419,9 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -1221,9 +1451,15 @@
         }
       ],
       "parameters": {
-        "Left": ["Varchar", "Uuid", "Int4"]
+        "Left": [
+          "Varchar",
+          "Uuid",
+          "Int4"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "1a466519782c720ea49eb0fc4fb4986acd32e545f81103d39dd9d1e3e682af02": {
@@ -1292,9 +1528,24 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "1aafb5cc9aca5edc7cbe9d5018abd31d4bc7c3ff89448f1231a07de3072c3011": {
@@ -1308,16 +1559,24 @@
             "Custom": {
               "name": "proposal_status",
               "kind": {
-                "Enum": ["pending", "accepted", "rejected"]
+                "Enum": [
+                  "pending",
+                  "accepted",
+                  "rejected"
+                ]
               }
             }
           }
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "1d480cfbf4a9dc142a798a9bacd391dd6c8c98df5c694697eee44162cbb2c95b": {
@@ -1331,65 +1590,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [null]
-    }
-  },
-  "209e86c27b0de935b1b9038358577b8624d596bdc715f341b360d1cf31eb9470": {
-    "query": "\nINSERT INTO exercise_service_info (\n    exercise_service_id,\n    editor_iframe_path,\n    exercise_iframe_path,\n    submission_iframe_path,\n    grade_endpoint_path,\n    public_spec_endpoint_path,\n    model_solution_path\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nRETURNING *\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "exercise_service_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "editor_iframe_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 4,
-          "name": "exercise_iframe_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 5,
-          "name": "grade_endpoint_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 6,
-          "name": "submission_iframe_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 7,
-          "name": "public_spec_endpoint_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 8,
-          "name": "model_solution_path",
-          "type_info": "Varchar"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Varchar", "Varchar", "Varchar", "Varchar", "Varchar", "Varchar"]
-      },
-      "nullable": [false, false, false, false, false, false, false, false, false]
+      "nullable": [
+        null
+      ]
     }
   },
   "21877a242bc25c4da0f60a5c4d3d0a3d225be46b074815734c90a70fb8173f9b": {
@@ -1413,9 +1620,15 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false]
+      "nullable": [
+        false,
+        false,
+        false
+      ]
     }
   },
   "2395ca73bcdd330e31c0d42fdf6ec062602d06d67ce40ffcf1b71fd90982b2f7": {
@@ -1489,7 +1702,14 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Jsonb", "Uuid", "Uuid", "Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Jsonb",
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -1569,9 +1789,23 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, false, true, true, false, true, true, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true
+      ]
     }
   },
   "2593cfb3820c00b89eef7987b9f14e510916882e68abbd691e970b001e7d5329": {
@@ -1640,9 +1874,24 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "267c9d76696bc99642ad6a55744d7effbef43cdc34d12e1ad786385bad6f6a62": {
@@ -1711,9 +1960,24 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, false, true, true, true, true, true, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false
+      ]
     }
   },
   "2711d322b3321b8956fe256642fb1d2c259d339752d854cd58383a26889e1cbf": {
@@ -1721,7 +1985,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -1772,9 +2039,20 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, true, false, true, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true
+      ]
     }
   },
   "2abaee65f94d36fb9360d9eb3232dcb45b7aa9badbc06563c2e9fc1e2c53e357": {
@@ -1796,7 +2074,10 @@
             "Custom": {
               "name": "history_change_reason",
               "kind": {
-                "Enum": ["page-saved", "history-restored"]
+                "Enum": [
+                  "page-saved",
+                  "history-restored"
+                ]
               }
             }
           },
@@ -1804,7 +2085,9 @@
           "Uuid"
         ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "2be222dd2d0d8fe97d036d6b5343d6db627290585973d62c44c3d97f41bd3ead": {
@@ -1818,9 +2101,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [true]
+      "nullable": [
+        true
+      ]
     }
   },
   "2be6fd20afaeeb95299a5020a8455a6fc6e7ce347a0003cca2d87441f324d422": {
@@ -1898,7 +2185,12 @@
             "Custom": {
               "name": "variant_status",
               "kind": {
-                "Enum": ["draft", "upcoming", "active", "ended"]
+                "Enum": [
+                  "draft",
+                  "upcoming",
+                  "active",
+                  "ended"
+                ]
               }
             }
           }
@@ -1920,7 +2212,10 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -1985,9 +2280,20 @@
         }
       ],
       "parameters": {
-        "Left": ["Text"]
+        "Left": [
+          "Text"
+        ]
       },
-      "nullable": [false, false, false, false, true, false, true, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true
+      ]
     }
   },
   "2e8c7d2dd7b81803591de13bb697c898ea9a2554f47e175907398112082cd2f6": {
@@ -2003,7 +2309,9 @@
       "parameters": {
         "Left": []
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "3017bc588af2b26b7c70ce4428288527aa9873e485b253fd0f35e551544efff9": {
@@ -2017,9 +2325,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "306820247b9533af5d464aa15a58f9fcde6a59b1666a3709b32bc1823ad2e970": {
@@ -2093,7 +2405,9 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -2123,9 +2437,19 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid", "Uuid", "Uuid", "Jsonb", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Jsonb",
+          "Uuid"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "35113aa3e7d61c91d5f9befed9ad66e3cd72c77d21b7639dd18af3f4feb8c12f": {
@@ -2174,9 +2498,21 @@
         }
       ],
       "parameters": {
-        "Left": ["Varchar", "Uuid"]
+        "Left": [
+          "Varchar",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, true, false, true, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true
+      ]
     }
   },
   "375b467ba026680d07ba6fa844de91afd942e86b2715431e41b6788df0d2b3c0": {
@@ -2215,9 +2551,18 @@
         }
       ],
       "parameters": {
-        "Left": ["Int4"]
+        "Left": [
+          "Int4"
+        ]
       },
-      "nullable": [false, false, false, true, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false
+      ]
     }
   },
   "37dfaa87dd74a4c1f409cd120e6997847616214878ae8a66b326699fa8633ad3": {
@@ -2281,9 +2626,23 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, false, false, true, true, true, true, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
     }
   },
   "3a3fa537038bdbeb11c9454487111b56afaa5230c97546dc0b29554446bfa27d": {
@@ -2302,9 +2661,16 @@
         }
       ],
       "parameters": {
-        "Left": ["UuidArray", "Uuid", "Uuid"]
+        "Left": [
+          "UuidArray",
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [null, false]
+      "nullable": [
+        null,
+        false
+      ]
     }
   },
   "3c5b30ac7bad3459a0102d31d75bc0c7b6f8b9d62db3ce39be9c26cb318af8a9": {
@@ -2378,7 +2744,9 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -2402,7 +2770,11 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -2468,9 +2840,23 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, false, true, false, null, false, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        null,
+        false,
+        true,
+        false
+      ]
     }
   },
   "40ee92fefa0c26c98e690f9a50b69cae49ae3ec5577ca4fb497816b875e4f921": {
@@ -2478,7 +2864,11 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Varchar"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Varchar"
+        ]
       },
       "nullable": []
     }
@@ -2544,9 +2934,24 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, false, false, true, true, true, true, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
     }
   },
   "43bd86b52b6834f11c68bbe73feef8a34f444934be89ac77bdf9bfe6d3f0f910": {
@@ -2610,9 +3015,24 @@
         }
       ],
       "parameters": {
-        "Left": ["Varchar", "Uuid"]
+        "Left": [
+          "Varchar",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, false, false, true, true, true, true, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
     }
   },
   "4422d198c0e9c4502344c5b1145df37a6cf0b8a85e43390dfc3c5a1ed57549d2": {
@@ -2641,9 +3061,16 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ]
     }
   },
   "4bcf93034b7f1e2a30d12f895c2e8c394094dd5b057cbbd89a5715ad9518ef9d": {
@@ -2651,7 +3078,9 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -2722,9 +3151,28 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Jsonb", "Varchar", "Varchar", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Jsonb",
+          "Varchar",
+          "Varchar",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "4f0724b8eb32a69801554adeadbfdbaecdfd86e8c551ca08f7402ae6b72859b1": {
@@ -2778,7 +3226,13 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           }
@@ -2790,7 +3244,13 @@
             "Custom": {
               "name": "activity_progress",
               "kind": {
-                "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
+                "Enum": [
+                  "initialized",
+                  "started",
+                  "in-progress",
+                  "submitted",
+                  "completed"
+                ]
               }
             }
           }
@@ -2811,7 +3271,13 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           },
@@ -2819,13 +3285,31 @@
             "Custom": {
               "name": "activity_progress",
               "kind": {
-                "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
+                "Enum": [
+                  "initialized",
+                  "started",
+                  "in-progress",
+                  "submitted",
+                  "completed"
+                ]
               }
             }
           }
         ]
       },
-      "nullable": [false, false, true, true, false, false, true, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "4f7e2b9650e10a87e8df9091b99fb43d3eb68974730a3c08dc6a63ae3ec4f92e": {
@@ -2869,9 +3353,20 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, true, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ]
     }
   },
   "508269ab48e0355bb4c262ae7a5c01ad0d5641474893c97c9c81a249173a8012": {
@@ -2935,9 +3430,23 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, false, true, false, null, false, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        null,
+        false,
+        true,
+        false
+      ]
     }
   },
   "517a7cd293f8258fe76c8d108e36fac8b56da5dd53f527e2ad2c9d4b76c33cf0": {
@@ -3001,9 +3510,23 @@
         }
       ],
       "parameters": {
-        "Left": ["Text"]
+        "Left": [
+          "Text"
+        ]
       },
-      "nullable": [false, false, false, false, false, true, false, null, false, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        null,
+        false,
+        true,
+        false
+      ]
     }
   },
   "526638aeba291dfa86178ed122d1e4d1ce8f48f75744fce5618fbd989d8cdbb2": {
@@ -3057,7 +3580,13 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           }
@@ -3069,7 +3598,13 @@
             "Custom": {
               "name": "activity_progress",
               "kind": {
-                "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
+                "Enum": [
+                  "initialized",
+                  "started",
+                  "in-progress",
+                  "submitted",
+                  "completed"
+                ]
               }
             }
           }
@@ -3081,9 +3616,26 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, true, true, false, false, true, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "53e26910f60193f83389cea5ba2197fb520a0733034ed9fb423dd1f1edccdc90": {
@@ -3102,9 +3654,75 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false, true]
+      "nullable": [
+        false,
+        true
+      ]
+    }
+  },
+  "55d2baac7d8ce3670047a6388219d46faaac72bb6f7f6769b28fa320d601652c": {
+    "query": "\nINSERT INTO exercise_service_info (\n    exercise_service_id,\n    exercise_type_specific_user_interface_iframe,\n    grade_endpoint_path,\n    public_spec_endpoint_path,\n    model_solution_path\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING *\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "exercise_service_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "grade_endpoint_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 4,
+          "name": "public_spec_endpoint_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 5,
+          "name": "model_solution_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "exercise_type_specific_user_interface_iframe",
+          "type_info": "Varchar"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
     }
   },
   "576035aeb9e877869815eabed2f331073438c344f65a06022c74c23592c51dd6": {
@@ -3118,9 +3736,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [true]
+      "nullable": [
+        true
+      ]
     }
   },
   "5994334eba8b775d80a31603a63fe24599b25205a00cc5de720edc14d2fd1058": {
@@ -3194,7 +3816,9 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -3218,7 +3842,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -3259,9 +3886,18 @@
         }
       ],
       "parameters": {
-        "Left": ["UuidArray"]
+        "Left": [
+          "UuidArray"
+        ]
       },
-      "nullable": [false, false, false, true, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ]
     }
   },
   "5bf296199f464130717be2910f6d241261334a31a65e9a6911d6e795d1435d8f": {
@@ -3269,7 +3905,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Bool", "Uuid"]
+        "Left": [
+          "Bool",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -3290,9 +3929,14 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [true, true]
+      "nullable": [
+        true,
+        true
+      ]
     }
   },
   "5cf04047f64dad53b0b701fcb9e2c49da51b2d4c22944103a24f57f4bc37045f": {
@@ -3361,9 +4005,24 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "5d906a7355c57bc0f6bc40148ced49d7dbe50951f67fc0628abcf9ef6e29fce8": {
@@ -3377,9 +4036,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [true]
+      "nullable": [
+        true
+      ]
     }
   },
   "5e92276cd35f5b56591706b2e6b9e5229aba70df37b21a2654298bf9a0caf783": {
@@ -3393,9 +4056,16 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Varchar", "Varchar", "Varchar"]
+        "Left": [
+          "Uuid",
+          "Varchar",
+          "Varchar",
+          "Varchar"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "60fed3e48c5452f1f0d9aa6c6775f382456469221d08d6d2d450fd5c24648d31": {
@@ -3459,9 +4129,25 @@
         }
       ],
       "parameters": {
-        "Left": ["Varchar", "Uuid", "Int4"]
+        "Left": [
+          "Varchar",
+          "Uuid",
+          "Int4"
+        ]
       },
-      "nullable": [false, false, false, false, false, false, true, true, true, true, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
     }
   },
   "622d48bb4059134b3f8f954471b619a499c3396e8c42d5401210576aab29974b": {
@@ -3500,9 +4186,20 @@
         }
       ],
       "parameters": {
-        "Left": ["Int4", "Uuid", "Int4"]
+        "Left": [
+          "Int4",
+          "Uuid",
+          "Int4"
+        ]
       },
-      "nullable": [false, false, false, false, true, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true
+      ]
     }
   },
   "6263426899d28575a326f3f969a391461c623bc4397d4236f1a2bf048785927d": {
@@ -3571,9 +4268,24 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "62e9c0363c17960a9b5e5444706dbf0c8ebce53cebc5836a8f6bd62c43fc423b": {
@@ -3639,7 +4351,19 @@
       "parameters": {
         "Left": []
       },
-      "nullable": [false, false, false, false, false, true, false, null, false, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        null,
+        false,
+        true,
+        false
+      ]
     }
   },
   "678a1a79a8b5767c8d622268b1b0a06e92e8bc61124e367e83752b9064e82cac": {
@@ -3678,9 +4402,19 @@
         }
       ],
       "parameters": {
-        "Left": ["Int4", "Uuid"]
+        "Left": [
+          "Int4",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, true, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true
+      ]
     }
   },
   "680c5eed3c49d67d404af7d0a2df7dc8f9391db14848e8aff877a8a117335be2": {
@@ -3754,7 +4488,9 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -3784,9 +4520,17 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Text", "Text", "Text"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Text",
+          "Text",
+          "Text"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "6bc403d5e34e4661d2e6930c35e5d8caafea81db10220cdaf612d9be967a056b": {
@@ -3825,9 +4569,18 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ]
     }
   },
   "6f5ab6a5fb0636d714701ea1c4d6c01ca9b3a54efc33322c8bf81d98d356d8e6": {
@@ -3878,7 +4631,16 @@
       "parameters": {
         "Left": []
       },
-      "nullable": [false, false, false, true, false, false, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false
+      ]
     }
   },
   "710ccb21f84c2c1777024e07f260afd8d6e826c2e48de101ec721f2f58d2ea12": {
@@ -3892,9 +4654,15 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "715db0028da78daec0c89bbcd9fe42181066f654f01b6dd952851da09d370532": {
@@ -3958,9 +4726,23 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, false, true, false, null, false, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        null,
+        false,
+        true,
+        false
+      ]
     }
   },
   "71c791b6fd5230c2be0c2c01a3e173dcbc8946d40b86f41c909c7b23cc9fe371": {
@@ -3968,7 +4750,12 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -3994,39 +4781,39 @@
         },
         {
           "ordinal": 3,
-          "name": "editor_iframe_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 4,
-          "name": "exercise_iframe_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 5,
           "name": "grade_endpoint_path",
           "type_info": "Varchar"
         },
         {
-          "ordinal": 6,
-          "name": "submission_iframe_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 7,
+          "ordinal": 4,
           "name": "public_spec_endpoint_path",
           "type_info": "Varchar"
         },
         {
-          "ordinal": 8,
+          "ordinal": 5,
           "name": "model_solution_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "exercise_type_specific_user_interface_iframe",
           "type_info": "Varchar"
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, false, false, false, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
     }
   },
   "76ce92c1173e95b850a803ae754c1a94af1c02eb4e5e553df48901d90eb6e923": {
@@ -4065,9 +4852,18 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false
+      ]
     }
   },
   "785c6a12aad375df96e3ce5dee4b20fde25e67ec826c645019a03222a07c2aa9": {
@@ -4086,9 +4882,14 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [null, null]
+      "nullable": [
+        null,
+        null
+      ]
     }
   },
   "79d611ab409e1fbe46dbccf7e84f714de76138f0c71d2f43b59da2a6a98f2d88": {
@@ -4102,9 +4903,17 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Varchar", "Uuid", "Uuid", "Int4"]
+        "Left": [
+          "Uuid",
+          "Varchar",
+          "Uuid",
+          "Uuid",
+          "Int4"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "7a76df8c10629d8afcfc6863e2ada85d9108c74ccae8ffe4f5e2fd7c6a36432a": {
@@ -4118,9 +4927,13 @@
         }
       ],
       "parameters": {
-        "Left": ["UuidArray"]
+        "Left": [
+          "UuidArray"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "7eb9780a585e596b2627c86a2d19678eddfca06c0eb2ca273f586be83eaaa081": {
@@ -4184,9 +4997,23 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, false, true, false, null, false, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        null,
+        false,
+        true,
+        false
+      ]
     }
   },
   "7f1cb8b1bbc4ed001fa4fc6dcbbc90e30e0d509e64de0d75461ae1c82a285268": {
@@ -4194,7 +5021,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Timestamptz", "Uuid"]
+        "Left": [
+          "Timestamptz",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -4260,7 +5090,13 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           }
@@ -4317,7 +5153,9 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -4358,9 +5196,15 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false]
+      "nullable": [
+        false,
+        false
+      ]
     }
   },
   "814b64d8d02dc308fe81f4d5608f698d8dfb5ea72049fd321754feb1c1104626": {
@@ -4414,9 +5258,21 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, false, false, false, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false
+      ]
     }
   },
   "8198f7adf5e5c8c71a7d632e7ccc1e8d139d30af2e410b57d710321fad7e18ba": {
@@ -4455,9 +5311,18 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ]
     }
   },
   "831476e084bba9486fd435565e46067716e6738cc05f393a1dba87a68edc27f7": {
@@ -4481,9 +5346,15 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, true]
+      "nullable": [
+        false,
+        false,
+        true
+      ]
     }
   },
   "8355f2e2500598d1b6fb129f1c7876b2415df0f4235a164a98b0414f8445c84b": {
@@ -4512,16 +5383,29 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           }
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, true, true, false]
+      "nullable": [
+        false,
+        true,
+        true,
+        false
+      ]
     }
   },
   "8418000fb3d50f52e42766c3884416520d434ea9588248e26c3b4fbfb1abae90": {
@@ -4580,9 +5464,27 @@
         }
       ],
       "parameters": {
-        "Left": ["Varchar", "Varchar", "Jsonb", "Int4", "Int4", "Uuid"]
+        "Left": [
+          "Varchar",
+          "Varchar",
+          "Jsonb",
+          "Int4",
+          "Int4",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, false, true, true, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false
+      ]
     }
   },
   "8492979938e25727c88d0aa43f2def59b6d913247be736fd18d03ba7e9a7973a": {
@@ -4590,7 +5492,9 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -4606,9 +5510,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [null]
+      "nullable": [
+        null
+      ]
     }
   },
   "85d460d9a14e12b66d387b3cdf0caf930e42725cd706c38a85d02613ae14130e": {
@@ -4649,7 +5557,14 @@
       "parameters": {
         "Left": []
       },
-      "nullable": [false, false, false, true, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ]
     }
   },
   "862f07aafadb5dd995ce1d74b63b30d83e2c109fb286641795a61726c009ff04": {
@@ -4663,9 +5578,18 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Varchar", "Jsonb", "Jsonb", "Jsonb", "Jsonb"]
+        "Left": [
+          "Uuid",
+          "Varchar",
+          "Jsonb",
+          "Jsonb",
+          "Jsonb",
+          "Jsonb"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "8698ccb5049f1ab2e0d9e0d4e5922dc8bbf6dae00c9d9320a7a42097be0fe315": {
@@ -4689,9 +5613,16 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, true]
+      "nullable": [
+        false,
+        false,
+        true
+      ]
     }
   },
   "87848a65cafd33187ebbc6ed99b0a6eaaff44a09d3efb17759ee3604fc39f49c": {
@@ -4737,7 +5668,13 @@
           "Text"
         ]
       },
-      "nullable": [false, null, null, null, false]
+      "nullable": [
+        false,
+        null,
+        null,
+        null,
+        false
+      ]
     }
   },
   "882525a929728d222af1a0946c0c6d0291a891d67d8fc81e2c8400cf400baeef": {
@@ -4745,7 +5682,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -4761,9 +5701,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "8996c28a928545504a3741a926ceb7831d752406f9f3c6871854343bb7b1aa4b": {
@@ -4802,9 +5746,19 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Int4"]
+        "Left": [
+          "Uuid",
+          "Int4"
+        ]
       },
-      "nullable": [false, false, false, true, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ]
     }
   },
   "8c711ea858481edd56e9dc186e9c256e5109f373b8a8c602cecba26cf75740c7": {
@@ -4818,9 +5772,14 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Varchar"]
+        "Left": [
+          "Uuid",
+          "Varchar"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "8cc039e70b30221cc7c05ccac3d0db3c4b304ba90d3eea8be6c94666e9bd383b": {
@@ -4864,9 +5823,21 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, true, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ]
     }
   },
   "8ccdf9e32ae384f6124487d607971e09c002db1bbc7ba5fa895cdd58c919c76f": {
@@ -4880,9 +5851,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "902398ca29a18eb7bce969348d7d90eb0b3cb8a95cbdd228f89df0eaa7cf5eff": {
@@ -4898,7 +5873,9 @@
       "parameters": {
         "Left": []
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "90fa9968b7d756f053c018a87714ffe53999efba45477c01a5daf23404b64c06": {
@@ -4912,9 +5889,18 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid", "Uuid", "Uuid", "Jsonb"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Jsonb"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "9213dee04b16c5afaec3da7b13f671376aaee9075686d07d52dcd5552044f247": {
@@ -4973,7 +5959,12 @@
             "Custom": {
               "name": "variant_status",
               "kind": {
-                "Enum": ["draft", "upcoming", "active", "ended"]
+                "Enum": [
+                  "draft",
+                  "upcoming",
+                  "active",
+                  "ended"
+                ]
               }
             }
           }
@@ -5025,9 +6016,17 @@
         }
       ],
       "parameters": {
-        "Left": ["Varchar", "Uuid", "Varchar", "Varchar", "Uuid"]
+        "Left": [
+          "Varchar",
+          "Uuid",
+          "Varchar",
+          "Varchar",
+          "Uuid"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "93a182f7fc32e82990af03dbda3d31cd678d99869b3bd5d4b75831d5cc96e0f7": {
@@ -5096,65 +6095,24 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
-    }
-  },
-  "94ded885c93e670d138c1774ec664d7d08779da4e61afa196858e3fb71864f47": {
-    "query": "\nINSERT INTO exercise_service_info(\n    exercise_service_id,\n    editor_iframe_path,\n    exercise_iframe_path,\n    submission_iframe_path,\n    grade_endpoint_path,\n    public_spec_endpoint_path,\n    model_solution_path\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nON CONFLICT(exercise_service_id) DO UPDATE\nSET editor_iframe_path = $2,\n  exercise_iframe_path = $3,\n  submission_iframe_path = $4,\n  grade_endpoint_path = $5,\n  public_spec_endpoint_path = $6,\n  model_solution_path = $7\nRETURNING *\n    ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "exercise_service_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "editor_iframe_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 4,
-          "name": "exercise_iframe_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 5,
-          "name": "grade_endpoint_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 6,
-          "name": "submission_iframe_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 7,
-          "name": "public_spec_endpoint_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 8,
-          "name": "model_solution_path",
-          "type_info": "Varchar"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Varchar", "Varchar", "Varchar", "Varchar", "Varchar", "Varchar"]
-      },
-      "nullable": [false, false, false, false, false, false, false, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "95546a12f24b40783b49269d4e7565326c0ed49fe5c9720692fc41e052901d02": {
@@ -5213,7 +6171,11 @@
             "Custom": {
               "name": "proposal_status",
               "kind": {
-                "Enum": ["pending", "accepted", "rejected"]
+                "Enum": [
+                  "pending",
+                  "accepted",
+                  "rejected"
+                ]
               }
             }
           }
@@ -5225,9 +6187,26 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Bool", "Int8", "Int8"]
+        "Left": [
+          "Uuid",
+          "Bool",
+          "Int8",
+          "Int8"
+        ]
       },
-      "nullable": [true, false, true, true, false, false, false, true, false, false, true]
+      "nullable": [
+        true,
+        false,
+        true,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "974f0fff32d5d42aa0aa4d4f9e52ebe1b69c95cc677bdb0fce4f8bfd7b519639": {
@@ -5240,7 +6219,13 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           },
@@ -5255,7 +6240,9 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -5311,9 +6298,21 @@
         }
       ],
       "parameters": {
-        "Left": ["TextArray"]
+        "Left": [
+          "TextArray"
+        ]
       },
-      "nullable": [false, false, false, true, false, false, false, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false
+      ]
     }
   },
   "9bd2d846e48026343f943674185a77f014043fa8bca6960f49ddde168e69b04e": {
@@ -5327,9 +6326,15 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Int4"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Int4"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "9c6243474cc02c99f6974e143c88dde690c982125071ddc69df713350de1f875": {
@@ -5398,9 +6403,24 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, false, true, true, true, true, true, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false
+      ]
     }
   },
   "9c85b99d223ec35dd6a3d00598117fba6db802ec315cd2d1c38012b577d270bb": {
@@ -5474,7 +6494,9 @@
         }
       ],
       "parameters": {
-        "Left": ["UuidArray"]
+        "Left": [
+          "UuidArray"
+        ]
       },
       "nullable": [
         false,
@@ -5498,7 +6520,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -5554,9 +6579,21 @@
         }
       ],
       "parameters": {
-        "Left": ["Text"]
+        "Left": [
+          "Text"
+        ]
       },
-      "nullable": [false, false, false, true, false, false, false, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false
+      ]
     }
   },
   "9f31d0d3d1943980f58b78597e60339681c9f451b85a34d67c8bc64ba71c790d": {
@@ -5585,9 +6622,16 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ]
     }
   },
   "a0506edd480e7dec860a33702092c243a207450909a69db5a44ad6fcb72b2fb2": {
@@ -5595,7 +6639,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -5605,7 +6652,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -5615,7 +6665,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -5625,7 +6678,9 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -5661,9 +6716,17 @@
         }
       ],
       "parameters": {
-        "Left": ["UuidArray"]
+        "Left": [
+          "UuidArray"
+        ]
       },
-      "nullable": [false, false, true, true, true]
+      "nullable": [
+        false,
+        false,
+        true,
+        true,
+        true
+      ]
     }
   },
   "a5de983bcbab08df99de4b0b906f5771235a4d41c52887316ce280dc12f6c5e3": {
@@ -5687,9 +6750,20 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Varchar", "Int4", "Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Varchar",
+          "Int4",
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false]
+      "nullable": [
+        false,
+        false,
+        false
+      ]
     }
   },
   "a65211da5ab67f9141f6a5699adc33a4c815343fe4fa62e718d4d9654f69738b": {
@@ -5748,7 +6822,12 @@
             "Custom": {
               "name": "variant_status",
               "kind": {
-                "Enum": ["draft", "upcoming", "active", "ended"]
+                "Enum": [
+                  "draft",
+                  "upcoming",
+                  "active",
+                  "ended"
+                ]
               }
             }
           }
@@ -5779,7 +6858,12 @@
             "Custom": {
               "name": "variant_status",
               "kind": {
-                "Enum": ["draft", "upcoming", "active", "ended"]
+                "Enum": [
+                  "draft",
+                  "upcoming",
+                  "active",
+                  "ended"
+                ]
               }
             }
           },
@@ -5810,7 +6894,9 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -5820,7 +6906,12 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -5901,7 +6992,19 @@
           "Uuid"
         ]
       },
-      "nullable": [false, false, false, false, false, true, false, null, false, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        null,
+        false,
+        true,
+        false
+      ]
     }
   },
   "a963c734bc1f9c48be192fa5c8537d461c9ded7412268b17b64085e4f44b174a": {
@@ -5940,9 +7043,18 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ]
     }
   },
   "a9978d50c6e87eb0cb02e4ba7841fbfc165db25ad0038bcb41cfd1d48f643e49": {
@@ -6001,7 +7113,12 @@
             "Custom": {
               "name": "variant_status",
               "kind": {
-                "Enum": ["draft", "upcoming", "active", "ended"]
+                "Enum": [
+                  "draft",
+                  "upcoming",
+                  "active",
+                  "ended"
+                ]
               }
             }
           }
@@ -6023,7 +7140,9 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -6113,7 +7232,11 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Int8", "Int8"]
+        "Left": [
+          "Uuid",
+          "Int8",
+          "Int8"
+        ]
       },
       "nullable": [
         false,
@@ -6143,9 +7266,15 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Int4"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Int4"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "aae734b9a4dfc0f4b00dda2835635deb309c244aa260f77f724dcad6711874e0": {
@@ -6209,7 +7338,13 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           }
@@ -6272,7 +7407,13 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           },
@@ -6343,9 +7484,20 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true
+      ]
     }
   },
   "b28ca6a2fc385642149d527deb0919464711ab57e4120078d6153ccbc08114d4": {
@@ -6409,9 +7561,25 @@
         }
       ],
       "parameters": {
-        "Left": ["Varchar", "Int4", "Uuid"]
+        "Left": [
+          "Varchar",
+          "Int4",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, false, false, true, true, true, true, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
     }
   },
   "b39dda257f5f1f2db1905fdb6616a93c5d587d89c51ca1c1ca67152d7677de65": {
@@ -6460,9 +7628,20 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, false, false, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false
+      ]
     }
   },
   "b434c9433f82406cd24196e0835b739256309e9da9a28dd99ae055693fbc0aa3": {
@@ -6496,9 +7675,103 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true
+      ]
+    }
+  },
+  "b4aa488f4f835c2b3900955ae54fd4bdff8818c3c2935c88aa89848bb276dea6": {
+    "query": "\nSELECT *\nFROM exercise_tasks et\nWHERE et.id = $1;\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "exercise_type",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 4,
+          "name": "assignment",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 5,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "private_spec",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 7,
+          "name": "spec_file_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 8,
+          "name": "public_spec",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 9,
+          "name": "model_solution_spec",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 10,
+          "name": "copied_from",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 11,
+          "name": "exercise_slide_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false
+      ]
     }
   },
   "b4d12f09eb6fa6d8b9381f1f2c0bc7451683f3695eb0b4329ed8984adcb345c4": {
@@ -6517,9 +7790,15 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [null, null]
+      "nullable": [
+        null,
+        null
+      ]
     }
   },
   "b6def96f6973719237ce93811fd8a9215bf24529cab71d262f22f11d13ddf526": {
@@ -6593,7 +7872,9 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -6663,9 +7944,24 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Bool", "Int8", "Int8"]
+        "Left": [
+          "Uuid",
+          "Bool",
+          "Int8",
+          "Int8"
+        ]
       },
-      "nullable": [false, true, true, false, true, false, false, null, null]
+      "nullable": [
+        false,
+        true,
+        true,
+        false,
+        true,
+        false,
+        false,
+        null,
+        null
+      ]
     }
   },
   "b9159ddd17dc391f0bd7b726633dff02d1530aa2b0b270b4947d749442850451": {
@@ -6673,7 +7969,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -6689,9 +7988,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Varchar"]
+        "Left": [
+          "Varchar"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "baa46f4f27573da28222fb2089dba70a58eeec0dfa339fff4d0105768acfd1e8": {
@@ -6710,9 +8013,14 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [true, true]
+      "nullable": [
+        true,
+        true
+      ]
     }
   },
   "bb42fcccdd54977c0bfd6109c6ddf2218d274e79d925468036e219e6a10f3a57": {
@@ -6771,7 +8079,12 @@
             "Custom": {
               "name": "variant_status",
               "kind": {
-                "Enum": ["draft", "upcoming", "active", "ended"]
+                "Enum": [
+                  "draft",
+                  "upcoming",
+                  "active",
+                  "ended"
+                ]
               }
             }
           }
@@ -6793,7 +8106,10 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -6878,9 +8194,25 @@
         }
       ],
       "parameters": {
-        "Left": ["Jsonb", "Uuid"]
+        "Left": [
+          "Jsonb",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "bc4390dec143c0bbc96fdebad02b5673dc9037d1115322b71620583fd9f1b82b": {
@@ -6965,7 +8297,20 @@
           }
         ]
       },
-      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "bc6724f3491c0d8adfd9edb573cac3ab55c26859d41488c30b71c019a2de103a": {
@@ -7019,7 +8364,13 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           }
@@ -7031,7 +8382,13 @@
             "Custom": {
               "name": "activity_progress",
               "kind": {
-                "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
+                "Enum": [
+                  "initialized",
+                  "started",
+                  "in-progress",
+                  "submitted",
+                  "completed"
+                ]
               }
             }
           }
@@ -7043,9 +8400,26 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, true, true, false, false, true, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "c00028f92949b3e8d712a87d620c60b033e48b43583ed796d2e73d219df2931b": {
@@ -7064,9 +8438,14 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [null, null]
+      "nullable": [
+        null,
+        null
+      ]
     }
   },
   "c1077b721fbdb17d2e726008507f9ddb90eb026821339890bdda90e4de4f68d2": {
@@ -7074,7 +8453,9 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -7084,7 +8465,9 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -7115,9 +8498,16 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ]
     }
   },
   "c4db451cf0d08b2fca14976798e0883a3961533b35d7dd4d5057e1662d482592": {
@@ -7176,9 +8566,22 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, false, true, true, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false
+      ]
     }
   },
   "c515ee82610c997f53c83f72ddf8426145e47cf0d9476d2281506c139af86cb6": {
@@ -7186,7 +8589,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Jsonb", "Uuid"]
+        "Left": [
+          "Jsonb",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -7196,7 +8602,13 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Varchar", "Timestamptz", "Timestamptz", "Int4"]
+        "Left": [
+          "Uuid",
+          "Varchar",
+          "Timestamptz",
+          "Timestamptz",
+          "Int4"
+        ]
       },
       "nullable": []
     }
@@ -7227,9 +8639,16 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true
+      ]
     }
   },
   "c6d5ffed3573883c9e69529464b8f96325fbbf5c4ea893ae9e7352d3ce48a70d": {
@@ -7237,7 +8656,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Text", "Uuid"]
+        "Left": [
+          "Text",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -7263,9 +8685,15 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [null, null, null]
+      "nullable": [
+        null,
+        null,
+        null
+      ]
     }
   },
   "c9a920e190f53f7841a88005cabfe9ee58e51dfbb18990c08bbd769a4dd857f8": {
@@ -7284,9 +8712,14 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false]
+      "nullable": [
+        false,
+        false
+      ]
     }
   },
   "cb054f6c81cb711fa6aad948132bc0294b3a9f8092c9435b0c250a48513b1032": {
@@ -7350,7 +8783,13 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           }
@@ -7407,7 +8846,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid", "Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -7483,9 +8928,26 @@
         }
       ],
       "parameters": {
-        "Left": ["Varchar", "Varchar", "Varchar", "Varchar", "Int4", "Uuid"]
+        "Left": [
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Int4",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, false, false, false, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false
+      ]
     }
   },
   "cd8ab0fed33b729c69248aaeb2429fd609dfea407e5a802f59c3c5e085469baf": {
@@ -7499,9 +8961,16 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Varchar", "Text"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Varchar",
+          "Text"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "cf7a54102657110f8d384fb491163e9e2690c365bab861c2c68064ddc1ba0873": {
@@ -7540,9 +9009,19 @@
         }
       ],
       "parameters": {
-        "Left": ["Varchar", "Int4"]
+        "Left": [
+          "Varchar",
+          "Int4"
+        ]
       },
-      "nullable": [false, false, false, true, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false
+      ]
     }
   },
   "d0037081bdb7d84526483a12e5070037392d36867f011134e611cfab8753b6e3": {
@@ -7556,9 +9035,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "d13e367302b3873770dbcd15736161dd89130c0d06620cb5d337b1f7c9f230e8": {
@@ -7566,7 +9049,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -7587,9 +9073,14 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [null, null]
+      "nullable": [
+        null,
+        null
+      ]
     }
   },
   "d2945d7876bf8cf7ab482b20d07cdb72308a89d9d8316653a60af1fbd9a2c1fd": {
@@ -7623,9 +9114,23 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Varchar", "Jsonb", "Jsonb", "Jsonb", "Jsonb"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Varchar",
+          "Jsonb",
+          "Jsonb",
+          "Jsonb",
+          "Jsonb"
+        ]
       },
-      "nullable": [false, false, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true
+      ]
     }
   },
   "d309be59564d69ecad6e11cc6976649092966ea2236abd7c8ca72e64f78f8fcc": {
@@ -7633,7 +9138,9 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -7649,9 +9156,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "d575fe0c1c24abc4c6920f05c08ed2172819439de166e5e455e7e6a8c2bc37d7": {
@@ -7659,7 +9170,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -7735,7 +9249,10 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -7800,9 +9317,23 @@
         }
       ],
       "parameters": {
-        "Left": ["Varchar", "Varchar", "Int4", "Jsonb"]
+        "Left": [
+          "Varchar",
+          "Varchar",
+          "Int4",
+          "Jsonb"
+        ]
       },
-      "nullable": [false, false, false, true, false, false, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false
+      ]
     }
   },
   "d741c2e76aa58f5fe945e4a96f0f598d29b7fd6e2552b3afdc183ec445938c40": {
@@ -7816,9 +9347,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [true]
+      "nullable": [
+        true
+      ]
     }
   },
   "d8d04e29f7f64a2b9f2d0e71a16628a97375de4fc419950b906bd8a3d755a457": {
@@ -7826,7 +9361,14 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Varchar", "Timestamptz", "Timestamptz", "Int4", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Varchar",
+          "Timestamptz",
+          "Timestamptz",
+          "Int4",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -7836,7 +9378,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Jsonb", "Uuid"]
+        "Left": [
+          "Jsonb",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -7846,7 +9391,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Varchar", "Uuid"]
+        "Left": [
+          "Varchar",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -7877,16 +9425,28 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": [
+                  "admin",
+                  "assistant",
+                  "teacher",
+                  "reviewer"
+                ]
               }
             }
           }
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [true, true, true, false]
+      "nullable": [
+        true,
+        true,
+        true,
+        false
+      ]
     }
   },
   "db5cd5b4719b69e217948320994bd8f3f6ae513f1378eb76d2fe6391acf179fc": {
@@ -7925,9 +9485,18 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, true, true, false, false]
+      "nullable": [
+        false,
+        false,
+        true,
+        true,
+        false,
+        false
+      ]
     }
   },
   "db64bea6f7dc10dd47f4c41c5efa78c95cf5b6d97fcfcefda66847c20861ac56": {
@@ -7941,9 +9510,17 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Jsonb", "Varchar", "Varchar", "Int4"]
+        "Left": [
+          "Uuid",
+          "Jsonb",
+          "Varchar",
+          "Varchar",
+          "Int4"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "dc6a94949ce20d11fa55e247dc706fdc88018bf1ba528487fcd0ef02f5c40ca7": {
@@ -8002,9 +9579,22 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, false, true, true, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false
+      ]
     }
   },
   "dd1ebfa575cf8fe38fd9cfbd70fccf86a5ea3ba398088977941d1c0fc5945cf5": {
@@ -8033,9 +9623,16 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true
+      ]
     }
   },
   "ddf7fa1dca876b806f407c7bdd5b40d3318c7d01e3664399accedb2bd5856855": {
@@ -8074,9 +9671,18 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ]
     }
   },
   "dfef8200db3682de79425dbdc38336521cae6581449069d31c5d296345d09e61": {
@@ -8140,9 +9746,23 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, false, false, true, false, true, null, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        null,
+        false
+      ]
     }
   },
   "e2fe96906db5d05fa1a8b0aabc25e9027c386b349f11d4c26bcf7db1864af6cf": {
@@ -8156,9 +9776,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [null]
+      "nullable": [
+        null
+      ]
     }
   },
   "e398cd25e0ebe20fbc1cb9bd3d525aacadb8604da50269598f265f9e2f099d49": {
@@ -8177,9 +9801,14 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [null, null]
+      "nullable": [
+        null,
+        null
+      ]
     }
   },
   "e4e5ef6ef0bbf4a234110b8dc2616b1a0483f511e0c6b9b04b9d7440486c3e07": {
@@ -8235,7 +9864,77 @@
       "parameters": {
         "Left": []
       },
-      "nullable": [false, false, false, true, false, false, false, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false
+      ]
+    }
+  },
+  "e579b39acffdcb76d174340755962a875f7dad304bb6c6a1bbaab61674296024": {
+    "query": "\nINSERT INTO exercise_service_info(\n    exercise_service_id,\n    exercise_type_specific_user_interface_iframe,\n    grade_endpoint_path,\n    public_spec_endpoint_path,\n    model_solution_path\n  )\nVALUES ($1, $2, $3, $4, $5)\nON CONFLICT(exercise_service_id) DO UPDATE\nSET exercise_type_specific_user_interface_iframe = $2,\n  grade_endpoint_path = $3,\n  public_spec_endpoint_path = $4,\n  model_solution_path = $5\nRETURNING *\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "exercise_service_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "grade_endpoint_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 4,
+          "name": "public_spec_endpoint_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 5,
+          "name": "model_solution_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "exercise_type_specific_user_interface_iframe",
+          "type_info": "Varchar"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
     }
   },
   "e5db6a3bd6793923334f9a040d99b022099caf632357702ffb1be47602ec4820": {
@@ -8259,9 +9958,17 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Int4"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Int4"
+        ]
       },
-      "nullable": [false, false, false]
+      "nullable": [
+        false,
+        false,
+        false
+      ]
     }
   },
   "e61131d011c1d20d96a72fb2268e0df0d71725600de9daec9c333a4ec4a01977": {
@@ -8325,9 +10032,23 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, false, true, true, false, true, true, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true
+      ]
     }
   },
   "e6f687f777bbf1f390fd79b39ebe2f71adc27844198a74a5370382ba150abb44": {
@@ -8343,7 +10064,9 @@
       "parameters": {
         "Left": []
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "e966783963c11d6fa57df792d1bfff0dccf163f9cf5f474c1f3c724972229d4e": {
@@ -8407,9 +10130,23 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, false, false, true, true, true, true, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
     }
   },
   "ec176cf7362f8bba31ed3c173853556bada7876cc2474bc4d94d7bcdf56b4b9c": {
@@ -8478,9 +10215,25 @@
         }
       ],
       "parameters": {
-        "Left": ["Text", "Text"]
+        "Left": [
+          "Text",
+          "Text"
+        ]
       },
-      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "f2beb11b5e6318b712b0af9bd4fde454472ce8eda3612295b788958148a376b5": {
@@ -8539,9 +10292,22 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, false, true, true, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false
+      ]
     }
   },
   "f344ce135ffc19dfbf4176348181e9a876c8ed92ec853f8c62d2350d80fa3e2f": {
@@ -8563,13 +10329,20 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": [
+                  "admin",
+                  "assistant",
+                  "teacher",
+                  "reviewer"
+                ]
               }
             }
           }
         ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "f4c732597c3cdf6484a20f41348183e56353ecdafbd4da0b6544f356e50e2424": {
@@ -8638,9 +10411,24 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "f4dfbd49766b87036e450b1ec67c42af7b0ddfd27420630d6d60a0284ffd5d82": {
@@ -8654,9 +10442,14 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Int4"]
+        "Left": [
+          "Uuid",
+          "Int4"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "f75a47ca2444e4cbaade9a44f7104ede569c4660c573e5fa4034805f1597c361": {
@@ -8670,9 +10463,13 @@
         }
       ],
       "parameters": {
-        "Left": ["UuidArray"]
+        "Left": [
+          "UuidArray"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "f7841567b90206f7d7aba83b520e1cb7933c33d203d9a1df88e3db961ab83681": {
@@ -8731,9 +10528,24 @@
         }
       ],
       "parameters": {
-        "Left": ["Varchar", "Uuid", "Varchar"]
+        "Left": [
+          "Varchar",
+          "Uuid",
+          "Varchar"
+        ]
       },
-      "nullable": [false, false, false, true, true, false, true, true, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false
+      ]
     }
   },
   "f8ef09f81ca6d7912306640c0789b9aa8eee7fcf682c433b782e42582c362f0b": {
@@ -8787,9 +10599,21 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, false, false, false, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false
+      ]
     }
   },
   "fca8672f757656db6332543f9d4351224a1218c4387310e9447e70dad48af7cf": {
@@ -8803,9 +10627,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "fefaaa5c5e1de08eb78712713351fe1623b3a9b9a9e416bfd8135c4d571cb4fb": {
@@ -8819,9 +10647,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [null]
+      "nullable": [
+        null
+      ]
     }
   },
   "ffceb3f0780f56e249bcc6983105d897534b65d8fc362fc56ea275d45661e617": {
@@ -8870,9 +10702,24 @@
         }
       ],
       "parameters": {
-        "Left": ["Varchar", "Varchar", "Int4", "Jsonb", "Uuid"]
+        "Left": [
+          "Varchar",
+          "Varchar",
+          "Int4",
+          "Jsonb",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, false, false, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false
+      ]
     }
   },
   "ffdcee66fc7df1125bb7f1fe5e05367efcef5525207938af4b7d69fc784f2396": {
@@ -8941,9 +10788,24 @@
         }
       ],
       "parameters": {
-        "Left": ["UuidArray"]
+        "Left": [
+          "UuidArray"
+        ]
       },
-      "nullable": [false, false, false, false, false, true, true, true, true, true, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false
+      ]
     }
   }
 }

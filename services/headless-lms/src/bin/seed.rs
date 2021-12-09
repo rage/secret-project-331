@@ -351,7 +351,7 @@ async fn main() -> Result<()> {
         &mut conn,
         PlaygroundExampleData {
             name: "Example exercise".to_string(),
-            url: "http://project-331.local/example-exercise/exercise".to_string(),
+            url: "http://project-331.local/example-exercise/iframe".to_string(),
             width: 500,
             data: serde_json::json!([
               {
@@ -375,7 +375,7 @@ async fn main() -> Result<()> {
         &mut conn,
         PlaygroundExampleData {
             name: "Quizzes, example, checkbox".to_string(),
-            url: "http://project-331.local/quizzes/exercise".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
             width: 500,
             data: serde_json::json!({
                 "id": "57f03d8e-e768-485c-b0c3-a3e485a3e18a",
@@ -429,7 +429,7 @@ async fn main() -> Result<()> {
         &mut conn,
         PlaygroundExampleData {
             name: "Quizzes example, multiple-choice".to_string(),
-            url: "http://project-331.local/quizzes/exercise".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
             width: 500,
             data: serde_json::json!(
               {
@@ -509,7 +509,7 @@ async fn main() -> Result<()> {
         &mut conn,
         PlaygroundExampleData {
             name: "Quizzes example, multiple-choice, multi".to_string(),
-            url: "http://project-331.local/quizzes/exercise".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
             width: 500,
             data: serde_json::json!(
               {
@@ -589,7 +589,7 @@ async fn main() -> Result<()> {
         &mut conn,
         PlaygroundExampleData {
             name: "Quizzes example, essay".to_string(),
-            url: "http://project-331.local/quizzes/exercise".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
             width: 500,
             data: serde_json::json!(              {
               "id": "47cbd36c-0c32-41f2-8a4a-b008de7d3494",
@@ -628,7 +628,7 @@ async fn main() -> Result<()> {
         &mut conn,
         PlaygroundExampleData {
             name: "Quizzes example, multiple-choice dropdown".to_string(),
-            url: "http://project-331.local/quizzes/exercise".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
             width: 500,
             data: serde_json::json!({
             "id": "1af3cc18-d8d8-4cc6-9bf9-be63d79e19a4",
@@ -732,7 +732,7 @@ async fn main() -> Result<()> {
 
         PlaygroundExampleData {
             name: "Quizzes example, open".to_string(),
-            url: "http://project-331.local/quizzes/exercise".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
             width: 500,
             data: serde_json::json!({
                 "id": "801b9275-5034-438d-922f-104af517468a",
@@ -772,7 +772,7 @@ async fn main() -> Result<()> {
         &mut conn,
         PlaygroundExampleData {
             name: "Quizzes example, scale".to_string(),
-            url: "http://project-331.local/quizzes/exercise".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
             width: 500,
             data: serde_json::json!({
                 "id": "3d3c633d-ea60-412f-8c85-8cab7742a5b8",
@@ -844,7 +844,7 @@ async fn main() -> Result<()> {
         &mut conn,
         PlaygroundExampleData {
             name: "Quizzes example, multiple-choice clickable".to_string(),
-            url: "http://project-331.local/quizzes/exercise".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
             width: 500,
             data: serde_json::json!({
               "id": "3562f83c-4d5d-41a9-aceb-a8f98511dd5d",
@@ -1879,8 +1879,8 @@ async fn submit_and_grade(
     let submission = submissions::get_by_id(conn, sub).await?;
     let grading = gradings::new_grading(conn, &submission).await?;
     let grading_result = GradingResult {
-        feedback_json: None,
-        feedback_text: None,
+        feedback_json: Some(serde_json::json!([{"SelectedOptioIsCorrect": true}])),
+        feedback_text: Some("Good job!".to_string()),
         grading_progress: GradingProgress::FullyGraded,
         score_given: out_of_100,
         score_maximum: 100,

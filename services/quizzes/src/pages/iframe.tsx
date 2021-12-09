@@ -47,36 +47,27 @@ const IFrame: React.FC = () => {
           const data = message.data
           console.log(data)
           if (isSetStateMessage(data)) {
-            if (data.view_type === "exercise") {
-              ReactDOM.flushSync(() => {
+            ReactDOM.flushSync(() => {
+              if (data.view_type === "exercise") {
                 setState(
                   (data.data as any).public_spec.current_exercise_task.public_spec as PublicQuiz,
                 )
-                setViewType(data.view_type)
-              })
-            } else if (data.view_type === "exercise-editor") {
-              ReactDOM.flushSync(() => {
+              } else if (data.view_type === "exercise-editor") {
                 if (data.data === null) {
                   setState(emptyQuiz)
                 } else {
                   setState(JSON.parse(data.data as string) as Quiz)
                 }
-                setViewType(data.view_type)
-              })
-            } else if (data.view_type === "view-submission") {
-              ReactDOM.flushSync(() => {
+              } else if (data.view_type === "view-submission") {
                 setState(data.data as SubmissionData)
-                setViewType(data.view_type)
-              })
-            } else if (data.view_type === "playground-exercise") {
-              ReactDOM.flushSync(() => {
+              } else if (data.view_type === "playground-exercise") {
                 setState(data.data as PublicQuiz)
-                setViewType(data.view_type)
-              })
-            } else {
-              // eslint-disable-next-line i18next/no-literal-string
-              console.error("Iframe received an unknown view type")
-            }
+              } else {
+                // eslint-disable-next-line i18next/no-literal-string
+                console.error("Unknown view type received from parent")
+              }
+              setViewType(data.view_type)
+            })
           } else {
             // eslint-disable-next-line i18next/no-literal-string
             console.error("Frame received an unknown message from message port")

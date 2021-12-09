@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import Layout from "../../../../components/Layout"
+import ExerciseSubmissionList from "../../../../components/page-specific/manage/exercises/id/submissions/ExerciseSubmissionList"
 import { fetchExerciseSubmissions } from "../../../../services/backend/exercises"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
@@ -34,39 +35,7 @@ const SubmissionsPage: React.FC<SubmissionPageProps> = ({ query }) => {
         )}
         {getExerciseSubmissions.isLoading && <Spinner variant={"medium"} />}
         {getExerciseSubmissions.isSuccess && getExerciseSubmissions.data.data.length !== 0 ? (
-          <>
-            <table>
-              <thead>
-                <tr>
-                  <th>{t("label-link")}</th>
-                  <th>{t("label-submission-time")}</th>
-                  <th>{t("label-student")}</th>
-                  <th>{t("label-course-instance")}</th>
-                  <th>{t("label-exercise-task")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {getExerciseSubmissions.data.data.map((x) => (
-                  <tr key={x.id}>
-                    <td>
-                      <Link
-                        href={{
-                          pathname: "/submissions/[id]",
-                          query: { id: x.id },
-                        }}
-                      >
-                        {t("link")}
-                      </Link>
-                    </td>
-                    <td>{x.created_at.toISOString()}</td>
-                    <td>{x.user_id}</td>
-                    <td>{x.course_instance_id}</td>
-                    <td>{x.exercise_task_id}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </>
+          <ExerciseSubmissionList exerciseSubmissions={getExerciseSubmissions.data.data} />
         ) : (
           <div>{t("no-submissions")}</div>
         )}

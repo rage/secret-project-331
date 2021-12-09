@@ -14,7 +14,7 @@ test("widget, multiple-choice column screenshot test", async ({ page, headless }
   // Click text=University of Helsinki, Department of Computer Science
 
   // Click text=Quizzes example, multiple-choice
-  await page.selectOption("select", { label: "Quizzes example, multiple-choice, row" })
+  await page.selectOption("select", { label: "Quizzes example, multiple-choice, column" })
 
   const frame = await waitForFunction(page, () =>
     page.frames().find((f) => {

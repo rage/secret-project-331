@@ -1888,8 +1888,6 @@
 <span id="1888">1888</span>
 <span id="1889">1889</span>
 <span id="1890">1890</span>
-<span id="1891">1891</span>
-<span id="1892">1892</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::{
     <span class="ident">chapters</span>::{<span class="self">self</span>, <span class="ident">ChapterStatus</span>},
     <span class="ident">course_instances</span>::{<span class="self">self</span>, <span class="ident">CourseInstance</span>},
@@ -2571,7 +2569,6 @@ UPDATE exercise_tasks
 SET deleted_at = now()
 WHERE exercise_slide_id = ANY($1)
 RETURNING id,
-  exercise_slide_id,
   private_spec,
   public_spec,
   model_solution_spec;
@@ -2905,7 +2902,6 @@ WHERE id = $2;
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">struct</span> <span class="ident">ExerciseTaskIdAndSpec</span> {
     <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exercise_slide_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">private_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
     <span class="ident">public_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
     <span class="ident">model_solution_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,

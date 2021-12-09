@@ -2,5 +2,7 @@
   "input-placeholder-option-text": "Option text",
   "new": "New",
   "waiting-for-content": "Waiting for content...",
-  "waiting-for-port": "Waiting for port..."
+  "waiting-for-port": "Waiting for port...",
+  "feedback-text": "feedback",
+  "score-given": "score given"
 }

@@ -4,7 +4,7 @@ import { faPenSquare, faTrashAlt, faWindowClose } from "@fortawesome/free-solid-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { InnerBlocks } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
-import React, { useContext } from "react"
+import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { EditorContentDispatch } from "../../contexts/EditorContentContext"
@@ -81,6 +81,7 @@ const ExerciseTaskEditor: React.FC<BlockEditProps<ExerciseTaskAttributes>> = ({
 }) => {
   const dispatch = useContext(EditorContentDispatch)
 
+  const [privateSpecOnFirstRender] = useState(attributes.private_spec)
   const { t } = useTranslation()
 
   const handleDeleteTask = () => {
@@ -151,7 +152,7 @@ const ExerciseTaskEditor: React.FC<BlockEditProps<ExerciseTaskAttributes>> = ({
           ) : (
             <ExerciseTaskIFrameEditor
               onPrivateSpecChange={(x) => setAttributes({ private_spec: x })}
-              privateSpec={attributes.private_spec}
+              privateSpec={privateSpecOnFirstRender}
               url={`${url}?width=${defaultContainerWidth}`}
             />
           )}

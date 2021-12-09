@@ -6,7 +6,10 @@ use super::{
     ModelResult,
 };
 use crate::{
-    models::{exercise_tasks::get_exercise_task_by_id, gradings::grade_submission},
+    models::{
+        exercise_tasks::{get_exercise_task_by_id, get_exercise_task_model_solution_spec_by_id},
+        gradings::grade_submission,
+    },
     utils::pagination::Pagination,
 };
 use chrono::{DateTime, NaiveDate, Utc};
@@ -80,6 +83,7 @@ pub struct GradingResult {
 pub struct SubmissionResult {
     submission: Submission,
     grading: Grading,
+    model_solution_spec: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
@@ -88,7 +92,7 @@ pub struct SubmissionInfo {
     pub exercise: Exercise,
     pub exercise_task: ExerciseTask,
     pub grading: Option<Grading>,
-    pub submission_iframe_path: String,
+    pub iframe_path: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
@@ -312,10 +316,13 @@ pub async fn insert_submission(
     .await?;
     let updated_grading =
         grade_submission(conn, submission.clone(), exercise_task, exercise, grading).await?;
+    let model_solution_spec =
+        get_exercise_task_model_solution_spec_by_id(conn, submission.exercise_task_id).await?;
 
     Ok(SubmissionResult {
         submission: updated_submission,
         grading: updated_grading,
+        model_solution_spec,
     })
 }
 

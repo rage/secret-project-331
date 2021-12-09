@@ -17,7 +17,7 @@ test("widget, open", async ({ page, headless }) => {
   // Click input[type="text"]
   const frame = await waitForFunction(page, () =>
     page.frames().find((f) => {
-      return f.url().startsWith("http://project-331.local/quizzes/exercise?width=500")
+      return f.url().startsWith("http://project-331.local/quizzes/iframe?width=500")
     }),
   )
 

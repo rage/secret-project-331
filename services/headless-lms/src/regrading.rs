@@ -337,9 +337,7 @@ mod test {
             tx.as_mut(),
             &models::exercise_service_info::PathInfo {
                 exercise_service_id: exercise_service.id,
-                editor_iframe_path: "/editor".to_string(),
-                exercise_iframe_path: "/exercise".to_string(),
-                submission_iframe_path: "/wat".to_string(),
+                exercise_type_specific_user_interface_iframe: "/iframe".to_string(),
                 grade_endpoint_path: "/grade".to_string(),
                 public_spec_endpoint_path: "/public-spec".to_string(),
                 model_solution_path: "/model-solution".to_string(),
@@ -435,9 +433,7 @@ mod test {
             tx.as_mut(),
             &models::exercise_service_info::PathInfo {
                 exercise_service_id: exercise_service.id,
-                editor_iframe_path: "/editor".to_string(),
-                exercise_iframe_path: "/exercise".to_string(),
-                submission_iframe_path: "/wat".to_string(),
+                exercise_type_specific_user_interface_iframe: "/iframe".to_string(),
                 grade_endpoint_path: "/grade".to_string(),
                 public_spec_endpoint_path: "/public-spec".to_string(),
                 model_solution_path: "/model-solution".to_string(),
@@ -559,9 +555,7 @@ mod test {
             tx.as_mut(),
             &models::exercise_service_info::PathInfo {
                 exercise_service_id: exercise_service_1.id,
-                editor_iframe_path: "/editor".to_string(),
-                exercise_iframe_path: "/exercise".to_string(),
-                submission_iframe_path: "/wat".to_string(),
+                exercise_type_specific_user_interface_iframe: "/iframe".to_string(),
                 grade_endpoint_path: "/grade".to_string(),
                 public_spec_endpoint_path: "/public-spec".to_string(),
                 model_solution_path: "/model-solution".to_string(),
@@ -585,9 +579,7 @@ mod test {
             tx.as_mut(),
             &models::exercise_service_info::PathInfo {
                 exercise_service_id: exercise_service_2.id,
-                editor_iframe_path: "/editor".to_string(),
-                exercise_iframe_path: "/exercise".to_string(),
-                submission_iframe_path: "/wat".to_string(),
+                exercise_type_specific_user_interface_iframe: "/iframe".to_string(),
                 grade_endpoint_path: "/grade".to_string(),
                 public_spec_endpoint_path: "/public-spec".to_string(),
                 model_solution_path: "/model-solution".to_string(),

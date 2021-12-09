@@ -6,7 +6,7 @@ interface Props {
   alternatives: PublicAlternative[]
   selectedId: string | null
   maxWidth: number | null
-  onClick: (selectedId: string) => void
+  onClick: (selectedId: string, name: string) => void
   interactable: boolean
   model_solutions: ModelSolutionApi | null
 }
@@ -81,7 +81,7 @@ const ExerciseBase: React.FC<Props> = ({
                   `
             }
             aria-checked={selected}
-            onClick={() => onClick(option.id)}
+            onClick={() => onClick(option.id, option.name)}
             key={option.id}
           >
             {option.name}

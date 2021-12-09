@@ -4,18 +4,17 @@ import { useTranslation } from "react-i18next"
 
 import MessageChannelIFrame from "../../../../shared-module/components/MessageChannelIFrame"
 import { SetStateMessage } from "../../../../shared-module/iframe-protocol-types"
-import { isCurrentStateMessage } from "../../../../shared-module/iframe-protocol-types.guard"
 
 interface ExerciseTaskIframeProps {
   url: string
-  public_spec: unknown
+  postThisStateToIFrame: Omit<SetStateMessage, "message">
   setAnswer: Dispatch<unknown>
   setAnswerValid: Dispatch<boolean>
 }
 
 const ExerciseTaskIframe: React.FC<ExerciseTaskIframeProps> = ({
   url,
-  public_spec,
+  postThisStateToIFrame,
   setAnswer,
   setAnswerValid,
 }) => {
@@ -27,19 +26,11 @@ const ExerciseTaskIframe: React.FC<ExerciseTaskIframeProps> = ({
   return (
     <MessageChannelIFrame
       url={url}
-      onCommunicationChannelEstabilished={(port) => {
-        // eslint-disable-next-line i18next/no-literal-string
-        const message: SetStateMessage = { message: "set-state", data: public_spec }
-        port.postMessage(message)
-      }}
+      postThisStateToIFrame={postThisStateToIFrame}
       onMessageFromIframe={(messageContainer, _responsePort) => {
-        if (isCurrentStateMessage(messageContainer)) {
-          setAnswer(messageContainer.data)
-          setAnswerValid(messageContainer.valid)
-        } else {
-          // eslint-disable-next-line i18next/no-literal-string
-          console.error("Unexpected message or structure is not valid.")
-        }
+        console.log(messageContainer)
+        setAnswer(messageContainer.data)
+        setAnswerValid(messageContainer.valid)
       }}
     />
   )

@@ -18,9 +18,7 @@ pub struct ExerciseServiceInfo {
     pub exercise_service_id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
-    pub editor_iframe_path: String,
-    pub exercise_iframe_path: String,
-    pub submission_iframe_path: String,
+    pub exercise_type_specific_user_interface_iframe: String,
     pub grade_endpoint_path: String,
     pub public_spec_endpoint_path: String,
     pub model_solution_path: String,
@@ -29,9 +27,7 @@ pub struct ExerciseServiceInfo {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct PathInfo {
     pub exercise_service_id: Uuid,
-    pub editor_iframe_path: String,
-    pub exercise_iframe_path: String,
-    pub submission_iframe_path: String,
+    pub exercise_type_specific_user_interface_iframe: String,
     pub grade_endpoint_path: String,
     pub public_spec_endpoint_path: String,
     pub model_solution_path: String,
@@ -45,9 +41,7 @@ pub struct CourseMaterialExerciseServiceInfo {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct ExerciseServiceInfoApi {
     pub service_name: String,
-    pub editor_iframe_path: String,
-    pub exercise_iframe_path: String,
-    pub submission_iframe_path: String,
+    pub exercise_type_specific_user_interface_iframe: String,
     pub grade_endpoint_path: String,
     pub public_spec_endpoint_path: String,
     pub model_solution_path: String,
@@ -62,20 +56,16 @@ pub async fn insert(
         "
 INSERT INTO exercise_service_info (
     exercise_service_id,
-    editor_iframe_path,
-    exercise_iframe_path,
-    submission_iframe_path,
+    exercise_type_specific_user_interface_iframe,
     grade_endpoint_path,
     public_spec_endpoint_path,
     model_solution_path
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING *
 ",
         exercise_service_info.exercise_service_id,
-        exercise_service_info.editor_iframe_path,
-        exercise_service_info.exercise_iframe_path,
-        exercise_service_info.submission_iframe_path,
+        exercise_service_info.exercise_type_specific_user_interface_iframe,
         exercise_service_info.grade_endpoint_path,
         exercise_service_info.public_spec_endpoint_path,
         exercise_service_info.model_solution_path
@@ -129,27 +119,21 @@ pub async fn upsert_service_info(
         r#"
 INSERT INTO exercise_service_info(
     exercise_service_id,
-    editor_iframe_path,
-    exercise_iframe_path,
-    submission_iframe_path,
+    exercise_type_specific_user_interface_iframe,
     grade_endpoint_path,
     public_spec_endpoint_path,
     model_solution_path
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+VALUES ($1, $2, $3, $4, $5)
 ON CONFLICT(exercise_service_id) DO UPDATE
-SET editor_iframe_path = $2,
-  exercise_iframe_path = $3,
-  submission_iframe_path = $4,
-  grade_endpoint_path = $5,
-  public_spec_endpoint_path = $6,
-  model_solution_path = $7
+SET exercise_type_specific_user_interface_iframe = $2,
+  grade_endpoint_path = $3,
+  public_spec_endpoint_path = $4,
+  model_solution_path = $5
 RETURNING *
     "#,
         exercise_service_id,
-        update.editor_iframe_path,
-        update.exercise_iframe_path,
-        update.submission_iframe_path,
+        update.exercise_type_specific_user_interface_iframe,
         update.grade_endpoint_path,
         update.public_spec_endpoint_path,
         update.model_solution_path
@@ -258,7 +242,7 @@ pub async fn get_course_material_service_info_by_exercise_type(
             // if the path is in a different domain
             let mut url = Url::parse(&exercise_service.public_url)
                 .map_err(|original_err| ModelError::Generic(original_err.to_string()))?;
-            url.set_path(&o.exercise_iframe_path);
+            url.set_path(&o.exercise_type_specific_user_interface_iframe);
             url.set_query(None);
             url.set_fragment(None);
 

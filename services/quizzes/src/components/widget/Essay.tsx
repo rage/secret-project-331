@@ -26,6 +26,7 @@ const Essay: React.FunctionComponent<QuizItemComponentProps> = ({
       const newQuizItemAnswerState: QuizItemAnswer = {
         ...quizItemAnswerState,
         textData: event.target.value,
+        valid: quizItem.minWords ? usersWordCount > quizItem.minWords : false,
       }
       setQuizItemAnswerState(newQuizItemAnswerState)
     }
@@ -60,7 +61,6 @@ const Essay: React.FunctionComponent<QuizItemComponentProps> = ({
           margin: 0.5rem;
         `}
       >
-        {/* eslint-disable-next-line i18next/no-literal-string */}
         {t("min-words")}: {quizItem.minWords} | {t("max-words")}: {quizItem.maxWords}
       </div>
       <div

@@ -111,7 +111,7 @@ test.describe("quizzes tests", () => {
 
     const frame = await waitForFunction(page, () =>
       page.frames().find((f) => {
-        return f.url().startsWith("http://project-331.local/quizzes/editor")
+        return f.url().startsWith("http://project-331.local/quizzes/iframe")
       }),
     )
 
@@ -375,7 +375,7 @@ test.describe("quizzes tests", () => {
 
     const frame = await waitForFunction(page, () =>
       page.frames().find((f) => {
-        return f.url().startsWith("http://project-331.local/quizzes/editor")
+        return f.url().startsWith("http://project-331.local/quizzes/iframe")
       }),
     )
 

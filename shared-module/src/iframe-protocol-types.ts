@@ -28,6 +28,8 @@ export interface ReadyMessage {
   message: "ready"
 }
 
+export type ViewType = "exercise" | "view-submission" | "exercise-editor" | "playground-exercise"
+
 /**
  * from: parent
  *
@@ -35,5 +37,6 @@ export interface ReadyMessage {
  */
 export interface SetStateMessage {
   message: "set-state"
+  view_type: ViewType
   data: unknown
 }

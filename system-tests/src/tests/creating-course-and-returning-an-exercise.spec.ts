@@ -156,7 +156,7 @@ test("test", async ({ page }) => {
 
   const frame = await waitForFunction(page, () =>
     page.frames().find((f) => {
-      return f.url().startsWith("http://project-331.local/example-exercise/editor")
+      return f.url().startsWith("http://project-331.local/example-exercise/iframe")
     }),
   )
 
@@ -242,7 +242,7 @@ test("test", async ({ page }) => {
 
   const frame2 = await waitForFunction(page, () =>
     page.frames().find((f) => {
-      return f.url().startsWith("http://project-331.local/example-exercise/exercise")
+      return f.url().startsWith("http://project-331.local/example-exercise/iframe")
     }),
   )
 
@@ -252,6 +252,5 @@ test("test", async ({ page }) => {
   // Click #content >> text=Submit
   await page.click("#content >> text=Submit")
 
-  await page.waitForSelector("text=Good job!")
   await page.waitForSelector("text=Points:1/1")
 })

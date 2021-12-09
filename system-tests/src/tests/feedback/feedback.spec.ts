@@ -43,7 +43,7 @@ test("test", async ({ headless, page }) => {
   // page has a frame that pushes all the content down after loafing, so let's wait for it to load first
   const frame = await waitForFunction(page, () =>
     page.frames().find((f) => {
-      return f.url().startsWith("http://project-331.local/example-exercise/exercise")
+      return f.url().startsWith("http://project-331.local/example-exercise/iframe")
     }),
   )
 

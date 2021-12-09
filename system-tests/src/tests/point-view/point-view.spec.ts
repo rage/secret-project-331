@@ -48,14 +48,13 @@ test("test", async ({ page, headless }) => {
   // Click text=b
   const frame = await waitForFunction(page, () =>
     page.frames().find((f) => {
-      return f.url().startsWith("http://project-331.local/example-exercise/exercise")
+      return f.url().startsWith("http://project-331.local/example-exercise/iframe")
     }),
   )
   await frame.click("text=b")
 
   // Click text=Submit
   await page.click("text=Submit")
-  await page.waitForSelector("text=Good job")
 
   await page.goto("http://project-331.local/")
 

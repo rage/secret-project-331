@@ -176,5 +176,6 @@
   "add": "Add",
   "add-course": "Add course",
   "course-id": "Course id",
-  "no-submissions": "No submissions found"
+  "no-submissions": "No submissions found",
+  "playground-examples": "Playground examples"
 }

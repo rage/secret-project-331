@@ -428,7 +428,7 @@ async fn main() -> Result<()> {
     playground_examples::insert_playground_example(
         &mut conn,
         PlaygroundExampleData {
-            name: "Quizzes example, multiple-choice".to_string(),
+            name: "Quizzes example, multiple-choice, row".to_string(),
             url: "http://project-331.local/quizzes/iframe".to_string(),
             width: 500,
             data: serde_json::json!(
@@ -448,6 +448,86 @@ async fn main() -> Result<()> {
                         "id": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
                         "body": "Which of the color codes represent the color **red**?",
                         "direction": "row",
+                        "formatRegex": null,
+                        "maxLabel": null,
+                        "maxValue": null,
+                        "maxWords": null,
+                        "minLabel": null,
+                        "minValue": null,
+                        "minWords": null,
+                        "multi": false,
+                        "order": 1,
+                        "quizId": "3ee47b02-ba13-46a7-957e-fd4f21fc290b",
+                        "title": "Hexadecimal color codes",
+                        "type": "multiple-choice",
+                        "options": [
+                            {
+                                "id": "8d17a216-9655-4558-adfb-cf66fb3e08ba",
+                                "body": "#00ff00",
+                                "order": 1,
+                                "title": null,
+                                "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                            },
+                            {
+                                "id": "11e0f3ac-fe21-4524-93e6-27efd4a92595",
+                                "body": "#0000ff",
+                                "order": 2,
+                                "title": null,
+                                "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                            },
+                            {
+                                "id": "e0033168-9f92-4d71-9c23-7698de9ea3b0",
+                                "body": "#663300",
+                                "order": 3,
+                                "title": null,
+                                "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                            },
+                            {
+                                "id": "2931180f-827f-468c-a616-a8df6e94f717",
+                                "body": "#ff0000",
+                                "order": 4,
+                                "title": null,
+                                "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                            },
+                            {
+                                "id": "9f5a09d7-c03f-44dd-85db-38065600c2c3",
+                                "body": "#ffffff",
+                                "order": 5,
+                                "title": null,
+                                "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                            },
+                        ]
+                    }
+                ]
+              }
+            ),
+        },
+    )
+    .await?;
+
+    playground_examples::insert_playground_example(
+        &mut conn,
+        PlaygroundExampleData {
+            name: "Quizzes example, multiple-choice, column".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
+            width: 500,
+            data: serde_json::json!(
+              {
+                "id": "3ee47b02-ba13-46a7-957e-fd4f21fc290b",
+                "courseId": "5209f752-9db9-4daf-a7bc-64e21987b719",
+                "body": "Something about CSS and color codes",
+                "deadline": Utc.ymd(2121, 9, 1).and_hms(23, 59, 59).to_string(),
+                "open": Utc.ymd(2021, 9, 1).and_hms(23, 59, 59).to_string(),
+                "part": 1,
+                "section": 1,
+                "title": "Something about CSS and color codes",
+                "tries": 1,
+                "triesLimited": false,
+                "items": [
+                    {
+                        "id": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                        "body": "Which of the color codes represent the color **red**?",
+                        "direction": "column",
                         "formatRegex": null,
                         "maxLabel": null,
                         "maxValue": null,

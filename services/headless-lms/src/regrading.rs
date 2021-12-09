@@ -27,7 +27,7 @@ type GradingFutures =
     HashMap<String, Vec<Pin<Box<dyn Future<Output = GradingData> + Send + 'static>>>>;
 
 pub async fn regrade(
-    mut conn: &mut PgConnection,
+    conn: &mut PgConnection,
     exercise_services_by_type: &HashMap<String, (ExerciseService, ExerciseServiceInfo)>,
 ) -> Result<()> {
     // stores all the futures which will resolve into new gradings
@@ -126,7 +126,7 @@ pub async fn regrade(
     // update completed regradings
     for regrading_id in regrading_ids {
         if !incomplete_regradings.contains(&regrading_id) {
-            models::regradings::complete_regrading(&mut conn, regrading_id).await?;
+            models::regradings::complete_regrading(conn, regrading_id).await?;
         }
     }
     Ok(())
